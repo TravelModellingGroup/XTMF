@@ -43,7 +43,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     var retVector = rhs.Accumulator ? rhs.VectorData : rhs.VectorData.CreateSimilarArray<float>();
                     var flat = retVector.GetFlatData();
                     VectorHelper.FlagIfLessThan(flat, lhs.LiteralValue, rhs.VectorData.GetFlatData());
-                    return new ComputationResult(retVector, true);
+                    return new ComputationResult(retVector, true, rhs.Direction);
                 }
                 else
                 {
@@ -59,7 +59,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     var retVector = lhs.Accumulator ? lhs.VectorData : lhs.VectorData.CreateSimilarArray<float>();
                     var flat = retVector.GetFlatData();
                     VectorHelper.FlagIfLessThan(flat, lhs.VectorData.GetFlatData(), rhs.LiteralValue);
-                    return new ComputationResult(retVector, true);
+                    return new ComputationResult(retVector, true, lhs.Direction);
                 }
                 else
                 {
@@ -122,7 +122,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.FlagIfLessThan(flatRet[i], 0, flatRhs, 0, flatLhs[i], 0, flatRet[i].Length);
+                                VectorHelper.FlagIfLessThan(flatRet[i], 0, flatLhs[i], 0, flatRhs, 0, flatRet[i].Length);
                             });
                         }
                         else

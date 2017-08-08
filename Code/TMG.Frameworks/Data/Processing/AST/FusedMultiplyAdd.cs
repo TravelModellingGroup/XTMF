@@ -84,7 +84,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     var retVector = rhs.Accumulator ? rhs.VectorData : rhs.VectorData.CreateSimilarArray<float>();
                     var flat = retVector.GetFlatData();
                     VectorHelper.FusedMultiplyAdd(flat, rhs.VectorData.GetFlatData(), lhs.LiteralValue, add.LiteralValue);
-                    return new ComputationResult(retVector, true);
+                    return new ComputationResult(retVector, true, rhs.Direction);
                 }
                 else
                 {
@@ -101,7 +101,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     var retVector = lhs.Accumulator ? lhs.VectorData : lhs.VectorData.CreateSimilarArray<float>();
                     var flat = retVector.GetFlatData();
                     VectorHelper.FusedMultiplyAdd(flat, lhs.VectorData.GetFlatData(), rhs.LiteralValue, add.LiteralValue);
-                    return new ComputationResult(retVector, true);
+                    return new ComputationResult(retVector, true, lhs.Direction);
                 }
                 else
                 {

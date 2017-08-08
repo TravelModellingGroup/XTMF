@@ -34,7 +34,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             {
                 return false;
             }
-            if(!OptimizeFusedMultiplyAdd(ref ex)
+            if(!OptimizeFusedMultiplyAdd(ref ex, ref error)
                 || !OptimizeLiterals(ref ex))
             {
                 return false;
@@ -53,7 +53,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             return true;
         }
 
-        private bool OptimizeFusedMultiplyAdd(ref Expression ex)
+        private bool OptimizeFusedMultiplyAdd(ref Expression ex, ref string error)
         {
             var lhsMul = Lhs as Multiply;
             var rhsMul = Rhs as Multiply;
@@ -74,6 +74,15 @@ namespace TMG.Frameworks.Data.Processing.AST
                     MulRhs = rhsMul.Rhs,
                     Add = Lhs
                 };
+            }
+            if(ex is FusedMultiplyAdd fma)
+            {
+                if(!fma.MulLhs.OptimizeAst(ref fma.MulLhs, ref error)
+                    || !fma.MulRhs.OptimizeAst(ref fma.MulRhs, ref error)
+                    || !fma.Add.OptimizeAst(ref fma.Add, ref error))
+                {
+                    return false;
+                }
             }
             return true;
         }

@@ -675,33 +675,67 @@ namespace TMG.Functions
         /// <summary>
         /// Set the value to one if the condition is met.
         /// </summary>
-        public static void FlagIfLessThanOrEqual(float[] dest, float value, float[] data)
+        public static void FlagIfLessThanOrEqual(float[] dest, float lhs, float[] rhs)
         {
             if (Vector.IsHardwareAccelerated)
             {
                 int i;
-                if (dest.Length != data.Length)
+                if (dest.Length != rhs.Length)
                 {
                     throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
                 }
                 Vector<float> zero = Vector<float>.Zero;
                 Vector<float> one = Vector<float>.One;
-                Vector<float> vValue = new Vector<float>(value);
-                for (i = 0; i < data.Length - Vector<float>.Count; i += Vector<float>.Count)
+                Vector<float> vValue = new Vector<float>(lhs);
+                for (i = 0; i < rhs.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
-                    var vData = new Vector<float>(data, i);
+                    var vData = new Vector<float>(rhs, i);
                     Vector.ConditionalSelect(Vector.LessThanOrEqual(vData, vValue), one, zero).CopyTo(dest, i);
                 }
-                for (; i < data.Length; i++)
+                for (; i < rhs.Length; i++)
                 {
-                    dest[i] = data[i] <= value ? 1 : 0;
+                    dest[i] = lhs <= rhs[i] ? 1 : 0;
                 }
             }
             else
             {
-                for (int i = 0; i < data.Length; i++)
+                for (int i = 0; i < rhs.Length; i++)
                 {
-                    dest[i] = data[i] <= value ? 1 : 0;
+                    dest[i] = lhs <= rhs[i] ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThanOrEqual(float[] dest, float[] lhs, float rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                if (dest.Length != lhs.Length)
+                {
+                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                }
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                Vector<float> vValue = new Vector<float>(rhs);
+                for (i = 0; i < lhs.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var vData = new Vector<float>(lhs, i);
+                    Vector.ConditionalSelect(Vector.LessThanOrEqual(vData, vValue), one, zero).CopyTo(dest, i);
+                }
+                for (; i < lhs.Length; i++)
+                {
+                    dest[i] = lhs[i] <= rhs ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < lhs.Length; i++)
+                {
+                    dest[i] = lhs[i] <= rhs ? 1 : 0;
                 }
             }
         }

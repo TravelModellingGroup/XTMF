@@ -85,14 +85,6 @@ namespace TMG.Functions
         /// <summary>
         /// Set the value to one if the condition is met.
         /// </summary>
-        public static void FlagIfLessThanOrEqual(float[] dest, float[] data, float literalValue)
-        {
-            FlagIfLessThanOrEqual(dest, literalValue, data);
-        }
-
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
         public static void FlagIfLessThanOrEqual(float[][] dest, float[][] lhs, float[][] rhs)
         {
             Parallel.For(0, dest.Length, i =>

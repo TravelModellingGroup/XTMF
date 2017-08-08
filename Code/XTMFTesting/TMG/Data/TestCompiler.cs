@@ -89,6 +89,446 @@ namespace XTMF.Testing.TMG.Data
         }
 
         [TestMethod]
+        public void TestAddLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("AsHorizontal(A) + B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 3.0f, 6.0f, 7.0f, 10.0f);
+        }
+
+        [TestMethod]
+        public void TestAddLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("AsVertical(A) + B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 3.0f, 5.0f, 8.0f, 10.0f);
+        }
+
+        [TestMethod]
+        public void TestAddLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("B + AsHorizontal(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 3.0f, 6.0f, 7.0f, 10.0f);
+        }
+
+        [TestMethod]
+        public void TestAddLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("B + AsVertical(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 3.0f, 5.0f, 8.0f, 10.0f);
+        }
+
+        [TestMethod]
+        public void TestMultiplyLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("AsHorizontal(A) * B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 2.0f, 8.0f, 6.0f, 16.0f);
+        }
+
+        [TestMethod]
+        public void TestMultiplyLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("AsVertical(A) * B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 2.0f, 4.0f, 12.0f, 16.0f);
+        }
+
+        [TestMethod]
+        public void TestMultiplyLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("B * AsHorizontal(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 2.0f, 8.0f, 6.0f, 16.0f);
+        }
+
+        [TestMethod]
+        public void TestMultiplyLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("B * AsVertical(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 2.0f, 4.0f, 12.0f, 16.0f);
+        }
+
+        [TestMethod]
+        public void TestDivideLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("AsHorizontal(A) / B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 0.5f, 0.5f, 1.0f / 6.0f, 0.25f);
+        }
+
+        [TestMethod]
+        public void TestDivideLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("AsVertical(A) / B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 0.5f, 0.25f, 2.0f / 6.0f, 0.25f);
+        }
+
+        [TestMethod]
+        public void TestDivideLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("B / AsHorizontal(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 2.0f, 2.0f, 6.0f, 4.0f);
+        }
+
+        [TestMethod]
+        public void TestDivideLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("B / AsVertical(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 2.0f, 4.0f, 3.0f, 4.0f);
+        }
+
+        [TestMethod]
+        public void TestSubtractLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("AsHorizontal(A) - B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, -1.0f, -2.0f, -5.0f, -6.0f);
+        }
+
+        [TestMethod]
+        public void TestSubtractLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("AsVertical(A) - B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, -1.0f, -3.0f, -4.0f, -6.0f);
+        }
+
+        [TestMethod]
+        public void TestSubtractLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("B - AsHorizontal(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 1.0f, 2.0f, 5.0f, 6.0f);
+        }
+
+        [TestMethod]
+        public void TestSubtractLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("B - AsVertical(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 1.0f, 3.0f, 4.0f, 6.0f);
+        }
+
+        [TestMethod]
+        public void TestAndLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("AsHorizontal(A) == 1 & B == 1", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 1, 1)
+            }, 1.0f, 0.0f, 1.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestAndLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("AsVertical(A) == 1 & B == 1", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 1, 1)
+            }, 1.0f, 0.0f, 0.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestAndLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("B == 1 & AsHorizontal(A) == 1", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 1, 1)
+            }, 1.0f, 0.0f, 1.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestAndLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("B == 1 & AsVertical(A) == 1", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 1, 1)
+            }, 1.0f, 0.0f, 0.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestOrLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("AsHorizontal(A) == 1 | B == 1", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 0.0f, 1.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestOrLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("AsVertical(A) == 1 | B == 1", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 1.0f, 0.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestOrLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("B == 1 | AsHorizontal(A) == 1", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 0.0f, 1.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestOrLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("B == 1 | AsVertical(A) == 1", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 1.0f, 0.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestLessThanLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("(AsHorizontal(A) == 1) < (B == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 0.0f, 0.0f, 0.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestLessThanLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("(AsVertical(A) == 1) < (B == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 0.0f, 0.0f, 0.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestLessThanLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("(B == 1) < (AsHorizontal(A) == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 0.0f, 0.0f, 1.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestLessThanLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("(B == 1) < (AsVertical(A) == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 0.0f, 1.0f, 0.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestLessThanOrEqualLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("(AsHorizontal(A) == 1) <= (B == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 1.0f, 0.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestLessThanOrEqualLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("(AsVertical(A) == 1) <= (B == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 0.0f, 1.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestLessThanOrEqualLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("(B == 1) <= (AsHorizontal(A) == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 1.0f, 1.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestLessThanOrEqualLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("(B == 1) <= (AsVertical(A) == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 1.0f, 1.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestEqualLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("(AsHorizontal(A) == 1) == (B == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 1.0f, 0.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestEqualLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("(AsVertical(A) == 1) == (B == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 0.0f, 1.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestEqualLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("(B == 1) == (AsHorizontal(A) == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 1.0f, 0.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestEqualLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("(B == 1) == (AsVertical(A) == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 1.0f, 0.0f, 1.0f, 0.0f);
+        }
+
+        [TestMethod]
+        public void TestNotEqualLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("(AsHorizontal(A) == 1) != (B == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 0.0f, 0.0f, 1.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestNotEqualLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("(AsVertical(A) == 1) != (B == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 0.0f, 1.0f, 0.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestNotEqualLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("(B == 1) != (AsHorizontal(A) == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 0.0f, 0.0f, 1.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestNotEqualLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("(B == 1) != (AsVertical(A) == 1)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 0, 1)
+            }, 0.0f, 1.0f, 0.0f, 1.0f);
+        }
+
+        [TestMethod]
+        public void TestPowLHSVectorRHSMatrixHorizontal()
+        {
+            CompareMatrix("AsHorizontal(A) ^ B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 1.0f, 16.0f, 1.0f, 256.0f);
+        }
+
+        [TestMethod]
+        public void TestPowLHSVectorRHSMatrixVertical()
+        {
+            CompareMatrix("AsVertical(A) ^ B", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 1.0f, 1.0f, 64.0f, 256.0f);
+        }
+
+        [TestMethod]
+        public void TestPowLHSMatrixRHSVectorHorizontal()
+        {
+            CompareMatrix("B ^ AsHorizontal(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 2.0f, 16.0f, 6.0f, 64.0f);
+        }
+
+        [TestMethod]
+        public void TestPowLHSMatrixRHSVectorVertical()
+        {
+            CompareMatrix("B ^ AsVertical(A)", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 2, 4, 6, 8)
+            }, 2.0f, 4.0f, 36.0f, 64.0f);
+        }
+
+        [TestMethod]
         public void TestMatrixSubtract()
         {
             CompareMatrix("A - B", new IDataSource[]
@@ -97,7 +537,6 @@ namespace XTMF.Testing.TMG.Data
                 CreateData("B", 2, 4, 6, 8)
             }, -1.0f, -2.0f, -3.0f, -4.0f);
         }
-
         [TestMethod]
         public void TestMatrixVectorSubtract()
         {
@@ -152,8 +591,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestMatrixSumRows()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("SumRows(A + B)", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("SumRows(A + B)", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -170,8 +608,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestMatrixSumColumns()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("SumColumns(A + B)", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("SumColumns(A + B)", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -188,8 +625,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestMatrixAsHorizontal()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("AsHorizontal(SumRows(A + B))", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("AsHorizontal(SumRows(A + B))", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -206,8 +642,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestMatrixSum()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Sum(A + B)", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("Sum(A + B)", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -221,8 +656,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestVectorSum()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Sum(SumRows(A + B))", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("Sum(SumRows(A + B))", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -256,8 +690,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestVectorAbs()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Abs(SumRows(A) - SumRows(B))", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("Abs(SumRows(A) - SumRows(B))", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -273,8 +706,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestScalarAbs()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Abs(Sum(A) - Sum(B))", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("Abs(Sum(A) - Sum(B))", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -288,8 +720,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestMatrixAvg()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Avg(A - B)", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("Avg(A - B)", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -303,8 +734,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestVectorAvg()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Avg(SumRows(A) - SumRows(B))", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("Avg(SumRows(A) - SumRows(B))", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -318,8 +748,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestMatrixAvgRows()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("AvgRows(A)", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("AvgRows(A)", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -336,8 +765,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestMatrixAvgColumns()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("AvgColumns(A)", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("AvgColumns(A)", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -354,8 +782,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestPI()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("PI( )", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("PI( )", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[0]);
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual((float)Math.PI, result.LiteralValue, 0.000001f);
@@ -365,8 +792,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestE()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("E( )", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("E( )", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[0]);
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual((float)Math.E, result.LiteralValue, 0.000001f);
@@ -486,8 +912,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestMatrixLength()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Length(A + 1) + Length(B - 1)", out ex, ref error));
+            Assert.IsTrue(Compiler.Compile("Length(A + 1) + Length(B - 1)", out Expression ex, ref error));
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -522,13 +947,15 @@ namespace XTMF.Testing.TMG.Data
         public void TestOptimizeFusedMultiplyAddIsOptimizedIn()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A * B + A", out ex, ref error), $"Unable to compile 'A * B + A'\r\n{error}");
+            Assert.IsTrue(Compiler.Compile("A * B + A", out Expression ex, ref error), $"Unable to compile 'A * B + A'\r\n{error}");
             Assert.IsInstanceOfType(ex, typeof(FusedMultiplyAdd));
             Assert.IsTrue(Compiler.Compile("A + B * A", out ex, ref error), $"Unable to compile 'A * B + A'\r\n{error}");
             Assert.IsInstanceOfType(ex, typeof(FusedMultiplyAdd));
             Assert.IsTrue(Compiler.Compile("A * B + 4.0 * A + B * 1.2", out ex, ref error), $"Unable to compile 'A * B + A'\r\n{error}");
             Assert.IsInstanceOfType(ex, typeof(FusedMultiplyAdd));
+            Assert.IsTrue(Compiler.Compile("A * B + (C * 2 + 3)", out ex, ref error), $"Unable to compile 'A * B + (C * 2 + 3)'\r\n{error}");
+            Assert.IsInstanceOfType(ex, typeof(FusedMultiplyAdd));
+            Assert.IsInstanceOfType(((FusedMultiplyAdd)ex).Add, typeof(FusedMultiplyAdd));
         }
 
         [TestMethod]
@@ -545,8 +972,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestOptimizeAddLiterals()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("1 + 2", out ex, ref error), $"Unable to compile '1 + 2'\r\n{error}");
+            Assert.IsTrue(Compiler.Compile("1 + 2", out Expression ex, ref error), $"Unable to compile '1 + 2'\r\n{error}");
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -562,8 +988,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestOptimizeSubtractLiterals()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("1 - 2", out ex, ref error), $"Unable to compile '1 - 2'\r\n{error}");
+            Assert.IsTrue(Compiler.Compile("1 - 2", out Expression ex, ref error), $"Unable to compile '1 - 2'\r\n{error}");
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -579,8 +1004,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestOptimizeMultiplyLiterals()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("1 * 2", out ex, ref error), $"Unable to compile '1 * 2'\r\n{error}");
+            Assert.IsTrue(Compiler.Compile("1 * 2", out Expression ex, ref error), $"Unable to compile '1 * 2'\r\n{error}");
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -596,8 +1020,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestOptimizeDivideLiterals()
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("1 / 2", out ex, ref error), $"Unable to compile '1 / 2'\r\n{error}");
+            Assert.IsTrue(Compiler.Compile("1 / 2", out Expression ex, ref error), $"Unable to compile '1 / 2'\r\n{error}");
             var result = ex.Evaluate(new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
@@ -629,6 +1052,10 @@ namespace XTMF.Testing.TMG.Data
             Expression ex;
             Assert.IsTrue(Compiler.Compile(equation, out ex, ref error), $"Unable to compile '{equation}'\r\n{error}");
             var result = ex.Evaluate(data);
+            if(result.Error)
+            {
+                Assert.Fail(result.ErrorMessage);
+            }
             Assert.IsTrue(result.IsOdResult);
             var flat = result.OdData.GetFlatData();
             Assert.AreEqual(m11, flat[0][0], 0.00001f);

@@ -26,7 +26,7 @@ namespace XTMF.Testing
     [TestClass]
     public class CSVReaderTest
     {
-        private string[] TestCSVFileNames = new[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv" };
+        private string[] TestCSVFileNames = new[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv" };
 
         [TestInitialize]
         public void CreateTestEnvironment()
@@ -60,6 +60,11 @@ namespace XTMF.Testing
                     writer.WriteLine("1,2,3,4,5");
                     writer.WriteLine("3,1,4,5,2");
                     writer.Write("1.23,4.56,7.89,10.1112,0.1314");
+                }
+                using (StreamWriter writer = new StreamWriter(TestCSVFileNames[4]))
+                {
+                    writer.WriteLine("A,B,C,D,E");
+                    writer.WriteLine("\"abc\"\"1\",2,3,4,5");
                 }
             }
         }
@@ -111,6 +116,27 @@ namespace XTMF.Testing
                     reader.Get( out n, i );
                     Assert.AreEqual( i + 1, n );
                 }
+            }
+        }
+
+        [TestMethod]
+        public void TestDoubleQuotes()
+        {
+            using (CsvReader reader = new CsvReader(TestCSVFileNames[4]))
+            {
+                // first line
+                reader.LoadLine();
+                //"A,B,C,D,E"
+                string s;
+                for (int i = 0; i < 5; i++)
+                {
+                    reader.Get(out s, i);
+                    Assert.AreEqual(new String((char)('A' + i), 1), s);
+                }
+                //writer.WriteLine("\"abc\"\"1\",2,3,4,5");
+                reader.LoadLine();
+                reader.Get(out string firstItem, 0);
+                Assert.AreEqual("abc\"1", firstItem);
             }
         }
 
