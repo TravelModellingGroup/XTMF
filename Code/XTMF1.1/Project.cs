@@ -1306,19 +1306,22 @@ namespace XTMF
             try
             {
                 var fileName = Path.Combine(Configuration.ProjectDirectory, Name, "Project.xml");
-                using (XmlReader reader = XmlReader.Create(fileName))
+                if (File.Exists(fileName))
                 {
-                    while (!reader.EOF && reader.Read())
+                    using (XmlReader reader = XmlReader.Create(fileName))
                     {
-                        if (reader.NodeType != XmlNodeType.Element) continue;
-                        switch (reader.LocalName)
+                        while (!reader.EOF && reader.Read())
                         {
-                            case "Root":
-                                {
-                                    Description = reader.GetAttribute("Description");
-                                    // we can just exit at this point since using will clean up for us
-                                    return;
-                                }
+                            if (reader.NodeType != XmlNodeType.Element) continue;
+                            switch (reader.LocalName)
+                            {
+                                case "Root":
+                                    {
+                                        Description = reader.GetAttribute("Description");
+                                        // we can just exit at this point since using will clean up for us
+                                        return;
+                                    }
+                            }
                         }
                     }
                 }
