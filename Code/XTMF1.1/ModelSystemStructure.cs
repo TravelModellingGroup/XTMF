@@ -987,7 +987,7 @@ namespace XTMF
                 }
                 else
                 {
-                    projectStructure.Type = Type.GetType(typeName);
+                    projectStructure.Type = LoadModuleType(typeName, config);
                 }
             }
             projectStructure.Description = descriptionAttribute != null ? descriptionAttribute.InnerText : GetDefaultDescription(projectStructure, parent);
@@ -1048,6 +1048,20 @@ namespace XTMF
                     SortChildren(projectStructure.Children);
                 }
             }
+        }
+
+        private static Type LoadModuleType(string typeName, IConfiguration config)
+        {
+            var resultType = Type.GetType(typeName);
+            if(resultType != null)
+            {
+                return resultType;
+            }
+            if(((Configuration)config).ModuleRedirection.TryGetValue(typeName.Replace(" ", ""), out Type convertedType))
+            {
+                return convertedType;
+            }
+            return null;
         }
 
         private static string GetDefaultDescription(IModelSystemStructure projectStructure, IModelSystemStructure parent)
@@ -1235,7 +1249,7 @@ namespace XTMF
             }
         }
 
-        private static void LoadDefinitions(XmlNode definitionNode, Dictionary<int, Type> lookUp)
+        private static void LoadDefinitions(XmlNode definitionNode, Dictionary<int, Type> lookUp, IConfiguration config)
         {
             if (definitionNode.HasChildNodes)
             {
@@ -1250,7 +1264,7 @@ namespace XTMF
                             if (typeName != null)
                             {
                                 int index;
-                                var type = Type.GetType(typeName);
+                                var type = LoadModuleType(typeName, config);
                                 if (!int.TryParse(child.Attributes["TIndex"].InnerText, out index))
                                 {
                                     continue;
@@ -1337,8 +1351,7 @@ namespace XTMF
                                     }
                                     if (paramQuickParameterAttribute != null)
                                     {
-                                        bool quick;
-                                        if (bool.TryParse(paramQuickParameterAttribute.InnerText, out quick))
+                                        if (bool.TryParse(paramQuickParameterAttribute.InnerText, out bool quick))
                                         {
                                             selectedParam.QuickParameter = quick;
                                         }
@@ -1367,7 +1380,7 @@ namespace XTMF
                     var child = list[i];
                     if (child.LocalName == "TypeDefinitions")
                     {
-                        LoadDefinitions(child, lookUp);
+                        LoadDefinitions(child, lookUp, config);
                     }
                 }
                 for (int i = 0; i < list.Count; i++)

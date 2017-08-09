@@ -122,7 +122,8 @@ namespace TMG.Input
     [ModuleInformation(
 Description = "This module provides the ability to specify a file path relative to the output directory unless a full path is given."
 )]
-    public class FilePathFromOuputDirectory : FileLocation
+    [RedirectModule("TMG.Input.FilePathFromOuputDirectory, TMGInterfaces, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = null")]
+    public class FilePathFromOutputDirectory : FileLocation
     {
         [RunParameter("File From Output Directory", "Filename.type", typeof(FileFromOutputDirectory), "A file path to represent relative to the run's directory.")]
         public FileFromOutputDirectory FileName;

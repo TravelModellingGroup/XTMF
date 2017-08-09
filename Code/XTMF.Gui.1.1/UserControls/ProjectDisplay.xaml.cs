@@ -131,8 +131,6 @@ namespace XTMF.Gui.UserControls
                     RealIndex = project.ModelSystemStructure.IndexOf(ms);
                     this._project = project;
                     _session = session;
-
-
                     FindMissingModules(ms);
                 }
 
@@ -142,20 +140,15 @@ namespace XTMF.Gui.UserControls
                     {
                         try
                         {
-
-
                             if (ms.Type == null && ms.Required && !ms.IsCollection)
                             {
                                 _IsMissingModules = true;
                             }
                             else
                             {
-
                             }
-
-
                         }
-                        catch (Exception error)
+                        catch (Exception)
                         {
 
                         }
@@ -168,7 +161,6 @@ namespace XTMF.Gui.UserControls
                             FindMissingModules(subModule);
                         }
                     }
-
                 }
 
                 internal bool SetName(ProjectEditingSession session, string newName, ref string error)

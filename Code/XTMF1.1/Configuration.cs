@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -61,8 +61,8 @@ namespace XTMF
             set { _theme = value; }
         }
 
-   
-        
+
+
 
         public Configuration(string configurationFileName, Assembly baseAssembly = null, bool loadModules = true)
         {
@@ -88,12 +88,12 @@ namespace XTMF
                 LoadError = "Unable to load model system: " + e.Message;
                 LoadErrorTerminal = true;
             }
-            
+
             try
             {
                 ProjectRepository = new ProjectRepository(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 LoadError = "Unable to load projects: " + e.Message;
                 LoadErrorTerminal = true;
@@ -126,12 +126,12 @@ namespace XTMF
                 }
                 else
                 {
-                    
+
                 }
             }
             catch
             {
-                
+
             }
             XTMFVersion = version;
             BuildDate = buildDate;
@@ -164,11 +164,7 @@ namespace XTMF
                 if (_ModelSystemDirectory != value)
                 {
                     _ModelSystemDirectory = value;
-                    var e = PropertyChanged;
-                    if (e != null)
-                    {
-                        e(this, new PropertyChangedEventArgs("ModelSystemDirectory"));
-                    }
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ModelSystemDirectory"));
                 }
             }
         }
@@ -209,11 +205,7 @@ namespace XTMF
                 if (_ProjectDirectory != value)
                 {
                     _ProjectDirectory = value;
-                    var e = PropertyChanged;
-                    if (e != null)
-                    {
-                        e(this, new PropertyChangedEventArgs("ProjectDirectory"));
-                    }
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProjectDirectory"));
                 }
             }
         }
@@ -236,11 +228,7 @@ namespace XTMF
                 if (_HostPort != value)
                 {
                     _HostPort = value;
-                    var e = PropertyChanged;
-                    if (e != null)
-                    {
-                        e(this, new PropertyChangedEventArgs("HostPort"));
-                    }
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("HostPort"));
                 }
             }
         }
@@ -358,7 +346,7 @@ namespace XTMF
             {
                 return false;
             }
-            
+
             if (!Directory.Exists(dir))
             {
                 try
@@ -420,7 +408,7 @@ namespace XTMF
                             if (rights.FileSystemRights == (rights.FileSystemRights | FileSystemRights.Modify)) return false;
                         }
                     }
-                    else if(user.Groups.Contains(rule.IdentityReference))
+                    else if (user.Groups.Contains(rule.IdentityReference))
                     {
                         // if the user is in any group that is allowed then they are allowed
                         // unless that user is specifically not allowed
@@ -582,6 +570,7 @@ namespace XTMF
         public bool LoadErrorTerminal = false;
 
         private ConcurrentBag<Type> FreeVariableType = new ConcurrentBag<Type>();
+        internal readonly ConcurrentDictionary<string, Type> ModuleRedirection = new ConcurrentDictionary<string, Type>();
 
         private void LoadAssembly(Assembly assembly)
         {
@@ -604,6 +593,7 @@ namespace XTMF
                         {
                             LoadError = error;
                         }
+                        LoadRedirections(type);
                         // we know then that this is an IModel
                         lock (ModelRepository)
                         {
@@ -619,13 +609,26 @@ namespace XTMF
                     }
                 }
             }
-            catch(TypeLoadException e)
+            catch (TypeLoadException e)
             {
                 Console.WriteLine(e);
             }
         }
 
         /// <summary>
+        /// Check the given type for module redirections
+        /// </summary>
+        /// <param name="type"></param>
+        private void LoadRedirections(Type type)
+        {
+            foreach(var redirection in type.GetCustomAttributes(typeof(RedirectModule)))
+            {
+                // Remove the whitespace because it is inconsitant between .Net versions
+                ModuleRedirection[(redirection as RedirectModule).FromType.Replace(" ", "")] = type;
+            }
+        }
+
+        /// <summarys
         /// Check to see if the given type should not be loaded given its name
         /// </summary>
         /// <param name="type">The type to check for</param>
@@ -644,12 +647,12 @@ namespace XTMF
         /// <returns>True if there is an error.</returns>
         private bool CheckTypeForErrors(Type type, ref string error)
         {
-            return 
+            return
                 CheckForParameterDelcarationErrors(type, ref error) ||
                 CheckForNonPublicRootAndParentTags(type, ref error);
         }
 
- 
+
         /// <summary>
         /// Check to see if the given type uses the RootModuleAttribute or the ParentModelAttribute but do
         /// not declare those variables public.
@@ -663,9 +666,9 @@ namespace XTMF
                            where t.GetAttributes().Any(o => (o is RootModule) || (o is ParentModel) || (o is ParameterAttribute)) && !t.IsPublic
                            select t;
             var firstFailure = failures.FirstOrDefault();
-            if(firstFailure != null)
+            if (firstFailure != null)
             {
-                error = "When analyzing the type '" + type.FullName + "' the member '" + firstFailure.Name 
+                error = "When analyzing the type '" + type.FullName + "' the member '" + firstFailure.Name
                     + "' used a header (RootModule/ParentModel/Parameter) to get a value from XTMF however it is not public.  This violates the XTMF coding conventions, and will not work as expected."
                      + "\r\nPlease close XTMF and recompile your module after correcting this issue.";
                 return true;
@@ -715,7 +718,7 @@ namespace XTMF
             _recentProjects.Remove(name);
             _recentProjects.Insert(0, name);
 
-            if(_recentProjects.Count > 5)
+            if (_recentProjects.Count > 5)
             {
                 _recentProjects.RemoveAt(5);
             }
@@ -724,15 +727,15 @@ namespace XTMF
         private void LoadConfigurationFile(string configFileName)
         {
             XmlDocument doc = new XmlDocument();
-         
+
 
             XmlElement root;
             try
             {
                 doc.Load(configFileName);
-               
+
             }
-            catch(XmlException)
+            catch (XmlException)
             {
                 SaveConfiguration(configFileName);
                 return;
@@ -751,18 +754,14 @@ namespace XTMF
                 {
                     case "RecentProjects":
 
-                        foreach(XmlNode recentProjectNode in child.ChildNodes)
+                        foreach (XmlNode recentProjectNode in child.ChildNodes)
                         {
-
                             var projectName = recentProjectNode.Attributes["Name"].Value;
                             if (CheckProjectExists(projectName))
                             {
                                 AddRecentProject(projectName);
                             }
-  
-                            
                         }
-
                         break;
                     case "ProjectDirectory":
                         {
@@ -771,7 +770,7 @@ namespace XTMF
                             {
                                 var dir = attribute.InnerText;
                                 string error = null;
-                                if(!SetProjectDirectory(dir, ref error))
+                                if (!SetProjectDirectory(dir, ref error))
                                 {
                                     LoadError = error;
                                     LoadErrorTerminal = true;
@@ -823,14 +822,13 @@ namespace XTMF
                         }
                         break;
                     case "Theme":
-                    {
-                        var attribute = child.Attributes["Value"];
-                        if (attribute != null)
                         {
-                            _theme = attribute.InnerText;
+                            var attribute = child.Attributes["Value"];
+                            if (attribute != null)
+                            {
+                                _theme = attribute.InnerText;
+                            }
                         }
-                     
-                    }
                         break;
                     default:
                         {
@@ -861,9 +859,9 @@ namespace XTMF
             {
                 Parallel.ForEach(FreeVariableType, (Type t) =>
                 {
-                    foreach(var condition in conditions)
+                    foreach (var condition in conditions)
                     {
-                        if(!condition.IsAssignableFrom(t))
+                        if (!condition.IsAssignableFrom(t))
                         {
                             return;
                         }
@@ -877,14 +875,11 @@ namespace XTMF
         public void LoadModules(Action loadModulesCompleteAction)
         {
             LoadModules();
-
             loadModulesCompleteAction.Invoke();
         }
 
         private void LoadModules()
         {
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
             // load in the types from system
             LoadAssembly(typeof(float).GetType().Assembly);
             // Load the given base assembly
@@ -918,7 +913,6 @@ namespace XTMF
                         }
                     });
             }
-            watch.Stop();
         }
 
         private void LoadUserConfiguration(string configFile)
@@ -950,12 +944,8 @@ namespace XTMF
 
         private void SaveConfiguration(string configFileName)
         {
-            
             using (XmlWriter writer = XmlWriter.Create(configFileName, new XmlWriterSettings() { Encoding = Encoding.Unicode, Indent = true, NewLineOnAttributes = true }))
             {
-
-    
-                
                 // Start the document and create the default root node
                 writer.WriteStartDocument(true);
                 writer.WriteStartElement("Root");
@@ -963,9 +953,6 @@ namespace XTMF
                 writer.WriteStartElement("ProjectDirectory");
                 writer.WriteAttributeString("Value", ProjectDirectory);
                 writer.WriteEndElement();
-
-          
-
                 writer.WriteStartElement("ModelSystemDirectory");
                 writer.WriteAttributeString("Value", ModelSystemDirectory);
                 writer.WriteEndElement();
@@ -993,28 +980,19 @@ namespace XTMF
                         }
                     }
                 }
-
                 // Write recent projects to configuration
                 writer.WriteStartElement("RecentProjects");
-
-
-              
-                foreach(string project in _recentProjects)
+                foreach (string project in _recentProjects)
                 {
                     writer.WriteStartElement("Project");
                     writer.WriteAttributeString("Name", project);
                     writer.WriteEndElement();
 
                 }
-
-
                 writer.WriteEndElement();
-
-
                 writer.WriteStartElement("Theme");
-                writer.WriteAttributeString("Value",_theme);
+                writer.WriteAttributeString("Value", _theme);
                 writer.WriteEndElement();
-
                 //Finished writing all of the settings so we can finish the document now
                 writer.WriteEndElement();
                 writer.WriteEndDocument();
@@ -1052,20 +1030,12 @@ namespace XTMF
         {
             if (CurrentHost != null)
             {
-                var disp = CurrentHost as IDisposable;
-                if (disp != null)
-                {
-                    disp.Dispose();
-                }
+                (CurrentHost as IDisposable)?.Dispose();
                 CurrentHost = null;
             }
             if (CurrentClient != null)
             {
-                var disp = CurrentClient as IDisposable;
-                if (disp != null)
-                {
-                    disp.Dispose();
-                }
+                (CurrentClient as IDisposable)?.Dispose();
                 CurrentClient = null;
             }
         }

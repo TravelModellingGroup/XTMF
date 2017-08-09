@@ -36,7 +36,7 @@ namespace XTMF.Testing.TMG.Data
             string error = null;
             FileFromOutputDirectory fileOut;
             Assert.IsTrue(FileFromOutputDirectory.TryParse(ref error, path, out fileOut));
-            return new FilePathFromOuputDirectory() { FileName = fileOut };
+            return new FilePathFromOutputDirectory() { FileName = fileOut };
         }
 
         private LabeledData<float> LoadLabeledData(string path)

@@ -109,6 +109,7 @@
     <Compile Include="Attributes\ArbitraryParameterParser.cs" />
     <Compile Include="Attributes\DoNotAutomate.cs" />
     <Compile Include="Attributes\ParentModel.cs" />
+    <Compile Include="Attributes\RedirectModule.cs" />
     <Compile Include="Attributes\RootModule.cs" />
     <Compile Include="Attributes\RunParameter.cs" />
     <Compile Include="BindingListWithRemoving.cs" />
