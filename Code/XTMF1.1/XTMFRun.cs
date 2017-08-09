@@ -74,8 +74,6 @@ namespace XTMF
             ModelSystemIndex = modelSystemIndex;
             Project.ModelSystemStructure[ModelSystemIndex] = root.ClonedModelSystemRoot;
             Project.LinkedParameters[ModelSystemIndex] = root.LinkedParameters.GetRealLinkedParameters();
-
-
             if (overwrite)
             {
                 ClearFolder(RunDirectory);
@@ -108,7 +106,6 @@ namespace XTMF
             DirectoryInfo directory = new DirectoryInfo(path);
             foreach (System.IO.FileInfo file in directory.GetFiles())
             {
-
                 try
                 {
                     file.Delete();
@@ -116,10 +113,8 @@ namespace XTMF
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                
-                }
-            
 
+                }
             }
 
             foreach (var dir in directory.GetDirectories())
@@ -229,23 +224,15 @@ namespace XTMF
         {
             if (MST != null)
             {
-
-
                 ModelSystemStructure s = ModelSystemStructureModelRoot.RealModelSystemStructure;
                 ExitRecursive(s, s.Module);
-
-
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         private void ExitRecursive(IModelSystemStructure structure, IModule module)
         {
-
             if (module != null && structure != null)
             {
                 if (typeof(IModelSystemTemplate).IsAssignableFrom(module.GetType()))
@@ -253,19 +240,14 @@ namespace XTMF
 
                     ((IModelSystemTemplate)module).ExitRequest();
                 }
-
-
                 if (structure.Children != null)
                 {
                     foreach (var child in structure.Children)
                     {
                         ExitRecursive(child, child.Module);
                     }
-
                 }
-
             }
-
             if (structure != null && structure.IsCollection)
             {
                 if (structure.Children != null)
@@ -281,7 +263,7 @@ namespace XTMF
 
         private Thread RunThread;
 
-        
+
         public virtual List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
         {
             List<Tuple<IModelSystemStructure, Queue<int>, string>> runtimeValidationErrorList = new List<Tuple<IModelSystemStructure, Queue<int>, string>>();
@@ -309,7 +291,7 @@ namespace XTMF
             {
                 return runtimeValidationErrorList;
             }
-    
+
             Queue<int> path = new Queue<int>();
             path.Enqueue(0);
             CollectRuntimeValidationErrors(mstStructure, path, runtimeValidationErrorList);
@@ -317,10 +299,9 @@ namespace XTMF
             return runtimeValidationErrorList;
         }
 
-        private void CollectRuntimeValidationErrors(IModelSystemStructure structure, Queue<int> path,  List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
+        private void CollectRuntimeValidationErrors(IModelSystemStructure structure, Queue<int> path, List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
         {
             string error = "";
-
             if (structure.Module != null)
             {
                 if (!structure.Module.RuntimeValidation(ref error))
@@ -328,16 +309,14 @@ namespace XTMF
                     errorList.Add(Tuple.Create<IModelSystemStructure, Queue<int>, string>(structure, path, error));
                 }
             }
-            if(structure.Children != null)
+            if (structure.Children != null)
             {
-                for(int i = 0; i < structure.Children.Count; i++)
+                for (int i = 0; i < structure.Children.Count; i++)
                 {
                     Queue<int> newPath = new Queue<int>(path);
                     newPath.Enqueue(i);
-                    CollectRuntimeValidationErrors(structure.Children[i], newPath,  errorList);
+                    CollectRuntimeValidationErrors(structure.Children[i], newPath, errorList);
                 }
-        
-            
             }
         }
 
@@ -345,43 +324,33 @@ namespace XTMF
         public virtual List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
         {
             List<Tuple<IModelSystemStructure, Queue<int>, string>> validationErrorList = new List<Tuple<IModelSystemStructure, Queue<int>, string>>();
-
             IModelSystemStructure mstStructure = Project.ModelSystemStructure[ModelSystemIndex];
-
-
             Queue<int> path = new Queue<int>();
             path.Enqueue(0);
-            CollectValidationErrors( (ModelSystemStructure)mstStructure, path, ref validationErrorList);
+            CollectValidationErrors((ModelSystemStructure)mstStructure, path, ref validationErrorList);
             return validationErrorList;
-
-            
         }
 
-        protected void CollectValidationErrors( ModelSystemStructure currentPoint, Queue<int> path, ref List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
+        protected void CollectValidationErrors(ModelSystemStructure currentPoint, Queue<int> path, ref List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
         {
             if (currentPoint != null)
             {
                 string error = "";
                 if (!currentPoint.ValidateSelf(ref error))
                 {
-                    errorList.Add(Tuple.Create< IModelSystemStructure, Queue<int>, string>( currentPoint, path, error));
-                   // error = $"Runtime Validation Error in {path + currentPoint.Name}\r\n{error}";
-                 
+                    errorList.Add(Tuple.Create<IModelSystemStructure, Queue<int>, string>(currentPoint, path, error));
                 }
             }
             // check to see if there are descendants that need to be checked
             if (currentPoint.Children != null)
             {
-
-                for(int i = 0; i < currentPoint.Children.Count; i ++)
+                for (int i = 0; i < currentPoint.Children.Count; i++)
                 {
                     Queue<int> newPath = new Queue<int>(path);
                     newPath.Enqueue(i);
                     CollectValidationErrors((ModelSystemStructure)currentPoint.Children[i], newPath, ref errorList);
                 }
-               
             }
-
         }
 
         public virtual void Start()
@@ -420,7 +389,6 @@ namespace XTMF
                     }
                     catch
                     {
-
                     }
                 }
             });
@@ -573,7 +541,7 @@ namespace XTMF
                 }
                 else
                 {
-                    
+
                     SendRunComplete();
                 }
                 Directory.SetCurrentDirectory(cwd);
