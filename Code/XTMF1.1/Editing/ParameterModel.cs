@@ -160,6 +160,8 @@ namespace XTMF
             }
         }
 
+        public int Index => RealParameter.Index;
+
         internal void SignalIsLinkedChanged()
         {
             ModelHelper.PropertyChanged(PropertyChanged, this, "IsLinked");

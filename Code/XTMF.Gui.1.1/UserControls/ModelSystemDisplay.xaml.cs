@@ -1308,7 +1308,7 @@ namespace XTMF.Gui.UserControls
                 {
                     var source =
                         ParameterDisplayModel.CreateParameters(
-                            parameters.OrderBy(el => el.Name).OrderBy(el => el.IsHidden), CurrentlySelected.Count > 1);
+                            parameters.OrderBy(el => el.Name).OrderBy(el => el.Index).OrderBy(el => el.IsHidden), CurrentlySelected.Count > 1);
 
                     if (!MainWindow.Us.ShowMetaModuleHiddenParameters)
                     {

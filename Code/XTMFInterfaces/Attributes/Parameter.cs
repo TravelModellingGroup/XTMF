@@ -34,10 +34,23 @@ namespace XTMF
         /// <param name="description">A description of what this field is supposed to be used for</param>
         /// <param name="name">The name of the parameter</param>
         public ParameterAttribute(string name, object defaultValue, string description)
+            : this(name, defaultValue, 0, description)
+        {
+
+        }
+
+        public ParameterAttribute(string name, object defaultValue, int index, string description)
         {
             Name = name;
             Description = description;
             DefaultValue = defaultValue;
+            Index = index;
+        }
+
+        public ParameterAttribute(string name, string defaultValue, Type type, string description)
+            : this(name, defaultValue, type, 0, description)
+        {
+
         }
 
         /// <summary>
@@ -47,13 +60,16 @@ namespace XTMF
         /// <param name="description">A description of what this field is supposed to be used for</param>
         /// <param name="type">The type to process</param>
         /// <param name="name">The name of the parameter</param>
-        public ParameterAttribute(string name, string defaultValue, Type type, string description)
+        public ParameterAttribute(string name, string defaultValue, Type type, int index, string description)
         {
             Name = name;
             Description = description;
             string error = null;
-            DefaultValue = ArbitraryParameterParser.ArbitraryParameterParse( type, defaultValue, ref error );
+            Index = index;
+            DefaultValue = ArbitraryParameterParser.ArbitraryParameterParse(type, defaultValue, ref error);
         }
+
+        public int Index { get; set; }
 
         public bool AttachedToField { get; set; }
 
@@ -80,7 +96,7 @@ namespace XTMF
         /// <returns>A quick description of what type of parameter it is, and what it describes</returns>
         public override string ToString()
         {
-            return String.Format( "{0}-> Default:{1}, {2}", GetType().Name, DefaultValue, Description );
+            return String.Format("{0}-> Default:{1}, {2}", GetType().Name, DefaultValue, Description);
         }
     }
 }

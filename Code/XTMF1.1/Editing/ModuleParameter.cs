@@ -33,6 +33,7 @@ namespace XTMF
             QuickParameter = false;
             IsHidden = false;
             Type = t;
+            Index = parameter.Index;
         }
 
         private ModuleParameter()
@@ -104,7 +105,10 @@ namespace XTMF
         public object Value { get; set; }
 
         public string VariableName { get; set; }
+
         public bool IsHidden { get; internal set; }
+
+        public int Index { get; private set; }
 
         public IModuleParameter Clone()
         {
@@ -136,6 +140,7 @@ namespace XTMF
             copy.BelongsTo = BelongsTo;
             copy.Type = Type;
             copy.IsHidden = IsHidden;
+            copy.Index = Index;
             return copy;
         }
 

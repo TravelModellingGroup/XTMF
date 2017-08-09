@@ -82,17 +82,17 @@ namespace TMG.Emme.Tools
 
         public sealed class TimePeriodScenario : IModule
         {
-            [RunParameter("Unclean Description", "Uncleaned Network", "The description for the uncleaned scenario")]
+            [RunParameter("Unclean Description", "Uncleaned Network", 3, "The description for the uncleaned scenario")]
             public string UncleanedDescription;
-            [RunParameter("Cleaned Description", "Cleaned Network", "The description for the cleaned scenario")]
+            [RunParameter("Cleaned Description", "Cleaned Network", 5, "The description for the cleaned scenario")]
             public string CleanedDescription;
-            [RunParameter("Uncleaned Scenario Number", 0, "The scenario number for the uncleaned network")]
+            [RunParameter("Uncleaned Scenario Number", 0, 2, "The scenario number for the uncleaned network")]
             public int UncleanedScenarioNumber;
-            [RunParameter("Cleaned Scenario Number", 0, "The scenario number for the cleaned network")]
+            [RunParameter("Cleaned Scenario Number", 0, 4, "The scenario number for the cleaned network")]
             public int CleanedScenarioNumber;
-            [RunParameter("Start Time", "6:00", typeof(Time), "The start time for this scenario")]
+            [RunParameter("Start Time", "6:00", typeof(Time), 0, "The start time for this scenario")]
             public Time StartTime;
-            [RunParameter("End Time", "9:00", typeof(Time), "The end time for this scenario")]
+            [RunParameter("End Time", "9:00", typeof(Time), 1, "The end time for this scenario")]
             public Time EndTime;
 
             [SubModelInformation(Required = false, Description = "The location of the network update file for this time period.")]

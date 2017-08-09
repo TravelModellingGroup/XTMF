@@ -31,5 +31,15 @@ namespace XTMF
             : base( name, defaultValue, type, description )
         {
         }
+
+        public RunParameterAttribute(string name, object defaultValue, int index, string description)
+    : base(name, defaultValue, index, description)
+        {
+        }
+
+        public RunParameterAttribute(string name, string defaultValue, Type type, int index, string description)
+            : base(name, defaultValue, type, index, description)
+        {
+        }
     }
 }
