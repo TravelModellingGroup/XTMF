@@ -39,30 +39,19 @@ namespace XTMF
 
         // The configuration file name will be saved when initializing the object
         private string ConfigurationFileName;
-        private string _theme;
         private IClient CurrentClient = null;
         private IHost CurrentHost = null;
         private string ModuleDirectory = "Modules";
         public Version XTMFVersion { get; private set; }
         public string BuildDate { get; private set; }
+        public bool ExecuteRunsInADifferentProcess { get; private set; }
         public Configuration(Assembly baseAssembly = null)
             : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF", "Configuration.xml"))
         {
 
         }
 
-        public string Theme
-        {
-            get
-            {
-                return _theme;
-            }
-
-            set { _theme = value; }
-        }
-
-
-
+        public string Theme { get; set; }
 
         public Configuration(string configurationFileName, Assembly baseAssembly = null, bool loadModules = true)
         {
@@ -727,8 +716,6 @@ namespace XTMF
         private void LoadConfigurationFile(string configFileName)
         {
             XmlDocument doc = new XmlDocument();
-
-
             XmlElement root;
             try
             {
@@ -760,6 +747,18 @@ namespace XTMF
                             if (CheckProjectExists(projectName))
                             {
                                 AddRecentProject(projectName);
+                            }
+                        }
+                        break;
+                    case "ExecuteRunsInADifferentProcess":
+                        {
+                            var attribute = child.Attributes["Value"];
+                            if(attribute != null)
+                            {
+                                if(bool.TryParse(attribute.InnerText, out var result))
+                                {
+                                    ExecuteRunsInADifferentProcess = result;
+                                }
                             }
                         }
                         break;
@@ -826,7 +825,7 @@ namespace XTMF
                             var attribute = child.Attributes["Value"];
                             if (attribute != null)
                             {
-                                _theme = attribute.InnerText;
+                                Theme = attribute.InnerText;
                             }
                         }
                         break;
@@ -964,6 +963,10 @@ namespace XTMF
                 writer.WriteStartElement("HostPort");
                 writer.WriteAttributeString("Value", HostPort.ToString());
                 writer.WriteEndElement();
+                // ExecuteRunsInADifferentProcess
+                writer.WriteStartElement("ExecuteRunsInADifferentProcess");
+                writer.WriteAttributeString("Value", ExecuteRunsInADifferentProcess.ToString());
+                writer.WriteEndElement();
 
                 if (AdditionalSettings != null)
                 {
@@ -991,7 +994,7 @@ namespace XTMF
                 }
                 writer.WriteEndElement();
                 writer.WriteStartElement("Theme");
-                writer.WriteAttributeString("Value", _theme);
+                writer.WriteAttributeString("Value", Theme);
                 writer.WriteEndElement();
                 //Finished writing all of the settings so we can finish the document now
                 writer.WriteEndElement();

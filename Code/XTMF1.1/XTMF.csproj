@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bus\RemoteRunCommands.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Editing\ModuleMetaProperty.cs" />
     <Compile Include="Editing\ProjectExternallySavedEventArgs.cs" />

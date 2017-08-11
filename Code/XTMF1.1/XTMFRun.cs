@@ -97,6 +97,12 @@ namespace XTMF
             }
         }
 
+        public XTMFRun(Configuration configuration, string runDirectory, string modelSystemString)
+        {
+            RunDirectory = runDirectory;
+            throw new NotImplementedException();
+        }
+
         public void ClearFolder(string path)
         {
             if (!Directory.Exists(path))
@@ -262,7 +268,6 @@ namespace XTMF
         }
 
         private Thread RunThread;
-
 
         public virtual List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
         {
