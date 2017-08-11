@@ -363,8 +363,10 @@ namespace XTMF
             RunThread = new Thread(() =>
             {
                 OurRun();
-            });
-            RunThread.IsBackground = true;
+            })
+            {
+                IsBackground = true
+            };
             RunThread.Start();
         }
 
@@ -442,8 +444,7 @@ namespace XTMF
         {
             if (ms != null)
             {
-                var disp = ms.Module as IDisposable;
-                if (disp != null)
+                if (ms.Module is IDisposable disp)
                 {
                     try
                     {
@@ -527,8 +528,7 @@ namespace XTMF
                 CleanUpModelSystem(mstStructure);
                 mstStructure = null;
                 MST = null;
-                var configuration = Configuration as Configuration;
-                if (configuration != null)
+                if (Configuration is Configuration configuration)
                 {
                     configuration.ModelSystemExited();
                 }
@@ -568,8 +568,7 @@ namespace XTMF
         private static Exception GetTopRootException(Exception value)
         {
             if (value == null) return null;
-            var agg = value as AggregateException;
-            if (agg != null)
+            if (value is AggregateException agg)
             {
                 return GetTopRootException(agg.InnerException);
             }

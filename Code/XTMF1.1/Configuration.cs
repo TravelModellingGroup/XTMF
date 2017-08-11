@@ -798,8 +798,7 @@ namespace XTMF
                             if (attribute != null)
                             {
                                 var booleanText = attribute.InnerText;
-                                bool b;
-                                if (bool.TryParse(booleanText, out b))
+                                if (bool.TryParse(booleanText, out bool b))
                                 {
                                     AutoSave = b;
                                 }
@@ -812,8 +811,7 @@ namespace XTMF
                             if (attribute != null)
                             {
                                 var booleanText = attribute.InnerText;
-                                int portNumber;
-                                if (int.TryParse(booleanText, out portNumber))
+                                if (int.TryParse(booleanText, out int portNumber))
                                 {
                                     _HostPort = portNumber;
                                 }

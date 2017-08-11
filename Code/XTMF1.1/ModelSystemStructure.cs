@@ -279,11 +279,13 @@ namespace XTMF
 
         public static IModelSystemStructure Load(Stream stream, IConfiguration config)
         {
-            ModelSystemStructure root = new ModelSystemStructure(config);
-            root.Description = "The Model System Template that the project is based on";
-            root.Required = true;
-            root.ParentFieldType = typeof(IModelSystemTemplate);
-            root.ParentFieldName = "Root";
+            ModelSystemStructure root = new ModelSystemStructure(config)
+            {
+                Description = "The Model System Template that the project is based on",
+                Required = true,
+                ParentFieldType = typeof(IModelSystemTemplate),
+                ParentFieldName = "Root"
+            };
             XmlDocument doc = new XmlDocument();
             doc.Load(stream);
             var rootChildren = doc["Root"]?.ChildNodes;
@@ -297,11 +299,13 @@ namespace XTMF
 
         public static IModelSystemStructure Load(string fileName, IConfiguration config)
         {
-            ModelSystemStructure root = new ModelSystemStructure(config);
-            root.Description = "The Model System Template that the project is based on";
-            root.Required = true;
-            root.ParentFieldType = typeof(IModelSystemTemplate);
-            root.ParentFieldName = "Root";
+            ModelSystemStructure root = new ModelSystemStructure(config)
+            {
+                Description = "The Model System Template that the project is based on",
+                Required = true,
+                ParentFieldType = typeof(IModelSystemTemplate),
+                ParentFieldName = "Root"
+            };
             if (!File.Exists(fileName))
             {
                 return root;
@@ -324,8 +328,10 @@ namespace XTMF
             {
                 Children = new List<IModelSystemStructure>();
             }
-            var newChild = new ModelSystemStructure(Configuration, name, ParentFieldType);
-            newChild.Type = type;
+            var newChild = new ModelSystemStructure(Configuration, name, ParentFieldType)
+            {
+                Type = type
+            };
             Children.Add(newChild);
         }
 
@@ -340,11 +346,13 @@ namespace XTMF
 
         public IModelSystemStructure Clone()
         {
-            ModelSystemStructure cloneUs = new ModelSystemStructure(Configuration);
-            cloneUs.Name = Name;
-            cloneUs.Description = Description;
-            cloneUs.Module = Module;
-            cloneUs.IsMetaModule = IsMetaModule;
+            ModelSystemStructure cloneUs = new ModelSystemStructure(Configuration)
+            {
+                Name = Name,
+                Description = Description,
+                Module = Module,
+                IsMetaModule = IsMetaModule
+            };
             if (Parameters != null)
             {
                 if ((cloneUs.Parameters = Parameters.Clone()) != null)
@@ -488,8 +496,10 @@ namespace XTMF
 
         public void Save(Stream stream)
         {
-            XmlTextWriter writer = new XmlTextWriter(stream, Encoding.Unicode);
-            writer.Formatting = Formatting.Indented;
+            XmlTextWriter writer = new XmlTextWriter(stream, Encoding.Unicode)
+            {
+                Formatting = Formatting.Indented
+            };
             writer.WriteStartDocument();
             writer.WriteStartElement("Root");
             Save(writer);
@@ -521,7 +531,7 @@ namespace XTMF
 
         public override string ToString()
         {
-            return Name != null ? Name : "No Name";
+            return Name ?? "No Name";
         }
 
         public bool ValidateSelf(ref string error, IModelSystemStructure parent = null)
@@ -796,9 +806,11 @@ namespace XTMF
                 var argument = type.GetElementType();
                 if (iModel.IsAssignableFrom(argument))
                 {
-                    ModelSystemStructure child = new ModelSystemStructure(config);
-                    child.IsCollection = true;
-                    child.Children = new List<IModelSystemStructure>();
+                    ModelSystemStructure child = new ModelSystemStructure(config)
+                    {
+                        IsCollection = true,
+                        Children = new List<IModelSystemStructure>()
+                    };
                     foreach (var at in attributes)
                     {
                         if (at is DoNotAutomate)
@@ -832,9 +844,11 @@ namespace XTMF
                         Type iCollection = typeof(ICollection<>).MakeGenericType(arguements[0]);
                         if (iCollection.IsAssignableFrom(type))
                         {
-                            ModelSystemStructure child = new ModelSystemStructure(config);
-                            child.IsCollection = true;
-                            child.Children = new List<IModelSystemStructure>();
+                            ModelSystemStructure child = new ModelSystemStructure(config)
+                            {
+                                IsCollection = true,
+                                Children = new List<IModelSystemStructure>()
+                            };
                             foreach (var at in attributes)
                             {
                                 if (at is DoNotAutomate)
@@ -955,16 +969,14 @@ namespace XTMF
             // Find the type
             if (tIndexAttribute != null)
             {
-                int index;
-                if (!int.TryParse(tIndexAttribute.InnerText, out index))
+                if (!int.TryParse(tIndexAttribute.InnerText, out int index))
                 {
                     index = -1;
                 }
                 if (index >= 0)
                 {
 
-                    Type t;
-                    if (lookup.TryGetValue(index, out t))
+                    if (lookup.TryGetValue(index, out Type t))
                     {
                         projectStructure.Type = t;
                     }
@@ -997,8 +1009,7 @@ namespace XTMF
             }
             if (parentTIndexAttribute != null)
             {
-                int index;
-                if (!int.TryParse(parentTIndexAttribute.InnerText, out index))
+                if (!int.TryParse(parentTIndexAttribute.InnerText, out int index))
                 {
                     index = -1;
                 }
@@ -1079,8 +1090,7 @@ namespace XTMF
             {
                 foreach (var at in field.GetCustomAttributes(true))
                 {
-                    var info = at as SubModelInformation;
-                    if (info != null)
+                    if (at is SubModelInformation info)
                     {
                         return info.Description;
                     }
@@ -1090,8 +1100,7 @@ namespace XTMF
             {
                 foreach (var at in property.GetCustomAttributes(true))
                 {
-                    var info = at as SubModelInformation;
-                    if (info != null)
+                    if (at is SubModelInformation info)
                     {
                         return info.Description;
                     }
@@ -1213,8 +1222,7 @@ namespace XTMF
                 }
                 if (us != null)
                 {
-                    var mod = us as ModelSystemStructure;
-                    if (mod != null)
+                    if (us is ModelSystemStructure mod)
                     {
                         var isDisabled = attributes["Disabled"];
                         var disabled = false;
@@ -1263,9 +1271,8 @@ namespace XTMF
                             var typeName = child.Attributes?["Name"]?.InnerText;
                             if (typeName != null)
                             {
-                                int index;
                                 var type = LoadModuleType(typeName, config);
-                                if (!int.TryParse(child.Attributes["TIndex"].InnerText, out index))
+                                if (!int.TryParse(child.Attributes["TIndex"].InnerText, out int index))
                                 {
                                     continue;
                                 }
@@ -1641,7 +1648,7 @@ namespace XTMF
                     {
                         writer.WriteAttributeString("FriendlyName", p.Name);
                     }
-                    writer.WriteAttributeString("TIndex", lookup[param.Type == null ? param.Value.GetType() : param.Type].ToString());
+                    writer.WriteAttributeString("TIndex", lookup[param.Type ?? param.Value.GetType()].ToString());
                     writer.WriteAttributeString("Value", param.Value == null ? String.Empty : param.Value.ToString());
                     if (param.QuickParameter)
                     {

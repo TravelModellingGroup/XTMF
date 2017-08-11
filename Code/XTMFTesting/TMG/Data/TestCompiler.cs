@@ -38,8 +38,9 @@ namespace XTMF.Testing.TMG.Data
         /// <returns></returns>
         private IDataSource<SparseTwinIndex<float>> CreateData(string name, float m11, float m12, float m21, float m22)
         {
-            SparseIndexing indexes = new SparseIndexing();
-            indexes.Indexes = new[]
+            SparseIndexing indexes = new SparseIndexing()
+            {
+                Indexes = new[]
             {
                 new SparseSet()
                 {
@@ -50,8 +51,8 @@ namespace XTMF.Testing.TMG.Data
                         Indexes = new[] { new SparseSet() { Start = 1, Stop = 2  } }
                     }
                 }
+            }
             };
-
             float[][] data = new[] { new[] { m11, m12 }, new[] { m21, m22 } };
             return new MatrixSource(new SparseTwinIndex<float>(indexes, data)) { Name = name };
         }
@@ -65,14 +66,16 @@ namespace XTMF.Testing.TMG.Data
         /// <returns></returns>
         private IDataSource<SparseArray<float>> CreateData(string name, float m1, float m2)
         {
-            SparseIndexing indexes = new SparseIndexing();
-            indexes.Indexes = new[]
+            SparseIndexing indexes = new SparseIndexing()
+            {
+                Indexes = new[]
             {
                 new SparseSet()
                 {
                     Start = 1,
                     Stop = 2,
                 }
+            }
             };
             float[] data = new[] { m1, m2 };
             return new VectorSource(new SparseArray<float>(indexes, data)) { Name = name };
@@ -1049,8 +1052,7 @@ namespace XTMF.Testing.TMG.Data
         private static Expression CompareMatrix(string equation, IDataSource[] data, float m11, float m12, float m21, float m22)
         {
             string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile(equation, out ex, ref error), $"Unable to compile '{equation}'\r\n{error}");
+            Assert.IsTrue(Compiler.Compile(equation, out Expression ex, ref error), $"Unable to compile '{equation}'\r\n{error}");
             var result = ex.Evaluate(data);
             if(result.Error)
             {
