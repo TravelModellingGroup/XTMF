@@ -32,7 +32,7 @@ namespace XTMF.Bus
         ClientFinishedModelSystem = 3,
         ClientErrorWhenRunningModelSystem = 4,
         ClientErrorValidatingModelSystem = 5,
-        ProgressUpdate = 6,
+        ClientReportedProgress = 6,
         SendModelSystemResult = 7,
         ClientReportedStatus = 8,
         RuntimeError = 9

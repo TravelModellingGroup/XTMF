@@ -38,7 +38,7 @@ namespace XTMF
         public Dictionary<string, string> AdditionalSettings = new Dictionary<string, string>();
 
         // The configuration file name will be saved when initializing the object
-        private string ConfigurationFileName;
+        internal string ConfigurationFileName { get; private set; }
         private IClient CurrentClient = null;
         private IHost CurrentHost = null;
         private string ModuleDirectory = "Modules";

@@ -23,6 +23,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using XTMF.RunProxy;
 using System.Collections.Generic;
+using System.IO.Pipes;
+using XTMF.Bus;
 
 namespace XTMF
 {
@@ -30,7 +32,7 @@ namespace XTMF
     /// This class encapsulates the concept of a Model System run.
     /// Subclasses of this will allow for remote model system execution.
     /// </summary>
-    public class XTMFRun
+    public class XTMFRun : IDisposable
     {
         /// <summary>
         /// The link to XTMF's settings
@@ -64,6 +66,10 @@ namespace XTMF
 
         public string RunDirectory { get; private set; }
 
+        protected NamedPipeServerStream Pipe;
+
+        protected bool RunsRemotely => Pipe != null;
+
         public XTMFRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
         {
             Project = project;
@@ -87,7 +93,9 @@ namespace XTMF
             ModelSystemStructureModelRoot = root;
             var index = project.ModelSystemStructure.IndexOf(root.RealModelSystemStructure);
             if (index >= 0)
+            {
                 Configuration = new RunProxy.ConfigurationProxy(configuration, Project);
+            }
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
 
@@ -119,15 +127,12 @@ namespace XTMF
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-
                 }
             }
-
             foreach (var dir in directory.GetDirectories())
             {
                 ClearFolder(dir.FullName);
             }
-
         }
 
         /// <summary>
@@ -168,12 +173,19 @@ namespace XTMF
         /// <returns>If the model system accepted the exit request</returns>
         public bool ExitRequest()
         {
-            var mst = MST;
-            if (mst != null)
+            if (RunsRemotely)
             {
-                return mst.ExitRequest();
+                throw new NotImplementedException();
             }
-            return false;
+            else
+            {
+                var mst = MST;
+                if (mst != null)
+                {
+                    return mst.ExitRequest();
+                }
+                return false;
+            }
         }
 
         /// <summary>
@@ -182,12 +194,19 @@ namespace XTMF
         /// <returns>The colour requested by the model system</returns>
         public Tuple<byte, byte, byte> PollColour()
         {
-            var mst = MST;
-            if (mst != null)
+            if (RunsRemotely)
             {
-                return mst.ProgressColour;
+                throw new NotImplementedException();
             }
-            return null;
+            else
+            {
+                var mst = MST;
+                if (mst != null)
+                {
+                    return mst.ProgressColour;
+                }
+                return null;
+            }
         }
 
         /// <summary>
@@ -196,12 +215,19 @@ namespace XTMF
         /// <returns>The current progress between 0 and 1</returns>
         public virtual float PollProgress()
         {
-            var mst = MST;
-            if (mst != null)
+            if (RunsRemotely)
             {
-                return mst.Progress;
+                throw new NotImplementedException();
             }
-            return 1f;
+            else
+            {
+                var mst = MST;
+                if (mst != null)
+                {
+                    return mst.Progress;
+                }
+                return 1f;
+            }
         }
 
         /// <summary>
@@ -210,12 +236,19 @@ namespace XTMF
         /// <returns></returns>
         public virtual string PollStatusMessage()
         {
-            var mst = MST;
-            if (mst != null)
+            if (RunsRemotely)
             {
-                return mst.ToString();
+                throw new NotImplementedException();
             }
-            return null;
+            else
+            {
+                var mst = MST;
+                if (mst != null)
+                {
+                    return mst.ToString();
+                }
+                return null;
+            }
         }
 
 
@@ -228,40 +261,35 @@ namespace XTMF
         /// <returns></returns>
         public virtual bool DeepExitRequest()
         {
-            if (MST != null)
+            if (RunsRemotely)
             {
-                ModelSystemStructure s = ModelSystemStructureModelRoot.RealModelSystemStructure;
-                ExitRecursive(s, s.Module);
-                return true;
+                throw new NotImplementedException();
             }
-            return false;
+            else
+            {
+                if (MST != null)
+                {
+                    ModelSystemStructure s = ModelSystemStructureModelRoot.RealModelSystemStructure;
+                    ExitRecursive(s);
+                    return true;
+                }
+                return false;
+            }
         }
 
-        private void ExitRecursive(IModelSystemStructure structure, IModule module)
+        private void ExitRecursive(IModelSystemStructure structure)
         {
-            if (module != null && structure != null)
+            if (structure != null)
             {
-                if (typeof(IModelSystemTemplate).IsAssignableFrom(module.GetType()))
+                if (structure.Module is IModelSystemTemplate mst)
                 {
-
-                    ((IModelSystemTemplate)module).ExitRequest();
+                    mst.ExitRequest();
                 }
                 if (structure.Children != null)
                 {
                     foreach (var child in structure.Children)
                     {
-                        ExitRecursive(child, child.Module);
-                    }
-                }
-            }
-            if (structure != null && structure.IsCollection)
-            {
-                if (structure.Children != null)
-                {
-                    foreach (var child in structure.Children)
-                    {
-
-                        ExitRecursive(child, child.Module);
+                        ExitRecursive(child);
                     }
                 }
             }
@@ -466,6 +494,43 @@ namespace XTMF
 
         private void OurRun()
         {
+            if (RunsRemotely)
+            {
+                RunRemotely();
+            }
+            else
+            {
+                RunLocally();
+            }
+        }
+
+        private void RunRemotely()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                BinaryReader reader = new BinaryReader(Pipe, System.Text.Encoding.UTF8, true);
+                while(true)
+                {
+                    switch((ToHost)reader.ReadInt32())
+                    {
+                        case ToHost.Heartbeat:
+                            break;
+                        case ToHost.ClientReportedProgress:
+                            {
+                                var progress = reader.ReadInt32();
+                            }
+                            break;
+                    }
+                }
+            }, TaskCreationOptions.LongRunning);
+            BinaryWriter writer = new BinaryWriter(Pipe, System.Text.Encoding.UTF8, true);
+            writer.Write((Configuration as Configuration)?.ConfigurationFileName ?? "");
+            //TODO: Implement this
+            writer.Write((UInt32)ToClient.KillModelRun);
+        }
+
+        private void RunLocally()
+        {
             string cwd = null;
             string error = null;
             IModelSystemStructure mstStructure;
@@ -599,6 +664,37 @@ namespace XTMF
         private void SetStatusToRunning()
         {
             RunStarted?.Invoke();
+        }
+
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    RunComplete = null;
+                    RuntimeError = null;
+                    ValidationError = null;
+                    ValidationStarting = null;
+                    RuntimeValidationError = null;
+                    Pipe?.Dispose();
+                }
+                disposedValue = true;
+            }
+        }
+
+        ~XTMFRun()
+        {
+            Dispose(false);
+        }
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

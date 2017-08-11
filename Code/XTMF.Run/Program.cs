@@ -195,14 +195,37 @@ namespace XTMF.Run
                     try
                     {
                         var module = root.Module;
-                        if (module == null)
+                        if (module != null)
                         {
                             var progress = module.Progress;
                             var status = module.ToString();
                             // make sure there is no error gathering the progress
-                            writer.Write((Int32)ToHost.ProgressUpdate);
-                            writer.Write(status);
+                            writer.Write((Int32)ToHost.ClientReportedProgress);
                             writer.Write(progress);
+                        }
+                    }
+                    catch
+                    {
+                    }
+                });
+            }
+        }
+
+        private static void StatusRequested(IModelSystemStructure root, BlockingCollection<byte[]> messagesToSend)
+        {
+            if (root != null)
+            {
+                WriteMessageToStream(messagesToSend, (writer) =>
+                {
+                    try
+                    {
+                        var module = root.Module;
+                        if (module != null)
+                        {
+                            var status = module.ToString();
+                            // make sure there is no error gathering the progress
+                            writer.Write((Int32)ToHost.ClientReportedStatus);
+                            writer.Write(status);
                         }
                     }
                     catch
