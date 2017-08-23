@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -35,6 +35,9 @@ namespace TMG.NetworkEstimation
 
         [SubModelInformation(Required = true, Description = "The location to base the temporary copy.")]
         public FileLocation TempBaseDirectory;
+
+        [RunParameter("Delete On Exit", true, "Set this to false to keep the EMME project after the model system terminates.")]
+        public bool DeleteOnExit;
 
         private ModellerController Controller;
 
@@ -149,7 +152,7 @@ namespace TMG.NetworkEstimation
             Controller?.Dispose();
             Controller = null;
             // try to close for up to 2 seconds
-            if (TempDirectory != null)
+            if (DeleteOnExit && TempDirectory != null)
             {
                 for (int i = 0; i < 10; i++)
                 {
