@@ -82,8 +82,7 @@ namespace XTMF
             {
                 throw new ArgumentNullException(nameof(modelSystem));
             }
-            List<ILinkedParameter> linkedParameters;
-            var clone = CloneModelSystemStructure(modelSystem, out linkedParameters);
+            var clone = CloneModelSystemStructure(modelSystem, out List<ILinkedParameter> linkedParameters);
             if (clone == null)
             {
                 error = "Unable to clone the model system.";
@@ -127,8 +126,7 @@ namespace XTMF
 
         internal bool AddModelSystem(int index, string newName, ref string error)
         {
-            List<ILinkedParameter> linkedParameters;
-            var clone = CloneModelSystemStructure(out linkedParameters, index);
+            var clone = CloneModelSystemStructure(out List<ILinkedParameter> linkedParameters, index);
             if (clone == null)
             {
                 error = "Unable to clone the model system.";
@@ -156,8 +154,7 @@ namespace XTMF
             ClonedFrom = toClone;
             for (int i = 0; i < numberOfModelSystems; i++)
             {
-                List<ILinkedParameter> lp;
-                var mss = toClone.CloneModelSystemStructure(out lp, i);
+                var mss = toClone.CloneModelSystemStructure(out List<ILinkedParameter> lp, i);
                 ModelSystemStructure.Add(mss);
                 LinkedParameters.Add(lp);
             }
@@ -1016,8 +1013,7 @@ namespace XTMF
                 }
                 if (current.IsCollection)
                 {
-                    int collectionIndex;
-                    if (int.TryParse(variableLink[index], out collectionIndex))
+                    if (int.TryParse(variableLink[index], out int collectionIndex))
                     {
                         if (collectionIndex >= 0 && collectionIndex < descList.Count)
                         {
@@ -1059,8 +1055,7 @@ namespace XTMF
                     }
                     else if (field.FieldType == hostType)
                     {
-                        IHost networkingHost;
-                        if (!Configuration.StartupNetworkingHost(out networkingHost, ref error))
+                        if (!Configuration.StartupNetworkingHost(out IHost networkingHost, ref error))
                         {
                             return;
                         }
@@ -1074,16 +1069,14 @@ namespace XTMF
                 {
                     if (field.PropertyType == clientType)
                     {
-                        IClient networkingClient;
-                        if (Configuration.StartupNetworkingClient(out networkingClient, ref error))
+                        if (Configuration.StartupNetworkingClient(out IClient networkingClient, ref error))
                         {
                             field.SetValue(module, networkingClient, null);
                         }
                     }
                     else if (field.PropertyType == hostType)
                     {
-                        IHost networkingHost;
-                        if (Configuration.StartupNetworkingHost(out networkingHost, ref error))
+                        if (Configuration.StartupNetworkingHost(out IHost networkingHost, ref error))
                         {
                             field.SetValue(module, networkingHost, null);
                         }
@@ -1202,9 +1195,7 @@ namespace XTMF
                         // check for the 3.0 file name
                         if (child.Name == "AdvancedModelSystem")
                         {
-                            IModelSystemStructure mss;
-                            List<ILinkedParameter> lp;
-                            if (LoadAdvancedModelSystem(child, i, out mss, out lp))
+                            if (LoadAdvancedModelSystem(child, i, out IModelSystemStructure mss, out List<ILinkedParameter> lp))
                             {
                                 toLoad[i] = new ProjectModelSystem() { LinkedParameters = lp, Root = mss };
                             }

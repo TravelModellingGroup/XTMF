@@ -258,8 +258,10 @@ namespace XTMF.Gui
                 RecentProjectsMenuItem.Items.Clear();
                 foreach (var recentProject in recentProjects)
                 {
-                    var recentProjectMenuItem = new MenuItem();
-                    recentProjectMenuItem.Header = recentProject;
+                    var recentProjectMenuItem = new MenuItem
+                    {
+                        Header = recentProject
+                    };
                     RecentProjectsMenuItem.Items.Add(recentProjectMenuItem);
 
                     recentProjectMenuItem.Click += (sender, EventArgs) =>
@@ -614,12 +616,10 @@ namespace XTMF.Gui
 
         private void Document_IsActive(object sender, EventArgs e)
         {
-            var document = sender as LayoutDocument;
-            if (document != null)
+            if (sender is LayoutDocument document)
             {
                 CurrentDocument = document;
-                ActiveEditingSessionDisplayModel displayModel;
-                if (DisplaysForLayout.TryGetValue(CurrentDocument, out displayModel))
+                if (DisplaysForLayout.TryGetValue(CurrentDocument, out ActiveEditingSessionDisplayModel displayModel))
                 {
                     EditingDisplayModel = displayModel;
                 }
@@ -655,9 +655,11 @@ namespace XTMF.Gui
             );
             if (alreadyExists)
             {
-                var dialog = new Microsoft.Win32.OpenFileDialog();
-                dialog.Title = title;
-                dialog.Filter = filter;
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = title,
+                    Filter = filter
+                };
                 if (dialog.ShowDialog() == true)
                 {
                     return dialog.FileName;
@@ -666,10 +668,12 @@ namespace XTMF.Gui
             }
             else
             {
-                var dialog = new Microsoft.Win32.SaveFileDialog();
-                dialog.Title = "Save As";
-                dialog.FileName = title;
-                dialog.Filter = filter;
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = "Save As",
+                    FileName = title,
+                    Filter = filter
+                };
                 if (dialog.ShowDialog() == true)
                 {
                     return dialog.FileName;
@@ -802,12 +806,11 @@ namespace XTMF.Gui
                 display.ContentGuid = Guid.NewGuid().ToString();
                 var displayModel = new ModelSystemEditingSessionDisplayModel(display);
 
-                var titleBarName = titleBar == null
-                    ? modelSystemSession.EditingProject
+                var titleBarName = titleBar ?? (modelSystemSession.EditingProject
                         ? modelSystemSession.ProjectEditingSession.Name + " - " +
                           modelSystemSession.ModelSystemModel.Name
-                        : "Model System - " + modelSystemSession.ModelSystemModel.Name
-                    : titleBar;
+                        : "Model System - " + modelSystemSession.ModelSystemModel.Name)
+;
                 var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel), null,
                     display.ContentGuid, displayModel);
 
@@ -1033,13 +1036,9 @@ namespace XTMF.Gui
         public void ExecuteRun()
         {
             var document = CurrentDocument;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (modelSystem != null)
+            if (document.Content is ModelSystemDisplay modelSystem)
             {
                 modelSystem.ExecuteRun();
-
-                
-                
             }
         }
 

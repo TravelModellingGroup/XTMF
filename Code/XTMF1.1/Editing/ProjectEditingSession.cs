@@ -69,11 +69,7 @@ namespace XTMF
                         }
                     }
                 }
-                var call = ProjectWasExternallySaved;
-                if (call != null)
-                {
-                    call(this, e);
-                }
+                ProjectWasExternallySaved?.Invoke(this, e);
             }
         }
 
@@ -226,8 +222,7 @@ namespace XTMF
         /// <returns>True if the model system was imported, false with a description otherwise.</returns>
         public bool ImportModelSystemFromString(string modelSystemAsText, string name, ref string error)
         {
-            ModelSystem modelSystem;
-            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromString(modelSystemAsText, out modelSystem, ref error))
+            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromString(modelSystemAsText, out ModelSystem modelSystem, ref error))
             {
                 return false;
             }
@@ -244,8 +239,7 @@ namespace XTMF
         /// <returns>True if the model system was imported, false with a description otherwise.</returns>
         public bool ImportModelSystemFromFile(string fileName, string modelSystemName, ref string error)
         {
-            ModelSystem modelSystem;
-            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromFile(fileName, out modelSystem, ref error))
+            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromFile(fileName, out ModelSystem modelSystem, ref error))
             {
                 return false;
             }
@@ -366,11 +360,10 @@ namespace XTMF
                 {
                     return editingSession.Session.SaveAsModelSystem(name, ref error);
                 }
-                List<ILinkedParameter> lp;
                 var ms = Runtime.ModelSystemController.LoadOrCreate(name);
                 ms.Name = name;
                 ms.Description = Project.ModelSystemDescriptions[index];
-                ms.ModelSystemStructure = Project.CloneModelSystemStructure(out lp, index);
+                ms.ModelSystemStructure = Project.CloneModelSystemStructure(out List<ILinkedParameter> lp, index);
                 ms.LinkedParameters = lp;
                 return ms.Save(ref error);
             }
