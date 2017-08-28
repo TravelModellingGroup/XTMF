@@ -409,26 +409,38 @@ namespace XTMF.Gui
                 Task.Run(() =>
                 {
                     progressing.Dispatcher.BeginInvoke(new Action(() => { progressing.ShowDialog(); }));
-                    ProjectEditingSession session = null;
-                    var loadingTask = Task.Run(() =>
+                    try
                     {
-                        session = EditorController.Runtime.ProjectController.EditProject(project);
-                    });
-                    loadingTask.Wait();
-                    if (session != null)
+                        ProjectEditingSession session = null;
+                        var loadingTask = Task.Run(() =>
+                        {
+                            session = EditorController.Runtime.ProjectController.EditProject(project);
+                        });
+                        loadingTask.Wait();
+                        if (session != null)
+                        {
+                            Us.EditProject(session);
+                        }
+                    }
+                    catch(Exception e)
                     {
-                        Us.EditProject(session);
+                        Application.Current.Dispatcher.Invoke((Action)delegate 
+                        {
+                            progressing.Close();
+                            var inner = e.InnerException;
+                            MessageBox.Show(this, inner.Message, "Error Loading Project", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
                     }
                     progressing.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        Application.Current.Dispatcher.Invoke((Action) delegate { progressing.Close(); });
+                        {
+                            Application.Current.Dispatcher.Invoke((Action)delegate { progressing.Close(); });
                         //progressing.Visibility = Visibility.Hidden;
                         var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
-                        if (item != null)
-                        {
-                            item.IsSelected = true;
-                        }
-                    }));
+                            if (item != null)
+                            {
+                                item.IsSelected = true;
+                            }
+                        }));
                     EditorController.Runtime.Configuration.AddRecentProject(project.Name);
                     EditorController.Runtime.Configuration.Save();
                     UpdateRecentProjectsMenu();

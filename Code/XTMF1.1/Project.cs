@@ -98,7 +98,7 @@ namespace XTMF
 
         internal bool AddExternalModelSystem(IModelSystem system, ref string error)
         {
-            
+
             ModelSystemStructure.Add(system.ModelSystemStructure);
             LinkedParameters.Add(system.LinkedParameters);
             ModelSystemDescriptions.Add(system.Description);
@@ -227,7 +227,7 @@ namespace XTMF
                 ModelSystemStructure = clone
             };
 
-            
+
             foreach (var f in ModelSystemStructure)
             {
                 if (f.Name == modelSystemStructure.Name)
@@ -239,9 +239,9 @@ namespace XTMF
 
                 index++;
             }
-         
+
             return modelSystem;
-            
+
             //ModelSystem()
             //var ourClone = modelSystemStructure.Clone();
             //linkedParameters = LinkedParameters[modelSystemIndex].Count > 0 ?
@@ -324,13 +324,20 @@ namespace XTMF
         {
             if (modelType == null) return null;
             ModuleParameters parameters = new ModuleParameters();
-            foreach (var property in modelType.GetProperties())
+            try
             {
-                AddProperties(parameters, property.GetCustomAttributes(true), property.Name, false, property.PropertyType);
+                foreach (var property in modelType.GetProperties())
+                {
+                    AddProperties(parameters, property.GetCustomAttributes(true), property.Name, false, property.PropertyType);
+                }
+                foreach (var field in modelType.GetFields())
+                {
+                    AddProperties(parameters, field.GetCustomAttributes(true), field.Name, true, field.FieldType);
+                }
             }
-            foreach (var field in modelType.GetFields())
+            catch (Exception e)
             {
-                AddProperties(parameters, field.GetCustomAttributes(true), field.Name, true, field.FieldType);
+                throw new Exception("Error trying to load parameters for module type " + modelType.FullName + "\r\n" + e.Message);
             }
             return parameters;
         }
@@ -1224,7 +1231,7 @@ namespace XTMF
             }
             catch (Exception e)
             {
-                error = e.Message;
+                error = String.Concat(e.InnerException?.Message ?? e.Message, "\r\n", e.InnerException?.StackTrace ?? e.StackTrace);
                 Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
             }
             return false;
@@ -1355,15 +1362,15 @@ namespace XTMF
                             switch (attribute.Name)
                             {
                                 case "Name":
-                                {
-                                    name = attribute.InnerText;
-                                }
+                                    {
+                                        name = attribute.InnerText;
+                                    }
                                     break;
 
                                 case "Value":
-                                {
-                                    value = attribute.InnerText;
-                                }
+                                    {
+                                        value = attribute.InnerText;
+                                    }
                                     break;
                             }
                         }
