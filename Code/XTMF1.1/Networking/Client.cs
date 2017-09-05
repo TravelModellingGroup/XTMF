@@ -262,15 +262,14 @@ namespace XTMF.Networking
 
         public void RegisterCustomMessageHandler(int customMessageNumber, Action<object> handler)
         {
-            List<Action<object>> port;
-            lock ( this )
+            lock (this)
             {
-                if ( !CustomHandlers.TryGetValue( customMessageNumber, out port ) )
+                if (!CustomHandlers.TryGetValue(customMessageNumber, out List<Action<object>> port))
                 {
                     port = new List<Action<object>>();
                     CustomHandlers[customMessageNumber] = port;
                 }
-                port.Add( handler );
+                port.Add(handler);
             }
         }
 
@@ -378,8 +377,7 @@ namespace XTMF.Networking
         {
             if ( mss.Module != null )
             {
-                var disp = mss.Module as IDisposable;
-                if ( disp != null )
+                if (mss.Module is IDisposable disp)
                 {
                     disp.Dispose();
                 }
@@ -562,18 +560,17 @@ namespace XTMF.Networking
                                 try
                                 {
                                     object output = customConverter( stream );
-                                    List<Action<object>> handlers;
-                                    if ( CustomHandlers.TryGetValue( msg.CustomMessageNumber, out handlers ) )
+                                    if (CustomHandlers.TryGetValue(msg.CustomMessageNumber, out List<Action<object>> handlers))
                                     {
-                                        foreach ( var handler in handlers )
+                                        foreach (var handler in handlers)
                                         {
                                             try
                                             {
-                                                handler( output );
+                                                handler(output);
                                             }
                                             catch (Exception e)
                                             {
-                                                Console.WriteLine( e.Message + "\r\n" + e.StackTrace );
+                                                Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
                                             }
                                         }
                                     }

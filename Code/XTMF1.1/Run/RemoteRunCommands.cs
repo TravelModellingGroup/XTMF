@@ -22,7 +22,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF.Bus
+namespace XTMF.Run
 {
     public enum ToHost
     {
@@ -44,6 +44,7 @@ namespace XTMF.Bus
         RunModelSystem = 1,
         CancelModelRun = 2,
         KillModelRun = 3,
-        RequestProgress = 4
+        RequestProgress = 4,
+        RequestStatus = 5
     }
 }

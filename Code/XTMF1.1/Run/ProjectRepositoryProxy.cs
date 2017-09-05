@@ -23,7 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF.RunProxy
+namespace XTMF.Run
 {
     /// <summary>
     /// This project repository is designed to mimic the real project repository during a model

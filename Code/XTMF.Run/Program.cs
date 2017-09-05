@@ -21,7 +21,7 @@ using System.Linq;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading.Tasks;
-using XTMF.Bus;
+using XTMF.Run;
 using System.Collections.Concurrent;
 
 namespace XTMF.Run
@@ -33,13 +33,18 @@ namespace XTMF.Run
             if (args.Length == 2 && args[0] == "-pipe")
             {
                 StartupExecuteRunsInADifferentProcess(args[1]);
+                return;
             }
-
             if (args.Length != 3)
             {
                 Console.WriteLine("Usage: [ProjectName] [ModelSystemName] [RunName]");
                 return;
             }
+            RunModelSystemFromProjectPath(args);
+        }
+
+        private static void RunModelSystemFromProjectPath(string[] args)
+        {
             string projectName = args[0];
             string modelSystemName = args[1];
             string runName = args[2];
@@ -71,17 +76,17 @@ namespace XTMF.Run
 
         private static void StartupExecuteRunsInADifferentProcess(string pipeName)
         {
-            using (NamedPipeClientStream clientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous))
+            using (var clientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous))
             {
 
                 IModelSystemStructure root = null;
-                using (BlockingCollection<byte[]> messagesToSend = new BlockingCollection<byte[]>())
+                using (var messagesToSend = new BlockingCollection<byte[]>())
                 {
                     XTMFRuntime runtime = null;
                     // create the client
                     Task.Factory.StartNew(() =>
                     {
-                        BinaryReader reader = new BinaryReader(clientStream);
+                        var reader = new BinaryReader(clientStream);
                         Configuration config = new Configuration(reader.ReadString());
                         runtime = new XTMFRuntime(config);
                         try
@@ -99,20 +104,25 @@ namespace XTMF.Run
                                     case ToClient.RequestProgress:
                                         ProgressRequested(root, messagesToSend);
                                         break;
+                                    case ToClient.RequestStatus:
+                                        StatusRequested(root, messagesToSend);
+                                        break;
                                     case ToClient.CancelModelRun:
                                         CancelModelSystem(root);
                                         Console.WriteLine("Model System canceled by host.");
-                                        Environment.Exit(0);
-                                        break;
+                                        return;
+                                    case ToClient.KillModelRun:
+                                        Console.WriteLine("Model system termination signaled.");
+                                        return;
                                     default:
                                         Console.WriteLine("Unknown command!");
-                                        Environment.Exit(-1);
-                                        break;
+                                        return;
                                 }
                             }
                         }
-                        catch
+                        finally
                         {
+                            messagesToSend?.CompleteAdding();
                             Environment.Exit(0);
                         }
                     }, TaskCreationOptions.LongRunning);
@@ -128,6 +138,7 @@ namespace XTMF.Run
 
         private static void RunModelSystem(Configuration config, ref IModelSystemStructure root, BinaryReader reader, BlockingCollection<byte[]> messageQueue)
         {
+            var runName = reader.ReadString();
             var runDirectory = reader.ReadString();
             var modelSystemString = reader.ReadString();
             Task.Factory.StartNew(() =>
@@ -136,7 +147,7 @@ namespace XTMF.Run
                 {
                     Directory.CreateDirectory(runDirectory);
                 }
-                var run = new XTMFRun(config, runDirectory, modelSystemString);
+                var run = XTMFRun.CreateRemoteClient(config, runName, runDirectory, modelSystemString);
                 run.ValidationError += (message) =>
                 {
                     WriteMessageToStream(messageQueue, (writer) =>
@@ -239,7 +250,7 @@ namespace XTMF.Run
         {
             (current.Module as IModelSystemTemplate)?.ExitRequest();
             var children = current.Children;
-            if (children != null)
+            if (children == null)
             {
                 foreach (var child in children)
                 {
@@ -252,8 +263,8 @@ namespace XTMF.Run
         {
             using (var modelSystemSession = projectSession.EditModelSystem(index))
             {
-                string error = null;
                 XTMFRun run;
+                string error = null;
                 if ((run = modelSystemSession.Run(runName, ref error)) == null)
                 {
                     Console.WriteLine("Unable to run \r\n" + error);

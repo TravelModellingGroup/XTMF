@@ -75,11 +75,7 @@ namespace XTMF
         {
             // we need to reload first so the GUI knows how to rebuild the display model.
             Reload();
-            var e = ProjectWasExternallySaved;
-            if (e != null)
-            {
-                e(this, new EventArgs());
-            }
+            ProjectWasExternallySaved?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
@@ -135,11 +131,7 @@ namespace XTMF
         {
             if (sender == ModelSystemModel && e.PropertyName == "Name")
             {
-                var changed = NameChanged;
-                if (changed != null)
-                {
-                    changed(this, e);
-                }
+                NameChanged?.Invoke(this, e);
             }
         }
 
@@ -236,11 +228,11 @@ namespace XTMF
                         cloneProject.ModelSystemStructure[ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
                         cloneProject.ModelSystemDescriptions[ModelSystemIndex] = ModelSystemModel.Description;
                         cloneProject.LinkedParameters[ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
-                        run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName,overwrite);
+                        run = XTMFRun.CreateLocalRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName,overwrite);
                     }
                     else
                     {
-                        run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName,overwrite);
+                        run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName,overwrite);
                     }
                     _Run.Add(run);
                     AnyRunning = true;
@@ -258,13 +250,12 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                List<ILinkedParameter> lp;
                 var ms = Runtime.ModelSystemController.LoadOrCreate(name);
                 ms.Name = name;
                 ms.Description = ModelSystemModel.Description;
                 if (EditingProject)
                 {
-                    ms.ModelSystemStructure = ProjectEditingSession.CloneModelSystemStructure(out lp, ModelSystemIndex);
+                    ms.ModelSystemStructure = ProjectEditingSession.CloneModelSystemStructure(out List<ILinkedParameter> lp, ModelSystemIndex);
                     ms.LinkedParameters = lp;
                     return ms.Save(ref error);
                 }
@@ -381,11 +372,7 @@ namespace XTMF
                 {
                     return false;
                 }
-                var e = Saved;
-                if(e != null)
-                {
-                    e(this, new EventArgs());
-                }
+                Saved?.Invoke(this, new EventArgs());
                 HasChanged = false;
                 return true;
             }
@@ -538,8 +525,7 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                XTMFCommand command;
-                if (UndoStack.TryPop(out command))
+                if (UndoStack.TryPop(out XTMFCommand command))
                 {
                     if (command != null)
                     {
@@ -566,8 +552,7 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                XTMFCommand command;
-                if (RedoStack.TryPop(out command))
+                if (RedoStack.TryPop(out XTMFCommand command))
                 {
                     if (command != null)
                     {

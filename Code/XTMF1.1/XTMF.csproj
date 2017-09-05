@@ -68,13 +68,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bus\RemoteRunCommands.cs" />
+    <Compile Include="Run\RemoteRunCommands.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Editing\ModuleMetaProperty.cs" />
     <Compile Include="Editing\ProjectExternallySavedEventArgs.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ReflectionHelper.cs" />
-    <Compile Include="RunProxy\ConfigurationProxy.cs" />
+    <Compile Include="Run\ConfigurationProxy.cs" />
     <Compile Include="Editing\CopyBuffer.cs" />
     <Compile Include="Editing\EditingStack.cs" />
     <Compile Include="Editing\Model.cs" />
@@ -106,7 +106,10 @@
     <Compile Include="Editing\ProjectEditingSession.cs" />
     <Compile Include="Controller\ProjectController.cs" />
     <Compile Include="ProjectRepository.cs" />
-    <Compile Include="RunProxy\ProjectRepositoryProxy.cs" />
+    <Compile Include="Run\ProjectRepositoryProxy.cs" />
+    <Compile Include="Run\XTMFRunLocal.cs" />
+    <Compile Include="Run\XTMFRunRemoteClient.cs" />
+    <Compile Include="Run\XTMFRunRemoteHost.cs" />
     <Compile Include="XTMFRun.cs" />
     <Compile Include="XTMFRuntime.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

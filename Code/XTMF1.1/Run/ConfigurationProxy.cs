@@ -22,7 +22,7 @@ using System.Linq;
 using System.Text;
 using XTMF.Networking;
 
-namespace XTMF.RunProxy
+namespace XTMF.Run
 {
     /// <summary>
     /// This class is used to proxy for the true configuration during a run.

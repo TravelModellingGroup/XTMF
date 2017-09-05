@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -30,7 +30,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
 using System.Windows.Threading;
-using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
@@ -66,14 +65,13 @@ namespace XTMF.Gui.UserControls
         private TaskbarItemInfo _taskbarInformation;
 
         public static readonly DependencyProperty IsRunCancellableDependencyProperty =
-     DependencyProperty.Register("IsRunCancellable",
-         typeof(bool), typeof(RunWindow),
+     DependencyProperty.Register("IsRunCancellable", typeof(bool), typeof(RunWindow),
              new PropertyMetadata(false));
 
-        public static readonly DependencyProperty IsRunClerableDependencyProperty =
-   DependencyProperty.Register("IsRunClearable",
-       typeof(bool), typeof(RunWindow),
+        public static readonly DependencyProperty IsRunClearableDependencyProperty =
+   DependencyProperty.Register("IsRunClearable", typeof(bool), typeof(RunWindow),
            new PropertyMetadata(false));
+
 
 
         public bool IsRunClearable
@@ -82,13 +80,12 @@ namespace XTMF.Gui.UserControls
             {
                 if (_isActive) return false;
 
-                return (bool)GetValue(IsRunClerableDependencyProperty);
+                return (bool)GetValue(IsRunClearableDependencyProperty);
             }
             set
             {
-                SetValue(IsRunClerableDependencyProperty, value);
+                SetValue(IsRunClearableDependencyProperty, value);
             }
-
         }
 
         public bool IsRunCancellable
@@ -109,9 +106,7 @@ namespace XTMF.Gui.UserControls
                     SetValue(IsRunCancellableDependencyProperty, false);
                 }
             }
-
         }
-
 
         static RunWindow()
         {
@@ -126,26 +121,16 @@ namespace XTMF.Gui.UserControls
         public RunWindow()
         {
             InitializeComponent();
-
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
             OpenDirectoryButton.IsEnabled = false;
-
         }
 
         private void MainWindowClosing(object sender, CancelEventArgs e)
         {
             if (_isActive)
             {
-
                 MessageBoxResult result = MessageBox.Show("A run is currently active. Are you sure you wish to close XTMF?", "Run Currently Active", MessageBoxButton.YesNoCancel);
-                if (result == MessageBoxResult.Yes)
-                {
-                    e.Cancel = false;
-                }
-                else
-                {
-                    e.Cancel = true;
-                }
+                e.Cancel = result != MessageBoxResult.Yes;
             }
         }
 
@@ -214,16 +199,10 @@ namespace XTMF.Gui.UserControls
 
             public void Dispose()
             {
-                if (_writer != null)
-                {
-                    _writer.Dispose();
-                    _writer = null;
-                }
-                if (_memoryStream != null)
-                {
-                    _memoryStream.Dispose();
-                    _memoryStream = null;
-                }
+                _writer?.Dispose();
+                _writer = null;
+                _memoryStream?.Dispose();
+                _memoryStream = null;
                 ConsoleOutput = null;
             }
         }
@@ -257,8 +236,6 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
-
-
         public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             InitializeComponent();
@@ -267,19 +244,13 @@ namespace XTMF.Gui.UserControls
             StartRun(run, runName);
         }
 
-        public System.Collections.Generic.List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
+        public List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
         {
             return _run.CollectRuntimeValidationErrors();
         }
 
-       
-
-
- 
-
-        public System.Collections.Generic.List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
+        public List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
         {
-
             return _run.CollectValidationErrors();
         }
 
@@ -320,6 +291,7 @@ namespace XTMF.Gui.UserControls
             _runDirectory = _run.RunDirectory;
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(value: 33) };
             _isFinished = false;
+            _wasCanceled = false;
             _timer.Tick += Timer_Tick;
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
@@ -455,13 +427,8 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished();
                 ShowErrorMessage("Validation Error", obj);
-
                 var errors = MainWindow.Us.RunWindow.CollectValidationErrors();
-
                 ValidationError?.Invoke(errors);
-
-                
-
             });
         }
 
@@ -489,9 +456,7 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished();
                 ShowErrorMessage(string.Empty, errorMessage);
-
                 var errors = CollectRuntimeValidationErrors();
-
                 RuntimeValidationError?.Invoke(errors);
             });
         }
@@ -546,7 +511,6 @@ namespace XTMF.Gui.UserControls
             {
                 CancelButton.IsEnabled = true;
                 IsRunClearable = false;
-
             }));
         }
 
@@ -558,13 +522,11 @@ namespace XTMF.Gui.UserControls
             }
             catch
             {
-
             }
         }
 
-
         /// <summary>
-        ///     Starts the run asynchronously
+        /// Starts the run asynchronously
         /// </summary>
         private void StartRunAsync()
         {
@@ -615,8 +577,6 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
-
 
         private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)
         {
@@ -740,10 +700,7 @@ namespace XTMF.Gui.UserControls
 
                 OpenDirectoryButton.IsEnabled = false;
                 ConsoleOutput.Clear();
-            }
-
-            ));
-
+            }));
         }
     }
 }
