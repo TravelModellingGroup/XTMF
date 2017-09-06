@@ -67,7 +67,7 @@ This module requires the root module in the model system to be of type ‘ITrave
             var fileName = GetFileName( FileName );
             if ( !File.Exists( fileName ) )
             {
-                throw new XTMFRuntimeException( String.Format( "The file {0} was not found when trying to load the population!", fileName ) );
+                throw new XTMFRuntimeException(this, String.Format( "The file {0} was not found when trying to load the population!", fileName ) );
             }
             SparseArray<IPerson[]> pop = Root.ZoneSystem.ZoneArray.CreateSimilarArray<IPerson[]>();
             SparseArray<Household[]> households = Root.ZoneSystem.ZoneArray.CreateSimilarArray<Household[]>();
@@ -91,20 +91,17 @@ This module requires the root module in the model system to be of type ‘ITrave
                 {
                     if ( reader.NumberOfCurrentCells > 9 )
                     {
-                        int zone, age, cars, employmentStatus, studentStatus, occupation, driversLicense;
-                        float expansionFactor;
-                        reader.Get( out zone, 0 );
-                        reader.Get( out age, 1 );
-                        reader.Get( out cars, 2 );
-                        reader.Get( out employmentStatus, 5 );
-                        reader.Get( out studentStatus, 6 );
-                        reader.Get( out occupation, 7 );
-                        reader.Get( out driversLicense, 8 );
-                        reader.Get( out expansionFactor, 9 );
-                        List<IPerson> zoneData;
-                        if ( !tempPop.TryGetValue( zone, out zoneData ) )
+                        reader.Get(out int zone, 0);
+                        reader.Get( out int age, 1 );
+                        reader.Get( out int cars, 2 );
+                        reader.Get( out int employmentStatus, 5 );
+                        reader.Get( out int studentStatus, 6 );
+                        reader.Get( out int occupation, 7 );
+                        reader.Get( out int driversLicense, 8 );
+                        reader.Get( out float expansionFactor, 9 );
+                        if (!tempPop.TryGetValue(zone, out List<IPerson> zoneData))
                         {
-                            zoneData = tempPop[zone] = new List<IPerson>( 10 );
+                            zoneData = tempPop[zone] = new List<IPerson>(10);
                         }
                         zoneData.Add( new Person
                         {
@@ -189,8 +186,7 @@ This module requires the root module in the model system to be of type ‘ITrave
             var flatPop = pop.GetFlatData();
             Parallel.For( 0, flatZones.Length, delegate(int i)
             {
-                List<IPerson> temp;
-                if ( tempPop.TryGetValue( flatZones[i].ZoneNumber, out temp ) )
+                if (tempPop.TryGetValue(flatZones[i].ZoneNumber, out List<IPerson> temp))
                 {
                     flatPop[i] = temp.ToArray();
                 }

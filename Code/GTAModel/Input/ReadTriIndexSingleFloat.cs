@@ -99,12 +99,10 @@ namespace TMG.GTAModel.Input
                 {
                     // skip blank lines
                     if ( reader.LoadLine() == 0 ) continue;
-                    int f, s, t;
-                    float d;
-                    reader.Get( out f, 0 );
-                    reader.Get( out s, 1 );
-                    reader.Get( out t, 2 );
-                    reader.Get( out d, 3 );
+                    reader.Get(out int f, 0);
+                    reader.Get( out int s, 1 );
+                    reader.Get( out int t, 2 );
+                    reader.Get( out float d, 3 );
                     first.Add( f );
                     second.Add( s );
                     third.Add( t );

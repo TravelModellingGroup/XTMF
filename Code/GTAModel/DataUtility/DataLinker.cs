@@ -43,10 +43,10 @@ namespace TMG.GTAModel.DataUtility
         /// <returns>If we can copy between these types</returns>
         public static bool CheckTypes(Type destination, string destinationField, Type origin, string originField, out Type destinationFieldType, out Type originFieldType)
         {
-            var destinationFieldTypeF = destination.GetField( destinationField );
-            var originFieldTypeF = origin.GetField( originField );
+            var destinationFieldTypeF = destination.GetField(destinationField);
+            var originFieldTypeF = origin.GetField(originField);
 
-            if ( destinationFieldTypeF == null || originFieldTypeF == null )
+            if (destinationFieldTypeF == null || originFieldTypeF == null)
             {
                 destinationFieldType = null;
                 originFieldType = null;
@@ -54,7 +54,7 @@ namespace TMG.GTAModel.DataUtility
             }
             destinationFieldType = destinationFieldTypeF.FieldType;
             originFieldType = originFieldTypeF.FieldType;
-            return destinationFieldType.IsAssignableFrom( originFieldType );
+            return destinationFieldType.IsAssignableFrom(originFieldType);
         }
 
         /// <summary>
@@ -67,14 +67,14 @@ namespace TMG.GTAModel.DataUtility
         /// <returns>If it is possible to copy into the field</returns>
         public static bool CheckTypes(Type destination, string destinationField, Type originData, out Type destinationFieldType)
         {
-            var destinationFieldTypeF = destination.GetField( destinationField );
-            if ( destinationFieldTypeF == null )
+            var destinationFieldTypeF = destination.GetField(destinationField);
+            if (destinationFieldTypeF == null)
             {
                 destinationFieldType = null;
                 return false;
             }
             destinationFieldType = destinationFieldTypeF.FieldType;
-            return destinationFieldType.IsAssignableFrom( originData );
+            return destinationFieldType.IsAssignableFrom(originData);
         }
 
         /// <summary>
@@ -86,55 +86,55 @@ namespace TMG.GTAModel.DataUtility
         /// <returns>A new IDataLink object that will automate the copying of data</returns>
         public static IDataLink<T> CreateDataLink<T>(Type[] originTypes, KeyValuePair<string, KeyValuePair<int, string>>[] links)
         {
-            var destinationType = typeof( T );
+            var destinationType = typeof(T);
             var unit = new CodeCompileUnit();
-            unit.ReferencedAssemblies.Add( Assembly.GetCallingAssembly().Location );
-            var namespaceXTMF = new CodeNamespace( "XTMF.DataUtilities.Generated" );
-            namespaceXTMF.Imports.Add( new CodeNamespaceImport( "System" ) );
-            namespaceXTMF.Imports.Add( new CodeNamespaceImport( "XTMF.DataUtilities" ) );
-            unit.Namespaces.Add( namespaceXTMF );
+            unit.ReferencedAssemblies.Add(Assembly.GetCallingAssembly().Location);
+            var namespaceXTMF = new CodeNamespace("XTMF.DataUtilities.Generated");
+            namespaceXTMF.Imports.Add(new CodeNamespaceImport("System"));
+            namespaceXTMF.Imports.Add(new CodeNamespaceImport("XTMF.DataUtilities"));
+            unit.Namespaces.Add(namespaceXTMF);
             var uniqueId = DateTime.Now.Ticks;
             var transitionClass = new CodeTypeDeclaration($"TransitionClass{uniqueId}");
-            transitionClass.BaseTypes.Add( new CodeTypeReference($"IDataLink<{destinationType.FullName}>") );
+            transitionClass.BaseTypes.Add(new CodeTypeReference($"IDataLink<{destinationType.FullName}>"));
             var copyMethod = new CodeMemberMethod
             {
                 Name = "Copy",
                 Attributes = MemberAttributes.Public
             };
-            var destintation = new CodeParameterDeclarationExpression( destinationType, "destination" );
-            var origin = new CodeParameterDeclarationExpression( typeof( object[] ), "origin" );
-            copyMethod.Parameters.AddRange( new[] { destintation, origin } );
-            foreach ( var link in links )
+            var destintation = new CodeParameterDeclarationExpression(destinationType, "destination");
+            var origin = new CodeParameterDeclarationExpression(typeof(object[]), "origin");
+            copyMethod.Parameters.AddRange(new[] { destintation, origin });
+            foreach (var link in links)
             {
-                //destination."link.Key" = origin[link.Value.Key]."link.Value.Value";
-                Type originField, destinationField;
-                if ( !CheckTypes( destinationType, link.Key, originTypes[link.Value.Key], link.Value.Value, out destinationField, out originField ) )
+                if (!CheckTypes(destinationType, link.Key, originTypes[link.Value.Key], link.Value.Value, out Type destinationField, out Type originField))
                 {
-                    throw new XTMFRuntimeException(
+                    throw new XTMFRuntimeException(null,
                         $"Type miss-match error between {originField.Name}:{link.Value.Value} to {destinationField.Name}:{link.Key}!");
                 }
                 var assign = new CodeAssignStatement(
-                    new CodeFieldReferenceExpression( new CodeVariableReferenceExpression( "destination" ), link.Key ),
-                    new CodeFieldReferenceExpression( new CodeCastExpression( originTypes[link.Value.Key],
-                        new CodeIndexerExpression( new CodeVariableReferenceExpression( "origin" ), new CodePrimitiveExpression( link.Value.Key ) ) ), link.Value.Value )
+                    new CodeFieldReferenceExpression(new CodeVariableReferenceExpression("destination"), link.Key),
+                    new CodeFieldReferenceExpression(new CodeCastExpression(originTypes[link.Value.Key],
+                        new CodeIndexerExpression(new CodeVariableReferenceExpression("origin"), new CodePrimitiveExpression(link.Value.Key))), link.Value.Value)
                     );
-                copyMethod.Statements.Add( assign );
+                copyMethod.Statements.Add(assign);
             }
-            transitionClass.Members.Add( copyMethod );
-            namespaceXTMF.Types.Add( transitionClass );
-            var compiler = CodeDomProvider.CreateProvider( "CSharp" );
-            var options = new CompilerParameters();
-            options.IncludeDebugInformation = false;
-            options.GenerateInMemory = true;
-            var results = compiler.CompileAssemblyFromDom( options, unit );
-            if ( results.Errors.Count != 0 )
+            transitionClass.Members.Add(copyMethod);
+            namespaceXTMF.Types.Add(transitionClass);
+            var compiler = CodeDomProvider.CreateProvider("CSharp");
+            var options = new CompilerParameters
             {
-                throw new XTMFRuntimeException( results.Errors[0].ToString() );
+                IncludeDebugInformation = false,
+                GenerateInMemory = true
+            };
+            var results = compiler.CompileAssemblyFromDom(options, unit);
+            if (results.Errors.Count != 0)
+            {
+                throw new XTMFRuntimeException(null, results.Errors[0].ToString());
             }
             var assembly = results.CompiledAssembly;
-            var theClass = assembly.GetType( String.Format( "XTMF.DataUtilities.Generated.TransitionClass{0}", uniqueId ) );
-            var constructor = theClass.GetConstructor( new Type[0] );
-            var output = constructor?.Invoke( new object[0] );
+            var theClass = assembly.GetType(String.Format("XTMF.DataUtilities.Generated.TransitionClass{0}", uniqueId));
+            var constructor = theClass.GetConstructor(new Type[0]);
+            var output = constructor?.Invoke(new object[0]);
             return output as IDataLink<T>;
         }
     }

@@ -59,20 +59,18 @@ namespace Tasha.Validation.PoRPoW
             {
                 var expansionFactor = person.ExpansionFactor;
                 var occ = person.Occupation;
-                Dictionary<TTSEmploymentStatus, float[][]> occDictionary;
-                if(occ != Occupation.NotEmployed && Data.TryGetValue(occ, out occDictionary))
+                if (occ != Occupation.NotEmployed && Data.TryGetValue(occ, out Dictionary<TTSEmploymentStatus, float[][]> occDictionary))
                 {
-                    float[][] empData;
-                    if(occDictionary.TryGetValue(person.EmploymentStatus, out empData))
+                    if (occDictionary.TryGetValue(person.EmploymentStatus, out float[][] empData))
                     {
                         var employmentZone = zoneSystem.GetFlatIndex(person.EmploymentZone.ZoneNumber);
-                        if(employmentZone >= 0)
+                        if (employmentZone >= 0)
                         {
                             var row = empData[homeIndex];
                             bool taken = false;
                             WriteLock.Enter(ref taken);
                             row[employmentZone] += expansionFactor;
-                            if(taken) WriteLock.Exit(true);
+                            if (taken) WriteLock.Exit(true);
                         }
                     }
                 }

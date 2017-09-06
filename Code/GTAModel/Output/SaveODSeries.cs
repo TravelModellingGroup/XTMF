@@ -80,7 +80,7 @@ namespace TMG.GTAModel.Output
             int indexOfInsert = fileNameWithIndexing.IndexOf("%X", StringComparison.InvariantCulture);
             if (indexOfInsert == -1)
             {
-                throw new XTMFRuntimeException("In '" + Name
+                throw new XTMFRuntimeException(this, "In '" + Name
                     + "' the parameter 'Input File Format' does not contain a substitution '%X' in order to progress through the series!  Please update the parameter to include the substitution.");
             }
             return fileNameWithIndexing.Insert(indexOfInsert, index.ToString()).Replace("%X", "");

@@ -145,7 +145,7 @@ namespace TMG.GTAModel.Purpose
             TreeData<float[][]> spot = GetAutoModeData( Flows );
             if ( spot == null )
             {
-                throw new XTMFRuntimeException( "The mode '" + AutoModeName + "' was not found to attach the results to it from '" + Name + "'!;" );
+                throw new XTMFRuntimeException(this, "The mode '" + AutoModeName + "' was not found to attach the results to it from '" + Name + "'!;" );
             }
             spot.Result = data;
         }
@@ -157,15 +157,14 @@ namespace TMG.GTAModel.Purpose
             {
                 if ( i != primaryZone )
                 {
-                    int regionIndex;
-                    if ( InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                    if (InverseLookup(zones[i].RegionNumber, out int regionIndex))
                     {
                         data[i][primaryZone] = tripsToRegion[regionIndex]
-                            * ( ( zones[i].ProfessionalEmployment * RegionEmploymentFactor
-                            + zones[i].WorkProfessional * RegionResidenceFactor )
+                            * ((zones[i].ProfessionalEmployment * RegionEmploymentFactor
+                            + zones[i].WorkProfessional * RegionResidenceFactor)
                             /
-                            ( employmentTotal[regionIndex] * RegionEmploymentFactor
-                            + professionalTotal[regionIndex] * RegionResidenceFactor ) );
+                            (employmentTotal[regionIndex] * RegionEmploymentFactor
+                            + professionalTotal[regionIndex] * RegionResidenceFactor));
                         data[primaryZone][i] = data[i][primaryZone] * ReturnFactor;
                     }
                 }
@@ -177,10 +176,9 @@ namespace TMG.GTAModel.Purpose
             float denominator = 0f;
             for ( int i = 0; i < numberOfZones; i++ )
             {
-                int regionIndex;
                 var zone = zones[i];
                 // Don't process things not included in our regions nor if it is a zone that contains an airport
-                if ( IsPrimaryAirportZone( zone.ZoneNumber ) || !InverseLookup( zone.RegionNumber, out regionIndex ) )
+                if ( IsPrimaryAirportZone( zone.ZoneNumber ) || !InverseLookup( zone.RegionNumber, out int regionIndex ) )
                 {
                     continue;
                 }
@@ -203,7 +201,7 @@ namespace TMG.GTAModel.Purpose
             var timePeriodTrips = PrimaryAirport.BaseTimePeriod * ( PrimaryAirport.FuturePrediction / PrimaryAirport.Base );
             if ( float.IsNaN( timePeriodTrips ) || float.IsInfinity( timePeriodTrips ) )
             {
-                throw new XTMFRuntimeException( "In '" + Name
+                throw new XTMFRuntimeException(this, "In '" + Name
                     + "' we encountered a non real value for the number of trips for the primary airport!\r\n"
                     + "Please make sure that the primary airport base is set properly!" );
             }
@@ -289,15 +287,14 @@ namespace TMG.GTAModel.Purpose
         private bool FoundModeWithName(string name, IModeChoiceNode mode)
         {
             if ( mode.ModeName == name ) return true;
-            var cat = mode as IModeCategory;
-            if ( cat != null )
+            if (mode is IModeCategory cat)
             {
                 var children = cat.Children;
-                if ( children == null ) return false;
+                if (children == null) return false;
                 var length = children.Count;
-                for ( int i = 0; i < length; i++ )
+                for (int i = 0; i < length; i++)
                 {
-                    if ( FoundModeWithName( name, children[i] ) ) return true;
+                    if (FoundModeWithName(name, children[i])) return true;
                 }
             }
             return false;

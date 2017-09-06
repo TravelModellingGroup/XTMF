@@ -69,8 +69,7 @@ namespace Datastructure
                     {
                         if (rangeString[endPos] == '}')
                         {
-                            RangeSet temp;
-                            if (!RangeSet.TryParse(ref error, rangeString.Substring(startPos + 1, endPos - startPos - 1), out temp))
+                            if (!RangeSet.TryParse(ref error, rangeString.Substring(startPos + 1, endPos - startPos - 1), out RangeSet temp))
                             {
                                 return false;
                             }
@@ -90,8 +89,7 @@ namespace Datastructure
             // in case it is a set of 1 element
             if (rangeSets.Count == 0)
             {
-                RangeSet temp;
-                if (RangeSet.TryParse(ref error, rangeString, out temp))
+                if (RangeSet.TryParse(ref error, rangeString, out RangeSet temp))
                 {
                     return false;
                 }

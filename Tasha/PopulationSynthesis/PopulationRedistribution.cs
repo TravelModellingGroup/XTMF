@@ -218,7 +218,7 @@ where you still want the same demographics."
                     {
                         if (attempts > 2)
                         {
-                            throw new XTMFRuntimeException("In '" + Name + "' we were unable to assign a base population for zone '" + zonesToProcess[z].ZoneNumber + "'!");
+                            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to assign a base population for zone '" + zonesToProcess[z].ZoneNumber + "'!");
                         }
                         for (i = 0; i < zonalHouseholds.Count; i++)
                         {

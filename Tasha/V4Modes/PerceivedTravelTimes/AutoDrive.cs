@@ -158,8 +158,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var d = zoneArray.GetFlatIndex(trip.DestinationZone.ZoneNumber);
             var chain = trip.TripChain;
             var p = chain.Person;
-            float timeFactor, constant, costParameter;
-            GetPersonVariables(p, out timeFactor, out constant, out costParameter);
+            GetPersonVariables(p, out float timeFactor, out float constant, out float costParameter);
             float v = constant;
             // if Intrazonal
             if(o == d)
@@ -169,10 +168,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             }
             else
             {
-                // if not intrazonal
-                float ivtt, cost;
                 var parkingCosts = zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(trip));
-                Network.GetAllData(o, d, trip.TripStartTime, out ivtt, out cost);
+                Network.GetAllData(o, d, trip.TripStartTime, out float ivtt, out float cost);
                 v += timeFactor * ivtt + costParameter * (cost + parkingCosts);
             }
             // Apply personal factors
@@ -443,7 +440,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var ret = costFactor * timeFactor;
             if (ret > 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
             }
             return ret;
         }

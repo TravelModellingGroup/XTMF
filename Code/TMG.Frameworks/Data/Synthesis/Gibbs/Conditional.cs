@@ -67,9 +67,8 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 bool any = false;
                 using (var reader = new CsvReader(ConditionalSource))
                 {
-                    int columns;
                     reader.LoadLine();
-                    while (reader.LoadLine(out columns))
+                    while (reader.LoadLine(out int columns))
                     {
                         if (columns >= expectedColumns)
                         {
@@ -85,7 +84,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                             }
                             else
                             {
-                                throw new XTMFRuntimeException($"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
+                                throw new XTMFRuntimeException(this, $"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
                             }
                         }
                     }
@@ -93,7 +92,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 Cdf = ConvertToCdf(prob);
                 if (!any)
                 {
-                    throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
+                    throw new XTMFRuntimeException(this, $@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
 This could be because the data does not have the expected number of columns ({expectedColumns}) as interpreted by the given attributes.");
                 }
                 Loaded = true;

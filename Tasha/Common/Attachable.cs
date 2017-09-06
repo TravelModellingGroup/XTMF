@@ -50,8 +50,7 @@ namespace Tasha.Common
         {
             get
             {
-                object o;
-                if ( !Variables.TryGetValue( name, out o ) )
+                if (!Variables.TryGetValue(name, out object o))
                 {
                     return null;
                 }
@@ -71,11 +70,7 @@ namespace Tasha.Common
         /// <param name="value">The object to store to this name</param>
         public void Attach(string name, object value)
         {
-            if ( value == null )
-            {
-                throw new XTMFRuntimeException( "Attempted to attach a NULL to an object!" );
-            }
-            Variables[name] = value;
+            Variables[name] = value ?? throw new XTMFRuntimeException(null, "Attempted to attach a NULL to an object!" );
         }
 
         /// <summary>

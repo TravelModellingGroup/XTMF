@@ -56,14 +56,14 @@ namespace TMG.GTAModel.NetworkAssignment
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             string filepath = Path.GetFullPath( FileName );
-            if(mc.CheckToolExists(ToolName))
+            if(mc.CheckToolExists(this, ToolName))
             {
-                return mc.Run(ToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
+                return mc.Run(this, ToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
             }
-            return mc.Run(OldToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
+            return mc.Run(this, OldToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
         }
 
         public bool RuntimeValidation(ref string error)

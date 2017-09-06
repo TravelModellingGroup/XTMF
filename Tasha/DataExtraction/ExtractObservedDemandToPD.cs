@@ -107,8 +107,7 @@ namespace Tasha.DataExtraction
                     {
                         foreach(var trip in tripChain.Trips)
                         {
-                            int pdO, pdD, mode;
-                            if(IsContained(trip, out pdO, out pdD, out mode))
+                            if (IsContained(trip, out int pdO, out int pdD, out int mode))
                             {
                                 bool taken = false;
                                 var row = Demand[mode][pdO];

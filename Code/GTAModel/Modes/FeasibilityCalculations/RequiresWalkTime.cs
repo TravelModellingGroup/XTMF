@@ -76,8 +76,7 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
             {
                 if ( dataSource.NetworkType == NetworkType )
                 {
-                    ITripComponentData advancedData = dataSource as ITripComponentData;
-                    if ( advancedData != null )
+                    if (dataSource is ITripComponentData advancedData)
                     {
                         NetworkData = advancedData;
                         return true;

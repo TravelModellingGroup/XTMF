@@ -65,7 +65,7 @@ namespace TMG.Emme
             }
             catch
             {
-                throw new XTMFRuntimeException("Unable to create a link to EMME!  Please make sure that it is on the system PATH!");
+                throw new XTMFRuntimeException(null, "Unable to create a link to EMME!  Please make sure that it is on the system PATH!");
             }
             ToEmme = Emme.StandardInput;
             ToEmme.WriteLine("TMG");
@@ -210,7 +210,7 @@ namespace TMG.Emme
         /// </summary>
         /// <param name="macroName">The name of the macro that you want to run</param>
         /// <param name="arguments">The arguments to the macro that you want to run</param>
-        public virtual bool Run(string macroName, string arguments)
+        public virtual bool Run(IModule module, string macroName, string arguments)
         {
             if (ToEmme == null || Emme == null) return false;
             var externFile = Path.GetFullPath(Path.Combine(ProjectFile, "ExternalCommand.lock"));

@@ -224,8 +224,7 @@ namespace Tasha.Network
             ZoneArray = zoneArray;
             if (!Loaded)
             {
-                var iterationModel = Root as IIterativeModel;
-                if (iterationModel != null)
+                if (Root is IIterativeModel iterationModel)
                 {
                     if (iterationModel.CurrentIteration == 0)
                     {
@@ -267,8 +266,7 @@ namespace Tasha.Network
 
         public bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost)
         {
-            float localIvtt;
-            if (GetData(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time, out localIvtt, out cost))
+            if (GetData(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time, out float localIvtt, out cost))
             {
                 ivtt = Time.FromMinutes(localIvtt);
                 return true;
@@ -292,15 +290,13 @@ namespace Tasha.Network
 
         public Time TravelTime(int flatOrigin, int flatDestination, Time time)
         {
-            float travelTime, cost;
-            GetData(flatOrigin, flatDestination, time, out travelTime, out cost);
+            GetData(flatOrigin, flatDestination, time, out float travelTime, out float cost);
             return Time.FromMinutes(travelTime);
         }
 
         public float TravelCost(int flatOrigin, int flatDestination, Time time)
         {
-            float travelTime, cost;
-            GetData(flatOrigin, flatDestination, time, out travelTime, out cost);
+            GetData(flatOrigin, flatDestination, time, out float travelTime, out float cost);
             return cost;
         }
 

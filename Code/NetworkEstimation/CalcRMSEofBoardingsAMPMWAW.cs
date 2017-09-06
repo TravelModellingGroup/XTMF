@@ -85,7 +85,7 @@ namespace TMG.NetworkEstimation
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
             }
 
             //Load the observed boardings
@@ -97,7 +97,7 @@ namespace TMG.NetworkEstimation
                                         LineAggregationFile.GetFilePath(),
                                         (WawErrorFactor != 0.0f));
             string result = "";
-            mc.Run(ToolName, args, (p => Progress = p), ref result);
+            mc.Run(this, ToolName, args, (p => Progress = p), ref result);
             var amModelResults = ParseResults(result);
 
             //Load the PM Modelled Boardings
@@ -105,7 +105,7 @@ namespace TMG.NetworkEstimation
                                     LineAggregationFile.GetFilePath(),
                                     (WawErrorFactor != 0.0f));
             result = "";
-            mc.Run(ToolName, args, ref result);
+            mc.Run(this, ToolName, args, ref result);
             var pmModelResults = ParseResults(result);
 
             //Calculate the fitness
@@ -126,7 +126,7 @@ namespace TMG.NetworkEstimation
                 var pair = cell.Split(':');
                 if (pair.Length < 2)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the results were not in the correct format in cell #" 
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' the results were not in the correct format in cell #" 
                         + cellNumber + ".\r\nThe results were '" + pythonDictionary + "'.");
                 }
                 var lineId = pair[0].Replace("'", "").Trim();
@@ -144,11 +144,9 @@ namespace TMG.NetworkEstimation
             using (CsvReader reader = new CsvReader(filepath))
             {
                 reader.LoadLine(); //Skip the first line                
-                int numCol;
-                while (reader.LoadLine(out numCol))
+                while (reader.LoadLine(out int numCol))
                 {
-                    string lineId;
-                    reader.Get(out lineId, 0);
+                    reader.Get(out string lineId, 0);
 
                     if (string.IsNullOrWhiteSpace(lineId))
                         continue; //Skip over blank lines
@@ -156,8 +154,7 @@ namespace TMG.NetworkEstimation
                     if (numCol < 2)
                         throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
 
-                    float boardings;
-                    reader.Get(out boardings, 1);
+                    reader.Get(out float boardings, 1);
 
                     result[lineId] = boardings;
                 }

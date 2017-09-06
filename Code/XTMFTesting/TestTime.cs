@@ -31,12 +31,11 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestAdding()
         {
-            Time a, b;
-            if (!Time.TryParse("10:00", out a))
+            if (!Time.TryParse("10:00", out Time a))
             {
                 Assert.Fail("We were unable to parse \"10:00\"");
             }
-            if (!Time.TryParse("30s", out b))
+            if (!Time.TryParse("30s", out Time b))
             {
                 Assert.Fail("We were unable to parse \"30s\"");
             }
@@ -47,12 +46,11 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestDivision()
         {
-            Time a, b;
-            if (!Time.TryParse("10:00", out a))
+            if (!Time.TryParse("10:00", out Time a))
             {
                 Assert.Fail("We were unable to parse \"10:00\"");
             }
-            if (!Time.TryParse("30s", out b))
+            if (!Time.TryParse("30s", out Time b))
             {
                 Assert.Fail("We were unable to parse \"30s\"");
             }
@@ -101,8 +99,7 @@ namespace XTMF.Testing
             Time end1 = new Time() { Hours = 3 };
             Time start2 = new Time() { Hours = 1 };
             Time end2 = new Time() { Hours = 2 };
-            Time intersection;
-            if (!Time.Intersection(start1, end1, start2, end2, out intersection))
+            if (!Time.Intersection(start1, end1, start2, end2, out Time intersection))
             {
                 Assert.Fail("Intersection failed in a case where there was an intersection!");
             }
@@ -121,12 +118,11 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestNegative()
         {
-            Time a, b;
-            if (!Time.TryParse("10:00", out a))
+            if (!Time.TryParse("10:00", out Time a))
             {
                 Assert.Fail("We were unable to parse \"10:00\"");
             }
-            if (!Time.TryParse("30s", out b))
+            if (!Time.TryParse("30s", out Time b))
             {
                 Assert.Fail("We were unable to parse \"30s\"");
             }
@@ -141,12 +137,11 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestNegativeAdd()
         {
-            Time a, b;
-            if (!Time.TryParse("10:00", out a))
+            if (!Time.TryParse("10:00", out Time a))
             {
                 Assert.Fail("We were unable to parse \"10:00\"");
             }
-            if (!Time.TryParse("30s", out b))
+            if (!Time.TryParse("30s", out Time b))
             {
                 Assert.Fail("We were unable to parse \"30s\"");
             }
@@ -170,12 +165,11 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestSubtraction()
         {
-            Time a, b;
-            if (!Time.TryParse("10:00", out a))
+            if (!Time.TryParse("10:00", out Time a))
             {
                 Assert.Fail("We were unable to parse \"10:00\"");
             }
-            if (!Time.TryParse("30s", out b))
+            if (!Time.TryParse("30s", out Time b))
             {
                 Assert.Fail("We were unable to parse \"30s\"");
             }
@@ -187,12 +181,11 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestSubtraction2()
         {
-            Time a, b;
-            if (!Time.TryParse("10:00 PM", out a))
+            if (!Time.TryParse("10:00 PM", out Time a))
             {
                 Assert.Fail("We were unable to parse \"10:00\"");
             }
-            if (!Time.TryParse("9:00 PM", out b))
+            if (!Time.TryParse("9:00 PM", out Time b))
             {
                 Assert.Fail("We were unable to parse \"30s\"");
             }
@@ -203,8 +196,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestTashaTimeFails()
         {
-            Time a;
-            if (!Time.TryParse("8:45 AM", out a))
+            if (!Time.TryParse("8:45 AM", out Time a))
             {
                 Assert.Fail("We were unable to parse \"8:45 AM\"");
             }
@@ -224,8 +216,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestToFloat()
         {
-            Time a;
-            if (!Time.TryParse("10:30:30", out a))
+            if (!Time.TryParse("10:30:30", out Time a))
             {
                 Assert.Fail("We were unable to parse \"10:30:30\"");
             }
@@ -239,8 +230,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestToMinutes()
         {
-            Time a;
-            if (!Time.TryParse("10:30:30", out a))
+            if (!Time.TryParse("10:30:30", out Time a))
             {
                 Assert.Fail("We were unable to parse \"10:30:30\"");
             }
@@ -269,8 +259,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestTryParse()
         {
-            Time t;
-            if (!Time.TryParse("10:00", out t))
+            if (!Time.TryParse("10:00", out Time t))
             {
                 Assert.Fail("We were unable to parse \"10:00\"");
             }
@@ -323,8 +312,7 @@ namespace XTMF.Testing
 
         private void TestIntersection(Time start1, Time end1, Time start2, Time end2)
         {
-            Time intersectionStart, intersectionEnd;
-            if (!Time.Intersection(start1, end1, start2, end2, out intersectionStart, out intersectionEnd))
+            if (!Time.Intersection(start1, end1, start2, end2, out Time intersectionStart, out Time intersectionEnd))
             {
                 Assert.Fail("Intersection failed in a case where there was an intersection!");
             }

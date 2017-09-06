@@ -38,12 +38,14 @@ namespace TMG.Emme
 
         public ExtraAttributeData()
         {
-            _AllowedDomains = new HashSet<string>();
-            _AllowedDomains.Add("NODE");
-            _AllowedDomains.Add("LINK");
-            _AllowedDomains.Add("TURN");
-            _AllowedDomains.Add("TRANSIT_LINE");
-            _AllowedDomains.Add("TRANSIT_SEGMENT");
+            _AllowedDomains = new HashSet<string>
+            {
+                "NODE",
+                "LINK",
+                "TURN",
+                "TRANSIT_LINE",
+                "TRANSIT_SEGMENT"
+            };
         }
 
         public string Name
@@ -111,7 +113,7 @@ namespace TMG.Emme
 
             var mc = controller as ModellerController;
             if (mc == null)
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
             float numberOfTasks = AttributesToCreate.Count + 1;
             bool[] createdAttributes = new bool[AttributesToCreate.Count];
@@ -127,7 +129,7 @@ namespace TMG.Emme
                 {
                     var attData = AttributesToCreate[i];
                     var args = string.Join(" ", ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, false, ResetToDefault);
-                    createdAttributes[i] = mc.Run(ToolName, args);
+                    createdAttributes[i] = mc.Run(this, ToolName, args);
                     // ReSharper disable once PossibleLossOfFraction
                     _Progress = i /  createdAttributes.Length / numberOfTasks;
                 }
@@ -149,7 +151,7 @@ namespace TMG.Emme
                         {
                             var attData = AttributesToCreate[i];
                             var args = string.Join(" ", ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, true, ResetToDefault);
-                            mc.Run(ToolName, args);
+                            mc.Run(this, ToolName, args);
                         }
                     }
                 }

@@ -209,7 +209,7 @@ namespace TMG.GTAModel
                         if (offset + j >= indexes.Length ||
                             indexes[offset + j] > zonePop.Length)
                         {
-                            throw new XTMFRuntimeException("We tried to assign to a person that does not exist!");
+                            throw new XTMFRuntimeException(this, "We tried to assign to a person that does not exist!");
                         }
                         zonePop[indexes[offset + j]].WorkZone = flatZones[i];
                     }
@@ -222,7 +222,7 @@ namespace TMG.GTAModel
         private float[] ComputeFriction(IZone[] zones, IDemographicCategoryGeneration cat, float[] friction)
         {
             var numberOfZones = zones.Length;
-            float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
+            float[] ret = friction ?? (new float[numberOfZones * numberOfZones]);
             var rootModes = Root.Modes;
             var numberOfModes = rootModes.Count;
             // let it setup the modes so we can compute friction
@@ -250,7 +250,7 @@ namespace TMG.GTAModel
                    }
                    if (feasibleModes == 0)
                    {
-                       throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
+                       throw new XTMFRuntimeException(this, "There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
                    }
                    ret[index++] = (float)Math.Exp(ImpedianceParameter * Math.Log(c));
                }

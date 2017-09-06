@@ -97,7 +97,7 @@ namespace TMG.GTAModel
                 {
                     if (BaseData.Count != MultiBlendSets.Count)
                     {
-                        throw new XTMFRuntimeException("In " + Name +
+                        throw new XTMFRuntimeException(this, "In " + Name +
                                                        " the number of BaseData entries is not the same as the number of Blend Sets!");
                     }
                 }
@@ -280,7 +280,7 @@ namespace TMG.GTAModel
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("Unable to load distribution cache file!\r\n" + e.Message);
+                throw new XTMFRuntimeException(this, "Unable to load distribution cache file!\r\n" + e.Message);
             }
         }
 
@@ -320,7 +320,7 @@ namespace TMG.GTAModel
                 var dirName = Path.GetDirectoryName(fileName);
                 if (dirName == null)
                 {
-                    throw new XTMFRuntimeException($"In {Name} we were unable to get the directory name from the file {fileName}!");
+                    throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory name from the file {fileName}!");
                 }
                 if (!Directory.Exists(dirName))
                 {
@@ -339,7 +339,7 @@ namespace TMG.GTAModel
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("Unable to save distribution cache file!\r\n" + e.Message);
+                throw new XTMFRuntimeException(this, "Unable to save distribution cache file!\r\n" + e.Message);
             }
         }
 
@@ -432,7 +432,7 @@ namespace TMG.GTAModel
                     // just return since all of the values are zero anyway
                     if (sum <= 0)
                     {
-                        throw new XTMFRuntimeException("In '" + Name + "' there was no attraction for zone " + zones[i].ZoneNumber);
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' there was no attraction for zone " + zones[i].ZoneNumber);
                     }
                     ProcessRatio(i, ratio, flatProd, productions[subset]);
                     ComputeSubsetRatios(i, subsetRatios, productions);

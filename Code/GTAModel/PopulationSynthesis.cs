@@ -240,11 +240,10 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
                 // Assign people to households depending on the number of cars they will have
                 foreach (var validOccupationIndex in Demographics.OccupationCategories.ValidIndexies())
                 {
-                    int[] haveLicenseIndexes, doNotHaveLicenseIndexes;
                     var haveLicense = SplitCars(people, zoneIndex, validAgeIndex, validOccupationIndex,
-                        true, ageOffset, numberOfPeople, rand, out haveLicenseIndexes);
+                        true, ageOffset, numberOfPeople, rand, out int[] haveLicenseIndexes);
                     var doNotHaveLicense = SplitCars(people, zoneIndex, validAgeIndex, validOccupationIndex,
-                        false, ageOffset, numberOfPeople, rand, out doNotHaveLicenseIndexes);
+                        false, ageOffset, numberOfPeople, rand, out int[] doNotHaveLicenseIndexes);
                     AssignCars(people, haveLicenseIndexes, haveLicense, households, ageOffset, rand);
                     AssignCars(people, doNotHaveLicenseIndexes, doNotHaveLicense, households, ageOffset, rand);
                 }

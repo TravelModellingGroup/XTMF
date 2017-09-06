@@ -9,10 +9,9 @@ namespace XTMF.Testing
         public void TestStringListTryParse()
         {
             string error = null;
-            StringList list;
-            if ( !StringList.TryParse( ref error, "Hello World,Second,With \\, Comma", out list ) )
+            if (!StringList.TryParse(ref error, "Hello World,Second,With \\, Comma", out StringList list))
             {
-                Assert.Fail( "StringList should never return false!" );
+                Assert.Fail("StringList should never return false!");
             }
             Assert.AreEqual( 3, list.Count );
             Assert.AreEqual( "Hello World", list[0] );
@@ -24,10 +23,9 @@ namespace XTMF.Testing
         public void TestJoin()
         {
             string error = null;
-            StringList list;
-            if ( !StringList.TryParse( ref error, "Hello World,Second,With \\, Comma", out list ) )
+            if (!StringList.TryParse(ref error, "Hello World,Second,With \\, Comma", out StringList list))
             {
-                Assert.Fail( "StringList should never return false!" );
+                Assert.Fail("StringList should never return false!");
             }
             Assert.AreEqual( 3, list.Count );
             var result = string.Join( ",", list.ToArray() );
@@ -37,10 +35,9 @@ namespace XTMF.Testing
         public void TestToString()
         {
             string error = null;
-            StringList list;
-            if ( !StringList.TryParse( ref error, "Hello World,Second,With \\, Comma", out list ) )
+            if (!StringList.TryParse(ref error, "Hello World,Second,With \\, Comma", out StringList list))
             {
-                Assert.Fail( "StringList should never return false!" );
+                Assert.Fail("StringList should never return false!");
             }
             Assert.AreEqual( 3, list.Count );
             var result = list.ToString();

@@ -59,8 +59,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         {
             foreach ( var dataSource in Root.NetworkData )
             {
-                var ds = dataSource as ITripComponentData;
-                if ( ds != null && dataSource.NetworkType == NetworkType )
+                if (dataSource is ITripComponentData ds && dataSource.NetworkType == NetworkType)
                 {
                     NetworkData = ds;
                     return;

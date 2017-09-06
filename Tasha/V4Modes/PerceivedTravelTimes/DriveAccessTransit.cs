@@ -176,8 +176,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             }
             // Apply personal factors
             var p = trip.TripChain.Person;
-            float constant;
-            GetPersonVariables(p, out constant);
+            GetPersonVariables(p, out float constant);
             float v = constant;
             if (p.Female)
             {
@@ -326,10 +325,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection)
         {
-            bool first;
             var trips = chain.Trips;
-            int otherIndex;
-            int tripCount = CountTripsUsingThisMode(tripIndex, out first, out otherIndex, trips);
+            int tripCount = CountTripsUsingThisMode(tripIndex, out bool first, out int otherIndex, trips);
 
             if (tripCount > 2)
             {
@@ -390,8 +387,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var zones = accessData.First;
             var utils = accessData.Second;
             float totalUtil;
-            float ivttBeta, costBeta, constant;
-            GetPersonVariables(person, out constant, out ivttBeta, out costBeta);
+            GetPersonVariables(person, out float constant, out float ivttBeta, out float costBeta);
             totalUtil = VectorHelper.Sum(utils, 0, utils.Length);
             if (totalUtil <= 0)
             {
@@ -426,8 +422,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     if (probability > 0)
                     {
                         var local = 0.0f;
-                        float perceivedTime, cost, twalk, twait, trueTime;
-                        TransitNetwork.GetAllData(stationIndex, fd, firstTime, out trueTime, out twalk, out twait, out perceivedTime, out cost);
+                        TransitNetwork.GetAllData(stationIndex, fd, firstTime, out float trueTime, out float twalk, out float twait, out float perceivedTime, out float cost);
                         local += perceivedTime * ivttBeta + cost * costBeta;
                         TransitNetwork.GetAllData(stationIndex, so, secondTime, out perceivedTime, out twalk, out twait, out perceivedTime, out cost);
                         local += perceivedTime * ivttBeta + cost * costBeta;
@@ -648,7 +643,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var ret = costFactor * timeFactor;
             if (ret > 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0!");
             }
             return ret;
         }

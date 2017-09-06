@@ -88,7 +88,7 @@ namespace Tasha.Scheduler
             }
             else
             {
-                throw new XTMFRuntimeException( "This person has already been included!" );
+                throw new XTMFRuntimeException(null, "This person has already been included!" );
             }
         }
     }

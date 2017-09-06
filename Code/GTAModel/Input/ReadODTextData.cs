@@ -80,7 +80,7 @@ it will skip the first line so that standard csv data will also work.</p>"
             }
             catch (IOException)
             {
-                throw new XTMFRuntimeException("Unable to read the file " + fileName + " please make sure that this file exists!");
+                throw new XTMFRuntimeException(this, "Unable to read the file " + fileName + " please make sure that this file exists!");
             }
             // you can not have a try while using yield
             using (reader)
@@ -131,10 +131,9 @@ it will skip the first line so that standard csv data will also work.</p>"
                 }
                 reader.BaseStream.Position--;
                 // start to process the data
-                ODData<float> data;
                 while (!EndOfFile(reader))
                 {
-                    if (ReadDataLine(reader, out data))
+                    if (ReadDataLine(reader, out ODData<float> data))
                     {
                         yield return data;
                     }
@@ -237,7 +236,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                     }
                     else if ((c < '0' | c > '9'))
                     {
-                        throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
+                        throw new XTMFRuntimeException(this, "In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                     }
                     else
                     {
@@ -262,7 +261,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                         }
                         else if ((c < '0' | c > '9'))
                         {
-                            throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
+                            throw new XTMFRuntimeException(this, "In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                         }
                         else
                         {
@@ -303,7 +302,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                 }
                 if (c < '0' | c > '9')
                 {
-                    throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
+                    throw new XTMFRuntimeException(this, "In " + Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                 }
                 p = p * 10 + (c - '0');
             } while (!EndOfFile(reader) && (c = reader.ReadChar()) != '\t' & c != ' ' & c != ',');

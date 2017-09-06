@@ -138,7 +138,7 @@ namespace TMG.Estimation
                         !Functions.ModelSystemReflection.AssignValue(XtmfConfig, ClientStructure, Parameters[i].Names[j],
                             task.ParameterValues[i].ToString(CultureInfo.InvariantCulture), ref error))
                     {
-                        throw new XTMFRuntimeException($"In '{Name}' we were unable to assign a parameter!\r\n{error}");
+                        throw new XTMFRuntimeException(this, $"In '{Name}' we were unable to assign a parameter!\r\n{error}");
                     }
                 }
             }
@@ -175,7 +175,7 @@ namespace TMG.Estimation
                     var job = data as ClientTask;
                     if (job == null)
                     {
-                        throw new XTMFRuntimeException($"In {Name} ");
+                        throw new XTMFRuntimeException(this, $"In {Name} we were given a task that was not a job!");
                     }
                     BinaryWriter writer = new BinaryWriter( stream );
                     writer.Write( job.Generation );

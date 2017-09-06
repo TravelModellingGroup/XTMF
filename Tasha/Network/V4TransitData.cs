@@ -267,8 +267,7 @@ namespace Tasha.Network
 
         public Time BoardingTime(int flatOrigin, int flatDestination, Time time)
         {
-            float ivttTime, walkTime, waitTime, boardingtime, cost;
-            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out float ivttTime, out float walkTime, out float waitTime, out float boardingtime, out float cost);
             return Time.FromMinutes(boardingtime);
         }
 
@@ -291,8 +290,7 @@ namespace Tasha.Network
 
         public bool GetAllData(int flatOrigin, int flatDestination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost)
         {
-            float ivttTime, walkTime, waitTime, boardingtime;
-            GetData(flatOrigin, flatDestination, time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
+            GetData(flatOrigin, flatDestination, time, out float ivttTime, out cost, out float walkTime, out float waitTime, out float boardingtime);
             ivtt = Time.FromMinutes(ivttTime);
             walk = Time.FromMinutes(walkTime);
             wait = Time.FromMinutes(waitTime);
@@ -302,16 +300,14 @@ namespace Tasha.Network
 
         public bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost)
         {
-            float ivttTime, walkTime, waitTime, boardingtime;
-            GetData(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
+            GetData(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time, out float ivttTime, out cost, out float walkTime, out float waitTime, out float boardingtime);
             ivtt = Time.FromMinutes(ivttTime + walkTime + waitTime);
             return !(NoWalkTimeInfeasible & (walkTime <= 0 & ivttTime <= 0));
         }
 
         public bool GetAllData(int start, int end, Time time, out float ivtt, out float cost)
         {
-            float ivttTime, walkTime, waitTime, boardingtime;
-            GetData(start, end, time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
+            GetData(start, end, time, out float ivttTime, out cost, out float walkTime, out float waitTime, out float boardingtime);
             ivtt = ivttTime + walkTime + waitTime;
             return !(NoWalkTimeInfeasible & (walkTime <= 0 & ivttTime <= 0));
         }
@@ -334,8 +330,7 @@ namespace Tasha.Network
 
         public Time InVehicleTravelTime(int flatOrigin, int flatDestination, Time time)
         {
-            float ivttTime, walkTime, waitTime, boardingtime, cost;
-            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out float ivttTime, out float walkTime, out float waitTime, out float boardingtime, out float cost);
             return Time.FromMinutes(ivttTime);
         }
 
@@ -352,8 +347,7 @@ namespace Tasha.Network
             ZoneArray = zoneArray;
             if (!Loaded)
             {
-                var iterationModel = Root as IIterativeModel;
-                if (iterationModel != null)
+                if (Root is IIterativeModel iterationModel)
                 {
                     if (iterationModel.CurrentIteration == 0)
                     {
@@ -395,8 +389,7 @@ namespace Tasha.Network
 
         public float TravelCost(int flatOrigin, int flatDestination, Time time)
         {
-            float ivttTime, walkTime, waitTime, boardingtime, cost;
-            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out float ivttTime, out float walkTime, out float waitTime, out float boardingtime, out float cost);
             return cost;
         }
 
@@ -407,8 +400,7 @@ namespace Tasha.Network
 
         public Time TravelTime(int flatOrigin, int flatDestination, Time time)
         {
-            float ivttTime, walkTime, waitTime, boardingtime, cost;
-            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out float ivttTime, out float walkTime, out float waitTime, out float boardingtime, out float cost);
             return Time.FromMinutes(ivttTime + walkTime + waitTime);
         }
 
@@ -446,8 +438,7 @@ namespace Tasha.Network
 
         public Time WaitTime(int flatOrigin, int flatDestination, Time time)
         {
-            float ivttTime, walkTime, waitTime, boardingtime, cost;
-            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out float ivttTime, out float walkTime, out float waitTime, out float boardingtime, out float cost);
             return Time.FromMinutes(waitTime);
         }
 
@@ -458,8 +449,7 @@ namespace Tasha.Network
 
         public Time WalkTime(int flatOrigin, int flatDestination, Time time)
         {
-            float ivttTime, walkTime, waitTime, boardingtime, cost;
-            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out float ivttTime, out float walkTime, out float waitTime, out float boardingtime, out float cost);
             return Time.FromMinutes(walkTime);
         }
     }

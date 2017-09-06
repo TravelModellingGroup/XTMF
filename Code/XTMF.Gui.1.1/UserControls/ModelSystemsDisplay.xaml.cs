@@ -232,8 +232,7 @@ namespace XTMF.Gui.UserControls
 
         private void RenameCurrentModelSystem()
         {
-            var modelSystem = Display.SelectedItem as ModelSystem;
-            if (modelSystem != null)
+            if (Display.SelectedItem is ModelSystem modelSystem)
             {
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
@@ -269,8 +268,7 @@ namespace XTMF.Gui.UserControls
 
         private void CloneCurrentModelSystem()
         {
-            var modelSystem = Display.SelectedItem as ModelSystem;
-            if (modelSystem != null)
+            if (Display.SelectedItem is ModelSystem modelSystem)
             {
                 string error = null;
                 StringRequest sr = new StringRequest("Clone Model System As?", newName =>
@@ -293,8 +291,7 @@ namespace XTMF.Gui.UserControls
 
         private void DeleteCurrentModelSystem()
         {
-            var modelSystem = Display.SelectedItem as ModelSystem;
-            if (modelSystem != null)
+            if (Display.SelectedItem is ModelSystem modelSystem)
             {
                 if (MessageBox.Show(GetWindow(),
                     "Are you sure you want to delete the model system '" + modelSystem.Name + "'?  This action cannot be undone!", "Delete ModelSystem", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
@@ -312,8 +309,7 @@ namespace XTMF.Gui.UserControls
 
         private void ExportCurrentModelSystem()
         {
-            var modelSystem = Display.SelectedItem as ModelSystem;
-            if (modelSystem != null)
+            if (Display.SelectedItem is ModelSystem modelSystem)
             {
                 string fileName = MainWindow.OpenFile(modelSystem.Name, new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
                 if (!String.IsNullOrWhiteSpace(fileName))

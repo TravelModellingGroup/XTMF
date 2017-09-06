@@ -537,10 +537,8 @@ namespace Tasha.Scheduler
             }
             for(int i = 0; i < persons.Length; i++)
             {
-                Time workStartTime;
-                Time workEndTime;
                 ITashaPerson person = household.Persons[i];
-                AssignWorkSchoolEpisodes(persons[i], out workStartTime, out workEndTime, null);
+                AssignWorkSchoolEpisodes(persons[i], out Time workStartTime, out Time workEndTime, null);
                 for(int j = 0; j < addZero.Length; j++)
                 {
                     eventCount[j] = 0;

@@ -445,24 +445,21 @@ namespace Tasha.PopulationSynthesis
             using (CsvReader reader = new CsvReader(FutureYearPopulationByZone))
             {
                 reader.LoadLine();
-                int columns;
-                while (reader.LoadLine(out columns))
+                while (reader.LoadLine(out int columns))
                 {
                     if (columns >= 2)
                     {
-                        int sparseZone;
-                        reader.Get(out sparseZone, 0);
+                        reader.Get(out int sparseZone, 0);
                         int zone = zoneSystem.GetFlatIndex(sparseZone);
                         if (zone >= 0)
                         {
-                            float futurePopulation;
-                            reader.Get(out futurePopulation, 1);
+                            reader.Get(out float futurePopulation, 1);
                             ExpansionModiferByZone[zone] = futurePopulation / zones[zone].Population;
                             if (zones[zone].Population > 0)
                             {
                                 if (float.IsNaN(ExpansionModiferByZone[zone]) | float.IsInfinity(ExpansionModiferByZone[zone]))
                                 {
-                                    throw new XTMFRuntimeException("Zone " + sparseZone + " ended up with an invalid (infinite) population in the future year forecast!");
+                                    throw new XTMFRuntimeException(this, "Zone " + sparseZone + " ended up with an invalid (infinite) population in the future year forecast!");
                                 }
                             }
                         }

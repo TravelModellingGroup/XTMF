@@ -153,7 +153,7 @@ namespace TMG.GTAModel.ModeSplit
             }
             else
             {
-                throw new XTMFRuntimeException("Only Interactive mode is supported!");
+                throw new XTMFRuntimeException(this, "Only Interactive mode is supported!");
             }
         }
 
@@ -202,8 +202,10 @@ namespace TMG.GTAModel.ModeSplit
                 Results = new TreeData<float[][]>[numberOfModes];
                 for (int i = 0; i < Results.Length; i++)
                 {
-                    Results[i] = new TreeData<float[][]>();
-                    Results[i].Result = new float[numberOfZones][];
+                    Results[i] = new TreeData<float[][]>
+                    {
+                        Result = new float[numberOfZones][]
+                    };
                 }
             }
         }
@@ -334,12 +336,11 @@ namespace TMG.GTAModel.ModeSplit
                 {
                     if (reader.LoadLine() >= numberOfModes + 5)
                     {
-                        int occ, os, oe, ds, de;
-                        reader.Get(out occ, 0);
-                        reader.Get(out os, 1);
-                        reader.Get(out oe, 2);
-                        reader.Get(out ds, 3);
-                        reader.Get(out de, 4);
+                        reader.Get(out int occ, 0);
+                        reader.Get(out int os, 1);
+                        reader.Get(out int oe, 2);
+                        reader.Get(out int ds, 3);
+                        reader.Get(out int de, 4);
                         float[] modeData = new float[numberOfModes];
                         for (int i = 0; i < modeData.Length; i++)
                         {

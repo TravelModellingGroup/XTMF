@@ -103,18 +103,15 @@ namespace TMG.Emme.Analysis
             var map = new List<int>[zoneSystem.Count];
             using (CsvReader reader = new CsvReader(AggregationFile))
             {
-                int columns;
                 // burn header
-                reader.LoadLine(out columns);
+                reader.LoadLine(out int columns);
                 // read the real data
-                while(reader.LoadLine(out columns))
+                while (reader.LoadLine(out columns))
                 {
                     if(columns >= 2)
                     {
-                        int zone;
-                        string agg;
-                        reader.Get(out zone, 0);
-                        reader.Get(out agg, 1);
+                        reader.Get(out int zone, 0);
+                        reader.Get(out string agg, 1);
                         zone = zoneSystem.GetFlatIndex(zone);
                         if(zone >= 0)
                         {
@@ -303,9 +300,7 @@ namespace TMG.Emme.Analysis
 
         public void Start()
         {
-            string[] aggregationHeaders;
-            List<int>[] zoneToAggregationMap;
-            LoadMapping(out aggregationHeaders, out zoneToAggregationMap);
+            LoadMapping(out string[] aggregationHeaders, out List<int>[] zoneToAggregationMap);
             var data = AnalysisTarget.AcquireResource<SparseTwinIndex<float>>();
             var aggData = AggregationToApply.ApplyAggregation(data.GetFlatData(), zoneToAggregationMap, aggregationHeaders);
             SaveData(aggData, aggregationHeaders);

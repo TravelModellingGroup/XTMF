@@ -56,9 +56,9 @@ namespace TMG.Emme.Tools
             var mc = controller as ModellerController;
             if(mc == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' the controller was not of type ModellerController!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not of type ModellerController!");
             }
-            return mc.Run(ToolName, GetArguments());
+            return mc.Run(this, ToolName, GetArguments());
         }
 
         private string GetArguments()

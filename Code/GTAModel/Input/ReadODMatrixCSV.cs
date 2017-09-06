@@ -67,12 +67,11 @@ namespace TMG.GTAModel.Input
                 var zonesNumbers = zones.Select(z => z.ZoneNumber).ToArray();
                 for (int i = 1; i < length; i++)
                 {
-                    int zoneNumber;
-                    reader.Get(out zoneNumber, i);
+                    reader.Get(out int zoneNumber, i);
                     destinationMap[i - 1] = zoneNumber;
                     if (Array.BinarySearch(zonesNumbers, zoneNumber) < 0)
                     {
-                        throw new XTMFRuntimeException($"In {Name} we were found a zone number {zoneNumber} that is not contained in the zone system!");
+                        throw new XTMFRuntimeException(this, $"In {Name} we were found a zone number {zoneNumber} that is not contained in the zone system!");
                     }
                 }
                 // now read in data
@@ -90,7 +89,7 @@ namespace TMG.GTAModel.Input
                 }
                 if(!anyLinesRead)
                 {
-                    throw new XTMFRuntimeException($"In {Name} when reading the file '{FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".")}' we did not load any information!");
+                    throw new XTMFRuntimeException(this, $"In {Name} when reading the file '{FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".")}' we did not load any information!");
                 }
             }
         }

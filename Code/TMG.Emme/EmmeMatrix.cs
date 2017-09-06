@@ -128,7 +128,7 @@ namespace TMG.Emme
                 }
                 if (any)
                 {
-                    throw new XTMFRuntimeException("The matrix being saved to '" + fileLocation + "' contains NaN values!");
+                    throw new XTMFRuntimeException(null, "The matrix being saved to '" + fileLocation + "' contains NaN values!");
                 }
             }
             FileStream file = null;
@@ -177,7 +177,7 @@ namespace TMG.Emme
                     }
                     if (temp == null)
                     {
-                        throw new XTMFRuntimeException($"When saving an EMME matrix to {fileLocation} we tried had no data to write!");
+                        throw new XTMFRuntimeException(null, $"When saving an EMME matrix to {fileLocation} we tried had no data to write!");
                     }
                     writer.Write(temp);
                 }

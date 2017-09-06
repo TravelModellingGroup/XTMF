@@ -68,9 +68,9 @@ namespace TMG.Emme.Tools.Analysis.Transit
             var modeller = controller as ModellerController;
             if(modeller == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were unable to run since the controller is not connected through modeller.");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to run since the controller is not connected through modeller.");
             }
-            return modeller.Run(ToolName, GetParameters());
+            return modeller.Run(this, ToolName, GetParameters());
         }
 
         private ModellerControllerParameter[] GetParameters()

@@ -35,10 +35,10 @@ namespace Tasha
 {
     public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
     {
-        [RunParameter( "Cross Exponent", 2.2f, "The exponent used for selecting the parameters to breed." )]
+        [RunParameter("Cross Exponent", 2.2f, "The exponent used for selecting the parameters to breed.")]
         public float CrossExponent;
 
-        [RunParameter( "EvaluationFile", "Evaluation.csv", "The file that we store the evaluation in." )]
+        [RunParameter("EvaluationFile", "Evaluation.csv", "The file that we store the evaluation in.")]
         public string EvaluationFile;
 
         /// <summary>
@@ -46,47 +46,47 @@ namespace Tasha
         /// </summary>
         public IHost Host;
 
-        [RunParameter( "Max Mutation", 0.4f, "The maximum amount (in 0 to 1) that a parameter can be mutated" )]
+        [RunParameter("Max Mutation", 0.4f, "The maximum amount (in 0 to 1) that a parameter can be mutated")]
         public float MaxMutationPercent;
 
-        [RunParameter( "Mutation Exponent", 2f, "The exponent used for mutation" )]
+        [RunParameter("Mutation Exponent", 2f, "The exponent used for mutation")]
         public float MutationExponent;
 
-        [RunParameter( "Mutation Probability", 3.1f, "The number of mutations per gene. The remainder will be applied with a probability." )]
+        [RunParameter("Mutation Probability", 3.1f, "The number of mutations per gene. The remainder will be applied with a probability.")]
         public float MutationProbability;
 
-        [RunParameter( "Observed Mode Attachment", "ObservedMode", "The name of the attachment string from the loader" )]
+        [RunParameter("Observed Mode Attachment", "ObservedMode", "The name of the attachment string from the loader")]
         public string ObservedMode;
 
-        [RunParameter( "Parameter Instructions", "ParameterInstructions.xml", "Describes which and how the parameters will be estimated." )]
+        [RunParameter("Parameter Instructions", "ParameterInstructions.xml", "Describes which and how the parameters will be estimated.")]
         public string ParameterInstructions;
 
-        [RunParameter( "Population Size", 500, "The total population to be calculated." )]
+        [RunParameter("Population Size", 500, "The total population to be calculated.")]
         public int PopulationSize;
 
-        [RunParameter( "Previous Evaluation File Name", "Evaluation.csv", typeof( FileFromInputDirectory ), "The file to use to gather the starting population from if the 'Start From Previous Best' is turned on.  This path is relative to the input directory." )]
+        [RunParameter("Previous Evaluation File Name", "Evaluation.csv", typeof(FileFromInputDirectory), "The file to use to gather the starting population from if the 'Start From Previous Best' is turned on.  This path is relative to the input directory.")]
         public FileFromInputDirectory PreviousRunFileName;
 
-        [RunParameter( "ModelSystemName", "Genetic Network Estimation", "The name of the model system that will be deployed to the remote machines." )]
+        [RunParameter("ModelSystemName", "Genetic Network Estimation", "The name of the model system that will be deployed to the remote machines.")]
         public string RemoteModelSystemName;
 
-        [RunParameter( "Reseed", 10, "The number of units in the population that will be reseeded with completely different values each generation." )]
+        [RunParameter("Reseed", 10, "The number of units in the population that will be reseeded with completely different values each generation.")]
         public int Reseed;
 
-        [RunParameter( "Start From Previous Best", false, "Should we use the output of a previous run as the starting population?" )]
+        [RunParameter("Start From Previous Best", false, "Should we use the output of a previous run as the starting population?")]
         public bool StartFromPreviousBest;
 
-        [RunParameter( "Total Generations", 300, "How many generations should we process?" )]
+        [RunParameter("Total Generations", 300, "How many generations should we process?")]
         public int TotalIterations { get; set; }
 
-        [RunParameter( "Validate Parameter Names", false, "Should we throw an error if one of the parameter names does not actually belong to a mode?" )]
+        [RunParameter("Validate Parameter Names", false, "Should we throw an error if one of the parameter names does not actually belong to a mode?")]
         public bool ValidateParameterNames;
 
         protected ParameterSet[] Population;
 
         protected Random RandomGenerator;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
 
         private IConfiguration Configuration;
 
@@ -111,21 +111,21 @@ namespace Tasha
             Configuration = configuration;
         }
 
-        [SubModelInformation( Description = "A list of all of the modes that can be used.", Required = false )]
+        [SubModelInformation(Description = "A list of all of the modes that can be used.", Required = false)]
         public List<ITashaMode> AllModes
         {
             get;
             set;
         }
 
-        [SubModelInformation( Description = "The loader of the household data", Required = true )]
+        [SubModelInformation(Description = "The loader of the household data", Required = true)]
         public IDataLoader<ITashaHousehold> HouseholdLoader
         {
             get;
             set;
         }
 
-        [RunParameter( "Input Directory", "../../TashaInput", "The directory that contains the input for Tasha" )]
+        [RunParameter("Input Directory", "../../TashaInput", "The directory that contains the input for Tasha")]
         public string InputBaseDirectory
         {
             get;
@@ -138,7 +138,7 @@ namespace Tasha
             set;
         }
 
-        [SubModelInformation( Description = "The networks that will be used.", Required = false )]
+        [SubModelInformation(Description = "The networks that will be used.", Required = false)]
         public IList<INetworkData> NetworkData
         {
             get;
@@ -156,24 +156,24 @@ namespace Tasha
             get { return _ProgressColour; }
         }
 
-        [RunParameter( "Random Seed", 12345, "A number to use as the seed for the random number generator." )]
+        [RunParameter("Random Seed", 12345, "A number to use as the seed for the random number generator.")]
         public int RandomSeed
         {
             get;
             set;
         }
 
-        [SubModelInformation( Description = "The available resources for this model system.", Required = false )]
+        [SubModelInformation(Description = "The available resources for this model system.", Required = false)]
         public List<IResource> Resources { get; set; }
 
-        [SubModelInformation( Description = "Vehicles other than Auto.", Required = false )]
+        [SubModelInformation(Description = "Vehicles other than Auto.", Required = false)]
         public List<IVehicleType> VehicleTypes
         {
             get;
             set;
         }
 
-        [SubModelInformation( Description = "The zone system that we will be using", Required = true )]
+        [SubModelInformation(Description = "The zone system that we will be using", Required = true)]
         public IZoneSystem ZoneSystem
         {
             get;
@@ -183,14 +183,14 @@ namespace Tasha
         public bool ExitRequest()
         {
             Exit = true;
-            lock ( Host )
+            lock (Host)
             {
                 // if we actually got a message then we are ready to start fireing off tasks
-                foreach ( var client in Host.ConnectedClients )
+                foreach (var client in Host.ConnectedClients)
                 {
                     try
                     {
-                        client.SendCancel( "Host Exiting" );
+                        client.SendCancel("Host Exiting");
                     }
                     // ReSharper disable once EmptyGeneralCatchClause
                     catch
@@ -203,17 +203,17 @@ namespace Tasha
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( AllModes == null || AllModes.Count == 0 )
+            if (AllModes == null || AllModes.Count == 0)
             {
                 error = "Mode Choice Estimation requires the modes in order to function properly!";
                 return false;
             }
-            if ( Host == null )
+            if (Host == null)
             {
                 error = "We require an XTMF Networking host to operate, please use a newer version of XTMF.";
                 return false;
             }
-            if ( Reseed > PopulationSize )
+            if (Reseed > PopulationSize)
             {
                 error = "You can not reseed more than the size of the population!";
                 return false;
@@ -226,44 +226,44 @@ namespace Tasha
             CurrentIteration = 0;
             TotalIterations = -1;
             BuildHouseholdData();
-            using ( ResultQueue = new MessageQueue<ResultMessage>() )
+            using (ResultQueue = new MessageQueue<ResultMessage>())
             {
                 InitializeHost();
                 RandomGenerator = new Random();
                 LoadInstructions();
                 GenerateInitialPopulation();
                 CreateDistributionThread();
-                for ( int generation = CurrentIteration; generation < TotalIterations; generation++ )
+                for (int generation = CurrentIteration; generation < TotalIterations; generation++)
                 {
                     // now that we have a population we need to go and send out the processing requests
                     TotalIterations = generation;
                     int processed = 0;
                     CurrentIteration = generation;
                     var lastResultProcessed = DateTime.Now;
-                    while ( processed < PopulationSize )
+                    while (processed < PopulationSize)
                     {
-                        var gatherResult = ResultQueue.GetMessageOrTimeout( 200 );
-                        if ( gatherResult != null )
+                        var gatherResult = ResultQueue.GetMessageOrTimeout(200);
+                        if (gatherResult != null)
                         {
-                            lock ( this )
+                            lock (this)
                             {
                                 Thread.MemoryBarrier();
                                 lastResultProcessed = DateTime.Now;
                                 int index = gatherResult.ProcessedIndex;
-                                if ( index != -1 )
+                                if (index != -1)
                                 {
                                     Population[index].Value = gatherResult.ProcessedValue;
                                     Population[index].Processed = true;
-                                    Save( index );
+                                    Save(index);
                                     processed++;
                                 }
                                 var generationProgressIncrement = 1f / TotalIterations;
-                                Progress = ( processed / (float)PopulationSize ) * generationProgressIncrement
+                                Progress = (processed / (float)PopulationSize) * generationProgressIncrement
                                     + generation * generationProgressIncrement;
                                 Thread.MemoryBarrier();
                             }
                         }
-                        else if ( Exit )
+                        else if (Exit)
                         {
                             ExitRequest();
                             return;
@@ -271,23 +271,23 @@ namespace Tasha
                         else
                         {
                             var timeSinceLastUpdate = DateTime.Now - lastResultProcessed;
-                            if ( timeSinceLastUpdate.TotalMinutes > 120 )
+                            if (timeSinceLastUpdate.TotalMinutes > 120)
                             {
-                                StartGeneration.Add( new StartGenerationMessage() );
+                                StartGeneration.Add(new StartGenerationMessage());
                             }
                         }
                     }
-                    lock ( this )
+                    lock (this)
                     {
                         // clean out the buffer
-                        while ( StartGeneration.GetMessageOrTimeout( 0 ) != null )
+                        while (StartGeneration.GetMessageOrTimeout(0) != null)
                         {
                         }
                         // now we can safely generate a new population
-                        if ( generation < TotalIterations - 1 )
+                        if (generation < TotalIterations - 1)
                         {
                             GenerateNextGeneration();
-                            StartGeneration.Add( new StartGenerationMessage() );
+                            StartGeneration.Add(new StartGenerationMessage());
                         }
                     }
                 }
@@ -297,15 +297,15 @@ namespace Tasha
 
         public override string ToString()
         {
-            return String.Format( "Generation {0} of {1}", TotalIterations, TotalIterations );
+            return String.Format("Generation {0} of {1}", TotalIterations, TotalIterations);
         }
 
         protected ParameterSetting[] CrossGenes(ParameterSetting[] baseSet, ParameterSetting[] spouse)
         {
             var ret = (ParameterSetting[])baseSet.Clone();
-            for ( int i = 0; i < baseSet.Length; i++ )
+            for (int i = 0; i < baseSet.Length; i++)
             {
-                if ( RandomGenerator.NextDouble() > 0.5 )
+                if (RandomGenerator.NextDouble() > 0.5)
                 {
                     ret[i] = baseSet[i];
                 }
@@ -320,7 +320,7 @@ namespace Tasha
         protected virtual void GenerateInitialPopulation()
         {
             Population = new ParameterSet[PopulationSize];
-            if ( StartFromPreviousBest )
+            if (StartFromPreviousBest)
             {
                 LoadInitialPopulation();
             }
@@ -332,20 +332,20 @@ namespace Tasha
 
         protected virtual void GenerateNextGeneration()
         {
-            lock ( this )
+            lock (this)
             {
                 var oldPopulation = Population;
-                Array.Sort( oldPopulation, new CompareParameterSet() );
+                Array.Sort(oldPopulation, new CompareParameterSet());
                 var newPopulation = new ParameterSet[PopulationSize];
-                for ( int i = 0; i < PopulationSize - Reseed; i++ )
+                for (int i = 0; i < PopulationSize - Reseed; i++)
                 {
                     int firstIndex = Select();
                     int secondIndex = Select();
-                    if ( secondIndex == firstIndex )
+                    if (secondIndex == firstIndex)
                     {
                         secondIndex++;
                     }
-                    if ( secondIndex >= PopulationSize )
+                    if (secondIndex >= PopulationSize)
                     {
                         secondIndex = 0;
                     }
@@ -354,15 +354,15 @@ namespace Tasha
                     newPopulation[i].Processing = false;
                     newPopulation[i].ProcessedBy = null;
                     newPopulation[i].Processed = false;
-                    newPopulation[i].Parameters = Mutate( CrossGenes( oldPopulation[firstIndex].Parameters, oldPopulation[secondIndex].Parameters ) );
+                    newPopulation[i].Parameters = Mutate(CrossGenes(oldPopulation[firstIndex].Parameters, oldPopulation[secondIndex].Parameters));
                 }
                 int numberOfParameters = Parameters.Length;
-                for ( int i = PopulationSize - Reseed; i < PopulationSize; i++ )
+                for (int i = PopulationSize - Reseed; i < PopulationSize; i++)
                 {
                     newPopulation[i].Parameters = oldPopulation[i].Parameters;
-                    for ( int j = 0; j < numberOfParameters; j++ )
+                    for (int j = 0; j < numberOfParameters; j++)
                     {
-                        newPopulation[i].Parameters[j].Current = ( ( Parameters[j].Stop - Parameters[j].Start ) * (float)RandomGenerator.NextDouble() ) + Parameters[j].Start;
+                        newPopulation[i].Parameters[j].Current = ((Parameters[j].Stop - Parameters[j].Start) * (float)RandomGenerator.NextDouble()) + Parameters[j].Start;
                     }
                 }
                 Population = newPopulation;
@@ -375,18 +375,18 @@ namespace Tasha
             var ret = (ParameterSetting[])original.Clone();
             var numberOfParameters = ret.Length;
             // see if we will have an addition mutation randomly
-            int numberOfMutations = ( MutationProbability - (int)MutationProbability ) > RandomGenerator.NextDouble() ? (int)MutationProbability + 1 : (int)MutationProbability;
-            for ( int i = 0; i < numberOfMutations; i++ )
+            int numberOfMutations = (MutationProbability - (int)MutationProbability) > RandomGenerator.NextDouble() ? (int)MutationProbability + 1 : (int)MutationProbability;
+            for (int i = 0; i < numberOfMutations; i++)
             {
-                int index = (int)( RandomGenerator.NextDouble() * numberOfParameters );
+                int index = (int)(RandomGenerator.NextDouble() * numberOfParameters);
                 var space = ret[index].Stop - ret[index].Start;
-                var mutation = (float)( Math.Pow( RandomGenerator.NextDouble(), MutationExponent ) * ( space * MaxMutationPercent ) );
-                ret[index].Current += ( RandomGenerator.NextDouble() > 0.5 ? mutation : -mutation );
-                if ( ret[index].Current < ret[index].Start )
+                var mutation = (float)(Math.Pow(RandomGenerator.NextDouble(), MutationExponent) * (space * MaxMutationPercent));
+                ret[index].Current += (RandomGenerator.NextDouble() > 0.5 ? mutation : -mutation);
+                if (ret[index].Current < ret[index].Start)
                 {
                     ret[index].Current = ret[index].Start;
                 }
-                else if ( ret[index].Current > ret[index].Stop )
+                else if (ret[index].Current > ret[index].Stop)
                 {
                     ret[index].Current = ret[index].Stop;
                 }
@@ -401,80 +401,80 @@ namespace Tasha
             ZoneSystem.LoadData();
             HouseholdLoader.LoadData();
             var households = HouseholdLoader.ToArray();
-            VehicleTypes.Add( AutoType );
-            using ( MemoryStream mem = new MemoryStream() )
+            VehicleTypes.Add(AutoType);
+            using (MemoryStream mem = new MemoryStream())
             {
-                BinaryWriter writer = new BinaryWriter( mem );
-                writer.Write( households.Length );
+                BinaryWriter writer = new BinaryWriter(mem);
+                writer.Write(households.Length);
                 var numberOfVehicleTypes = VehicleTypes.Count;
-                writer.Write( numberOfVehicleTypes );
-                for ( int i = 0; i < numberOfVehicleTypes; i++ )
+                writer.Write(numberOfVehicleTypes);
+                for (int i = 0; i < numberOfVehicleTypes; i++)
                 {
-                    writer.Write( VehicleTypes[i].VehicleName );
+                    writer.Write(VehicleTypes[i].VehicleName);
                 }
-                foreach ( var household in households )
+                foreach (var household in households)
                 {
                     // write out all of the household attributes
-                    writer.Write( household.HouseholdId );
-                    writer.Write( household.Persons.Length );
-                    for ( int i = 0; i < numberOfVehicleTypes; i++ )
+                    writer.Write(household.HouseholdId);
+                    writer.Write(household.Persons.Length);
+                    for (int i = 0; i < numberOfVehicleTypes; i++)
                     {
-                        writer.Write( household.Vehicles.Count( (v) => v.VehicleType.VehicleName == VehicleTypes[i].VehicleName ) );
+                        writer.Write(household.Vehicles.Count((v) => v.VehicleType.VehicleName == VehicleTypes[i].VehicleName));
                     }
-                    writer.Write( household.HomeZone.ZoneNumber );
-                    SendAttached( writer, household );
-                    foreach ( var person in household.Persons )
+                    writer.Write(household.HomeZone.ZoneNumber);
+                    SendAttached(writer, household);
+                    foreach (var person in household.Persons)
                     {
                         // Send the person's information
-                        writer.Write( person.Age );
-                        writer.Write( person.Female );
-                        writer.Write( (Int32)person.EmploymentStatus );
-                        writer.Write( (Int32)person.Occupation );
-                        if ( person.EmploymentZone == null )
+                        writer.Write(person.Age);
+                        writer.Write(person.Female);
+                        writer.Write((Int32)person.EmploymentStatus);
+                        writer.Write((Int32)person.Occupation);
+                        if (person.EmploymentZone == null)
                         {
-                            writer.Write( -1 );
+                            writer.Write(-1);
                         }
                         else
                         {
-                            writer.Write( person.EmploymentZone.ZoneNumber );
+                            writer.Write(person.EmploymentZone.ZoneNumber);
                         }
-                        writer.Write( (Int32)person.StudentStatus );
-                        if ( person.SchoolZone == null )
+                        writer.Write((Int32)person.StudentStatus);
+                        if (person.SchoolZone == null)
                         {
-                            writer.Write( -1 );
+                            writer.Write(-1);
                         }
                         else
                         {
-                            writer.Write( person.SchoolZone.ZoneNumber );
+                            writer.Write(person.SchoolZone.ZoneNumber);
                         }
-                        writer.Write( person.Licence );
+                        writer.Write(person.Licence);
 
-                        writer.Write( person.FreeParking );
-                        SendAttached( writer, person );
+                        writer.Write(person.FreeParking);
+                        SendAttached(writer, person);
                         // Start sending the trip chains
-                        writer.Write( person.TripChains.Count );
-                        foreach ( var tripChain in person.TripChains )
+                        writer.Write(person.TripChains.Count);
+                        foreach (var tripChain in person.TripChains)
                         {
-                            writer.Write( tripChain.JointTripID );
-                            writer.Write( tripChain.JointTripRep );
-                            SendAttached( writer, tripChain );
-                            writer.Write( tripChain.Trips.Count );
-                            foreach ( var trip in tripChain.Trips )
+                            writer.Write(tripChain.JointTripID);
+                            writer.Write(tripChain.JointTripRep);
+                            SendAttached(writer, tripChain);
+                            writer.Write(tripChain.Trips.Count);
+                            foreach (var trip in tripChain.Trips)
                             {
-                                writer.Write( trip.OriginalZone.ZoneNumber );
-                                writer.Write( trip.DestinationZone.ZoneNumber );
-                                writer.Write( (Int32)trip.Purpose );
-                                writer.Write( trip.ActivityStartTime.Hours );
-                                writer.Write( trip.ActivityStartTime.Minutes );
-                                writer.Write( trip.ActivityStartTime.Seconds );
-                                var mode = ( (ITashaMode)trip[ObservedMode] );
-                                if ( mode == null )
+                                writer.Write(trip.OriginalZone.ZoneNumber);
+                                writer.Write(trip.DestinationZone.ZoneNumber);
+                                writer.Write((Int32)trip.Purpose);
+                                writer.Write(trip.ActivityStartTime.Hours);
+                                writer.Write(trip.ActivityStartTime.Minutes);
+                                writer.Write(trip.ActivityStartTime.Seconds);
+                                var mode = ((ITashaMode)trip[ObservedMode]);
+                                if (mode == null)
                                 {
-                                    throw new XTMFRuntimeException( "In household #" + household.HouseholdId
-                                        + " for Person #" + person.Id + " for Trip #" + trip.TripNumber + " there was no observed mode stored!" );
+                                    throw new XTMFRuntimeException(this, "In household #" + household.HouseholdId
+                                        + " for Person #" + person.Id + " for Trip #" + trip.TripNumber + " there was no observed mode stored!");
                                 }
-                                writer.Write( mode.ModeName );
-                                SendAttached( writer, trip );
+                                writer.Write(mode.ModeName);
+                                SendAttached(writer, trip);
                             }
                         }
                     }
@@ -487,27 +487,27 @@ namespace Tasha
         private void ClientDisconnected(IRemoteXTMF obj)
         {
             // Recover the lost data by putting it back on the processing Queue
-            lock ( this )
+            lock (this)
             {
-                Configuration.DeleteProgressReport( obj.UniqueID );
+                Configuration.DeleteProgressReport(obj.UniqueID);
                 bool othersStillProcessing = false;
                 var populationLength = Population.Length;
-                for ( int i = 0; i < populationLength; i++ )
+                for (int i = 0; i < populationLength; i++)
                 {
-                    if ( Population[i].ProcessedBy != obj && Population[i].Processing && Population[i].Processed == false )
+                    if (Population[i].ProcessedBy != obj && Population[i].Processing && Population[i].Processed == false)
                     {
                         othersStillProcessing = true;
                     }
-                    if ( Population[i].ProcessedBy == obj && Population[i].Processing && Population[i].Processed == false )
+                    if (Population[i].ProcessedBy == obj && Population[i].Processing && Population[i].Processed == false)
                     {
                         Population[i].ProcessedBy = null;
                         Population[i].Processing = false;
                     }
                 }
 
-                if ( !othersStillProcessing )
+                if (!othersStillProcessing)
                 {
-                    StartGeneration.Add( new StartGenerationMessage() );
+                    StartGeneration.Add(new StartGenerationMessage());
                 }
             }
         }
@@ -519,8 +519,8 @@ namespace Tasha
 
         private void ClientReady2(object o, IRemoteXTMF client)
         {
-            ConnectedClients.Add( client );
-            SendNextParameter( client );
+            ConnectedClients.Add(client);
+            SendNextParameter(client);
         }
 
         private object ClientWantsHouseholds(Stream o, IRemoteXTMF client)
@@ -531,13 +531,13 @@ namespace Tasha
         private void ClientWantsHouseholds2(object o, IRemoteXTMF client)
         {
             // Send the household data!
-            client.SendCustomMessage( null, 2 );
+            client.SendCustomMessage(null, 2);
         }
 
         private void CreateDistributionThread()
         {
             StartGeneration = new MessageQueue<StartGenerationMessage>();
-            Thread distributionThread = new Thread( DistributionMain );
+            Thread distributionThread = new Thread(DistributionMain);
             distributionThread.IsBackground = true;
             distributionThread.Start();
         }
@@ -546,19 +546,19 @@ namespace Tasha
         {
             // now that we have the middle point setup we can start to clone our new population
             var totalPopulation = PopulationSize;
-            for ( int i = 0; i < totalPopulation; i++ )
+            for (int i = 0; i < totalPopulation; i++)
             {
-                CreateRandomParameterAt( i );
+                CreateRandomParameterAt(i);
             }
         }
 
         private void CreateRandomParameterAt(int i)
         {
             // add in a population of mutents from the middle
-            Population[i] = ( new ParameterSet() { Value = 0, Parameters = Parameters.Clone() as ParameterSetting[] } );
-            for ( int j = 0; j < Population[i].Parameters.Length; j++ )
+            Population[i] = (new ParameterSet() { Value = 0, Parameters = Parameters.Clone() as ParameterSetting[] });
+            for (int j = 0; j < Population[i].Parameters.Length; j++)
             {
-                Population[i].Parameters[j].Current = ( ( Parameters[j].Stop - Parameters[j].Start ) * (float)RandomGenerator.NextDouble() ) + Parameters[j].Start;
+                Population[i].Parameters[j].Current = ((Parameters[j].Stop - Parameters[j].Start) * (float)RandomGenerator.NextDouble()) + Parameters[j].Start;
             }
             Population[i].ProcessedBy = null;
             Population[i].Processing = false;
@@ -568,23 +568,23 @@ namespace Tasha
 
         private void DistributionMain()
         {
-            while ( !Exit )
+            while (!Exit)
             {
-                if ( StartGeneration != null )
+                if (StartGeneration != null)
                 {
-                    var start = StartGeneration.GetMessageOrTimeout( 200 );
-                    if ( start != null )
+                    var start = StartGeneration.GetMessageOrTimeout(200);
+                    if (start != null)
                     {
-                        lock ( Host )
+                        lock (Host)
                         {
                             // if we actually got a message then we are ready to start fireing off tasks
-                            foreach ( var client in ConnectedClients )
+                            foreach (var client in ConnectedClients)
                             {
                                 try
                                 {
-                                    if ( client.Connected )
+                                    if (client.Connected)
                                     {
-                                        SendNextParameter( client );
+                                        SendNextParameter(client);
                                     }
                                 }
                                 // ReSharper disable once EmptyGeneralCatchClause
@@ -597,11 +597,11 @@ namespace Tasha
                 }
                 else
                 {
-                    Thread.Sleep( 200 );
+                    Thread.Sleep(200);
                 }
                 Thread.MemoryBarrier();
             }
-            if ( StartGeneration != null )
+            if (StartGeneration != null)
             {
                 StartGeneration.Dispose();
             }
@@ -609,60 +609,60 @@ namespace Tasha
 
         private string GetFileLocation(string input)
         {
-            if ( Path.IsPathRooted( input ) )
+            if (Path.IsPathRooted(input))
             {
                 return input;
             }
-            return Path.Combine( InputBaseDirectory, input );
+            return Path.Combine(InputBaseDirectory, input);
         }
 
         private string GetVariableName(string modeName, string parameterName)
         {
             ITashaMode selectedMode = null;
-            foreach ( var mode in AllModes )
+            foreach (var mode in AllModes)
             {
-                if ( mode.ModeName == modeName )
+                if (mode.ModeName == modeName)
                 {
                     selectedMode = mode;
                     break;
                 }
             }
-            if ( selectedMode == null )
+            if (selectedMode == null)
             {
-                throw new XTMFRuntimeException( "We were unable to find a mode with the name " + modeName + " while trying to load the parameters to estimate!" );
+                throw new XTMFRuntimeException(this, "We were unable to find a mode with the name " + modeName + " while trying to load the parameters to estimate!");
             }
             // Search for a field or property that has an attribute with this name
             var modeType = selectedMode.GetType();
-            foreach ( var f in modeType.GetProperties() )
+            foreach (var f in modeType.GetProperties())
             {
                 // search the attributes
-                var attributes = f.GetCustomAttributes( true );
-                foreach ( var at in attributes )
+                var attributes = f.GetCustomAttributes(true);
+                foreach (var at in attributes)
                 {
                     // if we find an attribute from XTMF
                     ParameterAttribute parameter;
-                    if ( ( parameter = ( at as ParameterAttribute ) ) != null )
+                    if ((parameter = (at as ParameterAttribute)) != null)
                     {
                         // Check to see if this is our parameter
-                        if ( parameter.Name == parameterName )
+                        if (parameter.Name == parameterName)
                         {
                             return f.Name;
                         }
                     }
                 }
             }
-            foreach ( var f in modeType.GetFields() )
+            foreach (var f in modeType.GetFields())
             {
                 // search the attributes
-                var attributes = f.GetCustomAttributes( true );
-                foreach ( var at in attributes )
+                var attributes = f.GetCustomAttributes(true);
+                foreach (var at in attributes)
                 {
                     // if we find an attribute from XTMF
                     ParameterAttribute parameter;
-                    if ( ( parameter = ( at as ParameterAttribute ) ) != null )
+                    if ((parameter = (at as ParameterAttribute)) != null)
                     {
                         // Check to see if this is our parameter
-                        if ( parameter.Name == parameterName )
+                        if (parameter.Name == parameterName)
                         {
                             return f.Name;
                         }
@@ -670,84 +670,83 @@ namespace Tasha
                 }
             }
             // If we get here then we did not find it!
-            throw new XTMFRuntimeException( "We were unable to find a parameter with the name \"" + parameterName + "\" in the mode " + modeName );
+            throw new XTMFRuntimeException(this, "We were unable to find a parameter with the name \"" + parameterName + "\" in the mode " + modeName);
         }
 
         private void InitializeHost()
         {
             string error = null;
             Configuration.DeleteAllProgressReport();
-            ModelSystemToExecute = Host.CreateModelSystem( RemoteModelSystemName, ref error );
-            if ( ModelSystemToExecute == null )
+            ModelSystemToExecute = Host.CreateModelSystem(RemoteModelSystemName, ref error);
+            if (ModelSystemToExecute == null)
             {
-                throw new XTMFRuntimeException( error == null ? "We were unable to create the Client Model System!" : error );
+                throw new XTMFRuntimeException(this, error == null ? "We were unable to create the Client Model System!" : error);
             }
             Host.NewClientConnected += NewClientConnected;
             Host.ClientDisconnected += ClientDisconnected;
-            Host.RegisterCustomReceiver( 0, ClientReady );
-            Host.RegisterCustomMessageHandler( 0, ClientReady2 );
-            Host.RegisterCustomReceiver( 1, ReadEvaluation );
-            Host.RegisterCustomMessageHandler( 1, ProcessEvaluation );
-            Host.RegisterCustomSender( 1, SendParametersToEvaluate );
-            Host.RegisterCustomReceiver( 2, ClientWantsHouseholds );
-            Host.RegisterCustomMessageHandler( 2, ClientWantsHouseholds2 );
-            Host.RegisterCustomSender( 2, SendHouseholds );
+            Host.RegisterCustomReceiver(0, ClientReady);
+            Host.RegisterCustomMessageHandler(0, ClientReady2);
+            Host.RegisterCustomReceiver(1, ReadEvaluation);
+            Host.RegisterCustomMessageHandler(1, ProcessEvaluation);
+            Host.RegisterCustomSender(1, SendParametersToEvaluate);
+            Host.RegisterCustomReceiver(2, ClientWantsHouseholds);
+            Host.RegisterCustomMessageHandler(2, ClientWantsHouseholds2);
+            Host.RegisterCustomSender(2, SendHouseholds);
         }
 
         private void LoadInitialPopulation()
         {
-            if ( !PreviousRunFileName.ContainsFileName() )
+            if (!PreviousRunFileName.ContainsFileName())
             {
-                throw new XTMFRuntimeException( "The previous evaluation file is not set to a file!" );
+                throw new XTMFRuntimeException(this, "The previous evaluation file is not set to a file!");
             }
             var numberOfColumns = Parameters.Length + 2;
-            using ( CsvReader reader = new CsvReader( PreviousRunFileName.GetFileName( InputBaseDirectory ) ) )
+            using (CsvReader reader = new CsvReader(PreviousRunFileName.GetFileName(InputBaseDirectory)))
             {
                 int length;
                 // process header
-                while ( !reader.EndOfFile )
+                while (!reader.EndOfFile)
                 {
-                    if ( ( length = reader.LoadLine() ) != numberOfColumns )
+                    if ((length = reader.LoadLine()) != numberOfColumns)
                     {
-                        if ( length == 0 ) continue;
-                        throw new XTMFRuntimeException( "There was an unexpected number of Columns, we were expecting " + numberOfColumns + " however we found " + length );
+                        if (length == 0) continue;
+                        throw new XTMFRuntimeException(this, "There was an unexpected number of Columns, we were expecting " + numberOfColumns + " however we found " + length);
                     }
                     break;
                 }
                 int highestGenerationFound = int.MinValue;
                 int currentPosition = 0;
                 // process body
-                while ( !reader.EndOfFile )
+                while (!reader.EndOfFile)
                 {
-                    if ( ( length = reader.LoadLine() ) != numberOfColumns )
+                    if ((length = reader.LoadLine()) != numberOfColumns)
                     {
-                        if ( length == 0 ) continue;
-                        throw new XTMFRuntimeException( "There was an unexpected number of Columns, we were expecting " + numberOfColumns + " however we found " + length );
+                        if (length == 0) continue;
+                        throw new XTMFRuntimeException(this, "There was an unexpected number of Columns, we were expecting " + numberOfColumns + " however we found " + length);
                     }
-                    int generation;
-                    reader.Get( out generation, 0 );
-                    if ( highestGenerationFound < generation )
+                    reader.Get(out int generation, 0);
+                    if (highestGenerationFound < generation)
                     {
                         highestGenerationFound = generation;
                     }
-                    Population[currentPosition] = ( new ParameterSet() { Value = 0 } );
-                    if ( Population[currentPosition].Parameters == null )
+                    Population[currentPosition] = (new ParameterSet() { Value = 0 });
+                    if (Population[currentPosition].Parameters == null)
                     {
                         Population[currentPosition].Parameters = (ParameterSetting[])Parameters.Clone();
                     }
-                    reader.Get( out Population[currentPosition].Value, 1 );
+                    reader.Get(out Population[currentPosition].Value, 1);
                     Population[currentPosition].Processed = true;
-                    for ( int j = 0; j < Population[currentPosition].Parameters.Length; j++ )
+                    for (int j = 0; j < Population[currentPosition].Parameters.Length; j++)
                     {
-                        reader.Get( out Population[currentPosition].Parameters[j].Current, j + 2 );
+                        reader.Get(out Population[currentPosition].Parameters[j].Current, j + 2);
                     }
-                    currentPosition = ( currentPosition + 1 ) % Population.Length;
+                    currentPosition = (currentPosition + 1) % Population.Length;
                 }
-                for ( int i = 0; i < PopulationSize; i++ )
+                for (int i = 0; i < PopulationSize; i++)
                 {
-                    if ( Population[i].Parameters == null )
+                    if (Population[i].Parameters == null)
                     {
-                        CreateRandomParameterAt( currentPosition );
+                        CreateRandomParameterAt(currentPosition);
                     }
                 }
                 CurrentIteration = highestGenerationFound + 1;
@@ -760,16 +759,16 @@ namespace Tasha
         private void LoadInstructions()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load( GetFileLocation( ParameterInstructions ) );
+            doc.Load(GetFileLocation(ParameterInstructions));
             List<ParameterSetting> parameters = new List<ParameterSetting>();
             var childNodes = doc["Root"]?.ChildNodes;
             if (childNodes == null)
             {
                 return;
             }
-            foreach ( XmlNode child in childNodes)
+            foreach (XmlNode child in childNodes)
             {
-                if ( child.Name == "Parameter" )
+                if (child.Name == "Parameter")
                 {
                     ParameterSetting current = new ParameterSetting();
                     var childAttributes = child.Attributes;
@@ -797,7 +796,7 @@ namespace Tasha
                         {
                             var modeName = childAttributes["Mode"].InnerText;
                             var parameterName = String.Concat(modeName, '.', childAttributes["Name"].InnerText);
-                            current.Names = new[] {parameterName};
+                            current.Names = new[] { parameterName };
                         }
                         if (!ValidateParameterNames || ValidateParameterName(current))
                         {
@@ -805,7 +804,7 @@ namespace Tasha
                         }
                         else
                         {
-                            throw new XTMFRuntimeException(
+                            throw new XTMFRuntimeException(this,
                                 "This parameter is invalid.  Please make sure the mode exists and that it has a parameter with the given name!\r\n" +
                                 child.OuterXml);
                         }
@@ -818,21 +817,21 @@ namespace Tasha
         private void NewClientConnected(IRemoteXTMF obj)
         {
             // Setup a new model system for them to execute
-            lock ( this )
+            lock (this)
             {
-                obj.SendModelSystem( ModelSystemToExecute );
-                Configuration.CreateProgressReport( obj.UniqueID == null ? "Remote Host" : obj.UniqueID, delegate {
+                obj.SendModelSystem(ModelSystemToExecute);
+                Configuration.CreateProgressReport(obj.UniqueID == null ? "Remote Host" : obj.UniqueID, delegate
+                {
                     return obj.Progress;
-                }, new Tuple<byte, byte, byte>( 50, 50, 150 ) );
+                }, new Tuple<byte, byte, byte>(50, 50, 150));
             }
         }
 
         private void ProcessEvaluation(object evaluation, IRemoteXTMF r)
         {
-            var message = evaluation as ResultMessage;
-            if ( message != null )
+            if (evaluation is ResultMessage message)
             {
-                ResultQueue.Add( message );
+                ResultQueue.Add(message);
             }
         }
 
@@ -844,56 +843,56 @@ namespace Tasha
         /// <returns></returns>
         private object ReadEvaluation(Stream memory, IRemoteXTMF r)
         {
-            BinaryReader reader = new BinaryReader( memory );
+            BinaryReader reader = new BinaryReader(memory);
             ResultMessage ret = new ResultMessage();
             var generation = reader.ReadInt32();
             ret.ProcessedIndex = reader.ReadInt32();
-            if ( ret.ProcessedIndex == -1 )
+            if (ret.ProcessedIndex == -1)
             {
-                SendNextParameter( r );
+                SendNextParameter(r);
                 return null;
             }
             ret.ProcessedValue = reader.ReadSingle();
-            SendNextParameter( r );
+            SendNextParameter(r);
             return CurrentIteration == generation ? ret : null;
         }
 
         private void Save(int index)
         {
-            lock ( this )
+            lock (this)
             {
                 var run = Population[index];
-                bool writeHeader = !File.Exists( EvaluationFile );
-                while ( true )
+                bool writeHeader = !File.Exists(EvaluationFile);
+                while (true)
                 {
                     try
                     {
-                        using ( StreamWriter writer = new StreamWriter( EvaluationFile, true ) )
+                        using (StreamWriter writer = new StreamWriter(EvaluationFile, true))
                         {
-                            if ( writeHeader )
+                            if (writeHeader)
                             {
-                                writer.Write( "Generation" );
-                                writer.Write( ',' );
-                                writer.Write( "Value" );
-                                for ( int i = 0; i < run.Parameters.Length; i++ )
+                                writer.Write("Generation");
+                                writer.Write(',');
+                                writer.Write("Value");
+                                for (int i = 0; i < run.Parameters.Length; i++)
                                 {
-                                    for ( int j = 0; j < run.Parameters[i].Names.Length; j++ )
+                                    for (int j = 0; j < run.Parameters[i].Names.Length; j++)
                                     {
-                                        writer.Write( ',' );
-                                        writer.Write( run.Parameters[i].Names[j] );
+                                        writer.Write(',');
+                                        writer.Write(run.Parameters[i].Names[j]);
                                     }
                                 }
                                 writer.WriteLine();
                             }
-                            writer.Write( CurrentIteration );
-                            writer.Write( ',' );
-                            writer.Write( run.Value );
-                            for ( int i = 0; i < run.Parameters.Length; i++ )
+                            writer.Write(CurrentIteration);
+                            writer.Write(',');
+                            writer.Write(run.Value);
+                            for (int i = 0; i < run.Parameters.Length; i++)
                             {
-                                for ( int j = 0; j < run.Parameters[i].Names.Length; j++ )
+                                for (int j = 0; j < run.Parameters[i].Names.Length; j++)
                                 {
-                                    writer.Write( ',' );
-                                    writer.Write( run.Parameters[i].Current );
+                                    writer.Write(',');
+                                    writer.Write(run.Parameters[i].Current);
                                 }
                             }
                             writer.WriteLine();
@@ -902,7 +901,7 @@ namespace Tasha
                     }
                     catch
                     {
-                        Thread.Sleep( 10 );
+                        Thread.Sleep(10);
                     }
                 }
             }
@@ -910,52 +909,52 @@ namespace Tasha
 
         private int Select()
         {
-            return (int)( Math.Pow( RandomGenerator.NextDouble(), CrossExponent ) * PopulationSize );
+            return (int)(Math.Pow(RandomGenerator.NextDouble(), CrossExponent) * PopulationSize);
         }
 
         private void SendAttached(BinaryWriter writer, IAttachable att)
         {
             var keys = att.Keys.ToList();
             writer.Write(keys.Count);
-            foreach ( var key in keys )
+            foreach (var key in keys)
             {
-                writer.Write( key );
+                writer.Write(key);
                 var o = att[key];
-                if ( o == null )
+                if (o == null)
                 {
-                    writer.Write( "System.Null" );
-                    writer.Write( String.Empty );
+                    writer.Write("System.Null");
+                    writer.Write(String.Empty);
                 }
                 else
                 {
-                    writer.Write( o.GetType().FullName );
-                    writer.Write( o.ToString() );
+                    writer.Write(o.GetType().FullName);
+                    writer.Write(o.ToString());
                 }
             }
         }
 
         private void SendHouseholds(object o, IRemoteXTMF r, Stream s)
         {
-            s.Write( HouseholdData, 0, HouseholdData.Length );
+            s.Write(HouseholdData, 0, HouseholdData.Length);
             s.Flush();
         }
 
         private void SendNextParameter(IRemoteXTMF client)
         {
             ResultMessage msg = new ResultMessage();
-            lock ( this )
+            lock (this)
             {
                 // make sure we have the newest memory loaded up
                 Thread.MemoryBarrier();
                 var populationLength = Population.Length;
-                for ( int i = 0; i < populationLength; i++ )
+                for (int i = 0; i < populationLength; i++)
                 {
-                    if ( Population[i].Processing == false )
+                    if (Population[i].Processing == false)
                     {
                         Population[i].ProcessedBy = client;
                         Population[i].Processing = true;
                         msg.ProcessedIndex = i;
-                        client.SendCustomMessage( msg, 1 );
+                        client.SendCustomMessage(msg, 1);
                         break;
                     }
                 }
@@ -971,27 +970,27 @@ namespace Tasha
         /// <param name="s"></param>
         private void SendParametersToEvaluate(object o, IRemoteXTMF r, Stream s)
         {
-            lock ( this )
+            lock (this)
             {
                 var message = (ResultMessage)o;
                 var index = message.ProcessedIndex;
                 var toProcess = Population[index];
                 var parameters = toProcess.Parameters;
-                BinaryWriter writer = new BinaryWriter( s );
-                writer.Write( CurrentIteration );
-                writer.Write( index );
+                BinaryWriter writer = new BinaryWriter(s);
+                writer.Write(CurrentIteration);
+                writer.Write(index);
                 int total = 0;
-                for ( int i = 0; i < parameters.Length; i++ )
+                for (int i = 0; i < parameters.Length; i++)
                 {
                     total += parameters[i].Names.Length;
                 }
-                writer.Write( total );
-                for ( int i = 0; i < parameters.Length; i++ )
+                writer.Write(total);
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    for ( int j = 0; j < parameters[i].Names.Length; j++ )
+                    for (int j = 0; j < parameters[i].Names.Length; j++)
                     {
-                        writer.Write( parameters[i].Names[j] );
-                        writer.Write( parameters[i].Current );
+                        writer.Write(parameters[i].Names[j]);
+                        writer.Write(parameters[i].Current);
                     }
                 }
                 writer.Flush();
@@ -1000,14 +999,14 @@ namespace Tasha
 
         private bool ValidateParameterName(ParameterSetting current)
         {
-            for ( int i = 0; i < current.Names.Length; i++ )
+            for (int i = 0; i < current.Names.Length; i++)
             {
-                var parts = current.Names[i].Split( '.' );
-                if ( parts.Length != 2 )
+                var parts = current.Names[i].Split('.');
+                if (parts.Length != 2)
                 {
-                    throw new XTMFRuntimeException( "We were unable to validate the parameter name '" + current.Names[i] + "'!" );
+                    throw new XTMFRuntimeException(this, "We were unable to validate the parameter name '" + current.Names[i] + "'!");
                 }
-                if ( GetVariableName( parts[0], parts[1] ) == null )
+                if (GetVariableName(parts[0], parts[1]) == null)
                 {
                     return false;
                 }
@@ -1042,8 +1041,8 @@ namespace Tasha
             public int Compare(ParameterSet x, ParameterSet y)
             {
                 // we want it in desc order (highest @ 0)
-                if ( x.Value < y.Value ) return 1;
-                if ( x.Value == y.Value )
+                if (x.Value < y.Value) return 1;
+                if (x.Value == y.Value)
                 {
                     return 0;
                 }
@@ -1077,7 +1076,7 @@ namespace Tasha
             }
         }
 
-        [SubModelInformation( Description = "The auto vehicle type.", Required = true )]
+        [SubModelInformation(Description = "The auto vehicle type.", Required = true)]
         public IVehicleType AutoType
         {
             get;
@@ -1109,11 +1108,11 @@ namespace Tasha
             get
             {
                 var ret = new List<ITashaMode>();
-                foreach ( var mode in AllModes )
+                foreach (var mode in AllModes)
                 {
-                    if ( !( mode is ISharedMode ) )
+                    if (!(mode is ISharedMode))
                     {
-                        ret.Add( mode );
+                        ret.Add(mode);
                     }
                 }
                 return ret;
@@ -1121,7 +1120,7 @@ namespace Tasha
 
             set
             {
-                
+
             }
         }
 
@@ -1192,12 +1191,11 @@ namespace Tasha
             get
             {
                 var ret = new List<ISharedMode>();
-                foreach ( var mode in AllModes )
+                foreach (var mode in AllModes)
                 {
-                    var sm = mode as ISharedMode;
-                    if ( sm != null )
+                    if (mode is ISharedMode sm)
                     {
-                        ret.Add( sm );
+                        ret.Add(sm);
                     }
                 }
                 return ret;
@@ -1205,7 +1203,7 @@ namespace Tasha
 
             set
             {
-                
+
             }
         }
 
@@ -1227,13 +1225,13 @@ namespace Tasha
 
         public void Dispose()
         {
-            Dispose( true );
-            GC.SuppressFinalize( this );
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( StartGeneration != null )
+            if (StartGeneration != null)
             {
                 StartGeneration.Dispose();
                 StartGeneration = null;

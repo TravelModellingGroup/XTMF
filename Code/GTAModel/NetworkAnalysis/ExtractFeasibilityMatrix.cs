@@ -24,30 +24,30 @@ using XTMF;
 
 namespace TMG.GTAModel.NetworkAnalysis
 {
-    [ModuleInformation( Name = "Extract Feasibility Matrix",
+    [ModuleInformation(Name = "Extract Feasibility Matrix",
                         Description = "Extracts a feasibility matrix (where 1 is feasible and 0 is infeasible), based " +
-                        "on cut-off values for walking, waiting, and total times." )]
+                        "on cut-off values for walking, waiting, and total times.")]
     public class ExtractFeasibilityMatrix : IEmmeTool
     {
-        [RunParameter( "Matrix Result Number", 8, "The number of the FULL matrix in which to store the feasibility matrix." )]
+        [RunParameter("Matrix Result Number", 8, "The number of the FULL matrix in which to store the feasibility matrix.")]
         public int MatrixResultNumber;
 
-        [Parameter( "Modes", "blmstuvwy", "The modes used in the transit assignment." )]
+        [Parameter("Modes", "blmstuvwy", "The modes used in the transit assignment.")]
         public string Modes;
 
-        [RunParameter( "Scenario Number", 0, "The number of the scenario with transit assignment results to analyze." )]
+        [RunParameter("Scenario Number", 0, "The number of the scenario with transit assignment results to analyze.")]
         public int ScenarioNumber;
 
-        [RunParameter( "Total Time Cutoff", 150.0f, "The threshold of total (wait + walk + ivtt) time, in minutes." )]
+        [RunParameter("Total Time Cutoff", 150.0f, "The threshold of total (wait + walk + ivtt) time, in minutes.")]
         public float TotalCutoff;
 
-        [RunParameter( "Wait Time Cutoff", 40.0f, "The threshold of waiting time, in minutes." )]
+        [RunParameter("Wait Time Cutoff", 40.0f, "The threshold of waiting time, in minutes.")]
         public float WaitCutoff;
 
-        [RunParameter( "Walk Time Cutoff", 40.0f, "The threshold of walking time, in minutes" )]
+        [RunParameter("Walk Time Cutoff", 40.0f, "The threshold of walking time, in minutes")]
         public float WalkCutoff;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_feasibility_matrix";
         private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractFeasibilityMatrix";
 
@@ -71,21 +71,21 @@ namespace TMG.GTAModel.NetworkAnalysis
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+            if (mc == null)
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
 
             var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1} {2} {3} {4} {5}",
-                ScenarioNumber, WalkCutoff, WaitCutoff, TotalCutoff, Modes, MatrixResultNumber );
+            sb.AppendFormat("{0} {1} {2} {3} {4} {5}",
+                ScenarioNumber, WalkCutoff, WaitCutoff, TotalCutoff, Modes, MatrixResultNumber);
             string result = null;
 
             var toolName = ToolName;
-            if (!mc.CheckToolExists(toolName))
+            if (!mc.CheckToolExists(this, toolName))
             {
                 toolName = AlternateToolName;
             }
 
-            return mc.Run(toolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(this, toolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

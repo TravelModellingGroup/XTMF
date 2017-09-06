@@ -359,7 +359,7 @@ namespace XTMF
             // Pre-Validate the structure
             if (modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
             {
-                throw new XTMFRuntimeException("The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
+                throw new XTMFRuntimeException(null, "The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
                 ModelSystemStructure.Count);
             }
             return CreateModelSystem(ref error, Configuration, ModelSystemStructure[modelSystemIndex]);
@@ -370,7 +370,7 @@ namespace XTMF
             // Pre-Validate the structure
             if (modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
             {
-                throw new XTMFRuntimeException("The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
+                throw new XTMFRuntimeException(null, "The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
                 ModelSystemStructure.Count);
             }
             return CreateModelSystem(ref error, Configuration, ModelSystemStructure[modelSystemIndex]);
@@ -381,7 +381,7 @@ namespace XTMF
             // Pre-Validate the structure
             if (modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
             {
-                throw new XTMFRuntimeException("The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
+                throw new XTMFRuntimeException(null, "The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
                 ModelSystemStructure.Count);
             }
             return CreateModelSystem(ref error, configuration, ModelSystemStructure[modelSystemIndex]);
@@ -392,7 +392,7 @@ namespace XTMF
             // Pre-Validate the structure
             if (modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
             {
-                throw new XTMFRuntimeException("The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
+                throw new XTMFRuntimeException(null, "The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
                 ModelSystemStructure.Count);
             }
             return CreateModelSystem(ref error, configuration, ModelSystemStructure[modelSystemIndex]);

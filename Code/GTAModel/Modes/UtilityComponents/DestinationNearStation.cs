@@ -76,8 +76,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
                     Loaded = true;
                 }
             }
-            bool station;
-            if ( Data.TryGetValue( destination.ZoneNumber, out station ) & station )
+            if (Data.TryGetValue(destination.ZoneNumber, out bool station) & station)
             {
                 return Constant;
             }

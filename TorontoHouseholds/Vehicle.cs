@@ -61,8 +61,7 @@ namespace Tasha.Common
 
         public static Vehicle MakeVehicle(IVehicleType type)
         {
-            Vehicle v;
-            if ( Vehicles.TryTake( out v ) )
+            if (Vehicles.TryTake(out Vehicle v))
             {
                 v.VehicleType = type;
                 return v;

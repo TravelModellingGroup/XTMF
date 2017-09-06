@@ -123,10 +123,9 @@ namespace Tasha.Common
 
         public static Household MakeHousehold()
         {
-            Household h;
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
-                if(Households.TryTake(out h))
+                if (Households.TryTake(out Household h))
                 {
                     return h;
                 }
@@ -184,10 +183,9 @@ namespace Tasha.Common
 
         internal static void ReleaseHouseholdPool()
         {
-            Household notUsed;
             try
             {
-                while (Households.TryTake(out notUsed))
+                while (Households.TryTake(out Household notUsed))
                 {
                 }
             }
@@ -213,8 +211,7 @@ namespace Tasha.Common
 
                         foreach (var jtc in tc.JointTripChains)
                         {
-                            List<ITripChain> jointTour;
-                            if (jointTours.TryGetValue(jtc.JointTripID, out jointTour))
+                            if (jointTours.TryGetValue(jtc.JointTripID, out List<ITripChain> jointTour))
                             {
                                 if (!jointTour.Contains(jtc))
                                 {
@@ -223,7 +220,7 @@ namespace Tasha.Common
                             }
                             else
                             {
-                                jointTour = new List<ITripChain>(4 );
+                                jointTour = new List<ITripChain>(4);
                                 jointTour.Add(jtc);
                                 jointTours.Add(jtc.JointTripID, jointTour);
                             }

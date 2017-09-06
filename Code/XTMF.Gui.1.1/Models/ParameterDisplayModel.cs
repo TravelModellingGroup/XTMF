@@ -269,8 +269,7 @@ namespace XTMF.Gui.Models
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            var param = item as ParameterDisplayModel;
-            if (param != null)
+            if (item is ParameterDisplayModel param)
             {
                 if (param.IsEnumeration)
                 {

@@ -27,7 +27,7 @@ namespace TMG.GTAModel.Input
 {
     public class ReadODBinaryData : IReadODData<float>
     {
-        [RunParameter( "Input File", "Data.bin", typeof( FileFromOutputDirectory ), "The name of the file to load in, based in the current run directory." )]
+        [RunParameter("Input File", "Data.bin", typeof(FileFromOutputDirectory), "The name of the file to load in, based in the current run directory.")]
         public FileFromOutputDirectory FileToRead;
 
         [RootModule]
@@ -52,7 +52,7 @@ namespace TMG.GTAModel.Input
         public IEnumerable<ODData<float>> Read()
         {
             // if there isn't anything just exit
-            if ( !FileToRead.ContainsFileName() ) yield break;
+            if (!FileToRead.ContainsFileName()) yield break;
             // otherwise load in the data
             ODData<float> currentData = new ODData<float>();
             var zoneArray = Root.ZoneSystem.ZoneArray;
@@ -62,25 +62,25 @@ namespace TMG.GTAModel.Input
             BinaryReader reader;
             try
             {
-                reader = new BinaryReader( File.OpenRead( FileToRead.GetFileName() ) );
+                reader = new BinaryReader(File.OpenRead(FileToRead.GetFileName()));
             }
-            catch ( IOException e )
+            catch (IOException e)
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to open up the file named '" + FileToRead.GetFileName() + "' with the exception '" + e.Message + "'" );
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to open up the file named '" + FileToRead.GetFileName() + "' with the exception '" + e.Message + "'");
             }
             var fileSize = reader.BaseStream.Length;
             // make sure the file is of the right size (a float is 4 bytes)
-            if ( fileSize != 4 * zones.Length * zones.Length )
+            if (fileSize != 4 * zones.Length * zones.Length)
             {
                 reader.Close();
-                throw new XTMFRuntimeException( "In '" + Name + "' we found the file named '" + FileToRead.GetFileName() + "' was not a flat binary OD data file for the current zone system!" );
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we found the file named '" + FileToRead.GetFileName() + "' was not a flat binary OD data file for the current zone system!");
             }
-            using ( reader )
+            using (reader)
             {
-                for ( int o = 0; o < zones.Length; o++ )
+                for (int o = 0; o < zones.Length; o++)
                 {
                     currentData.O = zoneNumbers[o];
-                    for ( int d = 0; d < zones.Length; d++ )
+                    for (int d = 0; d < zones.Length; d++)
                     {
                         currentData.D = zoneNumbers[d];
                         currentData.Data = reader.ReadSingle();

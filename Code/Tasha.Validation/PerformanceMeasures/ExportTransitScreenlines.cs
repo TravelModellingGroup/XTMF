@@ -63,9 +63,9 @@ namespace TMG.Emme.Tools.Analysis.Traffic
             var modeller = controller as ModellerController;
             if (modeller == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we require the use of EMME Modeller in order to execute.");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
             }
-            return modeller.Run(ToolName, GetParameters());
+            return modeller.Run(this, ToolName, GetParameters());
         }
 
         private string GetParameters()

@@ -87,7 +87,7 @@ blended average between iteration to help converge.")]
                             ProcessData(matrix.FloatData, iteration);
                             break;
                         default:
-                            throw new XTMFRuntimeException("In '" + Name + "' the data type for the file '" + DemandMatrix + "' was not float!");
+                            throw new XTMFRuntimeException(this, "In '" + Name + "' the data type for the file '" + DemandMatrix + "' was not float!");
                     }
                 }, DemandMatrix);
             }
@@ -136,8 +136,7 @@ blended average between iteration to help converge.")]
                     for (int i = 0; i < accessStationCounts.Length; i++)
                     {
                         float stationCapacity = capacity[zoneIndexForStation[i]];
-                        float capacityFactor;
-                        if (ComputeStationCapacityFactor(previousFraction, currentFraction, accessStationCounts[i], stationCapacity, CapacityFactors[i], out capacityFactor))
+                        if (ComputeStationCapacityFactor(previousFraction, currentFraction, accessStationCounts[i], stationCapacity, CapacityFactors[i], out float capacityFactor))
                         {
                             CapacityFactors[i] = capacityFactor;
                             writer.Write(zones[zoneIndexForStation[i]].ZoneNumber);
@@ -193,7 +192,7 @@ blended average between iteration to help converge.")]
             {
                 if (!capacity.ContainsIndex(point.O))
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' we found an invalid zone '" + point.O + "' while reading in the station capacities!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' we found an invalid zone '" + point.O + "' while reading in the station capacities!");
                 }
                 // use the log of capacity
                 capacity[point.O] = point.Data;

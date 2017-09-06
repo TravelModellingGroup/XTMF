@@ -269,11 +269,10 @@ namespace TMG.GTAModel.V2.Modes
             var origin = zoneArray.GetFlatIndex( originZone.ZoneNumber );
             var destination = zoneArray.GetFlatIndex( destinationZone.ZoneNumber );
             var interchange = zoneArray.GetFlatIndex( InterchangeZone.ZoneNumber );
-            var component = First as ITripComponentData;
-            if ( component != null )
+            if (First is ITripComponentData component)
             {
                 // make sure that there is a valid walk time if we are walking/transit to the station
-                if ( component.WalkTime( origin, interchange, time ).ToMinutes() <= 0 )
+                if (component.WalkTime(origin, interchange, time).ToMinutes() <= 0)
                 {
                     return false;
                 }
@@ -294,13 +293,13 @@ namespace TMG.GTAModel.V2.Modes
                 if ( network.Name == PrimaryModeName )
                 {
                     var temp = network as ITripComponentData;
-                    Second = temp == null ? Second : temp;
+                    Second = temp ?? Second;
                 }
 
                 if ( network.NetworkType == EgressNetworkName )
                 {
                     var temp = network as ITripComponentData;
-                    Third = temp == null ? Third : temp;
+                    Third = temp ?? Third;
                 }
             }
             if ( First == null )
@@ -329,9 +328,7 @@ namespace TMG.GTAModel.V2.Modes
 
         private static bool ComputeThird(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float walkTime, float waitTime, out float result)
         {
-            Time ivtt, walk, wait, boarding;
-            float cost;
-            data.GetAllData( flatOrigin, flatDestination, t, out ivtt, out walk, out wait, out boarding, out cost );
+            data.GetAllData(flatOrigin, flatDestination, t, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
             var timeWalkingInMinutes = walk.ToMinutes();
             if ( timeWalkingInMinutes <= 0 )
             {
@@ -372,11 +369,7 @@ namespace TMG.GTAModel.V2.Modes
                         var zones = Root.ZoneSystem.ZoneArray;
                         var distances = Root.ZoneSystem.Distances;
                         var zone = zones[StationZone];
-                        if ( zone == null )
-                        {
-                            throw new XTMFRuntimeException( "The zone " + StationZone + " does not exist!  Please check the mode '" + ModeName + "!" );
-                        }
-                        InterchangeZone = zone;
+                        InterchangeZone = zone ?? throw new XTMFRuntimeException(this, "The zone " + StationZone + " does not exist!  Please check the mode '" + ModeName + "!" );
                         ClosestZone = zones.CreateSimilarArray<bool>();
                         var flatZones = zones.GetFlatData();
                         var flatClosest = ClosestZone.GetFlatData();
@@ -419,14 +412,13 @@ namespace TMG.GTAModel.V2.Modes
             {
                 for ( int i = set.Start; i <= set.Stop; i++ )
                 {
-                    float tt;
-                    var flatEgressZone = zones.GetFlatIndex( i );
+                    var flatEgressZone = zones.GetFlatIndex(i);
                     if ( flatEgressZone < 0 )
                     {
                         continue;
                     }
                     if ( flatInterchange == flatEgressZone ) continue;
-                    if ( GetEgressTravelTime( flatEgressZone, flatDestination, flatInterchange, time, bestTime, out tt ) )
+                    if ( GetEgressTravelTime( flatEgressZone, flatDestination, flatInterchange, time, bestTime, out float tt ) )
                     {
                         if ( tt < bestTime )
                         {
@@ -461,8 +453,7 @@ namespace TMG.GTAModel.V2.Modes
             {
                 return false;
             }
-            float egressUtility;
-            if ( !Parent.GetEgressUtility( flatEgressZone, flatDestinationZone, time, out egressUtility ) )
+            if (!Parent.GetEgressUtility(flatEgressZone, flatDestinationZone, time, out float egressUtility))
             {
                 return false;
             }
@@ -476,8 +467,7 @@ namespace TMG.GTAModel.V2.Modes
             float localAllWayTime;
             if ( Third.ValidOd( flatInterchangeZone, flatDestinationZone, time ) )
             {
-                float result;
-                if ( !ComputeThird( Third, flatInterchangeZone, flatDestinationZone, time, EgressWalkFactor, EgressWaitFactor, out result ) )
+                if (!ComputeThird(Third, flatInterchangeZone, flatDestinationZone, time, EgressWalkFactor, EgressWaitFactor, out float result))
                 {
                     return false;
                 }

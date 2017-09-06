@@ -71,8 +71,7 @@ namespace TMG.GTAModel.Generation
             var flatProduction = production.GetFlatData();
             for ( int i = 0; i < numberOfzones; i++ )
             {
-                int regionIndex;
-                if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
                 {
                     // if this region is not included just continue
                     flatProduction[i] = 0;

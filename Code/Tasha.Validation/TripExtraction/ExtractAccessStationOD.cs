@@ -93,8 +93,7 @@ namespace Tasha.Validation.TripExtraction
                 var exp = person.ExpansionFactor;
                 foreach (var tripChain in person.TripChains)
                 {
-                    var stationZone = tripChain[att] as IZone;
-                    if (stationZone != null)
+                    if (tripChain[att] is IZone stationZone)
                     {
                         bool first = true;
                         foreach (var trip in tripChain.Trips)

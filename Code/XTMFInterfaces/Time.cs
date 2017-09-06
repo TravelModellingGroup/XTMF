@@ -63,7 +63,7 @@ namespace XTMF
         {
             if (!TryParse(time, out this))
             {
-                throw new XTMFRuntimeException("Unable to create a XTMF.Time from " + time);
+                throw new XTMFRuntimeException(null, "Unable to create a XTMF.Time from " + time);
             }
         }
 
@@ -560,9 +560,8 @@ namespace XTMF
 
         public override bool Equals(object obj)
         {
-            if (obj is Time)
+            if (obj is Time other)
             {
-                Time other = (Time)obj;
                 return InternalTime == other.InternalTime;
             }
             else

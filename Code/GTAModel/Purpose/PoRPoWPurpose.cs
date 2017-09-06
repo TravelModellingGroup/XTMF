@@ -72,8 +72,7 @@ namespace TMG.GTAModel.Purpose
             // we don't do mode choice
             foreach ( var distributionData in Distribution.Distribute( o, d, Categories ) )
             {
-                var interative = ModeSplit as IInteractiveModeSplit;
-                if ( interative != null )
+                if (ModeSplit is IInteractiveModeSplit interative)
                 {
                     interative.EndInterativeModeSplit();
                 }
@@ -108,7 +107,7 @@ namespace TMG.GTAModel.Purpose
                 var dirName = Path.GetDirectoryName( fileName );
                 if (dirName == null)
                 {
-                    throw new XTMFRuntimeException($"We were unable to extract the directory name from the path '{fileName}'!");
+                    throw new XTMFRuntimeException(this, $"We were unable to extract the directory name from the path '{fileName}'!");
                 }
                 if ( !Directory.Exists( dirName ) )
                 {
@@ -127,7 +126,7 @@ namespace TMG.GTAModel.Purpose
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( "Unable to save distribution cache file!\r\n" + e.Message );
+                throw new XTMFRuntimeException(this, "Unable to save distribution cache file!\r\n" + e.Message );
             }
         }
     }

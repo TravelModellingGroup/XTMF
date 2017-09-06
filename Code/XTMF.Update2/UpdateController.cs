@@ -83,10 +83,9 @@ namespace XTMF.Update
 
         public string[] UpdateCore(bool x64, string[] excludedPaths, Action<float> update = null)
         {
-            string[] routedPaths;
             var containingDirectory = Path.GetDirectoryName(Application.ExecutablePath);
             GetFilesFromServer((x64 ? 1 : 3), containingDirectory, excludedPaths,
-                out routedPaths, update);
+                out string[] routedPaths, update);
             return routedPaths;
         }
 
@@ -98,8 +97,7 @@ namespace XTMF.Update
             {
                 Directory.CreateDirectory(dir);
             }
-            string[] routedPaths;
-            GetFilesFromServer((x64 ? 2 : 4), dir, null, out routedPaths, update);
+            GetFilesFromServer((x64 ? 2 : 4), dir, null, out string[] routedPaths, update);
         }
 
         private static void DisplayErrors(List<string> errors)

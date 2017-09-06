@@ -91,58 +91,57 @@ namespace Tasha.Modes
                         var obs = trip[ObservedMode];
                         if ( obs != null )
                         {
-                            var obsMode = obs as ITashaMode;
-                            if ( obsMode != null )
+                            if (obs is ITashaMode obsMode)
                             {
                                 // find index
-                                var realIndex = Modes.IndexOf( obsMode );
-                                if ( realIndex >= 0 )
+                                var realIndex = Modes.IndexOf(obsMode);
+                                if (realIndex >= 0)
                                 {
-                                    foreach ( var chosen in trip.ModesChosen )
+                                    foreach (var chosen in trip.ModesChosen)
                                     {
-                                        var predMode = Modes.IndexOf( chosen );
-                                        if ( predMode >= 0 )
+                                        var predMode = Modes.IndexOf(chosen);
+                                        if (predMode >= 0)
                                         {
-                                            System.Threading.Interlocked.Increment( ref Observations[realIndex, predMode] );
+                                            System.Threading.Interlocked.Increment(ref Observations[realIndex, predMode]);
                                         }
-                                        if ( realIndex == predMode )
+                                        if (realIndex == predMode)
                                         {
                                             correct++;
                                         }
                                     }
                                 }
-                                if ( ComputeFitness )
+                                if (ComputeFitness)
                                 {
-                                    var error = (float)Math.Log( ( correct + 1f ) / ( hhldIterations + 1f ) );
+                                    var error = (float)Math.Log((correct + 1f) / (hhldIterations + 1f));
                                     int feasibleModes = numberOfSharedModes;
-                                    var modeData = ModeChoice.ModeData.Get( trip );
-                                    if ( modeData != null )
+                                    var modeData = ModeChoice.ModeData.Get(trip);
+                                    if (modeData != null)
                                     {
-                                        if ( modeData.Feasible[realIndex] == false )
+                                        if (modeData.Feasible[realIndex] == false)
                                         {
-                                            System.Threading.Interlocked.Increment( ref BadTrips[realIndex] );
-                                            BadTripsQueue.Enqueue( new BadTripEntry()
+                                            System.Threading.Interlocked.Increment(ref BadTrips[realIndex]);
+                                            BadTripsQueue.Enqueue(new BadTripEntry()
                                             {
                                                 HHLD = household.HouseholdId,
                                                 PersonID = person.Id,
                                                 TripID = trip.TripNumber,
                                                 Mode = obsMode.ModeName,
-                                                Distance = Math.Abs( trip.OriginalZone.X - trip.DestinationZone.X ) + Math.Abs( trip.OriginalZone.Y - trip.DestinationZone.Y ),
-                                                HasTravelTime = obsMode.TravelTime( trip.OriginalZone, trip.DestinationZone, trip.TripStartTime ) > Time.Zero,
+                                                Distance = Math.Abs(trip.OriginalZone.X - trip.DestinationZone.X) + Math.Abs(trip.OriginalZone.Y - trip.DestinationZone.Y),
+                                                HasTravelTime = obsMode.TravelTime(trip.OriginalZone, trip.DestinationZone, trip.TripStartTime) > Time.Zero,
                                                 OrginZone = trip.OriginalZone.ZoneNumber,
                                                 DestZone = trip.DestinationZone.ZoneNumber
-                                            } );
+                                            });
                                         }
-                                        for ( int i = 0; i < numberOfModes; i++ )
+                                        for (int i = 0; i < numberOfModes; i++)
                                         {
-                                            if ( modeData.Feasible[i] )
+                                            if (modeData.Feasible[i])
                                             {
                                                 feasibleModes++;
                                             }
                                         }
                                     }
-                                    var zeroFitness = (float)Math.Log( ( ( ( hhldIterations / (float)feasibleModes ) ) + 1f ) / ( hhldIterations + 1.0f ) );
-                                    lock ( this )
+                                    var zeroFitness = (float)Math.Log((((hhldIterations / (float)feasibleModes)) + 1f) / (hhldIterations + 1.0f));
+                                    lock (this)
                                     {
                                         System.Threading.Thread.MemoryBarrier();
                                         Fitness += error;
@@ -249,10 +248,9 @@ namespace Tasha.Modes
                         writer.Write( ',' );
                         writer.WriteLine( BadTrips[i] );
                     }
-                    BadTripEntry t;
-                    writer.WriteLine( "Invaid Trips" );
+                    writer.WriteLine("Invaid Trips");
                     writer.WriteLine( "HHLD,Person,Trip#,Mode,Distance,HasTravelTime,OriginZone,DestZone" );
-                    while ( BadTripsQueue.TryDequeue( out t ) )
+                    while ( BadTripsQueue.TryDequeue( out BadTripEntry t ) )
                     {
                         writer.Write( t.HHLD );
                         writer.Write( ',' );
@@ -309,8 +307,7 @@ namespace Tasha.Modes
 
         private void ClearTrips()
         {
-            BadTripEntry t;
-            while ( BadTripsQueue.TryDequeue( out t ) )
+            while (BadTripsQueue.TryDequeue(out BadTripEntry t))
             {
             }
         }

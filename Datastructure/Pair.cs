@@ -81,10 +81,9 @@ namespace Datastructure
 
         public override bool Equals(object obj)
         {
-            var other = obj as Pair<TF, TS>;
-            if ( other != null)
+            if (obj is Pair<TF, TS> other)
             {
-                return (First.Equals( other.First ) ) && (Second.Equals( other.Second ) );
+                return (First.Equals(other.First)) && (Second.Equals(other.Second));
             }
             return false;
         }

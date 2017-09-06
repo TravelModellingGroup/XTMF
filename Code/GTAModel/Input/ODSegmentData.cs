@@ -81,8 +81,7 @@ namespace TMG.GTAModel.Input
                     }
                 }
             }
-            SegmentData segment;
-            if ( !GetSegment( origin, destination, out segment ) )
+            if (!GetSegment(origin, destination, out SegmentData segment))
             {
                 return null;
             }
@@ -143,7 +142,7 @@ namespace TMG.GTAModel.Input
                         {
                             // if the user says all of the data is here but it is not throw an exception
                             SegmentInformation.UnloadData();
-                            throw new XTMFRuntimeException( "In '" + Name + "' there was no data for Segment# " + segmentArray[i].SegmentNumber + " @" + ReasonIndexes[reason]
+                            throw new XTMFRuntimeException(this, "In '" + Name + "' there was no data for Segment# " + segmentArray[i].SegmentNumber + " @" + ReasonIndexes[reason]
                                 + ":" + DataElements[dataElement] + "!  Please check '" + SegmentInformation.Name + "' to make sure it is loading the right data." );
                         }
                     }

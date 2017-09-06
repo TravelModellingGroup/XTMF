@@ -68,7 +68,7 @@ namespace TMG.Frameworks.Data.Loading
             var network = Root.NetworkData.FirstOrDefault(n => n.NetworkType == Network);
             if (network == null)
             {
-                throw new XTMFRuntimeException($"In {Name} we were unable to find a network with the name '{Network}'");
+                throw new XTMFRuntimeException(this, $"In {Name} we were unable to find a network with the name '{Network}'");
             }
             if (!network.Loaded)
             {
@@ -85,7 +85,7 @@ namespace TMG.Frameworks.Data.Loading
                     break;
                 default:
                     throw new 
-                        XTMFRuntimeException($"In {Name} we were unable to identify the type of data to load found type {Enum.GetName(typeof(NetworkDataType), TypeToLoad)}!");
+                        XTMFRuntimeException(this, $"In {Name} we were unable to identify the type of data to load found type {Enum.GetName(typeof(NetworkDataType), TypeToLoad)}!");
 
             }
             Data = data;

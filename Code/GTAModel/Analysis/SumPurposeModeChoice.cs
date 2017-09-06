@@ -233,13 +233,12 @@ namespace TMG.GTAModel.Analysis
         private void WriteHeader(StreamWriter writer, IModeChoiceNode mode)
         {
             writer.Write( mode.ModeName );
-            var cat = mode as IModeCategory;
-            if ( cat != null )
+            if (mode is IModeCategory cat)
             {
-                foreach ( var child in cat.Children )
+                foreach (var child in cat.Children)
                 {
-                    writer.Write( ',' );
-                    WriteHeader( writer, child );
+                    writer.Write(',');
+                    WriteHeader(writer, child);
                 }
             }
         }

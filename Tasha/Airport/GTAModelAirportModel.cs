@@ -114,16 +114,15 @@ This is achieved by being integrated into the EMME tally system.")]
             {
                 if ( i != primaryZone )
                 {
-                    int regionIndex;
-                    if ( InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                    if (InverseLookup(zones[i].RegionNumber, out int regionIndex))
                     {
                         var primary = tripsToRegion[regionIndex]
-                            * ( ( zones[i].ProfessionalEmployment * RegionEmploymentFactor
-                            + zones[i].WorkProfessional * RegionResidenceFactor )
+                            * ((zones[i].ProfessionalEmployment * RegionEmploymentFactor
+                            + zones[i].WorkProfessional * RegionResidenceFactor)
                             /
-                            ( employmentTotal[regionIndex] * RegionEmploymentFactor
-                            + professionalTotal[regionIndex] * RegionResidenceFactor ) );
-                        if ( !float.IsNaN( primary ) & !float.IsInfinity( primary ) )
+                            (employmentTotal[regionIndex] * RegionEmploymentFactor
+                            + professionalTotal[regionIndex] * RegionResidenceFactor));
+                        if (!float.IsNaN(primary) & !float.IsInfinity(primary))
                         {
                             data[i][primaryZone] += primary;
                             data[primaryZone][i] += primary * ReturnFactor;
@@ -138,10 +137,9 @@ This is achieved by being integrated into the EMME tally system.")]
             float denominator = 0f;
             for ( int i = 0; i < numberOfZones; i++ )
             {
-                int regionIndex;
                 var zone = zones[i];
                 // Don't process things not included in our regions nor if it is a zone that contains an airport
-                if ( IsPrimaryAirportZone( zone.ZoneNumber ) || !InverseLookup( zone.RegionNumber, out regionIndex ) )
+                if ( IsPrimaryAirportZone( zone.ZoneNumber ) || !InverseLookup( zone.RegionNumber, out int regionIndex ) )
                 {
                     continue;
                 }
@@ -164,7 +162,7 @@ This is achieved by being integrated into the EMME tally system.")]
             var timePeriodTrips = PrimaryAirport.BaseTimePeriod * ( PrimaryAirport.FuturePrediction / PrimaryAirport.Base );
             if ( float.IsNaN( timePeriodTrips ) || float.IsInfinity( timePeriodTrips ) )
             {
-                throw new XTMFRuntimeException( "In '" + Name
+                throw new XTMFRuntimeException(this, "In '" + Name
                     + "' we encountered a non real value for the number of trips for the primary airport!\r\n"
                     + "Please make sure that the primary airport base is set properly!" );
             }

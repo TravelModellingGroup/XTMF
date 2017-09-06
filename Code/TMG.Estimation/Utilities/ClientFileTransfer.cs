@@ -67,7 +67,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                         var data = obj as byte[];
                         if (data == null)
                         {
-                            throw new XTMFRuntimeException($"In {Name} we recieved something besides a byte array when gathering a file to send across the network.");
+                            throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte array when gathering a file to send across the network.");
                         }
                         System.Threading.Tasks.Task.Factory.StartNew( () =>
                         {

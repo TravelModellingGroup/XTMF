@@ -422,11 +422,11 @@ namespace TMG.Tasha
             return false;
         }
 
-        private static void AssertType(Household h)
+        private void AssertType(Household h)
         {
             if (h.Persons == null)
             {
-                throw new XTMFRuntimeException("Persons was null #" + h.HouseholdId + ".");
+                throw new XTMFRuntimeException(this, "Persons was null #" + h.HouseholdId + ".");
             }
             if (h.NumberOfChildren == 0)
             {
@@ -586,21 +586,18 @@ namespace TMG.Tasha
                     OutOfData = true;
                     return null;
                 }
-                int tempInt;
-                float tempFloat;
-                Reader.Get(out tempInt, HouseholdIDCol);
+                Reader.Get(out int tempInt, HouseholdIDCol);
                 h.HouseholdId = tempInt;
                 Reader.Get(out tempInt, ZoneCol);
                 h.HomeZone = Root.ZoneSystem.Get(tempInt);
                 if (h.HomeZone == null)
                 {
                     Console.WriteLine("We were unable to find a household zone '" + tempInt.ToString() + "'");
-                    throw new XTMFRuntimeException("We were unable to find a household zone '" + tempInt.ToString() + "' for household #" + h.HouseholdId);
+                    throw new XTMFRuntimeException(this, "We were unable to find a household zone '" + tempInt.ToString() + "' for household #" + h.HouseholdId);
                 }
-                Reader.Get(out tempFloat, ExpansionFactorCol);
+                Reader.Get(out float tempFloat, ExpansionFactorCol);
                 h.ExpansionFactor = tempFloat;
-                int dwellingType;
-                Reader.Get(out dwellingType, DwellingTypeCol);
+                Reader.Get(out int dwellingType, DwellingTypeCol);
                 h.DwellingType = (DwellingType)dwellingType;
 
                 Reader.Get(out tempInt, CarsCol);
@@ -660,7 +657,7 @@ namespace TMG.Tasha
                             {
                                 if (tc.Trips.Count <= 1)
                                 {
-                                    throw new XTMFRuntimeException("We found an invalid trip for Household '" + h.HouseholdId
+                                    throw new XTMFRuntimeException(this, "We found an invalid trip for Household '" + h.HouseholdId
                                         + "' Person '" + person.Id + "' From '" + tc.Trips[0].OriginalZone.ZoneNumber + "' To '"
                                         + tc.Trips[0].DestinationZone.ZoneNumber + "'.  Please check your data!");
                                 }

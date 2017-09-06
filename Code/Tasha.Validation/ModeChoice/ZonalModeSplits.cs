@@ -105,7 +105,7 @@ namespace Tasha.Validation.ModeChoice
                     return i;
                 }
             }
-            throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode called '" + mode.ModeName + "'");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '" + mode.ModeName + "'");
         }
 
         public void HouseholdStart(ITashaHousehold household, int householdIterations)

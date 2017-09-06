@@ -243,7 +243,7 @@ namespace Tasha.Estimation
                     }
                 }
             }
-            throw new XTMFRuntimeException( 
+            throw new XTMFRuntimeException(this,
                 String.Format("In '{0}' we were unable to find a variable named '{1}' in '{2}'.",
                 Name, variableName, currentStructure.Name) );
         }
@@ -289,7 +289,7 @@ namespace Tasha.Estimation
         {
             if ( Parameters.Length + 1 != TotalIterations )
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were expecting " + ( Parameters.Length + 1 )
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were expecting " + ( Parameters.Length + 1 )
                 + " iterations!" );
             }
         }
@@ -379,7 +379,7 @@ namespace Tasha.Estimation
                 var headerLine = reader.ReadLine();
                 if ( headerLine == null )
                 {
-                    throw new XTMFRuntimeException( "The file \"" + modeParameterFile + "\" does not contain any data to load parameters from!" );
+                    throw new XTMFRuntimeException(this, "The file \"" + modeParameterFile + "\" does not contain any data to load parameters from!" );
                 }
                 string[] header = headerLine.Split( ',' );
                 for ( int i = 1; ( i < ModeParameterFileRow ) && ( reader.ReadLine() != null ); i++ )
@@ -389,7 +389,7 @@ namespace Tasha.Estimation
                 string line = reader.ReadLine();
                 if ( line == null )
                 {
-                    throw new XTMFRuntimeException( "We were unable to find a row#" + ModeParameterFileRow + " in the data set at \"" + modeParameterFile + "\"" );
+                    throw new XTMFRuntimeException(this, "We were unable to find a row#" + ModeParameterFileRow + " in the data set at \"" + modeParameterFile + "\"" );
                 }
                 var parameters = line.Split( ',' );
                 var localParameters = Parameters;
@@ -411,7 +411,7 @@ namespace Tasha.Estimation
                             {
                                 if ( !float.TryParse( parameters[i], out localParameters[j].Current ) )
                                 {
-                                    throw new XTMFRuntimeException( "In '" + Name
+                                    throw new XTMFRuntimeException(this, "In '" + Name
                                         + "' we were unable to read in the parameter, '" + parameters[i]
                                         + "' in order to assign it as a value." );
                                 }
@@ -422,7 +422,7 @@ namespace Tasha.Estimation
                     }
                     if ( !found )
                     {
-                        throw new XTMFRuntimeException( "In '" + Name
+                        throw new XTMFRuntimeException(this, "In '" + Name
                                         + "' we were unable to match a parameter called '" + header[i] + "'" );
                     }
                 }

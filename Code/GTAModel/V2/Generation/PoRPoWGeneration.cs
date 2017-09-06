@@ -231,7 +231,7 @@ namespace TMG.GTAModel.V2.Generation
                                     flatAttraction[i] += temp;
                                     if (flatAttraction[i] < 0)
                                     {
-                                        throw new XTMFRuntimeException("Zone " + zones[i].ZoneNumber + " had a negative attraction after computing the initial attraction. " + flatAttraction[i]
+                                        throw new XTMFRuntimeException(this, "Zone " + zones[i].ZoneNumber + " had a negative attraction after computing the initial attraction. " + flatAttraction[i]
                                             + "\r\nOccupation Rates = " + flatEmploymentRates[i][emp][occ]
                                             + "\r\nEmplyoment Rates = " + flatJobTypes[i][emp]
                                             + "\r\nEmployment       = " + zones[i].Employment

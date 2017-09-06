@@ -51,8 +51,7 @@ namespace Datastructure
                 {
                     int length;
                     if ((length = reader.LoadLine()) < 2) continue;
-                    int origin;
-                    reader.Get(out origin, 0);
+                    reader.Get(out int origin, 0);
                     if ((origin < 0)) continue;
                     if (origin >= dataLength)
                     {

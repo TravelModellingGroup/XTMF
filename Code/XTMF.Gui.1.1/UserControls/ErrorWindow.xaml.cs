@@ -64,8 +64,7 @@ namespace XTMF.Gui.UserControls
         private static void OnErrorStackTraceChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var window = source as ErrorWindow;
-            var value = e.NewValue as string;
-            if (value != null)
+            if (e.NewValue is string value)
             {
                 window.StackTraceBox.Text = value;
             }
@@ -78,8 +77,7 @@ namespace XTMF.Gui.UserControls
         private static void OnErrorMessageChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var window = source as ErrorWindow;
-            var value = e.NewValue as string;
-            if (value != null)
+            if (e.NewValue is string value)
             {
                 window.MessageBox.Text = value;
             }

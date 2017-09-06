@@ -27,28 +27,28 @@ namespace TMG.GTAModel.Input
 {
     public class ReadFixedFormatODData : IReadODData<float>
     {
-        [RunParameter( "Data Column Length", 13, "The number of text characters for the Data column." )]
+        [RunParameter("Data Column Length", 13, "The number of text characters for the Data column.")]
         public int DataLenth;
 
-        [RunParameter( "Data Column Start", 9, "The starting position of the Data column." )]
+        [RunParameter("Data Column Start", 9, "The starting position of the Data column.")]
         public int DataStart;
 
-        [RunParameter( "Destination Column Length", 5, "The number of text characters for the Destination column." )]
+        [RunParameter("Destination Column Length", 5, "The number of text characters for the Destination column.")]
         public int DestinationLenth;
 
-        [RunParameter( "Destination Column Start", 4, "The starting position of the Destination column." )]
+        [RunParameter("Destination Column Start", 4, "The starting position of the Destination column.")]
         public int DestinationStart;
 
-        [RunParameter( "E To The Data", false, "Return e^(data) instead of just data" )]
+        [RunParameter("E To The Data", false, "Return e^(data) instead of just data")]
         public bool EToTheData;
 
-        [RunParameter( "File Name", "Data.txt", typeof( FileFromOutputDirectory ), "The fixed format text file relative to the output directory." )]
+        [RunParameter("File Name", "Data.txt", typeof(FileFromOutputDirectory), "The fixed format text file relative to the output directory.")]
         public FileFromOutputDirectory FixedFormatFile;
 
-        [RunParameter( "Origin Column Length", 4, "The number of text characters for the Origin column." )]
+        [RunParameter("Origin Column Length", 4, "The number of text characters for the Origin column.")]
         public int OriginLenth;
 
-        [RunParameter( "Origin Column Start", 0, "The starting position of the Origin column." )]
+        [RunParameter("Origin Column Start", 0, "The starting position of the Origin column.")]
         public int OriginStart;
 
         [RootModule]
@@ -70,37 +70,37 @@ namespace TMG.GTAModel.Input
         public IEnumerable<ODData<float>> Read()
         {
             // if there isn't anything just exit
-            if ( !FixedFormatFile.ContainsFileName() ) yield break;
+            if (!FixedFormatFile.ContainsFileName()) yield break;
             // otherwise load in the data
             ODData<float> currentData = new ODData<float>();
             StreamReader reader;
             try
             {
-                reader = new StreamReader( FixedFormatFile.GetFileName() );
+                reader = new StreamReader(FixedFormatFile.GetFileName());
             }
-            catch ( IOException e )
+            catch (IOException e)
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'" );
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'");
             }
             // find the amount of data in the line that we need in order to process anything
-            var dataInLine = Math.Max( OriginStart + OriginLenth, DestinationStart + DestinationLenth );
-            dataInLine = Math.Max( dataInLine, DataStart + DataLenth );
-            using ( reader )
+            var dataInLine = Math.Max(OriginStart + OriginLenth, DestinationStart + DestinationLenth);
+            dataInLine = Math.Max(dataInLine, DataStart + DataLenth);
+            using (reader)
             {
                 string line;
-                while ( ( line = reader.ReadLine() ) != null )
+                while ((line = reader.ReadLine()) != null)
                 {
                     // if there is not enough data just continue
-                    if ( line.Length < dataInLine ) continue;
-                    currentData.O = int.Parse( line.Substring( OriginStart, OriginLenth ) );
-                    currentData.D = int.Parse( line.Substring( DestinationStart, DestinationLenth ) );
-                    if ( EToTheData )
+                    if (line.Length < dataInLine) continue;
+                    currentData.O = int.Parse(line.Substring(OriginStart, OriginLenth));
+                    currentData.D = int.Parse(line.Substring(DestinationStart, DestinationLenth));
+                    if (EToTheData)
                     {
-                        currentData.Data = (float)( Math.Exp( double.Parse( line.Substring( DataStart, DataLenth ) ) ) );
+                        currentData.Data = (float)(Math.Exp(double.Parse(line.Substring(DataStart, DataLenth))));
                     }
                     else
                     {
-                        currentData.Data = (float)double.Parse( line.Substring( DataStart, DataLenth ) );
+                        currentData.Data = (float)double.Parse(line.Substring(DataStart, DataLenth));
                     }
                     yield return currentData;
                 }

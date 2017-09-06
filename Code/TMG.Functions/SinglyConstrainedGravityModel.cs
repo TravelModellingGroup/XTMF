@@ -65,11 +65,11 @@ namespace TMG.Functions
             {
                 if ( e.InnerException is XTMFRuntimeException )
                 {
-                    throw new XTMFRuntimeException( e.InnerException.Message );
+                    throw new XTMFRuntimeException(null, e.InnerException.Message );
                 }
                 else
                 {
-                    throw new XTMFRuntimeException( e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
+                    throw new XTMFRuntimeException(null, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
                 }
             }
             return ret;

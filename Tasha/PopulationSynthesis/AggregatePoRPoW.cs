@@ -452,8 +452,7 @@ namespace Tasha.PopulationSynthesis
             using (CsvReader reader = new CsvReader(WorkerCategorySplits))
             {
                 //burn header
-                int columns;
-                reader.LoadLine(out columns);
+                reader.LoadLine(out int columns);
                 // read data
                 while (reader.LoadLine(out columns))
                 {
@@ -461,11 +460,9 @@ namespace Tasha.PopulationSynthesis
                     {
                         continue;
                     }
-                    int zone, category;
-                    float probability;
-                    reader.Get(out zone, 0);
-                    reader.Get(out category, 1);
-                    reader.Get(out probability, 2);
+                    reader.Get(out int zone, 0);
+                    reader.Get(out int category, 1);
+                    reader.Get(out float probability, 2);
                     zone = zoneArray.GetFlatIndex(zone);
                     // categories are 1 indexed however we want 0 indexed
                     category -= 1;

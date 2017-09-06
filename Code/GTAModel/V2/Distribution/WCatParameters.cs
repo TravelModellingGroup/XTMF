@@ -84,15 +84,15 @@ namespace TMG.GTAModel.V2.Distribution
         {
             if ( Parameters == null )
             {
-                throw new XTMFRuntimeException( Name + " needs to be loaded before accessing its data!" );
+                throw new XTMFRuntimeException(this, Name + " needs to be loaded before accessing its data!" );
             }
             if ( Parameters.Length <= wcat )
             {
-                throw new XTMFRuntimeException( Name + " was accessed for a wcat#" + wcat + " where only " + Parameters.Length + " are available!" );
+                throw new XTMFRuntimeException(this, Name + " was accessed for a wcat#" + wcat + " where only " + Parameters.Length + " are available!" );
             }
             if ( Parameters.Length < 0 )
             {
-                throw new XTMFRuntimeException( Name + " was accessed for a wcat#" + wcat + ".  Only positive wcats are acceptable." );
+                throw new XTMFRuntimeException(this, Name + " was accessed for a wcat#" + wcat + ".  Only positive wcats are acceptable." );
             }
             AssignSet( wcat );
         }

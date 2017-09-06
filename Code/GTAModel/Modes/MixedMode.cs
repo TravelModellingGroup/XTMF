@@ -134,12 +134,11 @@ combining Auto times with transit times through an interchange zone." )]
         private bool AttachMode(string modeName, ref IMode mode, IModeChoiceNode current)
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
-            var cat = mode as IModeCategory;
-            if ( cat != null )
+            if (mode is IModeCategory cat)
             {
-                foreach ( var m in Root.Modes )
+                foreach (var m in Root.Modes)
                 {
-                    if ( AttachMode( modeName, ref mode, m ) )
+                    if (AttachMode(modeName, ref mode, m))
                     {
                         return true;
                     }
@@ -147,10 +146,9 @@ combining Auto times with transit times through an interchange zone." )]
             }
             else
             {
-                if ( modeName == current.ModeName )
+                if (modeName == current.ModeName)
                 {
-                    mode = current as IMode;
-                    return ( mode != null );
+                    return current is IMode;
                 }
             }
             return false;
@@ -161,11 +159,7 @@ combining Auto times with transit times through an interchange zone." )]
             if ( InterchangeZone == null )
             {
                 var zone = Root.ZoneSystem.ZoneArray[InterchangeZoneNumber];
-                if ( zone == null )
-                {
-                    throw new XTMFRuntimeException( "The zone " + InterchangeZoneNumber + " does not exist!  Please check the mode '" + ModeName + "!" );
-                }
-                InterchangeZone = zone;
+                InterchangeZone = zone ?? throw new XTMFRuntimeException(this, "The zone " + InterchangeZoneNumber + " does not exist!  Please check the mode '" + ModeName + "!" );
             }
         }
     }

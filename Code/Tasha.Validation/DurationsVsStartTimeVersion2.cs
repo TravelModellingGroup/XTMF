@@ -86,8 +86,7 @@ namespace Tasha.Validation
                             var duration = (int)((nextTrip.TripStartTime - thisTrip.ActivityStartTime).ToMinutes());
 
                             KeyValuePair<Activity, int> bob = new KeyValuePair<Activity, int>(thisTrip.Purpose, hours);
-                            List<int> ourList;
-                            if (DurationsDict.TryGetValue(bob, out ourList))
+                            if (DurationsDict.TryGetValue(bob, out List<int> ourList))
                             {
                                 ourList.Add(duration);
                             }

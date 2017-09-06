@@ -141,12 +141,12 @@ namespace Tasha.Scheduler
                 toHome.OriginalZone = Episodes[EpisodeCount - 1].Zone;
                 if(Episodes[EpisodeCount - 1].Zone == null)
                 {
-                    throw new XTMFRuntimeException("An episode had a null zone!");
+                    throw new XTMFRuntimeException(Scheduler, "An episode had a null zone!");
                 }
                 if(toHome.OriginalZone.ZoneNumber == Tasha.Scheduler.Scheduler.Tasha.ZoneSystem.RoamingZoneNumber)
                 {
                     throw new XTMFRuntimeException
-                        (
+                        ( Scheduler,
                         "We are trying to make a trip from the roaming zone to home!" +
                         "\r\nHHLD:" + household.HouseholdId +
                         "\r\nPrevious Purpose" + Episodes[EpisodeCount - 1].ActivityType
@@ -452,12 +452,12 @@ namespace Tasha.Scheduler
             // Sanity Check
             if(post.EndTime > lateTimeBound)
             {
-                throw new XTMFRuntimeException("We ended too late when inserting with 3 into a person schedule!\r\n"
+                throw new XTMFRuntimeException(Scheduler, "We ended too late when inserting with 3 into a person schedule!\r\n"
                     + Dump(this));
             }
             if(prior.StartTime < earlyTimeBound)
             {
-                throw new XTMFRuntimeException("We started too early when inserting with 3 into a person schedule!\r\n"
+                throw new XTMFRuntimeException(Scheduler, "We started too early when inserting with 3 into a person schedule!\r\n"
                                                + Dump(this)
                                                + "\r\nFirst Time = " + firstTime
                                                + "\r\nSecond Time = " + secondTime);
@@ -569,26 +569,24 @@ namespace Tasha.Scheduler
         {
             if(earlyTimeBound < Time.StartOfDay)
             {
-                throw new XTMFRuntimeException("An episode had an early time bound before the start of the day!");
+                throw new XTMFRuntimeException(Scheduler, "An episode had an early time bound before the start of the day!");
             }
             if(lateTimeBound > Time.EndOfDay)
             {
-                throw new XTMFRuntimeException("An episode had a late time before after the end of the day!");
+                throw new XTMFRuntimeException(Scheduler, "An episode had a late time before after the end of the day!");
             }
-            Time firstTime;
-            Time secondTime;
             // Do a quick check to see if it is even possible to fit everything in together
-            if(!InitialInsertCheckPossible(earlyTimeBound, prior, middle, post, lateTimeBound, out firstTime, out secondTime))
+            if (!InitialInsertCheckPossible(earlyTimeBound, prior, middle, post, lateTimeBound, out Time firstTime, out Time secondTime))
             {
                 return false;
             }
-            if(firstTime < Time.Zero)
+            if (firstTime < Time.Zero)
             {
-                throw new XTMFRuntimeException("The First time in an insert is negative! " + firstTime + ".  Going from " + prior.Zone.ZoneNumber + " to " + middle.Zone.ZoneNumber + " at " + middle.StartTime + "!");
+                throw new XTMFRuntimeException(Scheduler, "The First time in an insert is negative! " + firstTime + ".  Going from " + prior.Zone.ZoneNumber + " to " + middle.Zone.ZoneNumber + " at " + middle.StartTime + "!");
             }
             if(secondTime < Time.Zero)
             {
-                throw new XTMFRuntimeException("The Second time in an insert is negative! " + secondTime + ".  Going from " + middle.Zone.ZoneNumber + " to "
+                throw new XTMFRuntimeException(Scheduler, "The Second time in an insert is negative! " + secondTime + ".  Going from " + middle.Zone.ZoneNumber + " to "
                     + (post == null ? Owner.Household.HomeZone.ZoneNumber : post.Zone.ZoneNumber) + " at " + (post == null ? middle.EndTime : post.StartTime) + "!");
             }
             // Assign the travel times to the episodes
@@ -663,7 +661,7 @@ namespace Tasha.Scheduler
             {
                 return MiddlePostInsert(ref earlyTimeBound, middle, post, ref firstTime, ref secondTime);
             }
-            throw new XTMFRuntimeException("Unexpected shift to insert case!");
+            throw new XTMFRuntimeException(Scheduler, "Unexpected shift to insert case!");
         }
 
         private bool UnableToJustMoveToInsert(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound,

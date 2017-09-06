@@ -166,8 +166,7 @@ namespace Tasha.XTMFModeChoice
                 {
                     if(timeSlots[i].AvailableCars > 0)
                     {
-                        Time intersectionStart, intersectionEnd;
-                        if(Time.Intersection(startTime, endTime, timeSlots[i].TimeSpan.Start, timeSlots[i].TimeSpan.End, out intersectionStart, out intersectionEnd))
+                        if (Time.Intersection(startTime, endTime, timeSlots[i].TimeSpan.Start, timeSlots[i].TimeSpan.End, out Time intersectionStart, out Time intersectionEnd))
                         {
                             driverTripChain = CreateDriverTripChain(intersectionStart, intersectionEnd, Household.HomeZone, driver);
                             CheckForPurePassengerTrips(driverTripChain, passengerTripChainData, driverIndex, passengerIndex, passengerTripChainIndex, random);
@@ -186,10 +185,9 @@ namespace Tasha.XTMFModeChoice
                 float passengerEpsilon = float.NegativeInfinity;
                 for(int i = 0; i < driverTripChainData.TripData.Length; i++)
                 {
-                    float v;
                     ITrip passengerTrip;
-                    if(driverTripChainTrips[i].Mode == PassengerMode.AssociatedMode &&
-                        PassengerMode.CalculateV(driverTripChainTrips[i], (passengerTrip = passengerTripChainData.TripChain.Trips[j]), out v))
+                    if (driverTripChainTrips[i].Mode == PassengerMode.AssociatedMode &&
+                        PassengerMode.CalculateV(driverTripChainTrips[i], (passengerTrip = passengerTripChainData.TripChain.Trips[j]), out float v))
                     {
                         // only pop a random variable for the passenger when it is needed (performance)
                         if(passengerEpsilon <= float.NegativeInfinity)
@@ -214,12 +212,11 @@ namespace Tasha.XTMFModeChoice
             for(int j = 0; j < passengerTripChainData.TripData.Length; j++)
             {
                 float passengerEpsilon = float.NegativeInfinity;
-                float v;
-                if(passengerTripChainData.TripChain.Trips[j].Mode.RequiresVehicle != null)
+                if (passengerTripChainData.TripChain.Trips[j].Mode.RequiresVehicle != null)
                 {
                     continue;
                 }
-                if(PassengerMode.CalculateV(driverTripChain.Trips[0], passengerTripChainData.TripChain.Trips[j], out v))
+                if (PassengerMode.CalculateV(driverTripChain.Trips[0], passengerTripChainData.TripChain.Trips[j], out float v))
                 {
                     if(passengerEpsilon <= float.NegativeInfinity)
                     {
@@ -502,8 +499,7 @@ namespace Tasha.XTMFModeChoice
 
         private void Solve(PotentialPassengerTrip[][] feasible, int[] bestAssignment, int numberOfDrivers)
         {
-            int numberOfConflicts;
-            var conflicts = ConflictTable(feasible, numberOfDrivers, out numberOfConflicts);
+            var conflicts = ConflictTable(feasible, numberOfDrivers, out int numberOfConflicts);
             int[] currentAssignment = new int[bestAssignment.Length];
             // clear out the memory to start with
             for(int i = 0; i < currentAssignment.Length; i++)

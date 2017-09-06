@@ -230,8 +230,7 @@ namespace XTMF
                {
                }
            });
-            IModelSystem dequeueMe;
-            while (temp.TryDequeue(out dequeueMe))
+            while (temp.TryDequeue(out IModelSystem dequeueMe))
             {
                 ModelSystems.Add(dequeueMe);
             }

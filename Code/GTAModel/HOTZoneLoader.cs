@@ -255,14 +255,12 @@ namespace TMG.GTAModel
                         {
                             continue;
                         }
-                        int zoneNumber;
-                        float parkingCost, parkingCap, intraZoneDistance, area;
 
-                        reader.Get( out zoneNumber, 0 );
-                        reader.Get( out parkingCost, 1 );
-                        reader.Get( out parkingCap, 2 );
-                        reader.Get( out intraZoneDistance, 3 );
-                        reader.Get( out area, 4 );
+                        reader.Get( out int zoneNumber, 0 );
+                        reader.Get( out float parkingCost, 1 );
+                        reader.Get( out float parkingCap, 2 );
+                        reader.Get( out float intraZoneDistance, 3 );
+                        reader.Get( out float area, 4 );
                         var zone = zones[zoneNumber];
                         if ( zone == null )
                         {
@@ -300,10 +298,8 @@ namespace TMG.GTAModel
                         {
                             continue;
                         }
-                        int zoneNumber;
-                        int employment;
-                        reader.Get( out zoneNumber, 0 );
-                        reader.Get( out employment, 1 );
+                        reader.Get(out int zoneNumber, 0);
+                        reader.Get( out int employment, 1 );
                         var zone = zones[zoneNumber];
                         if ( zone == null )
                         {
@@ -355,10 +351,8 @@ namespace TMG.GTAModel
                         {
                             continue;
                         }
-                        int zoneNumber;
-                        int pd;
-                        reader.Get( out zoneNumber, 0 );
-                        reader.Get( out pd, 1 );
+                        reader.Get(out int zoneNumber, 0);
+                        reader.Get( out int pd, 1 );
                         var zone = zones[zoneNumber];
                         if ( zone == null )
                         {
@@ -394,10 +388,8 @@ namespace TMG.GTAModel
                         {
                             continue;
                         }
-                        int zoneNumber;
-                        int population;
-                        reader.Get( out zoneNumber, 0 );
-                        reader.Get( out population, 1 );
+                        reader.Get(out int zoneNumber, 0);
+                        reader.Get( out int population, 1 );
                         var zone = zones[zoneNumber];
 
                         if ( zone == null )

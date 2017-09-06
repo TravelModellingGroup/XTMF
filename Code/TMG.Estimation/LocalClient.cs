@@ -83,7 +83,7 @@ namespace TMG.Estimation
                         !Functions.ModelSystemReflection.AssignValue(XtmfConfig, ClientStructure, Parameters[i].Names[j],
                             task.ParameterValues[i].ToString(CultureInfo.InvariantCulture), ref error))
                     {
-                        throw new XTMFRuntimeException($"In '{Name}' we encountered an error when trying to assign parameters.\r\n{error}");
+                        throw new XTMFRuntimeException(this, $"In '{Name}' we encountered an error when trying to assign parameters.\r\n{error}");
                     }
                 }
             }
@@ -97,7 +97,7 @@ namespace TMG.Estimation
                 string error = null;
                 if(!XtmfConfig.ProjectRepository.ActiveProject.Save(ref error))
                 {
-                    throw new XTMFRuntimeException("We were unable to save the project! " + error);
+                    throw new XTMFRuntimeException(this, "We were unable to save the project! " + error);
                 }
             }
         }

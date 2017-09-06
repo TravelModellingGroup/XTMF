@@ -67,7 +67,7 @@ namespace TMG.NetworkEstimation
                         projectFile = Path.GetFileName(projectFile);
                         if (projectFile == null)
                         {
-                            throw new XTMFRuntimeException($"In {Name} we were unable to get the file name from {ProjectFile}!");
+                            throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the file name from {ProjectFile}!");
                         }
                         var dir = TempDirectory = TempBaseDirectory.GetFilePath();
                         DirectoryCopy(originalDir, dir);

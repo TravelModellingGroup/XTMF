@@ -89,7 +89,7 @@ its mode when switching context between different demographic categories."
             }
             if ( parameterSetIndex < 0 || parameterSetIndex >= _NumberOfParameterSets )
             {
-                throw new XTMFRuntimeException( "The parameter set requested does not exist.\r\nRequested:"
+                throw new XTMFRuntimeException(this, "The parameter set requested does not exist.\r\nRequested:"
                     + parameterSetIndex + "\r\nTotal Sets:" + _NumberOfParameterSets );
             }
             RootNode.Apply( parameterSetIndex );
@@ -153,11 +153,9 @@ its mode when switching context between different demographic categories."
                     mode = header[i].Substring( 0, endOfMode );
                     ParameterSetStructure coRespondingStructure = GetStructure( mode );
                     if ( coRespondingStructure == null ) continue;
-                    FieldInfo field;
-                    PropertyInfo property;
-                    if ( StoreProperty( coRespondingStructure.Mode, header[i].Substring( endOfMode + 1 ), out field, out property ) )
+                    if (StoreProperty(coRespondingStructure.Mode, header[i].Substring(endOfMode + 1), out FieldInfo field, out PropertyInfo property))
                     {
-                        if ( coRespondingStructure.Parameters == null )
+                        if (coRespondingStructure.Parameters == null)
                         {
                             coRespondingStructure.Parameters = new Parameter[1];
                         }
@@ -165,7 +163,7 @@ its mode when switching context between different demographic categories."
                         {
                             var temp = coRespondingStructure.Parameters;
                             coRespondingStructure.Parameters = new Parameter[coRespondingStructure.Parameters.Length + 1];
-                            Array.Copy( temp, coRespondingStructure.Parameters, temp.Length );
+                            Array.Copy(temp, coRespondingStructure.Parameters, temp.Length);
                         }
                         // store the new parameter in our return list and in the recursive structure
                         ret[i] = coRespondingStructure.Parameters[coRespondingStructure.Parameters.Length - 1] = new Parameter
@@ -246,7 +244,7 @@ its mode when switching context between different demographic categories."
                     var headerLine = reader.ReadLine();
                     if ( headerLine == null )
                     {
-                        throw new XTMFRuntimeException( "The file \"" + DatabaseFile + "\" does not contain any data to load parameters from!" );
+                        throw new XTMFRuntimeException(this, "The file \"" + DatabaseFile + "\" does not contain any data to load parameters from!" );
                     }
                     string[] header = headerLine.Split( ',' );
                     var numberOfParameters = header.Length;
@@ -286,7 +284,7 @@ its mode when switching context between different demographic categories."
             }
             catch ( IOException )
             {
-                throw new XTMFRuntimeException( "The file '" + dbf + "' does not exist or is not accessable!" );
+                throw new XTMFRuntimeException(this, "The file '" + dbf + "' does not exist or is not accessable!" );
             }
         }
 
@@ -337,7 +335,7 @@ its mode when switching context between different demographic categories."
             if ( !IgnoreBadParameters )
             {
                 // If we get here then we did not find it!
-                throw new XTMFRuntimeException( "We were unable to find a parameter with the name \"" + parameterName + "\" in the mode " + selectedMode.ModeName );
+                throw new XTMFRuntimeException(this, "We were unable to find a parameter with the name \"" + parameterName + "\" in the mode " + selectedMode.ModeName );
             }
             return false;
         }

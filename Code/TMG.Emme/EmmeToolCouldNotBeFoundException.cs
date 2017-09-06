@@ -24,8 +24,14 @@ namespace TMG.Emme
     [Serializable]  
     public sealed class EmmeToolCouldNotBeFoundException : XTMFRuntimeException
     {
+        [System.Obsolete("Use EmmeToolCouldNotBeFoundException(IModule module, string message) instead.")]
         public EmmeToolCouldNotBeFoundException(string description)
             : base(description)
+        {
+        }
+
+        public EmmeToolCouldNotBeFoundException(IModule module, string description)
+            : base(module, description)
         {
         }
     }

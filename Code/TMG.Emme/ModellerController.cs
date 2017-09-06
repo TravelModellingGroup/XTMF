@@ -100,27 +100,6 @@ namespace TMG.Emme
 
         private const int SignalEnableLogbook = 13;
 
-        public bool WriteToLogbook
-        {
-            set
-            {
-                lock (this)
-                {
-                    try
-                    {
-                        EnsureWriteAvailable();
-                        BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
-                        writer.Write(value ? SignalEnableLogbook : SignalDisableLogbook);
-                        writer.Flush();
-                    }
-                    catch (IOException e)
-                    {
-                        throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
-                    }
-                }
-            }
-        }
-
         private NamedPipeServerStream PipeFromEMME;
 
         /// <summary>
@@ -128,11 +107,11 @@ namespace TMG.Emme
         /// <param name="projectFile"></param>
         /// <param name="performanceAnalysis"></param>
         /// <param name="userInitials"></param>
-        public ModellerController(string projectFile, bool performanceAnalysis = false, string userInitials = "XTMF")
+        public ModellerController(IModule module, string projectFile, bool performanceAnalysis = false, string userInitials = "XTMF")
         {
             if (!projectFile.EndsWith(".emp") | !File.Exists(projectFile))
             {
-                throw new XTMFRuntimeException(AddQuotes(projectFile) + " is not an existing Emme project file (*.emp)");
+                throw new XTMFRuntimeException(module, AddQuotes(projectFile) + " is not an existing Emme project file (*.emp)");
             }
 
             //Python invocation command:
@@ -142,9 +121,9 @@ namespace TMG.Emme
             string emmePath = Environment.GetEnvironmentVariable("EMMEPATH");
             if (String.IsNullOrWhiteSpace(emmePath))
             {
-                throw new XTMFRuntimeException("Please make sure that EMMEPATH is on the system environment variables!");
+                throw new XTMFRuntimeException(module, "Please make sure that EMMEPATH is on the system environment variables!");
             }
-            string pythonDirectory = Path.Combine(emmePath, FindPython(emmePath));
+            string pythonDirectory = Path.Combine(emmePath, FindPython(module, emmePath));
             string pythonPath = AddQuotes(Path.Combine(pythonDirectory, @"python.exe"));
             string pythonLib = Path.Combine(pythonDirectory, "Lib");
 
@@ -192,13 +171,17 @@ namespace TMG.Emme
             }
             catch
             {
-                throw new XTMFRuntimeException("Unable to create a bridge to EMME to '" + AddQuotes(projectFile) + "'!");
+                throw new XTMFRuntimeException(module, "Unable to create a bridge to EMME to '" + AddQuotes(projectFile) + "'!");
             }
             // Give some short names for the streams that we will be using
             ToEmme = Emme.StandardInput;
             // no more standard out
             PipeFromEMME.WaitForConnection();
             //this.FromEmme = this.Emme.StandardOutput;
+        }
+
+        public ModellerController(string projectFolder, bool newWindow = false) : base(projectFolder, newWindow)
+        {
         }
 
         ~ModellerController()
@@ -210,7 +193,7 @@ namespace TMG.Emme
         /// Try to clean out the Emme Modeller's log-book
         /// </summary>
         /// <returns>If we successfully cleaned the log book</returns>
-        public bool CleanLogbook()
+        public bool CleanLogbook(IModule module)
         {
             lock (this)
             {
@@ -221,11 +204,11 @@ namespace TMG.Emme
                     writer.Flush();
                     // now that we have setup the macro, we can force the writer out of scope
                     string unused = null;
-                    return WaitForEmmeResponce(ref unused, null);
+                    return WaitForEmmeResponce(module, ref unused, null);
                 }
                 catch (EndOfStreamException)
                 {
-                    throw new XTMFRuntimeException("We were unable to communicate with EMME.  Please make sure you have an active EMME license.  Sometimes rebooting has helped fix this bug.");
+                    throw new XTMFRuntimeException(module, "We were unable to communicate with EMME.  Please make sure you have an active EMME license.  Sometimes rebooting has helped fix this bug.");
                 }
                 catch (IOException)
                 {
@@ -234,7 +217,7 @@ namespace TMG.Emme
             }
         }
 
-        private bool WaitForEmmeResponce(ref string returnValue, Action<float> updateProgress)
+        private bool WaitForEmmeResponce(IModule module, ref string returnValue, Action<float> updateProgress)
         {
             // now we need to wait
             try
@@ -261,19 +244,19 @@ namespace TMG.Emme
                             }
                         case SignalTermination:
                             {
-                                throw new XTMFRuntimeException("The EMME ModellerBridge panicked and unexpectedly shutdown.");
+                                throw new XTMFRuntimeException(module, "The EMME ModellerBridge panicked and unexpectedly shutdown.");
                             }
                         case SignalParameterError:
                             {
-                                throw new EmmeToolParameterException("EMME Parameter Error: " + reader.ReadString());
+                                throw new EmmeToolParameterException(module, "EMME Parameter Error: " + reader.ReadString());
                             }
                         case SignalRuntimeError:
                             {
-                                throw new EmmeToolRuntimeException("EMME Runtime " + reader.ReadString());
+                                throw new EmmeToolRuntimeException(module, "EMME Runtime " + reader.ReadString());
                             }
                         case SignalToolDoesNotExistError:
                             {
-                                throw new EmmeToolCouldNotBeFoundException(reader.ReadString());
+                                throw new EmmeToolCouldNotBeFoundException(module, reader.ReadString());
                             }
                         case SignalSentPrintMessage:
                             {
@@ -284,36 +267,33 @@ namespace TMG.Emme
                         case SignalProgressReport:
                             {
                                 var progress = reader.ReadSingle();
-                                if (updateProgress != null)
-                                {
-                                    updateProgress(progress);
-                                }
+                                updateProgress?.Invoke(progress);
                                 break;
                             }
                         default:
                             {
-                                throw new XTMFRuntimeException("Unknown message passed back from the EMME ModellerBridge.  Signal number " + result);
+                                throw new XTMFRuntimeException(module, "Unknown message passed back from the EMME ModellerBridge.  Signal number " + result);
                             }
                     }
                 }
             }
             catch (EndOfStreamException)
             {
-                throw new XTMFRuntimeException("We were unable to communicate with EMME.  Please make sure you have an active EMME license.  If the problem persists, sometimes rebooting has helped fix this issue with EMME.");
+                throw new XTMFRuntimeException(module, "We were unable to communicate with EMME.  Please make sure you have an active EMME license.  If the problem persists, sometimes rebooting has helped fix this issue with EMME.");
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("I/O Connection with EMME ended while waiting for data, with:\r\n" + e.Message);
+                throw new XTMFRuntimeException(module, "I/O Connection with EMME ended while waiting for data, with:\r\n" + e.Message);
             }
         }
 
-        public bool CheckToolExists(string toolNamespace)
+        public bool CheckToolExists(IModule module, string toolNamespace)
         {
             lock (this)
             {
                 try
                 {
-                    EnsureWriteAvailable();
+                    EnsureWriteAvailable(module);
                     BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
                     writer.Write(SignalCheckToolExists);
                     writer.Write(toolNamespace);
@@ -321,32 +301,32 @@ namespace TMG.Emme
                 }
                 catch (IOException e)
                 {
-                    throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
+                    throw new XTMFRuntimeException(module, "I/O Connection with EMME while sending data, with:\r\n" + e.Message);
                 }
                 // now we need to wait
                 string unused = null;
-                return WaitForEmmeResponce(ref unused, null);
+                return WaitForEmmeResponce(module, ref unused, null);
             }
         }
 
-        public override bool Run(string macroName, string arguments)
+        public override bool Run(IModule module, string macroName, string arguments)
         {
             string unused = null;
-            return Run(macroName, arguments, null, ref unused);
+            return Run(module, macroName, arguments, null, ref unused);
         }
     
-        public bool Run(string macroName, string arguments, ref string returnValue)
+        public bool Run(IModule module, string macroName, string arguments, ref string returnValue)
         {
-            return Run(macroName, arguments, null, ref returnValue);
+            return Run(module, macroName, arguments, null, ref returnValue);
         }
 
-        public bool Run(string macroName, string arguments, Action<float> progressUpdate, ref string returnValue)
+        public bool Run(IModule module, string macroName, string arguments, Action<float> progressUpdate, ref string returnValue)
         {
             lock (this)
             {
                 try
                 {
-                    EnsureWriteAvailable();
+                    EnsureWriteAvailable(module);
                     // clear out all of the old input before starting
                     BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
                     writer.Write(SignalStartModule);
@@ -356,41 +336,41 @@ namespace TMG.Emme
                 }
                 catch (IOException e)
                 {
-                    throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
+                    throw new XTMFRuntimeException(module, "I/O Connection with EMME while sending data, with:\r\n" + e.Message);
                 }
-                return WaitForEmmeResponce(ref returnValue, progressUpdate);
+                return WaitForEmmeResponce(module, ref returnValue, progressUpdate);
             }
         }
 
         /// <summary>
         /// Throws an exception if the bridge has been disposed
         /// </summary>
-        private void EnsureWriteAvailable()
+        private void EnsureWriteAvailable(IModule module)
         {
             if (ToEmme == null)
             {
-                throw new XTMFRuntimeException("EMME Bridge was invoked even though it has already been disposed.");
+                throw new XTMFRuntimeException(module, "EMME Bridge was invoked even though it has already been disposed.");
             }
         }
 
-        public bool Run(string macroName, ModellerControllerParameter[] arguments)
+        public bool Run(IModule module, string macroName, ModellerControllerParameter[] arguments)
         {
             string unused = null;
-            return Run(macroName, arguments, null, ref unused);
+            return Run(module, macroName, arguments, null, ref unused);
         }
 
-        public bool Run(string macroName, ModellerControllerParameter[] arguments, ref string returnValue)
+        public bool Run(IModule module, string macroName, ModellerControllerParameter[] arguments, ref string returnValue)
         {
-            return Run(macroName, arguments, null, ref returnValue);
+            return Run(module, macroName, arguments, null, ref returnValue);
         }
 
-        public bool Run(string macroName, ModellerControllerParameter[] arguments, Action<float> progressUpdate, ref string returnValue)
+        public bool Run(IModule module, string macroName, ModellerControllerParameter[] arguments, Action<float> progressUpdate, ref string returnValue)
         {
             lock (this)
             {
                 try
                 {
-                    EnsureWriteAvailable();
+                    EnsureWriteAvailable(module);
                     // clear out all of the old input before starting
                     BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
                     writer.Write(SignalStartModuleBinaryParameters);
@@ -415,9 +395,9 @@ namespace TMG.Emme
                 }
                 catch (IOException e)
                 {
-                    throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
+                    throw new XTMFRuntimeException(module, "I/O Connection with EMME while sending data, with:\r\n" + e.Message);
                 }
-                return WaitForEmmeResponce(ref returnValue, progressUpdate);
+                return WaitForEmmeResponce(module, ref returnValue, progressUpdate);
             }
         }
 
@@ -462,11 +442,11 @@ namespace TMG.Emme
             }
         }
 
-        private string FindPython(string emmePath)
+        private string FindPython(IModule module, string emmePath)
         {
             if (!Directory.Exists(emmePath))
             {
-                throw new XTMFRuntimeException("We were unable to find an EMME installation in the directory named '" + emmePath + "'!\r\nIf you have just installed EMME please reboot your system.");
+                throw new XTMFRuntimeException(module, "We were unable to find an EMME installation in the directory named '" + emmePath + "'!\r\nIf you have just installed EMME please reboot your system.");
             }
             foreach (var dir in Directory.GetDirectories(emmePath))
             {
@@ -480,7 +460,7 @@ namespace TMG.Emme
                     }
                 }
             }
-            throw new XTMFRuntimeException("We were unable to find a version of python inside of EMME!");
+            throw new XTMFRuntimeException(module, "We were unable to find a version of python inside of EMME!");
         }
     }
 }

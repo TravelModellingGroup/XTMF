@@ -161,11 +161,8 @@ namespace Tasha.Modes
 
         public bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
-            Time toPassengerOrigin;
-            Time toPassengerDestination;
-            Time toDriverDestination;
             v = float.NegativeInfinity;
-            if (!IsThereEnoughTime(driverOriginalTrip, passengerTrip, out toPassengerOrigin, out toPassengerDestination, out toDriverDestination))
+            if (!IsThereEnoughTime(driverOriginalTrip, passengerTrip, out Time toPassengerOrigin, out Time toPassengerDestination, out Time toDriverDestination))
             {
                 return false;
             }
@@ -308,8 +305,7 @@ namespace Tasha.Modes
             var driverArrivesAt = driverOriginalTrip.TripStartTime + timeToPassenger;
             var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
             var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
-            Time overlapStart, overlapEnd;
-            if (!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out overlapStart, out overlapEnd))
+            if (!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out Time overlapStart, out Time overlapEnd))
             {
                 toPassengerDestination = Time.Zero;
                 toDriverDestination = Time.Zero;

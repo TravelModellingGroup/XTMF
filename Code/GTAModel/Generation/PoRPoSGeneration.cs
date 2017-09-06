@@ -76,7 +76,7 @@ namespace TMG.GTAModel
             }
         }
 
-        private static float EmployedMobilityProbability(int mobility, int emp, int occ, SparseTriIndex<float> ncars, int age, SparseTwinIndex<float> dlicRate)
+        private float EmployedMobilityProbability(int mobility, int emp, int occ, SparseTriIndex<float> ncars, int age, SparseTwinIndex<float> dlicRate)
         {
             switch ( mobility )
             {
@@ -93,11 +93,11 @@ namespace TMG.GTAModel
                 case 5:
                     return dlicRate[age, emp] * ncars[1, occ, 2];
                 default:
-                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility + "'!" );
+                    throw new XTMFRuntimeException(this, "Unknown mobility type '" + mobility + "'!" );
             }
         }
 
-        private static float UnemployedMobilityProbability(int mobility, SparseTriIndex<float> ncars, int age, SparseTwinIndex<float> dlicRate)
+        private float UnemployedMobilityProbability(int mobility, SparseTriIndex<float> ncars, int age, SparseTwinIndex<float> dlicRate)
         {
             switch ( mobility )
             {
@@ -114,7 +114,7 @@ namespace TMG.GTAModel
                 case 5:
                     return dlicRate[age, 0] * ncars[1, age, 2];
                 default:
-                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility + "'!" );
+                    throw new XTMFRuntimeException(this, "Unknown mobility type '" + mobility + "'!" );
             }
         }
 

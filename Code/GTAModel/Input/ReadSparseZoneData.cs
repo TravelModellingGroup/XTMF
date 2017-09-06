@@ -138,17 +138,15 @@ namespace TMG.GTAModel.Input
                 // now that we are at the data it is time to start building our data
                 while ( !reader.EndOfFile )
                 {
-                    int zone;
                     // read in the next line and make sure that it contains enough information
-                    if ( reader.LoadLine() < sparseLength + 1 ) continue;
+                    if (reader.LoadLine() < sparseLength + 1) continue;
                     // if we have enough data read it in, the first column is always the 'zone'
-                    reader.Get( out zone, 0 );
+                    reader.Get( out int zone, 0 );
                     zoneNumbers.Add( zone );
                     // now read in the data for this 'zone'
                     for ( int i = 0; i < sparseLength; i++ )
                     {
-                        float dataPoint;
-                        reader.Get( out dataPoint, 1 + i );
+                        reader.Get(out float dataPoint, 1 + i);
                         dataColumns[i].Add( dataPoint );
                     }
                 }

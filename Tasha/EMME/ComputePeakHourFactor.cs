@@ -152,8 +152,7 @@ namespace Tasha.EMME
 
         public void IterationFinished(int iteration, int totalIterations)
         {
-            int hourwindow;
-            var result = ComputeFactor(out hourwindow);
+            var result = ComputeFactor(out int hourwindow);
             if (!(SetIfExists(PeakHourStart, Time.FromMinutes((hourwindow + 4) * 15))
                 || SetIfExists(PeakHourEnd, Time.FromMinutes((hourwindow + 5) * 15))
                 || SetIfExists(StoreResultTo, result)))

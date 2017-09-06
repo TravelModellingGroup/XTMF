@@ -92,10 +92,10 @@ namespace Tasha.Validation.PerformanceMeasures
             var modeller = controller as ModellerController;
             if (modeller == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were not given a modeller controller!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeller controller!");
             }
 
-            return modeller.Run(ToolName, GenerageArgumentString());
+            return modeller.Run(this, ToolName, GenerageArgumentString());
         }
 
         public string Name

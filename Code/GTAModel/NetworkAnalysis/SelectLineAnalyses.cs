@@ -94,7 +94,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             var args = new StringBuilder();
             args.AppendFormat( "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
@@ -102,13 +102,13 @@ namespace TMG.GTAModel.NetworkAnalysis
                 WalkTimeCutoff, WaitTimeCutoff, TotalTimeCutoff, FarePerception );
 
             var toolName = ToolName;
-            if (!mc.CheckToolExists(toolName))
+            if (!mc.CheckToolExists(this, toolName))
             {
                 toolName = AlternateToolName;
             }
             
             string result = null;
-            return mc.Run(toolName, args.ToString(), (p => Progress = p), ref result);
+            return mc.Run(this, toolName, args.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

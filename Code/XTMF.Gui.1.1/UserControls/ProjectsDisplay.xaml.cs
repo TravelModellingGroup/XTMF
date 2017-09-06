@@ -226,8 +226,7 @@ namespace XTMF.Gui.UserControls
 
         private void RenameCurrentProject()
         {
-            var project = Display.SelectedItem as Project;
-            if (project != null)
+            if (Display.SelectedItem is Project project)
             {
                 var name = project.Name;
                 var selectedModuleControl = GetCurrentlySelectedControl();
@@ -255,8 +254,7 @@ namespace XTMF.Gui.UserControls
 
         private void ChangeCurrentDescription()
         {
-            var project = Display.SelectedItem as Project;
-            if (project != null)
+            if (Display.SelectedItem is Project project)
             {
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
@@ -297,8 +295,7 @@ namespace XTMF.Gui.UserControls
 
         private void CloneCurrentProject()
         {
-            var project = Display.SelectedItem as Project;
-            if (project != null)
+            if (Display.SelectedItem is Project project)
             {
                 string error = null;
                 StringRequest sr = new StringRequest("Clone Project As?", newName =>
@@ -313,7 +310,7 @@ namespace XTMF.Gui.UserControls
                         MessageBox.Show(GetWindow(), error, "Unable to Clone Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
-                   
+
 
                     Runtime.Configuration.AddRecentProject(sr.Answer);
                     Runtime.Configuration.Save();
@@ -327,8 +324,7 @@ namespace XTMF.Gui.UserControls
 
         private void DeleteCurrentProject()
         {
-            var project = Display.SelectedItem as Project;
-            if (project != null)
+            if (Display.SelectedItem is Project project)
             {
                 if (MessageBox.Show(GetWindow(),
                     "Are you sure you want to delete the project '" + project.Name + "'?  This action cannot be undone!", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
@@ -339,7 +335,7 @@ namespace XTMF.Gui.UserControls
                         MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
-                   
+
                 }
 
                 //remove from recent projects
@@ -347,7 +343,7 @@ namespace XTMF.Gui.UserControls
                 Runtime.Configuration.Save();
 
                 RefreshProjects();
-   
+
             }
         }
 

@@ -216,12 +216,10 @@ namespace TMG.Tasha
                     return false;
                 }
             }
-            int tempInt;
-            char tempChar;
             List<ITashaPerson> persons = new List<ITashaPerson>();
-            while(true)
+            while (true)
             {
-                Reader.Get(out tempInt, PersonHouseholdID);
+                Reader.Get(out int tempInt, PersonHouseholdID);
                 if(tempInt != household.HouseholdId)
                 {
                     if(tempInt < household.HouseholdId)
@@ -244,7 +242,7 @@ namespace TMG.Tasha
                 p.Id = tempInt;
                 Reader.Get(out tempInt, PersonAgeCol);
                 p.Age = tempInt;
-                Reader.Get(out tempChar, PersonGenderCol);
+                Reader.Get(out char tempChar, PersonGenderCol);
                 p.Female = (tempChar == 'F') | (tempChar == 'f');
                 Reader.Get(out tempChar, PersonDriversLicenceCol);
                 p.Licence = (tempChar == 'Y');
@@ -293,8 +291,7 @@ namespace TMG.Tasha
                 }
                 else
                 {
-                    float tempFloat;
-                    Reader.Get(out tempFloat, PersonExpansionFactorCol);
+                    Reader.Get(out float tempFloat, PersonExpansionFactorCol);
                     p.ExpansionFactor = tempFloat;
                 }
                 persons.Add(p);

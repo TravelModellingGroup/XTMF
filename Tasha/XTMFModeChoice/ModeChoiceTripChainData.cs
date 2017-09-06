@@ -208,11 +208,9 @@ namespace Tasha.XTMFModeChoice
                                 {
                                     if (tourDependentModes[possibleSolution[i]] != null)
                                     {
-                                        float tourUtility;
-                                        Action<ITripChain> onSelection;
-                                        if (tourDependentModes[possibleSolution[i]].CalculateTourDependentUtility(TripChain, i, out tourUtility, out onSelection))
+                                        if (tourDependentModes[possibleSolution[i]].CalculateTourDependentUtility(TripChain, i, out float tourUtility, out Action<ITripChain> onSelection))
                                         {
-                                            
+
                                             if (tourData == null)
                                             {
                                                 tourData = new TourData(tourUtility, new Action<ITripChain>[chainLength]);

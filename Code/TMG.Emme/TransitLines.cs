@@ -104,7 +104,7 @@ namespace TMG.Emme
                                 errorMessage.Append( current.Id[0] );
                                 errorMessage.AppendLine( "." );
                             }
-                            throw new XTMF.XTMFRuntimeException( errorMessage.ToString() );
+                            throw new XTMF.XTMFRuntimeException(null, errorMessage.ToString() );
                         }
                     }
                 }

@@ -51,10 +51,10 @@ namespace TMG.Functions
                 var directoryName = Path.GetDirectoryName(fileName);
                 if (directoryName == null)
                 {
-                    throw new XTMFRuntimeException($"Unable to get the directory name for the file path '{fileName}'");
+                    throw new XTMFRuntimeException(null, $"Unable to get the directory name for the file path '{fileName}'");
                 }
-                return CompressStream( inputStream, outputFileName == null ? Path.Combine( directoryName,
-                    fileName + ".gz" ) : outputFileName );
+                return CompressStream( inputStream, outputFileName ?? Path.Combine(directoryName,
+                    fileName + ".gz"));
             }
         }
 
@@ -95,7 +95,7 @@ namespace TMG.Functions
             }
             catch ( Exception e )
             {
-                throw new XTMFRuntimeException( e.Message );
+                throw new XTMFRuntimeException( null,e.Message );
             }
             finally
             {

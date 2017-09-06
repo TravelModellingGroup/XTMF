@@ -99,15 +99,13 @@ namespace Tasha.ModeChoice
 
         internal static ModeSet Make(ITripChain chain)
         {
-            ModeSet newModeSet;
             var chainLength = chain.Trips.Count;
-            ConcurrentBag<ModeSet> ourBag;
-            if (!ModeSetPool.TryGetValue(chainLength, out ourBag))
+            if (!ModeSetPool.TryGetValue(chainLength, out ConcurrentBag<ModeSet> ourBag))
             {
                 ModeSetPool[chainLength] = new ConcurrentBag<ModeSet>();
                 return new ModeSet(chain);
             }
-            if (ourBag.TryTake(out newModeSet))
+            if (ourBag.TryTake(out ModeSet newModeSet))
             {
                 newModeSet.Chain = chain;
                 return newModeSet;
@@ -117,15 +115,13 @@ namespace Tasha.ModeChoice
 
         internal static ModeSet Make(ModeSet set, double newU)
         {
-            ModeSet newModeSet;
             var chainLength = set.Length;
-            ConcurrentBag<ModeSet> ourBag;
-            if (!ModeSetPool.TryGetValue(chainLength, out ourBag))
+            if (!ModeSetPool.TryGetValue(chainLength, out ConcurrentBag<ModeSet> ourBag))
             {
                 ModeSetPool[chainLength] = new ConcurrentBag<ModeSet>();
                 return new ModeSet(set, newU);
             }
-            if (ourBag.TryTake(out newModeSet))
+            if (ourBag.TryTake(out ModeSet newModeSet))
             {
                 for (int i = 0; i < chainLength; i++)
                 {

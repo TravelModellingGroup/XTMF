@@ -90,7 +90,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             var runName = Path.GetFileName( Directory.GetCurrentDirectory() );
 
@@ -105,13 +105,13 @@ namespace TMG.GTAModel.NetworkAnalysis
             sb.AppendFormat( " {0} \"{1}\"", FarePerception, runName );
 
             var toolName = ToolName;
-            if (!mc.CheckToolExists(toolName))
+            if (!mc.CheckToolExists(this, toolName))
             {
                 toolName = AlternateToolName;
             }
 
             string result = null;
-            return mc.Run(toolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(this, toolName, sb.ToString(), (p => Progress = p), ref result);
 
             /*
             Call args:

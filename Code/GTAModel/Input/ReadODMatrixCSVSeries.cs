@@ -27,19 +27,19 @@ namespace TMG.GTAModel.Input
 {
     public class ReadODMatrixCSVSeries : IReadODData<float>
     {
-        [RunParameter( "File Name", "data.csv", typeof( FileFromInputDirectory ), "The base file name to read in.  If UseInputDirectory is false we will use the run directory instead." )]
+        [RunParameter("File Name", "data.csv", typeof(FileFromInputDirectory), "The base file name to read in.  If UseInputDirectory is false we will use the run directory instead.")]
         public FileFromInputDirectory FileName;
 
         [RootModule]
         public ITravelDemandModel Root;
 
-        [RunParameter( "Series Size", 0, "The number of files in this series" )]
+        [RunParameter("Series Size", 0, "The number of files in this series")]
         public int SeriesSize;
 
-        [RunParameter( "Starting Index", 0, "The index to start from for the series." )]
+        [RunParameter("Starting Index", 0, "The index to start from for the series.")]
         public int StartingIndex;
 
-        [RunParameter( "Use Input Directory", false, "Should we use the model system's input directory as a base?" )]
+        [RunParameter("Use Input Directory", false, "Should we use the model system's input directory as a base?")]
         public bool UseInputDirectory;
 
         public string Name
@@ -64,15 +64,15 @@ namespace TMG.GTAModel.Input
             var zones = sparseZones.GetFlatData();
             var ret = sparseZones.CreateSquareTwinArray<float>();
 
-            LoadData( zones, ret );
+            LoadData(zones, ret);
             // only after all of the files have been finished will this run
             var flatRet = ret.GetFlatData();
             ODData<float> point;
-            for ( int i = 0; i < zones.Length; i++ )
+            for (int i = 0; i < zones.Length; i++)
             {
                 point.O = zones[i].ZoneNumber;
                 var row = flatRet[i];
-                for ( int j = 0; j < zones.Length; j++ )
+                for (int j = 0; j < zones.Length; j++)
                 {
                     point.D = zones[j].ZoneNumber;
                     point.Data = row[j];
@@ -88,42 +88,41 @@ namespace TMG.GTAModel.Input
 
         private string GetFileName(int i)
         {
-            return ( FileName.GetFileName( UseInputDirectory ? Root.InputBaseDirectory : "." ) + ( i + StartingIndex ) + ".csv" );
+            return (FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".") + (i + StartingIndex) + ".csv");
         }
 
         private void LoadData(IZone[] zones, SparseTwinIndex<float> ret)
         {
-            for ( int i = 0; i < SeriesSize; i++ )
+            for (int i = 0; i < SeriesSize; i++)
             {
-                ReadFile( GetFileName( i ), zones, ret.GetFlatData() );
+                ReadFile(GetFileName(i), zones, ret.GetFlatData());
             }
         }
 
         private void ReadFile(string fileName, IZone[] zones, float[][] matrix)
         {
-            using ( CsvReader reader = new CsvReader( fileName ) )
+            using (CsvReader reader = new CsvReader(fileName))
             {
                 var rowCount = 0;
                 int length;
                 // burn header
                 reader.LoadLine();
                 // now read in data
-                while ( !reader.EndOfFile )
+                while (!reader.EndOfFile)
                 {
                     length = reader.LoadLine();
-                    if ( length != zones.Length + 1 )
+                    if (length != zones.Length + 1)
                     {
                         continue;
                     }
-                    if ( rowCount >= matrix.Length )
+                    if (rowCount >= matrix.Length)
                     {
-                        throw new XTMFRuntimeException( "In '" + Name + "' when reading in the file '" + fileName + "' there were more rows (" + rowCount + ") than zones in the zone system!(" + zones.Length + ")" );
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' when reading in the file '" + fileName + "' there were more rows (" + rowCount + ") than zones in the zone system!(" + zones.Length + ")");
                     }
                     var row = matrix[rowCount++];
-                    for ( int i = 0; i < row.Length; i++ )
+                    for (int i = 0; i < row.Length; i++)
                     {
-                        float temp;
-                        reader.Get( out temp, i + 1 );
+                        reader.Get(out float temp, i + 1);
                         row[i] += temp;
                     }
                 }

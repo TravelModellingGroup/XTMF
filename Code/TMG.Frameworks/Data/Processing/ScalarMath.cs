@@ -62,7 +62,7 @@ You can also use brackets () to order the operations.  Math using literals will 
                 var result = ExpressionToExecute.Evaluate(DataSources);
                 if (result.Error)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' an exception during the execution of the expression occurred.\r\n" + result.ErrorMessage);
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' an exception during the execution of the expression occurred.\r\n" + result.ErrorMessage);
                 }
                 // check to see if the result is a scalar
                 if (result.IsValue)
@@ -71,11 +71,11 @@ You can also use brackets () to order the operations.  Math using literals will 
                 }
                 else if (result.IsVectorResult)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Vector instead of a scalar!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' the result of the expression was a Vector instead of a scalar!");
                 }
                 else
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Matrix instead of a scalar!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' the result of the expression was a Matrix instead of a scalar!");
                 }
             }
             finally

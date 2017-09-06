@@ -63,11 +63,7 @@ namespace TMG.Estimation
                         {
                             XmlNode name = nodes[i];
                             var parameterPath = name.Attributes?["ParameterPath"]?.InnerText;
-                            if (parameterPath == null)
-                            {
-                                throw new XTMFRuntimeException($"In {Name} Parameter Path was not defined in {child.OuterXml}!");
-                            }
-                            current.Names[i] = parameterPath;
+                            current.Names[i] = parameterPath ?? throw new XTMFRuntimeException(this, $"In {Name} Parameter Path was not defined in {child.OuterXml}!");
                         }
                     }
                     else
@@ -75,7 +71,7 @@ namespace TMG.Estimation
                         var parameterAttribute = child.Attributes?["ParameterPath"];
                         if (parameterAttribute == null)
                         {
-                            throw new XTMFRuntimeException();
+                            throw new XTMFRuntimeException(this, $"In {Name} ParameterPath was not defined in {child.OuterXml}!");
                         }
                         var parameterPath = parameterAttribute.InnerText;
                         current.Names = new[] { parameterPath };
@@ -84,11 +80,11 @@ namespace TMG.Estimation
                     var maximumAttribute = child.Attributes?["Maximum"];
                     if (minimumAttribute == null)
                     {
-                        throw new XTMFRuntimeException($"In {Name} The Minimum attribute was not defined in {child.OuterXml}!");
+                        throw new XTMFRuntimeException(this, $"In {Name} The Minimum attribute was not defined in {child.OuterXml}!");
                     }
                     if (maximumAttribute == null)
                     {
-                        throw new XTMFRuntimeException($"In {Name} The Maximum attribute was not defined in {child.OuterXml}!");
+                        throw new XTMFRuntimeException(this, $"In {Name} The Maximum attribute was not defined in {child.OuterXml}!");
                     }
                     current.Minimum = float.Parse( minimumAttribute.InnerText);
                     current.Maximum = float.Parse( maximumAttribute.InnerText);

@@ -44,11 +44,10 @@ Non-Work/School trips to be able to filter out by occupation type."
             data.O = 0;
             data.D = 0;
             data.Data = 0f;
-            int type;
-            if ( !ReadInteger( reader, ref c, out data.O ) ) return false;
+            if (!ReadInteger(reader, ref c, out data.O)) return false;
             if ( !ReadInteger( reader, ref c, out data.D ) ) return false;
             // This line is what makes this special since we are now reading in a type to filter by
-            if ( !ReadInteger( reader, ref c, out type ) ) return false;
+            if ( !ReadInteger( reader, ref c, out int type ) ) return false;
             if ( !ReadFloat( reader, ref c, out data.Data ) ) return false;
             // burn the remainder of the line
             if ( c != '\n' )

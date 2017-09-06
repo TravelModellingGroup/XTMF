@@ -100,7 +100,7 @@ namespace TMG.GTAModel.V2.Analysis
             }
             catch ( FileNotFoundException )
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to load a file named '" + fileName + "'!" );
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to load a file named '" + fileName + "'!" );
             }
         }
 
@@ -111,7 +111,7 @@ namespace TMG.GTAModel.V2.Analysis
                 var expectedFileSize = sizeof( float ) * AgeTags.Length * MobilityTags.Length * zones.Length * zones.Length;
                 if ( reader.BaseStream.Length < expectedFileSize )
                 {
-                    throw new XTMFRuntimeException( "In '" + Name + "' we were expecting the mobility cache to be '"
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' we were expecting the mobility cache to be '"
                         + expectedFileSize + "' bytes long however it is only '" + reader.BaseStream.Length + "' bytes long!" );
                 }
                 float[] zoneTemp = new float[zones.Length];

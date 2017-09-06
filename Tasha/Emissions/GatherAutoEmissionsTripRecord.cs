@@ -49,8 +49,7 @@ namespace Tasha.Emissions
 
             public override bool Equals(object obj)
             {
-                var other = obj as Index;
-                if (other != null)
+                if (obj is Index other)
                 {
                     return other.Origin == Origin && other.Destination == Destination && other.StartHour == StartHour;
                 }
@@ -143,8 +142,7 @@ namespace Tasha.Emissions
                         }
                         else if ((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
                         {
-                            IZone origin, destination;
-                            if (AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], initialAccessTrip, out origin, out destination))
+                            if (AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], initialAccessTrip, out IZone origin, out IZone destination))
                             {
                                 AddToMatrix(startTime, expFactor, origin, destination, homeZone);
                             }
@@ -174,8 +172,7 @@ namespace Tasha.Emissions
             var index = new Index(homeZone, origin, destination, hour);
             bool gotLock = false;
             WriteLock.Enter(ref gotLock);
-            float previous;
-            Data.TryGetValue(index, out previous);
+            Data.TryGetValue(index, out float previous);
             Data[index] = previous + expFactor;
             if (gotLock) WriteLock.Exit(true);
         }

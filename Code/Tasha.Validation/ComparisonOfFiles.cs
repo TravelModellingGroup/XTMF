@@ -171,8 +171,6 @@ namespace Tasha.Validation
 
         private float[] ReadFile(string fileName)
         {
-            int currentTime;
-            float currentPercent;
             float[] ret = new float[29];
             using ( CsvReader reader = new CsvReader( System.IO.Path.Combine( InputBaseDirectory, fileName ) ) )
             {
@@ -187,10 +185,10 @@ namespace Tasha.Validation
                     {
                         continue;
                     }
-                    reader.Get( out currentTime, FirstColumn );
+                    reader.Get( out int currentTime, FirstColumn );
                     if ( currentTime < 29 && currentTime >= 0 )
                     {
-                        reader.Get( out currentPercent, SecondColumn );
+                        reader.Get( out float currentPercent, SecondColumn );
                         ret[currentTime] += currentPercent;
                     }
                 }

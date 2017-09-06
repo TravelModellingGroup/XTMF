@@ -140,7 +140,7 @@ GPU to enhance the processing time of the model.")]
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[] production, float[] attraction, float[] friction)
         {
             var numberOfZones = zones.Length;
-            float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
+            float[] ret = friction ?? (new float[numberOfZones * numberOfZones]);
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
             try
@@ -164,8 +164,7 @@ GPU to enhance the processing time of the model.")]
                        }
                        else
                        {
-                           float utility;
-                           if (!GatherAllUtility(zones[i], zones[j], out utility))
+                           if (!GatherAllUtility(zones[i], zones[j], out float utility))
                            {
                                ret[index++] = 0;
                                //throw new XTMFRuntimeException( "There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber );
@@ -182,9 +181,9 @@ GPU to enhance the processing time of the model.")]
             {
                 if (e.InnerException is XTMFRuntimeException)
                 {
-                    throw new XTMFRuntimeException(e.InnerException.Message);
+                    throw new XTMFRuntimeException(this, e.InnerException.Message);
                 }
-                throw new XTMFRuntimeException(e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
+                throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
             }
             // Use the Log-Sum from the V's as the impedence function
             return ret;
@@ -199,10 +198,9 @@ GPU to enhance the processing time of the model.")]
            {
                for (int j = 0; j < numberOfZones; j++)
                {
-                   float utility;
-                   if (!GatherAllUtility(zones[i], zones[j], out utility))
+                   if (!GatherAllUtility(zones[i], zones[j], out float utility))
                    {
-                       throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
+                       throw new XTMFRuntimeException(this, "There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
                    }
                    friction[i][j] = (float)Math.Pow(utility, ImpedianceParameter) * (KFactor != null ? (float)Math.Exp(KFactor[i * NumberOfZones + j]) : 1f);
                }
@@ -232,8 +230,7 @@ GPU to enhance the processing time of the model.")]
             bool anyFeasible = false;
             for (int i = 0; i < length; i++)
             {
-                float localUtility;
-                if (GatherAllUtility(modes[i], o, d, out localUtility))
+                if (GatherAllUtility(modes[i], o, d, out float localUtility))
                 {
                     anyFeasible = true;
                     totalUtility += localUtility;
@@ -268,8 +265,7 @@ GPU to enhance the processing time of the model.")]
                 bool anyChildrenFeasible = false;
                 for (int i = 0; i < length; i++)
                 {
-                    float res;
-                    if (GatherAllUtility(cat.Children[i], o, d, out res))
+                    if (GatherAllUtility(cat.Children[i], o, d, out float res))
                     {
                         anyChildrenFeasible = true;
                         totalUtility += res;

@@ -123,9 +123,8 @@ namespace Tasha.Validation.PerformanceMeasures
 
         private void AddToSummary(ITrip trip, Dictionary<Activity, float> summaryDictionary, float occurance)
         {
-            float value;
             var purpose = trip.Purpose;
-            if (!summaryDictionary.TryGetValue(purpose, out value))
+            if (!summaryDictionary.TryGetValue(purpose, out float value))
             {
                 value = 0;
             }
@@ -134,9 +133,8 @@ namespace Tasha.Validation.PerformanceMeasures
 
         private void AddTripToDictionary(Dictionary<Activity, float[]> dictionary, float occurance, ITrip trip, int homeZone)
         {
-            float[] value;
             var purpose = trip.Purpose;
-            if (!dictionary.TryGetValue(purpose, out value))
+            if (!dictionary.TryGetValue(purpose, out float[] value))
             {
                 dictionary.Add(trip.Purpose, (value = new float[Root.ZoneSystem.ZoneArray.GetFlatData().Length]));
             }

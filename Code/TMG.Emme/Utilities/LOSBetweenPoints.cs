@@ -104,7 +104,7 @@ namespace TMG.Emme.Utilities
                 {
                     if (flatIndexes[i] < 0)
                     {
-                        throw new XTMFRuntimeException("In '" + Name + "' a centroid in our exploration set was not found in the data provided!");
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' a centroid in our exploration set was not found in the data provided!");
                     }
                 }
                 var flatData = data.GetFlatData();
@@ -156,7 +156,7 @@ namespace TMG.Emme.Utilities
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
             }
             List<int> nodesToExplore = GetNodesToExplore();
             List<int> newControids = GenerateCentroids();
@@ -196,7 +196,7 @@ namespace TMG.Emme.Utilities
                     }
                 }
             }
-            throw new XTMFRuntimeException("In '" + Name
+            throw new XTMFRuntimeException(this, "In '" + Name
                 + "' we were unable to fill our available number of centroids given the range provided.");
         }
 
@@ -206,7 +206,7 @@ namespace TMG.Emme.Utilities
             List<int> currentlyExploring)
         {
             //The goal is to execute our new tool in order to 
-            controller.Run(AttachCentroidToNodeTool,
+            controller.Run(this, AttachCentroidToNodeTool,
                 string.Join(" ",
                 Scenario.ToString(),
                 "\"" + string.Join(";", currentlyExploring.Select(i => nodesToExplore[i].ToString())) + "\"",
@@ -254,13 +254,11 @@ namespace TMG.Emme.Utilities
             {
                 // burn the header
                 reader.LoadLine();
-                int columns;
-                while (reader.LoadLine(out columns))
+                while (reader.LoadLine(out int columns))
                 {
                     if (columns > 0)
                     {
-                        int nodeToLoad;
-                        reader.Get(out nodeToLoad, 0);
+                        reader.Get(out int nodeToLoad, 0);
                         if (!nodes.Contains(nodeToLoad))
                         {
                             nodes.Add(nodeToLoad);

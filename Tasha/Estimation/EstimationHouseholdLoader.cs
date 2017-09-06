@@ -124,14 +124,14 @@ namespace Tasha.Estimation
                                                int numberOfVehicles = reader.ReadInt32();
                                                if (numberOfVehicles != Root.VehicleTypes.Count)
                                                {
-                                                   throw new XTMFRuntimeException("We were expecting to have '" + Root.VehicleTypes.Count + "' different types of vehicles but the host has '" + numberOfVehicles + "'");
+                                                   throw new XTMFRuntimeException(this, "We were expecting to have '" + Root.VehicleTypes.Count + "' different types of vehicles but the host has '" + numberOfVehicles + "'");
                                                }
                                                for (int i = 0; i < numberOfVehicles; i++)
                                                {
                                                    string temp;
                                                    if (Root.VehicleTypes[i].VehicleName != (temp = reader.ReadString()))
                                                    {
-                                                       throw new XTMFRuntimeException("We were expecting the vehicle type to be named '" + Root.VehicleTypes[i].VehicleName + "' and instead found '" + temp + "'");
+                                                       throw new XTMFRuntimeException(this, "We were expecting the vehicle type to be named '" + Root.VehicleTypes[i].VehicleName + "' and instead found '" + temp + "'");
                                                    }
                                                }
                                                ITashaHousehold[] households = new ITashaHousehold[numberOfHouseholds];
@@ -245,7 +245,7 @@ namespace Tasha.Estimation
                     }
                 }
             }
-            throw new XTMFRuntimeException("We were unable to find a joint trip representative's trip chain!");
+            throw new XTMFRuntimeException(this, "We were unable to find a joint trip representative's trip chain!");
         }
 
         private byte[] GetIV()
@@ -306,18 +306,20 @@ namespace Tasha.Estimation
 
         private TashaPerson LoadPerson(BinaryReader reader, Datastructure.SparseArray<IZone> zoneArray, TashaHousehold household, int personID)
         {
-            TashaPerson person = new TashaPerson();
-            person.Household = household;
-            person.Id = personID;
-            person.Age = reader.ReadInt32();
-            person.Female = reader.ReadBoolean();
-            person.EmploymentStatus = (TTSEmploymentStatus)reader.ReadInt32();
-            person.Occupation = (Occupation)reader.ReadInt32();
-            person.EmploymentZone = zoneArray[reader.ReadInt32()];
-            person.StudentStatus = (StudentStatus)reader.ReadInt32();
-            person.SchoolZone = zoneArray[reader.ReadInt32()];
-            person.Licence = reader.ReadBoolean();
-            person.FreeParking = reader.ReadBoolean();
+            TashaPerson person = new TashaPerson
+            {
+                Household = household,
+                Id = personID,
+                Age = reader.ReadInt32(),
+                Female = reader.ReadBoolean(),
+                EmploymentStatus = (TTSEmploymentStatus)reader.ReadInt32(),
+                Occupation = (Occupation)reader.ReadInt32(),
+                EmploymentZone = zoneArray[reader.ReadInt32()],
+                StudentStatus = (StudentStatus)reader.ReadInt32(),
+                SchoolZone = zoneArray[reader.ReadInt32()],
+                Licence = reader.ReadBoolean(),
+                FreeParking = reader.ReadBoolean()
+            };
             int numberOfTripChains;
             LoadKeys(reader, person);
             person.TripChains = new List<ITripChain>(numberOfTripChains = reader.ReadInt32());
@@ -342,11 +344,13 @@ namespace Tasha.Estimation
             trip.DestinationZone = zoneArray[reader.ReadInt32()];
             trip.Purpose = (Activity)reader.ReadInt32();
             // And learn when we are leaving, and at what time we need to get there
-            Time time = new Time();
-            // The activity's start time
-            time.Hours = reader.ReadInt32();
-            time.Minutes = reader.ReadInt32();
-            time.Seconds = reader.ReadInt32();
+            Time time = new Time
+            {
+                // The activity's start time
+                Hours = reader.ReadInt32(),
+                Minutes = reader.ReadInt32(),
+                Seconds = reader.ReadInt32()
+            };
             trip.ActivityStartTime = time;
             // Get the observed mode
             var modeName = reader.ReadString();

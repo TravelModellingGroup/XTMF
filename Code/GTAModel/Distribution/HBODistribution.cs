@@ -162,8 +162,7 @@ namespace TMG.GTAModel
            {
                int index = i * numberOfZones;
                var origin = zones[i];
-               int regionIndex;
-               if (!InverseLookup(zones[i].RegionNumber, out regionIndex))
+               if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
                {
                    for (int j = 0; j < numberOfZones; j++)
                    {

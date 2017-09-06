@@ -1584,7 +1584,7 @@ namespace XTMF
             writer.WriteStartElement("Collection");
             if (s.ParentFieldType == null)
             {
-                throw new XTMFRuntimeException("The type for " + s.Name + "'s Parent was not found!");
+                throw new XTMFRuntimeException(null, "The type for " + s.Name + "'s Parent was not found!");
             }
             writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString());
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);

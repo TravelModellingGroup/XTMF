@@ -203,11 +203,10 @@ namespace Tasha.PopulationSynthesis
             // 1 = Less cars than people with licenses
             // 2 = More or equal cars to persons with licenses
             float perceivedTime = AutoNetwork.TravelTime(zoneO, zoneD, TimeOfDay).ToMinutes();
-            float cost, trueTime, walk, wait;
             var utility = Math.Exp((workerIndex == 0 ? segment.PassengerTime : segment.AutoTime) * perceivedTime +
                                       (workerIndex == 2 ? segment.SaturatedVehicles : 0));
             // transit
-            TransitNetwork.GetAllData(zoneO, zoneD, TimeOfDay, out trueTime, out walk, out wait, out perceivedTime, out cost);
+            TransitNetwork.GetAllData(zoneO, zoneD, TimeOfDay, out float trueTime, out float walk, out float wait, out perceivedTime, out float cost);
             if (perceivedTime > 0)
             {
                 utility += Math.Exp(segment.TransitTime * perceivedTime + segment.TransitConstant);
@@ -316,8 +315,7 @@ namespace Tasha.PopulationSynthesis
                                 CreateWorkersByCategory(employmentSeekers, workerSplits),
                                 jobs, data,
                                 NumberOfWorkerCategories, zones.Length);
-            var itModel = Root as IIterativeModel;
-            if (itModel != null && itModel.CurrentIteration > 0)
+            if (Root is IIterativeModel itModel && itModel.CurrentIteration > 0)
             {
                 AverageResults(results, PreviousResults);
             }
@@ -450,8 +448,7 @@ namespace Tasha.PopulationSynthesis
             using (CsvReader reader = new CsvReader(WorkerCategorySplits))
             {
                 //burn header
-                int columns;
-                reader.LoadLine(out columns);
+                reader.LoadLine(out int columns);
                 // read data
                 while (reader.LoadLine(out columns))
                 {
@@ -459,11 +456,9 @@ namespace Tasha.PopulationSynthesis
                     {
                         continue;
                     }
-                    int zone, category;
-                    float probability;
-                    reader.Get(out zone, 0);
-                    reader.Get(out category, 1);
-                    reader.Get(out probability, 2);
+                    reader.Get(out int zone, 0);
+                    reader.Get(out int category, 1);
+                    reader.Get(out float probability, 2);
                     zone = zoneArray.GetFlatIndex(zone);
                     // categories are 1 indexed however we want 0 indexed
                     category -= 1;

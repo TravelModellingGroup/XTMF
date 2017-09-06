@@ -74,9 +74,9 @@ namespace TMG.Emme.Tools
             var modeller = controller as ModellerController;
             if (modeller == null)
             {
-                throw new XTMFRuntimeException($"In ${Name}, the controller was not a modeller controller!");
+                throw new XTMFRuntimeException(this, $"In ${Name}, the controller was not a modeller controller!");
             }
-            return modeller.Run(ToolNamespace, GetParameters());
+            return modeller.Run(this, ToolNamespace, GetParameters());
         }
 
 

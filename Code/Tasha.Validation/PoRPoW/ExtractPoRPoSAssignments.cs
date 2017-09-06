@@ -73,11 +73,9 @@ namespace Tasha.Validation.PoRPoW
                     if (person.StudentStatus != StudentStatus.NotStudent)
                     {
                         var gradeTeir = GetGradeTier(person.Age);
-                        Dictionary<StudentStatus, float[][]> teirDictionary;
-                        if (Data.TryGetValue(gradeTeir, out teirDictionary))
+                        if (Data.TryGetValue(gradeTeir, out Dictionary<StudentStatus, float[][]> teirDictionary))
                         {
-                            float[][] studentData;
-                            if (teirDictionary.TryGetValue(person.StudentStatus, out studentData))
+                            if (teirDictionary.TryGetValue(person.StudentStatus, out float[][] studentData))
                             {
                                 var zone = person.SchoolZone;
                                 if (zone != null)

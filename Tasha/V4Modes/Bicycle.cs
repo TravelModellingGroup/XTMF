@@ -189,8 +189,7 @@ namespace Tasha.V4Modes
         {
             float v = 0;
             ITashaPerson person = trip.TripChain.Person;
-            float timeFactor, constant;
-            GetPersonVariables(person, out timeFactor, out constant);
+            GetPersonVariables(person, out float timeFactor, out float constant);
             v += constant;
             if(trip.OriginalZone == trip.DestinationZone)
             {

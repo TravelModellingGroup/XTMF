@@ -145,8 +145,7 @@ namespace Tasha.ModeChoice
             var modeLength = modes.Count;
             for ( int i = 0; i < modeLength; i++ )
             {
-                var smode = modes[i] as ISharedMode;
-                if ( smode != null )
+                if (modes[i] is ISharedMode smode)
                 {
                     smode.ModeChoiceArrIndex = (byte)i;
                 }

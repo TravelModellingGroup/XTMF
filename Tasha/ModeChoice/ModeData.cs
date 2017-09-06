@@ -72,9 +72,8 @@ namespace Tasha.ModeChoice
 
         public static ModeData MakeModeData()
         {
-            ModeData md;
-            ModeDataPool.TryTake( out md );
-            return md == null ? new ModeData() : md;
+            ModeDataPool.TryTake(out ModeData md);
+            return md ?? new ModeData();
         }
 
         /// <summary>
@@ -84,10 +83,10 @@ namespace Tasha.ModeChoice
         {
             var modes = TashaRuntime.NonSharedModes;
             var modesLength = modes.Count;
-            for ( int i = 0; i < modesLength; i++ )
+            for (int i = 0; i < modesLength; i++)
             {
                 // Don't bother computing things that we won't use
-                if ( Feasible[i] )
+                if (Feasible[i])
                 {
                     Error[i] = GetNormal() * modes[i].VarianceScale;
                 }
@@ -98,7 +97,7 @@ namespace Tasha.ModeChoice
             }
             var sharedModes = TashaRuntime.SharedModes;
             var sharedModesLength = sharedModes.Count;
-            for ( int i = 0; i < sharedModesLength; i++ )
+            for (int i = 0; i < sharedModesLength; i++)
             {
                 // Compute all of the shared modes here
                 Error[i + modesLength] = GetNormal() * sharedModes[i].VarianceScale;
@@ -107,7 +106,7 @@ namespace Tasha.ModeChoice
 
         public void Recycle()
         {
-            ModeDataPool.Add( this );
+            ModeDataPool.Add(this);
         }
 
         /// <summary>
@@ -116,7 +115,7 @@ namespace Tasha.ModeChoice
         /// <param name="trip">The trip to store this to</param>
         public void Store(ITrip trip)
         {
-            trip.Attach( "MD", this );
+            trip.Attach("MD", this);
         }
 
         /// <summary>
@@ -126,21 +125,21 @@ namespace Tasha.ModeChoice
         /// <returns>The Utility of that mode</returns>
         public double U(int mode)
         {
-            if ( ( mode >= V.Length ) | ( mode < 0 ) )
+            if ((mode >= V.Length) | (mode < 0))
             {
-                throw new XTMFRuntimeException( "Tried to access a mode that doesn't exist!" );
+                throw new XTMFRuntimeException(null, "Tried to access a mode that doesn't exist!");
             }
             return V[mode] + Error[mode];
         }
 
         private static float GetNormal()
         {
-            if ( Random == null )
+            if (Random == null)
             {
-                Random = new Random( TashaRuntime.RandomSeed );
+                Random = new Random(TashaRuntime.RandomSeed);
             }
             double ret = -6;
-            for ( int i = 0; i < 12; i++ )
+            for (int i = 0; i < 12; i++)
             {
                 ret += Random.NextDouble();
             }

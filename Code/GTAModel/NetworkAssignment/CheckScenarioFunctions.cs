@@ -56,18 +56,18 @@ namespace TMG.GTAModel.NetworkAssignment
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             string result = null;
 
             var toolName = ToolName;
-            if (!mc.CheckToolExists(toolName))
+            if (!mc.CheckToolExists(this, toolName))
             {
                 toolName = AlternateToolName;
             }
 
 
-            return mc.Run(toolName, ScenarioNumber.ToString(), (p => Progress = p), ref result);
+            return mc.Run(this, toolName, ScenarioNumber.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

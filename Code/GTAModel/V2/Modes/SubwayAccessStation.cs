@@ -197,11 +197,10 @@ namespace TMG.GTAModel.V2.Modes
             var origin = zoneArray.GetFlatIndex( originZone.ZoneNumber );
             var destination = zoneArray.GetFlatIndex( destinationZone.ZoneNumber );
             var interchange = zoneArray.GetFlatIndex( InterchangeZone.ZoneNumber );
-            var component = First as ITripComponentData;
-            if ( component != null )
+            if (First is ITripComponentData component)
             {
                 // make sure that there is a valid walk time if we are walking/transit to the station
-                if ( component.WalkTime( origin, interchange, time ).ToMinutes() <= 0 )
+                if (component.WalkTime(origin, interchange, time).ToMinutes() <= 0)
                 {
                     return false;
                 }
@@ -221,7 +220,7 @@ namespace TMG.GTAModel.V2.Modes
                 if ( network.Name == PrimaryModeName )
                 {
                     var temp = network as ITripComponentData;
-                    Second = temp == null ? Second : temp;
+                    Second = temp ?? Second;
                 }
             }
             if ( First == null )
@@ -270,11 +269,7 @@ namespace TMG.GTAModel.V2.Modes
                         var zones = Root.ZoneSystem.ZoneArray;
                         var distances = Root.ZoneSystem.Distances;
                         var zone = zones[StationZone];
-                        if ( zone == null )
-                        {
-                            throw new XTMFRuntimeException( "The zone " + StationZone + " does not exist!  Please check the mode '" + ModeName + "!" );
-                        }
-                        InterchangeZone = zone;
+                        InterchangeZone = zone ?? throw new XTMFRuntimeException(this, "The zone " + StationZone + " does not exist!  Please check the mode '" + ModeName + "!" );
                         ClosestZone = zones.CreateSimilarArray<bool>();
                         var flatClosestZone = ClosestZone.GetFlatData();
                         var flatZones = zones.GetFlatData();

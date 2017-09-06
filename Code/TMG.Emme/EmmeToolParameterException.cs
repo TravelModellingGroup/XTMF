@@ -21,11 +21,17 @@ using System;
 
 namespace TMG.Emme
 {
-    [Serializable]    
+    [Serializable]
     public class EmmeToolParameterException : XTMFRuntimeException
     {
+        [System.Obsolete("Use EmmeToolParameterException(IModule module, string message) instead.")]
         public EmmeToolParameterException(string description)
-            : base( description )
+           : base(description)
+        {
+        }
+
+        public EmmeToolParameterException(IModule module, string description)
+            : base(module, description)
         {
         }
     }

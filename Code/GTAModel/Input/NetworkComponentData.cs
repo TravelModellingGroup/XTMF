@@ -482,12 +482,12 @@ namespace TMG.GTAModel
             {
                 if ( !File.Exists( path ) )
                 {
-                    throw new XTMFRuntimeException( "The file \"" + path + "\" does not exist!" );
+                    throw new XTMFRuntimeException(this, "The file \"" + path + "\" does not exist!" );
                 }
             }
             catch ( IOException )
             {
-                throw new XTMFRuntimeException( "an error occured wile looking for the file \"" + path + "\"!" );
+                throw new XTMFRuntimeException(this, "an error occured wile looking for the file \"" + path + "\"!" );
             }
             return path;
         }

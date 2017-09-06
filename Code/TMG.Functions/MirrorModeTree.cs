@@ -28,14 +28,13 @@ namespace TMG.Functions
             for ( int i = 0; i < modes.Count; i++ )
             {
                 TreeData<T> node = new TreeData<T>();
-                var asCat = modes[i] as IModeCategory;
-                if ( asCat != null && asCat.Children != null )
+                if (modes[i] is IModeCategory asCat && asCat.Children != null)
                 {
                     node.Children = new TreeData<T>[asCat.Children.Count];
-                    for ( int j = 0; j < node.Children.Length; j++ )
+                    for (int j = 0; j < node.Children.Length; j++)
                     {
                         node.Children[j] = new TreeData<T>();
-                        CreateMirroredTree( node.Children[j], asCat.Children[j] );
+                        CreateMirroredTree(node.Children[j], asCat.Children[j]);
                     }
                 }
                 ret.Add( node );
@@ -45,14 +44,13 @@ namespace TMG.Functions
 
         private static void CreateMirroredTree<T>(TreeData<T> node, IModeChoiceNode mode)
         {
-            var asCat = mode as IModeCategory;
-            if ( asCat != null && asCat.Children != null )
+            if (mode is IModeCategory asCat && asCat.Children != null)
             {
                 node.Children = new TreeData<T>[asCat.Children.Count];
-                for ( int j = 0; j < node.Children.Length; j++ )
+                for (int j = 0; j < node.Children.Length; j++)
                 {
                     node.Children[j] = new TreeData<T>();
-                    CreateMirroredTree( node.Children[j], asCat.Children[j] );
+                    CreateMirroredTree(node.Children[j], asCat.Children[j]);
                 }
             }
         }

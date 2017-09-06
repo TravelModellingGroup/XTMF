@@ -263,8 +263,8 @@ namespace Tasha.Common
                     }
                 }
             }
-            double oldU, newU;
-            CalculateU( auxTripChain, out oldU, out newU );
+
+            CalculateU( auxTripChain, out double oldU, out double newU );
             if ( double.IsNegativeInfinity( oldU ) | ( newU > oldU ) )
             {
                 driver.AuxTripChains.Add( auxTripChain );

@@ -106,7 +106,7 @@ and another tool for execution. This module requires the root module of the mode
                         ExecuteStartupMacro();
                     }
                     // Now that the system has been initialized run the macro
-                    if (!Controller.Run(EmmeAssignmentMacro, EmmeParameters))
+                    if (!Controller.Run(this, EmmeAssignmentMacro, EmmeParameters))
                     {
                         // if we failed to run the macro, kill the controller and try again
                         Controller.Close();
@@ -159,9 +159,9 @@ and another tool for execution. This module requires the root module of the mode
         {
             if (!String.IsNullOrEmpty(StartupMacroName))
             {
-                if (!Controller.Run(StartupMacroName, StartupMacroArguments))
+                if (!Controller.Run(this, StartupMacroName, StartupMacroArguments))
                 {
-                    throw new XTMFRuntimeException("We were unable to startup EMME!  Please make sure that you are connected to the EMME license server.");
+                    throw new XTMFRuntimeException(this, "We were unable to startup EMME!  Please make sure that you are connected to the EMME license server.");
                 }
             }
         }
@@ -169,7 +169,7 @@ and another tool for execution. This module requires the root module of the mode
         private void InitializeController()
         {
             Controller = UseModeller ?
-                  new ModellerController(EmmeProjectFolder, ModellerPerformanceAnalysis)
+                  new ModellerController(this, EmmeProjectFolder, ModellerPerformanceAnalysis)
                 : new Controller(EmmeProjectFolder);
         }
 

@@ -383,7 +383,6 @@ namespace TMG.Frameworks.Data.Processing.AST
                                 {
                                     return false;
                                 }
-                                FunctionCall toReturn;
                                 List<Expression> parameters = new List<Expression>();
                                 int lastStart = i + 1;
                                 Expression p;
@@ -408,7 +407,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                                     }
                                     parameters.Add(p);
                                 }
-                                if (!FunctionCall.GetCall(start, builder.ToString(), parameters.ToArray(), out toReturn, ref error))
+                                if (!FunctionCall.GetCall(start, builder.ToString(), parameters.ToArray(), out FunctionCall toReturn, ref error))
                                 {
                                     return false;
                                 }
@@ -476,13 +475,12 @@ namespace TMG.Frameworks.Data.Processing.AST
                 }
             }
             var value = builder.ToString();
-            float f;
             if (value.Length <= 0)
             {
                 error = "We were unable to read in a value at position " + start;
                 return false;
             }
-            if (float.TryParse(value, out f))
+            if (float.TryParse(value, out float f))
             {
                 // if we can read it in as a floating point number
                 ex = new Literal(index, f);

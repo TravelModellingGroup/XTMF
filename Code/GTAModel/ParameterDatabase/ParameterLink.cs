@@ -88,7 +88,7 @@ namespace TMG.GTAModel.ParameterDatabase
                 var t = (Field == null ? Property.PropertyType : Field.FieldType);
                 if ((temp = ArbitraryParameterParser.ArbitraryParameterParse(t, value, ref error)) == null)
                 {
-                    throw new XTMFRuntimeException("Unable to convert value!");
+                    throw new XTMFRuntimeException(this, "Unable to convert value!");
                 }
             }
 
@@ -107,8 +107,7 @@ namespace TMG.GTAModel.ParameterDatabase
             var t = (Field != null ? Field.FieldType : Property.PropertyType);
             if (t == typeof(float))
             {
-                double temp;
-                if (double.TryParse(value, out temp))
+                if (double.TryParse(value, out double temp))
                 {
                     // do float assignment
                     CurrentBlendNumber += temp * ammount;
@@ -116,8 +115,7 @@ namespace TMG.GTAModel.ParameterDatabase
             }
             else if (t == typeof(double))
             {
-                double temp;
-                if (double.TryParse(value, out temp))
+                if (double.TryParse(value, out double temp))
                 {
                     // do float assignment
                     CurrentBlendNumber += temp * ammount;
@@ -126,8 +124,7 @@ namespace TMG.GTAModel.ParameterDatabase
             else if (t == typeof(bool))
             {
                 // take the "true'est value
-                bool temp;
-                if (bool.TryParse(value, out temp))
+                if (bool.TryParse(value, out bool temp))
                 {
                     CurrentBlendBool = CurrentBlendBool | temp;
                 }
@@ -138,7 +135,7 @@ namespace TMG.GTAModel.ParameterDatabase
                 object temp;
                 if ((temp = ArbitraryParameterParser.ArbitraryParameterParse(t, value, ref error)) == null)
                 {
-                    throw new XTMFRuntimeException("Unable to convert value!");
+                    throw new XTMFRuntimeException(null, "Unable to convert value!");
                 }
                 if (Field != null)
                 {

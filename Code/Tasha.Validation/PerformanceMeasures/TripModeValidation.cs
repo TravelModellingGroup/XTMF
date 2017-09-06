@@ -90,8 +90,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             lock (this)
             {
-                float initialValue;
-                if (!modeDictionary.TryGetValue(mode, out initialValue))
+                if (!modeDictionary.TryGetValue(mode, out float initialValue))
                 {
                     initialValue = 0;
                 }

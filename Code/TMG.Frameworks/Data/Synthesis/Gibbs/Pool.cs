@@ -186,8 +186,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             }
             else
             {
-                IModelSystemStructure tdm;
-                if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
+                if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out IModelSystemStructure tdm))
                 {
                     ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
                     if (ZoneSystem != null && !ZoneSystem.Loaded)

@@ -127,7 +127,7 @@ namespace Tasha.Scheduler
             // if we are not adding it to the end
             if ( ( pos < 0 ) | ( pos > EpisodeCount ) )
             {
-                throw new XTMFRuntimeException( "Tried to insert into an schedule at position " + pos
+                throw new XTMFRuntimeException(Scheduler, "Tried to insert into an schedule at position " + pos
                     + " where there are currently " + EpisodeCount + " episodes." );
             }
 
@@ -204,19 +204,19 @@ namespace Tasha.Scheduler
             {
                 if ( lastEnd > Episodes[i].StartTime )
                 {
-                    throw new XTMFRuntimeException( Dump( this ) );
+                    throw new XTMFRuntimeException(Scheduler, Dump( this ) );
                 }
                 if ( Episodes[i].StartTime > mustEndBefore | Episodes[i].EndTime > mustEndBefore )
                 {
-                    throw new XTMFRuntimeException( Dump( this ) );
+                    throw new XTMFRuntimeException(Scheduler, Dump( this ) );
                 }
                 if ( Episodes[i].EndTime < Episodes[i].StartTime )
                 {
                     if ( Episodes[i].Owner != null )
                     {
-                        throw new XTMFRuntimeException( "There is an episode that ends before it starts in household #" + Episodes[i].Owner.Household.HouseholdId );
+                        throw new XTMFRuntimeException(Scheduler, "There is an episode that ends before it starts in household #" + Episodes[i].Owner.Household.HouseholdId );
                     }
-                    throw new XTMFRuntimeException( "There is an episode that ends before it starts and has no owner!"
+                    throw new XTMFRuntimeException(Scheduler, "There is an episode that ends before it starts and has no owner!"
                                                     + "\r\nActivity Type    :" + Episodes[i].ActivityType
                                                     + "\r\nStart Time       :" + Episodes[i].StartTime
                                                     + "\r\nDuration         :" + Episodes[i].Duration
@@ -225,7 +225,7 @@ namespace Tasha.Scheduler
                 }
                 if ( Episodes[i].OriginalDuration < Tasha.Scheduler.Scheduler.PercentOverlapAllowed * Episodes[i].Duration )
                 {
-                    throw new XTMFRuntimeException( "Episode is smaller than the allowed overlap!"
+                    throw new XTMFRuntimeException(Scheduler, "Episode is smaller than the allowed overlap!"
                                                     + "\r\nActivity Type    :" + Episodes[i].ActivityType
                                                     + "\r\nStart Time       :" + Episodes[i].StartTime
                                                     + "\r\nDuration         :" + Episodes[i].Duration

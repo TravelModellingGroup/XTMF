@@ -69,7 +69,7 @@ namespace TMG.GTAModel.NetworkAssignment
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = flatZones.Length;
@@ -107,7 +107,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
 
             string ret = null;
-            mc.Run( "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber,
+            mc.Run(this, "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber,
                 ( p => { Progress = p; } ), ref ret );
 
             File.Delete( outputFileName );

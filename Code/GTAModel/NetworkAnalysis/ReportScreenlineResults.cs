@@ -72,7 +72,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             var sb = new StringBuilder();
             sb.AppendFormat( "{0} {1} {2} {3}",
@@ -83,7 +83,7 @@ namespace TMG.GTAModel.NetworkAnalysis
              * */
 
             string result = null;
-            return mc.Run("tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => Progress = p ), ref result );
+            return mc.Run(this, "tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => Progress = p ), ref result );
         }
 
         public bool RuntimeValidation(ref string error)

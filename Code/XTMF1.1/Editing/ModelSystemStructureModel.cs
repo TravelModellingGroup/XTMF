@@ -562,8 +562,7 @@ namespace XTMF
                 }
                 if (current.IsCollection)
                 {
-                    int collectionIndex;
-                    if (int.TryParse(variableLink[index], out collectionIndex))
+                    if (int.TryParse(variableLink[index], out int collectionIndex))
                     {
                         // if we are at the first index we need to look at the index offset.
                         // This is needed if we are copying a collection, thus the indexes will

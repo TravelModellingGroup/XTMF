@@ -74,11 +74,11 @@ namespace Datastructure
         public bool Add(T item)
         {
             var visited = new Stack<Node>();
-            Node temp, current;
+            Node current;
             // TODO: We need to test the performance difference between making the node here or not
             // Making it here could allow more readers in, making the lag for a write take long?
             // However, if we are parallel writing, doing more work in parallel is better
-            MakeNode( item, out temp );
+            MakeNode( item, out Node temp );
             lock (WriterLock)
             {
                 current = Root;
@@ -230,8 +230,7 @@ namespace Datastructure
             // grab the Writer's lock.
             lock ( WriterLock )
             {
-                bool removed;
-                Root = RecursiveRemove(Root, item, visited, out removed );
+                Root = RecursiveRemove(Root, item, visited, out bool removed);
                 if ( removed )
                 {
                     DecreaseCount();

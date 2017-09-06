@@ -147,7 +147,7 @@ namespace TMG.Emme.NetworkAssignment
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("TMG.Emme.NetworkAssignment.MultiClassRoadAssignment requires the use of EMME Modeller and will not work through command prompt!");
+                throw new XTMFRuntimeException(this, "TMG.Emme.NetworkAssignment.MultiClassRoadAssignment requires the use of EMME Modeller and will not work through command prompt!");
             }
             /*
              xtmf_ScenarioNumber, Mode_List, xtmf_Demand_String, TimesMatrixId,
@@ -156,11 +156,11 @@ namespace TMG.Emme.NetworkAssignment
                  RunTitle, LinkTollAttributeId, xtmf_NameString, ResultAttributes, xtmf_AggAttributes, xtmf_aggAttributesMatrixId
             */
             string ret = null;
-            if (!mc.CheckToolExists(ToolName))
+            if (!mc.CheckToolExists(this, ToolName))
             {
-                throw new XTMFRuntimeException("There was no tool with the name '" + ToolName + "' available in the EMME databank!");
+                throw new XTMFRuntimeException(this, "There was no tool with the name '" + ToolName + "' available in the EMME databank!");
             }
-            return mc.Run(ToolName, GetParameters(), (p) => Progress = p, ref ret);
+            return mc.Run(this, ToolName, GetParameters(), (p) => Progress = p, ref ret);
         }
 
         private ModellerControllerParameter[] GetParameters()

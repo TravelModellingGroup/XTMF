@@ -59,11 +59,11 @@ namespace Tasha.ModeChoice
             ModeData facilitatedTripData = ModeData.Get(facilitatedTrip);
             if (facilitatedTripData == null)
             {
-                throw new XTMFRuntimeException("There was no facilitated Trip Data!");
+                throw new XTMFRuntimeException(null, "There was no facilitated Trip Data!");
             }
             if (TashaRuntime == null)
             {
-                throw new XTMFRuntimeException("Tasha runtime was null!");
+                throw new XTMFRuntimeException(null, "Tasha runtime was null!");
             }
             double passengersU = facilitatedTripData.U(facilitatedTripMode.ModeChoiceArrIndex);
             double driversU = CalculateUofAuxTrip(tripChain);
@@ -223,7 +223,7 @@ namespace Tasha.ModeChoice
                 }
                 List<List<ITripChain>> potentialChains = new List<List<ITripChain>>();
                 //sorting trips by start time (prereq for getting conflicting chains)
-                sortTrips(people[i].AuxTripChains);
+                SortTrips(people[i].AuxTripChains);
                 FindPotentialTripChainsRec(people[i].AuxTripChains, 0, potentialChains);
                 possibleChains.Add(people[i], potentialChains);
             }
@@ -272,8 +272,7 @@ namespace Tasha.ModeChoice
             else
             {
                 //copy this trip chain to a new one
-                List<ITripChain> tripChainRemovedConflicts;
-                CopyChain(tripchains, out tripChainRemovedConflicts);
+                CopyChain(tripchains, out List<ITripChain> tripChainRemovedConflicts);
                 var length = conflictingChains.Count;
                 for (int i = 0; i < length; i++)
                 {
@@ -281,15 +280,14 @@ namespace Tasha.ModeChoice
                 }
                 //Find potential tripchains with this trip chain included
                 FindPotentialTripChainsRec(tripChainRemovedConflicts, currentChain + 1, potentialChains);
-                List<ITripChain> tripChainWithoutThisChain;
-                CopyChain(tripchains, out tripChainWithoutThisChain);
+                CopyChain(tripchains, out List<ITripChain> tripChainWithoutThisChain);
                 tripChainWithoutThisChain.Remove(currentTripChain);
                 //Find potential tripchain without this trip chain included
                 FindPotentialTripChainsRec(tripChainWithoutThisChain, currentChain, potentialChains);
             }
         }
 
-        private Time getAuxTripChainEndTime(ITripChain auxTripChain)
+        private Time GetAuxTripChainEndTime(ITripChain auxTripChain)
         {
             if (auxTripChain["ConnectingChain"] == null)
             {
@@ -309,7 +307,7 @@ namespace Tasha.ModeChoice
             return endTime;
         }
 
-        private Time getAuxTripChainStartTime(ITripChain auxTripChain)
+        private Time GetAuxTripChainStartTime(ITripChain auxTripChain)
         {
             if (auxTripChain["ConnectingChain"] == null)
             {
@@ -338,8 +336,8 @@ namespace Tasha.ModeChoice
         private List<ITripChain> GetConflictingChains(ITripChain tripchain, List<ITripChain> tripchains)
         {
             List<ITripChain> conflictingChains = new List<ITripChain>();
-            Time startTime = getAuxTripChainStartTime(tripchain);
-            Time endTime = getAuxTripChainEndTime(tripchain);
+            Time startTime = GetAuxTripChainStartTime(tripchain);
+            Time endTime = GetAuxTripChainEndTime(tripchain);
             var length = tripchains.Count;
             for (int i = 0; i < length; i++)
             {
@@ -352,8 +350,8 @@ namespace Tasha.ModeChoice
                 {
                     return conflictingChains;
                 }
-                Time otherStartTime = getAuxTripChainStartTime(tripchains[i]);
-                Time otherEndTime = getAuxTripChainEndTime(tripchains[i]);
+                Time otherStartTime = GetAuxTripChainStartTime(tripchains[i]);
+                Time otherEndTime = GetAuxTripChainEndTime(tripchains[i]);
                 if (otherStartTime < endTime && otherEndTime > startTime)
                 {
                     conflictingChains.Add(tripchains[i]);
@@ -442,7 +440,7 @@ namespace Tasha.ModeChoice
         /// Sorts the trip chains in the list by start time
         /// </summary>
         /// <param name="list"></param>
-        private void sortTrips(List<ITripChain> list)
+        private void SortTrips(List<ITripChain> list)
         {
             int length = list.Count;
             for (int i = 0; i < length; i++)

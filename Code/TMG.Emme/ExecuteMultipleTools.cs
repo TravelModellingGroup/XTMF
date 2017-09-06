@@ -85,7 +85,7 @@ For that list you will probably use EmmeTool as the module to fill in for that, 
         public void Start()
         {
             if ( Tools.Count == 0 | !Execute ) return;
-            using ( Controller controller = new ModellerController( EmmeProjectFile ) )
+            using ( Controller controller = new ModellerController(this, EmmeProjectFile ) )
             {
                 var length = Tools.Count;
                 int i = 0;

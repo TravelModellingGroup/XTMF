@@ -115,18 +115,17 @@ namespace Tasha.XTMFModeChoice
                         var obs = trip[ObservedMode];
                         if(obs != null)
                         {
-                            var obsMode = obs as ITashaMode;
-                            if(obsMode != null)
+                            if (obs is ITashaMode obsMode)
                             {
                                 // find index
                                 var realIndex = Modes.IndexOf(obsMode);
-                                if(realIndex >= 0)
+                                if (realIndex >= 0)
                                 {
                                     var chosenModes = trip.ModesChosen;
-                                    for(int k = 0; k < chosenModes.Length; k++)
+                                    for (int k = 0; k < chosenModes.Length; k++)
                                     {
                                         var predMode = Modes.IndexOf(chosenModes[k]);
-                                        if(predMode >= 0)
+                                        if (predMode >= 0)
                                         {
                                             bool taken = false;
                                             ObservationsLock.Enter(ref taken);
@@ -134,14 +133,14 @@ namespace Tasha.XTMFModeChoice
                                             Observations[realIndex][predMode] += expFactor;
                                             if (taken) ObservationsLock.Exit(true);
                                         }
-                                        if(realIndex == predMode)
+                                        if (realIndex == predMode)
                                         {
                                             correct++;
                                         }
                                     }
-                                    if(realIndex < numberOfModes - numberOfSharedModes)
+                                    if (realIndex < numberOfModes - numberOfSharedModes)
                                     {
-                                        if(!tripData.Feasible[realIndex] & (!tripChainData.TripChain.JointTrip | tripChainData.TripChain.JointTripRep))
+                                        if (!tripData.Feasible[realIndex] & (!tripChainData.TripChain.JointTrip | tripChainData.TripChain.JointTripRep))
                                         {
                                             Interlocked.Increment(ref BadTrips[realIndex]);
                                             BadTripsQueue.Enqueue(new BadTripEntry()
@@ -158,23 +157,23 @@ namespace Tasha.XTMFModeChoice
                                         }
                                     }
                                 }
-                                if(ComputeFitness)
+                                if (ComputeFitness)
                                 {
                                     householdFitness += (float)Math.Log((correct + 1f) / (hhldIterations + 1f));
                                     int feasibleModes = 1;
-                                    for(int i = 0; i < tripData.Feasible.Length; i++)
+                                    for (int i = 0; i < tripData.Feasible.Length; i++)
                                     {
-                                        if(tripData.Feasible[i])
+                                        if (tripData.Feasible[i])
                                         {
                                             feasibleModes++;
                                         }
                                     }
                                     // now for the shared modes...
-                                    if(household.Vehicles.Length > 0)
+                                    if (household.Vehicles.Length > 0)
                                     {
                                         feasibleModes++;
                                     }
-                                    if(feasibleModes <= 0)
+                                    if (feasibleModes <= 0)
                                     {
                                         feasibleModes = numberOfModes - 1;
                                     }
@@ -292,10 +291,9 @@ namespace Tasha.XTMFModeChoice
                     }
                     writer.WriteLine("Missing Trips");
                     writer.WriteLine(MissingTrips);
-                    BadTripEntry t;
                     writer.WriteLine("Invaid Trips");
                     writer.WriteLine("HHLD,Person,Trip#,Mode,Distance,HasTravelTime,OriginZone,DestZone");
-                    while(BadTripsQueue.TryDequeue(out t))
+                    while(BadTripsQueue.TryDequeue(out BadTripEntry t))
                     {
                         writer.Write(t.HHLD);
                         writer.Write(',');
@@ -357,8 +355,7 @@ namespace Tasha.XTMFModeChoice
 
         private void ClearTrips()
         {
-            BadTripEntry t;
-            while(BadTripsQueue.TryDequeue(out t))
+            while (BadTripsQueue.TryDequeue(out BadTripEntry t))
             {
             }
         }

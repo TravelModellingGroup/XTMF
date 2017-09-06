@@ -40,7 +40,7 @@ namespace TMG.GTAModel
             int modeFlatZone = Root.ZoneSystem.ZoneArray.GetFlatIndex( IntermediateZone );
             if ( modeFlatZone == -1 )
             {
-                throw new XTMFRuntimeException( "The intermediate zone '" + IntermediateZone + " does not exist in the zone system!" );
+                throw new XTMFRuntimeException(this, "The intermediate zone '" + IntermediateZone + " does not exist in the zone system!" );
             }
             for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
             {

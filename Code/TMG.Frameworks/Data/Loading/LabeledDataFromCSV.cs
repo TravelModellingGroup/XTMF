@@ -82,7 +82,7 @@ namespace TMG.Frameworks.Data.Loading
                 case Agg.None:
                     if (set.ContainsKey(label))
                     {
-                        throw new XTMFRuntimeException($"In '{Name}' while loading in labeled data a label was loaded multiple times '{label}'!");
+                        throw new XTMFRuntimeException(this, $"In '{Name}' while loading in labeled data a label was loaded multiple times '{label}'!");
                     }
                     set.Add(label, data);
                     break;
@@ -91,10 +91,9 @@ namespace TMG.Frameworks.Data.Loading
                     {
                         // the optimizer should be able to solve this
                         var fData = (float)(object)data;
-                        float alreadyContained;
                         var fSet = set as LabeledData<float>;
                         // ReSharper disable once PossibleNullReferenceException
-                        fSet.TryGetValue(label, out alreadyContained);
+                        fSet.TryGetValue(label, out float alreadyContained);
                         fSet[label] = fData + alreadyContained;
                     }
                     break;
@@ -103,10 +102,9 @@ namespace TMG.Frameworks.Data.Loading
                     {
                         // the optimizer should be able to solve this
                         var fData = (float)(object)data;
-                        float alreadyContained;
                         var fSet = set as LabeledData<float>;
                         // ReSharper disable once PossibleNullReferenceException
-                        if (!fSet.TryGetValue(label, out alreadyContained))
+                        if (!fSet.TryGetValue(label, out float alreadyContained))
                         {
                             alreadyContained = 1.0f;
                         }
@@ -116,10 +114,9 @@ namespace TMG.Frameworks.Data.Loading
                 case Agg.Count:
                     if (typeof(TData) == typeof(float))
                     {
-                        float alreadyContained;
                         var fSet = set as LabeledData<float>;
                         // ReSharper disable once PossibleNullReferenceException
-                        fSet.TryGetValue(label, out alreadyContained);
+                        fSet.TryGetValue(label, out float alreadyContained);
                         fSet[label] = 1 + alreadyContained;
                     }
                     break;
@@ -133,32 +130,28 @@ namespace TMG.Frameworks.Data.Loading
             {
                 //burn the header
                 reader.LoadLine();
-                int columns;
                 string error = null;
                 int lineNumber = 0;
                 // load the data
-                while(reader.LoadLine(out columns))
+                while(reader.LoadLine(out int columns))
                 {
                     lineNumber++;
                     if(columns >= 2)
                     {
-                        string label; 
-                        reader.Get(out label, 0);
+                        reader.Get(out string label, 0);
                         if (typeof(T) == typeof(float))
                         {
-                            float parsedData;
                             LabeledData<float> fRet = ret as LabeledData<float>;
-                            reader.Get(out parsedData, 1);
+                            reader.Get(out float parsedData, 1);
                             Add(fRet, label, parsedData);
                         }
                         else
                         {
-                            string data;
-                            reader.Get(out data, 1);
+                            reader.Get(out string data, 1);
                             var parsedData = ArbitraryParameterParser.ArbitraryParameterParse(typeof(T), data, ref error);
                             if (parsedData == null || error != null)
                             {
-                                throw new XTMFRuntimeException($"In '{Name}' we were unable to parse the data in line number {lineNumber}!\r\n{error}");
+                                throw new XTMFRuntimeException(this, $"In '{Name}' we were unable to parse the data in line number {lineNumber}!\r\n{error}");
                             }
                             Add(ret, label, (T)parsedData);
                         }

@@ -106,9 +106,8 @@ namespace Tasha.Validation.ModeChoice
                     var tripChains = person.TripChains;
                     if (tripChains.Count > 0)
                     {
-                        float[] personalModeChoices;
                         // since this is the final phase, remove the household
-                        if (OperatingOn.TryRemove(person, out personalModeChoices) && success)
+                        if (OperatingOn.TryRemove(person, out float[] personalModeChoices) && success)
                         {
 
                             RecordData(person, personalModeChoices);
@@ -160,8 +159,7 @@ namespace Tasha.Validation.ModeChoice
                 {
                     if (person.TripChains.Count > 0)
                     {
-                        float[] toAttach;
-                        if (!ModePool.TryPop(out toAttach))
+                        if (!ModePool.TryPop(out float[] toAttach))
                         {
                             toAttach = new float[Root.Modes.Count];
                         }

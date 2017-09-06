@@ -52,12 +52,12 @@ namespace TMG.NetworkEstimation
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
             }
 
             var args = string.Join(" ", ScenarioNumber, LineAggregationFile.GetFilePath());
             string result = "";
-            mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            mc.Run(this, _ToolName, args, (p => Progress = p), ref result);
 
             var modelResults = ParseResults(result);
             var observations = LoadObservedBoardingsFile();
@@ -90,16 +90,13 @@ namespace TMG.NetworkEstimation
             using (CsvReader reader = new CsvReader(ObservedBoardingsFile.GetFilePath()))
             {
                 reader.LoadLine(); //Skip the first line                
-                int numCol;
-                while (reader.LoadLine(out numCol))
+                while (reader.LoadLine(out int numCol))
                 {
                     if (numCol < 2)
                         throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
 
-                    string lineId;
-                    float amBoardings;
-                    reader.Get(out lineId, 0);
-                    reader.Get(out amBoardings, 1);
+                    reader.Get(out string lineId, 0);
+                    reader.Get(out float amBoardings, 1);
 
                     result[lineId] = amBoardings;
                 }

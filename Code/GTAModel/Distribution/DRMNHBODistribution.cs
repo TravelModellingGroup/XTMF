@@ -101,7 +101,7 @@ namespace TMG.GTAModel.Distribution
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[] friction)
         {
             var numberOfZones = zones.Length;
-            float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
+            float[] ret = friction ?? (new float[numberOfZones * numberOfZones]);
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
             try
@@ -109,11 +109,10 @@ namespace TMG.GTAModel.Distribution
                 Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
                 {
                     var destination = zones[j];
-                    int regionIndex;
-                    if ( !InverseLookup( destination.RegionNumber, out regionIndex ) )
+                    if (!InverseLookup(destination.RegionNumber, out int regionIndex))
                     {
                         // make sure to reset the friction to zero
-                        for ( int i = 0; i < numberOfZones; i++ )
+                        for (int i = 0; i < numberOfZones; i++)
                         {
                             ret[i * numberOfZones + j] = float.NegativeInfinity;
                         }
@@ -145,9 +144,9 @@ namespace TMG.GTAModel.Distribution
             {
                 if ( e.InnerException is XTMFRuntimeException )
                 {
-                    throw new XTMFRuntimeException( e.InnerException.Message );
+                    throw new XTMFRuntimeException(this, e.InnerException.Message );
                 }
-                throw new XTMFRuntimeException( e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
+                throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
             }
             // Use the Log-Sum from the V's as the impedence function
             return ret;

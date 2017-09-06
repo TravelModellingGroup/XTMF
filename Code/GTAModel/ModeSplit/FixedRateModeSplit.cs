@@ -80,9 +80,9 @@ namespace TMG.GTAModel.ModeSplit
                 {
                     if (e.InnerException is XTMFRuntimeException)
                     {
-                        throw new XTMFRuntimeException(e.InnerException?.Message);
+                        throw new XTMFRuntimeException(this, e.InnerException?.Message);
                     }
-                    throw new XTMFRuntimeException(e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
+                    throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
                 }
                 matrixNumber++;
             }
@@ -102,8 +102,7 @@ namespace TMG.GTAModel.ModeSplit
 
         private void ProcessMode(TreeData<float[][]> treeData, int i, int j, float flow, IModeChoiceNode node, int matrixNumber)
         {
-            var cat = node as IModeCategory;
-            if (cat != null)
+            if (node is IModeCategory cat)
             {
                 // then go 1 level deeper
                 for (int m = cat.Children.Count - 1; m >= 0; m--)
@@ -130,7 +129,7 @@ namespace TMG.GTAModel.ModeSplit
                         var data = Data[dataIndex].Data;
                         if (data == null)
                         {
-                            throw new XTMFRuntimeException("In '" + Name + "' we tried to access the data for mode split from mode '" + Data[dataIndex].ModeName + "' however it was not initialized!");
+                            throw new XTMFRuntimeException(this, "In '" + Name + "' we tried to access the data for mode split from mode '" + Data[dataIndex].ModeName + "' however it was not initialized!");
                         }
                         if (treeData.Result == null)
                         {
@@ -194,7 +193,7 @@ namespace TMG.GTAModel.ModeSplit
                         return _Mode;
                     }
                 }
-                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode called '"
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '"
                     + ModeName + "', please make sure that this mode exists!");
             }
 
@@ -216,8 +215,7 @@ namespace TMG.GTAModel.ModeSplit
                     _Mode = node;
                     return true;
                 }
-                var cat = node as IModeCategory;
-                if (cat != null)
+                if (node is IModeCategory cat)
                 {
                     for (int i = 0; i < cat.Children.Count; i++)
                     {

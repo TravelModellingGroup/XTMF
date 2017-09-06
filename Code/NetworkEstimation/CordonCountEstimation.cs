@@ -89,15 +89,11 @@ namespace TMG.NetworkEstimation
                 {
                     var columns = reader.LoadLine();
                     if ( columns < 2 ) continue;
-                    string modelStationName;
-                    string truthName;
-                    float modelStationValue;
-                    reader.Get( out modelStationName, 0 );
-                    reader.Get( out modelStationValue, 1 );
-                    if ( StationNameMap.TryGetValue( modelStationName, out truthName ) )
+                    reader.Get(out string modelStationName, 0);
+                    reader.Get( out float modelStationValue, 1 );
+                    if ( StationNameMap.TryGetValue( modelStationName, out string truthName ) )
                     {
-                        float truthValue;
-                        if ( TruthValues.TryGetValue( truthName, out truthValue ) )
+                        if (TruthValues.TryGetValue(truthName, out float truthValue))
                         {
                             var diff = modelStationValue - truthValue;
                             totalError += diff;
@@ -124,10 +120,8 @@ namespace TMG.NetworkEstimation
                         {
                             continue;
                         }
-                        string stationName;
-                        float stationValue;
-                        reader.Get( out stationName, 0 );
-                        reader.Get( out stationValue, 1 );
+                        reader.Get(out string stationName, 0);
+                        reader.Get( out float stationValue, 1 );
                         TruthValues.Add( stationName, stationValue );
                     }
                 }
@@ -150,9 +144,9 @@ namespace TMG.NetworkEstimation
                         {
                             continue;
                         }
-                        string truthStationName, modelStationName;
-                        reader.Get( out truthStationName, 0 );
-                        reader.Get( out modelStationName, 1 );
+
+                        reader.Get( out string truthStationName, 0 );
+                        reader.Get( out string modelStationName, 1 );
                         StationNameMap.Add( modelStationName, truthStationName );
                     }
                 }

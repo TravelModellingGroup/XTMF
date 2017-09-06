@@ -153,7 +153,7 @@ namespace Tasha.Scheduler
             var distID = Distribution.GetDistributionID(person, activity);
             if (distID < 0)
             {
-                throw new XTMFRuntimeException("We were unable to get the distribution ID number for a person doing a '" + activity
+                throw new XTMFRuntimeException(null, "We were unable to get the distribution ID number for a person doing a '" + activity
                     + "' episode The person's householdID was " + person.Household.HouseholdId + ", personID was " + person.Id + ", was " + person.Age +
                     " years old, with employment status '" + person.EmploymentStatus + "' occupation '" + person.Occupation + "' Student Status '"
                     + person.StudentStatus + "'.  Their work zone is '" + (person.EmploymentZone != null ? person.EmploymentZone.ZoneNumber.ToString() : "None")
@@ -178,10 +178,9 @@ namespace Tasha.Scheduler
                 {
                     break;
                 }
-                Time duration;
                 if (!Distribution.GetRandomStartTimeFrequency(
                 Distribution.GetDistributionID(person, activity), freq,
-                Distribution.TimeOfDayToDistribution(startTime), Distribution.TimeOfDayToDistribution(endTime), random, out duration))
+                Distribution.TimeOfDayToDistribution(startTime), Distribution.TimeOfDayToDistribution(endTime), random, out Time duration))
                 {
                     //a bad thing happens here
                 }
@@ -211,10 +210,9 @@ namespace Tasha.Scheduler
                 {
                     feasibleFreq = true;
                 }
-                Time startTime;
                 if (!Distribution.GetRandomStartTimeFrequency(
                     Distribution.GetDistributionID(household, activity), freq,
-                    0, Scheduler.StartTimeQuanta - 1, random, out startTime))
+                    0, Scheduler.StartTimeQuanta - 1, random, out Time startTime))
                 {
                     //a bad thing happens here
                 }
@@ -240,10 +238,9 @@ namespace Tasha.Scheduler
                 {
                     feasibleFreq = true;
                 }
-                Time startTime;
                 if (!Distribution.GetRandomStartTimeFrequency(
                     Distribution.GetDistributionID(household, activity), freq,
-                    0, Scheduler.StartTimeQuanta - 1, random, out startTime))
+                    0, Scheduler.StartTimeQuanta - 1, random, out Time startTime))
                 {
                     // a bad thing happens here
                 }

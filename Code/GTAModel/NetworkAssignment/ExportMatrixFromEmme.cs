@@ -62,11 +62,11 @@ namespace TMG.GTAModel.NetworkAssignment
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             string filepath = Path.GetFullPath( FileName.GetFileName( Root.InputBaseDirectory ) );
 
-            return mc.Run("tmg.XTMF_internal.export_matrix_batch_file", MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );
+            return mc.Run(this, "tmg.XTMF_internal.export_matrix_batch_file", MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );
         }
 
         public bool RuntimeValidation(ref string error)

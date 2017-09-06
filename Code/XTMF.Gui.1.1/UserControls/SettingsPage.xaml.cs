@@ -206,8 +206,7 @@ namespace XTMF.Gui.UserControls
         {
             if (!e.Handled)
             {
-                var element = sender as UIElement;
-                if (element != null)
+                if (sender is UIElement element)
                 {
                     switch (e.Key)
                     {
@@ -318,11 +317,10 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                var configuration = _configuration as Configuration;
-                if (configuration != null)
+                if (_configuration is Configuration configuration)
                 {
-                    configuration.Theme = ((ThemeController.Theme) ((ComboBoxItem) ThemeComboBox.SelectedItem).Tag).Name;
-                    MainWindow.Us.ApplyTheme(((ThemeController.Theme) ((ComboBoxItem) ThemeComboBox.SelectedItem).Tag));
+                    configuration.Theme = ((ThemeController.Theme)((ComboBoxItem)ThemeComboBox.SelectedItem).Tag).Name;
+                    MainWindow.Us.ApplyTheme(((ThemeController.Theme)((ComboBoxItem)ThemeComboBox.SelectedItem).Tag));
                     _configuration.Save();
                 }
             }

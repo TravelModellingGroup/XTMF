@@ -116,7 +116,7 @@ namespace TMG.GTAModel.V2.Distribution
                             var realCat = cat as DemographicCategoryGeneration;
                             if (realCat == null)
                             {
-                                throw new XTMFRuntimeException("In '" + Name +
+                                throw new XTMFRuntimeException(this, "In '" + Name +
                                                                "' it is required that all generates be of the type DemographicCategoryGeneration!");
                             }
                             rangeSet[0] = new Range(mobility, mobility);
@@ -209,7 +209,7 @@ namespace TMG.GTAModel.V2.Distribution
                             }
                             else if ( j == i )
                             {
-                                throw new XTMFRuntimeException( "We found assigned persons for an intra-zonal work trip!" );
+                                throw new XTMFRuntimeException(this, "We found assigned persons for an intra-zonal work trip!" );
                             }
                             else
                             {
@@ -218,7 +218,7 @@ namespace TMG.GTAModel.V2.Distribution
                                 var util = ModeSplit.ComputeUtility( zones[i], zones[j] );
                                 if ( float.IsNaN( util ) | float.IsInfinity( util ) )
                                 {
-                                    throw new XTMFRuntimeException( "We came across an invalid utility! Age = " + age + " origin = " + zones[i].ZoneNumber + " destination = " + zones[j].ZoneNumber
+                                    throw new XTMFRuntimeException(this, "We came across an invalid utility! Age = " + age + " origin = " + zones[i].ZoneNumber + " destination = " + zones[j].ZoneNumber
                                         + " demographic category = '" + cat.ToString() + "'" );
                                 }
                                 // Process how many persons go here
@@ -227,7 +227,7 @@ namespace TMG.GTAModel.V2.Distribution
                                 var persons = ageProbability[i] * assignedPersonRow[j];
                                 if ( ( rate == 0 ) & ( persons > 0 ) )
                                 {
-                                    throw new XTMFRuntimeException( "We lost generation for " + zones[i].ZoneNumber + " to " + zones[j].ZoneNumber + ". " + persons
+                                    throw new XTMFRuntimeException(this, "We lost generation for " + zones[i].ZoneNumber + " to " + zones[j].ZoneNumber + ". " + persons
                                         + " persons in category " + catIndex + "." );
                                 }
                                 row[j] = persons * rate * MobilityCache[iOffset + currentJIndex];

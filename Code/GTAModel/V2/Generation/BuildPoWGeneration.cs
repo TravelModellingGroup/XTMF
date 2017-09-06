@@ -35,7 +35,7 @@ namespace TMG.GTAModel.V2.Generation
         public override void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
             // never gets called
-            throw new XTMFRuntimeException( "For '" + Name + "' this generate method should never be called!" );
+            throw new XTMFRuntimeException(this, "For '" + Name + "' this generate method should never be called!" );
         }
 
         public override bool RuntimeValidation(ref string error)
@@ -46,15 +46,17 @@ namespace TMG.GTAModel.V2.Generation
 
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int occ, Range age, int employmentStatus, int mobility)
         {
-            PowGeneration gen = new PowGeneration();
-            gen.Root = Root;
-            gen.OccupationCategory = CreateRangeSet( occ );
-            gen.AgeCategoryRange = CreateRangeSet( age );
-            gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
-            gen.Mobility = CreateRangeSet( mobility );
-            gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
-            gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-            gen.AllAges = AgeCategoryRange;
+            PowGeneration gen = new PowGeneration
+            {
+                Root = Root,
+                OccupationCategory = CreateRangeSet(occ),
+                AgeCategoryRange = CreateRangeSet(age),
+                EmploymentStatusCategory = CreateRangeSet(employmentStatus),
+                Mobility = CreateRangeSet(mobility),
+                ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex,
+                DemographicParameterSetIndex = GetDemographicIndex(age.Start, employmentStatus, mobility),
+                AllAges = AgeCategoryRange
+            };
             list.Add( gen );
         }
 

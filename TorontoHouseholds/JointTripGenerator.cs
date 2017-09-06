@@ -103,12 +103,11 @@ namespace TMG.Tasha
             var numberOfTrips = trips.Count;
             for ( int i = 0; i < numberOfTrips; i++ )
             {
-                var obsMode = trips[i][ObsMode] as IMode;
-                if ( obsMode != null )
+                if (trips[i][ObsMode] is IMode obsMode)
                 {
-                    if ( obsMode.ModeName == Auto.ModeName || obsMode.ModeName == Passenger.ModeName )
+                    if (obsMode.ModeName == Auto.ModeName || obsMode.ModeName == Passenger.ModeName)
                     {
-                        trips[i].Attach( ObsMode, RideShare );
+                        trips[i].Attach(ObsMode, RideShare);
                     }
                 }
             }

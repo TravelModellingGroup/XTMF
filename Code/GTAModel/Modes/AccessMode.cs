@@ -410,14 +410,13 @@ namespace TMG.GTAModel.Modes
 
                 if (network.NetworkType == PrimaryModeName)
                 {
-                    var temp = network as ITripComponentData;
-                    Second = temp == null ? Second : temp;
+                    Second = network as ITripComponentData ?? Second;
                 }
 
                 if (network.NetworkType == EgressNetworkName)
                 {
                     var temp = network as ITripComponentData;
-                    Third = temp == null ? Third : temp;
+                    Third = temp ?? Third;
                 }
 
                 if (network.NetworkType == AlternativePrimaryModeName)
@@ -456,9 +455,7 @@ namespace TMG.GTAModel.Modes
                 egressUtility = float.MinValue;
                 return false;
             }
-            Time ivtt, walk, wait, boarding;
-            float cost;
-            Third.GetAllData(flatEgressZone, flatDestinationZone, time, out ivtt, out walk, out wait, out boarding, out cost);
+            Third.GetAllData(flatEgressZone, flatDestinationZone, time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
             egressUtility = ivtt.ToMinutes() + EgressWaitFactor * wait.ToMinutes() + EgressWalkFactor * walk.ToMinutes();
             return egressUtility != float.MaxValue;
         }
@@ -584,7 +581,7 @@ namespace TMG.GTAModel.Modes
                 // If everything is fine we can now Generate our children
                 if (!GenerateChildren())
                 {
-                    throw new XTMFRuntimeException($"In {Name} we experienced an error when generating the access stations.");
+                    throw new XTMFRuntimeException(this, $"In {Name} we experienced an error when generating the access stations.");
                 }
             }
         }

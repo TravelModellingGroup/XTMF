@@ -58,9 +58,8 @@ namespace XTMF.Networking
         public T GetMessage()
         {
             Sem.Wait();
-            T ret;
             // this should always succeed
-            if ( !Messages.TryDequeue( out ret ) )
+            if (!Messages.TryDequeue(out T ret))
             {
                 return default(T);
             }
@@ -76,8 +75,7 @@ namespace XTMF.Networking
         {
             if ( Sem.Wait( timeout ) )
             {
-                T ret;
-                if ( !Messages.TryDequeue( out ret ) )
+                if (!Messages.TryDequeue(out T ret))
                 {
                     return default(T);
                 }

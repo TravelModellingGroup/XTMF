@@ -30,10 +30,9 @@ namespace XTMF.Update
         [STAThread]
         private static void Main(string[] args)
         {
-            int processID;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            if (args.Length >= 2 && int.TryParse(args[0], out processID))
+            if (args.Length >= 2 && int.TryParse(args[0], out int processID))
             {
                 try
                 {

@@ -329,18 +329,17 @@ namespace XTMF.Gui
             FocusedSelectedModule = index;
             SetModuleFocus();
             // open the button's menu if it exists
-            var button = obj as BorderIconButton;
-            if ( button != null )
+            if (obj is BorderIconButton button)
             {
                 var menu = button.ContextMenu;
-                if ( menu != null )
+                if (menu != null)
                 {
                     menu.PlacementTarget = button;
                     menu.IsOpen = true;
                     var e = ItemRightClicked;
-                    if ( e != null )
+                    if (e != null)
                     {
-                        e( button, DisplayedItems[index] );
+                        e(button, DisplayedItems[index]);
                     }
                 }
             }
@@ -366,12 +365,11 @@ namespace XTMF.Gui
             int count = 0;
             foreach ( var child in ModelSystemPanel.Children )
             {
-                var button = child as BorderIconButton;
-                if ( button != null )
+                if (child is BorderIconButton button)
                 {
-                    var selected = ( count == FocusedSelectedModule );
+                    var selected = (count == FocusedSelectedModule);
                     button.Selected = selected;
-                    if ( selected )
+                    if (selected)
                     {
                         button.BringIntoView();
                     }

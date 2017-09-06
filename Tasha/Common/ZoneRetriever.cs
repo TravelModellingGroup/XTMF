@@ -176,15 +176,13 @@ namespace Tasha.Common
                 using (CsvReader reader = new CsvReader(RegionFile))
                 {
                     // burn header
-                    int columns;
-                    reader.LoadLine(out columns);
+                    reader.LoadLine(out int columns);
                     // read the rest
-                    while(reader.LoadLine(out columns))
+                    while (reader.LoadLine(out columns))
                     {
                         if(columns < 2) continue;
-                        int zoneNumber, regionNumber;
-                        reader.Get(out zoneNumber, 0);
-                        reader.Get(out regionNumber, 1);
+                        reader.Get(out int zoneNumber, 0);
+                        reader.Get(out int regionNumber, 1);
                         int index = zoneArray.GetFlatIndex(zoneNumber);
                         if(index >= 0)
                         {
@@ -192,7 +190,7 @@ namespace Tasha.Common
                         }
                         else
                         {
-                            throw new XTMFRuntimeException("In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the regions that does not exist in the zone system!");
+                            throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the regions that does not exist in the zone system!");
                         }
                     }
                 }

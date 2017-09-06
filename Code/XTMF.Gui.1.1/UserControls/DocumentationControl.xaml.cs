@@ -128,8 +128,7 @@ namespace XTMF.Gui.UserControls
             string description = "No Description";
             foreach(var at in attributes)
             {
-                var info = at as ModuleInformationAttribute;
-                if(info != null)
+                if (at is ModuleInformationAttribute info)
                 {
                     description = info.Description;
                     break;

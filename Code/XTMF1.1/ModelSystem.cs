@@ -87,8 +87,7 @@ namespace XTMF
         /// <returns></returns>
         public ModelSystem Clone()
         {
-            List<ILinkedParameter> linkedParameters;
-            var structure = CreateEditingClone(out linkedParameters);
+            var structure = CreateEditingClone(out List<ILinkedParameter> linkedParameters);
             return new ModelSystem(Config, Name)
             {
                 ModelSystemStructure = structure,
@@ -332,8 +331,7 @@ namespace XTMF
                 }
                 if (current.IsCollection)
                 {
-                    int collectionIndex;
-                    if (int.TryParse(variableLink[index], out collectionIndex))
+                    if (int.TryParse(variableLink[index], out int collectionIndex))
                     {
                         if (collectionIndex >= 0 && collectionIndex < descList.Count)
                         {

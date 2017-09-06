@@ -117,10 +117,9 @@ namespace Tasha.Common
         /// <returns>A Trip to use</returns>
         public static Trip GetTrip(int householdIterations)
         {
-            Trip t;
-            if ( !Trips.TryDequeue( out t ) )
+            if (!Trips.TryDequeue(out Trip t))
             {
-                return new Trip( householdIterations );
+                return new Trip(householdIterations);
             }
             return t;
         }
@@ -141,10 +140,9 @@ namespace Tasha.Common
 
         internal static void ReleaseTripPool()
         {
-            Trip t;
             try
             {
-                while ( Trips.TryDequeue( out t ) )
+                while (Trips.TryDequeue(out Trip t))
                 {
                 }
             }

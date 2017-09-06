@@ -292,7 +292,7 @@ namespace Tasha.Scheduler
         {
             if (person.TripChains == null)
             {
-                throw new XTMFRuntimeException("A Person's trip chains must be initialized during construction.");
+                throw new XTMFRuntimeException(null, "A Person's trip chains must be initialized during construction.");
             }
             var pdata = (SchedulerPersonData) person["SData"];
             pdata.Schedule.GenerateTrips(person.Household, householdIterations, minimumAtHomeTime);

@@ -69,7 +69,7 @@ and then apply that against the Emplanings and Deplainings for the time period."
                     var probability = modeProbability[i] * distribution[i];
                     if(float.IsInfinity(probability) | float.IsNaN(probability))
                     {
-                        throw new XTMFRuntimeException("In '" + Name + "' when trying to produce the probability of a zone being selected we found an invalid probability!\r\n"
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' when trying to produce the probability of a zone being selected we found an invalid probability!\r\n"
                             + "at index = " + i + " the modeProbability was " + modeProbability[i] + " and the distribution was " + distribution[i]);
 
                     }

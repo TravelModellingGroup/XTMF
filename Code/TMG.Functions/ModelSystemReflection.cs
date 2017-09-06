@@ -101,7 +101,7 @@ namespace TMG.Functions
                     var p = currentStructure.Parameters;
                     if (p == null)
                     {
-                        throw new XTMFRuntimeException("The structure '" + currentStructure.Name + "' has no parameters!");
+                        throw new XTMFRuntimeException(currentStructure.Module, "The structure '" + currentStructure.Name + "' has no parameters!");
                     }
                     var parameters = p.Parameters;
                     if (parameters != null)
@@ -127,7 +127,7 @@ namespace TMG.Functions
                     }
                 }
             }
-            throw new XTMFRuntimeException("Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
+            throw new XTMFRuntimeException(currentStructure.Module, "Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
                 + "' in order to assign parameters!\r\nFull Path:'" + fullPath + "'");
         }
 
@@ -150,7 +150,7 @@ namespace TMG.Functions
             object trueValue;
             if (parameter == null)
             {
-                throw new XTMFRuntimeException("The parameter was null!");
+                throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter was null!");
             }
             if ((trueValue = ArbitraryParameterParser.ArbitraryParameterParse(parameter.Type, value, ref error)) != null)
             {
@@ -158,7 +158,7 @@ namespace TMG.Functions
             }
             else
             {
-                throw new XTMFRuntimeException("We were unable to assign the value of '" + value + "' to the parameter " + parameter.Name);
+                throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "We were unable to assign the value of '" + value + "' to the parameter " + parameter.Name);
             }
         }
 
@@ -166,7 +166,7 @@ namespace TMG.Functions
         {
             if (parameter.Type != typeof(T))
             {
-                throw new XTMFRuntimeException("The parameter " + parameter.Name + " was not of type " + typeof(T).FullName + "!");
+                throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter " + parameter.Name + " was not of type " + typeof(T).FullName + "!");
             }
             AssignValueNoTypeCheck(config, parameter, t);
         }
@@ -177,7 +177,7 @@ namespace TMG.Functions
             
             if (currentStructure == null)
             {
-                throw new XTMFRuntimeException("The parameter doesn't belong to any module!");
+                throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter doesn't belong to any module!");
             }
             if (currentStructure.Module == null)
             {
@@ -187,7 +187,7 @@ namespace TMG.Functions
                 {
                     return;
                 }
-                throw new XTMFRuntimeException("The currentstructure.Module was null!");
+                throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The currentstructure.Module was null!");
             }
             parameter.Value = t;
             var type = currentStructure.Module.GetType();
@@ -207,12 +207,12 @@ namespace TMG.Functions
         {
             if (parameter.Type != typeof(T))
             {
-                throw new XTMFRuntimeException("The parameter " + parameter.Name + " was not of type " + typeof(T).FullName + "!");
+                throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter " + parameter.Name + " was not of type " + typeof(T).FullName + "!");
             }
             var currentStructure = parameter.BelongsTo;
             if (currentStructure == null)
             {
-                throw new XTMFRuntimeException("The parameter doesn't belong to any module!");
+                throw new XTMFRuntimeException(null, "The parameter doesn't belong to any module!");
             }
             if (currentStructure.Module == null)
             {
@@ -222,7 +222,7 @@ namespace TMG.Functions
                 {
                     return;
                 }
-                throw new XTMFRuntimeException("The currentstructure.Module was null!");
+                throw new XTMFRuntimeException(null, "The currentstructure.Module was null!");
             }
             // Don't execute 'parameter.Value = t;'
             var type = currentStructure.Module.GetType();

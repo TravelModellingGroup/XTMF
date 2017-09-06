@@ -111,9 +111,6 @@ namespace TMG.Tasha
 
         public bool Load(ITashaPerson person)
         {
-            int tempInt;
-            float tempFloat;
-            char tempChar1, tempChar2;
             TripChain currentChain = null;
 
             if ( Reader == null )
@@ -138,7 +135,7 @@ namespace TMG.Tasha
                     }
                 }
                 SkipReading = false;
-                Reader.Get( out tempInt, HouseholdID );
+                Reader.Get( out int tempInt, HouseholdID );
                 if ( tempInt < person.Household.HouseholdId )
                 {
                     SkipReading = false;
@@ -158,10 +155,10 @@ namespace TMG.Tasha
                 }
                 char purposeOrigin;
                 int personID = tempInt - 1;
-                Reader.Get( out tempFloat, StartTime );
+                Reader.Get( out float tempFloat, StartTime );
                 t.TripStartTime = new Time( tempFloat / 100.00f );
-                Reader.Get( out tempChar1, PurposeOrigin );
-                Reader.Get( out tempChar2, PurposeDestination );
+                Reader.Get( out char tempChar1, PurposeOrigin );
+                Reader.Get( out char tempChar2, PurposeDestination );
                 purposeOrigin = tempChar1;
                 t.Purpose = ActivityConverter.Converter.GetActivity( tempChar2 );
                 Reader.Get( out tempInt, OriginZone );
@@ -170,7 +167,7 @@ namespace TMG.Tasha
                 {
                     if ( !OverrideBadZones )
                     {
-                        throw new XTMFRuntimeException( "We were unable to load a trip starting from zone " + tempInt + " please make sure this zone exists!\r\nHousehold #" + person.Household.HouseholdId );
+                        throw new XTMFRuntimeException( this, "We were unable to load a trip starting from zone " + tempInt + " please make sure this zone exists!\r\nHousehold #" + person.Household.HouseholdId );
                     }
                 }
                 Reader.Get( out tempInt, Number );
@@ -179,7 +176,7 @@ namespace TMG.Tasha
                 {
                     if ( string.IsNullOrWhiteSpace( NonHomeBasedTourAttachName ) )
                     {
-                        throw new XTMFRuntimeException( "The Trip was thrown out because it didn't start at the original zone!\r\nHousehold #" + person.Household.HouseholdId + "\r\nThe home zone is #" + person.Household.HomeZone.ZoneNumber + " but the trip started at #" + t.OriginalZone.ZoneNumber );
+                        throw new XTMFRuntimeException(this, "The Trip was thrown out because it didn't start at the original zone!\r\nHousehold #" + person.Household.HouseholdId + "\r\nThe home zone is #" + person.Household.HomeZone.ZoneNumber + " but the trip started at #" + t.OriginalZone.ZoneNumber );
                     }
                     else
                     {
@@ -196,7 +193,7 @@ namespace TMG.Tasha
                 {
                     if ( !OverrideBadZones )
                     {
-                        throw new XTMFRuntimeException( "We were unable to load a trip ending in zone " + tempInt + " please make sure this zone exists!\r\nHousehold #" + person.Household.HouseholdId );
+                        throw new XTMFRuntimeException(this, "We were unable to load a trip ending in zone " + tempInt + " please make sure this zone exists!\r\nHousehold #" + person.Household.HouseholdId );
                     }
                 }
                 if ( ObservedMode >= 0 )
@@ -204,18 +201,17 @@ namespace TMG.Tasha
                     Reader.Get( out tempChar1, ObservedMode );
                     var allModes = TashaRuntime.AllModes;
                     var numberOfModes = allModes.Count;
-                    string name;
-                    if ( !CharacterToModeNameConversion.TryGetValue( tempChar1, out name ) )
+                    if (!CharacterToModeNameConversion.TryGetValue(tempChar1, out string name))
                     {
-                        t.Attach( ObservedModeAttachment, TashaRuntime.AllModes[0] );
+                        t.Attach(ObservedModeAttachment, TashaRuntime.AllModes[0]);
                     }
                     else
                     {
-                        for ( int i = 0; i < numberOfModes; i++ )
+                        for (int i = 0; i < numberOfModes; i++)
                         {
-                            if ( allModes[i].ModeName == name )
+                            if (allModes[i].ModeName == name)
                             {
-                                t.Attach( ObservedModeAttachment, TashaRuntime.AllModes[i] );
+                                t.Attach(ObservedModeAttachment, TashaRuntime.AllModes[i]);
                                 break;
                             }
                         }

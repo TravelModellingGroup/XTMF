@@ -49,9 +49,9 @@ by the Line Aggregation File.  It will be saved into the Save To Directory/[clas
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
             }
-            return mc.Run("tmg.XTMF_internal.return_boardings_multiclass",
+            return mc.Run(this, "tmg.XTMF_internal.return_boardings_multiclass",
                 new[] 
                 {
                     new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),

@@ -172,7 +172,7 @@ namespace TMG.GTAModel.Modes
             // each iteration reload the utilities
             if ( ( AccessUtilities = AccessStationUtilities.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() ) == null )
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to gather our Access Station Utilities!" );
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to gather our Access Station Utilities!" );
             }
         }
     }

@@ -311,16 +311,16 @@ namespace TMG.GTAModel
                    {
                        continue;
                    }
-                    // if there was any utility
-                    float[] data;
+                   // if there was any utility
+                   float[] data;
                    if ((!float.IsNaN(frictionRow[j]))
                        && (data = SpatialParameters.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, CurrentMultiSetIndex)) != null)
                    {
-                        // apply the K-Factor and the small trip utilities to the friction
-                        frictionRow[j] = (KFactorDataReader != null ? KFactorDataReader.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, CurrentMultiSetIndex) : 1.0f)
-                           * frictionRow[j]
-                           // now apply the small trip data
-                           * (float)((distances[i][j] <= SmallTripLength ? Math.Exp(data[1]) : 1.0));
+                       // apply the K-Factor and the small trip utilities to the friction
+                       frictionRow[j] = (KFactorDataReader != null ? KFactorDataReader.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, CurrentMultiSetIndex) : 1.0f)
+                          * frictionRow[j]
+                          // now apply the small trip data
+                          * (float)((distances[i][j] <= SmallTripLength ? Math.Exp(data[1]) : 1.0));
                    }
                    else
                    {
@@ -357,8 +357,7 @@ namespace TMG.GTAModel
                 SetupFrictionData(productions, attractions, cats, multiset, productionSet, attractionSet, multiCatSet);
                 ComputeFriction(zones, multiCatSet, productionSet, attractionSet,
                     frictionSparse.GetFlatData(), production.GetFlatData(), attraction.GetFlatData());
-                string balanceFileName;
-                SparseArray<float> balanceFactors = GetWarmBalancingFactors(attraction, out balanceFileName);
+                SparseArray<float> balanceFactors = GetWarmBalancingFactors(attraction, out string balanceFileName);
                 if (CullSmallValues)
                 {
                     var tempValues = new GravityModel(frictionSparse, null, Epsilon, MaxIterations)
@@ -458,8 +457,8 @@ namespace TMG.GTAModel
                            var data = SpatialParameters.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, CurrentMultiSetIndex);
                            if (data != null)
                            {
-                                // it is multiplication not addition
-                                if (float.IsNaN(friction[i][j]))
+                               // it is multiplication not addition
+                               if (float.IsNaN(friction[i][j]))
                                {
                                    friction[i][j] = (float)Math.Pow(utility, data[0] * subsetRatios[subset]);
                                }
@@ -520,7 +519,7 @@ namespace TMG.GTAModel
             {
                 if (reader.BaseStream.Length < flatRet.Length * 4)
                 {
-                    throw new XTMFRuntimeException("The balancing factor binary cache does not contain enough data!");
+                    throw new XTMFRuntimeException(this, "The balancing factor binary cache does not contain enough data!");
                 }
                 for (int i = 0; i < flatRet.Length; i++)
                 {
@@ -560,7 +559,7 @@ namespace TMG.GTAModel
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("Unable to load distribution cache file!\r\n" + e.Message);
+                throw new XTMFRuntimeException(this, "Unable to load distribution cache file!\r\n" + e.Message);
             }
         }
 
@@ -629,7 +628,7 @@ namespace TMG.GTAModel
                 var dirName = Path.GetDirectoryName(fileName);
                 if (dirName == null)
                 {
-                    throw new XTMFRuntimeException($"In {Name} we were unable to get the directory name from the file {fileName}!");
+                    throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory name from the file {fileName}!");
                 }
                 if (!Directory.Exists(dirName))
                 {
@@ -661,7 +660,7 @@ namespace TMG.GTAModel
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("Unable to save distribution cache file!\r\n" + e.Message);
+                throw new XTMFRuntimeException(this, "Unable to save distribution cache file!\r\n" + e.Message);
             }
         }
 

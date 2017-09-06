@@ -52,7 +52,7 @@ namespace TMG.NetworkEstimation
             var controller = ResourceToEmme.AcquireResource<ModellerController>();
             if ( controller == null )
             {
-                throw new XTMFRuntimeException("In '' the EMME Modeller controller resource did not contain a modeller controller!");
+                throw new XTMFRuntimeException(this, "In '' the EMME Modeller controller resource did not contain a modeller controller!");
             }
             int i = 0;
             // ReSharper disable once AccessToModifiedClosure

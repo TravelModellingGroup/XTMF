@@ -89,11 +89,10 @@ This module requires the root module of the model system to be of type ‘IDemog
                             EnsureGetDest( ref GetDest, localPop[0] );
                             for ( int j = 0; j < popLength; j++ )
                             {
-                                IZone destZone;
                                 var person = localPop[j];
                                 if ( cat.IsContained( person ) )
                                 {
-                                    GetDest.Read( person, out destZone );
+                                    GetDest.Read( person, out IZone destZone );
                                     if ( destZone != null )
                                     {
                                         iArray[zoneArray.GetFlatIndex( destZone.ZoneNumber )] += Probability;

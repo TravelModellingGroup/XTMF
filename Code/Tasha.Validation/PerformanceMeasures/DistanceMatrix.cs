@@ -99,12 +99,12 @@ namespace Tasha.Validation.PerformanceMeasures
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were not given a modeler controller!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeler controller!");
             }
             var dirPath = Path.GetDirectoryName(ResultsFile);
             if (dirPath == null)
             {
-                throw new XTMFRuntimeException($"In {Name} we were unable to get the directory from the path '{ResultsFile}'!");
+                throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory from the path '{ResultsFile}'!");
             }
             var fullPathToDirectory = Path.GetFullPath(dirPath);
 
@@ -114,7 +114,7 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 timePeriods += timePeriod.ReturnFilter(mc) + ",";
             }
-            return mc.Run(ToolName, string.Join(" ", timePeriods, "\"" + fullPathToDirectory + "\"", CostPerKm.ToString(CultureInfo.InvariantCulture)));
+            return mc.Run(this, ToolName, string.Join(" ", timePeriods, "\"" + fullPathToDirectory + "\"", CostPerKm.ToString(CultureInfo.InvariantCulture)));
 
         }
 

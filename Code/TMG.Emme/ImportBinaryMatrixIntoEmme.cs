@@ -42,7 +42,7 @@ namespace TMG.Emme
         private const string ToolName = "tmg.input_output.import_binary_matrix";
         private const string OldToolName = "TMG2.IO.ImportBinaryMatrix";
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
 
         /*
@@ -52,25 +52,25 @@ namespace TMG.Emme
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a ModellerController!" );
+            if (mc == null)
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
-            var args = string.Join( " ", MatrixType.ToString(),
+            var args = string.Join(" ", MatrixType.ToString(),
                 MatrixNumber.ToString(),
                 "\"" + MatrixFile.GetFilePath() + "\"",
                                         ScenarioNumber,
-                                        "\"" + Description.Replace( "\"", "\'" ) + "\"" );
+                                        "\"" + Description.Replace("\"", "\'") + "\"");
 
-            Console.WriteLine( "Importing matrix into scenario " + ScenarioNumber.ToString() + " from file " + MatrixFile.GetFilePath() );
+            Console.WriteLine("Importing matrix into scenario " + ScenarioNumber.ToString() + " from file " + MatrixFile.GetFilePath());
 
             var result = "";
-            if(mc.CheckToolExists(ToolName))
+            if (mc.CheckToolExists(this, ToolName))
             {
-                return mc.Run(ToolName, args, (p => Progress = p), ref result);
+                return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(OldToolName, args, (p => Progress = p), ref result);
+                return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
             }
         }
 

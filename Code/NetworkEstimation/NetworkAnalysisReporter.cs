@@ -112,8 +112,7 @@ namespace TMG.NetworkEstimation
             if (AlphaSpace)
             {
                 string[] headers = null;
-                int bestIndex;
-                var data = LoadData(ref headers, out bestIndex).ToArray();
+                var data = LoadData(ref headers, out int bestIndex).ToArray();
                 SanitizeHeaders(headers);
                 using (BinaryWriter writer = new BinaryWriter(File.OpenWrite(OutputFile)))
                 { 

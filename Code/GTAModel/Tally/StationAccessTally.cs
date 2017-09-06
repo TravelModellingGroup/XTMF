@@ -212,7 +212,7 @@ namespace TMG.GTAModel.Tally
             var cat = mode as IStationCollectionMode;
             if(cat == null)
             {
-                throw new XTMFRuntimeException("The mode '" + mode.ModeName
+                throw new XTMFRuntimeException(this, "The mode '" + mode.ModeName
                     + "' is not an TMG.Modes.IStationCollectionMode and can not be used with a StationAccessTally!");
             }
             return cat.GetSubchoiceSplit(origin, destination, Time);

@@ -96,7 +96,7 @@ This module will also work for a regular Logit model as well."
         {
             if ( InteractiveUtilityTrees == null )
             {
-                throw new XTMFRuntimeException( Name + " tried to use interactive mode without being initialized first!" );
+                throw new XTMFRuntimeException(this, Name + " tried to use interactive mode without being initialized first!" );
             }
             var zones = Root.ZoneSystem.ZoneArray;
             var flatZones = zones.GetFlatData();
@@ -743,7 +743,7 @@ This module will also work for a regular Logit model as well."
             }
             catch ( AggregateException e )
             {
-                throw new XTMFRuntimeException( e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
+                throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
             }
         }
     }

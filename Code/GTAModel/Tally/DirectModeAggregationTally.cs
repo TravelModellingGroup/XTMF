@@ -164,14 +164,13 @@ Leaving any of the options blank will select all of the given type (purposes or 
                 return mode;
             }
             current++;
-            var cat = mode as IModeCategory;
-            if ( cat != null )
+            if (mode is IModeCategory cat)
             {
                 var length = cat.Children.Count;
-                for ( int i = 0; i < length; i++ )
+                for (int i = 0; i < length; i++)
                 {
-                    var m = GetMode( ref current, index, cat.Children[i] );
-                    if ( m != null )
+                    var m = GetMode(ref current, index, cat.Children[i]);
+                    if (m != null)
                     {
                         return m;
                     }
@@ -202,13 +201,12 @@ Leaving any of the options blank will select all of the given type (purposes or 
                 return true;
             }
             index++;
-            var cat = node as IModeCategory;
-            if ( cat != null )
+            if (node is IModeCategory cat)
             {
                 var length = cat.Children.Count;
-                for ( int i = 0; i < length; i++ )
+                for (int i = 0; i < length; i++)
                 {
-                    if ( GetModeIndex( trimmed, cat.Children[i], ref index ) )
+                    if (GetModeIndex(trimmed, cat.Children[i], ref index))
                     {
                         return true;
                     }

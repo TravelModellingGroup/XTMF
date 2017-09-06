@@ -63,9 +63,7 @@ namespace TMG.Estimation.Utilities
 
         public void Start()
         {
-            int generation;
-            float value;
-            GetBestUtility(out generation, out value);
+            GetBestUtility(out int generation, out float value);
             Root.RetrieveValue = () => value + generation * GenerationError;
         }
 
@@ -93,13 +91,12 @@ namespace TMG.Estimation.Utilities
 
         private bool ReadJob(CsvReader reader, out int generation, out float value)
         {
-            int columns;
-            while ( reader.LoadLine( out columns ) )
+            while (reader.LoadLine(out int columns))
             {
-                if ( columns >= 2 )
+                if (columns >= 2)
                 {
                     reader.Get(out generation, 0);
-                    reader.Get( out value, 1 );
+                    reader.Get(out value, 1);
                     return true;
                 }
             }
@@ -112,12 +109,10 @@ namespace TMG.Estimation.Utilities
         {
             float best = float.MaxValue;
             bestGeneration = 0;
-            float current;
-            int generation;
-            while ( ReadJob( reader, out generation, out current ) )
+            while (ReadJob(reader, out int generation, out float current))
             {
                 //check the last one first since they are in order to see if we need to check each one
-                if ( current < best )
+                if (current < best)
                 {
                     best = current;
                     bestGeneration = generation;
@@ -129,13 +124,11 @@ namespace TMG.Estimation.Utilities
         private void GetHighestBest(CsvReader reader, out int bestGeneration, out float value)
         {
             float best = float.MinValue;
-            float current;
             bestGeneration = 0;
-            int generation;
-            while(ReadJob(reader, out generation, out current))
+            while (ReadJob(reader, out int generation, out float current))
             {
                 //check the last one first since they are in order to see if we need to check each one
-                if ( current > best )
+                if (current > best)
                 {
                     best = current;
                     bestGeneration = generation;

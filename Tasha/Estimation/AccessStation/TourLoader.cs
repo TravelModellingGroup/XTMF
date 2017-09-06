@@ -110,7 +110,7 @@ namespace Tasha.Estimation.AccessStation
             }
             if(TripMode == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode with the name '" + TripModeName + "'.");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode with the name '" + TripModeName + "'.");
             }
             // if the data has already been loaded we are done
             if(Data != null)
@@ -125,11 +125,10 @@ namespace Tasha.Estimation.AccessStation
                 //burn the header
                 reader.LoadLine();
                 // after that read in the rest of the lines
-                int columns;
-                while(reader.LoadLine(out columns))
+                while (reader.LoadLine(out int columns))
                 {
                     // if they have less than the number of columns we need, skip them
-                    if(columns < 7) continue;
+                    if (columns < 7) continue;
 
                     tours.Add(new AccessTourData(
                         // first origin
@@ -170,17 +169,9 @@ namespace Tasha.Estimation.AccessStation
 
         private ITrip CreateTrip(IZone origin, IZone destination, Time time)
         {
-            if(origin == null)
-            {
-                throw new XTMFRuntimeException("Origin was null");
-            }
-            if(destination == null)
-            {
-                throw new XTMFRuntimeException("Destination was null");
-            }
             var trip = Scheduler.SchedulerHomeTrip.GetTrip(HouseholdIterations);
-            trip.OriginalZone = origin;
-            trip.DestinationZone = destination;
+            trip.OriginalZone = origin ?? throw new XTMFRuntimeException(this, "Origin was null");
+            trip.DestinationZone = destination ?? throw new XTMFRuntimeException(this, "Destination was null");
             trip.TripStartTime = time;
             trip.Mode = TripMode;
             return trip;
@@ -188,19 +179,17 @@ namespace Tasha.Estimation.AccessStation
 
         private Time GetTimeFromColumn(CsvReader reader, int column)
         {
-            string data;
-            reader.Get(out data, column);
+            reader.Get(out string data, column);
             return new Time(data);
         }
 
-        private static IZone GetZoneFromColumn(SparseArray<IZone> zones, CsvReader reader, int column)
+        private IZone GetZoneFromColumn(SparseArray<IZone> zones, CsvReader reader, int column)
         {
-            int zone;
-            reader.Get(out zone, column);
+            reader.Get(out int zone, column);
             var ret = zones[zone];
             if(ret == null)
             {
-                throw new XTMFRuntimeException("An unknown zone was loaded '" + zone + "'.");
+                throw new XTMFRuntimeException(this, "An unknown zone was loaded '" + zone + "'.");
             }
             return ret;
         }

@@ -47,11 +47,10 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
             using ( CsvReader reader = new CsvReader( ResultFile.GetFilePath() ) )
             {
                 reader.LoadLine();
-                int columns;
-                while ( reader.LoadLine( out columns ) )
+                while (reader.LoadLine(out int columns))
                 {
                     //+2 for generation and value
-                    if ( columns >= totalParameters + 2 )
+                    if (columns >= totalParameters + 2)
                     {
                         var jobParameters = new ParameterSetting[parameters.Length];
                         var job = new Job()
@@ -63,7 +62,7 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
                             Parameters = jobParameters
                         };
                         var columnIndex = 2;
-                        for ( int i = 0; i < parameters.Length; i++ )
+                        for (int i = 0; i < parameters.Length; i++)
                         {
                             jobParameters[i] = new ParameterSetting()
                             {
@@ -71,10 +70,10 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
                                 Minimum = parameters[i].Minimum,
                                 Maximum = parameters[i].Maximum
                             };
-                            reader.Get( out jobParameters[i].Current, columnIndex );
+                            reader.Get(out jobParameters[i].Current, columnIndex);
                             columnIndex += parameters[i].Names.Length;
                         }
-                        ret.Add( job );
+                        ret.Add(job);
                         if (NumberOfRows > 0 & ret.Count >= NumberOfRows)
                         {
                             break;

@@ -61,7 +61,7 @@ a connection string visit the <a href='http://www.connectionstrings.com/'>websit
                         }
                         catch ( SqlException )
                         {
-                            throw new XTMFRuntimeException( "In '" + Name + "' we were unable to connect to the the SQLServer."
+                            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to connect to the the SQLServer."
                              + "Please check to make sure that the SQLServer is online and the connection string is correct." );
                         }
                     }

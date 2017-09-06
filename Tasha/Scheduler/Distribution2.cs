@@ -31,8 +31,8 @@ namespace Tasha.Scheduler
             Time time = new Time();
 
             int totalMinutes = distributionVal * Scheduler.StartTimeQuantaInterval;
-            time.Hours = (sbyte)( totalMinutes / 60 );
-            time.Minutes = (sbyte)( totalMinutes % 60 );
+            time.Hours = (sbyte)(totalMinutes / 60);
+            time.Minutes = (sbyte)(totalMinutes % 60);
             return time;
         }
 
@@ -41,8 +41,8 @@ namespace Tasha.Scheduler
             Time time = new Time();
 
             int totalMinutes = distributionVal * Scheduler.StartTimeQuantaInterval;
-            time.Hours = (sbyte)( totalMinutes / 60 );
-            time.Minutes = (sbyte)( totalMinutes % 60 );
+            time.Hours = (sbyte)(totalMinutes / 60);
+            time.Minutes = (sbyte)(totalMinutes % 60);
             return time;
         }
 
@@ -50,57 +50,57 @@ namespace Tasha.Scheduler
         {
             Time time = new Time();
             int totalMinutes = distributionVal * Scheduler.StartTimeQuantaInterval;
-            time.Hours = (sbyte)( totalMinutes / 60 );
-            time.Minutes = (sbyte)( totalMinutes % 60 );
+            time.Hours = (sbyte)(totalMinutes / 60);
+            time.Minutes = (sbyte)(totalMinutes % 60);
             return time + Time.StartOfDay;
         }
 
         public static int DurationToDistribution(Time time)
         {
-            int distribution = ( ( 60 / Scheduler.StartTimeQuantaInterval ) * time.Hours ) + ( time.Minutes / Scheduler.StartTimeQuantaInterval );
+            int distribution = ((60 / Scheduler.StartTimeQuantaInterval) * time.Hours) + (time.Minutes / Scheduler.StartTimeQuantaInterval);
             return distribution;
         }
 
         public static bool GetRandomStartDurationTimeFrequency(int distribution, Time tstart, int min, int max, Random random, out Time startTime)
         {
-            int start = TimeOfDayToDistribution( tstart );
+            int start = TimeOfDayToDistribution(tstart);
             float[][] pdf = Distributions[distribution].Durations;
-            if ( start == Scheduler.StartTimeQuanta ) start = 0;
+            if (start == Scheduler.StartTimeQuanta) start = 0;
             float rand = (float)random.NextDouble();
             float pdfFactor = 0.0f;
-            for ( int i = min; i <= max; ++i )
+            for (int i = min; i <= max; ++i)
             {
                 pdfFactor += pdf[start][i];
             }
-            if ( pdfFactor == 0 )
+            if (pdfFactor == 0)
             {
                 startTime = Time.Zero;
                 return false;
             }
             rand *= pdfFactor;
             float cdf = 0.0f;
-            for ( int i = min; i <= max; ++i )
+            for (int i = min; i <= max; ++i)
             {
                 cdf += pdf[start][i];
-                if ( rand < cdf )
+                if (rand < cdf)
                 {
-                    if ( i == 0 )
+                    if (i == 0)
                     {
-                        startTime = DistributionToDuration( 1 );
+                        startTime = DistributionToDuration(1);
                     }
                     else
                     {
-                        startTime = DistributionToDuration( i );
+                        startTime = DistributionToDuration(i);
                     }
-                    if ( startTime == Time.Zero )
+                    if (startTime == Time.Zero)
                     {
-                        throw new XTMFRuntimeException( "Tried to create a zero duration episode!" );
+                        throw new XTMFRuntimeException(null, "Tried to create a zero duration episode!");
                     }
                     return true;
                 }
             }
             // if we get here, it was the last one but off due to rounding errors
-            startTime = DistributionToDuration( max );
+            startTime = DistributionToDuration(max);
             return true;
         }
 
@@ -108,42 +108,42 @@ namespace Tasha.Scheduler
         {
             float[][] pdf = Distributions[distribution].StartTimeFrequency;
 
-            if ( min >= max )
+            if (min >= max)
             {
-                startTime = DistributionToTimeOfDay( max );
+                startTime = DistributionToTimeOfDay(max);
                 return true;
             }
 
             double rand = random.NextDouble();
             float pdfFactor = 0.0f;
-            for ( int i = min; i < max; ++i )
+            for (int i = min; i < max; ++i)
             {
                 pdfFactor += pdf[i][freq];
             }
 
-            if ( pdfFactor == 0 )
+            if (pdfFactor == 0)
             {
                 startTime = Time.Zero;
                 return false;
             }
             rand *= pdfFactor;
             float cdf = 0.0f;
-            for ( int i = min; i < max; i++ )
+            for (int i = min; i < max; i++)
             {
                 cdf += pdf[i][freq];
 
-                if ( rand < cdf )
+                if (rand < cdf)
                 {
-                    startTime = DistributionToTimeOfDay( i );
-                    if ( startTime == Time.Zero )
+                    startTime = DistributionToTimeOfDay(i);
+                    if (startTime == Time.Zero)
                     {
-                        throw new XTMFRuntimeException( "Tried to create an episode that starts at time 0!" );
+                        throw new XTMFRuntimeException(null, "Tried to create an episode that starts at time 0!");
                     }
                     return true;
                 }
             }
             // if we get here, it was the last one but off due to rounding errors
-            startTime = DistributionToTimeOfDay( max );
+            startTime = DistributionToTimeOfDay(max);
             return true;
         }
 
@@ -156,14 +156,14 @@ namespace Tasha.Scheduler
         public static int TashaTimeToDistribution(Time time)
         {
             //time = time - TashaTime.StartOfDay;
-            int distribution = ( ( 60 / Scheduler.StartTimeQuantaInterval ) * time.Hours ) + ( time.Minutes / Scheduler.StartTimeQuantaInterval );
+            int distribution = ((60 / Scheduler.StartTimeQuantaInterval) * time.Hours) + (time.Minutes / Scheduler.StartTimeQuantaInterval);
             return distribution;
         }
 
         public static int TimeOfDayToDistribution(Time time)
         {
             time = time - Time.StartOfDay;
-            int distribution = ( ( 60 / Scheduler.StartTimeQuantaInterval ) * time.Hours ) + ( time.Minutes / Scheduler.StartTimeQuantaInterval );
+            int distribution = ((60 / Scheduler.StartTimeQuantaInterval) * time.Hours) + (time.Minutes / Scheduler.StartTimeQuantaInterval);
             return distribution;
         }
 
@@ -174,21 +174,21 @@ namespace Tasha.Scheduler
             int adultOffset = 0;
             int statusOffset;
 
-            var projectStatus = SchedulerHousehold.GetWorkSchoolProjectStatus( household );
+            var projectStatus = SchedulerHousehold.GetWorkSchoolProjectStatus(household);
 
-            if ( activity == Activity.JointOther ) baseOffset = 158;
+            if (activity == Activity.JointOther) baseOffset = 158;
             else baseOffset = 238;
-            if ( household.NumberOfChildren > 0 ) childOffset = 0;
+            if (household.NumberOfChildren > 0) childOffset = 0;
             else childOffset = 12;
-            if ( household.NumberOfAdults == 1 ) adultOffset = 0;
-            else if ( household.NumberOfAdults == 2 ) adultOffset = 1;
-            else if ( household.NumberOfAdults >= 3 ) adultOffset = 2;
-            if ( projectStatus == HouseholdWorkSchoolProjectStatus.NoWorkOrSchool ) statusOffset = 0;
-            else if ( projectStatus == HouseholdWorkSchoolProjectStatus.NoEveningWorkOrSchool ) statusOffset = 1;
-            else if ( projectStatus == HouseholdWorkSchoolProjectStatus.EveningWorkOrSchool ) statusOffset = 2;
+            if (household.NumberOfAdults == 1) adultOffset = 0;
+            else if (household.NumberOfAdults == 2) adultOffset = 1;
+            else if (household.NumberOfAdults >= 3) adultOffset = 2;
+            if (projectStatus == HouseholdWorkSchoolProjectStatus.NoWorkOrSchool) statusOffset = 0;
+            else if (projectStatus == HouseholdWorkSchoolProjectStatus.NoEveningWorkOrSchool) statusOffset = 1;
+            else if (projectStatus == HouseholdWorkSchoolProjectStatus.EveningWorkOrSchool) statusOffset = 2;
             else statusOffset = 3; //WorkSchoolProjectStatus.DayAndEveningWorkOrShool
 
-            return ( baseOffset + childOffset ) + ( adultOffset * 4 ) + statusOffset;
+            return (baseOffset + childOffset) + (adultOffset * 4) + statusOffset;
         }
 
         /// <summary>
@@ -203,12 +203,12 @@ namespace Tasha.Scheduler
             int ageOffset;
             int occupationOffset;
             int age = person.Age;
-            switch ( activity )
+            switch (activity)
             {
                 case Activity.School:
                     baseOffset = 84;
                     //Now Calculate the occupation offset
-                    switch ( person.StudentStatus )
+                    switch (person.StudentStatus)
                     {
                         case StudentStatus.FullTime:
                             occupationOffset = 0;
@@ -221,118 +221,118 @@ namespace Tasha.Scheduler
                         default:
                             return -1;
                     }
-                    if ( age < 11 )
+                    if (age < 11)
                     {
                         return -1;
                     }
                     //Calculate the ageOffset
-                    if ( age <= 15 )
+                    if (age <= 15)
                         ageOffset = 0;
-                    else if ( age <= 18 )
+                    else if (age <= 18)
                         ageOffset = 1;
-                    else if ( age <= 25 )
+                    else if (age <= 25)
                         ageOffset = 2;
-                    else if ( age <= 30 )
+                    else if (age <= 30)
                         ageOffset = 3;
                     else
                         ageOffset = 4;
-                    return baseOffset + ( ageOffset * 2 ) + occupationOffset;
+                    return baseOffset + (ageOffset * 2) + occupationOffset;
 
                 case Activity.WorkBasedBusiness:
                     // We store the values from the person to improve performance
                     baseOffset = 40;
                     Occupation occupation = person.Occupation;
-                    if ( person.EmploymentStatus != TTSEmploymentStatus.FullTime
-                         && person.EmploymentStatus != TTSEmploymentStatus.PartTime )
+                    if (person.EmploymentStatus != TTSEmploymentStatus.FullTime
+                         && person.EmploymentStatus != TTSEmploymentStatus.PartTime)
                     {
                         return -1;
                     }
                     //Calculate the ageOffset
-                    if ( age < 11 )
+                    if (age < 11)
                         return -1;
-                    if ( age <= 18 )
+                    if (age <= 18)
                         ageOffset = 0;
-                    else if ( age <= 25 )
+                    else if (age <= 25)
                         ageOffset = 1;
-                    else if ( age <= 64 )
+                    else if (age <= 64)
                         ageOffset = 2;
                     else
                         ageOffset = 3;
 
                     //Now Calculate the occupation offset
-                    if ( occupation == Occupation.Office )
+                    if (occupation == Occupation.Office)
                         occupationOffset = 0;
-                    else if ( occupation == Occupation.Manufacturing )
+                    else if (occupation == Occupation.Manufacturing)
                         occupationOffset = 1;
-                    else if ( occupation == Occupation.Professional )
+                    else if (occupation == Occupation.Professional)
                         occupationOffset = 2;
-                    else if ( occupation == Occupation.Retail )
+                    else if (occupation == Occupation.Retail)
                         occupationOffset = 3;
                     else
                         return -1;
 
-                    return baseOffset + ( ageOffset * 8 ) + occupationOffset * 2
-                + ( person.EmploymentStatus == TTSEmploymentStatus.FullTime ? 0 : 1 );
+                    return baseOffset + (ageOffset * 8) + occupationOffset * 2
+                + (person.EmploymentStatus == TTSEmploymentStatus.FullTime ? 0 : 1);
 
                 case Activity.PrimaryWork:
                     // We store the values from the person to improve performance
-                    if(person.EmploymentZone == null)
+                    if (person.EmploymentZone == null)
                         return -1;
                     occupation = person.Occupation;
-                    if ( person.EmploymentStatus != TTSEmploymentStatus.FullTime
-                         && person.EmploymentStatus != TTSEmploymentStatus.PartTime )
+                    if (person.EmploymentStatus != TTSEmploymentStatus.FullTime
+                         && person.EmploymentStatus != TTSEmploymentStatus.PartTime)
                     {
                         return -1;
                     }
                     //Calculate the ageOffset
-                    if ( age < 11 )
+                    if (age < 11)
                         return -1;
-                    if ( age <= 18 )
+                    if (age <= 18)
                         ageOffset = 0;
-                    else if ( age <= 25 )
+                    else if (age <= 25)
                         ageOffset = 1;
-                    else if ( age <= 64 )
+                    else if (age <= 64)
                         ageOffset = 2;
                     else
                         ageOffset = 3;
                     //Now Calculate the occupation offset
-                    if ( occupation == Occupation.Office )
+                    if (occupation == Occupation.Office)
                         occupationOffset = 0;
-                    else if ( occupation == Occupation.Manufacturing )
+                    else if (occupation == Occupation.Manufacturing)
                         occupationOffset = 1;
-                    else if ( occupation == Occupation.Professional )
+                    else if (occupation == Occupation.Professional)
                         occupationOffset = 2;
-                    else if ( occupation == Occupation.Retail )
+                    else if (occupation == Occupation.Retail)
                         occupationOffset = 3;
                     else
                         return -1;
 
-                    return ( ageOffset * 8 ) + occupationOffset * 2
-                + ( person.EmploymentStatus == TTSEmploymentStatus.FullTime ? 0 : 1 );
+                    return (ageOffset * 8) + occupationOffset * 2
+                + (person.EmploymentStatus == TTSEmploymentStatus.FullTime ? 0 : 1);
 
                 case Activity.SecondaryWork:
                     // We store the values from the person to improve performance
                     baseOffset = 32;
                     occupation = person.Occupation;
-                    if ( person.EmploymentZone == null )
+                    if (person.EmploymentZone == null)
                         return -1;
-                    if ( person.EmploymentStatus != TTSEmploymentStatus.FullTime
-                         && person.EmploymentStatus != TTSEmploymentStatus.PartTime )
+                    if (person.EmploymentStatus != TTSEmploymentStatus.FullTime
+                         && person.EmploymentStatus != TTSEmploymentStatus.PartTime)
                     {
                         return -1;
                     }
-                    if ( person.Age < 11 )
+                    if (person.Age < 11)
                     {
                         return -1;
                     }
                     //Now Calculate the occupation offset
-                    if ( occupation == Occupation.Office )
+                    if (occupation == Occupation.Office)
                         occupationOffset = 0;
-                    else if ( occupation == Occupation.Manufacturing )
+                    else if (occupation == Occupation.Manufacturing)
                         occupationOffset = 1;
-                    else if ( occupation == Occupation.Professional )
+                    else if (occupation == Occupation.Professional)
                         occupationOffset = 2;
-                    else if ( occupation == Occupation.Retail )
+                    else if (occupation == Occupation.Retail)
                         occupationOffset = 3;
                     else
                         return -1;
@@ -342,103 +342,103 @@ namespace Tasha.Scheduler
                     // Each of them are broken into first, full-time then part-time
                     return
                         baseOffset + occupationOffset * 2
-                        + ( person.EmploymentStatus == TTSEmploymentStatus.FullTime ? 0 : 1 );
+                        + (person.EmploymentStatus == TTSEmploymentStatus.FullTime ? 0 : 1);
                 case Activity.WorkAtHomeBusiness:
                     // We store the values from the person to improve performance
                     baseOffset = 72;
                     occupationOffset = 0;
                     occupation = person.Occupation;
                     age = person.Age;
-                    if ( person.EmploymentStatus != TTSEmploymentStatus.WorkAtHome_FullTime
-                         && person.EmploymentStatus != TTSEmploymentStatus.WorkAtHome_PartTime )
+                    if (person.EmploymentStatus != TTSEmploymentStatus.WorkAtHome_FullTime
+                         && person.EmploymentStatus != TTSEmploymentStatus.WorkAtHome_PartTime)
                     {
                         return -1;
                     }
                     //Calculate the ageOffset
-                    if ( age < 19 )
+                    if (age < 19)
                         return -1;
-                    if ( age <= 25 )
+                    if (age <= 25)
                         ageOffset = 0;
-                    else if ( age <= 64 )
+                    else if (age <= 64)
                         ageOffset = 1;
                     else
                         ageOffset = 2;
 
                     //Now Calculate the occupation offset
-                    if ( occupation == Occupation.Office )
+                    if (occupation == Occupation.Office)
                         occupationOffset = 0;
-                    else if ( occupation == Occupation.Manufacturing )
+                    else if (occupation == Occupation.Manufacturing)
                         occupationOffset = 1;
-                    else if ( occupation == Occupation.Professional )
+                    else if (occupation == Occupation.Professional)
                         occupationOffset = 2;
-                    else if ( occupation == Occupation.Retail )
+                    else if (occupation == Occupation.Retail)
                         occupationOffset = 3;
 
                     // Ok, here we do the math, there are 8 distros per age group
                     // Each one is broken into 4 occupation types
                     // Each of them are broken into first, full-time then part-time
-                    return baseOffset + ( ageOffset * 4 ) + occupationOffset;
+                    return baseOffset + (ageOffset * 4) + occupationOffset;
 
                 case Activity.ReturnFromWork:
                     // We store the values from the person to improve performance
                     baseOffset = 94;
                     occupationOffset = 0;
                     occupation = person.Occupation;
-                    if ( person.EmploymentStatus != TTSEmploymentStatus.FullTime
-                        && person.EmploymentStatus != TTSEmploymentStatus.PartTime )
+                    if (person.EmploymentStatus != TTSEmploymentStatus.FullTime
+                        && person.EmploymentStatus != TTSEmploymentStatus.PartTime)
                     {
                         return -1;
                     }
                     //Now Calculate the occupation offset
-                    if ( occupation == Occupation.Office )
+                    if (occupation == Occupation.Office)
                         occupationOffset = 0;
-                    else if ( occupation == Occupation.Manufacturing )
+                    else if (occupation == Occupation.Manufacturing)
                         occupationOffset = 1;
-                    else if ( occupation == Occupation.Professional )
+                    else if (occupation == Occupation.Professional)
                         occupationOffset = 2;
-                    else if ( occupation == Occupation.Retail )
+                    else if (occupation == Occupation.Retail)
                         occupationOffset = 3;
 
                     // Ok, here we do the math, there are 8 distros per age group [only 1 age group]
                     // Each one is broken into 4 occupation types
                     // Each of them are broken into first, full-time then part-time
                     return
-                        baseOffset + occupationOffset * 2 + ( person.EmploymentStatus == TTSEmploymentStatus.FullTime ? 0 : 1 );
+                        baseOffset + occupationOffset * 2 + (person.EmploymentStatus == TTSEmploymentStatus.FullTime ? 0 : 1);
 
                 case Activity.IndividualOther:
                     baseOffset = 102;
                     //||[0,6] ||==7
-                    PersonWorkSchoolProjectStatus workProjestStatus = SchedulerPerson.GetWorkSchoolProjectStatus( person );
+                    PersonWorkSchoolProjectStatus workProjestStatus = SchedulerPerson.GetWorkSchoolProjectStatus(person);
                     age = person.Age;
 
                     //Calculate the ageOffset
-                    if ( age < 11 )
+                    if (age < 11)
                         return -1;
-                    if ( age < 16 )
+                    if (age < 16)
                         ageOffset = 0;
-                    else if ( age < 25 )
+                    else if (age < 25)
                         ageOffset = 1;
-                    else if ( age < 65 )
+                    else if (age < 65)
                         ageOffset = 2;
                     else
                         ageOffset = 3;
                     //
                     return
-                        baseOffset + ( ageOffset * 14 ) + ( person.Female ? 7 : 0 ) + (int)workProjestStatus;
+                        baseOffset + (ageOffset * 14) + (person.Female ? 7 : 0) + (int)workProjestStatus;
                 case Activity.Market:
                     baseOffset = 182;
                     //||[0,6] ||==7
-                    workProjestStatus = SchedulerPerson.GetWorkSchoolProjectStatus( person );
+                    workProjestStatus = SchedulerPerson.GetWorkSchoolProjectStatus(person);
                     age = person.Age;
 
                     //Calculate the ageOffset
-                    if ( age < 11 )
+                    if (age < 11)
                         return -1;
-                    if ( age < 16 )
+                    if (age < 16)
                         ageOffset = 0;
-                    else if ( age < 25 )
+                    else if (age < 25)
                         ageOffset = 1;
-                    else if ( age < 65 )
+                    else if (age < 65)
                         ageOffset = 2;
                     else
                         ageOffset = 3;
@@ -446,7 +446,7 @@ namespace Tasha.Scheduler
                     // Each one is broken into 4 occupation types
                     // Each of them are broken into first, full-time then part-time
                     return
-                        baseOffset + ( ageOffset * 14 ) + ( person.Female ? 7 : 0 ) + (int)workProjestStatus;
+                        baseOffset + (ageOffset * 14) + (person.Female ? 7 : 0) + (int)workProjestStatus;
                 default:
                     return -1;
             }
@@ -455,72 +455,72 @@ namespace Tasha.Scheduler
         internal static int GetRandomNumberAdults(ITashaHousehold household, Activity activity, int min, int max, Random random)
         {
             int distID;
-            switch ( activity )
+            switch (activity)
             {
                 case Activity.JointOther:
-                    if ( household.NumberOfChildren > 0 )
+                    if (household.NumberOfChildren > 0)
                     {
-                        if ( household.NumberOfAdults == 2 )
+                        if (household.NumberOfAdults == 2)
                         {
                             distID = 0;
                         }
                         else
                         {
-                            if ( household.NumberOfAdults >= 3 )
+                            if (household.NumberOfAdults >= 3)
                             {
                                 distID = 1;
                             }
                             else
                             {
                                 //error
-                                throw new XTMFRuntimeException( "One adult, at least one child." );
+                                throw new XTMFRuntimeException(null, "One adult, at least one child.");
                             }
                         }
                     }
                     else //no children
                     {
-                        if ( household.NumberOfAdults >= 3 )
+                        if (household.NumberOfAdults >= 3)
                         {
                             distID = 2;
                         }
                         else
                         {
                             //error
-                            throw new XTMFRuntimeException( "error" );
+                            throw new XTMFRuntimeException(null, "error");
                         }
                     }
                     break;
 
                 case Activity.JointMarket:
-                    if ( household.NumberOfChildren > 0 )
+                    if (household.NumberOfChildren > 0)
                     {
-                        if ( household.NumberOfAdults == 2 )
+                        if (household.NumberOfAdults == 2)
                         {
                             distID = 3;
                         }
                         else
                         {
-                            if ( household.NumberOfAdults >= 3 )
+                            if (household.NumberOfAdults >= 3)
                             {
                                 distID = 4;
                             }
                             else
                             {
                                 //error
-                                throw new XTMFRuntimeException( "error" );
+                                throw new XTMFRuntimeException(null, "error");
                             }
                         }
                     }
                     else //no children
                     {
-                        if ( household.NumberOfAdults >= 3 )
+                        if (household.NumberOfAdults >= 3)
                         {
                             distID = 5;
                         }
                         else
                         {
                             //error
-                            throw new XTMFRuntimeException( "error" );
+                            throw new XTMFRuntimeException(null, "error");
                         }
                     }
                     break;
@@ -528,7 +528,7 @@ namespace Tasha.Scheduler
                 default:
                     return 0;
             }
-            return GetRandomAdultFrequency( distID, min, max, random );
+            return GetRandomAdultFrequency(distID, min, max, random);
         }
 
         private static int GetRandomAdultFrequency(int distid, int min, int max, Random random)
@@ -536,24 +536,24 @@ namespace Tasha.Scheduler
             double randNum = random.NextDouble();
             float pdfFactor = 0.0f;
             var data = AdultDistributions[distid];
-            if ( data == null )
+            if (data == null)
             {
-                throw new XTMFRuntimeException( "Unable to load the adult frequency distribution!" );
+                throw new XTMFRuntimeException(null, "Unable to load the adult frequency distribution!");
             }
             var maxAdults = data.Adults.Length;
-            if ( max > maxAdults )
+            if (max > maxAdults)
             {
                 max = maxAdults;
             }
-            for ( int i = min; i < max; i++ )
+            for (int i = min; i < max; i++)
             {
                 pdfFactor += data.Adults[i];
             }
             float adjustedCDF = 0.0f;
-            for ( int i = min; i < max; i++ )
+            for (int i = min; i < max; i++)
             {
                 adjustedCDF += data.Adults[i] / pdfFactor;
-                if ( randNum < adjustedCDF )
+                if (randNum < adjustedCDF)
                 {
                     return i;
                 }

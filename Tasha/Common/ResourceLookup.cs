@@ -89,7 +89,7 @@ namespace Tasha.Common
                 string error = null;
                 if ( !RuntimeValidation( ref error ) )
                 {
-                    throw new XTMFRuntimeException( error );
+                    throw new XTMFRuntimeException(this, error );
                 }
             }
         }
@@ -106,8 +106,7 @@ namespace Tasha.Common
             var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
             for (int i = ancestry.Count - 1; i >= 0; i--)
             {
-                var source = ancestry[i]?.Module as IResourceSource;
-                if(source != null)
+                if (ancestry[i]?.Module is IResourceSource source)
                 {
                     foreach (var resource in source.Resources)
                     {

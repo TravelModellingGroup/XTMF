@@ -134,7 +134,7 @@ namespace TMG.GTAModel
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( e.Message );
+                throw new XTMFRuntimeException(this, e.Message );
             }
             return tree;
         }
@@ -196,7 +196,7 @@ namespace TMG.GTAModel
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( e.Message );
+                throw new XTMFRuntimeException(this, e.Message );
             }
         }
 

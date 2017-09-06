@@ -72,22 +72,18 @@ If a mapping file is not provided it will do a left join onto the DataToAggregat
                 {
                     //burn header
                     reader.LoadLine();
-                    int columns;
-                    while (reader.LoadLine(out columns))
+                    while (reader.LoadLine(out int columns))
                     {
                         if (columns >= 3)
                         {
-                            string destName, originName;
-                            float toApply;
-                            reader.Get(out destName, 0);
-                            reader.Get(out originName, 1);
-                            reader.Get(out toApply, 2);
-                            float destValue, originValue;
-                            if (!ret.TryGetValue(destName, out destValue))
+                            reader.Get(out string destName, 0);
+                            reader.Get(out string originName, 1);
+                            reader.Get(out float toApply, 2);
+                            if (!ret.TryGetValue(destName, out float destValue))
                             {
                                 continue;
                             }
-                            if (!toAggregate.TryGetValue(originName, out originValue))
+                            if (!toAggregate.TryGetValue(originName, out float originValue))
                             {
                                 continue;
                             }
@@ -101,8 +97,7 @@ If a mapping file is not provided it will do a left join onto the DataToAggregat
                 var keys = ret.Keys.ToList();
                 foreach(var key in keys)
                 {
-                    float data;
-                    if(toAggregate.TryGetValue(key, out data))
+                    if (toAggregate.TryGetValue(key, out float data))
                     {
                         ret[key] = data;
                     }

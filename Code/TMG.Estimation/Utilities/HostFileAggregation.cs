@@ -69,7 +69,7 @@ namespace TMG.Estimation.Utilities
                         var data = dataObj as byte[];
                         if (data == null)
                         {
-                            throw new XTMFRuntimeException($"In {Name} we recieved something besides a byte[] while building a file.");
+                            throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte[] while building a file.");
                         }
                         Task.Factory.StartNew( () =>
                             {

@@ -107,7 +107,7 @@ namespace TMG.GTAModel.Generation
             var flatProduction = production.GetFlatData();
             if(!test.GetFlatIndex(ref emp, ref mob, ref age))
             {
-                throw new XTMFRuntimeException("In " + Name + " we were unable to find a place to store our data (" + emp + "," + mob + "," + age + ")");
+                throw new XTMFRuntimeException(this, "In " + Name + " we were unable to find a place to store our data (" + emp + "," + mob + "," + age + ")");
             }
             int i = 0;
             try
@@ -119,7 +119,7 @@ namespace TMG.GTAModel.Generation
             }
             catch
             {
-                throw new XTMFRuntimeException("Failed Yo!");
+                throw new XTMFRuntimeException(this, "In " + Name + " we were unable to find a place to store our data (" + emp + "," + mob + "," + age + ")");
             }
         }
 
@@ -175,7 +175,7 @@ namespace TMG.GTAModel.Generation
                                 flatAttraction[i] += temp;
                                 if(flatAttraction[i] < 0)
                                 {
-                                    throw new XTMFRuntimeException("Zone " + zones[i].ZoneNumber + " had a negative attraction after computing the initial attraction. " + flatAttraction[i]
+                                    throw new XTMFRuntimeException(this, "Zone " + zones[i].ZoneNumber + " had a negative attraction after computing the initial attraction. " + flatAttraction[i]
                                         + "\r\nOccupation Rates = " + flatEmploymentRates[i][emp][occ]
                                         + "\r\nEmployment Rates = " + flatJobTypes[i][emp]
                                         + "\r\nEmployment       = " + zones[i].Employment
@@ -212,7 +212,7 @@ namespace TMG.GTAModel.Generation
                 var emp = EmploymentStatusCategory[0].Start;
                 if(emp == 0)
                 {
-                    throw new XTMFRuntimeException("Trying to get PoRPoW for non-employed people!");
+                    throw new XTMFRuntimeException(this, "Trying to get PoRPoW for non-employed people!");
                 }
                 var occ = OccupationCategory[0].Start;
                 var ncars = Root.Demographics.WorkerVehicleRates.GetFlatData()[i];
@@ -226,7 +226,7 @@ namespace TMG.GTAModel.Generation
                         var wah = nonExternalWorkers * WorkAtHomeRates[zoneNumber, age, emp];
                         if(nonExternalWorkers < wah)
                         {
-                            throw new XTMFRuntimeException("We ended up having a negative for zone " + zones[i].ZoneNumber);
+                            throw new XTMFRuntimeException(this, "We ended up having a negative for zone " + zones[i].ZoneNumber);
                         }
                         productionTemp += nonExternalWorkers - wah;
                         tempWaH += wah;

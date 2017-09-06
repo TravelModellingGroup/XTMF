@@ -62,41 +62,40 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public void HouseholdComplete(ITashaHousehold household, bool success)
         {
-            float[][] util;
-            if ( success )
+            if (success)
             {
-                if ( !HouseUtilities.TryRemove( household, out util ) )
+                if (!HouseUtilities.TryRemove(household, out float[][] util))
                 {
                     return;
                 }
-                lock ( this )
+                lock (this)
                 {
                     int tripChains = 0;
-                    foreach ( var person in household.Persons )
+                    foreach (var person in household.Persons)
                     {
                         tripChains += person.TripChains.Count;
                     }
-                    var writeHeader = !File.Exists( OutputFile );
-                    using ( StreamWriter writer = new StreamWriter( OutputFile, true ) )
+                    var writeHeader = !File.Exists(OutputFile);
+                    using (StreamWriter writer = new StreamWriter(OutputFile, true))
                     {
-                        if ( writeHeader )
+                        if (writeHeader)
                         {
-                            writer.WriteLine( "HouseholdID,ouseholdIteration,First Household Utility,Second Household Utility,After Passenger Household Utility, TripChains Count" );
+                            writer.WriteLine("HouseholdID,ouseholdIteration,First Household Utility,Second Household Utility,After Passenger Household Utility, TripChains Count");
                         }
 
-                        for ( int i = 0; i < util.Length; i++ )
+                        for (int i = 0; i < util.Length; i++)
                         {
-                            writer.Write( household.HouseholdId );
-                            writer.Write( ',' );
-                            writer.Write( i );
-                            writer.Write( ',' );
-                            writer.Write( util[i][0] );
-                            writer.Write( ',' );
-                            writer.Write( util[i][1] );
-                            writer.Write( ',' );
-                            writer.Write( util[i][2] );
-                            writer.Write( ',' );
-                            writer.WriteLine( tripChains );
+                            writer.Write(household.HouseholdId);
+                            writer.Write(',');
+                            writer.Write(i);
+                            writer.Write(',');
+                            writer.Write(util[i][0]);
+                            writer.Write(',');
+                            writer.Write(util[i][1]);
+                            writer.Write(',');
+                            writer.Write(util[i][2]);
+                            writer.Write(',');
+                            writer.WriteLine(tripChains);
                         }
                     }
                 }
@@ -151,9 +150,8 @@ namespace Tasha.Validation.ValidateModeChoice
                 }
             }
 
-            float[][] utilities;
             bool found;
-            if ( !( found = HouseUtilities.TryGetValue( household, out utilities ) ) )
+            if ( !( found = HouseUtilities.TryGetValue( household, out float[][] utilities ) ) )
             {
                 utilities = new float[totalHouseholdIterations][];
                 for ( int i = 0; i < utilities.Length; i++ )

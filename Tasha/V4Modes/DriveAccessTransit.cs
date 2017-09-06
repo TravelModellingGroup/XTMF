@@ -220,8 +220,7 @@ namespace Tasha.V4Modes
             }
             // Apply personal factors
             var p = trip.TripChain.Person;
-            float constant;
-            GetPersonVariables(p, out constant);
+            GetPersonVariables(p, out float constant);
             float v = constant;
             if (p.Female)
             {
@@ -370,10 +369,8 @@ namespace Tasha.V4Modes
 
         public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection)
         {
-            bool first;
             var trips = chain.Trips;
-            int otherIndex;
-            int tripCount = CountTripsUsingThisMode(tripIndex, out first, out otherIndex, trips);
+            int tripCount = CountTripsUsingThisMode(tripIndex, out bool first, out int otherIndex, trips);
 
             if (tripCount > 2)
             {
@@ -433,8 +430,7 @@ namespace Tasha.V4Modes
         {
             var zones = accessData.First;
             var utils = accessData.Second;
-            float ivttBeta, costBeta, walkBeta, waitBeta, boardingBeta, constant;
-            GetPersonVariables(person, out constant, out ivttBeta, out walkBeta, out waitBeta, out boardingBeta, out costBeta);
+            GetPersonVariables(person, out float constant, out float ivttBeta, out float walkBeta, out float waitBeta, out float boardingBeta, out float costBeta);
             var totalUtil = VectorHelper.Sum(utils, 0, utils.Length);
             if (totalUtil <= 0)
             {
@@ -469,8 +465,7 @@ namespace Tasha.V4Modes
                     if (probability > 0)
                     {
                         var local = 0.0f;
-                        float tivtt, twalk, twait, boarding, cost;
-                        TransitNetwork.GetAllData(stationIndex, fd, firstTime, out tivtt, out twalk, out twait, out boarding, out cost);
+                        TransitNetwork.GetAllData(stationIndex, fd, firstTime, out float tivtt, out float twalk, out float twait, out float boarding, out float cost);
                         local += tivtt * ivttBeta + twalk * walkBeta + twait * waitBeta + cost * costBeta + boarding * boardingBeta;
                         TransitNetwork.GetAllData(stationIndex, so, secondTime, out tivtt, out twalk, out twait, out boarding, out cost);
                         local += tivtt * ivttBeta + twalk * walkBeta + twait * waitBeta + cost * costBeta + boarding * boardingBeta;
@@ -720,7 +715,7 @@ namespace Tasha.V4Modes
             var ret = costFactor * timeFactor;
             if (ret > 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
             }
             return ret;
         }

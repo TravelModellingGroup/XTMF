@@ -421,7 +421,7 @@ namespace TMG.GTAModel.V2.Modes
                 // If everything is fine we can now Generate our children
                 if ( !GenerateChildren() )
                 {
-                    throw new XTMFRuntimeException($"In {Name} when generating the access stations we ran into an issue!" );
+                    throw new XTMFRuntimeException(this, $"In {Name} when generating the access stations we ran into an issue!" );
                 }
                 // if we are in the first iteration go and make sure that we have our Origin - > Access Station[]'s built
                 BuildOriginToAccessStations();
@@ -450,13 +450,13 @@ namespace TMG.GTAModel.V2.Modes
                 if ( network.NetworkType == PrimaryModeName )
                 {
                     var temp = network as ITripComponentData;
-                    Second = temp == null ? Second : temp;
+                    Second = temp ?? Second;
                 }
 
                 if ( network.NetworkType == EgressNetworkName )
                 {
                     var temp = network as ITripComponentData;
-                    Third = temp == null ? Third : temp;
+                    Third = temp ?? Third;
                 }
             }
             if ( First == null )
@@ -490,9 +490,7 @@ namespace TMG.GTAModel.V2.Modes
                 egressUtility = float.MinValue;
                 return false;
             }
-            Time ivtt, walk, wait, boarding;
-            float cost;
-            Third.GetAllData( flatEgressZone, flatDestinationZone, time, out ivtt, out walk, out wait, out boarding, out cost );
+            Third.GetAllData(flatEgressZone, flatDestinationZone, time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
             // Cost does not factor in for V2
             egressUtility = ivtt.ToMinutes() + EgressWaitFactor * wait.ToMinutes() + EgressWalkFactor * walk.ToMinutes();
             return egressUtility != float.MaxValue;
@@ -570,42 +568,44 @@ namespace TMG.GTAModel.V2.Modes
 
         private void CreateChild(int stationZone, int parkingSpots, SparseTwinIndex<float> numberOfTrains, int lineNumber)
         {
-            GoAccessStation station = new GoAccessStation();
-            //Setup the parameters
-            station.Root = Root;
-            station.Parent = this;
-            station.Closest = Closest;
-            station.ClosestDistance = ClosestDistance;
-            station.MaxAccessToDestinationTime = MaxAccessToDestinationTime;
-            station.Access = Access;
-            station.CurrentlyFeasible = 1.0f;
-            // The constant for this option is not the same as for the station choice
-            //station.Constant = this.Constant;
-            station.AccessInVehicleTravelTime = AccessInVehicleTravelTime;
-            station.AccessCost = AccessCost;
-            station.InVehicleTravelTime = GeneralTime;
-            station.LogParkingFactor = ParkingFactor;
-            station.TrainsFactor = TrainsFactor;
-            station.WaitTime = WaitTime;
-            station.WalkTime = WalkTime;
-            station.CostFactor = CostFactor;
-            station.EgressWalkFactor = EgressWalkFactor;
-            station.EgressWaitFactor = EgressWaitFactor;
+            GoAccessStation station = new GoAccessStation
+            {
+                //Setup the parameters
+                Root = Root,
+                Parent = this,
+                Closest = Closest,
+                ClosestDistance = ClosestDistance,
+                MaxAccessToDestinationTime = MaxAccessToDestinationTime,
+                Access = Access,
+                CurrentlyFeasible = 1.0f,
+                // The constant for this option is not the same as for the station choice
+                //station.Constant = this.Constant;
+                AccessInVehicleTravelTime = AccessInVehicleTravelTime,
+                AccessCost = AccessCost,
+                InVehicleTravelTime = GeneralTime,
+                LogParkingFactor = ParkingFactor,
+                TrainsFactor = TrainsFactor,
+                WaitTime = WaitTime,
+                WalkTime = WalkTime,
+                CostFactor = CostFactor,
+                EgressWalkFactor = EgressWalkFactor,
+                EgressWaitFactor = EgressWaitFactor,
 
-            // Setup the modes
-            station.ComputeEgressStation = ComputeEgressStation;
-            station.First = First;
-            station.FirstComponent = First as ITripComponentData;
-            station.Second = Second;
-            station.Third = Third;
-            station.FreeTransfers = FreeTransfers.GiveData();
+                // Setup the modes
+                ComputeEgressStation = ComputeEgressStation,
+                First = First,
+                FirstComponent = First as ITripComponentData,
+                Second = Second,
+                Third = Third,
+                FreeTransfers = FreeTransfers.GiveData(),
 
-            // Create all of the individual parameters
-            station.ModeName = String.Format( "{0}:{1}", ModeName, stationZone );
-            station.StationZone = stationZone;
-            station.LineNumber = lineNumber;
-            station.Parking = parkingSpots;
-            station.NumberOfTrains = numberOfTrains;
+                // Create all of the individual parameters
+                ModeName = String.Format("{0}:{1}", ModeName, stationZone),
+                StationZone = stationZone,
+                LineNumber = lineNumber,
+                Parking = parkingSpots,
+                NumberOfTrains = numberOfTrains
+            };
             // Add it to the list of children
             Children.Add( station );
         }
@@ -615,8 +615,7 @@ namespace TMG.GTAModel.V2.Modes
             var lineLookup = new SortedList<int, List<int>>();
             for ( int i = 0; i < Children.Count; i++ )
             {
-                List<int> currentLine;
-                if ( !lineLookup.TryGetValue( Children[i].LineNumber, out currentLine ) )
+                if (!lineLookup.TryGetValue(Children[i].LineNumber, out List<int> currentLine))
                 {
                     currentLine = new List<int>();
                     lineLookup[Children[i].LineNumber] = currentLine;
@@ -664,7 +663,7 @@ namespace TMG.GTAModel.V2.Modes
                 }
                 else
                 {
-                    throw new XTMFRuntimeException( "While processing the train frequencies for '" + Name
+                    throw new XTMFRuntimeException(this, "While processing the train frequencies for '" + Name
                         + "' we came across an invalid frequency from '" + point.O + "' to '" + point.D + "'." );
                 }
             }

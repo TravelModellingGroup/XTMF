@@ -56,9 +56,9 @@ namespace TMG.Emme.Tools.Analysis.Transit.StrategyAnalysis
             var mc = controller as ModellerController;
             if(mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
             }
-            return mc.Run(ToolName, GetParameters());
+            return mc.Run(this, ToolName, GetParameters());
         }
 
         private string GetParameters()

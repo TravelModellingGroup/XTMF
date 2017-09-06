@@ -68,11 +68,11 @@ namespace TMG.Frameworks.Extensibility
             }
             catch (Win32Exception)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were unable to execute the program '" + Program.GetFilePath() + "'!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to execute the program '" + Program.GetFilePath() + "'!");
             }
             catch (FileNotFoundException)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were to find the program '" + Program.GetFilePath() + "'!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were to find the program '" + Program.GetFilePath() + "'!");
             }
         }
 
@@ -94,8 +94,7 @@ namespace TMG.Frameworks.Extensibility
             var listToUs = ModelSystemReflection.BuildModelStructureChain(Config, this);
             for (int i = listToUs.Count - 1; i >= 0; i--)
             {
-                var multiRunFramework = listToUs[i].Module as MultiRun.MultiRunModelSystem;
-                if (multiRunFramework != null)
+                if (listToUs[i].Module is MultiRun.MultiRunModelSystem multiRunFramework)
                 {
                     multiRunFramework.TryAddBatchCommand("LaunchProgram.ShutdownExternalProgram", (node) =>
                     {
@@ -104,16 +103,16 @@ namespace TMG.Frameworks.Extensibility
                         IModelSystemStructure multiRunFrameworkChild = null;
                         if (!ModelSystemReflection.FindModuleStructure(Config, multiRunFramework.Child, ref multiRunFrameworkChild))
                         {
-                            throw new XTMFRuntimeException("We were unable to find the multi-run frameworks child module's model system structure!");
+                            throw new XTMFRuntimeException(this, "We were unable to find the multi-run frameworks child module's model system structure!");
                         }
                         if (!ModelSystemReflection.GetModelSystemStructureFromPath(multiRunFrameworkChild, path, ref selectedModule))
                         {
-                            throw new XTMFRuntimeException("We were unable to find a module with the path '" + path + "'!");
+                            throw new XTMFRuntimeException(this, "We were unable to find a module with the path '" + path + "'!");
                         }
                         var toShutdown = selectedModule.Module as LaunchProgram;
                         if (toShutdown == null)
                         {
-                            throw new XTMFRuntimeException("The module with the path '" + path + "' was not of type 'TMG.Frameworks.Extensibility.LaunchProgram'!");
+                            throw new XTMFRuntimeException(this, "The module with the path '" + path + "' was not of type 'TMG.Frameworks.Extensibility.LaunchProgram'!");
                         }
                         toShutdown.ShutdownProgram();
                     }, true);

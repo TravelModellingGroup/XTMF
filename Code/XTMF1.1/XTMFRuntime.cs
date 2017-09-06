@@ -81,11 +81,10 @@ namespace XTMF
 
         public IClient InitializeRemoteClient(string address, int port)
         {
-            IClient client;
             string error = null;
             Configuration.RemoteServerAddress = address;
             Configuration.RemoteServerPort = port;
-            if (Configuration.StartupNetworkingClient(out client, ref error))
+            if (Configuration.StartupNetworkingClient(out IClient client, ref error))
             {
                 return client;
             }

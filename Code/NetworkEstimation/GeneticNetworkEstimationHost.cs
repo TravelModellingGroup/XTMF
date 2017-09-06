@@ -553,8 +553,7 @@ namespace TMG.NetworkEstimation
 
         private void ProcessEvaluation(object evaluation, IRemoteXTMF r)
         {
-            var message = evaluation as ResultMessage;
-            if (message != null)
+            if (evaluation is ResultMessage message)
             {
                 ResultQueue.Add(message);
             }

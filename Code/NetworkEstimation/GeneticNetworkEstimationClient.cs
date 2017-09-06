@@ -208,7 +208,7 @@ namespace TMG.NetworkEstimation
                     {
                         if (truthList[j].Id[0] == currentName)
                         {
-                            throw new XTMFRuntimeException(
+                            throw new XTMFRuntimeException(this,
                                 $"The TTS record {currentName} at line {j + 1} has a duplicate entry on line {count + 1}");
                         }
                     }
@@ -247,7 +247,7 @@ namespace TMG.NetworkEstimation
                 List<string> nameList;
                 if ((nameList = nameLinks[i]) == null)
                 {
-                    throw new XTMFRuntimeException(
+                    throw new XTMFRuntimeException(this,
                         $"The TTS record {truthList[i].Id[0]} has no EMME Links associated with it.  Aborting.");
                 }
                 var temp = truthList[i];

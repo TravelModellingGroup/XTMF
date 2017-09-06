@@ -165,16 +165,12 @@ be based off of this module."
             // check what kind of network data we are working with to see if we can use subcomponents
             if ( AdvancedNetworkData == null )
             {
-                // This is a simple mode such as Auto
-                float ivtt, cost;
-                NetworkData.GetAllData(origin, destination, time, out ivtt, out cost);
+                NetworkData.GetAllData(origin, destination, time, out float ivtt, out float cost);
                 v += IVTT * ivtt + TravelCost * cost;
             }
             else
             {
-                // Then we have trip component data
-                float ivtt, walk, wait, boarding, cost;
-                AdvancedNetworkData.GetAllData( origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost );
+                AdvancedNetworkData.GetAllData( origin, destination, time, out float ivtt, out float walk, out float wait, out float boarding, out float cost );
                 v += IVTT * ivtt
                 + Walk * walk
                 + ( ( walk > 0 ) & ( ivtt <= 0 ) ? AdjacentZone : 0f )
@@ -203,8 +199,8 @@ be based off of this module."
             {
                 return NetworkData.ValidOd(origin, destination, time) && (!CheckPositiveIVTT || NetworkData.TravelTime(origin, destination, time).ToMinutes() > 0);
             }
-            float ivtt, walk, wait, boarding, cost;
-            AdvancedNetworkData.GetAllData(origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost);
+
+            AdvancedNetworkData.GetAllData(origin, destination, time, out float ivtt, out float walk, out float wait, out float boarding, out float cost);
             return AdvancedNetworkData.ValidOd(origin, destination, time)
                    && ((!CheckPositiveIVTT || ivtt > 0))
                    && ((!CheckPositiveWalk || walk > 0));
@@ -245,8 +241,7 @@ be based off of this module."
                 if ( dataSource.NetworkType == NetworkType )
                 {
                     NetworkData = dataSource;
-                    ITripComponentData advancedData = dataSource as ITripComponentData;
-                    if ( advancedData != null )
+                    if (dataSource is ITripComponentData advancedData)
                     {
                         AdvancedNetworkData = advancedData;
                     }

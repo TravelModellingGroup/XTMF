@@ -62,9 +62,9 @@ namespace TMG.GTAModel.Output
                 string error = null;
                 if ( !( Operations[i].Copy(ref error) | IgnoreCopyErrors ) )
                 {
-                    throw new XTMFRuntimeException( "We failed to copy the file '"
+                    throw new XTMFRuntimeException(this, "We failed to copy the file '"
                         + Operations[i].Source.GetFilePath() + "' to '" + Operations[i].Destination.GetFilePath()
-                        + "'.  Please make sure that both paths exist, or in the case of a network drive are online!\r\n" + (error != null ? error : string.Empty) );
+                        + "'.  Please make sure that both paths exist, or in the case of a network drive are online!\r\n" + (error ?? string.Empty) );
                 }
             }
         }

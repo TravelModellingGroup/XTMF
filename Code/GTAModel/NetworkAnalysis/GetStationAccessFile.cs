@@ -77,7 +77,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             var sb = new StringBuilder();
             sb.AppendFormat( "{0} {1} {2} \"{3}\"", ScenarioNumber, SearchRadius, GoStationSelectorExpression,
@@ -85,12 +85,12 @@ namespace TMG.GTAModel.NetworkAnalysis
             string result = null;
 
             var toolName = ToolName;
-            if (!mc.CheckToolExists(toolName))
+            if (!mc.CheckToolExists(this, toolName))
             {
                 toolName = AlternateToolName;
             }
 
-            return mc.Run(toolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(this, toolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

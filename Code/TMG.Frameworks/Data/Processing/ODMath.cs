@@ -75,7 +75,7 @@ of the matrix will match the zone system otherwise the size of the matrices are 
                 var result = ExpressionToExecute.Evaluate(DataSources);
                 if (result.Error)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' an exception during the execution of the expression occurred.\r\n" + result.ErrorMessage);
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' an exception during the execution of the expression occurred.\r\n" + result.ErrorMessage);
                 }
                 // check to see if the result is a scalar
                 if (result.IsValue)
@@ -98,12 +98,12 @@ of the matrix will match the zone system otherwise the size of the matrices are 
                     }
                     else
                     {
-                        throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Scalar instead of a Matrix and there was no ITravelDemandModel in the ancestry to copy the zone system from!");
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' the result of the expression was a Scalar instead of a Matrix and there was no ITravelDemandModel in the ancestry to copy the zone system from!");
                     }
                 }
                 else if (result.IsVectorResult)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Vector instead of a matrix!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' the result of the expression was a Vector instead of a matrix!");
                 }
                 else
                 {
@@ -129,8 +129,7 @@ of the matrix will match the zone system otherwise the size of the matrices are 
             var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
             for (int i = ancestry.Count - 1; i >= 0; i--)
             {
-                var tdm = ancestry[i].Module as ITravelDemandModel;
-                if (tdm != null)
+                if (ancestry[i].Module is ITravelDemandModel tdm)
                 {
                     Root = tdm;
                     return;

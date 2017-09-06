@@ -116,8 +116,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
         {
             var previousZone = GetZone(previous, ep);
             var nextZone = GetZone(next, ep);
-            float[] calculationSpace;
-            if (!CalculationPool.TryDequeue(out calculationSpace))
+            if (!CalculationPool.TryDequeue(out float[] calculationSpace))
             {
                 calculationSpace = new float[Root.ZoneSystem.ZoneArray.Count];
             }
@@ -428,8 +427,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
             {
-                float ivtt, walk, wait, cost, boarding;
-                if (!network.GetAllData(i, j, time, out ivtt, out walk, out wait, out boarding, out cost))
+                if (!network.GetAllData(i, j, time, out float ivtt, out float walk, out float wait, out float boarding, out float cost))
                 {
                     return 0f;
                 }
@@ -444,8 +442,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, int i, int j, Time time)
             {
-                float ivtt, cost;
-                if (!autoNetwork.GetAllData(i, j, time, out ivtt, out cost))
+                if (!autoNetwork.GetAllData(i, j, time, out float ivtt, out float cost))
                 {
                     return 0.0f;
                 }
@@ -623,7 +620,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var mp = Parent.ManufacturingPartTime.AcquireResource<SparseArray<float>>().GetFlatData();
                 if (pf.Length != zones.Length)
                 {
-                    throw new XTMFRuntimeException("The professional full-time employment data is not of the same size as the number of zones!");
+                    throw new XTMFRuntimeException(this, "The professional full-time employment data is not of the same size as the number of zones!");
                 }
                 float[][] jSum = new float[TimePeriod.Length][];
                 for (int i = 0; i < TimePeriod.Length; i++)

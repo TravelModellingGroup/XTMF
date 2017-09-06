@@ -76,8 +76,7 @@ namespace XTMF.Testing
                     if ( reader.NumberOfCurrentCells > 0 )
                     {
                         Assert.AreEqual( 5, reader.NumberOfCurrentCells );
-                        float val;
-                        reader.Get( out val, 5 );
+                        reader.Get(out float val, 5);
                         lines++;
                     }
                 }

@@ -144,8 +144,7 @@ namespace Datastructure
         /// <returns>The number of columns returned</returns>
         public int LoadLine()
         {
-            int res;
-            LoadLine(out res);
+            LoadLine(out int res);
             return res;
         }
 

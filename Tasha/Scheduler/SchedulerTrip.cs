@@ -174,8 +174,7 @@ namespace Tasha.Scheduler
 
         internal static SchedulerTrip GetTrip(int householdIterations)
         {
-            SchedulerTrip ret;
-            if(!Trips.TryDequeue(out ret))
+            if (!Trips.TryDequeue(out SchedulerTrip ret))
             {
                 return new SchedulerTrip(householdIterations);
             }

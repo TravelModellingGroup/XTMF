@@ -123,7 +123,7 @@ namespace TMG.GTAModel.DataResources
                 var zoneArray = Root.ZoneSystem.ZoneArray;
                 var zones = zoneArray.GetFlatData();
                 int[] accessZones = null;
-                float[] parking = null, trains;
+                float[] parking = null;
                 SparseTwinIndex<Tuple<IZone[], IZone[], float[]>> data = null;
                 // these will be flagged to true if we needed to load a network
                 bool loadedAuto = false, loadedTransit = false;
@@ -134,7 +134,7 @@ namespace TMG.GTAModel.DataResources
                     },
                     () =>
                     {
-                        LoadStationData( zoneArray, out parking, out trains );
+                        LoadStationData( zoneArray, out parking, out float[] trains );
                     },
                     () =>
                     {
@@ -246,9 +246,8 @@ namespace TMG.GTAModel.DataResources
             // compute the base access station utilities
             for ( int i = 0; i < flatAccessZones.Length; i++ )
             {
-                float result, distance;
                 if ( ComputeUtility( o, d, zones, flatAccessZones[i], parking, distances == null | soFar < MaximumAccessStations
-                    ? float.MaxValue : distances[distances.Length - 1], out result, out distance ) )
+                    ? float.MaxValue : distances[distances.Length - 1], out float result, out float distance ) )
                 {
                     if ( odData == null )
                     {

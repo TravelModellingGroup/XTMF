@@ -624,10 +624,9 @@ namespace Tasha.XTMFModeChoice
             }
             if(assignResource.Length == person + 1)
             {
-                float utility;
-                if(IsValidAssignment(numberOfResource, assignResource, personConflicts, householdData, out utility))
+                if (IsValidAssignment(numberOfResource, assignResource, personConflicts, householdData, out float utility))
                 {
-                    if(utility > BestConflictUtility)
+                    if (utility > BestConflictUtility)
                     {
                         BestConflictUtility = utility;
                         AssignToBest(assignResource, bestAssignment);

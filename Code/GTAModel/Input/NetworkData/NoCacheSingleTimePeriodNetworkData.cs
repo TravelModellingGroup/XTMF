@@ -208,10 +208,9 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost)
         {
-            float fTime;
             var o = ZoneArray.GetFlatIndex(start.ZoneNumber);
             var d = ZoneArray.GetFlatIndex(end.ZoneNumber);
-            var result = GetAllData(o, d, time, out fTime, out cost);
+            var result = GetAllData(o, d, time, out float fTime, out cost);
             ivtt = Time.FromMinutes(fTime);
             return result;
         }

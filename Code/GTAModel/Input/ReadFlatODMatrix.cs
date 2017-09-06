@@ -27,13 +27,13 @@ namespace TMG.GTAModel.Input
 {
     public class ReadFlatODMatrix : IReadODData<float>
     {
-        [RunParameter( "File Name", "Data.bin", "The flat binary file containing a matrix to load in." )]
+        [RunParameter("File Name", "Data.bin", "The flat binary file containing a matrix to load in.")]
         public string FileName;
 
         [RootModule]
         public ITravelDemandModel Root;
 
-        [RunParameter( "Load from Input Directory", false, "Load from the model system's input directory?  False means use the run directory." )]
+        [RunParameter("Load from Input Directory", false, "Load from the model system's input directory?  False means use the run directory.")]
         public bool UseInputDirectory;
 
         public string Name
@@ -57,29 +57,29 @@ namespace TMG.GTAModel.Input
             IZone[] zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             Stream s = null;
-            var f = UseInputDirectory ? GetFileLocation( FileName ) : FileName;
+            var f = UseInputDirectory ? GetFileLocation(FileName) : FileName;
             try
             {
-                s = File.OpenRead( f );
+                s = File.OpenRead(f);
             }
-            catch ( IOException)
+            catch (IOException)
             {
                 s?.Close();
                 throw;
             }
 
-            if ( s.Length < ( numberOfZones * numberOfZones ) * 4 )
+            if (s.Length < (numberOfZones * numberOfZones) * 4)
             {
-                throw new XTMFRuntimeException( "The file '" + f + "' does not contain enough data to be used as a flat OD matrix!" );
+                throw new XTMFRuntimeException(this, "The file '" + f + "' does not contain enough data to be used as a flat OD matrix!");
             }
             ODData<float> ret = new ODData<float>();
             // this will close the file at the end of reading it
-            using ( BinaryReader reader = new BinaryReader( s ) )
+            using (BinaryReader reader = new BinaryReader(s))
             {
-                for ( int i = 0; i < numberOfZones; i++ )
+                for (int i = 0; i < numberOfZones; i++)
                 {
                     ret.O = zones[i].ZoneNumber;
-                    for ( int j = 0; j < numberOfZones; j++ )
+                    for (int j = 0; j < numberOfZones; j++)
                     {
                         ret.D = zones[j].ZoneNumber;
                         ret.Data = reader.ReadSingle();
@@ -97,9 +97,9 @@ namespace TMG.GTAModel.Input
         private string GetFileLocation(string fileName)
         {
             var fullPath = fileName;
-            if ( !Path.IsPathRooted( fullPath ) )
+            if (!Path.IsPathRooted(fullPath))
             {
-                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
             }
             return fullPath;
         }

@@ -51,12 +51,12 @@ namespace TMG.NetworkEstimation
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
             }
 
             var args = string.Join(" ", ScenarioNumber, LineAggregationFile.GetFilePath());
             string result = "";
-            mc.Run(ToolName, args, (p => Progress = p), ref result);
+            mc.Run(this, ToolName, args, (p => Progress = p), ref result);
 
             var modelResults = ParseResults(result);
             var observations = LoadObservedBoardingsFile();
@@ -89,18 +89,14 @@ namespace TMG.NetworkEstimation
             using (CsvReader reader = new CsvReader(ObservedBoardingsFile.GetFilePath()))
             {
                 reader.LoadLine(); //Skip the first line                
-                int numCol;
-                while (reader.LoadLine(out numCol))
+                while (reader.LoadLine(out int numCol))
                 {
                     if (numCol < 3)
                         throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
 
-                    string lineId;
-                    float weight;
-                    float amBoardings;
-                    reader.Get(out lineId, 0);
-                    reader.Get(out weight, 1);
-                    reader.Get(out amBoardings, 2);
+                    reader.Get(out string lineId, 0);
+                    reader.Get(out float weight, 1);
+                    reader.Get(out float amBoardings, 2);
 
                     if (amBoardings <= 0.0f)
                         throw new Exception("Found 0 boardings for line/group " + lineId + ". All values must be greater than 0 in order to calculate WMPE");

@@ -500,11 +500,10 @@ namespace TMG.GTAModel.V2.Distribution
                     {
                         if(reader.LoadLine() >= numberOfModes + 5)
                         {
-                            int os, oe, ds, de;
-                            reader.Get(out os, 1);
-                            reader.Get(out oe, 2);
-                            reader.Get(out ds, 3);
-                            reader.Get(out de, 4);
+                            reader.Get(out int os, 1);
+                            reader.Get(out int oe, 2);
+                            reader.Get(out int ds, 3);
+                            reader.Get(out int de, 4);
                             float[] modeData = new float[numberOfModes];
                             for(int i = 0; i < modeData.Length; i++)
                             {

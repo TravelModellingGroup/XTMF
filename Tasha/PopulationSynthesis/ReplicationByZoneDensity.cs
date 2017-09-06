@@ -146,7 +146,7 @@ namespace Tasha.PopulationSynthesis
                 var hhldGlobalIndex = PoolToGlobalIndex[densityCat];
                 if(households.Count <= 0)
                 {
-                    throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone + "' in Pool'" + Name + "' for category " + DensityBins[densityCat] + "!"
+                    throw new XTMFRuntimeException(this, "We managed to be unable to assign any households to flat zone '" + zone + "' in Pool'" + Name + "' for category " + DensityBins[densityCat] + "!"
                     + "\r\nThere were " + households.Count + " household records in that pool.");
                 }
                 int selectedIndex = 0;
@@ -199,7 +199,7 @@ namespace Tasha.PopulationSynthesis
                     remaining = 0;
                     return new KeyValuePair<int, int>(zone, hhldGlobalIndex[selectedIndex]);
                 }
-                throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone + "' in Pool'" + Name + "' for category " + DensityBins[densityCat] + "!"
+                throw new XTMFRuntimeException(this, "We managed to be unable to assign any households to flat zone '" + zone + "' in Pool'" + Name + "' for category " + DensityBins[densityCat] + "!"
                     + "\r\nThere were " + households.Count + " household records in that pool.");
             }
 

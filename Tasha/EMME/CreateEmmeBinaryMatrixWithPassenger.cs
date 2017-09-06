@@ -123,8 +123,7 @@ namespace Tasha.EMME
                         }
                         else if ((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
                         {
-                            IZone origin, destination;
-                            if (AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], initialAccessTrip, out origin, out destination))
+                            if (AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], initialAccessTrip, out IZone origin, out IZone destination))
                             {
                                 var originIndex = GetFlatIndex(origin);
                                 var destinationIndex = GetFlatIndex(destination);

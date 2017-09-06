@@ -74,7 +74,7 @@ namespace Tasha.Modes
                         var nextTrip = j < tripChain.Trips.Count - 1 ? tripChain.Trips[j + 1] : null;
                         if(trip.ActivityStartTime > Time.EndOfDay && trip.Purpose != Activity.Home)
                         {
-                            throw new XTMFRuntimeException("PAST END OF DAY! " + trip.ActivityStartTime + "\r\n " + trip.Purpose + "\r\n " + "household ID is " + household.HouseholdId + " person ID is " + person.Id);
+                            throw new XTMFRuntimeException(this, "PAST END OF DAY! " + trip.ActivityStartTime + "\r\n " + trip.Purpose + "\r\n " + "household ID is " + household.HouseholdId + " person ID is " + person.Id);
                         }
                         var householdIterations = (trip.ModesChosen == null || trip.ModesChosen.Length == 0) ? 1 : trip.ModesChosen.Length;
                         for(int i = 0; i < householdIterations; i++)
@@ -100,7 +100,7 @@ namespace Tasha.Modes
                             builder.Append(',');
                             builder.Append(trip.DestinationZone.ZoneNumber);
                             builder.Append(',');
-                            builder.Append(IsObserved ? mode.ModeName : (trip.Mode == null ? null : trip.Mode.ModeName));
+                            builder.Append(IsObserved ? mode.ModeName : (trip.Mode?.ModeName));
                             builder.Append(',');
                             builder.Append((trip.ModesChosen == null || trip.ModesChosen.Length <= i || trip.ModesChosen[i] == null) ? "NONE" : trip.ModesChosen[i].ModeName);
                             builder.Append(',');

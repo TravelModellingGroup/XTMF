@@ -126,7 +126,7 @@ namespace TMG.GTAModel.DataResources
                 var zoneArray = Root.ZoneSystem.ZoneArray;
                 var zones = zoneArray.GetFlatData();
                 int[] accessZones = null;
-                float[] parking, trains = null;
+                float[] trains = null;
                 SparseTwinIndex<Tuple<IZone[], IZone[], float[]>> data = null;
                 // these will be flagged to true if we needed to load a network
                 bool loadedGo = false, loadedTransit = false, loadedPremiumTransit = false;
@@ -137,7 +137,7 @@ namespace TMG.GTAModel.DataResources
                     },
                     () =>
                     {
-                        LoadStationData(zoneArray, out parking, out trains);
+                        LoadStationData(zoneArray, out float[] parking, out trains);
                     },
                     () =>
                     {
@@ -302,23 +302,21 @@ namespace TMG.GTAModel.DataResources
             // compute the base access station utilities
             for(int i = 0; i < flatAccessZones.Length; i++)
             {
-                float result, distance;
-                IZone egressZone;
-                if(ComputeUtility(o, d, zones, flatAccessZones[i], i, flatAccessZones, (distances == null | soFar < MaximumAccessStations
-                    ? float.MaxValue : distances[distances.Length - 1]), egressUtility, egressTime, egressZones, out result, out distance, out egressZone)
+                if (ComputeUtility(o, d, zones, flatAccessZones[i], i, flatAccessZones, (distances == null | soFar < MaximumAccessStations
+                    ? float.MaxValue : distances[distances.Length - 1]), egressUtility, egressTime, egressZones, out float result, out float distance, out IZone egressZone)
                     /*& ( result >= this.MinimumStationUtility )*/ )
                 {
-                    if(odData == null)
+                    if (odData == null)
                     {
                         distances = new float[MaximumAccessStations];
-                        for(int j = 0; j < distances.Length; j++)
+                        for (int j = 0; j < distances.Length; j++)
                         {
                             distances[j] = float.MaxValue;
                         }
                         odData = new Tuple<IZone[], IZone[], float[]>(resultZones = new IZone[MaximumAccessStations], resultEgressZones = new IZone[MaximumAccessStations], results = new float[MaximumAccessStations]);
                     }
                     // if we have extra room or if this access station is closest than the farthest station we have accepted
-                    if((soFar < MaximumAccessStations) | (distance < distances[results.Length - 1]))
+                    if ((soFar < MaximumAccessStations) | (distance < distances[results.Length - 1]))
                     {
                         Insert(zones, flatAccessZones, results, distances, resultZones, resultEgressZones, i, egressZone, result, distance);
                         soFar++;
@@ -398,13 +396,12 @@ namespace TMG.GTAModel.DataResources
         private bool ComputeUtility(int o, int d, IZone[] zones, int interchange, int accessStationIndex, int[] egressZones, float maxDistance, float[][] egressUtility, float[][] egressTime,
             int[][] selectedEgressZones, out float result, out float distance, out IZone egressZone)
         {
-            float accessTravelTime;
-            float v = ComputeAccessUtility(o, interchange, out accessTravelTime);
+            float v = ComputeAccessUtility(o, interchange, out float accessTravelTime);
             // our total travel time / distance is the egress time plus the time it takes to get to the station to begin with
             distance = egressTime[accessStationIndex][d] + accessTravelTime;
             if(egressTime[accessStationIndex][d] == 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' the egress time between zone " + zones[egressZones[accessStationIndex]].ZoneNumber + " and " + zones[d].ZoneNumber + " was equal to 0!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' the egress time between zone " + zones[egressZones[accessStationIndex]].ZoneNumber + " and " + zones[d].ZoneNumber + " was equal to 0!");
             }
             if(distance < ComputeWeightedTimeWithoutRail(o, d))
             {
@@ -434,12 +431,10 @@ namespace TMG.GTAModel.DataResources
         private float ComputeAccessUtility(int origin, int interchange, out float weightedTravelTime)
         {
             float v = 0.0f;
-            Time ivtt, boarding, wait, walk;
-            float cost;
             // figure out which data to use
-            if(!PremiumTransitNetwork.GetAllData(origin, interchange, TimeOfDay, out ivtt, out walk, out wait, out boarding, out cost) | ivtt <= Time.Zero)
+            if (!PremiumTransitNetwork.GetAllData(origin, interchange, TimeOfDay, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost) | ivtt <= Time.Zero)
             {
-                if(!TransitNetwork.GetAllData(origin, interchange, TimeOfDay, out ivtt, out walk, out wait, out boarding, out cost) | walk <= Time.Zero)
+                if (!TransitNetwork.GetAllData(origin, interchange, TimeOfDay, out ivtt, out walk, out wait, out boarding, out cost) | walk <= Time.Zero)
                 {
                     weightedTravelTime = float.NaN;
                     return float.NaN;
@@ -525,9 +520,7 @@ namespace TMG.GTAModel.DataResources
         /// <returns>The weighted travel time from egress station to destination</returns>
         private float ComputeWeightedTimeWithoutRail(int origin, int destination)
         {
-            Time ivtt, wait, walk, boardings;
-            float cost;
-            if(!TransitNetwork.GetAllData(origin, destination, TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost) | walk <= Time.Zero)
+            if (!TransitNetwork.GetAllData(origin, destination, TimeOfDay, out Time ivtt, out Time walk, out Time wait, out Time boardings, out float cost) | walk <= Time.Zero)
             {
                 return float.NaN;
             }
@@ -545,11 +538,9 @@ namespace TMG.GTAModel.DataResources
         /// <returns>The utility of using the egress station, NaN if no real egress station is used.</returns>
         private float ComputeEgressStationUtility(int interchange, int egress, int destination)
         {
-            Time ivtt, wait, walk, boardings;
-            float cost;
             var goIvtt = GoTransitNetwork.InVehicleTravelTime(interchange, egress, TimeOfDay);
             var goCost = GoTransitNetwork.TravelCost(interchange, egress, TimeOfDay);
-            if(TransitNetwork.GetAllData(egress, destination, TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost))
+            if(TransitNetwork.GetAllData(egress, destination, TimeOfDay, out Time ivtt, out Time walk, out Time wait, out Time boardings, out float cost))
             {
                 if(ivtt <= Time.Zero)
                 {

@@ -320,8 +320,7 @@ namespace TMG.GTAModel.Modes
             var origin = zoneArray.GetFlatIndex(originZone.ZoneNumber);
             var destination = zoneArray.GetFlatIndex(destinationZone.ZoneNumber);
             var interchange = zoneArray.GetFlatIndex(InterchangeZone.ZoneNumber);
-            var component = First as ITripComponentData;
-            if (component != null)
+            if (First is ITripComponentData component)
             {
                 // make sure that there is a valid walk time if we are walking/transit to the station
                 if (Access)
@@ -355,14 +354,12 @@ namespace TMG.GTAModel.Modes
 
                 if (network.Name == PrimaryModeName)
                 {
-                    var temp = network as ITripComponentData;
-                    Second = temp == null ? Second : temp;
+                    Second = network as ITripComponentData ?? Second;
                 }
 
                 if (network.NetworkType == EgressNetworkName)
                 {
-                    var temp = network as ITripComponentData;
-                    Third = temp == null ? Third : temp;
+                    Third = network as ITripComponentData ?? Third;
                 }
             }
             if (First == null)
@@ -391,9 +388,7 @@ namespace TMG.GTAModel.Modes
 
         private static float ComputeSubV(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float ivttWeight, float walkWeight, float waitWeight, float boardingWeight, float costWeight)
         {
-            float ivtt, walk, wait, boarding;
-            float cost;
-            data.GetAllData(flatOrigin, flatDestination, t, out ivtt, out walk, out wait, out boarding, out cost);
+            data.GetAllData(flatOrigin, flatDestination, t, out float ivtt, out float walk, out float wait, out float boarding, out float cost);
             return ivttWeight * ivtt
                 + walkWeight * walk
                 + waitWeight * wait
@@ -403,9 +398,7 @@ namespace TMG.GTAModel.Modes
 
         private static bool ComputeThird(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float walkTime, float waitTime, out float result)
         {
-            float ivtt, walk, wait, boarding;
-            float cost;
-            data.GetAllData(flatOrigin, flatDestination, t, out ivtt, out walk, out wait, out boarding, out cost);
+            data.GetAllData(flatOrigin, flatDestination, t, out float ivtt, out float walk, out float wait, out float boarding, out float cost);
             if (walk <= 0)
             {
                 result = float.PositiveInfinity;
@@ -460,11 +453,7 @@ namespace TMG.GTAModel.Modes
                         var zones = Root.ZoneSystem.ZoneArray;
                         var distances = Root.ZoneSystem.Distances;
                         var zone = zones[StationZone];
-                        if (zone == null)
-                        {
-                            throw new XTMFRuntimeException("The zone " + StationZone + " does not exist!  Please check the mode '" + ModeName + "!");
-                        }
-                        InterchangeZone = zone;
+                        InterchangeZone = zone ?? throw new XTMFRuntimeException(this, "The zone " + StationZone + " does not exist!  Please check the mode '" + ModeName + "!");
                         ClosestZone = zones.CreateSimilarArray<bool>();
                         var flatZones = zones.GetFlatData();
                         for (int i = 0; i < flatZones.Length; i++)
@@ -506,10 +495,9 @@ namespace TMG.GTAModel.Modes
             {
                 for (int i = set.Start; i <= set.Stop; i++)
                 {
-                    float tt;
                     if (i == StationZone) continue;
                     var flatEgressZone = zones.GetFlatIndex(i);
-                    if (GetEgressTravelTime(flatEgressZone, flatDestination, time, bestTime, out tt))
+                    if (GetEgressTravelTime(flatEgressZone, flatDestination, time, bestTime, out float tt))
                     {
                         if (tt < bestTime)
                         {
@@ -539,8 +527,7 @@ namespace TMG.GTAModel.Modes
             var lineHaul = Second.InVehicleTravelTime(flatInterchangeZone, flatEgressZone, time).ToMinutes();
             // if the travel time is zero, then this is an invalid option
             if (lineHaul == 0) return false;
-            float egressUtility;
-            if (!Parent.GetEgressUtility(flatEgressZone, flatDestinationZone, time, out egressUtility))
+            if (!Parent.GetEgressUtility(flatEgressZone, flatDestinationZone, time, out float egressUtility))
             {
                 return false;
             }
@@ -554,8 +541,7 @@ namespace TMG.GTAModel.Modes
             float localAllWayTime;
             if (Third.ValidOd(flatInterchangeZone, flatDestinationZone, time))
             {
-                float result;
-                if (ComputeThird(Third, flatInterchangeZone, flatDestinationZone, time, EgressWalkFactor, EgressWaitFactor, out result))
+                if (ComputeThird(Third, flatInterchangeZone, flatDestinationZone, time, EgressWalkFactor, EgressWaitFactor, out float result))
                 {
                     localAllWayTime = result;
                 }

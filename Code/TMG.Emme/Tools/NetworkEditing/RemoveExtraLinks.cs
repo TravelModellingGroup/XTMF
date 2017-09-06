@@ -51,9 +51,9 @@ namespace TMG.Emme.Tools.NetworkEditing
             var modeller = controller as ModellerController;
             if (modeller == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' the controller was not for modeller!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
             }
-            return modeller.Run(ToolNamespace, GetArguments());
+            return modeller.Run(this, ToolNamespace, GetArguments());
         }
 
         private string GetArguments()

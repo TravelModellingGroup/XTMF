@@ -223,7 +223,7 @@ namespace TMG.GTAModel.ParameterDatabase
             }
             catch (IOException)
             {
-                throw new XTMFRuntimeException("We were unable to read the file '" + GetInputFileName(DemographicDatabaseFile) + "'. Please make sure this file exists and is not in use.");
+                throw new XTMFRuntimeException(this, "We were unable to read the file '" + GetInputFileName(DemographicDatabaseFile) + "'. Please make sure this file exists and is not in use.");
             }
         }
 
@@ -250,7 +250,7 @@ namespace TMG.GTAModel.ParameterDatabase
             }
             catch (IOException)
             {
-                throw new XTMFRuntimeException("We were unable to read the file '" + GetInputFileName(DatabaseFile) + "'. Please make sure this file exists and is not in use.");
+                throw new XTMFRuntimeException(this, "We were unable to read the file '" + GetInputFileName(DatabaseFile) + "'. Please make sure this file exists and is not in use.");
             }
             return headers;
         }
@@ -278,7 +278,7 @@ namespace TMG.GTAModel.ParameterDatabase
                         {
                             if (!bool.TryParse(split[i + 1], out switchLine[i]))
                             {
-                                throw new XTMFRuntimeException("In the file '" + GetInputFileName(DemographicSwitchFile)
+                                throw new XTMFRuntimeException(this, "In the file '" + GetInputFileName(DemographicSwitchFile)
                                     + "' on line " + lineNumber + " under column '" + headers[i] + "' we were unable to parse the value '"
                                     + split[i + 1] + "' as a boolean.  Please fix this to be either 'true' or 'false'!");
                             }
@@ -290,7 +290,7 @@ namespace TMG.GTAModel.ParameterDatabase
             }
             catch (IOException)
             {
-                throw new XTMFRuntimeException("We were unable to read the file '" + DemographicSwitchFile + "'. Please make sure this file exists and is not in use.");
+                throw new XTMFRuntimeException(this, "We were unable to read the file '" + DemographicSwitchFile + "'. Please make sure this file exists and is not in use.");
             }
         }
 
@@ -314,23 +314,23 @@ namespace TMG.GTAModel.ParameterDatabase
             var length = Parameters.Count;
             if (parameterSetIndex < 0)
             {
-                throw new XTMFRuntimeException("The Mode Choice Parameter Set has to have a non negative index!");
+                throw new XTMFRuntimeException(this, "The Mode Choice Parameter Set has to have a non negative index!");
             }
             if (demographicIndex < 0)
             {
-                throw new XTMFRuntimeException("The Mode Choice Demographic Parameter Set has to have a non negative index!");
+                throw new XTMFRuntimeException(this, "The Mode Choice Demographic Parameter Set has to have a non negative index!");
             }
             if (parameterSetIndex >= ParameterSets.Count)
             {
-                throw new XTMFRuntimeException("The Mode Choice Parameter Set " + parameterSetIndex + " does not exist, please check!");
+                throw new XTMFRuntimeException(this, "The Mode Choice Parameter Set " + parameterSetIndex + " does not exist, please check!");
             }
             if (parameterSetIndex >= DemographicAlternativeParameters.Count)
             {
-                throw new XTMFRuntimeException("The Demographic Alternative Parameter Set " + parameterSetIndex + " does not exist, please check!");
+                throw new XTMFRuntimeException(this, "The Demographic Alternative Parameter Set " + parameterSetIndex + " does not exist, please check!");
             }
             if (demographicIndex >= DemographicSwitches.Count)
             {
-                throw new XTMFRuntimeException("The Mode Choice Demographic Parameter Set " + demographicIndex + " does not exist, please check!");
+                throw new XTMFRuntimeException(this, "The Mode Choice Demographic Parameter Set " + demographicIndex + " does not exist, please check!");
             }
             var parameterSet = ParameterSets[parameterSetIndex];
             var demographicAlternative = DemographicAlternativeParameters[parameterSetIndex];

@@ -167,7 +167,7 @@ namespace Tasha.PopulationSynthesis
                         return h.ExpansionFactor;
                     });
                 }
-                throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone + "' in PD'" + PD + "'!");
+                throw new XTMFRuntimeException(null, "We managed to be unable to assign any households to flat zone '" + zone + "' in PD'" + PD + "'!");
             }
         }
 
@@ -193,7 +193,7 @@ namespace Tasha.PopulationSynthesis
                 var record = HouseholdsByPD[pd];
                 if (record == null)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a HouseholdByPD for PD#" + pd);
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a HouseholdByPD for PD#" + pd);
                 }
                 record.Add(household);
             }

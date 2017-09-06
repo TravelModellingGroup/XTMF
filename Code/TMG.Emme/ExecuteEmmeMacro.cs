@@ -54,17 +54,17 @@ namespace TMG.Emme
         {
             var mc = controller as ModellerController;
             if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
             var sb = new StringBuilder();
             sb.AppendFormat( "{0} {1}", MacroFile, Arguments );
-            if(mc.CheckToolExists(ToolName))
+            if(mc.CheckToolExists(this, ToolName))
             {
-                return mc.Run(ToolName, sb.ToString());
+                return mc.Run(this, ToolName, sb.ToString());
             }
             else
             {
-                return mc.Run(OldToolName, sb.ToString());
+                return mc.Run(this, OldToolName, sb.ToString());
             }
         }
 

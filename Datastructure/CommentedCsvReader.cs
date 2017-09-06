@@ -144,10 +144,9 @@ namespace Datastructure
             }
 
             Headers = new string[NumberOfCurrentCells];
-            string h;
-            for ( var i = 0; i < NumberOfCurrentCells; i++ )
+            for (var i = 0; i < NumberOfCurrentCells; i++)
             {
-                Get( out h, i );
+                Get(out string h, i);
                 Headers[i] = h;
             }
         }

@@ -83,7 +83,7 @@ namespace Tasha.Scheduler
             float adjustment = GetGenerationAdjustment(generationAdjustments, distributionID, householdPD, workPD);
             if (pdf == null || pdf.Frequency == null)
             {
-                throw new XTMFRuntimeException("Unable to load PDF #" + distributionID + " from the Distribution Frequency File!");
+                throw new XTMFRuntimeException(null, "Unable to load PDF #" + distributionID + " from the Distribution Frequency File!");
             }
             // to start with just add
             for (int i = min; i <= max; i++)

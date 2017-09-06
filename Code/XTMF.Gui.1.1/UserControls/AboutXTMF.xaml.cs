@@ -62,8 +62,7 @@ namespace XTMF.Gui.UserControls
 
         private void TextBlock_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var textBlock = sender as TextBlock;
-            if (textBlock != null)
+            if (sender is TextBlock textBlock)
             {
                 Process.Start(textBlock.Text);
             }

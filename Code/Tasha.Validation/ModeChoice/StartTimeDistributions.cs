@@ -122,8 +122,7 @@ namespace Tasha.Validation.ModeChoice
 
         private float[][] GetPurposeCount(Activity purpose)
         {
-            float[][] ret;
-            if (!TimeBin.TryGetValue(purpose, out ret))
+            if (!TimeBin.TryGetValue(purpose, out float[][] ret))
             {
                 lock (TimeBin)
                 {

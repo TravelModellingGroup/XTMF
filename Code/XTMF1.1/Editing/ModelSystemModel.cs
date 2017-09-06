@@ -66,8 +66,7 @@ namespace XTMF
           _disabledModules = new List<IModelSystemStructure>();
             Name = modelSystem.Name;
             _Description = modelSystem.Description;
-            List<ILinkedParameter> editingLinkedParameters;
-            Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out editingLinkedParameters) as ModelSystemStructure);
+            Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters) as ModelSystemStructure);
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
 
             if (modelSystem.ModelSystemStructure != null)
@@ -153,8 +152,7 @@ namespace XTMF
             ModelSystemIndex = modelSystemIndex;
             Name = project.ModelSystemStructure[modelSystemIndex].Name;
             _Description = project.ModelSystemDescriptions[modelSystemIndex];
-            List<ILinkedParameter> editingLinkedParameters;
-            Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out editingLinkedParameters, modelSystemIndex) as ModelSystemStructure));
+            Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters, modelSystemIndex) as ModelSystemStructure));
             _Description = Project.ModelSystemDescriptions[modelSystemIndex];
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
         }

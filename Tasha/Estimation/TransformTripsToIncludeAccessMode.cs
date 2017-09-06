@@ -35,7 +35,7 @@ namespace Tasha.Estimation
             var dbConnection = DatabaseConnection.AcquireResource<IDbConnection>();
             if ( dbConnection == null )
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to get a database connection!" );
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to get a database connection!" );
             }
         }
     }

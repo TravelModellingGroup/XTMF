@@ -120,7 +120,7 @@ namespace Tasha.PopulationSynthesis
             var householdZone = household.HomeZone.ZoneNumber;
             if (Root.ZoneSystem.ZoneArray.GetFlatIndex(householdZone) < 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we found a person with an invalid household zone! ['" + householdZone + "']");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we found a person with an invalid household zone! ['" + householdZone + "']");
             }
             IZone ret = PickSchoolZone(householdZone, probabilities, random, person.ExpansionFactor);
             // If a zone is successfully found, return it
@@ -172,7 +172,7 @@ namespace Tasha.PopulationSynthesis
                     return Zones.GetFlatData()[i];
                 }
             }
-            throw new XTMFRuntimeException("In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace Tasha.PopulationSynthesis
                 possibleZone.RemoveAt(index);
             }
             // if we have exhausted all options fail with an exception.
-            throw new XTMFRuntimeException("In '" + Name + "' we were unable to generate a school zone because there are no zones in the planning district " + pd + " that have school data!");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to generate a school zone because there are no zones in the planning district " + pd + " that have school data!");
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace Tasha.PopulationSynthesis
             float[] data = GetHouseholdRow(householdZone, probabilities);
             if (data == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find school choice data for household zone number " + householdZone + " !");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find school choice data for household zone number " + householdZone + " !");
             }
             double total;
             total = VectorHelper.Sum(data, 0, data.Length);
@@ -271,7 +271,7 @@ namespace Tasha.PopulationSynthesis
                     return Zones.GetFlatData()[i];
                 }
             }
-            throw new XTMFRuntimeException("In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
         }
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace Tasha.PopulationSynthesis
             var index = probabilities.GetFlatIndex(householdZone);
             if (index < 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find any data for a zone numbered '" + householdZone
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any data for a zone numbered '" + householdZone
                     + "'.  Please make sure that this zone actually exists.");
             }
             return probabilities.GetFlatData()[index];

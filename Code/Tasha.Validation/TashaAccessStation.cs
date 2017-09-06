@@ -136,10 +136,7 @@ namespace Tasha.Validation
                 return false;
             }
 
-            Time ivtt, walk, wait, boarding;
-            float cost;
-
-            TransitData.GetAllData( egressStation, destinationZone, time, out ivtt, out walk, out wait, out boarding, out cost );
+            TransitData.GetAllData(egressStation, destinationZone, time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
             egressUtility = ivtt.ToMinutes() + WaitTime * wait.ToMinutes() + WalkTime * walk.ToMinutes();
 
             return egressUtility != float.MaxValue;
@@ -147,9 +144,7 @@ namespace Tasha.Validation
 
         private static float ComputeV(ITripComponentData data, int egress, int destination, Time time, float ivttWeight, float walkWeight, float waitWeight, float boardingWeight, float costWeight)
         {
-            Time ivtt, walk, wait, boarding;
-            float cost;
-            data.GetAllData( egress, destination, time, out ivtt, out walk, out wait, out boarding, out cost );
+            data.GetAllData(egress, destination, time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
             return ivttWeight * ivtt.ToMinutes()
                 + walkWeight * walk.ToMinutes()
                 + waitWeight * wait.ToMinutes()
@@ -167,11 +162,10 @@ namespace Tasha.Validation
         {
             float bestTime = float.MaxValue;
             Station bestEgress = null;
-            float travelTime;
 
-            foreach ( var station in Stations )
+            foreach (var station in Stations)
             {
-                if ( EgressTravelTime( station.ZoneNumber, flatDest, AM, bestTime, out travelTime ) )
+                if (EgressTravelTime(station.ZoneNumber, flatDest, AM, bestTime, out float travelTime))
                 {
                     bestTime = travelTime;
                     bestEgress = station;
@@ -190,8 +184,7 @@ namespace Tasha.Validation
         private bool EgressTravelTime(int egressZone, int destination, Time time, float bestTime, out float travelTime)
         {
             travelTime = float.MaxValue;
-            float egressUtility;
-            if ( !GetEgressUtility( egressZone, destination, time, out egressUtility ) )
+            if (!GetEgressUtility(egressZone, destination, time, out float egressUtility))
             {
                 return false;
             }

@@ -78,7 +78,7 @@ namespace Tasha.XTMFScheduler
                     return PrimaryWorkStartTime(person, personIndex, schedule, episode, rand );
 
                 default:
-                    throw new XTMFRuntimeException( "In '" + Name + "' we received an episode of purpose '" + episode.Purpose + "'" );
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' we received an episode of purpose '" + episode.Purpose + "'" );
             }
         }
 

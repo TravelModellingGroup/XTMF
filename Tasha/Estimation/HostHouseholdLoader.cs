@@ -220,7 +220,7 @@ namespace Tasha.Estimation
                                 var mode = ( (ITashaMode)trip[ObservedMode] );
                                 if ( mode == null )
                                 {
-                                    throw new XTMFRuntimeException( "In household #" + household.HouseholdId
+                                    throw new XTMFRuntimeException(this, "In household #" + household.HouseholdId
                                         + " for Person #" + person.Id + " for Trip #" + trip.TripNumber + " there was no observed mode stored!" );
                                 }
                                 writer.Write( mode.ModeName );

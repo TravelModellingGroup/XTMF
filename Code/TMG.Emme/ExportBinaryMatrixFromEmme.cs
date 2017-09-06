@@ -46,7 +46,7 @@ namespace TMG.Emme
         {
             var mc = controller as ModellerController;
             if(mc == null)
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
             var args = string.Join(" ", MatrixType, MatrixNumber, "\"" + Path.GetFullPath(Filepath.GetFilePath()) + "\"", ScenarioNumber);
 
@@ -56,13 +56,13 @@ namespace TMG.Emme
             */
 
             var result = "";
-            if(mc.CheckToolExists(ToolName))
+            if(mc.CheckToolExists(this, ToolName))
             {
-                return mc.Run(ToolName, args, (p => Progress = p), ref result);
+                return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(OldToolName, args, (p => Progress = p), ref result);
+                return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
             }
         }
 

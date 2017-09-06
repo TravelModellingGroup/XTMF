@@ -26,13 +26,13 @@ namespace TMG.GTAModel.Input
 {
     public class SingleTimePeriodNetworkData : INetworkData, IDisposable
     {
-        [RunParameter( "Base Cost Data", "BaseCacheData/AutoCosts.311", "The base AM network costs .311/csv file" )]
+        [RunParameter("Base Cost Data", "BaseCacheData/AutoCosts.311", "The base AM network costs .311/csv file")]
         public string BaseTravelCostData;
 
-        [RunParameter( "Base Travel Time Data", "BaseCacheData/AutoTimes.311", "The base AM network times .311/csv file" )]
+        [RunParameter("Base Travel Time Data", "BaseCacheData/AutoTimes.311", "The base AM network times .311/csv file")]
         public string BaseTravelTimeData;
 
-        [RunParameter( "Header", true, "When loading CSV data, will it contain a header?" )]
+        [RunParameter("Header", true, "When loading CSV data, will it contain a header?")]
         public bool HeaderBoolean;
 
         /// <summary>
@@ -41,25 +41,25 @@ namespace TMG.GTAModel.Input
         [DoNotAutomate]
         public IIterativeModel IterativeRoot;
 
-        [RunParameter( "First ODC File", "BaseCacheData/Auto.odc", "The location of the base Network Cache." )]
+        [RunParameter("First ODC File", "BaseCacheData/Auto.odc", "The location of the base Network Cache.")]
         public string ODC;
 
-        [RunParameter( "Rebuild Data", true, "Rebuild the data cache on successive iterations?" )]
+        [RunParameter("Rebuild Data", true, "Rebuild the data cache on successive iterations?")]
         public bool RebuildDataOnSuccessiveLoads;
 
         [RootModule]
         public ITravelDemandModel Root;
 
-        [RunParameter( "Updated Cost Data", "UpdatedCacheData/AutoCosts.311", "The updated AM network costs .311/csv file" )]
+        [RunParameter("Updated Cost Data", "UpdatedCacheData/AutoCosts.311", "The updated AM network costs .311/csv file")]
         public string UpdatedCostData;
 
-        [RunParameter( "Updated ODC File", "UpdatedCacheData/Auto.odc", "The location of the updated Network Cache." )]
+        [RunParameter("Updated ODC File", "UpdatedCacheData/Auto.odc", "The location of the updated Network Cache.")]
         public string UpdatedODC;
 
-        [RunParameter( "Updated Travel Time Data", "UpdatedCacheData/AutoTimes.311", "The updated AM network times .311/csv file" )]
+        [RunParameter("Updated Travel Time Data", "UpdatedCacheData/AutoTimes.311", "The updated AM network times .311/csv file")]
         public string UpdatedTravelTimeData;
 
-        [RunParameter( "Year", 2006, "The simulation year.  This number will be attached to the metadata when creating a new cache file." )]
+        [RunParameter("Year", 2006, "The simulation year.  This number will be attached to the metadata when creating a new cache file.")]
         public int Year;
 
         private bool AlreadyLoaded;
@@ -81,7 +81,7 @@ namespace TMG.GTAModel.Input
             CarCost = 1
         }
 
-        [RunParameter( "Network Type", "Auto", "The name of the network data contained in this NetworkData module" )]
+        [RunParameter("Network Type", "Auto", "The name of the network data contained in this NetworkData module")]
         public string NetworkType
         {
             get;
@@ -95,7 +95,7 @@ namespace TMG.GTAModel.Input
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 200, 100); }
         }
 
         public string Name
@@ -116,19 +116,19 @@ namespace TMG.GTAModel.Input
 
         public void LoadData()
         {
-            if ( IterativeRoot != null )
+            if (IterativeRoot != null)
             {
                 AlreadyLoaded = RebuildDataOnSuccessiveLoads | IterativeRoot.CurrentIteration > 0;
             }
 
-            var cacheFile = GetFullPath( AlreadyLoaded ? UpdatedODC : ODC );
-            if ( ( AlreadyLoaded & RebuildDataOnSuccessiveLoads ) || !File.Exists( cacheFile ) )
+            var cacheFile = GetFullPath(AlreadyLoaded ? UpdatedODC : ODC);
+            if ((AlreadyLoaded & RebuildDataOnSuccessiveLoads) || !File.Exists(cacheFile))
             {
-                Generate( cacheFile );
+                Generate(cacheFile);
             }
-            Data = new OdCache( cacheFile );
+            Data = new OdCache(cacheFile);
             var loadedData = Data.StoreAll();
-            StoredData = ProcessLoadedData( loadedData, Data.Types, Data.Times );
+            StoredData = ProcessLoadedData(loadedData, Data.Types, Data.Times);
             Data.Release();
             Data = null;
             AlreadyLoaded = true;
@@ -150,30 +150,30 @@ namespace TMG.GTAModel.Input
         public float TravelCost(IZone start, IZone end, Time time)
         {
             var zoneArray = Root.ZoneSystem.ZoneArray;
-            return TravelCost( zoneArray.GetFlatIndex( start.ZoneNumber ), zoneArray.GetFlatIndex( end.ZoneNumber ), time );
+            return TravelCost(zoneArray.GetFlatIndex(start.ZoneNumber), zoneArray.GetFlatIndex(end.ZoneNumber), time);
         }
 
         public float TravelCost(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
+            var zoneIndex = (flatOrigin * NumberOfZones + flatDestination) * DataEntries;
             return StoredData[zoneIndex + (int)AutoDataTypes.CarCost];
         }
 
         public Time TravelTime(IZone start, IZone end, Time time)
         {
             var zoneArray = Root.ZoneSystem.ZoneArray;
-            return TravelTime( zoneArray.GetFlatIndex( start.ZoneNumber ), zoneArray.GetFlatIndex( end.ZoneNumber ), time );
+            return TravelTime(zoneArray.GetFlatIndex(start.ZoneNumber), zoneArray.GetFlatIndex(end.ZoneNumber), time);
         }
 
         public Time TravelTime(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
-            return Time.FromMinutes( StoredData[zoneIndex + (int)AutoDataTypes.TravelTime] );
+            var zoneIndex = (flatOrigin * NumberOfZones + flatDestination) * DataEntries;
+            return Time.FromMinutes(StoredData[zoneIndex + (int)AutoDataTypes.TravelTime]);
         }
 
         public void UnloadData()
         {
-            if ( Data != null )
+            if (Data != null)
             {
                 Data.Release();
                 Data = null;
@@ -193,17 +193,17 @@ namespace TMG.GTAModel.Input
 
         private string FailIfNotExist(string localPath)
         {
-            var path = GetFullPath( localPath );
+            var path = GetFullPath(localPath);
             try
             {
-                if ( !File.Exists( path ) )
+                if (!File.Exists(path))
                 {
-                    throw new XTMFRuntimeException( "The file \"" + path + "\" does not exist!" );
+                    throw new XTMFRuntimeException(this, "The file \"" + path + "\" does not exist!");
                 }
             }
-            catch ( IOException )
+            catch (IOException)
             {
-                throw new XTMFRuntimeException( "An error occured wile looking for the file \"" + path + "\"!" );
+                throw new XTMFRuntimeException(this, "An error occured wile looking for the file \"" + path + "\"!");
             }
             return path;
         }
@@ -212,51 +212,53 @@ namespace TMG.GTAModel.Input
         {
             // create the data if it doesn't already exist
             OdMatrixWriter<IZone> creator =
-                new OdMatrixWriter<IZone>( Root.ZoneSystem.ZoneArray, 2, 1 );
-            creator.Year = Year;
-            creator.AdditionalDescription = "Automatically Generated";
-            creator.StartTimesHeader = "ALLDAY";
-            creator.EndTimesHeader = "ALLDAY";
-            creator.TypeHeader = "TravelTime,Cost";
-            creator.Modes = "Auto";
-            LoadTimes( creator, AlreadyLoaded ? UpdatedTravelTimeData : BaseTravelTimeData, 0 );
-            LoadCosts( creator, AlreadyLoaded ? UpdatedCostData : BaseTravelCostData, 0 );
-            creator.Save( cacheFile, false );
+                new OdMatrixWriter<IZone>(Root.ZoneSystem.ZoneArray, 2, 1)
+                {
+                    Year = Year,
+                    AdditionalDescription = "Automatically Generated",
+                    StartTimesHeader = "ALLDAY",
+                    EndTimesHeader = "ALLDAY",
+                    TypeHeader = "TravelTime,Cost",
+                    Modes = "Auto"
+                };
+            LoadTimes(creator, AlreadyLoaded ? UpdatedTravelTimeData : BaseTravelTimeData, 0);
+            LoadCosts(creator, AlreadyLoaded ? UpdatedCostData : BaseTravelCostData, 0);
+            creator.Save(cacheFile, false);
             GC.Collect();
         }
 
         private string GetFullPath(string localPath)
         {
             var fullPath = localPath;
-            if ( !Path.IsPathRooted( fullPath ) )
+            if (!Path.IsPathRooted(fullPath))
             {
-                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
             }
             return fullPath;
         }
 
         private void LoadCosts(OdMatrixWriter<IZone> writer, string fileName, int i)
         {
-            if ( Path.GetExtension( fileName ) == ".311" )
+            if (Path.GetExtension(fileName) == ".311")
             {
-                writer.LoadEmme2( FailIfNotExist( fileName ), i, (int)AutoDataTypes.CarCost );
+                writer.LoadEmme2(FailIfNotExist(fileName), i, (int)AutoDataTypes.CarCost);
             }
 
             else
             {
-                writer.LoadCsvTimes( FailIfNotExist( fileName ), HeaderBoolean, i, (int)AutoDataTypes.CarCost );
+                writer.LoadCsvTimes(FailIfNotExist(fileName), HeaderBoolean, i, (int)AutoDataTypes.CarCost);
             }
         }
 
         private void LoadTimes(OdMatrixWriter<IZone> writer, string fileName, int i)
         {
-            if ( Path.GetExtension( fileName ) == ".311" )
+            if (Path.GetExtension(fileName) == ".311")
             {
-                writer.LoadEmme2( FailIfNotExist( fileName ), i, (int)AutoDataTypes.TravelTime );
+                writer.LoadEmme2(FailIfNotExist(fileName), i, (int)AutoDataTypes.TravelTime);
             }
             else
             {
-                writer.LoadCsvTimes( FailIfNotExist( fileName ), HeaderBoolean, i, (int)AutoDataTypes.TravelTime );
+                writer.LoadCsvTimes(FailIfNotExist(fileName), HeaderBoolean, i, (int)AutoDataTypes.TravelTime);
             }
         }
 
@@ -268,16 +270,16 @@ namespace TMG.GTAModel.Input
             var zones = zoneArray.GetFlatData();
             NumberOfZones = zones.Length;
             var ret = new float[zones.Length * zones.Length * types * times];
-            for ( int i = 0; i < flatLoadedData.Length; i++ )
+            for (int i = 0; i < flatLoadedData.Length; i++)
             {
-                var flatI = zoneArray.GetFlatIndex( loadedData.GetSparseIndex( i ) );
-                for ( int j = 0; j < flatLoadedData[i].Length; j++ )
+                var flatI = zoneArray.GetFlatIndex(loadedData.GetSparseIndex(i));
+                for (int j = 0; j < flatLoadedData[i].Length; j++)
                 {
-                    if ( flatLoadedData[i][j] == null ) continue;
-                    var flatJ = zoneArray.GetFlatIndex( loadedData.GetSparseIndex( i, j ) );
-                    for ( int k = 0; k < flatLoadedData[i][j].Length; k++ )
+                    if (flatLoadedData[i][j] == null) continue;
+                    var flatJ = zoneArray.GetFlatIndex(loadedData.GetSparseIndex(i, j));
+                    for (int k = 0; k < flatLoadedData[i][j].Length; k++)
                     {
-                        ret[( flatI * zones.Length + flatJ ) * dataEntries + k] = flatLoadedData[i][j][k];
+                        ret[(flatI * zones.Length + flatJ) * dataEntries + k] = flatLoadedData[i][j][k];
                     }
                 }
             }
@@ -286,13 +288,13 @@ namespace TMG.GTAModel.Input
 
         public void Dispose()
         {
-            Dispose( true );
-            GC.SuppressFinalize( this );
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( Data != null )
+            if (Data != null)
             {
                 Data.Dispose();
                 Data = null;

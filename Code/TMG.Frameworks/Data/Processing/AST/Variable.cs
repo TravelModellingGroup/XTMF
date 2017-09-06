@@ -42,18 +42,15 @@ namespace TMG.Frameworks.Data.Processing.AST
             {
                 source.LoadData();
             }
-            var odSource = source as IDataSource<SparseTwinIndex<float>>;
-            if (odSource != null)
+            if (source is IDataSource<SparseTwinIndex<float>> odSource)
             {
                 return new ComputationResult(odSource.GiveData(), false);
             }
-            var vectorSource = source as IDataSource<SparseArray<float>>;
-            if (vectorSource != null)
+            if (source is IDataSource<SparseArray<float>> vectorSource)
             {
                 return new ComputationResult(vectorSource.GiveData(), false);
             }
-            var valueSource = source as IDataSource<float>;
-            if (valueSource != null)
+            if (source is IDataSource<float> valueSource)
             {
                 return new ComputationResult(valueSource.GiveData());
             }

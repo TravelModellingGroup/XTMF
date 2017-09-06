@@ -187,7 +187,7 @@ namespace TMG.GTAModel.Purpose
             {
                 return NewLeafNumbers[index];
             }
-            throw new XTMFRuntimeException("In '" + Name
+            throw new XTMFRuntimeException(this, "In '" + Name
                 + "' we were unable to map a mode with index '" + mode + "' to any new leaf mode.");
         }
 

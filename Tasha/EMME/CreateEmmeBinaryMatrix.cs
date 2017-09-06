@@ -108,8 +108,7 @@ namespace Tasha.EMME
                             {
                                 if (UsesAccessMode(modeChosen))
                                 {
-                                    IZone origin, destination;
-                                    if (AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out origin, out destination))
+                                    if (AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out IZone origin, out IZone destination))
                                     {
                                         AddToMatrix(expFactor, startTime, origin, destination);
                                     }

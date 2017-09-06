@@ -75,7 +75,7 @@ namespace TMG.GTAModel.Output
                 {
                     if ( !IgnoreErrors )
                     {
-                        throw new XTMFRuntimeException( "The file '" + Files[i].GetFilePath() + "' was unable to be deleted." );
+                        throw new XTMFRuntimeException(this, "The file '" + Files[i].GetFilePath() + "' was unable to be deleted." );
                     }
                 }
             }

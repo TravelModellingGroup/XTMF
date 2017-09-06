@@ -111,8 +111,7 @@ namespace Datastructure
             }
             Array.Sort(indexes, new CompareSortStruct());
             var processedIndexes = GenerateIndexes(indexes);
-            T[][] localData;
-            return new SparseTwinIndex<T>(ConvertToIndexes(processedIndexes, out localData, data, indexes), localData) { Count = length };
+            return new SparseTwinIndex<T>(ConvertToIndexes(processedIndexes, out T[][] localData, data, indexes), localData) { Count = length };
         }
 
         /// <summary>
@@ -315,11 +314,10 @@ namespace Datastructure
 
         public IEnumerable<int> ValidIndexes(int first)
         {
-            SparseSet oSet;
             var indexes = Indexes.Indexes;
             if (indexes != null)
             {
-                if (TansformO(indexes, ref first, out oSet))
+                if (TansformO(indexes, ref first, out SparseSet oSet))
                 {
                     var length = oSet.SubIndex.Indexes.Length;
                     for (var i = 0; i < length; i++)
@@ -476,10 +474,9 @@ namespace Datastructure
 
         private bool GetTransformedIndexes(ref int o, ref int d)
         {
-            SparseSet oSet;
             var indexes = Indexes.Indexes;
             if (Indexes.Indexes == null) return false;
-            if (TansformO(indexes, ref o, out oSet))
+            if (TansformO(indexes, ref o, out SparseSet oSet))
             {
                 var subIndexes = oSet.SubIndex.Indexes;
                 if (subIndexes.Length >= LookUpLinearMax)

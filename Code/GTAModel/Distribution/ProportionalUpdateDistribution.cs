@@ -29,7 +29,7 @@ namespace TMG.GTAModel
 {
     public class ProportionalUpdateDistribution : IDemographicDistribution
     {
-        [SubModelInformation( Description = "The base data that we will fit against.", Required = false )]
+        [SubModelInformation(Description = "The base data that we will fit against.", Required = false)]
         public List<IReadODData<float>> BaseData;
 
         [RootModule]
@@ -76,7 +76,7 @@ namespace TMG.GTAModel
                 }
                 if (BaseData.Count != explored)
                 {
-                    throw new XTMFRuntimeException("In " + Name +
+                    throw new XTMFRuntimeException(this, "In " + Name +
                                                    " the number of BaseData entries is not the same as the number of demographic categories!");
                 }
             }
@@ -91,18 +91,18 @@ namespace TMG.GTAModel
         {
             try
             {
-                Parallel.ForEach( data.Read(), delegate(ODData<float> point)
-                {
-                    ret[point.O, point.D] = point.Data;
-                } );
+                Parallel.ForEach(data.Read(), delegate (ODData<float> point)
+               {
+                   ret[point.O, point.D] = point.Data;
+               });
             }
-            catch ( AggregateException e )
+            catch (AggregateException e)
             {
-                if ( e.InnerException is XTMFRuntimeException )
+                if (e.InnerException is XTMFRuntimeException)
                 {
-                    throw new XTMFRuntimeException( e.Message );
+                    throw new XTMFRuntimeException(this, e.Message);
                 }
-                throw new XTMFRuntimeException( e.Message + "\r\n" + e.StackTrace );
+                throw new XTMFRuntimeException(this, e.Message + "\r\n" + e.StackTrace);
             }
         }
 
@@ -113,46 +113,46 @@ namespace TMG.GTAModel
             var numberOfZones = flatProd.Length;
             try
             {
-                Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
-                {
-                    var p = flatProd[i];
-                    if ( p == 0 )
-                    {
+                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+               {
+                   var p = flatProd[i];
+                   if (p == 0)
+                   {
                         // if there is no production, clear out the data
-                        for ( int j = 0; j < numberOfZones; j++ )
-                        {
-                            flatRet[i][j] = 0;
-                        }
-                        return;
-                    }
-                    var sum = 0f;
+                        for (int j = 0; j < numberOfZones; j++)
+                       {
+                           flatRet[i][j] = 0;
+                       }
+                       return;
+                   }
+                   var sum = 0f;
                     // Gather the sum of all of the destinations from this origin
-                    for ( int j = 0; j < numberOfZones; j++ )
-                    {
-                        sum += flatRet[i][j];
-                    }
+                    for (int j = 0; j < numberOfZones; j++)
+                   {
+                       sum += flatRet[i][j];
+                   }
                     // The rows should already be seeded however, if they are not
                     // just return since all of the values are zero anyway
-                    if ( sum == 0 )
-                    {
-                        return;
-                    }
+                    if (sum == 0)
+                   {
+                       return;
+                   }
                     // Calculate the new balance factor
                     var factor = p / sum;
                     // now that we have the new factor we update the demand
-                    for ( int j = 0; j < numberOfZones; j++ )
-                    {
-                        flatRet[i][j] *= factor;
-                    }
-                } );
+                    for (int j = 0; j < numberOfZones; j++)
+                   {
+                       flatRet[i][j] *= factor;
+                   }
+               });
             }
-            catch ( AggregateException e )
+            catch (AggregateException e)
             {
-                if ( e.InnerException is XTMFRuntimeException )
+                if (e.InnerException is XTMFRuntimeException)
                 {
-                    throw new XTMFRuntimeException( e.InnerException?.Message );
+                    throw new XTMFRuntimeException(this, e.InnerException?.Message);
                 }
-                throw new XTMFRuntimeException( e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
+                throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
             }
         }
     }

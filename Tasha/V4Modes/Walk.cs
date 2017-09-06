@@ -144,8 +144,7 @@ namespace Tasha.V4Modes
         {
             double v = 0;
             ITashaPerson person = trip.TripChain.Person;
-            float constant, walkBeta;
-            GetPersonVariables(person, out constant, out walkBeta);
+            GetPersonVariables(person, out float constant, out float walkBeta);
             v += constant;
 
             //if person has a license

@@ -50,12 +50,12 @@ namespace TMG.NetworkEstimation
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
             }
 
             var args = string.Join(" ", ScenarioNumber, PartitionId, "mf" + DemandMatrixNumber);
             string result = "";
-            mc.Run(ToolName, args, (p => _Progress = p), ref result);
+            mc.Run(this, ToolName, args, (p => _Progress = p), ref result);
             var modelResults = _ParsePythonResults(result);
 
             StringBuilder builder = new StringBuilder();

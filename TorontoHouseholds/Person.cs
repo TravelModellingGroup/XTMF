@@ -227,8 +227,7 @@ namespace Tasha.Common
 
         internal static Person GetPerson()
         {
-            Person p;
-            if (People.TryTake(out p))
+            if (People.TryTake(out Person p))
             {
                 return p;
             }
@@ -237,10 +236,9 @@ namespace Tasha.Common
 
         internal static void ReleasePersonPool()
         {
-            Person p;
             try
             {
-                while (People.TryTake(out p))
+                while (People.TryTake(out Person p))
                 {
                 }
             }

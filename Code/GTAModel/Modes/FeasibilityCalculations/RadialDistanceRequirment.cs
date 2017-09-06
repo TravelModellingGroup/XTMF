@@ -79,7 +79,7 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
             }
             if ( !any )
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find any zone number in the range '" + TestAgainstZones + "' in order to compute the minimum distance!" );
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any zone number in the range '" + TestAgainstZones + "' in order to compute the minimum distance!" );
             }
             MinimumDistance = minDistance;
         }

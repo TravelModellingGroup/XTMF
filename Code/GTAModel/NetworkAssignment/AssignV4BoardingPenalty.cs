@@ -82,7 +82,7 @@ namespace TMG.GTAModel.NetworkAssignment
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
             }
 
             /*
@@ -129,7 +129,7 @@ namespace TMG.GTAModel.NetworkAssignment
                                      Controller.ToEmmeFloat(HaltonBoardingPenalty),
                                      Controller.ToEmmeFloat(HSRBoardingPenalty));
             string result = "";
-            return mc.Run(ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
 
         }
 

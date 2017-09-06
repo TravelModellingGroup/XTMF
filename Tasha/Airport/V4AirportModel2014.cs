@@ -158,7 +158,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
             PearsonFlatZoneNumber = ZoneSystem.GetFlatIndex(PearsonZoneNumber);
             if(PearsonZoneNumber < 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' the zone number used for Pearson is not inside of the zone system!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' the zone number used for Pearson is not inside of the zone system!");
             }
         }
 
@@ -202,10 +202,8 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
         /// <param name="utilities">The array to store the results in</param>
         private void ComputeModeSplitForZone(int zone, ModeSplitUtilities[] utilities)
         {
-            // first we need to get the data from the network
-            float aivtt, acost, tivtt, twalk, twait, railTime, tfare;
-            AutoNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out aivtt, out acost);
-            bool transit = TransitNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out tivtt, out twalk, out twait, out railTime, out tfare);
+            AutoNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out float aivtt, out float acost);
+            bool transit = TransitNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out float tivtt, out float twalk, out float twait, out float railTime, out float tfare);
             // Second compute the utilities for each mode
             utilities[zone].Auto = (float)Math.Exp(BetaAutoTime * aivtt + BetaAutoCost * acost);
             if(transit && (tivtt > 0 | twalk > 0))
@@ -272,7 +270,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
             var sumOfDistributions = distributions.Sum();
             if(sumOfDistributions <= 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' there was a total of 0 for the distributions!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' there was a total of 0 for the distributions!");
             }
             var total = 1.0f / sumOfDistributions;
             if(float.IsNaN(total))

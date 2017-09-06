@@ -41,9 +41,9 @@ namespace TMG.Emme.XTMF_Internal
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
             }
-            return mc.Run("tmg.XTMF_internal.delete_scenario", Scenario.ToString());
+            return mc.Run(this, "tmg.XTMF_internal.delete_scenario", Scenario.ToString());
         }
 
         public bool RuntimeValidation(ref string error)

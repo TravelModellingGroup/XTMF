@@ -75,7 +75,7 @@ namespace TMG.GTAModel.Input
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( "In module '" + Name + "' we were unable to load the file '" + fileName + "', an error was reported\r\n'" + e.Message + "'" );
+                throw new XTMFRuntimeException(this, "In module '" + Name + "' we were unable to load the file '" + fileName + "', an error was reported\r\n'" + e.Message + "'" );
             }
             using ( reader )
             {

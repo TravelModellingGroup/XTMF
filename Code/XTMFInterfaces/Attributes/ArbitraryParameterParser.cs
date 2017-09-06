@@ -56,8 +56,7 @@ namespace XTMF
                 }
                 return Enum.Parse(t, input);
             }
-            KeyValuePair<int, MethodInfo> info;
-            if (!ParserLookup.TryGetValue(t, out info))
+            if (!ParserLookup.TryGetValue(t, out KeyValuePair<int, MethodInfo> info))
             {
                 // If we are not a string to try find a try parse with an error first
                 string typeParse = "TryParse";

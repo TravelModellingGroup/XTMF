@@ -130,8 +130,7 @@ namespace Tasha.V4Modes
             }
             // Apply personal factors
             var p = trip.TripChain.Person;
-            float constant;
-            GetPersonVariables(p, out constant);
+            GetPersonVariables(p, out float constant);
             v = constant;
             if (p.Female)
             {
@@ -269,10 +268,8 @@ namespace Tasha.V4Modes
 
         public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection)
         {
-            bool first;
             var trips = chain.Trips;
-            int otherIndex;
-            int tripCount = CountTripsUsingThisMode(tripIndex, out first, out otherIndex, trips);
+            int tripCount = CountTripsUsingThisMode(tripIndex, out bool first, out int otherIndex, trips);
 
             if (tripCount > 2)
             {

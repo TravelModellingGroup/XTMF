@@ -115,19 +115,15 @@ namespace Tasha.Validation.ModeChoice
             {
                 // burn header
                 reader.LoadLine();
-                int columns;
-                while(reader.LoadLine(out columns))
+                while (reader.LoadLine(out int columns))
                 {
                     // ignore lines without the right number of columns
-                    if(columns == 4)
+                    if (columns == 4)
                     {
-                        string modeName;
-                        int originZone, destinationZone;
-                        float expandedPersons;
-                        reader.Get(out modeName, 0);
-                        reader.Get(out originZone, 1);
-                        reader.Get(out destinationZone, 2);
-                        reader.Get(out expandedPersons, 3);
+                        reader.Get(out string modeName, 0);
+                        reader.Get(out int originZone, 1);
+                        reader.Get(out int destinationZone, 2);
+                        reader.Get(out float expandedPersons, 3);
                         data[ModeIndex(modeName, modeNames)][regions.GetFlatIndex(zoneSystem[originZone].RegionNumber)][regions.GetFlatIndex(zoneSystem[destinationZone].RegionNumber)]
                             += expandedPersons;
                     }
@@ -145,7 +141,7 @@ namespace Tasha.Validation.ModeChoice
                     return i;
                 }
             }
-            throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode called '" + modeName + "'");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '" + modeName + "'");
         }
 
         public void Load(IConfiguration config, int totalIterations)

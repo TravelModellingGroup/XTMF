@@ -180,9 +180,8 @@ namespace Tasha.Modes
         /// <returns>The V for this trip</returns>
         public double CalculateV(ITrip trip)
         {
-            ITrip accessTrip;
 
-            int egressStation = LatestAccessStation( trip.TripChain, trip, out accessTrip );
+            int egressStation = LatestAccessStation(trip.TripChain, trip, out ITrip accessTrip);
             int accessStation = GOData.GetClosestStations( trip.DestinationZone.ZoneNumber )[0];
 
             trip.Attach( "go-egress-station", accessStation );
@@ -277,8 +276,7 @@ namespace Tasha.Modes
 
             int[] accessStations = GOData.GetClosestStations( trip.OriginalZone.ZoneNumber );
             int accessStation = -1;
-            ITrip accessTrip;
-            int egressStation = LatestAccessStation( trip.TripChain, trip, out accessTrip );
+            int egressStation = LatestAccessStation(trip.TripChain, trip, out ITrip accessTrip);
 
             if ( egressStation == -1 ) return false; //there was no access prior to this egress
 

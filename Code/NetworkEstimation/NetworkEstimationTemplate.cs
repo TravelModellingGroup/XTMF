@@ -226,7 +226,7 @@ namespace TMG.NetworkEstimation
                     {
                         if (truthList[j].Id[0] == currentName)
                         {
-                            throw new XTMFRuntimeException(
+                            throw new XTMFRuntimeException(this,
                                 $"The TTS record {currentName} at line {j + 1} has a duplicate entry on line {count + 1}");
                         }
                     }
@@ -265,7 +265,7 @@ namespace TMG.NetworkEstimation
                 List<string> nameList;
                 if ((nameList = nameLinks[i]) == null)
                 {
-                    throw new XTMFRuntimeException(
+                    throw new XTMFRuntimeException(this,
                         $"The TTS record {truthList[i].Id[0]} has no EMME Links associated with it.  Aborting.");
                 }
                 var temp = truthList[i];
@@ -290,12 +290,13 @@ namespace TMG.NetworkEstimation
                         var attributes = child.Attributes;
                         if (attributes != null)
                         {
-                            ParameterSetting current = new ParameterSetting();
-
-                            current.ParameterName = attributes["Name"].InnerText;
-                            current.MsNumber = int.Parse(attributes["MS"].InnerText);
-                            current.Start = float.Parse(attributes["Start"].InnerText);
-                            current.Stop = float.Parse(attributes["Stop"].InnerText);
+                            ParameterSetting current = new ParameterSetting
+                            {
+                                ParameterName = attributes["Name"].InnerText,
+                                MsNumber = int.Parse(attributes["MS"].InnerText),
+                                Start = float.Parse(attributes["Start"].InnerText),
+                                Stop = float.Parse(attributes["Stop"].InnerText)
+                            };
                             current.Current = current.Start;
                             parameters.Add(current);
                         }

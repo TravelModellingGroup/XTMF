@@ -77,8 +77,7 @@ namespace TMG.Frameworks.Data
             var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
             for (int i = ancestry.Count - 1; i >= 0; i--)
             {
-                var source = ancestry[i]?.Module as IResourceSource;
-                if (source != null)
+                if (ancestry[i]?.Module is IResourceSource source)
                 {
                     foreach (var resource in source.Resources)
                     {
@@ -97,11 +96,11 @@ namespace TMG.Frameworks.Data
             IResource linked;
             if ((linked = Link(ResourceName)) == null)
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find a resource with the name " + ResourceName + "!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a resource with the name " + ResourceName + "!");
             }
             if (!linked.CheckResourceType<T>())
             {
-                throw new XTMFRuntimeException("In '" + Name + "' the resource was not of type '" + typeof(T).Name
+                throw new XTMFRuntimeException(this, "In '" + Name + "' the resource was not of type '" + typeof(T).Name
                     + "' instead of was of type '" + linked.GetResourceType().Name + "'!");
             }
             Linked = linked;

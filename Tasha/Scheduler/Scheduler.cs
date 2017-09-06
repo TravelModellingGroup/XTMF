@@ -246,7 +246,7 @@ namespace Tasha.Scheduler
                 }
                 if (!found)
                 {
-                    throw new XTMFRuntimeException("Unable to find the Alternative Travel Mode called " + AlternativeTravelModeName);
+                    throw new XTMFRuntimeException(this, "Unable to find the Alternative Travel Mode called " + AlternativeTravelModeName);
                 }
             }
             LocalScheduler = this;

@@ -44,9 +44,9 @@ namespace TMG.GTAModel.NetworkAnalysis
         {
             var mc = controller as ModellerController;
             if (mc == null)
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
             var result = "";
-            return mc.Run(ToolName, new []
+            return mc.Run(this, ToolName, new []
             {
                 new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
                 new ModellerControllerParameter("ReportFile", ReportFile.GetFilePath()),

@@ -91,21 +91,17 @@ namespace Tasha.Validation.PerformanceMeasures
                 var odCostMatrix = timePeriod.ODFlatCostMatrix.AcquireResource<SparseTwinIndex<float>>();
                 using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
                 {
-                    int columns;
                     reader.LoadLine();
-                    while(reader.LoadLine(out columns))
+                    while (reader.LoadLine(out int columns))
                     {
                         if(columns >= 4)
                         {
-                            float vkt;
-                            int homeZone, origin, destination;
-                            float numberOfTrips;
-                            reader.Get(out homeZone, 0);
-                            reader.Get(out origin, 1);
-                            reader.Get(out destination, 2);
-                            reader.Get(out numberOfTrips, 3);
+                            reader.Get(out int homeZone, 0);
+                            reader.Get(out int origin, 1);
+                            reader.Get(out int destination, 2);
+                            reader.Get(out float numberOfTrips, 3);
                             var distance = odCostMatrix[origin, destination] * invCostPerKM;
-                            totalVKT.TryGetValue(homeZone, out vkt);
+                            totalVKT.TryGetValue(homeZone, out float vkt);
                             totalVKT[homeZone] = vkt + numberOfTrips * distance;
                         }
                     }

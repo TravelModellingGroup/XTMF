@@ -49,8 +49,7 @@ namespace TMG.Frameworks.Data.Loading
                 {
                     reader.LoadLine();
                 }
-                int columns;
-                while (reader.LoadLine(out columns))
+                while (reader.LoadLine(out int columns))
                 {
                     if (columns >= 2)
                     {

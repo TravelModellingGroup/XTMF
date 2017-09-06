@@ -23,8 +23,14 @@ namespace TMG.Emme
     [Serializable]
     public class EmmeToolRuntimeException : XTMFRuntimeException
     {
+        [System.Obsolete("Use EmmeToolRuntimeException(IModule module, string message) instead.")]
         public EmmeToolRuntimeException(string description)
-            : base( description )
+            : base(description)
+        {
+        }
+
+        public EmmeToolRuntimeException(IModule module, string description)
+            : base(module, description)
         {
         }
     }

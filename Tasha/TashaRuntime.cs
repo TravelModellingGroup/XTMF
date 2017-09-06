@@ -321,8 +321,7 @@ namespace Tasha
         {
             using (var reader = new CsvReader(GetFullPath(ModeParameterFile)))
             {
-                int numberOfParameters;
-                reader.LoadLine(out numberOfParameters);
+                reader.LoadLine(out int numberOfParameters);
                 var headers = new string[numberOfParameters];
                 for (int i = 2; i < numberOfParameters; i++)
                 {
@@ -332,22 +331,19 @@ namespace Tasha
                 {
                     reader.LoadLine();
                 }
-                int lineSize;
-                if (reader.LoadLine(out lineSize))
+                if (reader.LoadLine(out int lineSize))
                 {
                     if (lineSize < numberOfParameters) numberOfParameters = lineSize;
                     for (int i = 2; i < numberOfParameters; i++)
                     {
-                        float temp;
-                        reader.Get(out temp, i);
+                        reader.Get(out float temp, i);
                         AssignValue(headers[i], temp);
                     }
                 }
                 else
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' there was no parameter row '" + ModeParameterFileRow + "' in '" + ModeParameterFile + "';");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' there was no parameter row '" + ModeParameterFileRow + "' in '" + ModeParameterFile + "';");
                 }
-
             }
         }
 
@@ -375,7 +371,7 @@ namespace Tasha
                     }
                 }
             }
-            throw new XTMFRuntimeException("Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
+            throw new XTMFRuntimeException(this, "Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
                 + "' in order to assign parameters! \r\n" + parts.Aggregate((previous, next) => previous + " " + next));
         }
 
@@ -383,12 +379,12 @@ namespace Tasha
         {
             if (currentStructure == null)
             {
-                throw new XTMFRuntimeException("Unable to assign '" + variableName + "', the module is null!");
+                throw new XTMFRuntimeException(this, "Unable to assign '" + variableName + "', the module is null!");
             }
             var p = currentStructure.Parameters;
             if (p == null)
             {
-                throw new XTMFRuntimeException("The structure '" + currentStructure.Name + "' has no parameters!");
+                throw new XTMFRuntimeException(this, "The structure '" + currentStructure.Name + "' has no parameters!");
             }
             var parameters = p.Parameters;
             bool any = false;
@@ -416,7 +412,7 @@ namespace Tasha
             }
             if (!any)
             {
-                throw new XTMFRuntimeException("Unable to find a parameter named '" + variableName
+                throw new XTMFRuntimeException(this, "Unable to find a parameter named '" + variableName
                     + "' for module '" + currentStructure.Name + "' in order to assign it a parameter! \r\n" + allParts.Aggregate((previous, next) => previous + " " + next));
             }
         }
@@ -600,8 +596,7 @@ namespace Tasha
         {
             foreach (var mode in AllModes)
             {
-                var sensitive = mode as IIterationSensitive;
-                if (sensitive != null)
+                if (mode is IIterationSensitive sensitive)
                 {
                     sensitive.IterationStarting(i, TotalIterations);
                 }
@@ -612,8 +607,7 @@ namespace Tasha
         {
             foreach (var mode in AllModes)
             {
-                var sensitive = mode as IIterationSensitive;
-                if (sensitive != null)
+                if (mode is IIterationSensitive sensitive)
                 {
                     sensitive.IterationEnding(i, TotalIterations);
                 }

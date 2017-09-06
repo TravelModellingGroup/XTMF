@@ -253,7 +253,7 @@ namespace DistroCacheMaker
                     string[] durationSplit = durationTime.ReadLine()?.Split(',');
                     if (durationSplit == null || durationSplit.Length <= 3)
                     {
-                        throw new XTMFRuntimeException("Invalid duration line!");
+                        throw new XTMFRuntimeException(this, "Invalid duration line!");
                     }
                     line.Append(durationSplit[3]);
                     line.Append(',');

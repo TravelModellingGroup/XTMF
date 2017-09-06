@@ -656,8 +656,7 @@ namespace XTMF.Gui.UserControls
 
         private void DeleteCurrentModelSystem()
         {
-            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            if (selected != null)
+            if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
                 int index = selected.RealIndex;
                 string error = null;
@@ -678,8 +677,7 @@ namespace XTMF.Gui.UserControls
 
         private void DeletePreviousRun_Click(object sender, RoutedEventArgs e)
         {
-            var previousRun = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
-            if (previousRun != null)
+            if (PastRunDisplay.SelectedItem is ProjectModel.PreviousRun previousRun)
             {
                 try
                 {
@@ -700,8 +698,7 @@ namespace XTMF.Gui.UserControls
 
         private void RenameCurrentModelSystem()
         {
-            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            if (selected != null)
+            if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
                 var container = ModelSystemDisplay.ItemContainerGenerator.ContainerFromItem(selected) as ListBoxItem;
                 var layer = AdornerLayer.GetAdornerLayer(container);
@@ -735,8 +732,7 @@ namespace XTMF.Gui.UserControls
 
         private void SaveCurrentAsModelSystem(bool exportToFile)
         {
-            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            if (selected != null)
+            if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
                 if (exportToFile)
                 {
@@ -782,11 +778,10 @@ namespace XTMF.Gui.UserControls
 
         private void CloneCurrentModelSystem()
         {
-            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
 
 
 
-            if (selected != null)
+            if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
                 var error = string.Empty;
                 MainWindow.Us.ClipboardModel = selected;
@@ -853,20 +848,18 @@ namespace XTMF.Gui.UserControls
 
         private void PastRuns_MouseButton(object sender, MouseButtonEventArgs e)
         {
-            var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
 
 
-            if (selected != null)
+            if (PastRunDisplay.SelectedItem is ProjectModel.PreviousRun selected)
             {
                 var invoke = InitiateModelSystemEditingSession;
                 if (invoke != null)
                 {
                     string error = null;
-                    ModelSystemEditingSession newSession;
 
 
 
-                    if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
+                    if (Session.LoadPreviousRun(selected.Path, ref error, out ModelSystemEditingSession newSession))
                     {
                         if (newSession != null)
                         {

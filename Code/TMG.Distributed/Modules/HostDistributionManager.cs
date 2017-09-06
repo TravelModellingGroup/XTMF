@@ -206,7 +206,7 @@ namespace TMG.Distributed.Modules
                 var t = task as ExecutingTask;
                 if (t == null)
                 {
-                    throw new XTMFRuntimeException($"In {Name} we were sent an object for task processing that was not a task!");
+                    throw new XTMFRuntimeException(this, $"In {Name} we were sent an object for task processing that was not a task!");
                 }
                 writer.Write((Int32)CommunicationProtocol.RunTask);
                 writer.Write(t.TaskNumber);
@@ -224,8 +224,7 @@ namespace TMG.Distributed.Modules
                     if(AvailableClients.Count > 0)
                     {
                         var task = PendingTasks[0];
-                        IRemoteXTMF previousHost;
-                        if(PreferPreviousClient && PreviousTaskAssignments.TryGetValue(task.TaskName, out previousHost)
+                        if (PreferPreviousClient && PreviousTaskAssignments.TryGetValue(task.TaskName, out IRemoteXTMF previousHost)
                             && AvailableClients.Contains(previousHost))
                         {
                             RemoveClient(previousHost);

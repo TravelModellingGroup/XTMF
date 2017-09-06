@@ -75,9 +75,8 @@ namespace TMG.Frameworks.Data.Processing.AST
         public static bool GetCall(int start, string call, Expression[] parameters, out FunctionCall ex, ref string error)
         {
             //decode the call to a type
-            FunctionType type;
             ex = null;
-            if (!Decode(call, ref error, out type))
+            if (!Decode(call, ref error, out FunctionType type))
             {
                 return false;
             }

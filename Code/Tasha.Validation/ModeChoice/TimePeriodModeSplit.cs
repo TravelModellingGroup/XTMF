@@ -81,8 +81,7 @@ namespace Tasha.Validation.ModeChoice
 
             private float[] GetPurposeCount(Activity purpose)
             {
-                float[] value;
-                if(!Counts.TryGetValue(purpose, out value))
+                if (!Counts.TryGetValue(purpose, out float[] value))
                 {
                     Counts.Add(purpose, value = new float[Parent.Modes.Length]);
                 }

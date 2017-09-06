@@ -95,9 +95,8 @@ namespace Datastructure
 
         public static SparseTriIndex<T> CreateSparseTriIndex(int[] first, int[] second, int[] third, T[] data)
         {
-            T[][][] localData;
             var length = data.Length;
-            if(length == 0)
+            if (length == 0)
             {
                 // create a null tri indexed space
                 return new SparseTriIndex<T>();
@@ -114,7 +113,7 @@ namespace Datastructure
             Array.Sort(indexes, new CompareSortStruct());
             var processedIndexes = GenerateIndexes(indexes);
 
-            return new SparseTriIndex<T>(ConvertToIndexes(processedIndexes, out localData, data, indexes), localData);
+            return new SparseTriIndex<T>(ConvertToIndexes(processedIndexes, out T[][][] localData, data, indexes), localData);
         }
 
         public bool ContainsIndex(int o, int d, int t)
@@ -138,8 +137,7 @@ namespace Datastructure
 
         public int GetFlatIndex(int sparseSpaceIndex)
         {
-            SparseSet unused;
-            if(TansformO(Indexes.Indexes, ref sparseSpaceIndex, out unused))
+            if (TansformO(Indexes.Indexes, ref sparseSpaceIndex, out SparseSet unused))
             {
                 // the now transformed sparse space index for O
                 return sparseSpaceIndex;
@@ -203,9 +201,8 @@ namespace Datastructure
 
         public IEnumerable<int> ValidIndexes(int first)
         {
-            SparseSet oSet;
-            if(Data.Length == 0) yield break;
-            if(TansformO(Indexes.Indexes, ref first, out oSet))
+            if (Data.Length == 0) yield break;
+            if (TansformO(Indexes.Indexes, ref first, out SparseSet oSet))
             {
                 var length = oSet.SubIndex.Indexes.Length;
                 for(var i = 0; i < length; i++)
@@ -221,12 +218,10 @@ namespace Datastructure
 
         public IEnumerable<int> ValidIndexes(int first, int second)
         {
-            SparseSet oSet;
-            SparseSet dSet;
-            if(Data.Length == 0) yield break;
-            if(TansformO(Indexes.Indexes, ref first, out oSet))
+            if (Data.Length == 0) yield break;
+            if (TansformO(Indexes.Indexes, ref first, out SparseSet oSet))
             {
-                if(TansformD(oSet, ref second, out dSet))
+                if(TansformD(oSet, ref second, out SparseSet dSet))
                 {
                     var length = dSet.SubIndex.Indexes.Length;
                     for(var i = 0; i < length; i++)
@@ -358,12 +353,10 @@ namespace Datastructure
 
         private bool GetTransformedIndexes(ref int o, ref int d)
         {
-            SparseSet oSet;
-            if(Indexes.Indexes == null) return false;
-            if(TansformO(Indexes.Indexes, ref o, out oSet))
+            if (Indexes.Indexes == null) return false;
+            if (TansformO(Indexes.Indexes, ref o, out SparseSet oSet))
             {
-                SparseSet dSet;
-                if(TansformD(oSet, ref d, out dSet))
+                if (TansformD(oSet, ref d, out SparseSet dSet))
                 {
                     return true;
                 }
@@ -375,11 +368,9 @@ namespace Datastructure
 
         private bool GetTransformedIndexes(ref int o, ref int d, ref int t)
         {
-            SparseSet oSet;
-            if(TansformO(Indexes.Indexes, ref o, out oSet))
+            if (TansformO(Indexes.Indexes, ref o, out SparseSet oSet))
             {
-                SparseSet dSet;
-                if(TansformD(oSet, ref d, out dSet))
+                if (TansformD(oSet, ref d, out SparseSet dSet))
                 {
                     return TransformT(dSet, ref t);
                 }

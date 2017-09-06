@@ -94,8 +94,8 @@ namespace XTMF.Testing
         {
             string error = null; // TODO: Initialize to an appropriate value
             string rangeString = "{1-2,4-5},{11-12,14-15"; // TODO: Initialize to an appropriate value
-            RangeSetSeries output; // TODO: Initialize to an appropriate value
-            bool actual = RangeSetSeries.TryParse(ref error, rangeString, out output);
+                                                           // TODO: Initialize to an appropriate value
+            bool actual = RangeSetSeries.TryParse(ref error, rangeString, out RangeSetSeries output);
             Assert.IsNotNull( error );
             Assert.AreEqual( null, output );
             Assert.AreEqual( false, actual );
@@ -108,9 +108,9 @@ namespace XTMF.Testing
         public void TryParseTestNonError()
         {
             string rangeString = "{1-2,4-5},{11-12,14-15}"; // TODO: Initialize to an appropriate value
-            RangeSetSeries output; // TODO: Initialize to an appropriate value
-            RangeSetSeries outputExpected = new RangeSetSeries( GenerateTempRange() ); // TODO: Initialize to an appropriate value
-            var actual = RangeSetSeries.TryParse( rangeString, out output );
+                                                            // TODO: Initialize to an appropriate value
+            RangeSetSeries outputExpected = new RangeSetSeries(GenerateTempRange()); // TODO: Initialize to an appropriate value
+            var actual = RangeSetSeries.TryParse( rangeString, out RangeSetSeries output );
             Assert.AreEqual( outputExpected, output );
             Assert.AreEqual( true, actual );
         }
@@ -123,9 +123,9 @@ namespace XTMF.Testing
         {
             string error = null; // TODO: Initialize to an appropriate value
             string rangeString = "{1-2,4-5},{11-12,14-15}"; // TODO: Initialize to an appropriate value
-            RangeSetSeries output; // TODO: Initialize to an appropriate value
-            RangeSetSeries outputExpected = new RangeSetSeries( GenerateTempRange() ); // TODO: Initialize to an appropriate value
-            var actual = RangeSetSeries.TryParse( ref error, rangeString, out output );
+                                                            // TODO: Initialize to an appropriate value
+            RangeSetSeries outputExpected = new RangeSetSeries(GenerateTempRange()); // TODO: Initialize to an appropriate value
+            var actual = RangeSetSeries.TryParse( ref error, rangeString, out RangeSetSeries output );
             Assert.AreEqual( null, error );
             Assert.AreEqual( outputExpected, output );
             Assert.AreEqual( true, actual );

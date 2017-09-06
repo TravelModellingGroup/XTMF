@@ -203,7 +203,7 @@ For specification about the language, and extensibility please consult the TMG F
                             var commandName = topLevelCommand.LocalName;
                             if (!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out Action<XmlNode> command))
                             {
-                                throw new XTMFRuntimeException("We are unable to find a command named '" + commandName
+                                throw new XTMFRuntimeException(this, "We are unable to find a command named '" + commandName
                                     + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
                             }
                             var initialCount = ExecutionStack.Count;
@@ -273,7 +273,7 @@ For specification about the language, and extensibility please consult the TMG F
             var at = node.Attributes?[attribute];
             if (at == null)
             {
-                throw new XTMFRuntimeException(errorMessage + "\r\n" + node.OuterXml);
+                throw new XTMFRuntimeException(this, errorMessage + "\r\n" + node.OuterXml);
             }
             return at.InnerText;
         }
@@ -294,7 +294,7 @@ For specification about the language, and extensibility please consult the TMG F
             Copy(origin, destination, move);
         }
 
-        public static bool Copy(string origin, string destination, bool move)
+        public bool Copy(string origin, string destination, bool move)
         {
             try
             {
@@ -332,7 +332,7 @@ For specification about the language, and extensibility please consult the TMG F
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("Failed to copy '" + origin + "' to '" + destination + "'!\r\nThe CWD is" + Directory.GetCurrentDirectory()
+                throw new XTMFRuntimeException(this, "Failed to copy '" + origin + "' to '" + destination + "'!\r\nThe CWD is" + Directory.GetCurrentDirectory()
                     + "\r\n" + e.Message);
             }
             return true;
@@ -385,7 +385,7 @@ For specification about the language, and extensibility please consult the TMG F
                         string parameterName = GetAttributeOrError(child, "ParameterPath", "The attribute 'ParameterPath' was not found!");
                         if (!ModelSystemReflection.AssignValue(Config, ChildStructure, parameterName, value, ref error))
                         {
-                            throw new XTMFRuntimeException($"In '{Name}' we were unable assign a variable.\r\n{error}");
+                            throw new XTMFRuntimeException(this, $"In '{Name}' we were unable assign a variable.\r\n{error}");
                         }
                     }
                 }
@@ -395,7 +395,7 @@ For specification about the language, and extensibility please consult the TMG F
                 string parameterName = GetAttributeOrError(command, "ParameterPath", "The attribute 'ParameterPath' was not found!");
                 if (!ModelSystemReflection.AssignValue(Config, ChildStructure, parameterName, value, ref error))
                 {
-                    throw new XTMFRuntimeException($"In '{Name}' we were unable assign a variable.\r\n{error}");
+                    throw new XTMFRuntimeException(this, $"In '{Name}' we were unable assign a variable.\r\n{error}");
                 }
             }
         }
@@ -421,7 +421,7 @@ For specification about the language, and extensibility please consult the TMG F
             }
             if (!any)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' a linked parameter '" + name + "' was not found in order to assign it the value of '" + value + "'.");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' a linked parameter '" + name + "' was not found in order to assign it the value of '" + value + "'.");
             }
         }
 
@@ -603,13 +603,13 @@ For specification about the language, and extensibility please consult the TMG F
             if (!Templates.TryGetValue(name, out MultirunTemplate template))
             {
                 // then no template with this name exists
-                throw new XTMFRuntimeException("No template with the name '" + name + "' exists!");
+                throw new XTMFRuntimeException(this, "No template with the name '" + name + "' exists!");
             }
             KeyValuePair<string, string>[] parameters = GetParameters(command.Attributes);
             string error = null;
             if (!template.PrepareForExecution(parameters, out MultirunTemplate toExecute, ref error))
             {
-                throw new XTMFRuntimeException("Unable to execute template\n\r" + error + "\r\n" + template.Node.OuterXml);
+                throw new XTMFRuntimeException(this, "Unable to execute template\n\r" + error + "\r\n" + template.Node.OuterXml);
             }
             ExecutionStack.Push(toExecute.Node);
         }
@@ -620,7 +620,7 @@ For specification about the language, and extensibility please consult the TMG F
             var value = GetAttributeOrError(command, "Value", "The value to assign the variable was not given!\r\n" + command.OuterXml);
             if (!float.TryParse(value, out float fValue))
             {
-                throw new XTMFRuntimeException($"In '{Name}' we were unable to extract the value of {value} into a number!\r\n{command.OuterXml}");
+                throw new XTMFRuntimeException(this, $"In '{Name}' we were unable to extract the value of {value} into a number!\r\n{command.OuterXml}");
             }
             Variables[name] = fValue;
         }
@@ -635,7 +635,7 @@ For specification about the language, and extensibility please consult the TMG F
             {
                 return value;
             }
-            throw new XTMFRuntimeException($"In '{Name}' we were unable to get a value from {name} while executing the command:\r\n{command.OuterXml}");
+            throw new XTMFRuntimeException(this, $"In '{Name}' we were unable to get a value from {name} while executing the command:\r\n{command.OuterXml}");
         }
 
         private void IfStatement(XmlNode command)
@@ -673,7 +673,7 @@ For specification about the language, and extensibility please consult the TMG F
                     isTrue = lhs >= rhs;
                     break;
                 default:
-                    throw new XTMFRuntimeException($"In '{Name}' we found an invalid operator while executing the multi-run script.\r\n" + command.OuterXml);
+                    throw new XTMFRuntimeException(this, $"In '{Name}' we found an invalid operator while executing the multi-run script.\r\n" + command.OuterXml);
             }
             if (isTrue)
             {
@@ -710,13 +710,13 @@ For specification about the language, and extensibility please consult the TMG F
             {
                 if (!bool.TryParse(attribute.InnerText, out recursive))
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' an unload command had a recursive parameter with the value '" + attribute.InnerText + "', which is not true/false!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' an unload command had a recursive parameter with the value '" + attribute.InnerText + "', which is not true/false!");
                 }
             }
             IModelSystemStructure referencedModule = null;
             if (!ModelSystemReflection.GetModelSystemStructureFromPath(ChildStructure, path, ref referencedModule))
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find the child with the path '" + path + "'!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find the child with the path '" + path + "'!");
             }
             if (referencedModule.IsCollection)
             {
@@ -766,7 +766,7 @@ For specification about the language, and extensibility please consult the TMG F
                     }
                     else
                     {
-                        throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource or data source! Only resources or data sources can be unloaded!");
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' the referenced module '" + path + "' is not a resource or data source! Only resources or data sources can be unloaded!");
                     }
                 }
 
@@ -900,7 +900,7 @@ For specification about the language, and extensibility please consult the TMG F
                         var commandName = runChild.LocalName;
                         if (!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out Action<XmlNode> command))
                         {
-                            throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
+                            throw new XTMFRuntimeException(this, "We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
                         }
                         command.Invoke(runChild);
                     }

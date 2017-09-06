@@ -55,27 +55,27 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            using (BinaryReader reader = new BinaryReader( new FileStream( InputFile, FileMode.Open, FileAccess.Read ) ))
+            using (BinaryReader reader = new BinaryReader(new FileStream(InputFile, FileMode.Open, FileAccess.Read)))
             {
-                EmmeMatrix matrix = new EmmeMatrix( reader );
-                if ( !matrix.IsValidHeader() )
+                EmmeMatrix matrix = new EmmeMatrix(reader);
+                if (!matrix.IsValidHeader())
                 {
-                    throw new XTMFRuntimeException( "In '" + Name + "' we were unable to load the matrix '" + InputFile + "'" );
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to load the matrix '" + InputFile + "'");
                 }
                 ODData<float> result = new ODData<float>();
                 int pos = 0;
                 var indexes = matrix.Indexes;
                 var originIndexes = indexes[0];
                 var destinationIndexes = indexes[1];
-                switch ( matrix.Type )
+                switch (matrix.Type)
                 {
                     case EmmeMatrix.DataType.Float:
                         {
                             var data = matrix.FloatData;
-                            for ( int i = 0; i < originIndexes.Length; i++ )
+                            for (int i = 0; i < originIndexes.Length; i++)
                             {
                                 result.O = originIndexes[i];
-                                for ( int j = 0; j < destinationIndexes.Length; j++ )
+                                for (int j = 0; j < destinationIndexes.Length; j++)
                                 {
                                     result.D = destinationIndexes[j];
                                     result.Data = data[pos++];
@@ -87,10 +87,10 @@ namespace TMG.GTAModel.Input
                     case EmmeMatrix.DataType.Double:
                         {
                             var data = matrix.DoubleData;
-                            for ( int i = 0; i < originIndexes.Length; i++ )
+                            for (int i = 0; i < originIndexes.Length; i++)
                             {
                                 result.O = originIndexes[i];
-                                for ( int j = 0; j < destinationIndexes.Length; j++ )
+                                for (int j = 0; j < destinationIndexes.Length; j++)
                                 {
                                     result.D = destinationIndexes[j];
                                     result.Data = (float)data[pos++];
@@ -102,10 +102,10 @@ namespace TMG.GTAModel.Input
                     case EmmeMatrix.DataType.SignedInteger:
                         {
                             var data = matrix.SignedIntData;
-                            for ( int i = 0; i < originIndexes.Length; i++ )
+                            for (int i = 0; i < originIndexes.Length; i++)
                             {
                                 result.O = originIndexes[i];
-                                for ( int j = 0; j < destinationIndexes.Length; j++ )
+                                for (int j = 0; j < destinationIndexes.Length; j++)
                                 {
                                     result.D = destinationIndexes[j];
                                     result.Data = data[pos++];
@@ -117,10 +117,10 @@ namespace TMG.GTAModel.Input
                     case EmmeMatrix.DataType.UnsignedInteger:
                         {
                             var data = matrix.UnsignedIntData;
-                            for ( int i = 0; i < originIndexes.Length; i++ )
+                            for (int i = 0; i < originIndexes.Length; i++)
                             {
                                 result.O = originIndexes[i];
-                                for ( int j = 0; j < destinationIndexes.Length; j++ )
+                                for (int j = 0; j < destinationIndexes.Length; j++)
                                 {
                                     result.D = destinationIndexes[j];
                                     result.Data = data[pos++];

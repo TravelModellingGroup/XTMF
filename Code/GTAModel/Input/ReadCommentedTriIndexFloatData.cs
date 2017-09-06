@@ -29,22 +29,22 @@ namespace TMG.GTAModel.Input
 {
     public class ReadCommentedTriIndexFloatData : IDataSource<SparseTriIndex<float>>
     {
-        [RunParameter( "Data-Column Sparse Space", "1,2,3,4", typeof( NumberList ), "The data column's sparse space indexes. (1,2,3,4)" )]
+        [RunParameter("Data-Column Sparse Space", "1,2,3,4", typeof(NumberList), "The data column's sparse space indexes. (1,2,3,4)")]
         public NumberList DataColumnToSparseSpace;
 
-        [RunParameter( "First Data Column", 2, "The first column containing data (0 indexed)." )]
+        [RunParameter("First Data Column", 2, "The first column containing data (0 indexed).")]
         public int DataStartIndex;
 
-        [RunParameter( "File Name", "Data.txt", "The file that we will be loading in as a Tri-Indexed data source." )]
+        [RunParameter("File Name", "Data.txt", "The file that we will be loading in as a Tri-Indexed data source.")]
         public string FileName;
 
-        [RunParameter( "First Dimension Column", 0, "The column number containing the first dimension (0 indexed)." )]
+        [RunParameter("First Dimension Column", 0, "The column number containing the first dimension (0 indexed).")]
         public int FirstDimensionColumn;
 
         [RootModule]
         public IModelSystemTemplate Root;
 
-        [RunParameter( "Second Dimension Column", 1, "The column number containing the second dimension (0 indexed)." )]
+        [RunParameter("Second Dimension Column", 1, "The column number containing the second dimension (0 indexed).")]
         public int SecondDimensionColumn;
 
         protected SparseTriIndex<float> Data;
@@ -78,7 +78,7 @@ namespace TMG.GTAModel.Input
 
         public void LoadData()
         {
-            if ( Data == null )
+            if (Data == null)
             {
                 LoadTriIndexedData();
             }
@@ -86,7 +86,7 @@ namespace TMG.GTAModel.Input
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( DataColumnToSparseSpace.Count < 1 )
+            if (DataColumnToSparseSpace.Count < 1)
             {
                 error = "In " + Name + " the number of columns must be greater than zero!";
                 return false;
@@ -110,47 +110,46 @@ namespace TMG.GTAModel.Input
         {
             try
             {
-                using ( CommentedCsvReader reader = new CommentedCsvReader( GetFileLocation( FileName ) ) )
+                using (CommentedCsvReader reader = new CommentedCsvReader(GetFileLocation(FileName)))
                 {
                     var numberOfDataColumns = DataColumnToSparseSpace.Count;
                     var dataSpace = DataColumnToSparseSpace.ToArray();
                     int max = dataSpace.Max();
-                    while ( reader.NextLine() )
+                    while (reader.NextLine())
                     {
                         // skip blank lines
-                        if ( reader.NumberOfCurrentCells < max )
+                        if (reader.NumberOfCurrentCells < max)
                         {
                             continue;
                         }
-                        int f, s, t;
-                        float d;
+                        int t;
 
-                        reader.Get( out f, FirstDimensionColumn );
-                        reader.Get( out s, SecondDimensionColumn );
-                        for ( int dataCol = 0; dataCol < numberOfDataColumns; dataCol++ )
+                        reader.Get(out int f, FirstDimensionColumn);
+                        reader.Get(out int s, SecondDimensionColumn);
+                        for (int dataCol = 0; dataCol < numberOfDataColumns; dataCol++)
                         {
                             t = dataSpace[dataCol];
-                            reader.Get( out d, dataCol + DataStartIndex );
-                            first.Add( f );
-                            second.Add( s );
-                            third.Add( t );
-                            data.Add( d );
+                            reader.Get(out float d, dataCol + DataStartIndex);
+                            first.Add(f);
+                            second.Add(s);
+                            third.Add(t);
+                            data.Add(d);
                         }
                     }
                 }
             }
-            catch ( IOException e )
+            catch (IOException e)
             {
-                throw new XTMFRuntimeException( e.Message );
+                throw new XTMFRuntimeException(this, e.Message);
             }
         }
 
         private string GetFileLocation(string fileName)
         {
             var fullPath = fileName;
-            if ( !Path.IsPathRooted( fullPath ) )
+            if (!Path.IsPathRooted(fullPath))
             {
-                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
             }
             return fullPath;
         }
@@ -162,8 +161,8 @@ namespace TMG.GTAModel.Input
             List<int> second = new List<int>();
             List<int> third = new List<int>();
             List<float> data = new List<float>();
-            StoreData( first, second, third, data );
-            Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
+            StoreData(first, second, third, data);
+            Data = SparseTriIndex<float>.CreateSparseTriIndex(first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray());
         }
     }
 }

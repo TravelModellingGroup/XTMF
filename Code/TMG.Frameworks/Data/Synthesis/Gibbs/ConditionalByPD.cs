@@ -55,8 +55,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             }
             else
             {
-                IModelSystemStructure tdm;
-                if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
+                if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out IModelSystemStructure tdm))
                 {
                     ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
                     if (ZoneSystem != null && !ZoneSystem.Loaded)
@@ -79,7 +78,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             var zone = ZoneSystem.ZoneArray.GetFlatData()[currentZone];
             if(zone == null)
             {
-                throw new XTMFRuntimeException($"In {Name} we were asked to process a zone that we do not have defined! Zone#{currentZone}!");
+                throw new XTMFRuntimeException(this, $"In {Name} we were asked to process a zone that we do not have defined! Zone#{currentZone}!");
             }
             var pdToProcess = zone.PlanningDistrict;
             var prob = GenerateBackendData();
@@ -89,17 +88,15 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             bool any = false;
             using (var reader = new CsvReader(ConditionalSource))
             {
-                int columns;
                 reader.LoadLine();
-                while (reader.LoadLine(out columns))
+                while (reader.LoadLine(out int columns))
                 {
                     if (columns >= expectedColumns)
                     {
                         any = true;
-                        int pd;
-                        reader.Get(out pd, 0);
+                        reader.Get(out int pd, 0);
                         // ignore data rows not for our PD
-                        if(pdToProcess != pd)
+                        if (pdToProcess != pd)
                         {
                             continue;
                         }
@@ -114,7 +111,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                         }
                         else
                         {
-                            throw new XTMFRuntimeException($"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
+                            throw new XTMFRuntimeException(this, $"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
                         }
                     }
                 }
@@ -122,7 +119,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             Cdf = ConvertToCdf(prob);
             if (!any)
             {
-                throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
+                throw new XTMFRuntimeException(this, $@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
 This could be because the data does not have the expected number of columns ({expectedColumns}) as interpreted by the given attributes.");
             }
             Loaded = true;

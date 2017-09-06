@@ -98,11 +98,7 @@ namespace TMG.GTAModel.Analysis
             ref double globalIntrazonals, ref double globalSum, ref double globalInternalExternal, ref double globalExternalInternal)
         {
             dataSource.LoadData();
-            float intrazonals;
-            float total;
-            float ie;
-            float ei;
-            Sum( dataSource.GiveData().GetFlatData(), out total, out intrazonals, out ie, out ei );
+            Sum(dataSource.GiveData().GetFlatData(), out float total, out float intrazonals, out float ie, out float ei);
             dataSource.UnloadData();
             writer.Write( dataTag );
             writer.Write( ',' );

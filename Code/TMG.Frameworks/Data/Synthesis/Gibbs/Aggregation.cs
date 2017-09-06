@@ -172,23 +172,20 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 using (var reader = new CsvReader(AggregationFile))
                 {
                     reader.LoadLine();
-                    int numberOfColumns;
                     /*
                      * Each line that is read in is an accepted combination 
                      * the first column is the primary attribute's index, the rest of the 
                      * secondary attributes in order
                     */
-                    while (reader.LoadLine(out numberOfColumns))
+                    while (reader.LoadLine(out int numberOfColumns))
                     {
                         if (numberOfColumns >= expectedColumns)
                         {
-                            int primaryIndex;
                             int index = 0;
-                            reader.Get(out primaryIndex, 0);
+                            reader.Get(out int primaryIndex, 0);
                             for (int i = 1; i < numberOfColumns; i++)
                             {
-                                int secondaryIndex;
-                                reader.Get(out secondaryIndex, i);
+                                reader.Get(out int secondaryIndex, i);
                                 index += factors[i - 1] * secondaryIndex;
                             }
                             acceptedCombinations[primaryIndex].Add(index);
@@ -217,7 +214,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 {
                     if (columns[i] < 0)
                     {
-                        throw new XTMFRuntimeException($"In '{Name}' an attribute named '{_SecondaryAttributes[i].Name}' was not found in the pool '{_SecondaryPool.Name}'!");
+                        throw new XTMFRuntimeException(this, $"In '{Name}' an attribute named '{_SecondaryAttributes[i].Name}' was not found in the pool '{_SecondaryPool.Name}'!");
                     }
                 }
             }
@@ -252,8 +249,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 }
                 else
                 {
-                    IModelSystemStructure tdm;
-                    if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
+                    if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out IModelSystemStructure tdm))
                     {
                         ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
                         if (ZoneSystem != null && !ZoneSystem.Loaded)

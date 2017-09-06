@@ -228,10 +228,9 @@ namespace Tasha.Scheduler
 
         internal static SchedulerTripChain GetTripChain(ITashaPerson person)
         {
-            SchedulerTripChain ret;
-            if ( !Chains.TryDequeue( out ret ) )
+            if (!Chains.TryDequeue(out SchedulerTripChain ret))
             {
-                return new SchedulerTripChain( person );
+                return new SchedulerTripChain(person);
             }
             ret.Person = person;
             return ret;

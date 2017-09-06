@@ -133,8 +133,7 @@ namespace TMG.GTAModel.Generation
             Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
                         var increment = 0f;
-                        int regionIndex;
-                        if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                        if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
                         {
                             // if this zone isn't part of a region we are processing just continue
                             return;
@@ -222,8 +221,7 @@ namespace TMG.GTAModel.Generation
                     // Auto drive case
                     Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
-                        int regionIndex;
-                        if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                        if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
                         {
                             // if this zone isn't part of a region we are processing just continue
                             return;
@@ -236,8 +234,7 @@ namespace TMG.GTAModel.Generation
                     // not auto drive case
                     Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
-                        int regionIndex;
-                        if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                        if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
                         {
                             // if this zone isn't part of a region we are processing just continue
                             return;
@@ -276,17 +273,16 @@ namespace TMG.GTAModel.Generation
             {
                 return true;
             }
-            var cat = current as IModeCategory;
-            if ( cat != null )
+            if (current is IModeCategory cat)
             {
                 var modes = cat.Children;
                 var length = modes.Count;
-                for ( int i = 0; i < length; i++ )
+                for (int i = 0; i < length; i++)
                 {
-                    if ( LinkModeName( p, modes[i] ) )
+                    if (LinkModeName(p, modes[i]))
                     {
                         // insert at the front
-                        AutoDrivePath.Insert( 0, i );
+                        AutoDrivePath.Insert(0, i);
                         return true;
                     }
                 }

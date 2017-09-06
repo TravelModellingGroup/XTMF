@@ -68,15 +68,14 @@ namespace Tasha.Validation.PerformanceMeasures
             var modeller = controller as ModellerController;
             if (modeller == null)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we were not given a modeller controller!");
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeller controller!");
             }
-            float value;
             string result = null;
-            if(modeller.Run(ToolName, GetParameters(), ref result))
+            if (modeller.Run(this, ToolName, GetParameters(), ref result))
             {
                 if (SumOfReport != null)
                 {
-                    if (float.TryParse(result, out value))
+                    if (float.TryParse(result, out float value))
                     {
                         ISetableDataSource<float> dataSource = ((ISetableDataSource<float>)SumOfReport.GetDataSource());
                         if (!dataSource.Loaded)

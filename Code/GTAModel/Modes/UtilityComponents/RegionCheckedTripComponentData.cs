@@ -45,11 +45,9 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         public override float CalculateV(IZone origin, IZone destination, Time time)
         {
-            Time ivtt, waitTime, walkTime, boarding;
-            float cost;
-            if ( IsContained( origin, destination ) )
+            if (IsContained(origin, destination))
             {
-                if ( NetworkData.GetAllData( origin, destination, time, out ivtt, out walkTime, out waitTime, out boarding, out cost ) )
+                if (NetworkData.GetAllData(origin, destination, time, out Time ivtt, out Time walkTime, out Time waitTime, out Time boarding, out float cost))
                 {
                     return IVTT * ivtt.ToMinutes() + Wait * waitTime.ToMinutes()
                         + Walk * walkTime.ToMinutes() + Boarding * boarding.ToMinutes() + Cost * cost;
@@ -77,8 +75,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         {
             foreach ( var dataSource in Root.NetworkData )
             {
-                var ds = dataSource as ITripComponentData;
-                if ( ds != null && dataSource.NetworkType == NetworkType )
+                if (dataSource is ITripComponentData ds && dataSource.NetworkType == NetworkType)
                 {
                     NetworkData = ds;
                     return;

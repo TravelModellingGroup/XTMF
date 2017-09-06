@@ -166,7 +166,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
                     return !( containsOrigin | containsDestination );
 
                 default:
-                    throw new XTMFRuntimeException( "Unknown Contains Type!" );
+                    throw new XTMFRuntimeException(this, "Unknown Contains Type!" );
             }
         }
 

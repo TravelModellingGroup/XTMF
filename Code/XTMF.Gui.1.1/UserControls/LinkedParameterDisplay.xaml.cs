@@ -239,8 +239,7 @@ namespace XTMF.Gui.UserControls
 
         private void AssignCurrentlySelected()
         {
-            var selected = Display.SelectedItem as LinkedParameterDisplayModel;
-            if (selected != null)
+            if (Display.SelectedItem is LinkedParameterDisplayModel selected)
             {
                 Select(selected, true);
             }
@@ -271,8 +270,7 @@ namespace XTMF.Gui.UserControls
 
         private void Rename()
         {
-            var selected = Display.SelectedItem as LinkedParameterDisplayModel;
-            if (selected != null)
+            if (Display.SelectedItem is LinkedParameterDisplayModel selected)
             {
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);

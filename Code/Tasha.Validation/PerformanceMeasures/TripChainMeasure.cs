@@ -77,8 +77,7 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 countBin = tripChainLength; 
             }
-            float data;
-            if (!ResultsDictionary.TryGetValue(countBin, out data))
+            if (!ResultsDictionary.TryGetValue(countBin, out float data))
             {
                 lock (ResultsDictionary)
                 {

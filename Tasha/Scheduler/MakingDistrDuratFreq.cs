@@ -301,7 +301,7 @@ namespace Tasha.Scheduler
                 }
                 catch
                 {
-                    throw new XTMFRuntimeException("An error occured when trying to update the data for hhld#" + person.Household.HouseholdId
+                    throw new XTMFRuntimeException(this, "An error occured when trying to update the data for hhld#" + person.Household.HouseholdId
                         + " StartTime:" + startTime + " Duration:" + duration + " ID:" + id);
                 }
             }
@@ -334,8 +334,10 @@ namespace Tasha.Scheduler
 
                     if (thisTrip.Purpose == Activity.PrimaryWork || thisTrip.Purpose == Activity.SecondaryWork || thisTrip.Purpose == Activity.WorkBasedBusiness)
                     {
-                        var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, person);
-                        newEpisode.Zone = thisTrip.DestinationZone;
+                        var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, person)
+                        {
+                            Zone = thisTrip.DestinationZone
+                        };
                         if (thisTrip.Purpose == Activity.PrimaryWork || thisTrip.Purpose == Activity.WorkBasedBusiness)
                         {
                             if (workStartTime == Time.Zero || newEpisode.StartTime < workStartTime)
@@ -351,8 +353,10 @@ namespace Tasha.Scheduler
                     }
                     if (thisTrip.Purpose == Activity.School)
                     {
-                        var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, person);
-                        newEpisode.Zone = thisTrip.DestinationZone;
+                        var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, person)
+                        {
+                            Zone = thisTrip.DestinationZone
+                        };
                         personData.SchoolSchedule.Schedule.Insert(newEpisode, random);
                     }
                 }
@@ -455,7 +459,7 @@ namespace Tasha.Scheduler
             }
             if (duration > StartTimeQuantums)
             {
-                throw new XTMFRuntimeException("There exists a duration longer than a day in hhld#" + person.Household.HouseholdId);
+                throw new XTMFRuntimeException(this, "There exists a duration longer than a day in hhld#" + person.Household.HouseholdId);
             }
             return true;
         }

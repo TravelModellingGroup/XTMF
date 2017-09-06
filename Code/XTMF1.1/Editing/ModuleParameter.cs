@@ -65,8 +65,7 @@ namespace XTMF
             if (v == null) return null;
             for (int i = 0; i < v.Length; i++)
             {
-                var parameter = v[i] as ParameterAttribute;
-                if (parameter != null)
+                if (v[i] is ParameterAttribute parameter)
                 {
                     return parameter.DefaultValue;
                 }

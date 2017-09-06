@@ -67,16 +67,14 @@ namespace TMG.Frameworks.Data
             }
             using (var reader = new CsvReader(MapFileLocation))
             {
-                int columns;
                 // burn the header
                 reader.LoadLine();
-                while (reader.LoadLine(out columns))
+                while (reader.LoadLine(out int columns))
                 {
-                    int zoneNumber, mapIndex;
                     if (columns >= 2)
                     {
-                        reader.Get(out zoneNumber, 0);
-                        reader.Get(out mapIndex, 1);
+                        reader.Get(out int zoneNumber, 0);
+                        reader.Get(out int mapIndex, 1);
                         var flatIndex = zoneSystem.GetFlatIndex(zoneNumber);
                         // make sure the zone exists within the zone system
                         if (flatIndex >= 0)
@@ -88,7 +86,7 @@ namespace TMG.Frameworks.Data
                             // check to see if everything just equals zero.  In this case it is likely excel adding some extra empty rows.
                             if (!(zoneNumber == 0 && mapIndex == 0))
                             {
-                                throw new XTMFRuntimeException("In '" + Name + "' while loading a zone number '" + zoneNumber + "' was found that is not included in the zone system!");
+                                throw new XTMFRuntimeException(this, "In '" + Name + "' while loading a zone number '" + zoneNumber + "' was found that is not included in the zone system!");
                             }
                         }
                     }

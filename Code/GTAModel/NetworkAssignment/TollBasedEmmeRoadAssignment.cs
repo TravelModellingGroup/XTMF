@@ -123,7 +123,7 @@ namespace TMG.GTAModel.NetworkAssignment
         {
             var mc = controller as ModellerController;
             if(mc == null)
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
             if(Tallies.Count > 0)
             {
@@ -140,7 +140,7 @@ namespace TMG.GTAModel.NetworkAssignment
                 MaxIterations, RelativeGap, BestRelativeGap, NormalizedGap, HighPerformanceMode,
                 runName, TollLinkSelector, SolaFlag);
             string result = null;
-            return mc.Run(ToolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(this, ToolName, sb.ToString(), (p => Progress = p), ref result);
             /*
             Call args:
              *
@@ -201,13 +201,13 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                if(mc.CheckToolExists(ImportToolName))
+                if(mc.CheckToolExists(this, ImportToolName))
                 {
-                    mc.Run(ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(this, ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
                 else
                 {
-                    mc.Run(OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(this, OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
             }
             finally

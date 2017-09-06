@@ -170,8 +170,7 @@ namespace TMG.GTAModel.Modes
                 if ( dataSource.NetworkType == NetworkType )
                 {
                     NetworkData = dataSource;
-                    ITripComponentData advancedData = dataSource as ITripComponentData;
-                    if ( advancedData != null )
+                    if (dataSource is ITripComponentData advancedData)
                     {
                         AdvancedNetworkData = advancedData;
                     }

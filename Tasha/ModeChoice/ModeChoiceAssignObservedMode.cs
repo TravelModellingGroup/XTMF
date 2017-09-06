@@ -76,10 +76,8 @@ namespace Tasha.ModeChoice
             foreach ( var element in household.JointTours )
             {
                 List<ITripChain> tripChains = element.Value;
-                IList<ITashaMode> nonVehicleModesChosen;
-                double nonVehicleU;
                 //does a non vehicle tour exist
-                bool nonVehicleTour = BestNonVehicleModeSetForTour( tripChains, out nonVehicleModesChosen, out nonVehicleU );
+                bool nonVehicleTour = BestNonVehicleModeSetForTour(tripChains, out IList<ITashaMode> nonVehicleModesChosen, out double nonVehicleU);
                 //the potential driver in this tour
                 ITashaPerson potentialDriver = null;
                 //finding potential driver who already has the car

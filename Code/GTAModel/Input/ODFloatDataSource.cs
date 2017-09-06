@@ -27,19 +27,19 @@ namespace TMG.GTAModel.Input
 {
     public class ODFloatDataSource : IODDataSource<float>
     {
-        [SubModelInformation( Description = "The data source for this module.", Required = true )]
+        [SubModelInformation(Description = "The data source for this module.", Required = true)]
         public IDataSource<SparseTriIndex<float>> DataSource;
 
-        [RunParameter( "Default Value", 0f, "The value to use if the data does not exist." )]
+        [RunParameter("Default Value", 0f, "The value to use if the data does not exist.")]
         public float DefaultValue;
 
-        [RunParameter( "Reason Offset", 0, "Offset the reason variables to help match to the data." )]
+        [RunParameter("Reason Offset", 0, "Offset the reason variables to help match to the data.")]
         public int ReasonOffset;
 
         [RootModule]
         public ITravelDemandModel Root;
 
-        [RunParameter( "Use Planning Districts", true, "The given data references planning districts." )]
+        [RunParameter("Use Planning Districts", true, "The given data references planning districts.")]
         public bool UsePlanningDistricts;
 
         private SparseTriIndex<float> Data;
@@ -64,11 +64,11 @@ namespace TMG.GTAModel.Input
         {
             EnsureDataIsLoaded();
             reason += ReasonOffset;
-            if ( UsePlanningDistricts )
+            if (UsePlanningDistricts)
             {
-                ConvertToPlanningDistricts( ref origin, ref destination );
+                ConvertToPlanningDistricts(ref origin, ref destination);
             }
-            if ( !Data.ContainsIndex( origin, destination, reason ) )
+            if (!Data.ContainsIndex(origin, destination, reason))
             {
                 return DefaultValue;
             }
@@ -84,18 +84,18 @@ namespace TMG.GTAModel.Input
         private void ConvertToPlanningDistricts(ref int origin, ref int destination)
         {
             var zoneArray = Root.ZoneSystem.ZoneArray;
-            origin = GetPlanningDistrict( zoneArray, origin );
-            destination = GetPlanningDistrict( zoneArray, destination );
+            origin = GetPlanningDistrict(zoneArray, origin);
+            destination = GetPlanningDistrict(zoneArray, destination);
         }
 
         private void EnsureDataIsLoaded()
         {
-            if ( Data == null )
+            if (Data == null)
             {
-                lock ( this )
+                lock (this)
                 {
                     Thread.MemoryBarrier();
-                    if ( Data == null )
+                    if (Data == null)
                     {
                         LoadData();
                         Thread.MemoryBarrier();
@@ -107,9 +107,9 @@ namespace TMG.GTAModel.Input
         private int GetPlanningDistrict(SparseArray<IZone> zoneArray, int zoneNumber)
         {
             var zone = zoneArray[zoneNumber];
-            if ( zone == null )
+            if (zone == null)
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find a zone with the zone number '" + zoneNumber + "'. Please make sure that this zone exists!" );
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a zone with the zone number '" + zoneNumber + "'. Please make sure that this zone exists!");
             }
             return zone.PlanningDistrict;
         }

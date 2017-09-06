@@ -34,8 +34,7 @@ namespace XTMF.Testing.TMG.Data
         private FileLocation CreateFileLocationFromOutputDirectory(string path)
         {
             string error = null;
-            FileFromOutputDirectory fileOut;
-            Assert.IsTrue(FileFromOutputDirectory.TryParse(ref error, path, out fileOut));
+            Assert.IsTrue(FileFromOutputDirectory.TryParse(ref error, path, out FileFromOutputDirectory fileOut));
             return new FilePathFromOutputDirectory() { FileName = fileOut };
         }
 

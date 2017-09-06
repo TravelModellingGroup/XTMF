@@ -87,8 +87,7 @@ namespace Tasha.Validation
 
         private Dictionary<int, float> GetDictionary(Activity purpose)
         {
-            Dictionary<int, float> ret;
-            if(!ActivityStartTimeDictionaries.TryGetValue(purpose, out ret))
+            if (!ActivityStartTimeDictionaries.TryGetValue(purpose, out Dictionary<int, float> ret))
             {
                 ret = new Dictionary<int, float>();
                 ActivityStartTimeDictionaries[purpose] = ret;

@@ -481,10 +481,9 @@ namespace XTMF.Gui
                 int currentSection = GetFirstVisibleSection();
                 while (current < itemCount)
                 {
-                    bool newlyRealized;
 
                     // Get or create the child                    
-                    UIElement child = _generator.GenerateNext(out newlyRealized) as UIElement;
+                    UIElement child = _generator.GenerateNext(out bool newlyRealized) as UIElement;
                     if (newlyRealized)
                     {
                         // Figure out if we need to insert the child at the end or somewhere in the middle

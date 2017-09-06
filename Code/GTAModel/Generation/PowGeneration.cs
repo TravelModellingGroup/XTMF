@@ -24,13 +24,13 @@ namespace TMG.GTAModel
 {
     public sealed class PowGeneration : DemographicCategoryGeneration
     {
-        [SubModelInformation( Description = "Used to gather the daily generation rates", Required = true )]
+        [SubModelInformation(Description = "Used to gather the daily generation rates", Required = true)]
         public IDataSource<SparseTriIndex<float>> LoadDailyRates;
 
-        [SubModelInformation( Description = "Used to gather the period generation rates", Required = true )]
+        [SubModelInformation(Description = "Used to gather the period generation rates", Required = true)]
         public IDataSource<SparseTriIndex<float>> LoadTimeOfDayRates;
 
-        [RunParameter( "Planning Districts", true, "Is the data using planning districts?" )]
+        [RunParameter("Planning Districts", true, "Is the data using planning districts?")]
         public bool UsesPlanningDistricts;
 
         internal SparseTriIndex<float> DailyRates;
@@ -38,19 +38,19 @@ namespace TMG.GTAModel
         internal bool LoadData = true;
         internal SparseTriIndex<float> TimeOfDayRates;
 
-        [SubModelInformation( Required = true, Description = "A resource used for storing the results of PoRPoW generation [zone][empStat,Mobility,ageCategory]" )]
+        [SubModelInformation(Required = true, Description = "A resource used for storing the results of PoRPoW generation [zone][empStat,Mobility,ageCategory]")]
         public IResource WorkerData;
 
         override public void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
-            if ( LoadData )
+            if (LoadData)
             {
-                if ( DailyRates == null )
+                if (DailyRates == null)
                 {
                     LoadDailyRates.LoadData();
                     DailyRates = LoadDailyRates.GiveData();
                 }
-                if ( TimeOfDayRates == null )
+                if (TimeOfDayRates == null)
                 {
                     LoadTimeOfDayRates.LoadData();
                     TimeOfDayRates = LoadTimeOfDayRates.GiveData();
@@ -60,10 +60,10 @@ namespace TMG.GTAModel
             var flatAttraction = attractions.GetFlatData();
 
             // Compute the Production and Attractions
-            ComputeProduction( flatProduction, flatAttraction );
+            ComputeProduction(flatProduction, flatAttraction);
 
             //We do not normalize the attraction
-            if ( LoadData )
+            if (LoadData)
             {
                 LoadDailyRates.UnloadData();
                 LoadTimeOfDayRates.UnloadData();
@@ -82,16 +82,16 @@ namespace TMG.GTAModel
             var occ = OccupationCategory[0].Start;
             var workerData = WorkerData.AcquireResource<SparseArray<SparseTriIndex<float>>>().GetFlatData();
             var test = workerData[0];
-            if ( !test.GetFlatIndex( ref emp, ref mob, ref age ) )
+            if (!test.GetFlatIndex(ref emp, ref mob, ref age))
             {
-                throw new XTMFRuntimeException( "In " + Name + " we were unable to find a place to store our data (" + emp + "," + mob + "," + age + ")" );
+                throw new XTMFRuntimeException(this, "In " + Name + " we were unable to find a place to store our data (" + emp + "," + mob + "," + age + ")");
             }
-            for ( int i = 0; i < flatProduction.Length; i++ )
+            for (int i = 0; i < flatProduction.Length; i++)
             {
                 var population = zones[i].Population;
                 var zoneNumber = UsesPlanningDistricts ? zones[i].PlanningDistrict : zones[i].ZoneNumber;
                 // production is the generation rate
-                if ( population <= 0 | zones[i].RegionNumber == 0 )
+                if (population <= 0 | zones[i].RegionNumber == 0)
                 {
                     flatProduction[i] = 0;
                     flatAttraction[i] = 0;

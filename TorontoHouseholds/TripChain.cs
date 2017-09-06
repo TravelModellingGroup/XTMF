@@ -180,8 +180,7 @@ namespace Tasha.Common
 
         public static TripChain MakeChain(ITashaPerson iPerson)
         {
-            TripChain c;
-            if (!TripChains.TryDequeue(out c))
+            if (!TripChains.TryDequeue(out TripChain c))
             {
                 return new TripChain(iPerson);
             }
@@ -213,10 +212,7 @@ namespace Tasha.Common
                             personNum++;
                         }
 
-                        //Save
-
-                        char purposeOrigin, purposeDestination;
-                        ActivityConverter.Converter.GetTripActivities(trip, trip.TripChain, out purposeOrigin, out purposeDestination);
+                        ActivityConverter.Converter.GetTripActivities(trip, trip.TripChain, out char purposeOrigin, out char purposeDestination);
 
                         string[] attributes = new string[22];
 
@@ -266,8 +262,7 @@ namespace Tasha.Common
 
         internal static void ReleaseChainPool()
         {
-            TripChain c;
-            while (TripChains.TryDequeue(out c))
+            while (TripChains.TryDequeue(out TripChain c))
             {
             }
         }

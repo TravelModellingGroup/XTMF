@@ -70,21 +70,21 @@ namespace TMG.NetworkEstimation
             {
                 if ( i > transitLine.Length )
                 {
-                    throw new XTMFRuntimeException(
+                    throw new XTMFRuntimeException(this,
                         $"i = {i}, ttsLines = {ttsLines}, transitLine.Length = {transitLine.Length}");
                 }
                 var mode = transitLine[i].Mode;
                 if ( transitLine[i].Id == null )
                 {
-                    throw new XTMFRuntimeException( "There is a TTS line without an ID!" );
+                    throw new XTMFRuntimeException(this, "There is a TTS line without an ID!" );
                 }
                 if ( transitLine[i].Id.Length < 1 )
                 {
-                    throw new XTMFRuntimeException( "There is a TTS line without an ID!" );
+                    throw new XTMFRuntimeException(this, "There is a TTS line without an ID!" );
                 }
                 if ( transitLine[i].Id[0].Length < 1 )
                 {
-                    throw new XTMFRuntimeException( "There is an invalid ID for the TTS line #" + i + "!" );
+                    throw new XTMFRuntimeException(this, "There is an invalid ID for the TTS line #" + i + "!" );
                 }
                 var firstLetter = transitLine[i].Id[0][0];
                 var compairePair = new Pair<char, char>(mode, firstLetter);

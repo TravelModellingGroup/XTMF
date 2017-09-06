@@ -193,15 +193,13 @@ namespace Tasha.StationAccess
 
             private float ComputeUtility(INetworkData autoNetwork, int originIndex, int destinationIndex)
             {
-                float aivtt, cost;
-                autoNetwork.GetAllData(originIndex, destinationIndex, StartTime, out aivtt, out cost);
+                autoNetwork.GetAllData(originIndex, destinationIndex, StartTime, out float aivtt, out float cost);
                 return AIVTT * aivtt + AutoCost * cost;
             }
 
             private float ComputeUtility(ITripComponentData transitNetwork, int originIndex, int destIndex)
             {
-                float ivtt, walk, wait, boardingPenalty, cost;
-                if (transitNetwork.GetAllData(originIndex, destIndex, StartTime, out ivtt, out walk, out wait, out boardingPenalty, out cost) && (boardingPenalty > 0))
+                if (transitNetwork.GetAllData(originIndex, destIndex, StartTime, out float ivtt, out float walk, out float wait, out float boardingPenalty, out float cost) && (boardingPenalty > 0))
                 {
                     return TIVTT * ivtt
                         + Boarding * boardingPenalty
@@ -217,11 +215,11 @@ namespace Tasha.StationAccess
             {
                 if (autoNetwork == null)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' we were unable to find an auto network named '" + AutoNetworkName + "'!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find an auto network named '" + AutoNetworkName + "'!");
                 }
                 if (transitNetwork == null)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' we were unable to find an transit network named '" + TransitNetworkName + "'!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find an transit network named '" + TransitNetworkName + "'!");
                 }
             }
 
@@ -307,7 +305,7 @@ namespace Tasha.StationAccess
                     return;
                 }
             }
-            throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode named '" + OurModeName + "'.");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode named '" + OurModeName + "'.");
         }
 
         private void AssignClosestStations()
@@ -368,7 +366,7 @@ namespace Tasha.StationAccess
             {
                 if (!capacity.ContainsIndex(point.O))
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' we found an invalid zone '" + point.O + "' while reading in the station capacities!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' we found an invalid zone '" + point.O + "' while reading in the station capacities!");
                 }
                 // use the log of capacity
                 capacity[point.O] = (float)Math.Log(point.Data + 1.0f);
@@ -378,8 +376,7 @@ namespace Tasha.StationAccess
 
         public Pair<IZone[], float[]> ProduceResult(ITripChain data)
         {
-            ITrip first, second;
-            if (GetTripsFirst(data, out first, out second))
+            if (GetTripsFirst(data, out ITrip first, out ITrip second))
             {
                 if (first == null | second == null) return null;
                 TimePeriod firstTimePeriod = GetTimePeriod(first);

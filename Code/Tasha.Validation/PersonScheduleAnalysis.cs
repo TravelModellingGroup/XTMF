@@ -73,13 +73,12 @@ namespace Tasha.Validation
         {
             foreach ( var person in household.Persons )
             {
-                var data = person["SData"] as SchedulerPersonData;
-                if ( data != null )
+                if (person["SData"] is SchedulerPersonData data)
                 {
                     var sched = data.Schedule;
-                    CalculateWorkingPersons( sched, WorkingPersons, WorkActivities, true );
-                    CalculateWorkingPersons( sched, MarketPersons, MarketActivities, true );
-                    CalculateWorkingPersons( sched, OtherPersons, OtherActivities, true );
+                    CalculateWorkingPersons(sched, WorkingPersons, WorkActivities, true);
+                    CalculateWorkingPersons(sched, MarketPersons, MarketActivities, true);
+                    CalculateWorkingPersons(sched, OtherPersons, OtherActivities, true);
                 }
             }
         }

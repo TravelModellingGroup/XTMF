@@ -24,19 +24,19 @@ using XTMF;
 
 namespace TMG.GTAModel.NetworkAnalysis
 {
-    [ModuleInformation( Name = "Extract Cost Matrix",
+    [ModuleInformation(Name = "Extract Cost Matrix",
                         Description = "Extracts average total cost (fares) matrix from a fare-based transit assignment,"
                         + "assuming that operator-access fares are stored on walk links in '@tfare', and that in-line or"
-                        + "zonal fares are stored in 'us3'." )]
+                        + "zonal fares are stored in 'us3'.")]
     public class ExtractCostMatrix : IEmmeTool
     {
-        [RunParameter( "Matrix Result Number", 8, "The number of the FULL matrix in which to store transit costs, in $." )]
+        [RunParameter("Matrix Result Number", 8, "The number of the FULL matrix in which to store transit costs, in $.")]
         public int MatrixResultNumber;
 
-        [RunParameter( "Scenario Number", 0, "The number of the scenario with FBTA results to analyze." )]
+        [RunParameter("Scenario Number", 0, "The number of the scenario with FBTA results to analyze.")]
         public int ScenarioNumber;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_cost_matrix";
         private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractCostMatrix";
 
@@ -60,21 +60,21 @@ namespace TMG.GTAModel.NetworkAnalysis
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+            if (mc == null)
+                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
 
             var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1}",
-                ScenarioNumber, MatrixResultNumber );
+            sb.AppendFormat("{0} {1}",
+                ScenarioNumber, MatrixResultNumber);
             string result = null;
 
             var toolName = ToolName;
-            if (!mc.CheckToolExists(toolName))
+            if (!mc.CheckToolExists(this, toolName))
             {
                 toolName = AlternateToolName;
             }
 
-            return mc.Run(toolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(this, toolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

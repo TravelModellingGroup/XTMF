@@ -79,7 +79,7 @@ namespace Tasha.Validation
 
                         if ( currentNumberOfTrips == 1 )
                         {
-                            throw new XTMFRuntimeException( "Household " + household.HouseholdId + " has a trip chain with only one trip. The trip chain belongs to person number " + person.Id );
+                            throw new XTMFRuntimeException(this, "Household " + household.HouseholdId + " has a trip chain with only one trip. The trip chain belongs to person number " + person.Id );
                         }
                     }
                 }

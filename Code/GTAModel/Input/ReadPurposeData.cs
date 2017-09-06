@@ -29,7 +29,7 @@ namespace TMG.GTAModel.Input
         [RootModule]
         public I4StepModel Root;
 
-        [RunParameter( "Purpose Name", "External", "The name of the purpose to read from.." )]
+        [RunParameter("Purpose Name", "External", "The name of the purpose to read from..")]
         public string Purpose;
 
         public IEnumerable<ODData<float>> Read()
@@ -37,12 +37,12 @@ namespace TMG.GTAModel.Input
             IPurpose purpose = GetPurpose();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             float[] ret = new float[zones.Length * zones.Length];
-            LoadData( ret, purpose );
+            LoadData(ret, purpose);
             var odData = new ODData<float>();
-            for ( int i = 0; i < zones.Length; i++ )
+            for (int i = 0; i < zones.Length; i++)
             {
                 odData.O = zones[i].ZoneNumber;
-                for ( int j = 0; j < zones.Length; j++ )
+                for (int j = 0; j < zones.Length; j++)
                 {
                     odData.D = zones[j].ZoneNumber;
                     odData.Data = ret[i * zones.Length + j];
@@ -54,36 +54,36 @@ namespace TMG.GTAModel.Input
         private void LoadData(float[] ret, IPurpose purpose)
         {
             var data = purpose.Flows;
-            if ( data == null ) return;
-            for ( int i = 0; i < data.Count; i++ )
+            if (data == null) return;
+            for (int i = 0; i < data.Count; i++)
             {
-                LoadData( ret, data[i] );
+                LoadData(ret, data[i]);
             }
         }
 
         private void LoadData(float[] ret, TreeData<float[][]> data)
         {
-            if ( data.Children != null )
+            if (data.Children != null)
             {
                 // if we have children just process them
-                for ( int i = 0; i < data.Children.Length; i++ )
+                for (int i = 0; i < data.Children.Length; i++)
                 {
-                    LoadData( ret, data.Children[i] );
+                    LoadData(ret, data.Children[i]);
                 }
             }
             else
             {
                 var grid = data.Result;
-                if ( grid == null )
+                if (grid == null)
                 {
                     return;
                 }
-                for ( int i = 0; i < grid.Length; i++ )
+                for (int i = 0; i < grid.Length; i++)
                 {
                     var row = grid[i];
-                    if ( row != null )
+                    if (row != null)
                     {
-                        for ( int j = 0; j < row.Length; j++ )
+                        for (int j = 0; j < row.Length; j++)
                         {
                             ret[i * grid.Length + j] += row[j];
                         }
@@ -96,14 +96,14 @@ namespace TMG.GTAModel.Input
         private IPurpose GetPurpose()
         {
             var purposes = Root.Purpose;
-            for ( int i = 0; i < purposes.Count; i++ )
+            for (int i = 0; i < purposes.Count; i++)
             {
-                if ( purposes[i].PurposeName == Purpose )
+                if (purposes[i].PurposeName == Purpose)
                 {
                     return purposes[i];
                 }
             }
-            throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find a purpose named '" + Purpose + "'!" );
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a purpose named '" + Purpose + "'!");
         }
 
         public string Name { get; set; }

@@ -201,9 +201,8 @@ namespace TMG.Estimation.AI
             // make it so
             ComputeParticleWeight();
             // The stars will have already been made so now we can compute our attraction to the stars
-            bool starsChanged;
-            UpdateStars(out starsChanged);
-            if(StarLog != null)
+            UpdateStars(out bool starsChanged);
+            if (StarLog != null)
             {
                 SaveStarState();
             }

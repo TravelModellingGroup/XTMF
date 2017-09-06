@@ -95,8 +95,8 @@ This module requires the root module in the model system to be of type ‘I4Step
             // Step 1, run the matrix loading tool
             // Step 2, once all of the demand data has been loaded run the calculation
             // Only do the assignment step if a toolname has been selected
-            if ( controller.Run( LoadMatrixToolName, String.Concat( ScenarioNumber, ' ', '"', Path.GetFullPath( demandFile ), '"' ) ) &&
-                String.IsNullOrWhiteSpace( AssingmentToolName ) ? true : controller.Run( AssingmentToolName, AssingmentParameters ) )
+            if ( controller.Run(this, LoadMatrixToolName, String.Concat( ScenarioNumber, ' ', '"', Path.GetFullPath( demandFile ), '"' ) ) &&
+                String.IsNullOrWhiteSpace( AssingmentToolName ) ? true : controller.Run(this, AssingmentToolName, AssingmentParameters ) )
             {
                 // Now that we are finished with copying the data we can go ahead and delete our demand file from
                 // temporary storage.
@@ -112,7 +112,7 @@ This module requires the root module in the model system to be of type ‘I4Step
                 var destFiles = DestinationFiles.Split( ',' );
                 if ( numbers.Length != destFiles.Length )
                 {
-                    throw new XTMFRuntimeException( "The number of matricies exported must be the same as the number of destination file names!" );
+                    throw new XTMFRuntimeException(this, "The number of matricies exported must be the same as the number of destination file names!" );
                 }
                 for ( int i = 0; i < numbers.Length; i++ )
                 {
@@ -120,9 +120,9 @@ This module requires the root module in the model system to be of type ‘I4Step
                     {
                         continue;
                     }
-                    if ( !controller.Run( ExportMatrixToolName, String.Concat( ScenarioNumber, " mf", numbers[i], " \"", Path.GetFullPath( GetPath( destFiles[i] ) ), '"' ) ) )
+                    if ( !controller.Run(this, ExportMatrixToolName, String.Concat( ScenarioNumber, " mf", numbers[i], " \"", Path.GetFullPath( GetPath( destFiles[i] ) ), '"' ) ) )
                     {
-                        throw new XTMFRuntimeException( "Unable to export matrix mf" + numbers[i] + " to \"" + GetPath( destFiles[i] ) + "\"" );
+                        throw new XTMFRuntimeException(this, "Unable to export matrix mf" + numbers[i] + " to \"" + GetPath( destFiles[i] ) + "\"" );
                     }
                 }
                 return true;

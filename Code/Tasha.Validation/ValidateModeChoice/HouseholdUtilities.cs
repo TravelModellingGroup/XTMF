@@ -27,7 +27,7 @@ namespace Tasha.Validation.ValidateModeChoice
 {
     public class HouseholdUtilities : IPostHouseholdIteration
     {
-        [RunParameter( "Output File", "HouseholdUtilities.csv", "The file where we can store the household utilities." )]
+        [RunParameter("Output File", "HouseholdUtilities.csv", "The file where we can store the household utilities.")]
         public string OutputFile;
 
         private Dictionary<int, float[]> Utilities = new Dictionary<int, float[]>();
@@ -52,55 +52,55 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public void HouseholdComplete(ITashaHousehold household, bool success)
         {
-            if ( success )
+            if (success)
             {
-                lock ( this )
+                lock (this)
                 {
-                    var writeHeader = !File.Exists( OutputFile );
-                    using ( StreamWriter writer = new StreamWriter( OutputFile, true ) )
+                    var writeHeader = !File.Exists(OutputFile);
+                    using (StreamWriter writer = new StreamWriter(OutputFile, true))
                     {
-                        if ( writeHeader )
+                        if (writeHeader)
                         {
-                            writer.WriteLine( "HouseholdID,HouseholdIteration,Household Utility" );
+                            writer.WriteLine("HouseholdID,HouseholdIteration,Household Utility");
                         }
                         var util = Utilities[household.HouseholdId];
-                        for ( int i = 0; i < util.Length; i++ )
+                        for (int i = 0; i < util.Length; i++)
                         {
-                            writer.Write( household.HouseholdId );
-                            writer.Write( ',' );
-                            writer.Write( i );
-                            writer.Write( ',' );
-                            writer.WriteLine( util[i] );
+                            writer.Write(household.HouseholdId);
+                            writer.Write(',');
+                            writer.Write(i);
+                            writer.Write(',');
+                            writer.WriteLine(util[i]);
                         }
                     }
                 }
             }
             else
             {
-                throw new XTMFRuntimeException( "A household was not able to be resolved." );
+                throw new XTMFRuntimeException(this, "A household was not able to be resolved.");
             }
         }
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
-            var houseData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
-            var resource = (HouseholdResourceAllocator) household["ResourceAllocator"];
+            var houseData = (ModeChoiceHouseholdData)household["ModeChoiceData"];
+            var resource = (HouseholdResourceAllocator)household["ResourceAllocator"];
 
             float householdU = 0;
 
-            for ( int i = 0; i < household.Persons.Length; i++ )
+            for (int i = 0; i < household.Persons.Length; i++)
             {
                 var personData = houseData.PersonData[i];
-                for ( int j = 0; j < household.Persons[i].TripChains.Count; j++ )
+                for (int j = 0; j < household.Persons[i].TripChains.Count; j++)
                 {
                     var tripChainData = personData.TripChainData[j];
-                    if ( tripChainData.TripChain.JointTrip && !tripChainData.TripChain.JointTripRep )
+                    if (tripChainData.TripChain.JointTrip && !tripChainData.TripChain.JointTripRep)
                     {
                         continue;
                     }
                     var chosenVehicleType = resource.Resolution[i][j];
                     var bestChosen = tripChainData.BestPossibleAssignmentForVehicleType[chosenVehicleType];
-                    for ( int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++ )
+                    for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
                     {
                         var tripData = tripChainData.TripData[k];
                         int modeIndex = bestChosen.PickedModes[k];
@@ -111,13 +111,13 @@ namespace Tasha.Validation.ValidateModeChoice
 
             lock (this)
             {
-                if ( Utilities.ContainsKey( household.HouseholdId ) )
+                if (Utilities.ContainsKey(household.HouseholdId))
                 {
                     Utilities[household.HouseholdId][hhldIteration] = householdU;
                 }
                 else
                 {
-                    Utilities.Add( household.HouseholdId, new float[totalHouseholdIterations] );
+                    Utilities.Add(household.HouseholdId, new float[totalHouseholdIterations]);
                     Utilities[household.HouseholdId][hhldIteration] = householdU;
                 }
             }
@@ -129,12 +129,12 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public void IterationFinished(int iteration, int totalIterations)
         {
-            
+
         }
 
         public void IterationStarting(int iteration, int totalIterations)
         {
-            
+
         }
 
         public bool RuntimeValidation(ref string error)

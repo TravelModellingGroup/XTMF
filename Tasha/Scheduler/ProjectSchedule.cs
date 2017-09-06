@@ -99,8 +99,10 @@ namespace Tasha.Scheduler
                         if(Episodes[conflict.Position].ActivityType != Activity.PrimaryWork) return false;
                         // Since it is a primary work episode we need to split it
                         var postEp = new ActivityEpisode(new TimeWindow(ep.EndTime, Episodes[conflict.Position].EndTime), Activity.PrimaryWork,
-                             Episodes[conflict.Position].Owner);
-                        postEp.Zone = Episodes[conflict.Position].Zone;
+                             Episodes[conflict.Position].Owner)
+                        {
+                            Zone = Episodes[conflict.Position].Zone
+                        };
                         ((Episode)Episodes[conflict.Position]).EndTime = ep.StartTime;
                         InsertAt(ep, conflict.Position + 1);
                         InsertAt(postEp, conflict.Position + 2);
@@ -330,12 +332,12 @@ namespace Tasha.Scheduler
             // Sanity Check
             if(post.EndTime > lateTimeBound)
             {
-                throw new XTMFRuntimeException("We ended too late when inserting with 3 into a person schedule!\r\n"
+                throw new XTMFRuntimeException(Scheduler, "We ended too late when inserting with 3 into a person schedule!\r\n"
                     + Dump(this));
             }
             if(prior.StartTime < earlyTimeBound)
             {
-                throw new XTMFRuntimeException("We started too early when inserting with 3 into a person schedule!\r\n"
+                throw new XTMFRuntimeException(Scheduler, "We started too early when inserting with 3 into a person schedule!\r\n"
                                                + Dump(this));
             }
             return true;
@@ -389,7 +391,7 @@ namespace Tasha.Scheduler
             {
                 return MiddlePostInsert(ref earlyTimeBound, middle, post);
             }
-            throw new XTMFRuntimeException("Unexpected shift to insert case!");
+            throw new XTMFRuntimeException(Scheduler, "Unexpected shift to insert case!");
         }
 
         private bool UnableToJustMoveToInsert(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound)

@@ -237,12 +237,12 @@ namespace TMG.GTAModel
             {
                 if ( !File.Exists( path ) )
                 {
-                    throw new XTMFRuntimeException( "The file \"" + path + "\" does not exist!" );
+                    throw new XTMFRuntimeException(this, "The file \"" + path + "\" does not exist!" );
                 }
             }
             catch ( IOException )
             {
-                throw new XTMFRuntimeException( "An error occured wile looking for the file \"" + path + "\"!" );
+                throw new XTMFRuntimeException(this, "An error occured wile looking for the file \"" + path + "\"!" );
             }
             return path;
         }
@@ -251,13 +251,15 @@ namespace TMG.GTAModel
         {
             // create the data if it doesn't already exist
             OdMatrixWriter<IZone> creator =
-                new OdMatrixWriter<IZone>( Root.ZoneSystem.ZoneArray, 2, 3 );
-            creator.Year = Year;
-            creator.AdditionalDescription = "Automatically Generated";
-            creator.StartTimesHeader = "6:00,15:30,Other";
-            creator.EndTimesHeader = "9:00AM,18:30,Other";
-            creator.TypeHeader = "TravelTime,Cost";
-            creator.Modes = "Auto";
+                new OdMatrixWriter<IZone>(Root.ZoneSystem.ZoneArray, 2, 3)
+                {
+                    Year = Year,
+                    AdditionalDescription = "Automatically Generated",
+                    StartTimesHeader = "6:00,15:30,Other",
+                    EndTimesHeader = "9:00AM,18:30,Other",
+                    TypeHeader = "TravelTime,Cost",
+                    Modes = "Auto"
+                };
             LoadTimes( creator, AlreadyLoaded ? UpdatedAMTravelTimeData : BaseAMTravelTimeData, 0 );
             LoadTimes( creator, AlreadyLoaded ? UpdatedPMTravelTimeData : BasePMTravelTimeData, 1 );
             LoadTimes( creator, AlreadyLoaded ? UpdatedOffpeakTravelTimeData : BaseOffpeakTravelTimeData, 2 );

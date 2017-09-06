@@ -38,10 +38,9 @@ namespace XTMF.Testing.Editing
             Assert.IsTrue((project = controller.LoadOrCreate("TestProject", ref error)) != null);
             using (var session = controller.EditProject(project))
             {
-                string modelSystem;
                 var testModelSystem = CreateTestModelSystem(runtime);
                 Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
-                Assert.IsTrue(session.ExportModelSystemAsString(0, out modelSystem, ref error), error);
+                Assert.IsTrue(session.ExportModelSystemAsString(0, out string modelSystem, ref error), error);
             }
         }
 
@@ -56,10 +55,9 @@ namespace XTMF.Testing.Editing
             Assert.IsTrue((project = controller.LoadOrCreate("TestProject", ref error)) != null);
             using (var session = controller.EditProject(project))
             {
-                string modelSystem;
                 var testModelSystem = CreateTestModelSystem(runtime);
                 Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
-                Assert.IsTrue(session.ExportModelSystemAsString(0, out modelSystem, ref error), error);
+                Assert.IsTrue(session.ExportModelSystemAsString(0, out string modelSystem, ref error), error);
                 Assert.IsTrue(session.ImportModelSystemFromString(modelSystem, "TestModelSystem2", ref error), error);
                 Assert.AreEqual(2, session.Project.ModelSystemStructure.Count);
                 Assert.AreEqual("TestModelSystem2", session.Project.ModelSystemStructure[1].Name);

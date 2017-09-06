@@ -50,10 +50,9 @@ namespace Tasha.Common
 
         public static IPersonIterationData MakePersonIterationData(ITashaPerson person)
         {
-            PersonIterationData p;
-            if ( Items.TryTake( out p ) )
+            if (Items.TryTake(out PersonIterationData p))
             {
-                p.PopulateData( person );
+                p.PopulateData(person);
                 return p;
             }
             return new PersonIterationData( person );
@@ -61,8 +60,7 @@ namespace Tasha.Common
 
         public ITashaMode ModeChosen(ITrip trip)
         {
-            ITashaMode mode;
-            if ( TripModes.TryGetValue( trip, out mode ) )
+            if (TripModes.TryGetValue(trip, out ITashaMode mode))
             {
                 return mode;
             }

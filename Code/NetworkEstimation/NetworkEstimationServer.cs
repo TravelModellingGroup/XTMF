@@ -160,7 +160,7 @@ namespace TMG.NetworkEstimation
             var baseModelSystem = Host.CreateModelSystem( NetworkEstimationModelSystemName, ref error );
             if ( baseModelSystem == null )
             {
-                throw new XTMFRuntimeException( error );
+                throw new XTMFRuntimeException(this, error );
             }
             for ( int i = 0; i < NumberOfChildren; i++ )
             {
@@ -232,7 +232,7 @@ namespace TMG.NetworkEstimation
             {
                 ConnectedClients.Add( obj );
             }
-            Configuration.CreateProgressReport( obj.UniqueID == null ? "Remote Host" : obj.UniqueID, delegate {
+            Configuration.CreateProgressReport(obj.UniqueID ?? "Remote Host", delegate {
                 return obj.Progress;
             }, new Tuple<byte, byte, byte>( 150, 50, 50 ) );
         }

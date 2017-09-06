@@ -173,8 +173,7 @@ namespace Tasha.Scheduler
 
         internal static SchedulerHomeTrip GetTrip(int householdIterations)
         {
-            SchedulerHomeTrip ret;
-            if (!Trips.TryTake(out ret))
+            if (!Trips.TryTake(out SchedulerHomeTrip ret))
             {
                 return new SchedulerHomeTrip(householdIterations);
             }

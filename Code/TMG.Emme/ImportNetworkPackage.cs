@@ -57,7 +57,7 @@ namespace TMG.Emme
         {
             var mc = controller as ModellerController;
             if (mc == null)
-                throw new XTMFRuntimeException("Controller is not a ModellerController!");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
             var args = string.Join(" ", "\"" + Path.GetFullPath(NetworkPackage.GetFilePath()) + "\"",
                                     ScenarioId, ConflictOption.ToString(), AddFunctions.ToString());
@@ -65,7 +65,7 @@ namespace TMG.Emme
             Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(this, _ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

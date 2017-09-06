@@ -310,10 +310,9 @@ for assigning school zones." )]
         {
             foreach ( var mode in Modes )
             {
-                var c = mode as IIterationSensitive;
-                if ( c != null )
+                if (mode is IIterationSensitive c)
                 {
-                    c.IterationEnding( CurrentIteration, TotalIterations );
+                    c.IterationEnding(CurrentIteration, TotalIterations);
                 }
                 TellModesWeAreEndingIteration( mode as IModeCategory );
             }
@@ -325,10 +324,9 @@ for assigning school zones." )]
             {
                 foreach ( var mode in node.Children )
                 {
-                    var c = mode as IIterationSensitive;
-                    if ( c != null )
+                    if (mode is IIterationSensitive c)
                     {
-                        c.IterationEnding( CurrentIteration, TotalIterations );
+                        c.IterationEnding(CurrentIteration, TotalIterations);
                     }
                     TellModesWeAreEndingIteration( mode as IModeCategory );
                 }
@@ -339,10 +337,9 @@ for assigning school zones." )]
         {
             foreach ( var mode in Modes )
             {
-                var c = mode as IIterationSensitive;
-                if ( c != null )
+                if (mode is IIterationSensitive c)
                 {
-                    c.IterationStarting( CurrentIteration, TotalIterations );
+                    c.IterationStarting(CurrentIteration, TotalIterations);
                 }
                 TellModesWeAreStartingNewIteration( mode as IModeCategory );
             }
@@ -354,12 +351,11 @@ for assigning school zones." )]
             {
                 foreach ( var mode in node.Children )
                 {
-                    var c = mode as IIterationSensitive;
-                    if ( c != null )
+                    if (mode is IIterationSensitive c)
                     {
-                        Status = String.Concat( "Running Iteration ", ( CurrentIteration + 1 ), " of ", TotalIterations, " : Initializing ", mode.ModeName );
+                        Status = String.Concat("Running Iteration ", (CurrentIteration + 1), " of ", TotalIterations, " : Initializing ", mode.ModeName);
                         GetProgress = () => mode.Progress;
-                        c.IterationStarting( CurrentIteration, TotalIterations );
+                        c.IterationStarting(CurrentIteration, TotalIterations);
                     }
                     TellModesWeAreStartingNewIteration( mode as IModeCategory );
                 }

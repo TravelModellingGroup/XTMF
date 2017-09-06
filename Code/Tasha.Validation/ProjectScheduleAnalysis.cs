@@ -89,8 +89,7 @@ namespace Tasha.Validation
                 foreach(var person in household.Persons)
                 {
                     var expFactor = person.ExpansionFactor;
-                    var data = person["SData"] as SchedulerPersonData;
-                    if(data != null)
+                    if (person["SData"] is SchedulerPersonData data)
                     {
                         var workSched = data.WorkSchedule.Schedule;
                         var schoolSched = data.SchoolSchedule.Schedule;
@@ -100,11 +99,11 @@ namespace Tasha.Validation
                         GatherData(schoolSched, SchoolEndTime, false, expFactor);
                         CalculateWorkingPersons(workSched, expFactor);
                         //GatherDuration( workSched, this.WorkDuration, false );
-                        if(workSched.EpisodeCount > 0)
+                        if (workSched.EpisodeCount > 0)
                         {
                             Time duration = workSched.Episodes[workSched.EpisodeCount - 1].EndTime - workSched.Episodes[0].StartTime;
                             int index = GetBucketIndex(duration);
-                            if(index >= 0 && index < WorkStartTime.Length)
+                            if (index >= 0 && index < WorkStartTime.Length)
                             {
                                 WorkDuration[index] += expFactor;
                             }

@@ -28,13 +28,12 @@ namespace XTMF.RemoteClient
         private static void Main(string[] args)
         {
             SystemEvents.PowerModeChanged += PowerHandeler;
-            int port;
-            if ( args.Length < 2 )
+            if (args.Length < 2)
             {
-                Console.WriteLine( "Usage: XTMF.RemoteClient.exe serverAddress severPort [<Optional>ConfigurationFile]" );
+                Console.WriteLine("Usage: XTMF.RemoteClient.exe serverAddress severPort [<Optional>ConfigurationFile]");
                 return;
             }
-            if ( !int.TryParse( args[1], out port ) )
+            if ( !int.TryParse( args[1], out int port ) )
             {
                 Console.WriteLine( "The port needs to be number!\r\nUsage: XTMF.RemoteClient.exe [serverAddress] [severPort] [<Optional>ConfigurationFile]" );
                 return;

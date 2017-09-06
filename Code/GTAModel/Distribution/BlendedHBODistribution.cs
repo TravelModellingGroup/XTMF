@@ -237,7 +237,7 @@ namespace TMG.GTAModel
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory[][] cats, float[][][] productionSet, float[] friction, float[] production, int subsetIndex)
         {
             var numberOfZones = zones.Length;
-            float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
+            float[] ret = friction ?? (new float[numberOfZones * numberOfZones]);
             if (!String.IsNullOrWhiteSpace(LoadFrictionFileName))
             {
                 LoadFriction(ret);
@@ -279,9 +279,8 @@ namespace TMG.GTAModel
         {
             Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
            {
-               int regionIndex;
                var origin = zones[i];
-               if (!InverseLookup(origin.RegionNumber, out regionIndex))
+               if (!InverseLookup(origin.RegionNumber, out int regionIndex))
                {
                    return;
                }
@@ -328,7 +327,7 @@ namespace TMG.GTAModel
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("Unable to load distribution cache file!\r\n" + e.Message);
+                throw new XTMFRuntimeException(this, "Unable to load distribution cache file!\r\n" + e.Message);
             }
         }
 
@@ -373,7 +372,7 @@ namespace TMG.GTAModel
                 var dirName = Path.GetDirectoryName(fileName);
                 if (dirName == null)
                 {
-                    throw new XTMFRuntimeException($"In {Name} we were unable to get the directory name from the file {fileName}!");
+                    throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory name from the file {fileName}!");
                 }
                 if (!Directory.Exists(dirName))
                 {
@@ -389,7 +388,7 @@ namespace TMG.GTAModel
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("Unable to save distribution cache file!\r\n" + e.Message);
+                throw new XTMFRuntimeException(this, "Unable to save distribution cache file!\r\n" + e.Message);
             }
         }
 

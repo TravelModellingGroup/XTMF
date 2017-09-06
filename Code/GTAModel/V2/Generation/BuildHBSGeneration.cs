@@ -68,7 +68,7 @@ namespace TMG.GTAModel.V2.Generation
         public void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
             // never gets called
-            throw new XTMFRuntimeException( "For '" + Name + "' this generate method should never be called!" );
+            throw new XTMFRuntimeException(this, "For '" + Name + "' this generate method should never be called!" );
         }
 
         public void InitializeDemographicCategory()
@@ -93,12 +93,14 @@ namespace TMG.GTAModel.V2.Generation
 
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int age)
         {
-            SchoolGeneration gen = new SchoolGeneration();
-            gen.Root = Root;
-            gen.Age = age;
-            gen.SaveProduction = SaveProduction;
-            gen.StudentDailyRates = LoadDailyRates.GiveData();
-            gen.StudentTimeOfDayRates = LoadTimeOfDayRates.GiveData();
+            SchoolGeneration gen = new SchoolGeneration
+            {
+                Root = Root,
+                Age = age,
+                SaveProduction = SaveProduction,
+                StudentDailyRates = LoadDailyRates.GiveData(),
+                StudentTimeOfDayRates = LoadTimeOfDayRates.GiveData()
+            };
             list.Add( gen );
         }
 

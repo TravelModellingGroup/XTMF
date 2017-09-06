@@ -125,10 +125,9 @@ namespace TMG.Estimation.AI
         {
             var baseParameters = new ParameterSetting[parameters.Length];
             // we only read the first line
-            int columns;
-            if(reader.LoadLine(out columns))
+            if (reader.LoadLine(out int columns))
             {
-                for(int i = 0; i < parameters.Length; i++)
+                for (int i = 0; i < parameters.Length; i++)
                 {
                     baseParameters[i] = new ParameterSetting()
                     {
@@ -138,7 +137,7 @@ namespace TMG.Estimation.AI
                     };
                 }
 
-                for(int i = 0; i < columnMap.Length; i++)
+                for (int i = 0; i < columnMap.Length; i++)
                 {
                     reader.Get(out baseParameters[columnMap[i]].Current, i + 2);
                 }
@@ -149,19 +148,17 @@ namespace TMG.Estimation.AI
         private int[] CreateParameterMap(CsvReader reader)
         {
             var parameters = Root.Parameters.ToArray();
-            int columns;
-            reader.LoadLine( out columns );
+            reader.LoadLine(out int columns);
             var ret = new int[columns - 2];
             for ( int i = 2; i < columns; i++ )
             {
-                string name;
-                reader.Get( out name, i );
+                reader.Get(out string name, i);
                 var selectedParameter = ( from p in parameters
                                           where p.Names.Contains( name )
                                           select p ).FirstOrDefault();
                 if ( selectedParameter == null )
                 {
-                    throw new XTMFRuntimeException( "In '" + Name + " the parameter '" + name + "' could not be resolved." );
+                    throw new XTMFRuntimeException(this, "In '" + Name + " the parameter '" + name + "' could not be resolved." );
                 }
                 ret[i - 2] = IndexOf( parameters, selectedParameter );
             }

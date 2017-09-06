@@ -85,11 +85,10 @@ namespace XTMF.Testing
             {
                 reader.LoadLine();
                 //"A,B,C,D,E"
-                string s;
-                for ( int i = 0; i < 5; i++ )
+                for (int i = 0; i < 5; i++)
                 {
-                    reader.Get( out s, i );
-                    Assert.AreEqual( new String( (char)( 'A' + i ), 1 ), s );
+                    reader.Get(out string s, i);
+                    Assert.AreEqual(new String((char)('A' + i), 1), s);
                 }
             }
         }
@@ -102,19 +101,17 @@ namespace XTMF.Testing
                 // first line
                 reader.LoadLine();
                 //"A,B,C,D,E"
-                string s;
-                for ( int i = 0; i < 5; i++ )
+                for (int i = 0; i < 5; i++)
                 {
-                    reader.Get( out s, i );
-                    Assert.AreEqual( new String( (char)( 'A' + i ), 1 ), s );
+                    reader.Get(out string s, i);
+                    Assert.AreEqual(new String((char)('A' + i), 1), s);
                 }
                 //"\"1\",\"2\",3,\"4\",5"
                 reader.LoadLine();
-                int n;
-                for ( int i = 0; i < 5; i++ )
+                for (int i = 0; i < 5; i++)
                 {
-                    reader.Get( out n, i );
-                    Assert.AreEqual( i + 1, n );
+                    reader.Get(out int n, i);
+                    Assert.AreEqual(i + 1, n);
                 }
             }
         }
@@ -127,10 +124,9 @@ namespace XTMF.Testing
                 // first line
                 reader.LoadLine();
                 //"A,B,C,D,E"
-                string s;
                 for (int i = 0; i < 5; i++)
                 {
-                    reader.Get(out s, i);
+                    reader.Get(out string s, i);
                     Assert.AreEqual(new String((char)('A' + i), 1), s);
                 }
                 //writer.WriteLine("\"abc\"\"1\",2,3,4,5");
@@ -145,9 +141,8 @@ namespace XTMF.Testing
         {
             using ( CsvReader reader = new CsvReader( TestCSVFileNames[1] ) )
             {
-                int columns;
                 int numberOfLines = 0;
-                while ( reader.LoadLine( out columns ) )
+                while ( reader.LoadLine( out int columns ) )
                 {
                     if ( ( columns == 0 ) & ( numberOfLines != 4 ) )
                     {
@@ -168,9 +163,8 @@ namespace XTMF.Testing
         {
             using (CsvReader reader = new CsvReader(TestCSVFileNames[3]))
             {
-                int columns;
                 int numberOfLines = 0;
-                while (reader.LoadLine(out columns))
+                while (reader.LoadLine(out int columns))
                 {
                     if ((columns == 0) & (numberOfLines != 4))
                     {

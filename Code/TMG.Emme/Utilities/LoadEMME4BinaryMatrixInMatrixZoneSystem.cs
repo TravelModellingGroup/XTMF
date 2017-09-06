@@ -55,7 +55,7 @@ namespace TMG.Emme.Utilities
                 var matrix = new EmmeMatrix(reader);
                 if (matrix.Dimensions != 2)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the matrix loaded in from '" + MatrixFile + "' was not an OD binary matrix!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' the matrix loaded in from '" + MatrixFile + "' was not an OD binary matrix!");
                 }
                 Data = SparseTwinIndex<float>.CreateSquareTwinIndex(matrix.Indexes[0], matrix.Indexes[1], matrix.FloatData);
                 Loaded = true;

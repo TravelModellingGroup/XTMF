@@ -54,10 +54,10 @@ namespace TMG.NetworkEstimation
             var mc = controller as ModellerController;
             if ( mc == null )
             {
-                throw new XTMFRuntimeException( "Controller is not a ModellerController" );
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController" );
             }
             string result = "";
-            mc.Run( ToolName, ScenarioNumber.ToString(), ( p => _Progress = p ), ref result );
+            mc.Run(this, ToolName, ScenarioNumber.ToString(), ( p => _Progress = p ), ref result );
 
             StringBuilder builder = new StringBuilder();
             builder.Append(Root.CurrentTask.Generation);

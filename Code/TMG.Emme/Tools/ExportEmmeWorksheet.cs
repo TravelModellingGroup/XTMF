@@ -77,7 +77,7 @@ namespace TMG.Emme.Tools
             var mc = controller as ModellerController;
             if(mc == null)
             {
-                throw new XTMFRuntimeException("Controller is not a ModellerController.");
+                throw new XTMFRuntimeException(this, "Controller is not a ModellerController.");
             }
 
             var configuration = new Dictionary<string, object>();
@@ -105,7 +105,7 @@ namespace TMG.Emme.Tools
                                     "\"" + builder + "\""
                                     );
 
-            return mc.Run(_ToolName, args);
+            return mc.Run(this,_ToolName, args);
         }
 
         private void _DictToJSON(Dictionary<string, object> dict, ref StringBuilder builder)
@@ -148,8 +148,7 @@ namespace TMG.Emme.Tools
             int nItems = 0;
             foreach(var val in list)
             {
-                var valAsDict = val as Dictionary<string, object>;
-                if(valAsDict != null)
+                if (val is Dictionary<string, object> valAsDict)
                 {
                     _DictToJSON(valAsDict, ref builder);
                 }
@@ -233,10 +232,12 @@ namespace TMG.Emme.Tools
         {
             get
             {
-                var dict = new Dictionary<string, object>();
-                dict["name"] = ViewName;
-                dict["parent_folders"] = ParentFolders;
-                dict["type"] = "EXPLORER";
+                var dict = new Dictionary<string, object>
+                {
+                    ["name"] = ViewName,
+                    ["parent_folders"] = ParentFolders,
+                    ["type"] = "EXPLORER"
+                };
                 return dict;
             }
         }
@@ -254,9 +255,11 @@ namespace TMG.Emme.Tools
         {
             get
             {
-                var dict = new Dictionary<string, object>();
-                dict["file_path"] = Path.GetFullPath(ViewFile.GetFilePath());
-                dict["type"] = "FILE";
+                var dict = new Dictionary<string, object>
+                {
+                    ["file_path"] = Path.GetFullPath(ViewFile.GetFilePath()),
+                    ["type"] = "FILE"
+                };
                 return dict;
             }
         }
@@ -284,10 +287,14 @@ namespace TMG.Emme.Tools
         {
             get
             {
-                var dict = new Dictionary<string, object>();
-                dict["x0"] = XMin; dict["x1"] = XMax;
-                dict["y0"] = YMin; dict["y1"] = YMax;
-                dict["type"] = "BOX";
+                var dict = new Dictionary<string, object>
+                {
+                    ["x0"] = XMin,
+                    ["x1"] = XMax,
+                    ["y0"] = YMin,
+                    ["y1"] = YMax,
+                    ["type"] = "BOX"
+                };
                 return dict;
             }
         }
@@ -452,12 +459,17 @@ namespace TMG.Emme.Tools
         {
             get
             {
-                var dict = new Dictionary<string, object>();
-                dict["width"] = Width; dict["height"] = Height;
-                dict["margin_top"] = MarginTop; dict["margin_bottom"] = MarginBottom;
-                dict["margin_left"] = MarginLeft; dict["margin_right"] = MarginRight;
-                dict["format"] = ImageFormat;
-                dict["type"] = "IMAGE";
+                var dict = new Dictionary<string, object>
+                {
+                    ["width"] = Width,
+                    ["height"] = Height,
+                    ["margin_top"] = MarginTop,
+                    ["margin_bottom"] = MarginBottom,
+                    ["margin_left"] = MarginLeft,
+                    ["margin_right"] = MarginRight,
+                    ["format"] = ImageFormat,
+                    ["type"] = "IMAGE"
+                };
                 return dict;
             }
         }
@@ -541,12 +553,17 @@ namespace TMG.Emme.Tools
         {
             get
             {
-                var dict = new Dictionary<string, object>();
-                dict["width"] = Width; dict["height"] = Height;
-                dict["margin_top"] = MarginTop; dict["margin_bottom"] = MarginBottom;
-                dict["margin_left"] = MarginLeft; dict["margin_right"] = MarginRight;
-                dict["unit"] = Unit.ToString();
-                dict["type"] = "SVG";
+                var dict = new Dictionary<string, object>
+                {
+                    ["width"] = Width,
+                    ["height"] = Height,
+                    ["margin_top"] = MarginTop,
+                    ["margin_bottom"] = MarginBottom,
+                    ["margin_left"] = MarginLeft,
+                    ["margin_right"] = MarginRight,
+                    ["unit"] = Unit.ToString(),
+                    ["type"] = "SVG"
+                };
                 return dict;
             }
         }
@@ -595,18 +612,24 @@ namespace TMG.Emme.Tools
         {
             get
             {
-                var dict = new Dictionary<string, object>();
-                dict["margin_top"] = MarginTop; dict["margin_bottom"] = MarginBottom;
-                dict["margin_left"] = MarginLeft; dict["margin_right"] = MarginRight;
-                dict["extend_to_margins"] = ExtendToMargins.ToString();
-                dict["orientation"] = Orientation.ToString();
-                dict["paper_size"] = PaperSize.ToString();
-                if(PaperSize == NamedPaperSizes.CUSTOM)
+                var dict = new Dictionary<string, object>
                 {
-                    var subduct = new Dictionary<string, object>();
-                    subduct["height"] = CustomHeight;
-                    subduct["width"] = CustomWidth;
-                    subduct["unit"] = CustomUnit.ToString();
+                    ["margin_top"] = MarginTop,
+                    ["margin_bottom"] = MarginBottom,
+                    ["margin_left"] = MarginLeft,
+                    ["margin_right"] = MarginRight,
+                    ["extend_to_margins"] = ExtendToMargins.ToString(),
+                    ["orientation"] = Orientation.ToString(),
+                    ["paper_size"] = PaperSize.ToString()
+                };
+                if (PaperSize == NamedPaperSizes.CUSTOM)
+                {
+                    var subduct = new Dictionary<string, object>
+                    {
+                        ["height"] = CustomHeight,
+                        ["width"] = CustomWidth,
+                        ["unit"] = CustomUnit.ToString()
+                    };
                     dict["custom_size"] = subduct;
                 }
                 return dict;

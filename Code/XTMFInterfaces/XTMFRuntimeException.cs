@@ -33,9 +33,10 @@ namespace XTMF
         {
         }
 
+        [System.Obsolete("Use XTMFRuntimeException(IModule module, string message) instead.")]
         public XTMFRuntimeException(string message)
-            : base( message )
         {
+
         }
 
         public XTMFRuntimeException(IModule module, string message)

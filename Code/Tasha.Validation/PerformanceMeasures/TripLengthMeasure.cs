@@ -104,10 +104,9 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 distanceBin = (int)Math.Round(tripDistance, 0);
             }
-            float[] data;
-            if(!ResultsDictionary.TryGetValue(purpose, out data))
+            if (!ResultsDictionary.TryGetValue(purpose, out float[] data))
             {
-                lock(ResultsDictionary)
+                lock (ResultsDictionary)
                 {
                     if (!ResultsDictionary.TryGetValue(purpose, out data))
                     {

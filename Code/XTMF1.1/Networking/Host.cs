@@ -64,14 +64,16 @@ namespace XTMF.Networking
             IsShutdown = false;
             Configuration = configuration;
             ConnectedClients = new List<IRemoteXTMF>();
-            Thread hostThread = new Thread( HostMain );
-            Thread taskDistributionThread = new Thread( DistributeTasks );
-            taskDistributionThread.IsBackground = true;
+            Thread hostThread = new Thread(HostMain);
+            Thread taskDistributionThread = new Thread(DistributeTasks)
+            {
+                IsBackground = true
+            };
             hostThread.IsBackground = true;
             hostThread.Start();
             taskDistributionThread.Start();
             // Spin until the host has been setup
-            while ( !SetupComplete ) Thread.Sleep( 0 );
+            while (!SetupComplete) Thread.Sleep(0);
         }
 
         public event Action AllModelSystemRunsComplete;
@@ -102,7 +104,7 @@ namespace XTMF.Networking
 
         public void ClientExited()
         {
-            lock ( this )
+            lock (this)
             {
                 RemoveAllEventHandels();
             }
@@ -110,12 +112,12 @@ namespace XTMF.Networking
 
         public IModelSystemStructure CreateModelSystem(string name, ref string error)
         {
-            foreach ( var ms in Configuration.ModelSystemRepository )
+            foreach (var ms in Configuration.ModelSystemRepository)
             {
-                if ( ms.Name == name )
+                if (ms.Name == name)
                 {
                     var clone = ms.ModelSystemStructure.Clone();
-                    clone.Validate( ref error );
+                    clone.Validate(ref error);
                     return clone;
                 }
             }
@@ -130,58 +132,57 @@ namespace XTMF.Networking
 
         public void Dispose()
         {
-            Dispose( true );
+            Dispose(true);
         }
 
         public void ExecuteModelSystemAsync(IModelSystemStructure structure)
         {
-            ExecutionTasks.Add( structure );
+            ExecutionTasks.Add(structure);
         }
 
         public void ExecuteModelSystemAsync(ICollection<IModelSystemStructure> structure)
         {
-            foreach ( var mss in structure )
+            foreach (var mss in structure)
             {
-                ExecutionTasks.Add( mss );
+                ExecutionTasks.Add(mss);
             }
         }
 
         public void RegisterCustomMessageHandler(int customMessageNumber, Action<object, IRemoteXTMF> handler)
         {
-            List<Action<object, IRemoteXTMF>> port;
-            lock ( this )
+            lock (this)
             {
-                if ( !CustomHandlers.TryGetValue( customMessageNumber, out port ) )
+                if (!CustomHandlers.TryGetValue(customMessageNumber, out List<Action<object, IRemoteXTMF>> port))
                 {
                     port = new List<Action<object, IRemoteXTMF>>();
                     CustomHandlers[customMessageNumber] = port;
                 }
-                port.Add( handler );
+                port.Add(handler);
             }
         }
 
         public void RegisterCustomReceiver(int customMessageNumber, Func<Stream, IRemoteXTMF, object> converter)
         {
-            if ( !CustomReceivers.TryAdd( customMessageNumber, converter ) )
+            if (!CustomReceivers.TryAdd(customMessageNumber, converter))
             {
-                throw new XTMFRuntimeException( "The Custom Receiver port " + customMessageNumber + " was attempted to be registered twice!" );
+                throw new XTMFRuntimeException(null, "The Custom Receiver port " + customMessageNumber + " was attempted to be registered twice!");
             }
         }
 
         public void RegisterCustomSender(int customMessageNumber, Action<object, IRemoteXTMF, Stream> converter)
         {
-            if ( !CustomSenders.TryAdd( customMessageNumber, converter ) )
+            if (!CustomSenders.TryAdd(customMessageNumber, converter))
             {
-                throw new XTMFRuntimeException( "The Custom Sender port " + customMessageNumber + " was attempted to be registered twice!" );
+                throw new XTMFRuntimeException(null, "The Custom Sender port " + customMessageNumber + " was attempted to be registered twice!");
             }
         }
 
         public void Shutdown()
         {
             Exit = true;
-            while ( HostActive )
+            while (HostActive)
             {
-                Thread.Sleep( 0 );
+                Thread.Sleep(0);
                 Thread.MemoryBarrier();
             }
             IsShutdown = true;
@@ -189,12 +190,12 @@ namespace XTMF.Networking
 
         protected virtual void Dispose(bool includeManaged)
         {
-            if ( AvailableClients != null )
+            if (AvailableClients != null)
             {
                 AvailableClients.Dispose();
                 AvailableClients = null;
             }
-            if ( ExecutionTasks != null )
+            if (ExecutionTasks != null)
             {
                 ExecutionTasks.Dispose();
                 ExecutionTasks = null;
@@ -203,8 +204,8 @@ namespace XTMF.Networking
 
         private static bool AuthorizeApplication(INetFwMgr manager, string title, string applicationPath, NET_FW_SCOPE_ scope, NET_FW_IP_VERSION_ ipVersion)
         {      // Create the type from prog id
-            Type type = Type.GetTypeFromProgID( PROGID_AUTHORIZED_APPLICATION );
-            INetFwAuthorizedApplication auth = Activator.CreateInstance( type ) as INetFwAuthorizedApplication;
+            Type type = Type.GetTypeFromProgID(PROGID_AUTHORIZED_APPLICATION);
+            INetFwAuthorizedApplication auth = Activator.CreateInstance(type) as INetFwAuthorizedApplication;
             auth.Name = title;
             auth.ProcessImageFileName = applicationPath;
             auth.Scope = scope;
@@ -212,7 +213,7 @@ namespace XTMF.Networking
             auth.Enabled = true;
             try
             {
-                manager.LocalPolicy.CurrentProfile.AuthorizedApplications.Add( auth );
+                manager.LocalPolicy.CurrentProfile.AuthorizedApplications.Add(auth);
             }
             catch
             {
@@ -223,12 +224,12 @@ namespace XTMF.Networking
 
         private static INetFwMgr GetFirewallManager()
         {
-            Type objectType = Type.GetTypeFromCLSID( new Guid( CLSID_FIREWALL_MANAGER ) );
-            if ( objectType == null )
+            Type objectType = Type.GetTypeFromCLSID(new Guid(CLSID_FIREWALL_MANAGER));
+            if (objectType == null)
             {
                 return null;
             }
-            return Activator.CreateInstance( objectType ) as INetFwMgr;
+            return Activator.CreateInstance(objectType) as INetFwMgr;
         }
 
         private static void InitialzeWindows(string programName, string programPath)
@@ -245,12 +246,12 @@ namespace XTMF.Networking
             INetFwAuthorizedApplications authorizedApplications;
             authorizedApplications = firewallManager.LocalPolicy.CurrentProfile.AuthorizedApplications;
             bool found = false;
-            foreach ( INetFwAuthorizedApplication app in authorizedApplications )
+            foreach (INetFwAuthorizedApplication app in authorizedApplications)
             {
-                if ( app.Name == programName && app.ProcessImageFileName == programPath )
+                if (app.Name == programName && app.ProcessImageFileName == programPath)
                 {
                     // If we get here then we have found ourselves
-                    if ( app.Enabled != true )
+                    if (app.Enabled != true)
                     {
                         // try to enable ourselves
                         app.Enabled = true;
@@ -258,151 +259,148 @@ namespace XTMF.Networking
                     found = true;
                 }
             }
-            if ( !found )
+            if (!found)
             {
                 // if we are not contained, then add ourselves.  It also doesn't matter if we succeed or not, we need to try anyways
-                AuthorizeApplication( firewallManager, programName, programPath, NET_FW_SCOPE_.NET_FW_SCOPE_ALL, NET_FW_IP_VERSION_.NET_FW_IP_VERSION_ANY );
+                AuthorizeApplication(firewallManager, programName, programPath, NET_FW_SCOPE_.NET_FW_SCOPE_ALL, NET_FW_IP_VERSION_.NET_FW_IP_VERSION_ANY);
             }
         }
 
         private void ClientMain(object clientObject)
         {
             var client = clientObject as TcpClient;
-            if ( client == null ) return;
+            if (client == null) return;
             bool done = false;
             RemoteXTMF ourRemoteClient = new RemoteXTMF();
             try
             {
                 // Step 1) Accept the Client
                 var clientStream = client.GetStream();
-                GenerateUniqueName( ourRemoteClient );
-                AvailableClients.Add( ourRemoteClient );
-                lock ( this )
+                GenerateUniqueName(ourRemoteClient);
+                AvailableClients.Add(ourRemoteClient);
+                lock (this)
                 {
                     try
                     {
-                        ConnectedClients.Add( ourRemoteClient );
-                        if ( NewClientConnected != null )
-                        {
-                            NewClientConnected( ourRemoteClient );
-                        }
+                        ConnectedClients.Add(ourRemoteClient);
+                        NewClientConnected?.Invoke(ourRemoteClient);
                     }
                     catch
                     {
                     }
                 }
                 // Start up the thread to process the messages coming from the remote xtmf
-                new Thread( delegate()
-                    {
-                        while ( !done && !Exit )
-                        {
+                new Thread(delegate ()
+                   {
+                       while (!done && !Exit)
+                       {
                             // cycle every 500ms ~ 1/2 second
                             try
-                            {
-                                clientStream.ReadTimeout = Timeout.Infinite;
-                                BinaryReader reader = new BinaryReader( clientStream );
-                                BinaryFormatter readingConverter = new BinaryFormatter();
-                                while ( !done && !Exit )
-                                {
-                                    var messageType = (MessageType)reader.ReadInt32();
-                                    var clientMessage = new Message( messageType );
-                                    switch ( messageType )
-                                    {
-                                        case MessageType.Quit:
-                                            {
-                                                done = true;
-                                                return;
-                                            }
-                                        case MessageType.RequestResource:
-                                            {
-                                                var name = reader.ReadString();
-                                                clientMessage.Data = name;
-                                                ourRemoteClient.Messages.Add( clientMessage );
-                                            }
-                                            break;
+                           {
+                               clientStream.ReadTimeout = Timeout.Infinite;
+                               BinaryReader reader = new BinaryReader(clientStream);
+                               BinaryFormatter readingConverter = new BinaryFormatter();
+                               while (!done && !Exit)
+                               {
+                                   var messageType = (MessageType)reader.ReadInt32();
+                                   var clientMessage = new Message(messageType);
+                                   switch (messageType)
+                                   {
+                                       case MessageType.Quit:
+                                           {
+                                               done = true;
+                                               return;
+                                           }
+                                       case MessageType.RequestResource:
+                                           {
+                                               var name = reader.ReadString();
+                                               clientMessage.Data = name;
+                                               ourRemoteClient.Messages.Add(clientMessage);
+                                           }
+                                           break;
 
-                                        case MessageType.PostProgess:
-                                            {
-                                                var progress = reader.ReadSingle();
-                                                clientMessage.Data = progress;
-                                                ourRemoteClient.Messages.Add( clientMessage );
-                                            }
-                                            break;
+                                       case MessageType.PostProgess:
+                                           {
+                                               var progress = reader.ReadSingle();
+                                               clientMessage.Data = progress;
+                                               ourRemoteClient.Messages.Add(clientMessage);
+                                           }
+                                           break;
 
-                                        case MessageType.PostComplete:
-                                            {
-                                                ourRemoteClient.Messages.Add( clientMessage );
-                                            }
-                                            break;
+                                       case MessageType.PostComplete:
+                                           {
+                                               ourRemoteClient.Messages.Add(clientMessage);
+                                           }
+                                           break;
 
-                                        case MessageType.PostResource:
-                                            {
-                                                var data = readingConverter.Deserialize( reader.BaseStream );
-                                                clientMessage.Data = data;
-                                                ourRemoteClient.Messages.Add( clientMessage );
-                                            }
-                                            break;
+                                       case MessageType.PostResource:
+                                           {
+                                               var data = readingConverter.Deserialize(reader.BaseStream);
+                                               clientMessage.Data = data;
+                                               ourRemoteClient.Messages.Add(clientMessage);
+                                           }
+                                           break;
 
-                                        case MessageType.SendCustomMessage:
-                                            {
+                                       case MessageType.SendCustomMessage:
+                                           {
                                                 // Time to recieve a new custom message
                                                 var number = reader.ReadInt32();
-                                                var length = reader.ReadInt32();
-                                                var buff = new byte[length];
-                                                MemoryStream buffer = new MemoryStream( buff );
-                                                int soFar = 0;
-                                                while ( soFar < length )
-                                                {
-                                                    soFar += reader.Read( buff, soFar, length - soFar );
-                                                }
-                                                ourRemoteClient.Messages.Add( new Message( MessageType.ReceiveCustomMessage,
-                                                    new ReceiveCustomMessageMessage()
-                                                    {
-                                                        CustomMessageNumber = number,
-                                                        Stream = buffer
-                                                    } ) );
-                                            }
-                                            break;
+                                               var length = reader.ReadInt32();
+                                               var buff = new byte[length];
+                                               MemoryStream buffer = new MemoryStream(buff);
+                                               int soFar = 0;
+                                               while (soFar < length)
+                                               {
+                                                   soFar += reader.Read(buff, soFar, length - soFar);
+                                               }
+                                               ourRemoteClient.Messages.Add(new Message(MessageType.ReceiveCustomMessage,
+                                                   new ReceiveCustomMessageMessage()
+                                                   {
+                                                       CustomMessageNumber = number,
+                                                       Stream = buffer
+                                                   }));
+                                           }
+                                           break;
 
-                                        default:
-                                            {
-                                                done = true;
-                                                client.Close();
-                                            }
-                                            break;
-                                    }
-                                }
-                            }
-                            catch
-                            {
+                                       default:
+                                           {
+                                               done = true;
+                                               client.Close();
+                                           }
+                                           break;
+                                   }
+                               }
+                           }
+                           catch
+                           {
                                 // we will get here if the connection is closed
                                 try
-                                {
-                                    if ( client.Connected )
-                                    {
-                                        continue;
-                                    }
-                                }
-                                catch ( ObjectDisposedException )
-                                {
-                                    done = true;
-                                }
-                            }
-                            done = true;
-                        }
+                               {
+                                   if (client.Connected)
+                                   {
+                                       continue;
+                                   }
+                               }
+                               catch (ObjectDisposedException)
+                               {
+                                   done = true;
+                               }
+                           }
+                           done = true;
+                       }
                         // don't close the reader/writer since this will also close the client stream
-                    } ).Start();
-                BinaryWriter writer = new BinaryWriter( clientStream );
+                    }).Start();
+                BinaryWriter writer = new BinaryWriter(clientStream);
                 BinaryFormatter converter = new BinaryFormatter();
                 clientStream.WriteTimeout = 10000;
-                while ( !done && !Exit )
+                while (!done && !Exit)
                 {
-                    Message message = ourRemoteClient.Messages.GetMessageOrTimeout( 200 );
-                    if ( message == null )
+                    Message message = ourRemoteClient.Messages.GetMessageOrTimeout(200);
+                    if (message == null)
                     {
-                        message = new Message( MessageType.RequestProgress );
+                        message = new Message(MessageType.RequestProgress);
                     }
-                    var nowDone = ProcessMessage( done, ourRemoteClient, writer, converter, message );
+                    var nowDone = ProcessMessage(done, ourRemoteClient, writer, converter, message);
                     Thread.MemoryBarrier();
                     done = done | nowDone;
                 }
@@ -414,7 +412,7 @@ namespace XTMF.Networking
             finally
             {
                 done = true;
-                lock ( this )
+                lock (this)
                 {
                     try
                     {
@@ -425,19 +423,16 @@ namespace XTMF.Networking
                     }
                     try
                     {
-                        lock ( ourRemoteClient )
+                        lock (ourRemoteClient)
                         {
                             ourRemoteClient.Connected = false;
                             ourRemoteClient.Messages.Dispose();
                             ourRemoteClient.Messages = null;
                         }
-                        lock ( this )
+                        lock (this)
                         {
-                            ConnectedClients.Remove( ourRemoteClient );
-                            if ( ClientDisconnected != null )
-                            {
-                                ClientDisconnected( ourRemoteClient );
-                            }
+                            ConnectedClients.Remove(ourRemoteClient);
+                            ClientDisconnected?.Invoke(ourRemoteClient);
                         }
                     }
                     catch
@@ -449,14 +444,11 @@ namespace XTMF.Networking
 
         private void CompletedTask(RemoteXTMF ourRemoteClient, int status, string error)
         {
-            lock ( this )
+            lock (this)
             {
                 try
                 {
-                    if ( ClientRunComplete != null )
-                    {
-                        ClientRunComplete( ourRemoteClient, status, error );
-                    }
+                    ClientRunComplete?.Invoke(ourRemoteClient, status, error);
                 }
                 catch
                 {
@@ -464,24 +456,24 @@ namespace XTMF.Networking
             }
             ourRemoteClient.Progress = 0;
 
-            AvailableClients.Add( ourRemoteClient );
+            AvailableClients.Add(ourRemoteClient);
         }
 
         private void DistributeTasks()
         {
-            while ( !Exit )
+            while (!Exit)
             {
-                var client = AvailableClients.GetMessageOrTimeout( 200 );
+                var client = AvailableClients.GetMessageOrTimeout(200);
                 try
                 {
-                    if ( client != null )
+                    if (client != null)
                     {
-                        var modelSystemStructure = ExecutionTasks.GetMessageOrTimeout( 200 );
-                        if ( modelSystemStructure != null )
+                        var modelSystemStructure = ExecutionTasks.GetMessageOrTimeout(200);
+                        if (modelSystemStructure != null)
                         {
                             try
                             {
-                                client.SendModelSystem( modelSystemStructure );
+                                client.SendModelSystem(modelSystemStructure);
                             }
                             catch
                             {
@@ -489,7 +481,7 @@ namespace XTMF.Networking
                         }
                         else
                         {
-                            AvailableClients.Add( client );
+                            AvailableClients.Add(client);
                         }
                     }
                     Thread.MemoryBarrier();
@@ -502,8 +494,8 @@ namespace XTMF.Networking
 
         private void GenerateUniqueName(RemoteXTMF ourRemoteClient)
         {
-            int uniqueID = Interlocked.Increment( ref UniqueID );
-            ourRemoteClient.UniqueID = String.Format( "Client:{0}", uniqueID );
+            int uniqueID = Interlocked.Increment(ref UniqueID);
+            ourRemoteClient.UniqueID = String.Format("Client:{0}", uniqueID);
         }
 
         private void GetFirewallPermissions()
@@ -513,22 +505,22 @@ namespace XTMF.Networking
                 // Since we are in XTMF.dll we need to figure out what program is actually using us before we open up the firewall
                 Assembly baseAssembly = Assembly.GetEntryAssembly();
                 var codeBase = baseAssembly.CodeBase;
-                var programName = Path.GetFileName( codeBase );
+                var programName = Path.GetFileName(codeBase);
                 string programPath = null;
                 try
                 {
-                    programPath = Path.GetFullPath( codeBase );
+                    programPath = Path.GetFullPath(codeBase);
                 }
-                catch ( IOException )
+                catch (IOException)
                 {
-                    programPath = codeBase.Replace( "file:///", String.Empty );
+                    programPath = codeBase.Replace("file:///", String.Empty);
                 }
-                if ( Environment.OSVersion.Platform == PlatformID.Win32NT )
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
-                    InitialzeWindows( programName, programPath );
+                    InitialzeWindows(programName, programPath);
                 }
             }
-            catch ( Exception )
+            catch (Exception)
             {
             }
         }
@@ -540,38 +532,37 @@ namespace XTMF.Networking
                 // Request permission to use port 1447
                 GetFirewallPermissions();
                 var hostPort = 1447;
-                var config = Configuration as Configuration;
-                if(config != null)
+                if (Configuration is Configuration config)
                 {
                     hostPort = config.HostPort;
                 }
-                TcpListener listener = new TcpListener( IPAddress.Any, hostPort);
-                listener.Start( 20 );
+                TcpListener listener = new TcpListener(IPAddress.Any, hostPort);
+                listener.Start(20);
                 SetupComplete = true;
                 HostActive = true;
-                while ( !Exit )
+                while (!Exit)
                 {
                     try
                     {
-                        listener.Server.Poll( 1000000, SelectMode.SelectRead );
-                        while ( listener.Pending() )
+                        listener.Server.Poll(1000000, SelectMode.SelectRead);
+                        while (listener.Pending())
                         {
                             // Process the new connection
                             TcpClient client = listener.AcceptTcpClient();
-                            Thread newClientThread = new Thread( ClientMain );
+                            Thread newClientThread = new Thread(ClientMain);
                             // fire and forget the client thread
-                            newClientThread.Start( client );
+                            newClientThread.Start(client);
                         }
                     }
-                    catch ( IOException )
+                    catch (IOException)
                     {
                     }
                     Thread.MemoryBarrier();
                 }
             }
-            catch ( Exception e )
+            catch (Exception e)
             {
-                Console.WriteLine( e.ToString() );
+                Console.WriteLine(e.ToString());
             }
             finally
             {
@@ -584,10 +575,10 @@ namespace XTMF.Networking
 
         private bool ProcessMessage(bool done, RemoteXTMF ourRemoteClient, BinaryWriter writer, BinaryFormatter converter, Message message)
         {
-            if ( message != null )
+            if (message != null)
             {
                 //If we have a message to process, process it
-                switch ( message.Type )
+                switch (message.Type)
                 {
                     case MessageType.Quit:
                         {
@@ -597,7 +588,7 @@ namespace XTMF.Networking
 
                     case MessageType.RequestProgress:
                         {
-                            writer.Write( (Int32)MessageType.RequestProgress );
+                            writer.Write((Int32)MessageType.RequestProgress);
                             writer.Flush();
                         }
                         break;
@@ -605,17 +596,16 @@ namespace XTMF.Networking
                     case MessageType.RequestResource:
                         {
                             var name = message.Data as string;
-                            object data;
-                            writer.Write( (Int32)MessageType.ReturningResource );
-                            writer.Write( name );
-                            if ( Resources.TryGetValue( name, out data ) )
+                            writer.Write((Int32)MessageType.ReturningResource);
+                            writer.Write(name);
+                            if (Resources.TryGetValue(name, out object data))
                             {
-                                writer.Write( true );
-                                converter.Serialize( writer.BaseStream, data );
+                                writer.Write(true);
+                                converter.Serialize(writer.BaseStream, data);
                             }
                             else
                             {
-                                writer.Write( false );
+                                writer.Write(false);
                             }
                             writer.Flush();
                         }
@@ -623,13 +613,13 @@ namespace XTMF.Networking
 
                     case MessageType.PostComplete:
                         {
-                            CompletedTask( ourRemoteClient, 0, String.Empty );
+                            CompletedTask(ourRemoteClient, 0, String.Empty);
                         }
                         break;
 
                     case MessageType.PostCancel:
                         {
-                            writer.Write( (Int32)MessageType.PostCancel );
+                            writer.Write((Int32)MessageType.PostCancel);
                             writer.Flush();
                         }
                         break;
@@ -640,14 +630,11 @@ namespace XTMF.Networking
                             ourRemoteClient.Progress = progress;
                             // we need to lock here since other clients could also
                             // be trying to update the host with their progress
-                            lock ( this )
+                            lock (this)
                             {
                                 try
                                 {
-                                    if ( ProgressUpdated != null )
-                                    {
-                                        ProgressUpdated( ourRemoteClient, progress );
-                                    }
+                                    ProgressUpdated?.Invoke(ourRemoteClient, progress);
                                 }
                                 catch
                                 {
@@ -665,23 +652,23 @@ namespace XTMF.Networking
 
                     case MessageType.SendModelSystem:
                         {
-                            writer.Write( (Int32)MessageType.SendModelSystem );
+                            writer.Write((Int32)MessageType.SendModelSystem);
                             var mss = message.Data as IModelSystemStructure;
                             try
                             {
                                 byte[] data = null;
-                                using ( MemoryStream memStream = new MemoryStream() )
+                                using (MemoryStream memStream = new MemoryStream())
                                 {
-                                    mss.Save( memStream );
+                                    mss.Save(memStream);
                                     memStream.Position = 0;
                                     data = memStream.ToArray();
                                 }
-                                writer.Write( data.Length );
-                                writer.Write( data, 0, data.Length );
+                                writer.Write(data.Length);
+                                writer.Write(data, 0, data.Length);
                             }
-                            catch ( Exception e )
+                            catch (Exception e)
                             {
-                                Console.WriteLine( e.ToString() );
+                                Console.WriteLine(e.ToString());
                             }
                             writer.Flush();
                         }
@@ -694,14 +681,13 @@ namespace XTMF.Networking
                             int length = 0;
                             var failed = false;
                             byte[] buffer = null;
-                            Action<object, IRemoteXTMF, Stream> customConverter;
-                            if ( CustomSenders.TryGetValue( msgNumber, out customConverter ) )
+                            if (CustomSenders.TryGetValue(msgNumber, out Action<object, IRemoteXTMF, Stream> customConverter))
                             {
-                                using ( MemoryStream mem = new MemoryStream( 0x100 ) )
+                                using (MemoryStream mem = new MemoryStream(0x100))
                                 {
                                     try
                                     {
-                                        customConverter( msg.Data, ourRemoteClient, mem );
+                                        customConverter(msg.Data, ourRemoteClient, mem);
                                         mem.Position = 0;
                                         buffer = mem.ToArray();
                                         length = buffer.Length;
@@ -712,12 +698,12 @@ namespace XTMF.Networking
                                     }
                                 }
                             }
-                            writer.Write( (int)MessageType.SendCustomMessage );
-                            writer.Write( (int)msg.CustomMessageNumber );
-                            writer.Write( (Int32)length );
-                            if ( !failed )
+                            writer.Write((int)MessageType.SendCustomMessage);
+                            writer.Write((int)msg.CustomMessageNumber);
+                            writer.Write((Int32)length);
+                            if (!failed)
                             {
-                                writer.Write( buffer, 0, length );
+                                writer.Write(buffer, 0, length);
                                 buffer = null;
                             }
                         }
@@ -727,22 +713,20 @@ namespace XTMF.Networking
                         {
                             var msg = message.Data as ReceiveCustomMessageMessage;
                             var customNumber = msg.CustomMessageNumber;
-                            Func<Stream, IRemoteXTMF, object> customConverter;
-                            if ( CustomReceivers.TryGetValue( customNumber, out customConverter ) )
+                            if (CustomReceivers.TryGetValue(customNumber, out Func<Stream, IRemoteXTMF, object> customConverter))
                             {
-                                using ( var stream = msg.Stream )
+                                using (var stream = msg.Stream)
                                 {
                                     try
                                     {
-                                        object output = customConverter( stream, ourRemoteClient );
-                                        List<Action<object, IRemoteXTMF>> handlers;
-                                        if ( CustomHandlers.TryGetValue( msg.CustomMessageNumber, out handlers ) )
+                                        object output = customConverter(stream, ourRemoteClient);
+                                        if (CustomHandlers.TryGetValue(msg.CustomMessageNumber, out List<Action<object, IRemoteXTMF>> handlers))
                                         {
-                                            foreach ( var handler in handlers )
+                                            foreach (var handler in handlers)
                                             {
                                                 try
                                                 {
-                                                    handler( output, ourRemoteClient );
+                                                    handler(output, ourRemoteClient);
                                                 }
                                                 catch
                                                 {
@@ -770,74 +754,73 @@ namespace XTMF.Networking
 
         private void RemoveAllEventHandels()
         {
-            lock ( this )
+            lock (this)
             {
-                if ( NewClientConnected != null )
+                if (NewClientConnected != null)
                 {
                     var del = NewClientConnected.GetInvocationList();
-                    for ( int i = 0; i < del.Length; i++ )
+                    for (int i = 0; i < del.Length; i++)
                     {
                         NewClientConnected -= del[i] as Action<IRemoteXTMF>;
                     }
                 }
 
-                if ( NewClientConnected != null )
+                if (NewClientConnected != null)
                 {
                     var del = NewClientConnected.GetInvocationList();
-                    for ( int i = 0; i < del.Length; i++ )
+                    for (int i = 0; i < del.Length; i++)
                     {
                         NewClientConnected -= del[i] as Action<IRemoteXTMF>;
                     }
                 }
 
-                if ( ClientDisconnected != null )
+                if (ClientDisconnected != null)
                 {
                     var del = ClientDisconnected.GetInvocationList();
-                    for ( int i = 0; i < del.Length; i++ )
+                    for (int i = 0; i < del.Length; i++)
                     {
                         ClientDisconnected -= del[i] as Action<IRemoteXTMF>;
                     }
                 }
 
-                if ( ProgressUpdated != null )
+                if (ProgressUpdated != null)
                 {
                     var del = ProgressUpdated.GetInvocationList();
-                    for ( int i = 0; i < del.Length; i++ )
+                    for (int i = 0; i < del.Length; i++)
                     {
                         ProgressUpdated -= del[i] as Action<IRemoteXTMF, float>;
                     }
                 }
 
-                if ( ClientRunComplete != null )
+                if (ClientRunComplete != null)
                 {
                     var del = ClientRunComplete.GetInvocationList();
-                    for ( int i = 0; i < del.Length; i++ )
+                    for (int i = 0; i < del.Length; i++)
                     {
                         ClientRunComplete -= del[i] as Action<IRemoteXTMF, int, string>;
                     }
                 }
 
-                if ( AllModelSystemRunsComplete != null )
+                if (AllModelSystemRunsComplete != null)
                 {
                     var del = AllModelSystemRunsComplete.GetInvocationList();
-                    for ( int i = 0; i < del.Length; i++ )
+                    for (int i = 0; i < del.Length; i++)
                     {
                         AllModelSystemRunsComplete -= del[i] as Action;
                     }
                 }
 
-                RemoveAll( CustomHandlers );
-                RemoveAll( CustomReceivers );
-                RemoveAll( CustomSenders );
+                RemoveAll(CustomHandlers);
+                RemoveAll(CustomReceivers);
+                RemoveAll(CustomSenders);
             }
         }
 
         private void RemoveAll<K, T>(ConcurrentDictionary<K, T> concurrentDictionary)
         {
-            foreach ( var h in concurrentDictionary )
+            foreach (var h in concurrentDictionary)
             {
-                T toRemove;
-                concurrentDictionary.TryRemove( h.Key, out toRemove );
+                concurrentDictionary.TryRemove(h.Key, out T toRemove);
             }
         }
 

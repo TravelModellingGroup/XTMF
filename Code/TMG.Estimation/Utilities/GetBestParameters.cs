@@ -115,8 +115,7 @@ namespace TMG.Estimation.Utilities
             int columns = reader.LoadLine();
             for ( int i = 2; i < columns; i++ )
             {
-                string name;
-                reader.Get( out name, i );
+                reader.Get(out string name, i);
                 ret.Add( new ParameterSetting()
                 {
                     Names = new[] { name }
@@ -127,12 +126,11 @@ namespace TMG.Estimation.Utilities
 
         private GenerationJob ReadJob(CsvReader reader, ParameterSetting[] parameters)
         {
-            int columns;
-            while ( reader.LoadLine( out columns ) )
+            while (reader.LoadLine(out int columns))
             {
-                if ( columns >= parameters.Length + 2 )
+                if (columns >= parameters.Length + 2)
                 {
-                    var localParameters = CloneParameters( parameters );
+                    var localParameters = CloneParameters(parameters);
                     var job = new Job()
                     {
                         ProcessedBy = null,
@@ -140,14 +138,13 @@ namespace TMG.Estimation.Utilities
                         Processing = false,
                         Parameters = localParameters
                     };
-                    int generation;
-                    reader.Get( out generation, 0 );
-                    GenerationJob genJob = new GenerationJob( job, generation );
+                    reader.Get(out int generation, 0);
+                    GenerationJob genJob = new GenerationJob(job, generation);
                     // we don't load the generation
-                    reader.Get( out job.Value, 1 );
-                    for ( int i = 0; i < localParameters.Length; i++ )
+                    reader.Get(out job.Value, 1);
+                    for (int i = 0; i < localParameters.Length; i++)
                     {
-                        reader.Get( out localParameters[i].Current, i + 2 );
+                        reader.Get(out localParameters[i].Current, i + 2);
                     }
                     return genJob;
                 }

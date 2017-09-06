@@ -98,7 +98,7 @@ namespace Tasha.Scheduler
             }
             if ( zone == null )
             {
-                throw new XTMFRuntimeException( "Zone is NULL!" );
+                throw new XTMFRuntimeException(this, "Zone is NULL!" );
             }
             //obtain a value between 0 and 1
             double randNum = random.NextDouble();
@@ -175,12 +175,14 @@ namespace Tasha.Scheduler
 
         private LocationChoiceInformation DataToLCI(int n, float[] data)
         {
-            LocationChoiceInformation lci = new LocationChoiceInformation();
             //data.length should be equal to number of internal zones, 4 is 4 possible
             //parameter calculations
             //and the 2 is for the SUM value / 7
             //ignore "1" value because data[0] is just the zone nUmber we are looking at
-            lci.Data = new float[data.Length / 4][];
+            LocationChoiceInformation lci = new LocationChoiceInformation
+            {
+                Data = new float[data.Length / 4][]
+            };
             for ( int i = 0; i < lci.Data.Length; i++ )
             {
                 lci.Data[i] = new float[4];

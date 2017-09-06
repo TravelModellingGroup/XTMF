@@ -101,8 +101,7 @@ namespace TMG.GTAModel.ParameterDatabase
 
         public bool RuntimeValidation(ref string error)
         {
-            IModeChoiceNode mode;
-            if ( !LinkMode( ModeName, out mode ) )
+            if (!LinkMode(ModeName, out IModeChoiceNode mode))
             {
                 error = "In '" + Name + "' we were unable to find a mode named '" + ModeName + "'!";
                 return false;
@@ -143,7 +142,7 @@ namespace TMG.GTAModel.ParameterDatabase
                     }
                     else
                     {
-                        throw new XTMFRuntimeException( "We were unable to find a parameter called '" + Links[i].ParameterName
+                        throw new XTMFRuntimeException(this, "We were unable to find a parameter called '" + Links[i].ParameterName
                             + "' to be used for mode '" + ModeName + "' for mode choice!" );
                     }
                 }
@@ -172,14 +171,13 @@ namespace TMG.GTAModel.ParameterDatabase
                 mode = current;
                 return true;
             }
-            var cat = current as IModeCategory;
-            if ( cat != null )
+            if (current is IModeCategory cat)
             {
                 var modes = cat.Children;
                 var length = modes.Count;
-                for ( int i = 0; i < length; i++ )
+                for (int i = 0; i < length; i++)
                 {
-                    if ( LinkMode( modeName, modes[i], out mode ) )
+                    if (LinkMode(modeName, modes[i], out mode))
                     {
                         return true;
                     }

@@ -110,10 +110,9 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void AddData(int householdZone, int origin, int destination, float expFactor)
         {
-            ConcurrentQueue<ODData<float>> queue; 
-            if(!RecordedTrips.TryGetValue(householdZone, out queue))
+            if (!RecordedTrips.TryGetValue(householdZone, out ConcurrentQueue<ODData<float>> queue))
             {
-                lock(RecordedTrips)
+                lock (RecordedTrips)
                 {
                     if (!RecordedTrips.TryGetValue(householdZone, out queue))
                     {

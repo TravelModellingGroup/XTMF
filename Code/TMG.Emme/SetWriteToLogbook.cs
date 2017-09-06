@@ -48,8 +48,7 @@ namespace TMG.Emme
             ModellerController modeller;
             if((modeller = controller as ModellerController) != null)
             {
-                modeller.WriteToLogbook = WriteToLogbook;
-                return true;
+                return false;
             }
             return false;
         }
