@@ -90,7 +90,7 @@ namespace XTMF
         /// <summary>
         /// An event that fires when the run completes successfully
         /// </summary>
-        public event Action RunComplete;
+        public event Action RunCompleted;
 
         /// <summary>
         /// An event that fires when all of the validation has completed and the model system
@@ -101,17 +101,17 @@ namespace XTMF
         /// <summary>
         /// An event that fires if a runtime error occurs, this includes out of memory exceptions
         /// </summary>
-        public event Action<string, string> RuntimeError;
+        public event Action<ErrorWithPath> RuntimeError;
 
         /// <summary>
         /// An event that fires when the model ends in an error during runtime validation
         /// </summary>
-        public event Action<string> RuntimeValidationError;
+        public event Action<List<ErrorWithPath>> RuntimeValidationError;
 
         /// <summary>
         /// An event that fires when the Model does not pass validation
         /// </summary>
-        public event Action<string> ValidationError;
+        public event Action<List<ErrorWithPath>> ValidationError;
 
         /// <summary>
         /// An event that fires when Model Validation starts
@@ -153,10 +153,6 @@ namespace XTMF
         /// <returns></returns>
         public abstract bool DeepExitRequest();
 
-        public abstract List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors();
-
-        public abstract List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors();
-
         public abstract void Start();
 
         /// <summary>
@@ -171,14 +167,14 @@ namespace XTMF
             ValidationStarting?.Invoke();
         }
 
-        protected void SendRunComplete()
+        protected void InvokeRunCompleted()
         {
-            RunComplete?.Invoke();
+            RunCompleted?.Invoke();
         }
 
-        protected void SendRuntimeError(string message, string stackTrace)
+        protected void InvokeRuntimeError(ErrorWithPath error)
         {
-            RuntimeError?.Invoke(message, stackTrace);
+            RuntimeError?.Invoke(error);
         }
 
         private static Exception GetTopRootException(Exception value)
@@ -201,12 +197,12 @@ namespace XTMF
             }
         }
 
-        protected void SendRuntimeValidationError(string errorMessage)
+        protected void InvokeRuntimeValidationError(List<ErrorWithPath> errorMessage)
         {
             RuntimeValidationError?.Invoke(errorMessage);
         }
 
-        protected void SendValidationError(string errorMessage)
+        protected void InvokeValidationError(List<ErrorWithPath> errorMessage)
         {
             ValidationError?.Invoke(errorMessage);
         }
@@ -224,7 +220,7 @@ namespace XTMF
             {
                 if (disposing)
                 {
-                    RunComplete = null;
+                    RunCompleted = null;
                     RuntimeError = null;
                     ValidationError = null;
                     ValidationStarting = null;

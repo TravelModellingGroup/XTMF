@@ -24,6 +24,7 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace XTMF.Run
@@ -32,8 +33,9 @@ namespace XTMF.Run
     {
         private float RemoteProgress = 0.0f;
         private string RemoteStatus = String.Empty;
-
         private NamedPipeServerStream Pipe;
+
+        private Thread RunThread;
 
         public override bool RunsRemotely => throw new NotImplementedException();
 
@@ -96,15 +98,6 @@ namespace XTMF.Run
             RequestSignal(ToClient.RequestStatus);
         }
 
-        private void RunRemotely()
-        {
-            StartClientListener();
-            // Send the instructiosn to run the model system
-            InitializeClientAndSendModelSystem();
-
-            RequestSignal(ToClient.KillModelRun);
-        }
-
         private void InitializeClientAndSendModelSystem()
         {
             lock (this)
@@ -134,10 +127,12 @@ namespace XTMF.Run
                             RemoteStatus = reader.ReadString();
                             break;
                         case ToHost.ClientErrorValidatingModelSystem:
-                            SendValidationError(reader.ReadString());
+                            {
+//                                SendValidationError(reader.ReadString());
+                            }
                             return;
                         case ToHost.ClientErrorWhenRunningModelSystem:
-                            SendRuntimeError(reader.ReadString(), reader.ReadString());
+                            //SendRuntimeError(reader.ReadString(), reader.ReadString());
                             return;
 
                     }
@@ -184,32 +179,36 @@ namespace XTMF.Run
 
         public override bool DeepExitRequest()
         {
-            throw new NotImplementedException();
-        }
-
-        public override List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
-        {
-            throw new NotImplementedException();
+            RequestSignal(ToClient.KillModelRun);
+            return true;
         }
 
         public override void Start()
         {
-            throw new NotImplementedException();
+            (RunThread = new Thread(() =>
+            {
+                StartupHost();
+                StartClientListener();
+                // Send the instructiosn to run the model system
+                InitializeClientAndSendModelSystem();
+            }
+            )).Start();
         }
 
         public override void Wait()
         {
-            throw new NotImplementedException();
+            RunThread?.Join();
         }
 
         public override void TerminateRun()
         {
             RequestSignal(ToClient.KillModelRun);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            Pipe?.Dispose();
         }
     }
 }

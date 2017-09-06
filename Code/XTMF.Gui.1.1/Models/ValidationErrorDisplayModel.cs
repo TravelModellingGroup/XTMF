@@ -1,4 +1,22 @@
-﻿using System;
+﻿/*
+    Copyright 2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -24,32 +42,32 @@ namespace XTMF.Gui.Models
 
 
 
-        public ValidationErrorDisplayModel(ModelSystemStructureDisplayModel root, string error, Queue<int> path)
+        public ValidationErrorDisplayModel(ModelSystemStructureDisplayModel root, string error, IReadOnlyList<int> path)
         {
             this._error = error;
-            if(path.Count == 1)
+            if(path.Count == 0)
             {
                 displayModel = root;
             }
             else
             {
-                path.Dequeue();
-                displayModel = MapModuleWithPath(root, path);
+                // make a copy of the path in case something else is also going to use it
+                displayModel = MapModuleWithPath(root, path.ToList());
             }
-
-           
         }
 
 
-        private ModelSystemStructureDisplayModel MapModuleWithPath(ModelSystemStructureDisplayModel parent, Queue<int> path)
+        private ModelSystemStructureDisplayModel MapModuleWithPath(ModelSystemStructureDisplayModel parent, List<int> path)
         {
+            var index = path[0];
             if(path.Count == 1)
             {
-                return parent.Children[path.Dequeue()];
+                return parent.Children[index];
             }
             else
             {
-                return MapModuleWithPath(parent.Children[path.Dequeue()], path);
+                path.RemoveAt(0);
+                return MapModuleWithPath(parent.Children[index], path);
             }
         }
     }

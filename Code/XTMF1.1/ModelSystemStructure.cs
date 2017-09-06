@@ -577,7 +577,7 @@ namespace XTMF
             return true;
         }
 
-        public bool Validate(ref string error, IModelSystemStructure parent = null)
+        public bool Validate(ref ErrorWithPath error, List<int> path, IModelSystemStructure parent = null)
         {
             if (Required)
             {
@@ -585,7 +585,7 @@ namespace XTMF
                 {
                     if (Children == null || !Children.Any(c => !(c is ModelSystemStructure) || !((ModelSystemStructure)c).IsDisabled))
                     {
-                        error = "The collection '" + Name + "' in module '" + parent?.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system.";
+                        error = new ErrorWithPath(path.ToList(), "The collection '" + Name + "' in module '" + parent?.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system.");
                         return false;
                     }
                 }
@@ -593,12 +593,12 @@ namespace XTMF
                 {
                     if (Type == null)
                     {
-                        error = "In '" + Name + "' a type for a required field is not selected for.\r\nPlease remove this model system from your project and edit the model system.";
+                        error = new ErrorWithPath(path.ToList(), "In '" + Name + "' a type for a required field is not selected for.\r\nPlease remove this model system from your project and edit the model system.");
                         return false;
                     }
                     if (IsDisabled)
                     {
-                        error = "In '" + Name + "' a type for a required field is disabled!\r\nPlease remove this model system from your project and edit the model system.";
+                        error = new ErrorWithPath(path.ToList(), "In '" + Name + "' a type for a required field is disabled!\r\nPlease remove this model system from your project and edit the model system.");
                         return false;
                     }
                 }
@@ -606,26 +606,41 @@ namespace XTMF
 
             if (ParentFieldType == null)
             {
-                error = "There is an error where a parent's field type was not loaded properly!\nPlease contact the TMG to resolve "
-                    + "\r\nError for module '" + Name + "' of type '" + Type.FullName + "'";
+                error = new ErrorWithPath(path.ToList(), "There is an error where a parent's field type was not loaded properly!\nPlease contact the TMG to resolve "
+                    + "\r\nError for module '" + Name + "' of type '" + Type.FullName + "'");
                 return false;
             }
 
             if (Type != null && !ParentFieldType.IsAssignableFrom(Type))
             {
-                error = String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", Type, ParentFieldType, Name);
+                error = new ErrorWithPath(path.ToList(), String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", Type, ParentFieldType, Name));
                 return false;
             }
 
             if (Children != null)
             {
+                path.Add(0);
                 foreach (var child in Children)
                 {
-                    if (!child.Validate(ref error, this))
+                    if (!((ModelSystemStructure)child).Validate(ref error, path, this))
                     {
+                        path.RemoveAt(path.Count - 1);
                         return false;
                     }
+                    path[path.Count - 1] += 1;
                 }
+                path.RemoveAt(path.Count - 1);
+            }
+            return true;
+        }
+
+        public bool Validate(ref string error, IModelSystemStructure parent = null)
+        {
+            ErrorWithPath e = new ErrorWithPath();
+            var ret = Validate(ref e, new List<int>(), parent);
+            if (!ret)
+            {
+                error = e.Message;
             }
             return true;
         }
@@ -1064,11 +1079,11 @@ namespace XTMF
         private static Type LoadModuleType(string typeName, IConfiguration config)
         {
             var resultType = Type.GetType(typeName);
-            if(resultType != null)
+            if (resultType != null)
             {
                 return resultType;
             }
-            if(((Configuration)config).ModuleRedirection.TryGetValue(typeName.Replace(" ", ""), out Type convertedType))
+            if (((Configuration)config).ModuleRedirection.TryGetValue(typeName.Replace(" ", ""), out Type convertedType))
             {
                 return convertedType;
             }

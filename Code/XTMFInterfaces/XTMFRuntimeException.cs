@@ -23,6 +23,12 @@ namespace XTMF
     [Serializable]
     public class XTMFRuntimeException : Exception
     {
+        /// <summary>
+        /// The module that caused the error.
+        /// Check for null.
+        /// </summary>
+        public IModule Module { get; }
+
         public XTMFRuntimeException()
         {
         }
@@ -30,6 +36,12 @@ namespace XTMF
         public XTMFRuntimeException(string message)
             : base( message )
         {
+        }
+
+        public XTMFRuntimeException(IModule module, string message)
+            : base(message)
+        {
+            Module = module;
         }
     }
 }

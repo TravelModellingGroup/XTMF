@@ -84,7 +84,7 @@ namespace XTMF.Testing.Editing
                     XTMFRun run;
                     Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
                     bool finished = false;
-                    run.RunComplete += () =>
+                    run.RunCompleted += () =>
                     {
                         finished = true;
                     };

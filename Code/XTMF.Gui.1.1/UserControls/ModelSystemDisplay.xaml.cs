@@ -183,40 +183,30 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        private void Run_RuntimeValidationError(List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
+        private void Run_RuntimeValidationError(List<ErrorWithPath> errorList)
         {
             Dispatcher.Invoke(() =>
             {
-
-
-
                 ModuleValidationErrorListView.Items.Clear();
                 foreach (var error in errorList)
                 {
-
-                    ModuleRuntimeValidationErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Item3, error.Item2));
+                    ModuleRuntimeValidationErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
                 }
-
                 ParameterTabControl.SelectedIndex = 2;
                 ModuleRuntimeValidationErrorListView.UpdateLayout();
-
-
             });
         }
 
-        private void Run_ValidationError(List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
+        private void Run_ValidationError(List<ErrorWithPath> errorList)
         {
             Dispatcher.Invoke(() =>
             {
-
-
                 ModuleValidationErrorListView.Items.Clear();
                 foreach (var error in errorList)
                 {
 
-                    ModuleValidationErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Item3, error.Item2));
+                    ModuleValidationErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
                 }
-
                 ParameterTabControl.SelectedIndex = 2;
                 ModuleValidationErrorListView.UpdateLayout();
             });
@@ -365,8 +355,7 @@ namespace XTMF.Gui.UserControls
 
         private bool FilterParameters(object arg1, string arg2)
         {
-            var parameter = arg1 as ParameterDisplayModel;
-            if (parameter != null)
+            if (arg1 is ParameterDisplayModel parameter)
             {
                 return string.IsNullOrWhiteSpace(arg2) ||
                        parameter.Name.IndexOf(arg2, StringComparison.InvariantCultureIgnoreCase) >= 0;
@@ -399,10 +388,9 @@ namespace XTMF.Gui.UserControls
 
         private void ToggleQuickParameter()
         {
-            var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (displayParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel displayParameter)
             {
                 displayParameter.QuickParameter = !displayParameter.QuickParameter;
             }
@@ -413,15 +401,12 @@ namespace XTMF.Gui.UserControls
 
         private void RecentLinkedParameter_Click(object sender, RoutedEventArgs e)
         {
-            var selected = sender as DependencyObject;
-            if (selected != null)
+            if (sender is DependencyObject selected)
             {
                 var currentMenu = ParameterTabControl.SelectedItem == QuickParameterTab
                     ? QuickParameterRecentLinkedParameters
                     : ParameterRecentLinkedParameters;
-                var selectedLinkedParameter =
-                    currentMenu.ItemContainerGenerator.ItemFromContainer(selected) as LinkedParameterDisplayModel;
-                if (selectedLinkedParameter != null)
+                if (currentMenu.ItemContainerGenerator.ItemFromContainer(selected) is LinkedParameterDisplayModel selectedLinkedParameter)
                 {
                     AddCurrentParameterToLinkedParameter(selectedLinkedParameter.LinkedParameter);
                     RecentLinkedParameters.RemoveAt(RecentLinkedParameters.IndexOf(selectedLinkedParameter));
@@ -469,10 +454,9 @@ namespace XTMF.Gui.UserControls
 
         private void RemoveFromLinkedParameter()
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (currentParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
                 string error = null;
                 if (!currentParameter.RemoveLinkedParameter(ref error))
@@ -499,8 +483,10 @@ namespace XTMF.Gui.UserControls
                         "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                var findReplacement = new ModuleTypeSelect(Session, CurrentlySelected[0].BaseModel);
-                findReplacement.Owner = GetWindow();
+                var findReplacement = new ModuleTypeSelect(Session, CurrentlySelected[0].BaseModel)
+                {
+                    Owner = GetWindow()
+                };
                 if (findReplacement.ShowDialog() == true)
                 {
                     var selectedType = findReplacement.SelectedType;
@@ -850,14 +836,10 @@ namespace XTMF.Gui.UserControls
                     }
                     else
                     {
-
-
                         MessageBox.Show(
                             "Unable to start run.\r\n" + error,
                             "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
-
-
                     StringRequestOverlay.Reset();
                 }
             };
@@ -990,8 +972,7 @@ namespace XTMF.Gui.UserControls
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            var box = sender as TextBox;
-            if (box != null)
+            if (sender is TextBox box)
             {
                 var be = box.GetBindingExpression(TextBox.TextProperty);
                 be.UpdateSource();
@@ -1177,10 +1158,9 @@ namespace XTMF.Gui.UserControls
             }
 
             // Gets the element with keyboard focus.
-            var elementWithFocus = Keyboard.FocusedElement as UIElement;
 
             // Change keyboard focus.
-            if (elementWithFocus != null)
+            if (Keyboard.FocusedElement is UIElement elementWithFocus)
             {
                 elementWithFocus.MoveFocus(request);
             }
@@ -1401,8 +1381,7 @@ namespace XTMF.Gui.UserControls
 
         private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            var module = e.NewValue as ModelSystemStructureDisplayModel;
-            if (module != null)
+            if (e.NewValue is ModelSystemStructureDisplayModel module)
             {
                 RefreshParameters();
                 if (ParameterTabControl.SelectedIndex != 1)
@@ -1419,8 +1398,7 @@ namespace XTMF.Gui.UserControls
 
         private void ShowDocumentation()
         {
-            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (selectedModule != null)
+            if (ModuleDisplay.SelectedItem is ModelSystemStructureDisplayModel selectedModule)
             {
                 MainWindow.Us.LaunchHelpWindow(selectedModule.BaseModel);
             }
@@ -1714,10 +1692,9 @@ namespace XTMF.Gui.UserControls
 
         private void ResetParameter_Click(object sender, RoutedEventArgs e)
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (currentParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
                 string error = null;
                 if (!currentParameter.ResetToDefault(ref error))
@@ -1730,10 +1707,9 @@ namespace XTMF.Gui.UserControls
 
         private void CopyParameterName()
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (currentParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
                 Clipboard.SetText(currentParameter.Name);
             }
@@ -1741,10 +1717,9 @@ namespace XTMF.Gui.UserControls
 
         private void SetCurrentParameterHidden(bool hidden)
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (currentParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
                 string error = null;
                 currentParameter.SetHidden(hidden, ref error);
@@ -1764,10 +1739,9 @@ namespace XTMF.Gui.UserControls
 
         private void RenameParameter()
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (currentParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
                 var selectedContainer =
                     (UIElement)ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
@@ -1795,10 +1769,9 @@ namespace XTMF.Gui.UserControls
 
         private void ResetParameterName()
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (currentParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
                 string error = null;
                 currentParameter.RevertNameToDefault(ref error);
@@ -1825,8 +1798,7 @@ namespace XTMF.Gui.UserControls
                 }
                 previousRoot = currentRoot;
             } while (true);
-            ParameterModel inputParameter = null;
-            directory = GetInputDirectory(currentRoot, out inputParameter);
+            directory = GetInputDirectory(currentRoot, out ParameterModel inputParameter);
             return inputParameter;
         }
 
@@ -1838,8 +1810,7 @@ namespace XTMF.Gui.UserControls
             var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if (currentParameter != null && currentModule != null)
             {
-                string inputDirectory;
-                var inputParameter = GetInputParameter(currentModule.BaseModel, out inputDirectory);
+                var inputParameter = GetInputParameter(currentModule.BaseModel, out string inputDirectory);
                 if (inputParameter != null)
                 {
                     // Check to see if the parameter that contains the input directory IS this parameter
@@ -1874,15 +1845,13 @@ namespace XTMF.Gui.UserControls
 
         private void SelectDirectoryForCurrentParameter()
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (currentParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
-                string inputDirectory;
                 var _ = GetInputParameter(
                     Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure),
-                    out inputDirectory);
+                    out string inputDirectory);
                 if (inputDirectory != null)
                 {
                     var directoryName = MainWindow.OpenDirectory();
@@ -1898,15 +1867,13 @@ namespace XTMF.Gui.UserControls
 
         private void SelectFileForCurrentParameter()
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if (currentParameter != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
-                string inputDirectory;
                 var _ = GetInputParameter(
                     Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure),
-                    out inputDirectory);
+                    out string inputDirectory);
                 if (inputDirectory != null)
                 {
                     var fileName = MainWindow.OpenFile("Select File",
@@ -2091,8 +2058,7 @@ namespace XTMF.Gui.UserControls
 
         private void DisplayButton_RightClicked(object obj)
         {
-            var button = obj as BorderIconButton;
-            if (button != null)
+            if (obj is BorderIconButton button)
             {
                 var menu = button.ContextMenu;
                 if (menu != null)
@@ -2280,17 +2246,14 @@ namespace XTMF.Gui.UserControls
 
         private void ModuleTreeViewItem_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-            var treeViewItem = sender as ModuleTreeViewItem;
-            if (treeViewItem != null)
+            if (sender is ModuleTreeViewItem treeViewItem)
             {
                 var menu = treeViewItem.ContextMenu;
 
                 foreach (var item in menu.Items)
                 {
-                    var menuItem =
-                        item as MenuItem;
 
-                    if (menuItem != null)
+                    if (item is MenuItem menuItem)
                     {
                         if (menuItem.Name == "DisableModuleMenuItem")
                         {
@@ -2593,9 +2556,8 @@ namespace XTMF.Gui.UserControls
 
         private void ParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var s = ((ListView)sender).SelectedItem as ParameterDisplayModel;
 
-            if (s != null)
+            if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
             }
@@ -2603,9 +2565,8 @@ namespace XTMF.Gui.UserControls
 
         private void QuickParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var s = ((ListView)sender).SelectedItem as ParameterDisplayModel;
 
-            if (s != null)
+            if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
             }
@@ -2617,9 +2578,8 @@ namespace XTMF.Gui.UserControls
             if (e.Key == Key.Down)
             {
                 var tRequest = new TraversalRequest(FocusNavigationDirection.Next);
-                var keyboardFocus = Keyboard.FocusedElement as UIElement;
 
-                if (keyboardFocus != null)
+                if (Keyboard.FocusedElement is UIElement keyboardFocus)
                 {
                     keyboardFocus.MoveFocus(tRequest);
                 }
@@ -2630,9 +2590,8 @@ namespace XTMF.Gui.UserControls
             if (e.Key == Key.Up)
             {
                 var tRequest = new TraversalRequest(FocusNavigationDirection.Previous);
-                var keyboardFocus = Keyboard.FocusedElement as UIElement;
 
-                if (keyboardFocus != null)
+                if (Keyboard.FocusedElement is UIElement keyboardFocus)
                 {
                     keyboardFocus.MoveFocus(tRequest);
                 }
@@ -2680,22 +2639,17 @@ namespace XTMF.Gui.UserControls
 
         private void ModelSystemInformation_EnableModuleMouseDown(object sender, MouseButtonEventArgs e)
         {
-            var module = ((Label)sender).Tag as ModelSystemStructureDisplayModel;
-            if (module != null)
+            if (((Label)sender).Tag is ModelSystemStructureDisplayModel module)
             {
                 var error = string.Empty;
-
                 module.SetDisabled(!module.IsDisabled, ref error);
-
-
                 DisabledModulesList.InvalidateArrange();
             }
         }
 
         private void Path_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            var module = ((Border)sender).Tag as ModelSystemStructureDisplayModel;
-            if (module != null)
+            if (((Border)sender).Tag is ModelSystemStructureDisplayModel module)
             {
                 DisabledModules.Remove(module);
             }
@@ -2704,18 +2658,10 @@ namespace XTMF.Gui.UserControls
         private void ValidationListModuleNameMouseDown(object sender, MouseButtonEventArgs e)
         {
             var label = sender as ValidationErrorListControl;
-
-            var model = label.Tag as ModelSystemStructureDisplayModel;
-
-            if (model != null)
+            if (label.Tag is ModelSystemStructureDisplayModel model)
             {
-               
                 ExpandToRoot(model);
-
-     
-
                 model.IsSelected = true;
-
             }
         }
 

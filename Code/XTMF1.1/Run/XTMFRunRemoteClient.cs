@@ -51,16 +51,6 @@ namespace XTMF.Run
 
         public override bool RunsRemotely => true;
 
-        public override List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool DeepExitRequest()
         {
             throw new NotImplementedException();

@@ -244,16 +244,6 @@ namespace XTMF.Gui.UserControls
             StartRun(run, runName);
         }
 
-        public List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
-        {
-            return _run.CollectRuntimeValidationErrors();
-        }
-
-        public List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
-        {
-            return _run.CollectValidationErrors();
-        }
-
         public void StartRun(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             Session = session;
@@ -261,9 +251,9 @@ namespace XTMF.Gui.UserControls
             StartRun(run, runName);
         }
 
-        public Action<List<Tuple<IModelSystemStructure, Queue<int>, string>>> ValidationError;
+        public Action<List<ErrorWithPath>> ValidationError;
 
-        public Action<List<Tuple<IModelSystemStructure, Queue<int>, string>>> RuntimeValidationError;
+        public Action<List<ErrorWithPath>> RuntimeValidationError;
 
         private void StartRun(XTMFRun run, string runName)
         {
@@ -282,7 +272,7 @@ namespace XTMF.Gui.UserControls
             _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
             _subProgressBars.ListChanged += SubProgressBars_ListChanged;
             _subProgressBars.BeforeRemove += SubProgressBars_BeforeRemove;
-            _run.RunComplete += Run_RunComplete;
+            _run.RunCompleted += Run_RunComplete;
             _run.RunStarted += Run_RunStarted;
             _run.RuntimeError += Run_RuntimeError;
             _run.RuntimeValidationError += Run_RuntimeValidationError;
@@ -421,52 +411,47 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void Run_ValidationError(string obj)
+        private void Run_ValidationError(List<ErrorWithPath> errors)
         {
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished();
-                ShowErrorMessage("Validation Error", obj);
-                var errors = MainWindow.Us.RunWindow.CollectValidationErrors();
+                ShowErrorMessage("Validation Error", errors[0]);
                 ValidationError?.Invoke(errors);
             });
         }
 
-        private void ShowErrorMessage(string header, string message)
+        private void ShowErrorMessage(string title, ErrorWithPath error)
         {
             new ErrorWindow
             {
                 Owner = GetWindow(this),
-                ErrorMessage = string.IsNullOrWhiteSpace(header) ? message : header + "\r\n" + message
+                Title = String.IsNullOrEmpty(title) ? "Error" : title,
+                ErrorMessage = error.Message,
+                ErrorStackTrace = error.StackTrace
             }.ShowDialog();
-        }
-
-        private void ShowErrorMessage(string v, string message, string stackTrace)
-        {
-            new ErrorWindow { Owner = GetWindow(this), ErrorMessage = message, ErrorStackTrace = stackTrace }.ShowDialog();
         }
 
         private static void Run_ValidationStarting()
         {
         }
 
-        private void Run_RuntimeValidationError(string errorMessage)
+        private void Run_RuntimeValidationError(List<ErrorWithPath> errors)
         {
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished();
-                ShowErrorMessage(string.Empty, errorMessage);
-                var errors = CollectRuntimeValidationErrors();
+                ShowErrorMessage(string.Empty, errors[0]);
                 RuntimeValidationError?.Invoke(errors);
             });
         }
 
-        private void Run_RuntimeError(string message, string stackTrace)
+        private void Run_RuntimeError(ErrorWithPath error)
         {
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished();
-                ShowErrorMessage("Runtime Error", message, stackTrace);
+                ShowErrorMessage("Runtime Error", error);
             });
         }
 

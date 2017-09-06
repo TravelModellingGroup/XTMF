@@ -92,29 +92,48 @@ namespace XTMF.Run
             RunThread.Start();
         }
 
+        private static List<ErrorWithPath> CreateFromSingleError(ErrorWithPath error)
+        {
+            var ret = new List<ErrorWithPath>(1)
+            {
+                error
+            };
+            return ret;
+        }
+
         private void Run()
         {
-            string cwd = null;
-            string error = null;
+            string originalWorkingDirectory = null;
+            // create an empty error
+            ErrorWithPath error = new ErrorWithPath();
             IModelSystemStructure mstStructure;
             try
             {
-                mstStructure = CrateModelSystem(ref error);
+                mstStructure = CreateModelSystem(ref error);
             }
             catch (Exception e)
             {
-                SendValidationError(e.Message);
+                var pass = new List<ErrorWithPath>();
+                if (e is XTMFRuntimeException runtimeException)
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    pass.Add(new ErrorWithPath(null, e.Message));
+                }
+                InvokeValidationError(pass);
                 return;
             }
             if (MST == null)
             {
-                SendValidationError(error);
+                InvokeValidationError(CreateFromSingleError(error));
                 return;
             }
             Exception caughtError = null;
             try
             {
-                cwd = RunModelSystem(ref error, mstStructure);
+                originalWorkingDirectory = RunModelSystem(out List<ErrorWithPath> errors, mstStructure);
             }
             catch (Exception e)
             {
@@ -125,33 +144,33 @@ namespace XTMF.Run
             }
             finally
             {
-                mstStructure = CleanupModelSystem(cwd, mstStructure, caughtError);
+                mstStructure = CleanupModelSystem(originalWorkingDirectory, mstStructure, caughtError);
             }
         }
 
         private IModelSystemStructure CleanupModelSystem(string cwd, IModelSystemStructure mstStructure, Exception caughtError)
         {
             void CleanUpModelSystem(IModelSystemStructure ms)
-        {
-            if (ms.Module is IDisposable disp)
             {
-                try
+                if (ms.Module is IDisposable disp)
                 {
-                    disp.Dispose();
+                    try
+                    {
+                        disp.Dispose();
+                    }
+                    catch
+                    { }
                 }
-                catch
-                { }
-            }
-            ms.Module = null;
-            var children = ms.Children;
-            if (children != null)
-            {
-                foreach (var child in children)
+                ms.Module = null;
+                var children = ms.Children;
+                if (children != null)
                 {
-                    CleanUpModelSystem(child);
+                    foreach (var child in children)
+                    {
+                        CleanUpModelSystem(child);
+                    }
                 }
             }
-        }
             Thread.MemoryBarrier();
             CleanUpModelSystem(mstStructure);
             mstStructure = null;
@@ -171,11 +190,11 @@ namespace XTMF.Run
             GetInnermostError(ref caughtError);
             if (caughtError != null)
             {
-                SendRuntimeError(caughtError.Message, caughtError.StackTrace);
+                InvokeRuntimeError(new ErrorWithPath(null, caughtError.Message, caughtError.StackTrace));
             }
             else
             {
-                SendRunComplete();
+                InvokeRunCompleted();
             }
             Directory.SetCurrentDirectory(cwd);
             return mstStructure;
@@ -183,15 +202,16 @@ namespace XTMF.Run
 
         private void GetInnermostError(ref Exception caughtError)
         {
-            while(caughtError is AggregateException agg)
+            while (caughtError is AggregateException agg)
             {
                 caughtError = agg.InnerException;
             }
         }
 
-        private string RunModelSystem(ref string error, IModelSystemStructure mstStructure)
+        private string RunModelSystem(out List<ErrorWithPath> errors, IModelSystemStructure mstStructure)
         {
             string cwd;
+            errors = new List<ErrorWithPath>(0);
             AlertValidationStarting();
             cwd = Directory.GetCurrentDirectory();
             // check to see if the directory exists, if it doesn't create it
@@ -202,25 +222,24 @@ namespace XTMF.Run
             }
             Directory.SetCurrentDirectory(RunDirectory);
             mstStructure.Save(Path.GetFullPath("RunParameters.xml"));
-            if (!RunTimeValidation("", ref error, mstStructure))
+            if (!RunTimeValidation(new List<int>(), errors, mstStructure))
             {
-                SendRuntimeValidationError(error);
+                InvokeRuntimeValidationError(errors);
             }
             else
             {
                 SetStatusToRunning();
                 MST.Start();
             }
-
             return cwd;
         }
 
-        private IModelSystemStructure CrateModelSystem(ref string error)
+        private IModelSystemStructure CreateModelSystem(ref ErrorWithPath error)
         {
             IModelSystemStructure mstStructure;
             if (ModelSystemStructureModelRoot == null)
             {
-                MST = Project.CreateModelSystem(ref error, ModelSystemIndex);
+                MST = ((Project)Project).CreateModelSystem(ref error, Configuration, ModelSystemIndex);
                 mstStructure = Project.ModelSystemStructure[ModelSystemIndex];
             }
             else
@@ -257,38 +276,6 @@ namespace XTMF.Run
             });
         }
 
-        override public List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
-        {
-            List<Tuple<IModelSystemStructure, Queue<int>, string>> validationErrorList = new List<Tuple<IModelSystemStructure, Queue<int>, string>>();
-            IModelSystemStructure mstStructure = Project.ModelSystemStructure[ModelSystemIndex];
-            Queue<int> path = new Queue<int>();
-            path.Enqueue(0);
-            CollectValidationErrors((ModelSystemStructure)mstStructure, path, ref validationErrorList);
-            return validationErrorList;
-        }
-
-        private void CollectValidationErrors(ModelSystemStructure currentPoint, Queue<int> path, ref List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
-        {
-            if (currentPoint != null)
-            {
-                string error = "";
-                if (!currentPoint.ValidateSelf(ref error))
-                {
-                    errorList.Add(Tuple.Create<IModelSystemStructure, Queue<int>, string>(currentPoint, path, error));
-                }
-            }
-            // check to see if there are descendants that need to be checked
-            if (currentPoint.Children != null)
-            {
-                for (int i = 0; i < currentPoint.Children.Count; i++)
-                {
-                    Queue<int> newPath = new Queue<int>(path);
-                    newPath.Enqueue(i);
-                    CollectValidationErrors((ModelSystemStructure)currentPoint.Children[i], newPath, ref errorList);
-                }
-            }
-        }
-
         public override float PollProgress()
         {
             return MST?.Progress ?? 0f;
@@ -303,7 +290,7 @@ namespace XTMF.Run
         {
             bool Exit(IModelSystemStructure current)
             {
-                return current.Children.Aggregate(false, (acc,m)=> acc | Exit(m))
+                return current.Children.Aggregate(false, (acc, m) => acc | Exit(m))
                     | (current.Module is IModelSystemTemplate mst && mst.ExitRequest());
             }
             var root = ModelSystemStructureModelRoot;
@@ -324,89 +311,39 @@ namespace XTMF.Run
             return MST?.ProgressColour;
         }
 
-        public override List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
-        {
-            void CollectRuntimeValidationErrors(IModelSystemStructure structure, Queue<int> innerPath, List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
-            {
-                string internalError = "";
-                if (structure.Module != null)
-                {
-                    if (!structure.Module.RuntimeValidation(ref internalError))
-                    {
-                        errorList.Add(Tuple.Create<IModelSystemStructure, Queue<int>, string>(structure, innerPath, internalError));
-                    }
-                }
-                if (structure.Children != null)
-                {
-                    for (int i = 0; i < structure.Children.Count; i++)
-                    {
-                        Queue<int> newPath = new Queue<int>(innerPath);
-                        newPath.Enqueue(i);
-                        CollectRuntimeValidationErrors(structure.Children[i], newPath, errorList);
-                    }
-                }
-            }
-            List<Tuple<IModelSystemStructure, Queue<int>, string>> runtimeValidationErrorList = new List<Tuple<IModelSystemStructure, Queue<int>, string>>();
-
-            IModelSystemStructure mstStructure;
-            string error = "";
-            try
-            {
-                if (ModelSystemStructureModelRoot == null)
-                {
-                    MST = Project.CreateModelSystem(ref error, ModelSystemIndex);
-                    mstStructure = Project.ModelSystemStructure[ModelSystemIndex];
-                }
-                else
-                {
-                    MST = ((Project)Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
-                    mstStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
-                }
-            }
-            catch (Exception)
-            {
-                return runtimeValidationErrorList;
-            }
-            if (MST == null)
-            {
-                return runtimeValidationErrorList;
-            }
-
-            Queue<int> path = new Queue<int>();
-            path.Enqueue(0);
-            CollectRuntimeValidationErrors(mstStructure, path, runtimeValidationErrorList);
-
-            return runtimeValidationErrorList;
-        }
-
         /// <summary>
         /// Do a runtime validation check for the currently running model system
         /// </summary>
         /// <param name="error">This parameter gets the error message if any is generated</param>
         /// <param name="currentPoint">The module to look at, set this to the root to begin.</param>
         /// <returns>This will be false if there is an error, true otherwise</returns>
-        private static bool RunTimeValidation(string path, ref string error, IModelSystemStructure currentPoint)
+        private static bool RunTimeValidation(List<int> path, List<ErrorWithPath> errors, IModelSystemStructure currentPoint)
         {
+            var ret = true;
             if (currentPoint.Module != null)
             {
+                string error = null;
                 if (!currentPoint.Module.RuntimeValidation(ref error))
                 {
-                    error = $"Runtime Validation Error in {path + currentPoint.Name}\r\n{error}";
-                    return false;
+                    errors.Add(new ErrorWithPath(path.ToList(), $"Runtime Validation Error in {currentPoint.Name}\r\n{error}"));
+                    ret = false;
                 }
             }
             // check to see if there are descendants that need to be checked
             if (currentPoint.Children != null)
             {
+                path.Add(0);
                 foreach (var module in currentPoint.Children)
                 {
-                    if (!RunTimeValidation(path + currentPoint.Name + ".", ref error, module))
+                    if (!RunTimeValidation(path, errors, module))
                     {
-                        return false;
+                        ret = false;
                     }
+                    path[path.Count - 1] += 1;
                 }
+                path.RemoveAt(path.Count - 1);
             }
-            return true;
+            return ret;
         }
     }
 }

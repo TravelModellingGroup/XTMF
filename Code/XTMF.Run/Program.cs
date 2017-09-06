@@ -153,27 +153,53 @@ namespace XTMF.Run
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
                         writer.Write((Int32)ToHost.ClientErrorValidatingModelSystem);
-                        writer.Write(message);
+                        writer.Write(message.Count);
+                        foreach (var error in message)
+                        {
+                            var path = error.Path;
+                            writer.Write(path.Count);
+                            foreach (var point in path)
+                            {
+                                writer.Write(point);
+                            }
+                            writer.Write(error.Message);
+                        }
                     });
                 };
-                run.RuntimeValidationError += (error) =>
+                run.RuntimeValidationError += (message) =>
                 {
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
                         writer.Write((Int32)ToHost.ClientErrorValidatingModelSystem);
-                        writer.Write(error);
+                        writer.Write(message.Count);
+                        foreach (var error in message)
+                        {
+                            var path = error.Path;
+                            writer.Write(path.Count);
+                            foreach (var point in path)
+                            {
+                                writer.Write(point);
+                            }
+                            writer.Write(error.Message);
+                        }
                     });
                 };
-                run.RuntimeError += (message, stack) =>
+                run.RuntimeError += (error) =>
                 {
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
                         writer.Write((Int32)ToHost.ClientErrorWhenRunningModelSystem);
-                        writer.Write(message);
-                        writer.Write(stack);
+                        var path = error.Path;
+                        writer.Write(path.Count);
+                        foreach (var point in path)
+                        {
+                            writer.Write(point);
+                        }
+                        writer.Write(error.Message);
+                        writer.Write(error.StackTrace);
                     });
                 };
-                run.RunComplete += () =>
+                run.RunCompleted += () =>
                 {
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
@@ -270,7 +296,7 @@ namespace XTMF.Run
                     Console.WriteLine("Unable to run \r\n" + error);
                     return;
                 }
-                run.RunComplete += Run_RunComplete;
+                run.RunCompleted += Run_RunComplete;
                 run.Start();
                 run.Wait();
             }

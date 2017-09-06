@@ -237,10 +237,10 @@ namespace XTMF
                     _Run.Add(run);
                     AnyRunning = true;
                     _IsRunning = true;
-                    run.RunComplete += () => TerminateRun(run);
+                    run.RunCompleted += () => TerminateRun(run);
                     run.ValidationError += (e) => TerminateRun(run);
                     run.RuntimeValidationError += (e) => TerminateRun(run);
-                    run.RuntimeError += (msg,stack) => TerminateRun(run);
+                    run.RuntimeError += (e) => TerminateRun(run);
                     return run;
                 }
             }
