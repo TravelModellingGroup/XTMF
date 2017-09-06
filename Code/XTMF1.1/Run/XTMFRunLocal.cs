@@ -103,7 +103,7 @@ namespace XTMF.Run
 
         private void Run()
         {
-            string originalWorkingDirectory = null;
+            string originalWorkingDirectory = Directory.GetCurrentDirectory();
             // create an empty error
             ErrorWithPath error = new ErrorWithPath();
             IModelSystemStructure mstStructure;
@@ -113,16 +113,7 @@ namespace XTMF.Run
             }
             catch (Exception e)
             {
-                var pass = new List<ErrorWithPath>();
-                if (e is XTMFRuntimeException runtimeException)
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    pass.Add(new ErrorWithPath(null, e.Message));
-                }
-                InvokeValidationError(pass);
+                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message)));
                 return;
             }
             if (MST == null)
@@ -133,7 +124,7 @@ namespace XTMF.Run
             Exception caughtError = null;
             try
             {
-                originalWorkingDirectory = RunModelSystem(out List<ErrorWithPath> errors, mstStructure);
+                RunModelSystem(out List<ErrorWithPath> errors, mstStructure);
             }
             catch (Exception e)
             {
@@ -148,9 +139,9 @@ namespace XTMF.Run
             }
         }
 
-        private IModelSystemStructure CleanupModelSystem(string cwd, IModelSystemStructure mstStructure, Exception caughtError)
+        private IModelSystemStructure CleanupModelSystem(string originalCWD, IModelSystemStructure mstStructure, Exception caughtError)
         {
-            void CleanUpModelSystem(IModelSystemStructure ms)
+            void DisposeModelSystem(IModelSystemStructure ms)
             {
                 if (ms.Module is IDisposable disp)
                 {
@@ -161,18 +152,17 @@ namespace XTMF.Run
                     catch
                     { }
                 }
-                ms.Module = null;
                 var children = ms.Children;
                 if (children != null)
                 {
                     foreach (var child in children)
                     {
-                        CleanUpModelSystem(child);
+                        DisposeModelSystem(child);
                     }
                 }
             }
             Thread.MemoryBarrier();
-            CleanUpModelSystem(mstStructure);
+            DisposeModelSystem(mstStructure);
             mstStructure = null;
             MST = null;
             if (Configuration is Configuration configuration)
@@ -190,14 +180,50 @@ namespace XTMF.Run
             GetInnermostError(ref caughtError);
             if (caughtError != null)
             {
-                InvokeRuntimeError(new ErrorWithPath(null, caughtError.Message, caughtError.StackTrace));
+                if (caughtError is XTMFRuntimeException runError)
+                {
+                    InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, runError.StackTrace));
+                }
+                else
+                {
+                    InvokeRuntimeError(new ErrorWithPath(null, caughtError.Message, caughtError.StackTrace));
+                }
             }
             else
             {
                 InvokeRunCompleted();
             }
-            Directory.SetCurrentDirectory(cwd);
+            Directory.SetCurrentDirectory(originalCWD);
             return mstStructure;
+        }
+
+        private List<int> GetModulePath(IModule module)
+        {
+            if (module == null) return null;
+            List<int> ret = new List<int>();
+            bool Explore(ModelSystemStructureModel current, List<int> path, IModule lookingFor)
+            {
+                if(current.RealModelSystemStructure.Module == lookingFor)
+                {
+                    return true;
+                }
+                var children = current.Children;
+                if(children != null)
+                {
+                    path.Add(0);
+                    foreach(var child in children)
+                    {
+                        if(Explore(child, path, lookingFor))
+                        {
+                            return true;
+                        }
+                        path[path.Count - 1] += 1;
+                    }
+                    path.RemoveAt(path.Count - 1);
+                }
+                return false;
+            }
+            return Explore(ModelSystemStructureModelRoot, ret, module) ? ret : null;
         }
 
         private void GetInnermostError(ref Exception caughtError)
@@ -208,12 +234,11 @@ namespace XTMF.Run
             }
         }
 
-        private string RunModelSystem(out List<ErrorWithPath> errors, IModelSystemStructure mstStructure)
+        private void RunModelSystem(out List<ErrorWithPath> errors, IModelSystemStructure mstStructure)
         {
-            string cwd;
             errors = new List<ErrorWithPath>(0);
             AlertValidationStarting();
-            cwd = Directory.GetCurrentDirectory();
+            
             // check to see if the directory exists, if it doesn't create it
             DirectoryInfo info = new DirectoryInfo(RunDirectory);
             if (!info.Exists)
@@ -231,7 +256,6 @@ namespace XTMF.Run
                 SetStatusToRunning();
                 MST.Start();
             }
-            return cwd;
         }
 
         private IModelSystemStructure CreateModelSystem(ref ErrorWithPath error)

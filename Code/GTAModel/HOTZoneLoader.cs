@@ -268,7 +268,7 @@ namespace TMG.GTAModel
                         {
                             if ( GeneratePDErrors )
                             {
-                                throw new XTMFRuntimeException( "The planning district file contained a zone " + zoneNumber + " however the zone file did not contain this zone." );
+                                throw new XTMFRuntimeException(this, "The planning district file contained a zone " + zoneNumber + " however the zone file did not contain this zone." );
                             }
                         }
                         else
@@ -282,7 +282,7 @@ namespace TMG.GTAModel
             }
             catch (IOException)
             {
-                throw new XTMFRuntimeException( "Please make sure that the file " + GetFullPath( ZoneAttributesFile ) + " exists and is not being used by any other program." );
+                throw new XTMFRuntimeException(this, "Please make sure that the file " + GetFullPath( ZoneAttributesFile ) + " exists and is not being used by any other program." );
             }
         }
 
@@ -309,7 +309,7 @@ namespace TMG.GTAModel
                         {
                             if ( GeneratePDErrors )
                             {
-                                throw new XTMFRuntimeException( "When loading the Employment we found a distribution for a zone "
+                                throw new XTMFRuntimeException(this, "When loading the Employment we found a distribution for a zone "
                                 + zoneNumber + " however that zone does not exist!" );
                             }
                         }
@@ -323,7 +323,7 @@ namespace TMG.GTAModel
             }
             catch (IOException)
             {
-                throw new XTMFRuntimeException( "Please make sure that the file " + GetFullPath( EmploymentFile ) + " exists and is not being used by any other program." );
+                throw new XTMFRuntimeException(this, "Please make sure that the file " + GetFullPath( EmploymentFile ) + " exists and is not being used by any other program." );
             }
         }
 
@@ -364,7 +364,7 @@ namespace TMG.GTAModel
                         {
                             if ( GeneratePDErrors )
                             {
-                                throw new XTMFRuntimeException( "The planning district file contained a zone " + zoneNumber + " however the zone file did not contain this zone." );
+                                throw new XTMFRuntimeException(this, "The planning district file contained a zone " + zoneNumber + " however the zone file did not contain this zone." );
                             }
                         }
                         else
@@ -376,7 +376,7 @@ namespace TMG.GTAModel
             }
             catch (IOException)
             {
-                throw new XTMFRuntimeException( "Please make sure that the file " + GetFullPath( PlanningDistrictFile ) + " exists and is not being used by any other program." );
+                throw new XTMFRuntimeException(this, "Please make sure that the file " + GetFullPath( PlanningDistrictFile ) + " exists and is not being used by any other program." );
             }
         }
 
@@ -404,7 +404,7 @@ namespace TMG.GTAModel
                         {
                             if ( GeneratePDErrors )
                             {
-                                throw new XTMFRuntimeException( "When loading the population we found a distribution for a zone "
+                                throw new XTMFRuntimeException(this, "When loading the population we found a distribution for a zone "
                                 + zoneNumber + " however that zone does not exist!" );
                             }
                         }
@@ -417,7 +417,7 @@ namespace TMG.GTAModel
             }
             catch (IOException)
             {
-                throw new XTMFRuntimeException( "Please make sure that the file " + GetFullPath( PopulationFile ) + " exists and is not being used by any other program." );
+                throw new XTMFRuntimeException(this, "Please make sure that the file " + GetFullPath( PopulationFile ) + " exists and is not being used by any other program." );
             }
         }
 

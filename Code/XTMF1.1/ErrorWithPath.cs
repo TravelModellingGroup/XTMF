@@ -57,7 +57,7 @@ namespace XTMF
         public ErrorWithPath(List<int> path, string message, string stackTrace = null)
         {
             // Make a copy of the path
-            Path = path.ToList();
+            Path = path?.ToList();
             Message = message;
             StackTrace = stackTrace;
         }
