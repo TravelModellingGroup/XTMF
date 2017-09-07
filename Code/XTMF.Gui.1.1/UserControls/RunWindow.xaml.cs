@@ -255,6 +255,8 @@ namespace XTMF.Gui.UserControls
 
         public Action<List<ErrorWithPath>> RuntimeValidationError;
 
+        public Action<ErrorWithPath> RuntimeError;
+
         private void StartRun(XTMFRun run, string runName)
         {
             _run = run;
@@ -452,6 +454,7 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished();
                 ShowErrorMessage("Runtime Error", error);
+                RuntimeError?.Invoke(error);
             });
         }
 

@@ -45,7 +45,7 @@
             <this:ValidationErrorListControl Tag="{Binding DisplayModule}" Height="80" MouseDoubleClick="ValidationListModuleNameMouseDown"  >
 
             </this:ValidationErrorListControl>
-   
+
         </DataTemplate>
 
         <DataTemplate x:Key="ModuleDisabledTemplate" DataType="{x:Type models:ModelSystemStructureDisplayModel}">
@@ -325,31 +325,18 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                     </MenuItem>
                                 </ContextMenu>
                             </TreeView.ContextMenu>
-
-
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
-
-                                  
-                                        
                                     <this:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name, Mode=OneWay}"
                                               SubText="{Binding Description, Mode=OneWay}"
                                                  BackingModel="{Binding BackingDisplayModel}" PreviewKeyDown="ModuleDisplay_PreviewKeyDown"
                                               
                                               ContextMenuOpening="ModuleTreeViewItem_OnContextMenuOpening"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                                    AncestorType=TreeView}, Path=ContextMenu}" 
-                                              >
-
+                                                    AncestorType=TreeView}, Path=ContextMenu}">
                                     </this:ModuleTreeViewItem>
-                                  
-
-
-
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
-
-
                         </TreeView>
                     </Grid>
                 </Canvas>
@@ -604,106 +591,102 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14"  Foreground="{DynamicResource ControlTextColourBrush}">
 
                     <ScrollViewer>
-                    <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="AUTO" />
-                            <RowDefinition Height="AUTO" />
-                            <RowDefinition Height="AUTO" />
-                            <RowDefinition Height="AUTO" />
-                            <RowDefinition Height="AUTO" />
-                        </Grid.RowDefinitions>
-                        <Border Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Model System Information" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold" />
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="1">
-
-
-                        </Border>
-                        <Border Grid.Row="2">
-
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Disabled Modules" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
-
-
-                                <Grid HorizontalAlignment="Stretch">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*"></ColumnDefinition>
-                                        <ColumnDefinition Width="1*"></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
-                                    <Label Foreground="{DynamicResource ThemeTextColorBrush}"  Grid.Column="0" Content="Module Name"></Label>
-                                    <Label Foreground="{DynamicResource ThemeTextColorBrush}"  Grid.Column="1" Content="Action"></Label>
+                        <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="AUTO" />
+                                <RowDefinition Height="AUTO" />
+                                <RowDefinition Height="AUTO" />
+                                <RowDefinition Height="AUTO" />
+                                <RowDefinition Height="AUTO" />
+                                <RowDefinition Height="AUTO" />
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Model System Information" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold" />
                                 </Grid>
-                                <ListView ItemTemplateSelector="{StaticResource ModelSystemInfoTemplateSelector}" Background="Transparent" BorderBrush="{x:Null}" Focusable="False"  x:Name="DisabledModulesList" SelectionMode="Single" >
+                            </Border>
 
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="Background" Value="Transparent" />
-
-                                            <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                                        <Border Background="Transparent" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource WindowBackgroundBrush4}">
-                                                            <ContentPresenter />
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Path=IsDisabled}" Value="True">
-                                                    <Setter Property="ContentTemplate" Value="{StaticResource ModuleDisabledTemplate}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=IsDisabled}" Value="False">
-                                                    <Setter Property="ContentTemplate" Value="{StaticResource ModuleEnabledTemplate}" />
-                                                </DataTrigger>
-                                                <!--  your other Status' here -->
-                                            </Style.Triggers>
-
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-
-                                </ListView>
-                            </StackPanel>
-
-                        </Border>
-
-                        <Border Grid.Row="3">
-
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
-
-                                <Grid Height="Auto">
-                                <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}" Name="ModuleValidationErrorListView" LostFocus="ModuleValidationErrorListView_LostFocus">
+                            <Border Grid.Row="1">
 
 
-                                </ListView>
-                                </Grid>
-                            </StackPanel>
+                            </Border>
+                            <Border Grid.Row="2">
 
-                        </Border>
-
-                        <Border Grid.Row="4">
-
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
-
-                                
-                                <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}" Name="ModuleRuntimeValidationErrorListView" LostFocus="ModuleRuntimeValidationErrorListView_LostFocus">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Disabled Modules" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
 
 
-                                </ListView>
-                            </StackPanel>
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Foreground="{DynamicResource ThemeTextColorBrush}"  Grid.Column="0" Content="Module Name"></Label>
+                                        <Label Foreground="{DynamicResource ThemeTextColorBrush}"  Grid.Column="1" Content="Action"></Label>
+                                    </Grid>
+                                    <ListView ItemTemplateSelector="{StaticResource ModelSystemInfoTemplateSelector}" Background="Transparent" BorderBrush="{x:Null}" Focusable="False"  x:Name="DisabledModulesList" SelectionMode="Single" >
 
-                        </Border>
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="Background" Value="Transparent" />
 
-                    </Grid>
+                                                <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                                            <Border Background="Transparent" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource WindowBackgroundBrush4}">
+                                                                <ContentPresenter />
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=IsDisabled}" Value="True">
+                                                        <Setter Property="ContentTemplate" Value="{StaticResource ModuleDisabledTemplate}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=IsDisabled}" Value="False">
+                                                        <Setter Property="ContentTemplate" Value="{StaticResource ModuleEnabledTemplate}" />
+                                                    </DataTrigger>
+                                                    <!--  your other Status' here -->
+                                                </Style.Triggers>
+
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+
+                                    </ListView>
+                                </StackPanel>
+
+                            </Border>
+                            <Border Grid.Row="3">
+
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
+                                    <Grid Height="Auto">
+                                        <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}"
+                                          ItemTemplate="{StaticResource ModuleValidationErrorTemplate}" Name="ModuleValidationErrorListView" LostFocus="ModuleValidationErrorListView_LostFocus"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="4">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
+                                    <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}"
+                                              Name="ModuleRuntimeValidationErrorListView" LostFocus="ModuleRuntimeValidationErrorListView_LostFocus"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="5">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
+                                    <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}"
+                                              Name="ModuleRuntimeErrorListView" LostFocus="ModuleRuntimeValidationErrorListView_LostFocus"/>
+                                </StackPanel>
+                            </Border>
+
+                        </Grid>
                     </ScrollViewer>
                 </TabItem>
 

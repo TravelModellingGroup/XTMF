@@ -182,6 +182,17 @@ namespace XTMF.Gui.UserControls
                 ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel);
         }
 
+        private void Run_RuntimeError(ErrorWithPath error)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ModuleValidationErrorListView.Items.Clear();
+                ModuleRuntimeErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
+                ParameterTabControl.SelectedIndex = 2;
+                ModuleRuntimeValidationErrorListView.UpdateLayout();
+            });
+        }
+
 
         private void Run_RuntimeValidationError(List<ErrorWithPath> errorList)
         {
@@ -791,10 +802,7 @@ namespace XTMF.Gui.UserControls
             string error = null;
             StringRequestOverlay.Description = "Please enter a run name.";
             Overlay.Visibility = Visibility.Visible;
-
-
             StringRequestOverlay.Visibility = Visibility.Visible;
-
             if (DisabledModules.Count(m => m.IsDisabled) > 0)
             {
                 StringRequestOverlay.ExtraInfo =
@@ -804,11 +812,9 @@ namespace XTMF.Gui.UserControls
             {
                 StringRequestOverlay.ExtraInfo = string.Empty;
             }
-
             StringRequestOverlay.StringEntryComplete = (sender, args) =>
             {
                 runName = StringRequestOverlay.StringEntryValue;
-
                 var runQuestion = MessageBoxResult.Yes;
                 if (Session.RunNameExists(runName))
                 {
@@ -817,20 +823,20 @@ namespace XTMF.Gui.UserControls
                         "Run Name Already Exists", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning,
                         MessageBoxResult.No);
                 }
-
-
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
                     var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false);
                     if (run != null)
                     {
+                        ModuleValidationErrorListView.Items.Clear();
+                        ModuleRuntimeValidationErrorListView.Items.Clear();
+                        ModuleRuntimeErrorListView.Items.Clear();
                         MainWindow.Us.UpdateStatusDisplay("Running Model System ");
                         MainWindow.Us.ModelRunPane.Show();
-
                         MainWindow.Us.RunWindow.ValidationError = Run_ValidationError;
                         MainWindow.Us.RunWindow.RuntimeValidationError = Run_RuntimeValidationError;
+                        MainWindow.Us.RunWindow.RuntimeError = Run_RuntimeError;
                         MainWindow.Us.RunWindow.StartRun(Session, run, runName);
-
                         MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " + Session.Name,
                             () => { MainWindow.Us.LoadPageId(ContentGuid); });
                     }
