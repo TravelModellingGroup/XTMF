@@ -55,18 +55,14 @@ namespace XTMF.Gui.Models
             }
         }
 
-        private ModelSystemStructureDisplayModel MapModuleWithPath(ModelSystemStructureDisplayModel parent, List<int> path)
+        private ModelSystemStructureDisplayModel MapModuleWithPath(ModelSystemStructureDisplayModel root, List<int> path)
         {
-            var index = path[0];
-            if(path.Count == 1)
+            var current = root;
+            for (int i = 0; i < path.Count; i++)
             {
-                return parent.Children[index];
+                current = current.Children[path[i]];
             }
-            else
-            {
-                path.RemoveAt(0);
-                return MapModuleWithPath(parent.Children[index], path);
-            }
+            return current;
         }
     }
 }
