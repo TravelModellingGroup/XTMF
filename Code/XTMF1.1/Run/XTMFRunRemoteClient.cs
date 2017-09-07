@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace XTMF.Run
@@ -28,6 +29,12 @@ namespace XTMF.Run
     sealed class XTMFRunRemoteClient : XTMFRun
     {
         private IModelSystemTemplate MST;
+        
+        private Thread RunThread;
+
+        private bool Overwrite = false;
+
+        private ModelSystemStructure Root;
 
         public XTMFRunRemoteClient(Configuration configuration, string runName, string runDirectory, string modelSystemString)
             : base(runName, runDirectory, configuration)
@@ -39,56 +46,173 @@ namespace XTMF.Run
                 wr.Seek(0, SeekOrigin.Begin);
                 var mss = ModelSystemStructure.Load(memStream, configuration);
                 MST = mss.Module as IModelSystemTemplate;
+                Root = (ModelSystemStructure)mss;
             }
-            DirectoryInfo runDir = new DirectoryInfo(runDirectory);
-            if (runDir.Exists)
-            {
-                runDir.Delete(true);
-            }
-            runDir.Create();
-            Environment.CurrentDirectory = runDirectory;
         }
 
         public override bool RunsRemotely => true;
 
         public override bool DeepExitRequest()
         {
-            throw new NotImplementedException();
+            bool Exit(IModelSystemStructure current)
+            {
+                return current.Children.Aggregate(false, (acc, m) => acc | Exit(m))
+                    | (current.Module is IModelSystemTemplate mst && mst.ExitRequest());
+            }
+            var root = ModelSystemStructureModelRoot;
+            if (root != null)
+            {
+                return Exit(root.RealModelSystemStructure);
+            }
+            return false;
         }
 
         public override bool ExitRequest()
         {
-            throw new NotImplementedException();
+            return DeepExitRequest();
         }
 
         public override Tuple<byte, byte, byte> PollColour()
         {
-            throw new NotImplementedException();
+            return MST?.ProgressColour ?? new Tuple<byte, byte, byte>(50, 150, 50);
         }
 
         public override float PollProgress()
         {
-            throw new NotImplementedException();
+            return MST?.Progress ?? 1.0f;
         }
 
         public override string PollStatusMessage()
         {
-            throw new NotImplementedException();
+            return MST?.ToString() ?? String.Empty;
         }
 
         public override void Start()
         {
-            throw new NotImplementedException();
+            (RunThread = new Thread(() =>
+            {
+                Run();
+            })).Start();
+        }
+
+        private void Run()
+        {
+            SetupRunDirectory();
+            if(ValidateModelSystem())
+            {
+                try
+                {
+                    MST.Start();
+                }
+                catch(ThreadAbortException)
+                {
+                    // This is fine just continue
+                }
+                catch(Exception e)
+                {
+                    GetInnermostError(ref e);
+                    List<int> path = null;
+                    if(e is XTMFRuntimeException runtimeError)
+                    {
+                        path = GetModulePath(runtimeError.Module);
+                    }
+                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, e.StackTrace));
+                }
+            }
+        }
+
+        private List<int> GetModulePath(IModule module)
+        {
+            if (module == null) return null;
+            List<int> ret = new List<int>();
+            bool Explore(IModelSystemStructure current, List<int> path, IModule lookingFor)
+            {
+                if (current.Module == lookingFor)
+                {
+                    return true;
+                }
+                var children = current.Children;
+                if (children != null)
+                {
+                    path.Add(0);
+                    foreach (var child in children)
+                    {
+                        if (Explore(child, path, lookingFor))
+                        {
+                            return true;
+                        }
+                        path[path.Count - 1] += 1;
+                    }
+                    path.RemoveAt(path.Count - 1);
+                }
+                return false;
+            }
+            return Explore(Root, ret, module) ? ret : null;
+        }
+
+        private bool ValidateModelSystem()
+        {
+            try
+            {
+                ErrorWithPath error = new ErrorWithPath();
+                if (!Root.Validate(ref error, new List<int>()))
+                {
+                    InvokeValidationError(CreateFromSingleError(error));
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, e.StackTrace)));
+                return false;
+            }
+            List<ErrorWithPath> errors = new List<ErrorWithPath>();
+            try
+            {
+                Root.Save(Path.GetFullPath("RunParameters.xml"));
+                if (!RunTimeValidation(new List<int>(), errors, Root))
+                {
+                    InvokeRuntimeValidationError(errors);
+                    return false;
+                }
+                else
+                {
+                    SetStatusToRunning();
+                }
+            }
+            catch(Exception e)
+            {
+                errors.Add(new ErrorWithPath(null, e.Message, e.StackTrace));
+                InvokeRuntimeValidationError(errors);
+                return false;
+            }
+            return true;
+        }
+
+        private void SetupRunDirectory()
+        {
+            DirectoryInfo runDir = new DirectoryInfo(RunDirectory);
+            if (Overwrite && runDir.Exists)
+            {
+                runDir.Delete(true);
+            }
+            runDir.Create();
+            Environment.CurrentDirectory = RunDirectory;
         }
 
         public override void TerminateRun()
         {
-            throw new NotImplementedException();
+            try
+            {
+                RunThread?.Abort();
+            }
+            catch
+            { }
         }
 
         public override void Wait()
         {
-            throw new NotImplementedException();
+            RunThread?.Join();
         }
     }
 }

@@ -241,5 +241,57 @@ namespace XTMF
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        protected static List<ErrorWithPath> CreateFromSingleError(ErrorWithPath error)
+        {
+            var ret = new List<ErrorWithPath>(1)
+            {
+                error
+            };
+            return ret;
+        }
+
+        protected static void GetInnermostError(ref Exception caughtError)
+        {
+            while (caughtError is AggregateException agg)
+            {
+                caughtError = agg.InnerException;
+            }
+        }
+
+        /// <summary>
+        /// Do a runtime validation check for the currently running model system
+        /// </summary>
+        /// <param name="error">This parameter gets the error message if any is generated</param>
+        /// <param name="currentPoint">The module to look at, set this to the root to begin.</param>
+        /// <returns>This will be false if there is an error, true otherwise</returns>
+        protected static bool RunTimeValidation(List<int> path, List<ErrorWithPath> errors, IModelSystemStructure currentPoint)
+        {
+            var ret = true;
+            if (currentPoint.Module != null)
+            {
+                string error = null;
+                if (!currentPoint.Module.RuntimeValidation(ref error))
+                {
+                    errors.Add(new ErrorWithPath(path, $"Runtime Validation Error in {currentPoint.Name}\r\n{error}"));
+                    ret = false;
+                }
+            }
+            // check to see if there are descendants that need to be checked
+            if (currentPoint.Children != null)
+            {
+                path.Add(0);
+                foreach (var module in currentPoint.Children)
+                {
+                    if (!RunTimeValidation(path, errors, module))
+                    {
+                        ret = false;
+                    }
+                    path[path.Count - 1] += 1;
+                }
+                path.RemoveAt(path.Count - 1);
+            }
+            return ret;
+        }
     }
 }

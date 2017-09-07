@@ -34,10 +34,9 @@ namespace XTMF.Run
         private float RemoteProgress = 0.0f;
         private string RemoteStatus = String.Empty;
         private NamedPipeServerStream Pipe;
-
         private Thread RunThread;
 
-        public override bool RunsRemotely => throw new NotImplementedException();
+        public override bool RunsRemotely => true;
 
         public XTMFRunRemoteHost(IConfiguration configuration, string runName, string runDirectory)
             : base(runName, runDirectory, configuration)
@@ -127,17 +126,49 @@ namespace XTMF.Run
                             RemoteStatus = reader.ReadString();
                             break;
                         case ToHost.ClientErrorValidatingModelSystem:
-                            {
-//                                SendValidationError(reader.ReadString());
-                            }
+                            InvokeValidationError(ReadErrors(reader));
                             return;
                         case ToHost.ClientErrorWhenRunningModelSystem:
-                            //SendRuntimeError(reader.ReadString(), reader.ReadString());
+                            InvokeRuntimeError(ReadError(reader));
                             return;
-
+                        case ToHost.ClientFinishedModelSystem:
+                        case ToHost.ClientExiting:
+                            return;
                     }
                 }
             }, TaskCreationOptions.LongRunning);
+        }
+
+        private static List<ErrorWithPath> ReadErrors(BinaryReader reader)
+        {
+            int numberOfErrors = reader.ReadInt32();
+            List<ErrorWithPath> errors = new List<ErrorWithPath>(numberOfErrors);
+            for (int i = 0; i < numberOfErrors; i++)
+            {
+                errors.Add(ReadError(reader));
+            }
+            return errors;
+        }
+
+        private static ErrorWithPath ReadError(BinaryReader reader)
+        {
+            int pathSize = reader.ReadInt32();
+            List<int> path = null;
+            if (pathSize > 0)
+            {
+                path = new List<int>(pathSize);
+                for (int j = 0; j < pathSize; j++)
+                {
+                    path.Add(reader.ReadInt32());
+                }
+            }
+            var message = reader.ReadString();
+            var stackTrace = reader.ReadString();
+            if (String.IsNullOrWhiteSpace(stackTrace))
+            {
+                stackTrace = null;
+            }
+            return new ErrorWithPath(path, message, stackTrace);
         }
 
         private void WriteModelSystemToStream(BinaryWriter writer)

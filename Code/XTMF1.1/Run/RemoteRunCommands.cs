@@ -35,7 +35,6 @@ namespace XTMF.Run
         ClientReportedProgress = 6,
         SendModelSystemResult = 7,
         ClientReportedStatus = 8,
-        RuntimeError = 9
     }
 
     public enum ToClient

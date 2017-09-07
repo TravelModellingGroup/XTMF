@@ -92,15 +92,6 @@ namespace XTMF.Run
             RunThread.Start();
         }
 
-        private static List<ErrorWithPath> CreateFromSingleError(ErrorWithPath error)
-        {
-            var ret = new List<ErrorWithPath>(1)
-            {
-                error
-            };
-            return ret;
-        }
-
         private void Run()
         {
             string originalWorkingDirectory = Directory.GetCurrentDirectory();
@@ -226,14 +217,6 @@ namespace XTMF.Run
             return Explore(ModelSystemStructureModelRoot, ret, module) ? ret : null;
         }
 
-        private void GetInnermostError(ref Exception caughtError)
-        {
-            while (caughtError is AggregateException agg)
-            {
-                caughtError = agg.InnerException;
-            }
-        }
-
         private void RunModelSystem(out List<ErrorWithPath> errors, IModelSystemStructure mstStructure)
         {
             errors = new List<ErrorWithPath>(0);
@@ -271,32 +254,18 @@ namespace XTMF.Run
                 MST = ((Project)Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
                 mstStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
             }
-
             return mstStructure;
         }
 
         override public void TerminateRun()
         {
-            void Terminate()
-            {
-                var thread = RunThread;
-                if (thread != null)
-                {
-                    try
-                    {
-                        if (thread.ThreadState != ThreadState.Running)
-                        {
-                            thread.Abort();
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
             Task.Run(() =>
             {
-                Terminate();
+                try
+                {
+                    RunThread?.Abort();
+                }
+                catch { }
             });
         }
 
@@ -333,41 +302,6 @@ namespace XTMF.Run
         public override Tuple<byte, byte, byte> PollColour()
         {
             return MST?.ProgressColour;
-        }
-
-        /// <summary>
-        /// Do a runtime validation check for the currently running model system
-        /// </summary>
-        /// <param name="error">This parameter gets the error message if any is generated</param>
-        /// <param name="currentPoint">The module to look at, set this to the root to begin.</param>
-        /// <returns>This will be false if there is an error, true otherwise</returns>
-        private static bool RunTimeValidation(List<int> path, List<ErrorWithPath> errors, IModelSystemStructure currentPoint)
-        {
-            var ret = true;
-            if (currentPoint.Module != null)
-            {
-                string error = null;
-                if (!currentPoint.Module.RuntimeValidation(ref error))
-                {
-                    errors.Add(new ErrorWithPath(path.ToList(), $"Runtime Validation Error in {currentPoint.Name}\r\n{error}"));
-                    ret = false;
-                }
-            }
-            // check to see if there are descendants that need to be checked
-            if (currentPoint.Children != null)
-            {
-                path.Add(0);
-                foreach (var module in currentPoint.Children)
-                {
-                    if (!RunTimeValidation(path, errors, module))
-                    {
-                        ret = false;
-                    }
-                    path[path.Count - 1] += 1;
-                }
-                path.RemoveAt(path.Count - 1);
-            }
-            return ret;
         }
     }
 }
