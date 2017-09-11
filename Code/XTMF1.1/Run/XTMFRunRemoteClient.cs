@@ -29,7 +29,7 @@ namespace XTMF.Run
     sealed class XTMFRunRemoteClient : XTMFRun
     {
         private IModelSystemTemplate MST;
-        
+
         private Thread RunThread;
 
         private bool Overwrite = false;
@@ -41,12 +41,24 @@ namespace XTMF.Run
         {
             using (var memStream = new MemoryStream())
             {
-                BinaryWriter wr = new BinaryWriter(memStream);
-                wr.Write(modelSystemString);
-                wr.Seek(0, SeekOrigin.Begin);
-                var mss = ModelSystemStructure.Load(memStream, configuration);
-                MST = mss.Module as IModelSystemTemplate;
-                Root = (ModelSystemStructure)mss;
+                try
+                {
+                    Project temp = new Project(Path.GetFileName(runDirectory), configuration, true);
+                    ((ProjectRepository)(configuration.ProjectRepository)).SetActiveProject(temp);
+                    var msAsBytes = Encoding.Unicode.GetBytes(modelSystemString);
+                    memStream.Write(msAsBytes, 0, msAsBytes.Length);
+                    memStream.Position = 0;
+
+                    var mss = ModelSystemStructure.Load(memStream, configuration);
+                    Root = (ModelSystemStructure)mss;
+                    temp.ModelSystemStructure.Add(Root);
+                    temp.ModelSystemDescriptions.Add(String.Empty);
+                    temp.LinkedParameters.Add(new List<ILinkedParameter>());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
         }
 
@@ -97,22 +109,27 @@ namespace XTMF.Run
 
         private void Run()
         {
-            SetupRunDirectory();
-            if(ValidateModelSystem())
+            if (ValidateModelSystem())
             {
                 try
                 {
+                    SetupRunDirectory();
+                    if (!ValidateRuntimeModelSystem())
+                    {
+                        return;
+                    }
+                    Root.Save(Path.Combine(RunDirectory, "RunParameters.xml"));
                     MST.Start();
                 }
-                catch(ThreadAbortException)
+                catch (ThreadAbortException)
                 {
                     // This is fine just continue
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     GetInnermostError(ref e);
                     List<int> path = null;
-                    if(e is XTMFRuntimeException runtimeError)
+                    if (e is XTMFRuntimeException runtimeError)
                     {
                         path = GetModulePath(runtimeError.Module);
                     }
@@ -160,12 +177,28 @@ namespace XTMF.Run
                     InvokeValidationError(CreateFromSingleError(error));
                     return false;
                 }
+                if (!Project.CreateModule(Configuration, Root, Root, new List<int>(), ref error))
+                {
+                    InvokeValidationError(CreateFromSingleError(error));
+                    return false;
+                }
+                MST = Root.Module as IModelSystemTemplate;
+                if (MST == null)
+                {
+                    InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, "Unable to generate MST!")));
+                    return false;
+                }
             }
             catch (Exception e)
             {
                 InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, e.StackTrace)));
                 return false;
             }
+            return true;
+        }
+
+        private bool ValidateRuntimeModelSystem()
+        {
             List<ErrorWithPath> errors = new List<ErrorWithPath>();
             try
             {
@@ -180,7 +213,7 @@ namespace XTMF.Run
                     SetStatusToRunning();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 errors.Add(new ErrorWithPath(null, e.Message, e.StackTrace));
                 InvokeRuntimeValidationError(errors);

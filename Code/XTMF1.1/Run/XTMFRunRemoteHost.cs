@@ -34,55 +34,73 @@ namespace XTMF.Run
         private float RemoteProgress = 0.0f;
         private string RemoteStatus = String.Empty;
         private NamedPipeServerStream Pipe;
-        private Thread RunThread;
+        /// <summary>
+        /// Bound to in order to do a wait.
+        /// This is triggered when the client has exited.
+        /// </summary>
+        private SemaphoreSlim ClientExiting = new SemaphoreSlim(0);
 
         public override bool RunsRemotely => true;
 
-        public XTMFRunRemoteHost(IConfiguration configuration, string runName, string runDirectory)
+        public XTMFRunRemoteHost(IConfiguration configuration, ModelSystemStructureModel root, string runName, string runDirectory)
             : base(runName, runDirectory, configuration)
         {
-
+            ModelSystemStructureModelRoot = root;
         }
 
         private string GetXTMFRunFileName() => Path.Combine(Path.GetDirectoryName(
-    Assembly.GetEntryAssembly().Location
-    ), "XTMF.Run.exe");
+    Assembly.GetEntryAssembly().Location), "XTMF.Run.exe");
+
 
         private void StartupHost()
         {
-            var pipeName = Guid.NewGuid().ToString();
+            var debugMode = Debugger.IsAttached;
+            var pipeName = debugMode ? "DEBUG_MODEL_SYSTEM" : Guid.NewGuid().ToString();
             Pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-            var info = new ProcessStartInfo(GetXTMFRunFileName(), "-pipe " + pipeName)
+            if (!debugMode)
             {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-            DataReceivedEventHandler messageHandler = (sender, args) =>
-            {
-                if (args.Data != null)
+                var info = new ProcessStartInfo(GetXTMFRunFileName(), "-pipe " + pipeName)
                 {
-                    Console.WriteLine(args.Data);
-                }
-            };
-            var runProcess = new Process
-            {
-                StartInfo = info
-            };
-            runProcess.OutputDataReceived += messageHandler;
-            runProcess.ErrorDataReceived += messageHandler;
-            runProcess.Start();
-            runProcess.BeginOutputReadLine();
-            runProcess.BeginErrorReadLine();
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                DataReceivedEventHandler messageHandler = (sender, args) =>
+                {
+                    if (args.Data != null)
+                    {
+                        Console.WriteLine(args.Data);
+                    }
+                };
+                var runProcess = new Process
+                {
+                    StartInfo = info,
+                    EnableRaisingEvents = true
+                };
+                runProcess.OutputDataReceived += messageHandler;
+                runProcess.ErrorDataReceived += messageHandler;
+                runProcess.Exited += RunProcess_Exited;
+                runProcess.Start();
+                runProcess.BeginOutputReadLine();
+                runProcess.BeginErrorReadLine();
+            }
             Pipe.WaitForConnection();
+        }
+
+        private void RunProcess_Exited(object sender, EventArgs e)
+        {
+            // make sure the pipe is destroyed if the other process has
+            // terminated
+            Pipe?.Dispose();
+            ClientExiting.Release();
         }
 
         private void RequestSignal(ToClient signal)
         {
             lock (this)
             {
-                BinaryWriter writer = new BinaryWriter(Pipe, System.Text.Encoding.UTF8, true);
+                BinaryWriter writer = new BinaryWriter(Pipe, System.Text.Encoding.Unicode, true);
                 writer.Write((Int32)signal);
             }
         }
@@ -101,40 +119,46 @@ namespace XTMF.Run
         {
             lock (this)
             {
-                BinaryWriter writer = new BinaryWriter(Pipe, System.Text.Encoding.UTF8, true);
+                BinaryWriter writer = new BinaryWriter(Pipe, System.Text.Encoding.Unicode, true);
                 writer.Write((Configuration as Configuration)?.ConfigurationFileName ?? "");
-                WriteModelSystemToStream(writer);
-                writer.Flush();
             }
+            WriteModelSystemToStream();
         }
 
         private void StartClientListener()
         {
             Task.Factory.StartNew(() =>
             {
-                BinaryReader reader = new BinaryReader(Pipe, System.Text.Encoding.UTF8, true);
-                while (true)
+                try
                 {
-                    switch ((ToHost)reader.ReadInt32())
+                    BinaryReader reader = new BinaryReader(Pipe, System.Text.Encoding.Unicode, true);
+                    while (true)
                     {
-                        case ToHost.Heartbeat:
-                            break;
-                        case ToHost.ClientReportedProgress:
-                            RemoteProgress = reader.ReadInt32();
-                            break;
-                        case ToHost.ClientReportedStatus:
-                            RemoteStatus = reader.ReadString();
-                            break;
-                        case ToHost.ClientErrorValidatingModelSystem:
-                            InvokeValidationError(ReadErrors(reader));
-                            return;
-                        case ToHost.ClientErrorWhenRunningModelSystem:
-                            InvokeRuntimeError(ReadError(reader));
-                            return;
-                        case ToHost.ClientFinishedModelSystem:
-                        case ToHost.ClientExiting:
-                            return;
+                        switch ((ToHost)reader.ReadInt32())
+                        {
+                            case ToHost.Heartbeat:
+                                break;
+                            case ToHost.ClientReportedProgress:
+                                RemoteProgress = reader.ReadInt32();
+                                break;
+                            case ToHost.ClientReportedStatus:
+                                RemoteStatus = reader.ReadString();
+                                break;
+                            case ToHost.ClientErrorValidatingModelSystem:
+                                InvokeValidationError(ReadErrors(reader));
+                                return;
+                            case ToHost.ClientErrorWhenRunningModelSystem:
+                                InvokeRuntimeError(ReadError(reader));
+                                return;
+                            case ToHost.ClientFinishedModelSystem:
+                            case ToHost.ClientExiting:
+                                return;
+                        }
                     }
+                }
+                finally
+                {
+                    ClientExiting.Release();
                 }
             }, TaskCreationOptions.LongRunning);
         }
@@ -171,17 +195,19 @@ namespace XTMF.Run
             return new ErrorWithPath(path, message, stackTrace);
         }
 
-        private void WriteModelSystemToStream(BinaryWriter writer)
+        private void WriteModelSystemToStream()
         {
-            using (var memStream = new MemoryStream())
+            lock (this)
             {
-                ModelSystemStructureModelRoot.RealModelSystemStructure.Save(memStream);
-                memStream.Seek(0, SeekOrigin.Begin);
-                BinaryReader reader = new BinaryReader(memStream);
-                writer.Write((UInt32)ToClient.RunModelSystem);
-                writer.Write(RunName);
-                writer.Write(RunDirectory);
-                writer.Write(reader.ReadString());
+                using (var memStream = new MemoryStream())
+                {
+                    BinaryWriter writer = new BinaryWriter(Pipe, System.Text.Encoding.Unicode, true);
+                    ModelSystemStructureModelRoot.RealModelSystemStructure.Save(memStream);
+                    writer.Write((UInt32)ToClient.RunModelSystem);
+                    writer.Write(RunName);
+                    writer.Write(RunDirectory);
+                    writer.Write(Encoding.Unicode.GetString(memStream.ToArray()));
+                }
             }
         }
 
@@ -216,19 +242,15 @@ namespace XTMF.Run
 
         public override void Start()
         {
-            (RunThread = new Thread(() =>
-            {
-                StartupHost();
-                StartClientListener();
-                // Send the instructiosn to run the model system
-                InitializeClientAndSendModelSystem();
-            }
-            )).Start();
+            StartupHost();
+            StartClientListener();
+            // Send the instructiosn to run the model system
+            InitializeClientAndSendModelSystem();
         }
 
         public override void Wait()
         {
-            RunThread?.Join();
+            ClientExiting.Wait();
         }
 
         public override void TerminateRun()
@@ -240,6 +262,7 @@ namespace XTMF.Run
         {
             base.Dispose(disposing);
             Pipe?.Dispose();
+            ClientExiting?.Dispose();
         }
     }
 }

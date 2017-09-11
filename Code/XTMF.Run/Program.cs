@@ -23,6 +23,8 @@ using System.IO.Pipes;
 using System.Threading.Tasks;
 using XTMF.Run;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Text;
 
 namespace XTMF.Run
 {
@@ -78,7 +80,10 @@ namespace XTMF.Run
         {
             using (var clientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous))
             {
-
+                if(!clientStream.IsConnected)
+                {
+                    clientStream.Connect();
+                }
                 IModelSystemStructure root = null;
                 using (var messagesToSend = new BlockingCollection<byte[]>())
                 {
@@ -86,7 +91,7 @@ namespace XTMF.Run
                     // create the client
                     Task.Factory.StartNew(() =>
                     {
-                        var reader = new BinaryReader(clientStream);
+                        var reader = new BinaryReader(clientStream, Encoding.Unicode, true);
                         Configuration config = new Configuration(reader.ReadString());
                         runtime = new XTMFRuntime(config);
                         try
@@ -126,7 +131,6 @@ namespace XTMF.Run
                             Environment.Exit(0);
                         }
                     }, TaskCreationOptions.LongRunning);
-
                     // Send out the messages as they arise
                     foreach (var msg in messagesToSend.GetConsumingEnumerable())
                     {
@@ -143,27 +147,13 @@ namespace XTMF.Run
             var modelSystemString = reader.ReadString();
             Task.Factory.StartNew(() =>
             {
-                if (!Directory.Exists(runDirectory))
-                {
-                    Directory.CreateDirectory(runDirectory);
-                }
                 var run = XTMFRun.CreateRemoteClient(config, runName, runDirectory, modelSystemString);
                 run.ValidationError += (message) =>
                 {
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
                         writer.Write((Int32)ToHost.ClientErrorValidatingModelSystem);
-                        writer.Write(message.Count);
-                        foreach (var error in message)
-                        {
-                            var path = error.Path;
-                            writer.Write(path.Count);
-                            foreach (var point in path)
-                            {
-                                writer.Write(point);
-                            }
-                            writer.Write(error.Message);
-                        }
+                        WriteErrors(writer, message);
                     });
                 };
                 run.RuntimeValidationError += (message) =>
@@ -171,33 +161,18 @@ namespace XTMF.Run
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
                         writer.Write((Int32)ToHost.ClientErrorValidatingModelSystem);
-                        writer.Write(message.Count);
-                        foreach (var error in message)
-                        {
-                            var path = error.Path;
-                            writer.Write(path.Count);
-                            foreach (var point in path)
-                            {
-                                writer.Write(point);
-                            }
-                            writer.Write(error.Message);
-                        }
+                        WriteErrors(writer, message);
                     });
+                    messageQueue.CompleteAdding();
                 };
                 run.RuntimeError += (error) =>
                 {
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
                         writer.Write((Int32)ToHost.ClientErrorWhenRunningModelSystem);
-                        var path = error.Path;
-                        writer.Write(path.Count);
-                        foreach (var point in path)
-                        {
-                            writer.Write(point);
-                        }
-                        writer.Write(error.Message);
-                        writer.Write(error.StackTrace);
+                        WriteError(writer, error);
                     });
+                    messageQueue.CompleteAdding();
                 };
                 run.RunCompleted += () =>
                 {
@@ -205,18 +180,45 @@ namespace XTMF.Run
                     {
                         writer.Write((Int32)ToHost.ClientFinishedModelSystem);
                     });
+                    messageQueue.CompleteAdding();
                 };
                 run.Start();
                 run.Wait();
             }, TaskCreationOptions.LongRunning);
         }
 
+        private static void WriteErrors(BinaryWriter writer, List<ErrorWithPath> errors)
+        {
+            foreach (var error in errors)
+            {
+                WriteError(writer, error);
+            }
+        }
+
+        private static void WriteError(BinaryWriter writer, ErrorWithPath error)
+        {
+            var path = error.Path;
+            if (path != null)
+            {
+                writer.Write(path.Count);
+                foreach (var point in path)
+                {
+                    writer.Write(point);
+                }
+            }
+            else
+            {
+                writer.Write((Int32)(-1));
+            }
+            writer.Write(error.Message);
+            writer.Write(error.StackTrace ?? String.Empty);
+        }
 
         private static void WriteMessageToStream(BlockingCollection<byte[]> messagesToSend, Action<BinaryWriter> action)
         {
             using (var backend = new MemoryStream())
             {
-                BinaryWriter writer = new BinaryWriter(backend, System.Text.Encoding.UTF8, true);
+                BinaryWriter writer = new BinaryWriter(backend, System.Text.Encoding.Unicode, true);
                 action(writer);
                 writer.Flush();
                 messagesToSend.Add(backend.ToArray());

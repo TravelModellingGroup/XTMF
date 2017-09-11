@@ -596,7 +596,7 @@ namespace XTMF
             }
         }
 
-        private bool AddCollection(IConfiguration config, IModule root, IModelSystemStructure rootMS, IModelSystemStructure child,
+        private static bool AddCollection(IConfiguration config, IModule root, IModelSystemStructure rootMS, IModelSystemStructure child,
             FieldInfo infoField, [NotNull] PropertyInfo infoProperty, Type listOfInner, Type inner,List<int> path, ref ErrorWithPath error)
         {
             var mod = child as ModelSystemStructure;
@@ -766,7 +766,7 @@ namespace XTMF
             return true;
         }
 
-        private bool AttachParent(IModule parent, IModelSystemStructure child, List<int> path, ref ErrorWithPath error)
+        private static bool AttachParent(IModule parent, IModelSystemStructure child, List<int> path, ref ErrorWithPath error)
         {
             foreach (var field in child.Type.GetFields())
             {
@@ -808,7 +808,7 @@ namespace XTMF
             return true;
         }
 
-        private bool AttachRootModelSystem(IModelSystemStructure iModelSystem, IModule root, List<int> path, ref ErrorWithPath error)
+        private static bool AttachRootModelSystem(IModelSystemStructure iModelSystem, IModule root, List<int> path, ref ErrorWithPath error)
         {
             foreach (var field in root.GetType().GetFields())
             {
@@ -854,7 +854,7 @@ namespace XTMF
             return true;
         }
 
-        private bool CreateModule(IConfiguration config, IModelSystemStructure rootMS, IModelSystemStructure ps, List<int> path, ref ErrorWithPath error)
+        public static bool CreateModule(IConfiguration config, IModelSystemStructure rootMS, IModelSystemStructure ps, List<int> path, ref ErrorWithPath error)
         {
             IModule root;
             if (ps.Type == null)
@@ -913,7 +913,7 @@ namespace XTMF
                     return false;
                 }
                 // Allow any module access to the host/client
-                if(!InstallNetworkingModules(root, path, ref error))
+                if(!InstallNetworkingModules(config, root, path, ref error))
                 {
                     return false;
                 }
@@ -1070,7 +1070,7 @@ namespace XTMF
             return null;
         }
 
-        private bool InstallNetworkingModules(IModule module, List<int> path, ref ErrorWithPath error)
+        private static bool InstallNetworkingModules(IConfiguration configuration, IModule module, List<int> path, ref ErrorWithPath error)
         {
             var moduleType = module.GetType();
             var clientType = typeof(IClient);
@@ -1082,7 +1082,7 @@ namespace XTMF
                 {
                     if (field.FieldType == clientType)
                     {
-                        IClient networkingClient = Configuration.RetriveCurrentNetworkingClient();
+                        IClient networkingClient = configuration.RetriveCurrentNetworkingClient();
                         if (networkingClient != null)
                         {
                             field.SetValue(module, networkingClient);
@@ -1090,7 +1090,7 @@ namespace XTMF
                     }
                     else if (field.FieldType == hostType)
                     {
-                        if (!Configuration.StartupNetworkingHost(out IHost networkingHost, ref strError))
+                        if (!configuration.StartupNetworkingHost(out IHost networkingHost, ref strError))
                         {
                             error = new ErrorWithPath(path, strError);
                             return false;
@@ -1105,7 +1105,7 @@ namespace XTMF
                 {
                     if (field.PropertyType == clientType)
                     {
-                        if (Configuration.StartupNetworkingClient(out IClient networkingClient, ref strError))
+                        if (configuration.StartupNetworkingClient(out IClient networkingClient, ref strError))
                         {
                             field.SetValue(module, networkingClient, null);
                         }
@@ -1117,7 +1117,7 @@ namespace XTMF
                     }
                     else if (field.PropertyType == hostType)
                     {
-                        if (Configuration.StartupNetworkingHost(out IHost networkingHost, ref strError))
+                        if (configuration.StartupNetworkingHost(out IHost networkingHost, ref strError))
                         {
                             field.SetValue(module, networkingHost, null);
                         }
@@ -1132,7 +1132,7 @@ namespace XTMF
             return true;
         }
 
-        private bool InstallParameters(IModule root, IModelSystemStructure ps, List<int> path, ref ErrorWithPath error)
+        private static bool InstallParameters(IModule root, IModelSystemStructure ps, List<int> path, ref ErrorWithPath error)
         {
             if (ps.Parameters == null) return true;
             foreach (var param in ps.Parameters)
