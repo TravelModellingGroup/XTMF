@@ -116,12 +116,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
-      <Project>{5a7c8449-be6f-4cbb-ad7f-b38560dae637}</Project>
-      <Name>XTMFInterfaces</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <COMReference Include="NETCONLib">
       <Guid>{43E734CA-043D-4A70-9A2C-A8F254063D91}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -144,7 +138,12 @@
   <ItemGroup>
     <None Include="XTMFDiagram.cd" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
+      <Project>{5a7c8449-be6f-4cbb-ad7f-b38560dae637}</Project>
+      <Name>XTMFInterfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
