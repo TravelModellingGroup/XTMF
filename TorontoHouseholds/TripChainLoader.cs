@@ -203,7 +203,7 @@ namespace TMG.Tasha
                     var numberOfModes = allModes.Count;
                     if (!CharacterToModeNameConversion.TryGetValue(tempChar1, out string name))
                     {
-                        t.Attach(ObservedModeAttachment, TashaRuntime.AllModes[0]);
+                        t.Attach(ObservedModeAttachment, allModes[0]);
                     }
                     else
                     {

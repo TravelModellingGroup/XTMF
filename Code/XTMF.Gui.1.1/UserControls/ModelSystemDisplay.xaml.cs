@@ -317,7 +317,6 @@ namespace XTMF.Gui.UserControls
                     if (!LinkedParameterDisplayOverlay.IsVisible)
                     {
                         SaveCurrentlySelectedParameters();
-
                         ExecuteRun();
                     }
                 }
