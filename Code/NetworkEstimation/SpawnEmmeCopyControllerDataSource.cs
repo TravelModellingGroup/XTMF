@@ -73,7 +73,7 @@ namespace TMG.NetworkEstimation
                         DirectoryCopy(originalDir, dir);
                         var actuallyRunning = Path.GetFullPath(Path.Combine(dir, projectFile));
                         Console.WriteLine("Opening EMME at " + actuallyRunning);
-                        Controller = new ModellerController(actuallyRunning);
+                        Controller = new ModellerController(this, actuallyRunning);
                     }
                 }
             }

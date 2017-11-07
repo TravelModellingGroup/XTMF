@@ -52,7 +52,7 @@ namespace TMG.NetworkEstimation
                     if (Data == null)
                     {
                         GC.ReRegisterForFinalize(this);
-                        Data = new ModellerController(ProjectFolder.GetFilePath());
+                        Data = new ModellerController(this, ProjectFolder.GetFilePath());
                     }
                 }
             }

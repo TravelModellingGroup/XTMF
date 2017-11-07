@@ -596,7 +596,7 @@ class XTMFBridge:
         _m.logbook_level(inro.modeller.LogbookLevel.NONE)
     
     def EnableLogbook(self):
-	    _m.logbook_level(self.previous_level)
+        _m.logbook_level(self.previous_level)
     
 #end XTMFBridge
 

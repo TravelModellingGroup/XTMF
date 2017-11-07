@@ -180,7 +180,7 @@ namespace TMG.Emme
             //this.FromEmme = this.Emme.StandardOutput;
         }
 
-        public ModellerController(string projectFolder, bool newWindow = false) : base(projectFolder, newWindow)
+        public ModellerController(string projectFolder, bool newWindow = false) : this(null, projectFolder)
         {
         }
 

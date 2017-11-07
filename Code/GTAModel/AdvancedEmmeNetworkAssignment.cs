@@ -113,7 +113,7 @@ namespace TMG.GTAModel
             {
                 if (Controller == null)
                 {
-                    Controller = new ModellerController(EmmeProjectFile, PerformanceAnalysis);
+                    Controller = new ModellerController(this, EmmeProjectFile, PerformanceAnalysis);
                 }
                 CurrentProgress = 0.0f;
                 ProgressIncrement = 1.0f / tools.Count;
