@@ -41,11 +41,7 @@
         </VisualBrush>
 
         <DataTemplate x:Key="ModuleValidationErrorTemplate" x:Name="ModuleValidationErrorTemplate"  DataType="{x:Type models:ValidationErrorDisplayModel}">
-
-            <this:ValidationErrorListControl Tag="{Binding DisplayModule}" Height="80" MouseDoubleClick="ValidationListModuleNameMouseDown"  >
-
-            </this:ValidationErrorListControl>
-
+            <this:ValidationErrorListControl Tag="{Binding DisplayModule}" Height="80" MouseDoubleClick="ValidationListModuleNameMouseDown" />
         </DataTemplate>
 
         <DataTemplate x:Key="ModuleDisabledTemplate" DataType="{x:Type models:ModelSystemStructureDisplayModel}">
@@ -77,7 +73,7 @@
         </DataTemplate>
 
         <models:ModelSystemInfoTemplateSelector  x:Key="ModelSystemInfoTemplateSelector"  ModuleDisabled="{StaticResource ModuleDisabledTemplate}"
-                                                ModuleEnabled="{StaticResource ModuleEnabledTemplate}"></models:ModelSystemInfoTemplateSelector>
+                                                ModuleEnabled="{StaticResource ModuleEnabledTemplate}" />
 
 
 
@@ -191,12 +187,9 @@
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity=".6"/>
             </Grid.Background>
-
             <!-- Add controls as needed -->
-
             <this:LinkedParameterDisplay Visibility="Collapsed"  x:Name="LinkedParameterDisplayOverlay"></this:LinkedParameterDisplay>
             <this:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay"></this:StringRequestOverlay>
-
         </Grid>
 
         <!-- Use whatever layout you need -->
@@ -210,16 +203,12 @@
                 <RowDefinition Height="24"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="3"></RowDefinition>
-
             </Grid.RowDefinitions>
-
             <Grid Grid.Row="0" Grid.ColumnSpan="3">
                 <StackPanel Orientation="Horizontal">
                     <this:FlatToolButton ToolText="Linked Parameters" Height="24" Click="LinkedParameter_Click">
                         <this:FlatToolButton.IconPath  >
-                            <Path Data="{DynamicResource LinkIconPath}" Stretch="Uniform" >
-
-                            </Path>
+                            <Path Data="{DynamicResource LinkIconPath}" Stretch="Uniform" />
                         </this:FlatToolButton.IconPath>
                     </this:FlatToolButton>
                     <Rectangle VerticalAlignment="Stretch" Fill="{DynamicResource WindowBackgroundBrush3}" Width="1" Height="20"/>
@@ -227,120 +216,101 @@
 AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                         x:Name="RunModelSystemButton" ToolText="Run Model System" Height="24" Click="RunModelSystem_Click">
                         <this:FlatToolButton.IconPath  >
-                            <Path  Data="{DynamicResource RunIconPathGeometry}" Stretch="Uniform" >
-
-                            </Path>
+                            <Path  Data="{DynamicResource RunIconPathGeometry}" Stretch="Uniform" />
                         </this:FlatToolButton.IconPath>
                     </this:FlatToolButton>
                 </StackPanel>
             </Grid>
             <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
-
-                <Canvas   UseLayoutRounding="True" Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True" MouseDown="GridCanvas_MouseDown">
-
-
-
-                    <Grid Width="{Binding ActualWidth, ElementName=GridCanvas}" 
-                      Height="{Binding ActualHeight, ElementName=GridCanvas}"
-                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
-                        <Grid.Effect>
-                            <DropShadowEffect RenderingBias="Performance" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3">
-
-                            </DropShadowEffect>
-                        </Grid.Effect>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="AUTO" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
-                        <TreeView Grid.Row="1"   BorderThickness="0" 
-                  x:Name="ModuleDisplay"  
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
+                    <Grid.Effect>
+                        <DropShadowEffect RenderingBias="Performance" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3" />
+                    </Grid.Effect>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="AUTO" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
+                    <TreeView Grid.Row="1"   BorderThickness="0" 
+                        x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown" >
+                        <TreeView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling"
+                                                        Orientation="Vertical" CanHorizontallyScroll="True" CanVerticallyScroll="True" />
+                            </ItemsPanelTemplate>
+                        </TreeView.ItemsPanel>
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
+                                    <MenuItem.Icon>
+                                        <ContentControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Template="{DynamicResource CopyIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Paste (Ctrl+V)" Click="PasteModule_Click">
+                                    <MenuItem.Icon>
+                                        <ContentControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Template="{DynamicResource PasteIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Edit Description (Shift + F2)" Click="Description_Clicked">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource EditIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Meta-Module">
+                                    <MenuItem Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click" />
+                                    <MenuItem Header="Convert From(Ctrl+Alt+M)" Click="ConvertFromMetaModule_Click" />
+                                </MenuItem>
 
-                            <TreeView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" Orientation="Vertical" CanHorizontallyScroll="True" CanVerticallyScroll="True" />
-                                </ItemsPanelTemplate>
-                            </TreeView.ItemsPanel>
-                            <TreeView.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
-                                        <MenuItem.Icon>
-                                            <ContentControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Template="{DynamicResource CopyIcon}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Paste (Ctrl+V)" Click="PasteModule_Click">
-                                        <MenuItem.Icon>
-                                            <ContentControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Template="{DynamicResource PasteIcon}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
-                                        <MenuItem.Icon>
-                                            <ContentControl Template="{DynamicResource RefreshIcon}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Edit Description (Shift + F2)" Click="Description_Clicked">
-                                        <MenuItem.Icon>
-                                            <ContentControl Template="{DynamicResource EditIcon}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Meta-Module">
-                                        <MenuItem Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click" />
-                                        <MenuItem Header="Convert From(Ctrl+Alt+M)" Click="ConvertFromMetaModule_Click" />
-                                    </MenuItem>
+                                <MenuItem Name="ModuleMenuItem" Header="Module (Ctrl+M)" Click="Module_Clicked" />
+                                <MenuItem Name="DisableModuleMenuItem" Header="Disable Module (Ctrl+D)" Click="DisableModuleMenuItem_OnClick" />
+                                <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource CancelIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Help (F1)" Click="Help_Clicked">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource HelpIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Move">
+                                    <MenuItem Header="Up   (Ctrl+Shift+Up)" Click="MoveUp_Click" />
+                                    <MenuItem Header="Down (Ctrl+Shift+Down)" Click="MoveDown_Click" />
+                                </MenuItem>
+                                <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource LinkIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Expand all Modules" Click="ExpandAllMenuItem_Click">
 
-                                    <MenuItem Name="ModuleMenuItem" Header="Module (Ctrl+M)" Click="Module_Clicked" />
+                                </MenuItem>
+                                <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Collapse all Modules" Click="CollapseAllMenuItem_Click">
 
-
-                                    <MenuItem 
-                                    
-                                    Name="DisableModuleMenuItem" Header="Disable Module (Ctrl+D)" Click="DisableModuleMenuItem_OnClick" />
-
-
-                                    <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
-                                        <MenuItem.Icon>
-                                            <ContentControl Template="{DynamicResource CancelIcon}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Help (F1)" Click="Help_Clicked">
-                                        <MenuItem.Icon>
-                                            <ContentControl Template="{DynamicResource HelpIcon}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Move">
-                                        <MenuItem Header="Up   (Ctrl+Shift+Up)" Click="MoveUp_Click" />
-                                        <MenuItem Header="Down (Ctrl+Shift+Down)" Click="MoveDown_Click" />
-                                    </MenuItem>
-                                    <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
-                                        <MenuItem.Icon>
-                                            <ContentControl Template="{DynamicResource LinkIcon}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Expand all Modules" Click="ExpandAllMenuItem_Click">
-
-                                    </MenuItem>
-                                    <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Colapse all Modules" Click="CollapseAllMenuItem_Click">
-
-                                    </MenuItem>
-                                </ContextMenu>
-                            </TreeView.ContextMenu>
-                            <TreeView.ItemTemplate>
-                                <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
-                                    <this:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name, Mode=OneWay}"
+                                </MenuItem>
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
+                                <this:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name, Mode=OneWay}"
                                               SubText="{Binding Description, Mode=OneWay}"
                                                  BackingModel="{Binding BackingDisplayModel}" PreviewKeyDown="ModuleDisplay_PreviewKeyDown"
                                               
                                               ContextMenuOpening="ModuleTreeViewItem_OnContextMenuOpening"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=TreeView}, Path=ContextMenu}">
-                                    </this:ModuleTreeViewItem>
-                                </HierarchicalDataTemplate>
-                            </TreeView.ItemTemplate>
-                        </TreeView>
-                    </Grid>
-                </Canvas>
-
+                                </this:ModuleTreeViewItem>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
             </Grid>
             <GridSplitter Grid.Row="1" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
             <TabControl Grid.Row="1" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged">

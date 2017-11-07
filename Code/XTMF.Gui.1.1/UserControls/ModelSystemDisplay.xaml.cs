@@ -110,7 +110,6 @@ namespace XTMF.Gui.UserControls
 
         private Semaphore _saveSemaphor;
 
-
         private void ProjectWasExternalSaved(object sender, EventArgs e)
         {
             // If the project was saved we need to reload in the new model system model
@@ -137,14 +136,11 @@ namespace XTMF.Gui.UserControls
         private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText,
             bool parentExpanded = true, bool parentVisible = false, bool parentPassed = false)
         {
-
-
             var children = module.Children;
             var thisParentPassed = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
                                    module.Type != null &&
                                    module.Type.FullName.IndexOf(filterText,
                                        StringComparison.CurrentCultureIgnoreCase) >= 0;
-
             var childrenPassed = false;
             if (children != null)
             {
@@ -258,9 +254,7 @@ namespace XTMF.Gui.UserControls
             AllowMultiSelection(ModuleDisplay);
             Loaded += ModelSystemDisplay_Loaded;
             ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
-
             DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
-
             DisabledModulesList.ItemsSource = DisabledModules;
             FilterBox.Filter = (o, text) =>
             {
@@ -307,7 +301,6 @@ namespace XTMF.Gui.UserControls
             };
         }
 
-
         private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
         {
             if (keyEventArgs.Key == Key.F5)
@@ -328,7 +321,6 @@ namespace XTMF.Gui.UserControls
             MainWindow.Us.PreviewKeyDown -= UsOnPreviewKeyDown;
         }
 
-
         private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
@@ -338,7 +330,6 @@ namespace XTMF.Gui.UserControls
                 FilterBox.Focus();
             }));
             UpdateQuickParameters();
-
             EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
         }
 
@@ -356,7 +347,6 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
         {
@@ -425,13 +415,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         private void ShowLinkedParameterDialog(bool assign = false)
         {
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
-
             LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
-
             LinkedParameterDisplayOverlay.Show();
         }
 
@@ -757,11 +744,7 @@ namespace XTMF.Gui.UserControls
                             {
                                 RenameParameter();
                             }
-
                             break;
-                    }
-                    switch (e.Key)
-                    {
                         case Key.F1:
                             ShowDocumentation();
                             e.Handled = true;
@@ -773,13 +756,7 @@ namespace XTMF.Gui.UserControls
                                 e.Handled = true;
                             }
                             break;
-
-
-                        case Key.F2:
-                            RenameParameter();
-                            break;
                         case Key.F5:
-
                             e.Handled = true;
                             break;
                         case Key.Escape:
@@ -1143,7 +1120,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         private void MoveFocusNextModule(bool up)
         {
             Keyboard.Focus(ModuleDisplay);
@@ -1285,8 +1261,6 @@ namespace XTMF.Gui.UserControls
         private void UpdateParameters()
         {
             var parameters = GetActiveParameters();
-
-
             if (parameters != null)
             {
                 Task.Factory.StartNew(() =>
@@ -1457,7 +1431,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         private void RenameSelectedModule()
         {
             var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
@@ -1518,7 +1491,6 @@ namespace XTMF.Gui.UserControls
                 throw new InvalidAsynchronousStateException("The current module could not be found!");
             }
         }
-
 
         private void MoveCurrentModule(int deltaPosition)
         {
@@ -1670,15 +1642,12 @@ namespace XTMF.Gui.UserControls
                         }
                     }
                 });
-
-
         }
 
         private void CleanUpParameters()
         {
             ParameterDisplay.BeginAnimation(OpacityProperty, null);
         }
-
 
         private void LinkedParameters_Click(object sender, RoutedEventArgs e)
         {
@@ -1728,17 +1697,6 @@ namespace XTMF.Gui.UserControls
             {
                 string error = null;
                 currentParameter.SetHidden(hidden, ref error);
-            }
-        }
-
-        private void LoadModelSystemInformation()
-        {
-            /* Load disabled module information from the model system */
-
-            var root = ModelSystem.Root;
-
-            foreach (var child in root.Children)
-            {
             }
         }
 
@@ -1975,7 +1933,6 @@ namespace XTMF.Gui.UserControls
             return finalPath.ToString(0, finalPath.Length - 1);
         }
 
-
         private void CopyParameterName_Click(object sender, RoutedEventArgs e)
         {
             CopyParameterName();
@@ -2083,7 +2040,6 @@ namespace XTMF.Gui.UserControls
         {
             MoveCurrentModule(1);
         }
-
 
         private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
             "IsSelectionChangeActive",
@@ -2197,7 +2153,6 @@ namespace XTMF.Gui.UserControls
                     selectedItems.ForEach(item => item.IsSelected = item == treeViewItem);
                     selectedItems.Clear();
                 }
-
                 if (!selectedItems.Contains(treeViewItem))
                 {
                     selectedItems.Add(treeViewItem);
@@ -2212,7 +2167,6 @@ namespace XTMF.Gui.UserControls
                 }
             };
         }
-
 
         private void ConvertToMetaModule_Click(object sender, RoutedEventArgs e)
         {
@@ -2295,10 +2249,9 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         private ModelSystemStructureDisplayModel FindNextAncestor(ModelSystemStructureDisplayModel item)
         {
-            if(item.Parent == null)
+            if (item.Parent == null)
             {
 
                 if (item.Children != null && item.Children.Count > 0)
@@ -2310,7 +2263,7 @@ namespace XTMF.Gui.UserControls
                     return item;
                 }
             }
-            else if(item.Index < item.Parent.Children.Count -1)
+            else if (item.Index < item.Parent.Children.Count - 1)
             {
                 return item.Parent.Children[item.Index + 1];
             }
@@ -2320,14 +2273,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         private ModelSystemStructureDisplayModel FindMostExpandedItem(ModelSystemStructureDisplayModel item)
         {
-            if(!item.IsExpanded || item.Children == null || item.Children.Count == 0)
+            if (!item.IsExpanded || item.Children == null || item.Children.Count == 0)
             {
                 return item;
             }
-
             else
             {
                 return FindMostExpandedItem(item.Children[item.Children.Count - 1]);
@@ -2336,195 +2287,62 @@ namespace XTMF.Gui.UserControls
 
         private void ModuleDisplayNavigateDown(ModelSystemStructureDisplayModel item)
         {
-
-            if(item.IsExpanded && item.Children != null && item.Children.Count > 0)
+            if (item.IsExpanded && item.Children != null && item.Children.Count > 0)
             {
                 item.Children[0].IsSelected = true;
-
             }
-            
-            else {
+            else
+            {
                 var toSelect = FindNextAncestor(item);
-
-                if (item.Parent == toSelect.Parent && item.Index < item.Parent.Children.Count - 1 )
+                if (item.Parent == toSelect.Parent && item.Index < item.Parent.Children.Count - 1)
                 {
                     toSelect.IsSelected = true;
                 }
-                else if(item.Parent != toSelect.Parent)
+                else if (item.Parent != toSelect.Parent)
                 {
                     toSelect.IsSelected = true;
                 }
-                
             }
-
-
-
         }
 
         private void ModuleDisplayNavigateUp(ModelSystemStructureDisplayModel item)
         {
-            // parent is null 
-            if(item.Parent == null)
+            // make sure we are not the root module
+            if (item.Parent != null)
             {
-                //cannot navigate further up
-
-                return;
-
-            }
-            else if(item.Parent != null)
-            {
-                //if parent item has a single child
-                if(item.Parent.Children.Count == 1)
+                // if parent item has a single child
+                if (item.Index == 0 || item.Parent.Children.Count == 1)
                 {
                     item.Parent.IsSelected = true;
-                    return;
                 }
-                else if(item.Index == 0)
+                // if parent item has multiple children
+                else if (item.Parent.Children.Count > 1)
                 {
-                    item.Parent.IsSelected = true;
-                    return;
-                }
-
-                //if parent item has multiple children
-                else if(item.Parent.Children.Count > 1)
-                {
-                    //find the most expanded "deepest" subchild of sibling element
+                    // find the most expanded "deepest" subchild of sibling element
                     var toSelect = FindMostExpandedItem(item.Parent.Children[item.Index - 1]);
-                   
-                        toSelect.IsSelected = true;
-                    
-
+                    toSelect.IsSelected = true;
                 }
-
             }
         }
 
         private void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-
             e.Handled = false;
-
-            if (e.Key == Key.F2)
+            switch(e.Key)
             {
-                RenameSelectedModule();
-                return;
-            }
-
-            if (e.Key == Key.Up)
-            {
-                ModuleDisplayNavigateUp(item);
-                e.Handled = true;
-            }
-
-            if(e.Key == Key.Down)
-            { 
-                 ModuleDisplayNavigateDown(item);
-                e.Handled = true;
-            }
-
-            /*
-            if (e.Key == Key.Down)
-            {
-                try
-                {
-                    if (item.IsExpanded && item.Children.Count > 0)
-                    {
-                        item.Children.First().IsSelected = true;
-                    }
-
-                    else if (item.Parent != null && item.Index == item.Parent.Children.Count - 1)
-                    {
-
-
-                        var searchItem = item.Parent;
-
-
-                        while (true)
-                        {
-                            if (searchItem.Parent != null)
-                            {
-                                if (searchItem.Parent.Children.Count <= searchItem.Index + 1)
-                                {
-                                    searchItem = searchItem.Parent;
-                                }
-                                else
-                                {
-                                    searchItem.Parent.Children[searchItem.Index + 1].IsSelected = true;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        if (item.Parent.Parent != null)
-                        {
-                            if (item.Parent.Index + 1 < item.Parent.Parent.Children.Count)
-                            {
-                                item.Parent.Parent.Children[item.Parent.Index + 1].IsSelected = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (item.Parent != null)
-                        {
-                            item.Parent.Children[item.Index + 1].IsSelected = true;
-                        }
-                    }
+                case Key.F2:
+                    RenameSelectedModule();
+                    break;
+                case Key.Up:
+                    ModuleDisplayNavigateUp(item);
                     e.Handled = true;
-                }
-                catch (Exception exc)
-                {
-                    Console.WriteLine(exc);
-                }
+                    break;
+                case Key.Down:
+                    ModuleDisplayNavigateDown(item);
+                    e.Handled = true;
+                    break;
             }
-            if (e.Key != Key.Up)
-            {
-                return;
-            }
-            try
-            {
-                if (item.Index == 0)
-                {
-                    if (item.Parent != null)
-                    {
-                        item.Parent.IsSelected = true;
-                    }
-                }
-                else
-                {
-                    var upItem = item.Parent.Children[item.Index - 1];
-
-                    while (true)
-                    {
-                        if (upItem.IsExpanded && upItem.Children.Count >= 0)
-                        {
-                            if (upItem.Index > 0)
-                            {
-                                upItem = upItem.Children[upItem.Index - 1];
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    upItem.IsSelected = true;
-                }
-                e.Handled = true;
-            }
-            catch
-            {
-            }
-
-    */
         }
 
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -2555,7 +2373,6 @@ namespace XTMF.Gui.UserControls
         private void RunModelSystem_Click(object sender, RoutedEventArgs e)
         {
             SaveCurrentlySelectedParameters();
-
             ExecuteRun();
         }
 
@@ -2577,30 +2394,25 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         private void ComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Down)
             {
                 var tRequest = new TraversalRequest(FocusNavigationDirection.Next);
-
                 if (Keyboard.FocusedElement is UIElement keyboardFocus)
                 {
                     keyboardFocus.MoveFocus(tRequest);
                 }
-
                 e.Handled = true;
                 return;
             }
             if (e.Key == Key.Up)
             {
                 var tRequest = new TraversalRequest(FocusNavigationDirection.Previous);
-
                 if (Keyboard.FocusedElement is UIElement keyboardFocus)
                 {
                     keyboardFocus.MoveFocus(tRequest);
                 }
-
                 e.Handled = true;
                 return;
             }
@@ -2608,15 +2420,12 @@ namespace XTMF.Gui.UserControls
             base.OnPreviewKeyDown(e);
         }
 
-
-
-        private void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse=true)
+        private void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse = true)
         {
             module.IsExpanded = collapse;
             foreach (var child in module.Children)
             {
                 ExpandModule(child);
-
             }
         }
 
