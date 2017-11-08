@@ -28,34 +28,34 @@ namespace XTMF.Run
 {
     sealed class XTMFRunLocal : XTMFRun
     {
-        private Thread RunThread;
+        private Thread _RunThread;
 
         /// <summary>
         /// The model system to execute
         /// </summary>
-        private int ModelSystemIndex;
+        private int _ModelSystemIndex;
 
         /// <summary>
         /// The model system that is currently executing
         /// </summary>
-        private IModelSystemTemplate MST;
+        private IModelSystemTemplate _MST;
 
         /// <summary>
         /// The project that is being executed
         /// </summary>
-        private IProject Project;
+        private IProject _Project;
 
         public override bool RunsRemotely => false;
 
         public XTMFRunLocal(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
             : base(runName, Path.Combine(config.ProjectDirectory, project.Name, runName), new ConfigurationProxy(config, project))
         {
-            Project = project;
+            _Project = project;
             ModelSystemStructureModelRoot = root.Root;
             RunName = runName;
-            ModelSystemIndex = modelSystemIndex;
-            Project.ModelSystemStructure[ModelSystemIndex] = root.ClonedModelSystemRoot;
-            Project.LinkedParameters[ModelSystemIndex] = root.LinkedParameters.GetRealLinkedParameters();
+            _ModelSystemIndex = modelSystemIndex;
+            _Project.ModelSystemStructure[_ModelSystemIndex] = root.ClonedModelSystemRoot;
+            _Project.LinkedParameters[_ModelSystemIndex] = root.LinkedParameters.GetRealLinkedParameters();
             if (overwrite)
             {
                 ClearFolder(RunDirectory);
@@ -67,7 +67,7 @@ namespace XTMF.Run
                   (project.ModelSystemStructure.IndexOf(root.RealModelSystemStructure) >= 0 ? (IConfiguration)new ConfigurationProxy(configuration, project) : configuration))
         {
             // we don't make a clone for this type of run
-            Project = project;
+            _Project = project;
             ModelSystemStructureModelRoot = root;
             RunName = runName;
             if (overwrite)
@@ -75,21 +75,18 @@ namespace XTMF.Run
                 ClearFolder(RunDirectory);
             }
         }
-        public override bool ExitRequest()
-        {
-            return MST?.ExitRequest() ?? false;
-        }
+        public override bool ExitRequest() => _MST?.ExitRequest() ?? false;
 
         override public void Start()
         {
-            RunThread = new Thread(() =>
+            _RunThread = new Thread(() =>
             {
                 Run();
             })
             {
                 IsBackground = true
             };
-            RunThread.Start();
+            _RunThread.Start();
         }
 
         private void Run()
@@ -107,7 +104,7 @@ namespace XTMF.Run
                 InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message)));
                 return;
             }
-            if (MST == null)
+            if (_MST == null)
             {
                 InvokeValidationError(CreateFromSingleError(error));
                 return;
@@ -155,7 +152,7 @@ namespace XTMF.Run
             Thread.MemoryBarrier();
             DisposeModelSystem(mstStructure);
             mstStructure = null;
-            MST = null;
+            _MST = null;
             if (Configuration is Configuration configuration)
             {
                 configuration.ModelSystemExited();
@@ -221,7 +218,6 @@ namespace XTMF.Run
         {
             errors = new List<ErrorWithPath>(0);
             AlertValidationStarting();
-            
             // check to see if the directory exists, if it doesn't create it
             DirectoryInfo info = new DirectoryInfo(RunDirectory);
             if (!info.Exists)
@@ -237,7 +233,7 @@ namespace XTMF.Run
             else
             {
                 SetStatusToRunning();
-                MST.Start();
+                _MST.Start();
             }
         }
 
@@ -246,12 +242,12 @@ namespace XTMF.Run
             IModelSystemStructure mstStructure;
             if (ModelSystemStructureModelRoot == null)
             {
-                MST = ((Project)Project).CreateModelSystem(ref error, Configuration, ModelSystemIndex);
-                mstStructure = Project.ModelSystemStructure[ModelSystemIndex];
+                _MST = ((Project)_Project).CreateModelSystem(ref error, Configuration, _ModelSystemIndex);
+                mstStructure = _Project.ModelSystemStructure[_ModelSystemIndex];
             }
             else
             {
-                MST = ((Project)Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
+                _MST = ((Project)_Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
                 mstStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
             }
             return mstStructure;
@@ -263,21 +259,15 @@ namespace XTMF.Run
             {
                 try
                 {
-                    RunThread?.Abort();
+                    _RunThread?.Abort();
                 }
                 catch { }
             });
         }
 
-        public override float PollProgress()
-        {
-            return MST?.Progress ?? 0f;
-        }
+        public override float PollProgress() => _MST?.Progress ?? 0f;
 
-        public override string PollStatusMessage()
-        {
-            return MST?.ToString() ?? String.Empty;
-        }
+        public override string PollStatusMessage() => _MST?.ToString() ?? String.Empty;
 
         public override bool DeepExitRequest()
         {
@@ -294,14 +284,8 @@ namespace XTMF.Run
             return false;
         }
 
-        public override void Wait()
-        {
-            RunThread?.Join();
-        }
+        public override void Wait() => _RunThread?.Join();
 
-        public override Tuple<byte, byte, byte> PollColour()
-        {
-            return MST?.ProgressColour;
-        }
+        public override Tuple<byte, byte, byte> PollColour() => _MST?.ProgressColour;
     }
 }

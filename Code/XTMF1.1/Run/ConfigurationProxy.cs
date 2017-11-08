@@ -34,82 +34,36 @@ namespace XTMF.Run
         /// <summary>
         /// The configuration we are proxying for
         /// </summary>
-        private Configuration RealConfiguration;
+        private Configuration _RealConfiguration;
 
         private class ProgressReport : IProgressReport
         {
-            public Tuple<byte, byte, byte> Colour
-            {
-                get;
-                set;
-            }
+            public Tuple<byte, byte, byte> Colour { get; set; }
 
-            public Func<float> GetProgress
-            {
-                get;
-                internal set;
-            }
-
-            public string Name
-            {
-                get;
-                internal set;
-            }
+            public Func<float> GetProgress { get; internal set; }
+            
+            public string Name { get; internal set; }
         }
 
         public ConfigurationProxy(Configuration realConfig, IProject activeProject)
         {
-            RealConfiguration = realConfig;
-            ProjectRepository = new ProjectRepositoryProxy(RealConfiguration.ProjectRepository, activeProject);
+            _RealConfiguration = realConfig;
+            ProjectRepository = new ProjectRepositoryProxy(_RealConfiguration.ProjectRepository, activeProject);
             ProgressReports = new BindingListWithRemoving<IProgressReport>();
         }
 
-        public string ConfigurationDirectory
-        {
-            get
-            {
-                return RealConfiguration.ConfigurationDirectory;
-            }
-        }
+        public string ConfigurationDirectory => _RealConfiguration.ConfigurationDirectory;
 
-        public IModuleRepository ModelRepository
-        {
-            get
-            {
-                return RealConfiguration.ModelRepository;
-            }
-        }
+        public IModuleRepository ModelRepository => _RealConfiguration.ModelRepository;
 
-        public string ModelSystemDirectory
-        {
-            get
-            {
-                return RealConfiguration.ModelSystemDirectory;
-            }
-        }
+        public string ModelSystemDirectory => _RealConfiguration.ModelSystemDirectory;
 
-        public IModelSystemRepository ModelSystemRepository
-        {
-            get
-            {
-                return RealConfiguration.ModelSystemRepository;
-            }
-        }
+        public IModelSystemRepository ModelSystemRepository => _RealConfiguration.ModelSystemRepository;
 
-        public IModelSystemTemplateRepository ModelSystemTemplateRepository
-        {
-            get
-            {
-                return RealConfiguration.ModelSystemTemplateRepository;
-            }
-        }
+        public IModelSystemTemplateRepository ModelSystemTemplateRepository => _RealConfiguration.ModelSystemTemplateRepository;
 
-        public BindingListWithRemoving<IProgressReport> ProgressReports
-        {
-            get;
-            private set;
-        }
-
+        public BindingListWithRemoving<IProgressReport> ProgressReports { get; private set; }
+        
         public void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> Color = null)
         {
             lock (this)
@@ -154,24 +108,18 @@ namespace XTMF.Run
             throw new NotSupportedException("Installing modules is not supported from a model run!");
         }
 
-        public IClient RetriveCurrentNetworkingClient()
-        {
-            return RealConfiguration.RetriveCurrentNetworkingClient();
-        }
+        public IClient RetriveCurrentNetworkingClient() => _RealConfiguration.RetriveCurrentNetworkingClient();
 
-        public void Save()
-        {
-            RealConfiguration.Save();
-        }
+        public void Save() => _RealConfiguration.Save();
 
         public bool StartupNetworkingClient(out IClient networkingClient, ref string error)
         {
-            return RealConfiguration.StartupNetworkingClient(out networkingClient, ref error);
+            return _RealConfiguration.StartupNetworkingClient(out networkingClient, ref error);
         }
 
         public bool StartupNetworkingHost(out IHost networkingHost, ref string error)
         {
-            return RealConfiguration.StartupNetworkingHost(out networkingHost, ref error);
+            return _RealConfiguration.StartupNetworkingHost(out networkingHost, ref error);
         }
 
         public void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> Color)
@@ -179,19 +127,9 @@ namespace XTMF.Run
             throw new NotImplementedException();
         }
 
-        public string ProjectDirectory
-        {
-            get
-            {
-                return RealConfiguration.ProjectDirectory;
-            }
-        }
+        public string ProjectDirectory => _RealConfiguration.ProjectDirectory;
 
-        public IProjectRepository ProjectRepository
-        {
-            get;
-            private set;
-        }
+        public IProjectRepository ProjectRepository { get; private set; }
 
         public event Action OnModelSystemExit;
 

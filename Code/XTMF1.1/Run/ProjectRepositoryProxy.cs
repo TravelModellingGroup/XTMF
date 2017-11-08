@@ -32,61 +32,30 @@ namespace XTMF.Run
     /// </summary>
     public class ProjectRepositoryProxy : IProjectRepository
     {
-        private IProjectRepository RealRepository;
+        private IProjectRepository _RealRepository;
 
         public ProjectRepositoryProxy(IProjectRepository realRepository, IProject activeProject)
         {
-            RealRepository = realRepository;
+            _RealRepository = realRepository;
             ActiveProject = activeProject;
         }
 
-        public IProject ActiveProject
-        {
-            get;
-            private set;
-        }
+        public IProject ActiveProject { get; private set; }
 
-        public IList<IProject> Projects
-        {
-            get
-            {
-                return RealRepository.Projects;
-            }
-        }
+        public IList<IProject> Projects => _RealRepository.Projects;
 
-        public bool AddProject(IProject project)
-        {
-            return RealRepository.AddProject(project);
-        }
+        public bool AddProject(IProject project) => _RealRepository.AddProject(project);
 
-        public IEnumerator<IProject> GetEnumerator()
-        {
-            return RealRepository.Projects.GetEnumerator();
-        }
+        public IEnumerator<IProject> GetEnumerator() => _RealRepository.Projects.GetEnumerator();
 
-        public bool Remove(IProject project)
-        {
-            return RealRepository.Remove(project);
-        }
+        public bool Remove(IProject project) => _RealRepository.Remove(project);
 
-        public bool RenameProject(IProject project, string newName)
-        {
-            return RealRepository.RenameProject(project, newName);
-        }
+        public bool RenameProject(IProject project, string newName) => _RealRepository.RenameProject(project, newName);
 
-        public bool SetDescription(IProject project, string newDescription, ref string error)
-        {
-            return RealRepository.SetDescription(project, newDescription, ref error);
-        }
+        public bool SetDescription(IProject project, string newDescription, ref string error) => _RealRepository.SetDescription(project, newDescription, ref error);
 
-        public bool ValidateProjectName(string name)
-        {
-            return RealRepository.ValidateProjectName(name);
-        }
+        public bool ValidateProjectName(string name) => _RealRepository.ValidateProjectName(name);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return (RealRepository as IEnumerable).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => (_RealRepository as IEnumerable).GetEnumerator();
     }
 }
