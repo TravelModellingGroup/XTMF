@@ -33,7 +33,7 @@ namespace XTMF
         /// <summary>
         /// The configuration that this model system repository is based upon
         /// </summary>
-        private IConfiguration Config;
+        private IConfiguration _Config;
 
         /// <summary>
         /// Create a new model system repository for the given configuration
@@ -41,7 +41,7 @@ namespace XTMF
         /// <param name="config">The configuration in which this model system repository is built</param>
         public ModelSystemRepository(IConfiguration config)
         {
-            Config = config;
+            _Config = config;
             ModelSystems = new List<IModelSystem>();
             LoadModelSystemsFromDisk();
         }
@@ -60,11 +60,8 @@ namespace XTMF
         /// <summary>
         /// The model systems included in this repository
         /// </summary>
-        public IList<IModelSystem> ModelSystems
-        {
-            get;
-            private set;
-        }
+        public IList<IModelSystem> ModelSystems { get; private set; }
+
 
         /// <summary>
         /// Add a new model system to the repository
@@ -90,10 +87,7 @@ namespace XTMF
         /// An enumeration of all of the contained model systems
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<IModelSystem> GetEnumerator()
-        {
-            return ModelSystems.GetEnumerator();
-        }
+        public IEnumerator<IModelSystem> GetEnumerator() => ModelSystems.GetEnumerator();
 
         /// <summary>
         /// Renames the model system if possible
@@ -118,7 +112,7 @@ namespace XTMF
             {
                 try
                 {
-                    File.Delete(Path.Combine(Config.ModelSystemDirectory, oldName + ".xml"));
+                    File.Delete(Path.Combine(_Config.ModelSystemDirectory, oldName + ".xml"));
                 }
                 catch (IOException)
                 {
@@ -143,7 +137,7 @@ namespace XTMF
                 error = "There was already a model system with the name " + newName + "!";
                 return false;
             }
-            ModelSystem clone = new ModelSystem(Config, newName)
+            ModelSystem clone = new ModelSystem(_Config, newName)
             {
                 Description = modelSystem.Description,
                 LinkedParameters = modelSystem.LinkedParameters,
@@ -179,7 +173,7 @@ namespace XTMF
                 // we don't need to be locked in order to delete it
                 try
                 {
-                    File.Delete(Path.Combine(Config.ModelSystemDirectory, modelSystem.Name + ".xml"));
+                    File.Delete(Path.Combine(_Config.ModelSystemDirectory, modelSystem.Name + ".xml"));
                 }
                 catch
                 {
@@ -195,18 +189,15 @@ namespace XTMF
         /// An enumeration of all of the contained model systems
         /// </summary>
         /// <returns></returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return ModelSystems.GetEnumerator();
-        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ModelSystems.GetEnumerator();
 
         /// <summary>
         /// Load all of the model systems from the disk
         /// </summary>
         private void LoadModelSystemsFromDisk()
         {
-            if (!Directory.Exists(Config.ModelSystemDirectory)) return;
-            string[] files = Directory.GetFiles(Config.ModelSystemDirectory);
+            if (!Directory.Exists(_Config.ModelSystemDirectory)) return;
+            string[] files = Directory.GetFiles(_Config.ModelSystemDirectory);
             ConcurrentQueue<IModelSystem> temp = new ConcurrentQueue<IModelSystem>();
             Parallel.For(0, files.Length, (int i) =>
            {
@@ -214,7 +205,7 @@ namespace XTMF
                // After we have it, then we can just go and create a new model system from it
                try
                {
-                   var ms = new ModelSystem(Config, Path.GetFileNameWithoutExtension(files[i]));
+                   var ms = new ModelSystem(_Config, Path.GetFileNameWithoutExtension(files[i]));
                    if (ms != null)
                    {
                        temp.Enqueue(ms);
@@ -232,7 +223,6 @@ namespace XTMF
          {
              return first.Name.CompareTo(second.Name);
          });
-
         }
     }
 }

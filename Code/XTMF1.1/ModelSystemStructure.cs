@@ -47,16 +47,11 @@ namespace XTMF
 
         public ModelSystemStructure()
         {
-
         }
 
         public bool IsMetaModule { get; set; }
 
-        public IList<IModelSystemStructure> Children
-        {
-            get;
-            set;
-        }
+        public IList<IModelSystemStructure> Children { get; set; }
 
         public bool IsDisabled { get; set; }
 
@@ -66,23 +61,11 @@ namespace XTMF
 
         public bool IsCollection { get; private set; }
 
-        public IModule Module
-        {
-            get;
-            set;
-        }
+        public IModule Module { get; set; }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
-        public IModuleParameters Parameters
-        {
-            get;
-            set;
-        }
+        public IModuleParameters Parameters { get; set; }
 
         public string ParentFieldName { get; set; }
 
@@ -92,11 +75,7 @@ namespace XTMF
 
         public Type Type
         {
-            get
-            {
-                return _Type;
-            }
-
+            get => _Type;
             set
             {
                 Children?.Clear();
@@ -177,9 +156,7 @@ namespace XTMF
 
         public static void GenerateChildren(IConfiguration config, IModelSystemStructure element)
         {
-            if (element == null) return;
-            if (element.Type == null) return;
-
+            if (element?.Type == null) return;
             foreach (var field in element.Type.GetFields())
             {
                 IModelSystemStructure child;
@@ -310,7 +287,6 @@ namespace XTMF
             {
                 return root;
             }
-
             XmlDocument doc = new XmlDocument();
             doc.Load(fileName);
             var list = doc["Root"]?.ChildNodes;
@@ -380,15 +356,9 @@ namespace XTMF
             return cloneUs;
         }
 
-        internal ModelSystemStructure GetRoot(ModelSystemStructure modelSystemRoot)
-        {
-            return CheckForRootModule(modelSystemRoot, this, Type) as ModelSystemStructure;
-        }
+        internal ModelSystemStructure GetRoot(ModelSystemStructure modelSystemRoot) => CheckForRootModule(modelSystemRoot, this, Type) as ModelSystemStructure;
 
-        internal ModelSystemStructure GetParent(ModelSystemStructure realModelSystemStructure)
-        {
-            return GetParent(realModelSystemStructure, this) as ModelSystemStructure;
-        }
+        internal ModelSystemStructure GetParent(ModelSystemStructure realModelSystemStructure) => GetParent(realModelSystemStructure, this) as ModelSystemStructure;
 
         public IModelSystemStructure CreateCollectionMember(Type newType)
         {
@@ -529,10 +499,7 @@ namespace XTMF
             }
         }
 
-        public override string ToString()
-        {
-            return Name ?? "No Name";
-        }
+        public override string ToString() => Name ?? "No Name";
 
         public bool ValidateSelf(ref string error, IModelSystemStructure parent = null)
         {
@@ -603,20 +570,17 @@ namespace XTMF
                     }
                 }
             }
-
             if (ParentFieldType == null)
             {
                 error = new ErrorWithPath(path.ToList(), "There is an error where a parent's field type was not loaded properly!\nPlease contact the TMG to resolve "
                     + "\r\nError for module '" + Name + "' of type '" + Type.FullName + "'");
                 return false;
             }
-
             if (Type != null && !ParentFieldType.IsAssignableFrom(Type))
             {
                 error = new ErrorWithPath(path.ToList(), String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", Type, ParentFieldType, Name));
                 return false;
             }
-
             if (Children != null)
             {
                 path.Add(0);
@@ -847,7 +811,6 @@ namespace XTMF
                     return child;
                 }
             }
-
             if (type.IsGenericType)
             {
                 var arguements = type.GetGenericArguments();
@@ -887,7 +850,6 @@ namespace XTMF
                     }
                 }
             }
-
             if (iModel.IsAssignableFrom(type))
             {
                 ModelSystemStructure child = new ModelSystemStructure(config);
@@ -990,7 +952,6 @@ namespace XTMF
                 }
                 if (index >= 0)
                 {
-
                     if (lookup.TryGetValue(index, out Type t))
                     {
                         projectStructure.Type = t;
@@ -1153,21 +1114,16 @@ namespace XTMF
             }
         }
 
-        private static bool IsCollectionType(Type t)
-        {
-            return t.GetInterface("System.Collections.Generic.ICollection`1") != null;
-        }
+        private static bool IsCollectionType(Type t) => t.GetInterface("System.Collections.Generic.ICollection`1") != null;
 
         private static void LoadChildNode(IModelSystemStructure modelSystemStructure, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
             /* Check the parent class type */
-
             Type type = null;
             if (child.Attributes?["Name"] != null)
             {
                 type = DiscernType(modelSystemStructure, child.Attributes["Name"].Value);
             }
-
             if (type != null)
             {
                 if (typeof(IModule).IsAssignableFrom(type))
@@ -1175,16 +1131,13 @@ namespace XTMF
                     LoadModule(modelSystemStructure, child, config, lookUp);
                 }
                 else if (typeof(ICollection<IModule>).IsAssignableFrom(type)
-                    || (type.GenericTypeArguments.Length == 1 && typeof(IModule).IsAssignableFrom(type.GenericTypeArguments[0]) && IsCollectionType(type))
-                    )
+                    || (type.GenericTypeArguments.Length == 1 && typeof(IModule).IsAssignableFrom(type.GenericTypeArguments[0]) && IsCollectionType(type)))
                 {
                     LoadCollection(modelSystemStructure, child, config, lookUp);
                 }
             }
             else
             {
-
-
                 switch (child.Name)
                 {
                     case "Module":
@@ -1192,13 +1145,11 @@ namespace XTMF
                             LoadModule(modelSystemStructure, child, config, lookUp);
                         }
                         break;
-
                     case "Collection":
                         {
                             LoadCollection(modelSystemStructure, child, config, lookUp);
                         }
                         break;
-
                     case "Parameters":
                         {
                             LoadParameters(modelSystemStructure, child);
@@ -1211,7 +1162,6 @@ namespace XTMF
         private static void LoadCollection(IModelSystemStructure parent, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
             IModelSystemStructure us = null;
-
             var attributes = child.Attributes;
             if (attributes == null)
             {
@@ -1393,7 +1343,6 @@ namespace XTMF
 
         private static void LoadRoot(IConfiguration config, ModelSystemStructure root, XmlNodeList list)
         {
-
             if (list != null)
             {
                 var lookUp = new Dictionary<int, Type>(20);

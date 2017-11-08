@@ -26,35 +26,21 @@ namespace XTMF
     /// </summary>
     public class ModelSystemTemplateRepository : IModelSystemTemplateRepository
     {
-        public ModelSystemTemplateRepository()
-        {
-            ModelSystemTemplates = new List<Type>();
-        }
-
-        public List<Type> ModelSystemTemplates { get; private set; }
+        public List<Type> ModelSystemTemplates { get; } = new List<Type>();
 
         public void Add(Type type)
         {
-            ModelSystemTemplates.Add( type );
-            ModelSystemTemplates.Sort( delegate(Type first, Type second)
-            {
-                return first.FullName.CompareTo( second.FullName );
-            } );
+            ModelSystemTemplates.Add(type);
+            ModelSystemTemplates.Sort((first, second) =>
+           {
+               return first.FullName.CompareTo(second.FullName);
+           });
         }
 
-        public IEnumerator<Type> GetEnumerator()
-        {
-            return ModelSystemTemplates.GetEnumerator();
-        }
+        public IEnumerator<Type> GetEnumerator() => ModelSystemTemplates.GetEnumerator();
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return ModelSystemTemplates.GetEnumerator();
-        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ModelSystemTemplates.GetEnumerator();
 
-        public void Unload(Type type)
-        {
-            ModelSystemTemplates.Remove( type );
-        }
+        public void Unload(Type type) => ModelSystemTemplates.Remove(type);
     }
 }

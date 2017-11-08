@@ -87,7 +87,6 @@ namespace XTMF
             return new XTMFRunRemoteClient(configuration, runName, runDirectory, modelSystem);
         }
        
-
         protected static void ClearFolder(string path)
         {
             DirectoryInfo directory = new DirectoryInfo(path);
@@ -142,7 +141,6 @@ namespace XTMF
         /// <returns>The colour requested by the model system</returns>
         public abstract Tuple<byte, byte, byte> PollColour();
         
-
         /// <summary>
         /// Get the current progress for this run
         /// </summary>
@@ -245,7 +243,6 @@ namespace XTMF
         {
             Dispose(false);
         }
-
 
         public void Dispose()
         {

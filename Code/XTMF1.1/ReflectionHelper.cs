@@ -46,50 +46,33 @@ namespace XTMF
 
         private class FieldType : UnifiedFieldType
         {
-            private FieldInfo Member;
+            private FieldInfo _Member;
 
-            public FieldType(FieldInfo field)
-            {
-                Member = field;
-            }
+            public FieldType(FieldInfo field) => _Member = field;
 
-            public override string Name { get { return Member.Name; } }
+            public override string Name => _Member.Name;
 
-            public override bool IsPublic { get { return Member.IsPublic; } }
+            public override bool IsPublic => _Member.IsPublic;
 
-            public override object[] GetAttributes()
-            {
-                return Member.GetCustomAttributes(true);
-            }
+            public override object[] GetAttributes() => _Member.GetCustomAttributes(true);
         }
 
 
         private class PropertyType : UnifiedFieldType
         {
-            private PropertyInfo Member;
+            private PropertyInfo _Member;
 
-            public PropertyType(PropertyInfo field)
-            {
-                Member = field;
-            }
+            public PropertyType(PropertyInfo field) => _Member = field;
 
-            public override string Name { get { return Member.Name; } }
+            public override string Name => _Member.Name;
 
-            public override bool IsPublic
-            {
-                get
-                {
-                    return
-                        (Member.GetMethod == null || Member.GetMethod.IsPublic)
-                            &&
-                        (Member.SetMethod == null || Member.SetMethod.IsPublic)
-                        ;
-                }
-            }
+            public override bool IsPublic => 
+                (_Member.GetMethod == null || _Member.GetMethod.IsPublic) &&
+                (_Member.SetMethod == null || _Member.SetMethod.IsPublic);
 
             public override object[] GetAttributes()
             {
-                return Member.GetCustomAttributes(true);
+                return _Member.GetCustomAttributes(true);
             }
         }
     }

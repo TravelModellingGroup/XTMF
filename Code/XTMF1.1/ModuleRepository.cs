@@ -17,33 +17,23 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace XTMF
 {
     public class ModuleRepository : IModuleRepository
     {
-        private List<Type> ContainedModules;
+        private List<Type> _ContainedModules = new List<Type>();
 
-        public ModuleRepository()
-        {
-            ContainedModules = new List<Type>();
-        }
-
-        public IList<Type> Modules
-        {
-            get
-            {
-                return ContainedModules;
-            }
-        }
+        public IList<Type> Modules => _ContainedModules;
 
         public bool AddModule(Type module)
         {
-            if ( !ContainedModules.Contains( module ) )
+            if ( !_ContainedModules.Contains( module ) )
             {
-                ContainedModules.Add( module );
-                ContainedModules.Sort( delegate(Type first, Type second)
+                _ContainedModules.Add( module );
+                _ContainedModules.Sort( delegate(Type first, Type second)
                 {
                     return first.Name.CompareTo( second.Name );
                 } );
@@ -52,28 +42,18 @@ namespace XTMF
             return false;
         }
 
-        public IEnumerator<Type> GetEnumerator()
-        {
-            return ContainedModules.GetEnumerator();
-        }
+        public IEnumerator<Type> GetEnumerator() => _ContainedModules.GetEnumerator();
 
         public Type GetModuleType(string typeName)
         {
-            foreach ( var model in Modules )
-            {
-                if ( model.FullName == typeName ) return model;
-            }
-            return null;
+            return _ContainedModules.FirstOrDefault(model => model.FullName == typeName);
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return ContainedModules.GetEnumerator();
+            return _ContainedModules.GetEnumerator();
         }
 
-        public void Unload(Type type)
-        {
-            ContainedModules.Remove( type );
-        }
+        public void Unload(Type type) => _ContainedModules.Remove(type);
     }
 }

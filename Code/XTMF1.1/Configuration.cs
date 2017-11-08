@@ -39,9 +39,9 @@ namespace XTMF
 
         // The configuration file name will be saved when initializing the object
         internal string ConfigurationFileName { get; private set; }
-        private IClient CurrentClient = null;
-        private IHost CurrentHost = null;
-        private string ModuleDirectory = "Modules";
+        private IClient _CurrentClient = null;
+        private IHost _CurrentHost = null;
+        private string _ModuleDirectory = "Modules";
         public Version XTMFVersion { get; private set; }
         public string BuildDate { get; private set; }
         public bool ExecuteRunsInADifferentProcess { get; private set; }
@@ -63,7 +63,6 @@ namespace XTMF
             ModelRepository = new ModuleRepository();
             ModelSystemTemplateRepository = new ModelSystemTemplateRepository();
             LoadVersion();
-
             if (loadModules)
             {
                 LoadModules();
@@ -77,7 +76,6 @@ namespace XTMF
                 LoadError = "Unable to load model system: " + e.Message;
                 LoadErrorTerminal = true;
             }
-
             try
             {
                 ProjectRepository = new ProjectRepository(this);
@@ -127,27 +125,21 @@ namespace XTMF
         }
 
         public event Action OnModelSystemExit;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public bool AutoSave { get; set; }
 
         public Assembly BaseAssembly { get; set; }
 
-        public string ConfigurationDirectory { get { return Path.GetDirectoryName(ConfigurationFileName); } }
+        public string ConfigurationDirectory => Path.GetDirectoryName(ConfigurationFileName);
 
-        public IModuleRepository ModelRepository
-        {
-            get;
-            private set;
-        }
+        public IModuleRepository ModelRepository { get; private set; }
 
         private string _ModelSystemDirectory;
         public string ModelSystemDirectory
         {
-            get
-            {
-                return _ModelSystemDirectory;
-            }
+            get => _ModelSystemDirectory;
             set
             {
                 if (_ModelSystemDirectory != value)
@@ -158,29 +150,13 @@ namespace XTMF
             }
         }
 
-        public IModelSystemRepository ModelSystemRepository
-        {
-            get;
-            private set;
-        }
+        public IModelSystemRepository ModelSystemRepository { get; private set; }
 
         public IModelSystemTemplateRepository ModelSystemTemplateRepository { get; private set; }
 
         public BindingListWithRemoving<IProgressReport> ProgressReports { get; private set; }
 
-        private List<string> _recentProjects;
-
-        public List<string> RecentProjects
-        {
-            get
-            {
-                return _recentProjects;
-            }
-            private set
-            {
-                _recentProjects = value;
-            }
-        }
+        public List<string> RecentProjects { get; private set; }
 
         private string _ProjectDirectory;
         public string ProjectDirectory
@@ -266,7 +242,7 @@ namespace XTMF
             lock (this)
             {
                 Thread.MemoryBarrier();
-                return CurrentHost;
+                return _CurrentHost;
             }
         }
 
@@ -276,7 +252,7 @@ namespace XTMF
             {
                 return false;
             }
-            var destName = Path.Combine(ModuleDirectory, Path.GetFileName(moduleFileName));
+            var destName = Path.Combine(_ModuleDirectory, Path.GetFileName(moduleFileName));
             if (File.Exists(destName))
             {
                 return false;
@@ -315,7 +291,7 @@ namespace XTMF
 
         public IClient RetriveCurrentNetworkingClient()
         {
-            return CurrentClient;
+            return _CurrentClient;
         }
 
         public void Save()
@@ -459,23 +435,23 @@ namespace XTMF
             lock (this)
             {
                 Thread.MemoryBarrier();
-                if (CurrentClient != null)
+                if (_CurrentClient != null)
                 {
-                    networkingClient = CurrentClient;
+                    networkingClient = _CurrentClient;
                     return true;
                 }
                 else
                 {
                     try
                     {
-                        CurrentClient = new Client(RemoteServerAddress, RemoteServerPort, this);
+                        _CurrentClient = new Client(RemoteServerAddress, RemoteServerPort, this);
                     }
                     catch
                     {
                         return false;
                     }
                     Thread.MemoryBarrier();
-                    networkingClient = CurrentClient;
+                    networkingClient = _CurrentClient;
                     return true;
                 }
             }
@@ -487,11 +463,11 @@ namespace XTMF
             lock (this)
             {
                 Thread.MemoryBarrier();
-                if (CurrentHost == null || CurrentHost.IsShutdown)
+                if (_CurrentHost == null || _CurrentHost.IsShutdown)
                 {
                     try
                     {
-                        CurrentHost = new Host(this);
+                        _CurrentHost = new Host(this);
                     }
                     catch
                     {
@@ -500,10 +476,10 @@ namespace XTMF
                 }
                 else
                 {
-                    ((Host)CurrentHost).ReleaseRegisteredHandlers();
+                    ((Host)_CurrentHost).ReleaseRegisteredHandlers();
                 }
                 Thread.MemoryBarrier();
-                networkingHost = CurrentHost;
+                networkingHost = _CurrentHost;
             }
             return true;
         }
@@ -610,7 +586,7 @@ namespace XTMF
         /// <param name="type"></param>
         private void LoadRedirections(Type type)
         {
-            foreach(var redirection in type.GetCustomAttributes(typeof(RedirectModule)))
+            foreach (var redirection in type.GetCustomAttributes(typeof(RedirectModule)))
             {
                 // Remove the whitespace because it is inconsitant between .Net versions
                 ModuleRedirection[(redirection as RedirectModule).FromType.Replace(" ", "")] = type;
@@ -634,12 +610,9 @@ namespace XTMF
         /// <param name="type">The type to process</param>
         /// <param name="error">A message describing the error.</param>
         /// <returns>True if there is an error.</returns>
-        private bool CheckTypeForErrors(Type type, ref string error)
-        {
-            return
-                CheckForParameterDelcarationErrors(type, ref error) ||
-                CheckForNonPublicRootAndParentTags(type, ref error);
-        }
+        private bool CheckTypeForErrors(Type type, ref string error) => 
+            CheckForParameterDelcarationErrors(type, ref error) ||
+            CheckForNonPublicRootAndParentTags(type, ref error);
 
 
         /// <summary>
@@ -700,16 +673,15 @@ namespace XTMF
 
         public void RemoveRecentProject(string name)
         {
-            _recentProjects.Remove(name);
+            RecentProjects.Remove(name);
         }
         public void AddRecentProject(string name)
         {
-            _recentProjects.Remove(name);
-            _recentProjects.Insert(0, name);
-
-            if (_recentProjects.Count > 5)
+            RecentProjects.Remove(name);
+            RecentProjects.Insert(0, name);
+            if (RecentProjects.Count > 5)
             {
-                _recentProjects.RemoveAt(5);
+                RecentProjects.RemoveAt(5);
             }
         }
 
@@ -720,21 +692,18 @@ namespace XTMF
             try
             {
                 doc.Load(configFileName);
-
             }
             catch (XmlException)
             {
                 SaveConfiguration(configFileName);
                 return;
             }
-
             root = doc["Root"];
             if (root == null || !root.HasChildNodes)
             {
                 SaveConfiguration(configFileName);
                 return;
             }
-
             foreach (XmlNode child in root.ChildNodes)
             {
                 switch (child.Name)
@@ -753,9 +722,9 @@ namespace XTMF
                     case "ExecuteRunsInADifferentProcess":
                         {
                             var attribute = child.Attributes["Value"];
-                            if(attribute != null)
+                            if (attribute != null)
                             {
-                                if(bool.TryParse(attribute.InnerText, out var result))
+                                if (bool.TryParse(attribute.InnerText, out var result))
                                 {
                                     ExecuteRunsInADifferentProcess = result;
                                 }
@@ -893,9 +862,9 @@ namespace XTMF
                     LoadAssembly(baseAssembly);
                 }
             }
-            if (Directory.Exists(ModuleDirectory))
+            if (Directory.Exists(_ModuleDirectory))
             {
-                var files = Directory.GetFiles(ModuleDirectory, "*.dll");
+                var files = Directory.GetFiles(_ModuleDirectory, "*.dll");
                 Parallel.For(0, files.Length,
                     (int i) =>
                     {
@@ -965,7 +934,6 @@ namespace XTMF
                 writer.WriteStartElement("ExecuteRunsInADifferentProcess");
                 writer.WriteAttributeString("Value", ExecuteRunsInADifferentProcess.ToString());
                 writer.WriteEndElement();
-
                 if (AdditionalSettings != null)
                 {
                     if (AdditionalSettings.Count > 0)
@@ -983,12 +951,11 @@ namespace XTMF
                 }
                 // Write recent projects to configuration
                 writer.WriteStartElement("RecentProjects");
-                foreach (string project in _recentProjects)
+                foreach (string project in RecentProjects)
                 {
                     writer.WriteStartElement("Project");
                     writer.WriteAttributeString("Name", project);
                     writer.WriteEndElement();
-
                 }
                 writer.WriteEndElement();
                 writer.WriteStartElement("Theme");
@@ -1002,23 +969,11 @@ namespace XTMF
 
         private class ProgressReport : IProgressReport
         {
-            public Tuple<byte, byte, byte> Colour
-            {
-                get;
-                set;
-            }
+            public Tuple<byte, byte, byte> Colour { get; set; }
 
-            public Func<float> GetProgress
-            {
-                get;
-                internal set;
-            }
+            public Func<float> GetProgress { get; internal set; }
 
-            public string Name
-            {
-                get;
-                internal set;
-            }
+            public string Name { get; internal set; }
         }
 
         public void Dispose()
@@ -1029,16 +984,10 @@ namespace XTMF
 
         private void Dispose(bool all)
         {
-            if (CurrentHost != null)
-            {
-                (CurrentHost as IDisposable)?.Dispose();
-                CurrentHost = null;
-            }
-            if (CurrentClient != null)
-            {
-                (CurrentClient as IDisposable)?.Dispose();
-                CurrentClient = null;
-            }
+            (_CurrentHost as IDisposable)?.Dispose();
+            _CurrentHost = null;
+            (_CurrentClient as IDisposable)?.Dispose();
+            _CurrentClient = null;
         }
     }
 }

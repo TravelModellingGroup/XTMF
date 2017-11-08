@@ -36,19 +36,14 @@ namespace XTMF
     {
         protected IModelSystemStructure _ModelSystemStructure;
 
+        private bool _IsLoaded;
 
-
-        private bool IsLoaded;
-
-        protected void SetIsLoaded(bool value)
-        {
-            IsLoaded = value;
-        }
+        protected void SetIsLoaded(bool value) => _IsLoaded = value;
 
         /// <summary>
         /// The configuration that this model system will use
         /// </summary>
-        private IConfiguration Config;
+        private IConfiguration _Config;
 
         /// <summary>
         /// Create a new instance of a model system
@@ -57,7 +52,7 @@ namespace XTMF
         /// <param name="name">The name of the model system</param>
         public ModelSystem(IConfiguration config, string name = null)
         {
-            Config = config;
+            _Config = config;
             Name = name;
             SetIsLoaded(false);
             LinkedParameters = new List<ILinkedParameter>();
@@ -88,7 +83,7 @@ namespace XTMF
         public ModelSystem Clone()
         {
             var structure = CreateEditingClone(out List<ILinkedParameter> linkedParameters);
-            return new ModelSystem(Config, Name)
+            return new ModelSystem(_Config, Name)
             {
                 ModelSystemStructure = structure,
                 LinkedParameters = linkedParameters
@@ -98,11 +93,7 @@ namespace XTMF
         /// <summary>
         ///
         /// </summary>
-        public string Description
-        {
-            get;
-            set;
-        }
+        public string Description { get; set; }
 
         /// <summary>
         /// The structure that defines this model system
@@ -113,15 +104,14 @@ namespace XTMF
             {
                 lock (this)
                 {
-                    if (!IsLoaded)
+                    if (!_IsLoaded)
                     {
-                        Load(Config, Name);
+                        Load(_Config, Name);
                         SetIsLoaded(true);
                     }
                     return _ModelSystemStructure;
                 }
             }
-
             set
             {
                 lock (this)
@@ -142,9 +132,9 @@ namespace XTMF
             {
                 lock (this)
                 {
-                    if (!IsLoaded)
+                    if (!_IsLoaded)
                     {
-                        Load(Config, Name);
+                        Load(_Config, Name);
                         SetIsLoaded(true);
                     }
                     return _LinkedParameters;
@@ -157,15 +147,10 @@ namespace XTMF
             }
         }
 
-
         /// <summary>
         /// The name of the model system
         /// </summary>
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
         public bool Save(Stream stream, ref string error)
         {
@@ -258,14 +243,11 @@ namespace XTMF
 
         public bool Save(ref string error)
         {
-            string fileName = Path.Combine(Config.ModelSystemDirectory, Name + ".xml");
+            string fileName = Path.Combine(_Config.ModelSystemDirectory, Name + ".xml");
             return Save(fileName, ref error);
         }
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         /// <summary>
         /// Validate the correctness of this Model System
@@ -485,7 +467,7 @@ namespace XTMF
                 string error = null;
                 try
                 {
-                    var fileName = Path.Combine(Config.ModelSystemDirectory, name + ".xml");
+                    var fileName = Path.Combine(_Config.ModelSystemDirectory, name + ".xml");
                     using (Stream stream = File.OpenRead(fileName))
                     {
                         LoadFromStream(stream, config, ref error);
@@ -496,8 +478,10 @@ namespace XTMF
                     Description = string.Empty;
                     if (_ModelSystemStructure == null)
                     {
-                        _ModelSystemStructure = new ModelSystemStructure(Config, Name, typeof(IModelSystemTemplate));
-                        _ModelSystemStructure.Required = true;
+                        _ModelSystemStructure = new ModelSystemStructure(_Config, Name, typeof(IModelSystemTemplate))
+                        {
+                            Required = true
+                        };
                     }
                     else
                     {
@@ -512,7 +496,7 @@ namespace XTMF
         {
             lock (this)
             {
-                IsLoaded = false;
+                _IsLoaded = false;
                 _ModelSystemStructure = null;
                 LinkedParameters = null;
             }
@@ -587,7 +571,7 @@ namespace XTMF
 
         private void ReadDescription()
         {
-            var fileName = Path.Combine(Config.ModelSystemDirectory, Name + ".xml");
+            var fileName = Path.Combine(_Config.ModelSystemDirectory, Name + ".xml");
             try
             {
                 using (XmlReader reader = XmlReader.Create(fileName))

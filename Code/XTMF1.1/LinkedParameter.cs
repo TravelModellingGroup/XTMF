@@ -148,8 +148,6 @@ namespace XTMF
             return ret;
         }
 
-
-
         /// <summary>
         /// Remove a parameter from this linked parameter
         /// </summary>

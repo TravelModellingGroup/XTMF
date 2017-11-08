@@ -39,7 +39,7 @@ namespace XTMF
 
         public XTMFRuntime(Configuration configuration = null)
         {
-            Configuration = configuration == null ? BuildConfiguration() : configuration;
+            Configuration = configuration ?? BuildConfiguration();
             ModelSystemController = new ModelSystemController(this);
             ProjectController = new ProjectController(this);
         }
@@ -59,7 +59,6 @@ namespace XTMF
         /// Creates a new instance of XTMF allowing for you to
         /// run all of the systems contained within
         /// </summary>
-
         public IHost ActiveHost => Configuration.GetActiveHost();
 
         public IClient InitializeRemoteClient(string address, int port)
@@ -76,7 +75,6 @@ namespace XTMF
         public void ShutDown()
         {
         }
-
 
         public void Dispose()
         {

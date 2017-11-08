@@ -213,10 +213,7 @@ namespace XTMF
         ///     Set the given project to be the active one
         /// </summary>
         /// <param name="project">The project to become the active one</param>
-        public void SetActiveProject(IProject project)
-        {
-            ActiveProject = project;
-        }
+        public void SetActiveProject(IProject project) => ActiveProject = project;
 
 
         private void FindAndLoadProjects()
