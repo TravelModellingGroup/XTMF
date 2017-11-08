@@ -26,8 +26,8 @@ namespace XTMF.Editing
 {
     public class ProjectExternallySavedEventArgs : EventArgs
     {
-        public Project BaseProject;
-        public Project CloneProject;
+        public readonly Project BaseProject;
+        public readonly Project CloneProject;
 
         public ProjectExternallySavedEventArgs(Project baseProject, Project cloneProject)
         {

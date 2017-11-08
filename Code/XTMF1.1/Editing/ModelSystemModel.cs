@@ -37,67 +37,29 @@ namespace XTMF
         /// </summary>
         public LinkedParametersModel LinkedParameters { get; private set; }
 
-        public List<ModelSystemStructureModel> DisabledModules
-        {
-            get
-            {
-                return new List<ModelSystemStructureModel>();
-            }
-        }
-
-        public event EventHandler ModelSystemStructureChanged;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         internal ModelSystem ModelSystem { get; private set; }
 
         internal ModelSystemStructure ClonedModelSystemRoot { get { return Root.RealModelSystemStructure; } }
 
-        private Project Project;
+        private Project _Project;
 
-        private int ModelSystemIndex;
-
-        private List<IModelSystemStructure> _disabledModules;
+        private int _ModelSystemIndex;
 
         public ModelSystemModel(ModelSystemEditingSession session, ModelSystem modelSystem)
         {
             ModelSystem = modelSystem;
-
-          _disabledModules = new List<IModelSystemStructure>();
             Name = modelSystem.Name;
             _Description = modelSystem.Description;
             Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters) as ModelSystemStructure);
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
-
-            if (modelSystem.ModelSystemStructure != null)
-            {
-                EnumerateDisabledModules(modelSystem.ModelSystemStructure);
-            }
         }
-
-        private void EnumerateDisabledModules(IModelSystemStructure element)
-        {
-            if (((ModelSystemStructure)element).IsDisabled)
-            {
-                _disabledModules.Add(element);
-            }
-            if (element.Children != null)
-            {
-                foreach (var module in element.Children)
-                {
-
-                    EnumerateDisabledModules(module);
-                }
-            }
-        }
-        
-       
-
 
         internal ParameterModel GetParameterModel(IModuleParameter moduleParameter)
         {
             var owner = GetModelFor(moduleParameter.BelongsTo as ModelSystemStructure);
-            if(owner != null)
+            if (owner != null)
             {
                 return GetParameterModel(owner, moduleParameter);
             }
@@ -107,11 +69,11 @@ namespace XTMF
         private ParameterModel GetParameterModel(ModelSystemStructureModel owner, IModuleParameter moduleParameter)
         {
             var parameters = owner.Parameters.Parameters;
-            if(parameters != null)
+            if (parameters != null)
             {
-                for(int i = 0; i < parameters.Count; i++)
+                for (int i = 0; i < parameters.Count; i++)
                 {
-                    if(parameters[i].RealParameter == moduleParameter)
+                    if (parameters[i].RealParameter == moduleParameter)
                     {
                         return parameters[i];
                     }
@@ -120,24 +82,21 @@ namespace XTMF
             return null;
         }
 
-        public ModelSystemStructureModel GetModelFor(ModelSystemStructure realStructure)
-        {
-            return GetModelFor(realStructure, Root);
-        }
+        public ModelSystemStructureModel GetModelFor(ModelSystemStructure realStructure) => GetModelFor(realStructure, Root);
 
         private ModelSystemStructureModel GetModelFor(ModelSystemStructure realStructure, ModelSystemStructureModel current)
         {
-            if(current.RealModelSystemStructure == realStructure)
+            if (current.RealModelSystemStructure == realStructure)
             {
                 return current;
             }
             var children = current.Children;
-            if(children != null)
+            if (children != null)
             {
-                for(int i = 0; i < children.Count; i++)
+                for (int i = 0; i < children.Count; i++)
                 {
                     ModelSystemStructureModel ret;
-                    if((ret = GetModelFor(realStructure, children[i])) != null)
+                    if ((ret = GetModelFor(realStructure, children[i])) != null)
                     {
                         return ret;
                     }
@@ -148,12 +107,12 @@ namespace XTMF
 
         public ModelSystemModel(ModelSystemEditingSession session, Project project, int modelSystemIndex)
         {
-            Project = project;
-            ModelSystemIndex = modelSystemIndex;
+            _Project = project;
+            _ModelSystemIndex = modelSystemIndex;
             Name = project.ModelSystemStructure[modelSystemIndex].Name;
             _Description = project.ModelSystemDescriptions[modelSystemIndex];
             Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters, modelSystemIndex) as ModelSystemStructure));
-            _Description = Project.ModelSystemDescriptions[modelSystemIndex];
+            _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
         }
 
@@ -165,8 +124,8 @@ namespace XTMF
         /// <param name="runFile">The path to the run file.</param>
         public ModelSystemModel(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, Project project, string runFile)
         {
-            Project = project;
-            ModelSystemIndex = -1;
+            _Project = project;
+            _ModelSystemIndex = -1;
             Name = Path.GetFileName(runFile);
             _Description = "Previous run";
             Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
@@ -178,13 +137,7 @@ namespace XTMF
         /// <summary>
         /// Does the model system have changes that are not saved.
         /// </summary>
-        public bool IsDirty
-        {
-            get
-            {
-                return _Dirty || Root.IsDirty;
-            }
-        }
+        public bool IsDirty => _Dirty || Root.IsDirty;
 
         private string _Description;
 
@@ -193,18 +146,18 @@ namespace XTMF
         /// </summary>
         public string Description
         {
-            get { return _Description; }
+            get => _Description;
             set
             {
                 var dirtyChanged = false;
-                if(IsDirty != true)
+                if (IsDirty != true)
                 {
                     dirtyChanged = true;
                 }
                 _Dirty = true;
                 _Description = value;
                 ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
-                if(dirtyChanged)
+                if (dirtyChanged)
                 {
                     ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
                 }
@@ -212,21 +165,19 @@ namespace XTMF
         }
 
         private string _Name;
+
         /// <summary>
         /// The name of the model system
         /// </summary>
         public string Name
         {
-            get
-            {
-                return _Name;
-            }
+            get => _Name;
             set
             {
-                if(_Name != value)
+                if (_Name != value)
                 {
                     _Name = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
                 }
             }
         }
@@ -238,25 +189,25 @@ namespace XTMF
         /// <param name="error">The error if there was one</param>
         internal bool Save(ref string error)
         {
-            if(!Root.Save(ref error))
+            if (!Root.Save(ref error))
             {
                 return false;
             }
-            if(ModelSystem != null)
+            if (ModelSystem != null)
             {
                 ModelSystem.ModelSystemStructure = ClonedModelSystemRoot;
                 ModelSystem.Description = Description;
                 ModelSystem.LinkedParameters = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
                 return ModelSystem.Save(ref error);
             }
-            else if(ModelSystemIndex >= 0)
+            else if (_ModelSystemIndex >= 0)
             {
-                Project.ModelSystemStructure[ModelSystemIndex] = ClonedModelSystemRoot;
-                Project.ModelSystemDescriptions[ModelSystemIndex] = Description;
-                Project.LinkedParameters[ModelSystemIndex] = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
+                _Project.ModelSystemStructure[_ModelSystemIndex] = ClonedModelSystemRoot;
+                _Project.ModelSystemDescriptions[_ModelSystemIndex] = Description;
+                _Project.LinkedParameters[_ModelSystemIndex] = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
                 // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
                 Name = ClonedModelSystemRoot.Name;
-                return Project.Save(ref error);
+                return _Project.Save(ref error);
             }
             else
             {
@@ -275,20 +226,20 @@ namespace XTMF
         private void AddQuickParameters(ObservableCollection<ParameterModel> quickParameters, ModelSystemStructureModel current)
         {
             var parameters = current.Parameters.Parameters;
-            if(parameters != null)
+            if (parameters != null)
             {
-                foreach(var p in parameters)
+                foreach (var p in parameters)
                 {
-                    if(p.QuickParameter)
+                    if (p.QuickParameter)
                     {
                         quickParameters.Add(p);
                     }
                 }
             }
             var children = current.Children;
-            if(children != null)
+            if (children != null)
             {
-                foreach(var child in children)
+                foreach (var child in children)
                 {
                     AddQuickParameters(quickParameters, child);
                 }
@@ -299,14 +250,11 @@ namespace XTMF
         /// Change the name of the model system
         /// </summary>
         /// <param name="error">The reason why changing the name failed.</param>
-        public bool ChangeModelSystemName(string newName, ref string error)
-        {
-            return Root.SetName(newName, ref error);
-        }
+        public bool ChangeModelSystemName(string newName, ref string error) => Root.SetName(newName, ref error);
 
         public bool Remove(ModelSystemStructureModel selected, ref string error)
         {
-            if(selected.IsCollection)
+            if (selected.IsCollection)
             {
                 return selected.RemoveAllCollectionMembers(ref error);
             }
@@ -315,16 +263,16 @@ namespace XTMF
 
         private bool Remove(ModelSystemStructureModel current, ModelSystemStructureModel previous, ModelSystemStructureModel selected, ref string error)
         {
-            if(current == selected)
+            if (current == selected)
             {
-                if(previous == null)
+                if (previous == null)
                 {
                     Root.Type = null;
                     return true;
                 }
                 else
                 {
-                    if(previous.IsCollection)
+                    if (previous.IsCollection)
                     {
                         return previous.RemoveCollectionMember(previous.Children.IndexOf(selected), ref error);
                     }
@@ -336,12 +284,12 @@ namespace XTMF
                 }
             }
             var children = current.Children;
-            if(children != null)
+            if (children != null)
             {
-                foreach(var child in current.Children)
+                foreach (var child in current.Children)
                 {
                     var success = Remove(child, current, selected, ref error);
-                    if(success)
+                    if (success)
                     {
                         return true;
                     }

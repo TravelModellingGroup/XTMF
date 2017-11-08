@@ -66,36 +66,24 @@ namespace XTMF.Editing
         /// </summary>
         private class DelegateCommand : XTMFCommand
         {
-            private XTMFCommandMethod OnDo;
-            private XTMFCommandMethod OnUndo = null;
-            private XTMFCommandMethod OnRedo = null;
+            private readonly XTMFCommandMethod _OnDo;
+            private readonly XTMFCommandMethod _OnUndo;
+            private readonly XTMFCommandMethod _OnRedo;
 
             public DelegateCommand(string name, XTMFCommandMethod onDo, XTMFCommandMethod onUndo = null, XTMFCommandMethod onRedo = null) : base(name)
             {
-                OnDo = onDo;
-                OnUndo = onUndo;
-                OnRedo = onRedo;
+                _OnDo = onDo;
+                _OnUndo = onUndo;
+                _OnRedo = onRedo;
             }
 
-            public override bool CanUndo()
-            {
-                return OnUndo != null;
-            }
+            public override bool CanUndo() => _OnUndo != null;
 
-            public override bool Do(ref string error)
-            {
-                return OnDo( ref error );
-            }
+            public override bool Do(ref string error) => _OnDo?.Invoke(ref error) == true;
 
-            public override bool Redo(ref string error)
-            {
-                return OnRedo( ref error );
-            }
+            public override bool Redo(ref string error) => _OnRedo?.Invoke(ref error) == true;
 
-            public override bool Undo(ref string error)
-            {
-                return OnUndo( ref error );
-            }
+            public override bool Undo(ref string error) => _OnUndo?.Invoke(ref error) == true;
         }
 
         /// <summary>
@@ -107,15 +95,15 @@ namespace XTMF.Editing
         /// <returns>A command with this behaviour.</returns>
         public static XTMFCommand CreateCommand(string name, XTMFCommandMethod OnDo, XTMFCommandMethod OnUndo = null, XTMFCommandMethod OnRedo = null)
         {
-            if ( OnDo == null )
+            if (OnDo == null)
             {
-                throw new ArgumentNullException( nameof(OnDo) );
+                throw new ArgumentNullException(nameof(OnDo));
             }
-            if ( ( OnUndo == null ) != ( OnRedo == null ) )
+            if ((OnUndo == null) != (OnRedo == null))
             {
-                throw new ArgumentException( "Both OnUndo and OnRedo must be null or both have delegates." );
+                throw new ArgumentException("Both OnUndo and OnRedo must be null or both have delegates.");
             }
-            return new DelegateCommand( name, OnDo, OnUndo, OnRedo );
+            return new DelegateCommand(name, OnDo, OnUndo, OnRedo);
         }
     }
 }

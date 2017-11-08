@@ -27,14 +27,15 @@ namespace XTMF
 {
     public class ParameterModel : INotifyPropertyChanged
     {
-        internal ModuleParameter RealParameter;
-        private ModelSystemEditingSession Session;
+        internal readonly ModuleParameter RealParameter;
+
+        private readonly ModelSystemEditingSession _Session;
 
         public ParameterModel(ModuleParameter realParameter, ModelSystemEditingSession session)
         {
             IsDirty = false;
             RealParameter = realParameter;
-            Session = session;
+            _Session = session;
             _Value = _Value = RealParameter.Value != null ? RealParameter.Value.ToString() : string.Empty;
         }
 
@@ -42,7 +43,7 @@ namespace XTMF
 
         public bool IsDirty { get; private set; }
 
-        public string Name { get { return RealParameter.Name; } }
+        public string Name => RealParameter.Name;
 
         private string _Value;
 
@@ -65,44 +66,23 @@ namespace XTMF
             }
         }
 
-        public string Description
-        {
-            get
-            {
-                return RealParameter.Description;
-            }
-        }
+        public string Description => RealParameter.Description;
 
-        public bool IsSystemParameter
-        {
-            get
-            {
-                return RealParameter.SystemParameter;
-            }
-        }
+        public bool IsSystemParameter => RealParameter.SystemParameter;
 
-        public bool IsLinked
-        {
-            get
-            {
-                return Session.ModelSystemModel.LinkedParameters.GetContained(this) != null;
-            }
-        }
+        public bool IsLinked => _Session.ModelSystemModel.LinkedParameters.GetContained(this) != null;
 
-        public bool IsHidden { get { return RealParameter.IsHidden; } }
+        public bool IsHidden => RealParameter.IsHidden;
 
         public bool QuickParameter
         {
-            get
-            {
-                return RealParameter.QuickParameter;
-            }
+            get => RealParameter.QuickParameter;
             set
             {
                 if (RealParameter.QuickParameter != value)
                 {
                     string error = null;
-                    Session.RunCommand(XTMFCommand.CreateCommand(
+                    _Session.RunCommand(XTMFCommand.CreateCommand(
                         value ? "Add Quick Parameter" : "Remove Quick Parameter",
                         (ref string erro) =>
                         {
@@ -127,7 +107,7 @@ namespace XTMF
 
         public bool SetHidden(bool hide, ref string error)
         {
-            return Session.RunCommand(XTMFCommand.CreateCommand(
+            return _Session.RunCommand(XTMFCommand.CreateCommand(
                 hide == true ? "Hide Parameter" : "Show Parameter",
                     (ref string erro) =>
                     {
@@ -147,18 +127,12 @@ namespace XTMF
                     }), ref error);
         }
 
-        public IModelSystemStructure BelongsTo { get { return RealParameter.BelongsTo; } }
+        public IModelSystemStructure BelongsTo => RealParameter.BelongsTo;
 
         /// <summary>
         /// Get the type of the parameter
         /// </summary>
-        public Type Type
-        {
-            get
-            {
-                return RealParameter.Type;
-            }
-        }
+        public Type Type => RealParameter.Type;
 
         public int Index => RealParameter.Index;
 
@@ -191,13 +165,13 @@ namespace XTMF
         public bool SetValue(string newValue, ref string error)
         {
             ParameterChange change = new ParameterChange();
-            return Session.RunCommand(XTMFCommand.CreateCommand(
+            return _Session.RunCommand(XTMFCommand.CreateCommand(
                 "Change Parameter",
                 // do
                 ((ref string e) =>
                 {
                     // Check to see if we are in a linked parameter
-                    change.ContainedIn = Session.ModelSystemModel.LinkedParameters.GetContained(this);
+                    change.ContainedIn = _Session.ModelSystemModel.LinkedParameters.GetContained(this);
                     if (change.ContainedIn == null)
                     {
                         change.NewValue = newValue;
@@ -251,9 +225,8 @@ namespace XTMF
         /// <returns>The linked parameter model, null if this parameter is not contained.</returns>
         public LinkedParameterModel GetLinkedParameter()
         {
-            return Session.ModelSystemModel.LinkedParameters.GetContained(this);
+            return _Session.ModelSystemModel.LinkedParameters.GetContained(this);
         }
-
 
         /// <summary>
         /// Set the parameter to the default value
@@ -268,7 +241,7 @@ namespace XTMF
                 error = "We were unable to find a default value for this parameter.";
                 return false;
             }
-            if (Session.ModelSystemModel.LinkedParameters.GetContained(this) != null)
+            if (_Session.ModelSystemModel.LinkedParameters.GetContained(this) != null)
             {
                 error = "You can not set a parameter that is inside of a linked parameter back to default";
                 return false;
@@ -290,7 +263,7 @@ namespace XTMF
                 return false;
             }
             var oldName = Name;
-            return Session.RunCommand(XTMFCommand.CreateCommand(
+            return _Session.RunCommand(XTMFCommand.CreateCommand(
                 "Set Parameter Name",
                 (ref string e) =>
                 {
@@ -314,7 +287,7 @@ namespace XTMF
         public bool RevertNameToDefault(ref string error)
         {
             var oldName = Name;
-            return Session.RunCommand(XTMFCommand.CreateCommand(
+            return _Session.RunCommand(XTMFCommand.CreateCommand(
                 "Revert Parameter Name",
                 (ref string e) =>
                 {

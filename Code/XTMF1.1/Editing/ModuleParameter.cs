@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -73,19 +73,7 @@ namespace XTMF
             return null;
         }
 
-        private IModelSystemStructure _BelongsTo;
-
-        public IModelSystemStructure BelongsTo
-        {
-            get
-            {
-                return _BelongsTo;
-            }
-            internal set
-            {
-                _BelongsTo = value;
-            }
-        }
+        public IModelSystemStructure BelongsTo { get; internal set; }
 
         public string Description { get; set; }
 

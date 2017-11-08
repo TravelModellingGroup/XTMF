@@ -35,15 +35,17 @@ namespace XTMF
         /// <summary>
         /// The parameters that are attached to this linked parameter
         /// </summary>
-        private ObservableCollection<ParameterModel> ParameterModels;
+        private ObservableCollection<ParameterModel> _ParameterModels;
 
-        private ModelSystemEditingSession Session;
-        private ModelSystemModel ModelSystem;
+        private ModelSystemEditingSession _Session;
+
+        private ModelSystemModel _ModelSystem;
+
         public LinkedParameterModel(ILinkedParameter linkedParameter, ModelSystemEditingSession session, ModelSystemModel modelSystem)
         {
-            Session = session;
-            ModelSystem = modelSystem;
-            ParameterModels = CreateInitialParameterModels(linkedParameter, ModelSystem);
+            _Session = session;
+            _ModelSystem = modelSystem;
+            _ParameterModels = CreateInitialParameterModels(linkedParameter, _ModelSystem);
             RealLinkedParameter = linkedParameter as LinkedParameter;
         }
 
@@ -65,11 +67,9 @@ namespace XTMF
             return ret;
         }
 
-        private object ParameterModelsLock = new object();
+        private object _ParameterModelsLock = new object();
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-
 
         /// <summary>
         /// The linked parameters being represented
@@ -80,13 +80,7 @@ namespace XTMF
         /// Gets the name of the linked parameter
         /// </summary>
         /// <returns>The name of the linked parameter</returns>
-        public string Name
-        {
-            get
-            {
-                return RealLinkedParameter.Name;
-            }
-        }
+        public string Name => RealLinkedParameter.Name;
 
         /// <summary>
         /// Sets the name of the linked parameter
@@ -96,10 +90,10 @@ namespace XTMF
         /// <returns>True if the name was changed, false otherwise.</returns>
         public bool SetName(string newName, ref string error)
         {
-            lock (ParameterModelsLock)
+            lock (_ParameterModelsLock)
             {
                 string oldName = RealLinkedParameter.Name;
-                return Session.RunCommand(XTMFCommand.CreateCommand("Set Name", (ref string e) =>
+                return _Session.RunCommand(XTMFCommand.CreateCommand("Set Name", (ref string e) =>
                 {
                     RealLinkedParameter.Name = newName;
                     return true;
@@ -119,9 +113,9 @@ namespace XTMF
 
         public List<ParameterModel> GetParameters()
         {
-            lock (ParameterModelsLock)
+            lock (_ParameterModelsLock)
             {
-                var models = ParameterModels;
+                var models = _ParameterModels;
                 return models != null ? models.ToList() : new List<ParameterModel>();
             }
         }
@@ -135,9 +129,9 @@ namespace XTMF
 
         internal bool Contains(ParameterModel toCheck)
         {
-            lock (ParameterModelsLock)
+            lock (_ParameterModelsLock)
             {
-                return ParameterModels.Contains(toCheck);
+                return _ParameterModels.Contains(toCheck);
             }
         }
 
@@ -151,22 +145,22 @@ namespace XTMF
         {
             LinkedParameterChange change = new LinkedParameterChange();
             var originalValue = toAdd.Value;
-            return Session.RunCommand(XTMFCommand.CreateCommand(
+            return _Session.RunCommand(XTMFCommand.CreateCommand(
                 "Add Parameter to Linked Parameter",
                 // do
                 (ref string e) =>
                 {
-                    if(ParameterModels.Contains(toAdd))
+                    if(_ParameterModels.Contains(toAdd))
                     {
                         e = "The parameter was already contained in the linked parameter!";
                         return false;
                     }
                     // remove from the linked parameter it was already in
-                    if((change.OriginalContainedIn = ModelSystem.LinkedParameters.LinkedParameters.FirstOrDefault((lp) => lp.Contains(toAdd))) != null)
+                    if((change.OriginalContainedIn = _ModelSystem.LinkedParameters.LinkedParameters.FirstOrDefault((lp) => lp.Contains(toAdd))) != null)
                     {
                         change.OriginalIndex = change.OriginalContainedIn.NoCommandRemove(toAdd);
                     }
-                    return NoCommandAdd(toAdd, (change.Index = ParameterModels.Count), ref e);
+                    return NoCommandAdd(toAdd, (change.Index = _ParameterModels.Count), ref e);
                 },
                 // undo
                 (ref string e) =>
@@ -196,14 +190,14 @@ namespace XTMF
 
         private bool NoCommandAdd(ParameterModel toAdd, int index, ref string error)
         {
-            lock (ParameterModelsLock)
+            lock (_ParameterModelsLock)
             {
-                ParameterModels.Insert(index, toAdd);
+                _ParameterModels.Insert(index, toAdd);
                 // Try to add the linked parameter
                 if(!RealLinkedParameter.Add(toAdd.RealParameter, ref error))
                 {
                     //if the add failed return that fact
-                    ParameterModels.RemoveAt(index);
+                    _ParameterModels.RemoveAt(index);
                     return false;
                 }
                 toAdd.UpdateValueFromReal();
@@ -214,11 +208,11 @@ namespace XTMF
 
         private int NoCommandRemove(ParameterModel toRemove)
         {
-            lock (ParameterModelsLock)
+            lock (_ParameterModelsLock)
             {
-                var index = ParameterModels.IndexOf(toRemove);
+                var index = _ParameterModels.IndexOf(toRemove);
                 string error = null;
-                ParameterModels.RemoveAt(index);
+                _ParameterModels.RemoveAt(index);
                 RealLinkedParameter.Remove(toRemove.RealParameter, ref error);
                 toRemove.UpdateValueFromReal();
                 toRemove.SignalIsLinkedChanged();
@@ -235,15 +229,15 @@ namespace XTMF
         public bool RemoveParameter(ParameterModel toRemove, ref string error)
         {
             LinkedParameterChange change = new LinkedParameterChange();
-            return Session.RunCommand(XTMFCommand.CreateCommand(
+            return _Session.RunCommand(XTMFCommand.CreateCommand(
                 "Remove Parameter from Linked Parameter",
                 // do
                 (ref string e) =>
                 {
                     // we need this outer lock to make sure that it doesn't change while we are checking to make sure that it is contained
-                    lock (ParameterModelsLock)
+                    lock (_ParameterModelsLock)
                     {
-                        if(!ParameterModels.Contains(toRemove))
+                        if(!_ParameterModels.Contains(toRemove))
                         {
                             e = "The parameter does not exist inside of the linked parameter!";
                             return false;
@@ -266,27 +260,16 @@ namespace XTMF
                 ), ref error);
         }
 
-        internal bool AddParameterWithoutCommand(ParameterModel parameterModel, ref string error)
-        {
-            return NoCommandAdd(parameterModel, ParameterModels.Count, ref error);
-        }
+        internal bool AddParameterWithoutCommand(ParameterModel parameterModel, ref string error) => NoCommandAdd(parameterModel, _ParameterModels.Count, ref error);
 
-        internal void RemoveParameterWithoutCommand(ParameterModel parameterToRemove)
-        {
-            NoCommandRemove(parameterToRemove);
-        }
-
+        internal void RemoveParameterWithoutCommand(ParameterModel parameterToRemove) => NoCommandRemove(parameterToRemove);
 
         /// <summary>
         /// Check to see if this linked parameter has a reference to the given module.
         /// </summary>
         /// <param name="child">The module to test against</param>
         /// <returns>If the given module is referenced</returns>
-        internal bool HasContainedModule(ModelSystemStructureModel child)
-        {
-            return RealLinkedParameter.Parameters.Any(p => p.BelongsTo == child.RealModelSystemStructure);
-        }
-
+        internal bool HasContainedModule(ModelSystemStructureModel child) => RealLinkedParameter.Parameters.Any(p => p.BelongsTo == child.RealModelSystemStructure);
 
         /// <summary>
         /// This will set the value of the linked parameter and all contained parameter to the given value
@@ -297,7 +280,7 @@ namespace XTMF
         public bool SetValue(string newValue, ref string error)
         {
             string oldValue = RealLinkedParameter.Value;
-            return Session.RunCommand(
+            return _Session.RunCommand(
                 XTMFCommand.CreateCommand(
                     "Set Linked Parameter Value",
                     // do
@@ -326,9 +309,9 @@ namespace XTMF
         /// <returns>True if successful, false if there is an error.</returns>
         internal bool SetWithoutCommand(string newValue, ref string error)
         {
-            lock (ParameterModelsLock)
+            lock (_ParameterModelsLock)
             {
-                foreach(var parameter in ParameterModels)
+                foreach(var parameter in _ParameterModels)
                 {
                     if(!ArbitraryParameterParser.Check(parameter.RealParameter.Type, newValue, ref error))
                     {
@@ -339,7 +322,7 @@ namespace XTMF
                 {
                     return false;
                 }
-                foreach(var parameter in ParameterModels)
+                foreach(var parameter in _ParameterModels)
                 {
                     parameter.UpdateValueFromReal();
                 }
@@ -351,14 +334,8 @@ namespace XTMF
         /// Gets the value of the parameter
         /// </summary>
         /// <returns></returns>
-        public string GetValue()
-        {
-            return RealLinkedParameter.Value;
-        }
+        public string GetValue() => RealLinkedParameter.Value;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

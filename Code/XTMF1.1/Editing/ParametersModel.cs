@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,38 +27,26 @@ namespace XTMF
 {
     public class ParametersModel : INotifyPropertyChanged
     {
-        private ModelSystemEditingSession Session;
+        private readonly ModelSystemEditingSession _Session;
 
         public ParametersModel(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession session)
         {
-            Session = session;
+            _Session = session;
             ModelSystemStructure = modelSystemStructure;
-            Parameters = CreateParameterModels(modelSystemStructure, Session);
+            Parameters = CreateParameterModels(modelSystemStructure, _Session);
         }
 
-        public bool IsDirty
-        {
-            get
-            {
-                var parameters = Parameters;
-                if(parameters == null) return false;
-                for(int i = 0; i < parameters.Count; i++)
-                {
-                    if(parameters[i].IsDirty) return true;
-                }
-                return false;
-            }
-        }
+        public bool IsDirty => Parameters == null || Parameters.Any(p => p.IsDirty);
 
         public ModelSystemStructureModel ModelSystemStructure { get; private set; }
+
         internal List<ParameterModel> Parameters { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         private static List<ParameterModel> CreateParameterModels(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession Session)
         {
-            if(modelSystemStructure.RealModelSystemStructure.Parameters == null) return null;
-            var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters.Parameters;
+            var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters?.Parameters;
             if(realParameters == null) return null;
             var ret = new List<ParameterModel>(realParameters.Count);
             for(int i = 0; i < realParameters.Count; i++)
@@ -70,7 +58,6 @@ namespace XTMF
 
         public ObservableCollection<ParameterModel> GetParameters()
         {
-            //return this.Parameters != null ? this.Parameters.ToList() : new List<ParameterModel>();
             return Parameters != null ? Parameters.ToObservableCollection() : new ObservableCollection<ParameterModel>();
         }
 
@@ -91,7 +78,7 @@ namespace XTMF
             }
             for(int i = 0; i < realParameters.Count; i++)
             {
-                parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, Session));
+                parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, _Session));
             }
             ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
         }

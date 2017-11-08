@@ -34,11 +34,6 @@ namespace XTMF
         }
 
         /// <summary>
-        /// This event occurs when the projects have been changed
-        /// </summary>
-        public event CollectionChangeEventHandler ProjectsChanged;
-
-        /// <summary>
         /// The sessions that are currently running
         /// </summary>
         private List<ProjectEditingSession> EditingSessions = new List<ProjectEditingSession>();

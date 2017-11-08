@@ -71,12 +71,10 @@
     <Compile Include="ErrorWithPath.cs" />
     <Compile Include="Run\RemoteRunCommands.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="Editing\ModuleMetaProperty.cs" />
     <Compile Include="Editing\ProjectExternallySavedEventArgs.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Run\ConfigurationProxy.cs" />
-    <Compile Include="Editing\CopyBuffer.cs" />
     <Compile Include="Editing\EditingStack.cs" />
     <Compile Include="Editing\Model.cs" />
     <Compile Include="Editing\XTMFCommand.cs" />

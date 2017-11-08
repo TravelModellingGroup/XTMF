@@ -39,24 +39,19 @@ namespace XTMF
 
         public XTMFRuntime(Configuration configuration = null)
         {
-            CopyBuffer = new CopyBuffer();
             Configuration = configuration == null ? BuildConfiguration() : configuration;
             ModelSystemController = new ModelSystemController(this);
             ProjectController = new ProjectController(this);
-
-         
         }
 
         private Configuration BuildConfiguration()
         {
- 
             var localInstanceDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var localConfigurationFileName = Path.Combine(localInstanceDirectory, "LocalXTMFConfiguration.xml");
             if (File.Exists(localConfigurationFileName))
             {
                 return new Configuration(localConfigurationFileName);
-            }
-           
+            }  
             return new Configuration();
         }
 
@@ -65,30 +60,14 @@ namespace XTMF
         /// run all of the systems contained within
         /// </summary>
 
-        public IHost ActiveHost
-        {
-            get
-            {
-                return Configuration.GetActiveHost();
-            }
-        }
-
-        /// <summary>
-        /// Get the copy buffer
-        /// </summary>
-        public CopyBuffer CopyBuffer { get; private set; }
-
+        public IHost ActiveHost => Configuration.GetActiveHost();
 
         public IClient InitializeRemoteClient(string address, int port)
         {
             string error = null;
             Configuration.RemoteServerAddress = address;
             Configuration.RemoteServerPort = port;
-            if (Configuration.StartupNetworkingClient(out IClient client, ref error))
-            {
-                return client;
-            }
-            return null;
+            return Configuration.StartupNetworkingClient(out IClient client, ref error) ? client : null;
         }
 
         /// <summary>
@@ -96,7 +75,6 @@ namespace XTMF
         /// </summary>
         public void ShutDown()
         {
-
         }
 
 
@@ -108,11 +86,8 @@ namespace XTMF
 
         protected virtual void Dispose(bool all)
         {
-            if (Configuration != null)
-            {
-                Configuration.Dispose();
-                Configuration = null;
-            }
+            Configuration?.Dispose();
+            Configuration = null;
         }
     }
 }

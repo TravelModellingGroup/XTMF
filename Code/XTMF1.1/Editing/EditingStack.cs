@@ -32,13 +32,13 @@ namespace XTMF.Editing
         public EditingStack(int capacity)
         {
             Capacity = capacity;
-            Data = new XTMFCommand[capacity];
+            _Data = new XTMFCommand[capacity];
             IsReadOnly = false;
         }
         /// <summary>
         /// The backing data for the stack
         /// </summary>
-        private XTMFCommand[] Data;
+        private XTMFCommand[] _Data;
 
         public int Capacity { get; private set; }
 
@@ -46,9 +46,9 @@ namespace XTMF.Editing
 
         public bool IsReadOnly { get; private set; }
 
-        private int Head = -1;
+        private int _Head = -1;
 
-        private object DataLock = new object();
+        private object _DataLock = new object();
 
         /// <summary>
         /// Add a new command onto the stack
@@ -56,12 +56,12 @@ namespace XTMF.Editing
         /// <param name="item"></param>
         public void Add(XTMFCommand item)
         {
-            lock (DataLock)
+            lock (_DataLock)
             {
                 // since this is a circle, there is no issue
-                Head = (Head + 1) % Capacity;
+                _Head = (_Head + 1) % Capacity;
                 Count++;
-                Data[Head] = item;
+                _Data[_Head] = item;
                 if(Count > Capacity)
                 {
                     Count = Capacity;
@@ -89,13 +89,13 @@ namespace XTMF.Editing
         /// <returns>If the pop was successful</returns>
         public bool TryPop(out XTMFCommand command)
         {
-            lock (DataLock)
+            lock (_DataLock)
             {
                 if(Count > 0)
                 {
                     Count--;
-                    command = Data[Head];
-                    Head = (Head - 1) % Capacity;
+                    command = _Data[_Head];
+                    _Head = (_Head - 1) % Capacity;
                     return true;
                 }
                 command = null;
@@ -105,22 +105,22 @@ namespace XTMF.Editing
 
         public void Clear()
         {
-            lock (DataLock)
+            lock (_DataLock)
             {
-                Array.Clear(Data, 0, Data.Length);
+                Array.Clear(_Data, 0, _Data.Length);
                 Count = 0;
             }
         }
 
         public bool Contains(XTMFCommand item)
         {
-            lock (DataLock)
+            lock (_DataLock)
             {
                 for(int i = 0; i < Count; i++)
                 {
-                    var headoffset = (Head - i);
+                    var headoffset = (_Head - i);
                     int index = headoffset < 0 ? Capacity + headoffset : headoffset;
-                    if (Data[index] == item)
+                    if (_Data[index] == item)
                     {
                         return true;
                     }
@@ -135,7 +135,7 @@ namespace XTMF.Editing
             {
                 throw new ArgumentNullException(nameof(array));
             }
-            lock (DataLock)
+            lock (_DataLock)
             {
                 if(array.Length - arrayIndex < Count)
                 {
@@ -143,22 +143,22 @@ namespace XTMF.Editing
                 }
                 for(int i = 0; i < Count; i++)
                 {
-                    var headoffset = (Head - i);
+                    var headoffset = (_Head - i);
                     int index = headoffset < 0 ? Capacity + headoffset : headoffset;
-                    array[arrayIndex++] = Data[index];
+                    array[arrayIndex++] = _Data[index];
                 }
             }
         }
 
         public IEnumerator<XTMFCommand> GetEnumerator()
         {
-            lock (DataLock)
+            lock (_DataLock)
             {
                 for(int i = 0; i < Count; i++)
                 {
-                    var headoffset = (Head - i);
+                    var headoffset = (_Head - i);
                     int index = headoffset < 0 ? Capacity + headoffset : headoffset;
-                    yield return Data[index];
+                    yield return _Data[index];
                 }
             }
         }
@@ -168,9 +168,6 @@ namespace XTMF.Editing
             throw new NotSupportedException("Removing an item is not supported for a stack.");
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

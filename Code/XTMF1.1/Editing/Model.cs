@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,14 +27,8 @@ namespace XTMF
 {
     public static class ModelHelper
     {
-        public static void PropertyChanged(PropertyChangedEventHandler ev, object source, string propertyName)
-        {
-            ev?.Invoke( source, new PropertyChangedEventArgs( propertyName ) );
-        }
+        public static void PropertyChanged(PropertyChangedEventHandler ev, object source, string propertyName) => ev?.Invoke(source, new PropertyChangedEventArgs(propertyName));
 
-        public static ObservableCollection<T> ToObservableCollection<T>(this List<T> us)
-        {
-            return new ObservableCollection<T>(us);
-        }
+        public static ObservableCollection<T> ToObservableCollection<T>(this List<T> us) => new ObservableCollection<T>(us);
     }
 }

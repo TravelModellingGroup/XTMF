@@ -82,11 +82,7 @@ namespace XTMF
                      return first.Name.CompareTo(second.Name);
                  });
                 }
-                var msa = ModelSystemAdded;
-                if (msa != null)
-                {
-                    msa(modelSystem);
-                }
+                ModelSystemAdded?.Invoke(modelSystem);
             }
         }
 
@@ -147,11 +143,13 @@ namespace XTMF
                 error = "There was already a model system with the name " + newName + "!";
                 return false;
             }
-            ModelSystem clone = new ModelSystem(Config, newName);
-            clone.Description = modelSystem.Description;
-            clone.LinkedParameters = modelSystem.LinkedParameters;
-            clone.Name = newName;
-            clone.ModelSystemStructure = modelSystem.ModelSystemStructure;
+            ModelSystem clone = new ModelSystem(Config, newName)
+            {
+                Description = modelSystem.Description,
+                LinkedParameters = modelSystem.LinkedParameters,
+                Name = newName,
+                ModelSystemStructure = modelSystem.ModelSystemStructure
+            };
             var saved = clone.Save(ref error);
             // unload so there are no references to the current model system
             clone.Unload();
@@ -177,11 +175,7 @@ namespace XTMF
                         return false;
                     }
                 }
-                var msr = ModelSystemRemoved;
-                if (msr != null)
-                {
-                    msr(modelSystem, index);
-                }
+                ModelSystemRemoved?.Invoke(modelSystem, index);
                 // we don't need to be locked in order to delete it
                 try
                 {

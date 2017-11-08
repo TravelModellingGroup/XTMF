@@ -36,12 +36,14 @@ namespace XTMF
         }
 
         public Project Project;
-        private readonly XTMFRuntime Runtime;
+
+        private readonly XTMFRuntime _Runtime;
+
         public ProjectEditingSession(Project project, XTMFRuntime runtime)
         {
             Project = project;
-            Runtime = runtime;
-            EditingSessions = new SessionData[Project.ModelSystemStructure.Count];
+            _Runtime = runtime;
+            _EditingSessions = new SessionData[Project.ModelSystemStructure.Count];
             project.ExternallySaved += Project_ExternallySaved;
         }
 
@@ -55,14 +57,14 @@ namespace XTMF
             if (Project == e.BaseProject)
             {
                 // If our project was overwritten, dump everything and switch what the active project is.
-                lock (EditingSessionsLock)
+                lock (_EditingSessionsLock)
                 {
                     Project.ExternallySaved -= Project_ExternallySaved;
                     Project = e.CloneProject;
                     Project.ExternallySaved += Project_ExternallySaved;
-                    for (int i = 0; i < EditingSessions.Length; i++)
+                    for (int i = 0; i < _EditingSessions.Length; i++)
                     {
-                        var session = EditingSessions[i].Session;
+                        var session = _EditingSessions[i].Session;
                         if (session != null)
                         {
                             session.ProjectWasExternalSaved();
@@ -76,11 +78,11 @@ namespace XTMF
         /// <summary>
         /// The currently open editing sessions
         /// </summary>
-        private SessionData[] EditingSessions;
+        private SessionData[] _EditingSessions;
 
-        private object EditingSessionsLock = new object();
+        private object _EditingSessionsLock = new object();
 
-        public string Name { get { lock (EditingSessionsLock) { return Project.Name; } } }
+        public string Name { get { lock (_EditingSessionsLock) { return Project.Name; } } }
 
         public event EventHandler SessionClosed;
 
@@ -98,9 +100,9 @@ namespace XTMF
         /// <returns>True if the rename was successful, otherwise error will describe why it failed.</returns>
         public bool ReameProject(string newName, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
-                var ret = Runtime.ProjectController.RenameProject(Project, newName, ref error);
+                var ret = _Runtime.ProjectController.RenameProject(Project, newName, ref error);
                 var e = NameChanged;
                 if (ret)
                 {
@@ -118,9 +120,9 @@ namespace XTMF
         /// <returns>True if the clone succeeds, false otherwise</returns>
         public bool CloneProjectAs(string name, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
-                return Runtime.ProjectController.CloneProject(Project, name, ref error);
+                return _Runtime.ProjectController.CloneProject(Project, name, ref error);
             }
         }
 
@@ -129,13 +131,13 @@ namespace XTMF
         /// </summary>
         private void CloseAllModelSystemEditingSessions()
         {
-            lock (EditingSessions)
+            lock (_EditingSessions)
             {
-                for (int i = 0; i < EditingSessions.Length; i++)
+                for (int i = 0; i < _EditingSessions.Length; i++)
                 {
-                    if (EditingSessions[i].Session != null)
+                    if (_EditingSessions[i].Session != null)
                     {
-                        EditingSessions[i].Session.Dispose();
+                        _EditingSessions[i].Session.Dispose();
                     }
                 }
             }
@@ -153,15 +155,15 @@ namespace XTMF
             {
                 throw new ArgumentNullException(nameof(modelSystem));
             }
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
                 if (!Project.AddModelSystem(modelSystem, modelSystem.Name, ref error))
                 {
                     return false;
                 }
-                var temp = new SessionData[EditingSessions.Length + 1];
-                Array.Copy(EditingSessions, temp, EditingSessions.Length);
-                EditingSessions = temp;
+                var temp = new SessionData[_EditingSessions.Length + 1];
+                Array.Copy(_EditingSessions, temp, _EditingSessions.Length);
+                _EditingSessions = temp;
                 return true;
             }
         }
@@ -174,15 +176,15 @@ namespace XTMF
         /// <returns>True if successful, false otherwise with error message.</returns>
         public bool AddModelSystem(string modelSystemName, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
                 if (!Project.AddModelSystem(modelSystemName, ref error))
                 {
                     return false;
                 }
-                var temp = new SessionData[EditingSessions.Length + 1];
-                Array.Copy(EditingSessions, temp, EditingSessions.Length);
-                EditingSessions = temp;
+                var temp = new SessionData[_EditingSessions.Length + 1];
+                Array.Copy(_EditingSessions, temp, _EditingSessions.Length);
+                _EditingSessions = temp;
                 return true;
             }
         }
@@ -200,15 +202,15 @@ namespace XTMF
             {
                 throw new ArgumentNullException(nameof(modelSystem));
             }
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
                 if (!Project.AddModelSystem(modelSystem, newName, ref error))
                 {
                     return false;
                 }
-                var temp = new SessionData[EditingSessions.Length + 1];
-                Array.Copy(EditingSessions, temp, EditingSessions.Length);
-                EditingSessions = temp;
+                var temp = new SessionData[_EditingSessions.Length + 1];
+                Array.Copy(_EditingSessions, temp, _EditingSessions.Length);
+                _EditingSessions = temp;
                 return true;
             }
         }
@@ -222,7 +224,7 @@ namespace XTMF
         /// <returns>True if the model system was imported, false with a description otherwise.</returns>
         public bool ImportModelSystemFromString(string modelSystemAsText, string name, ref string error)
         {
-            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromString(modelSystemAsText, out ModelSystem modelSystem, ref error))
+            if (!_Runtime.ModelSystemController.LoadDetachedModelSystemFromString(modelSystemAsText, out ModelSystem modelSystem, ref error))
             {
                 return false;
             }
@@ -239,7 +241,7 @@ namespace XTMF
         /// <returns>True if the model system was imported, false with a description otherwise.</returns>
         public bool ImportModelSystemFromFile(string fileName, string modelSystemName, ref string error)
         {
-            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromFile(fileName, out ModelSystem modelSystem, ref error))
+            if (!_Runtime.ModelSystemController.LoadDetachedModelSystemFromFile(fileName, out ModelSystem modelSystem, ref error))
             {
                 return false;
             }
@@ -256,17 +258,17 @@ namespace XTMF
         /// <returns>True if successful, false with a description of the error.</returns>
         public bool ExportModelSystemAsString(ModelSystemModel ms, out string modelSystemAsString, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
-                return Runtime.ProjectController.ExportModelSystemAsString(ms, out modelSystemAsString, ref error);
+                return _Runtime.ProjectController.ExportModelSystemAsString(ms, out modelSystemAsString, ref error);
             }
         }
 
         public bool ExportModelSystemAsString(int modelSystemIndex, out string modelSystemAsString, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
-                return Runtime.ProjectController.ExportModelSystemAsString(Project, modelSystemIndex, out modelSystemAsString, ref error);
+                return _Runtime.ProjectController.ExportModelSystemAsString(Project, modelSystemIndex, out modelSystemAsString, ref error);
             }
         }
 
@@ -310,7 +312,7 @@ namespace XTMF
         /// <returns>True if the model system was renamed, if not the error will describe why not.</returns>
         public bool RenameModelSystem(IModelSystemStructure root, string newName, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
                 var index = Project.ModelSystemStructure.IndexOf(root);
                 if (index < 0)
@@ -319,7 +321,7 @@ namespace XTMF
                     return false;
                 }
                 // check to see if the model system is being edited, if it is send a command to that session
-                var editingSession = EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
+                var editingSession = _EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
                 if (editingSession.Session != null)
                 {
                     editingSession.Session.ModelSystemModel.ChangeModelSystemName(newName, ref error);
@@ -332,10 +334,7 @@ namespace XTMF
             return true;
         }
 
-        private void InvokeModelSystemNameChanged()
-        {
-            ModelSystemNameChanged?.Invoke(this, new EventArgs());
-        }
+        private void InvokeModelSystemNameChanged() => ModelSystemNameChanged?.Invoke(this, new EventArgs());
 
         /// <summary>
         /// Clone the given model system with a new name
@@ -346,7 +345,7 @@ namespace XTMF
         /// <returns></returns>
         public bool CloneModelSystemAs(IModelSystemStructure root, string name, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
                 var index = Project.ModelSystemStructure.IndexOf(root);
                 if (index < 0)
@@ -355,12 +354,12 @@ namespace XTMF
                     return false;
                 }
                 // If it is currently being edited, save that version
-                var editingSession = EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
+                var editingSession = _EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
                 if (editingSession.Session != null)
                 {
                     return editingSession.Session.SaveAsModelSystem(name, ref error);
                 }
-                var ms = Runtime.ModelSystemController.LoadOrCreate(name);
+                var ms = _Runtime.ModelSystemController.LoadOrCreate(name);
                 ms.Name = name;
                 ms.Description = Project.ModelSystemDescriptions[index];
                 ms.ModelSystemStructure = Project.CloneModelSystemStructure(out List<ILinkedParameter> lp, index);
@@ -398,50 +397,40 @@ namespace XTMF
         /// <returns>False if there was an error, true otherwise.</returns>
         public bool ExportModelSystem(int modelSystemIndex, string fileName, ref string error)
         {
-            lock (EditingSessions)
+            lock (_EditingSessions)
             {
                 // If it is currently being edited, save that version
                 var root = Project.ModelSystemStructure[modelSystemIndex];
-                var editingSession = EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
+                var editingSession = _EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
                 if (editingSession.Session != null)
                 {
                     error = "You can't export a model system while editing it.";
                     return false;
                 }
-                return Runtime.ProjectController.ExportModelSystem(fileName, Project, modelSystemIndex, ref error);
+                return _Runtime.ProjectController.ExportModelSystem(fileName, Project, modelSystemIndex, ref error);
             }
         }
 
 
         public bool AddExternalModelSystem(IModelSystem system, string name, ref string error)
         {
-        
-
             system.ModelSystemStructure.Name = name;
             system.Name = name;
-            
             if (Project.AddExternalModelSystem(system, ref error))
             {
-                var temp = new SessionData[EditingSessions.Length + 1];
-                Array.Copy(EditingSessions, temp, EditingSessions.Length);
-                EditingSessions = temp;
+                var temp = new SessionData[_EditingSessions.Length + 1];
+                Array.Copy(_EditingSessions, temp, _EditingSessions.Length);
+                _EditingSessions = temp;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
-        public ModelSystem CloneModelSystem(IModelSystemStructure root, ref string error)
-        {
-
-            return Project.CloneModelSystem(root);
-        }
+        public ModelSystem CloneModelSystem(IModelSystemStructure root, ref string error) => Project.CloneModelSystem(root);
 
         public bool CloneModelSystemToProjectAs(IModelSystemStructure root, string name, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
                 var index = Project.ModelSystemStructure.IndexOf(root);
                 if (index < 0)
@@ -452,9 +441,9 @@ namespace XTMF
                 }
                 if (Project.AddModelSystem(index, name, ref error))
                 {
-                    var temp = new SessionData[EditingSessions.Length + 1];
-                    Array.Copy(EditingSessions, temp, EditingSessions.Length);
-                    EditingSessions = temp;
+                    var temp = new SessionData[_EditingSessions.Length + 1];
+                    Array.Copy(_EditingSessions, temp, _EditingSessions.Length);
+                    _EditingSessions = temp;
                     return true;
                 }
                 return false;
@@ -484,14 +473,14 @@ namespace XTMF
         /// <returns>True if the model system was removed successfully.</returns>
         public bool RemoveModelSystem(int index, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
                 if (index < 0 | index >= Project.ModelSystemStructure.Count)
                 {
                     error = "The index is invalid.";
                     return false;
                 }
-                if (EditingSessions[index].Session != null)
+                if (_EditingSessions[index].Session != null)
                 {
                     error = "Unable to remove the model system. It is currently being edited.";
                     return false;
@@ -500,15 +489,15 @@ namespace XTMF
                 {
                     return false;
                 }
-                var temp = new SessionData[EditingSessions.Length - 1];
-                Array.Copy(EditingSessions, temp, index);
-                Array.Copy(EditingSessions, index + 1, temp, index, EditingSessions.Length - index - 1);
-                for (int i = index; i < EditingSessions.Length; i++)
+                var temp = new SessionData[_EditingSessions.Length - 1];
+                Array.Copy(_EditingSessions, temp, index);
+                Array.Copy(_EditingSessions, index + 1, temp, index, _EditingSessions.Length - index - 1);
+                for (int i = index; i < _EditingSessions.Length; i++)
                 {
-                    var session = EditingSessions[i].Session;
+                    var session = _EditingSessions[i].Session;
                     session?.SetModelSystemIndex(i);
                 }
-                EditingSessions = temp;
+                _EditingSessions = temp;
             }
             return true;
         }
@@ -548,7 +537,7 @@ namespace XTMF
             }
             try
             {
-                session = new ModelSystemEditingSession(Runtime, this, runFileName);
+                session = new ModelSystemEditingSession(_Runtime, this, runFileName);
                 return true;
             }
             catch (Exception e)
@@ -563,10 +552,7 @@ namespace XTMF
         /// </summary>
         /// <param name="project">The project to clone</param>
         /// <returns>An exact copy of the project, if it is saved it will overwrite</returns>
-        internal Project CreateCloneProject(Project project)
-        {
-            return project.CreateCloneProject();
-        }
+        internal Project CreateCloneProject(Project project) => project.CreateCloneProject();
 
         /// <summary>
         /// Move the model systems inside of a project.
@@ -577,14 +563,14 @@ namespace XTMF
         /// <returns>True if successful, false otherwise</returns>
         public bool MoveModelSystem(int currentIndex, int newIndex, ref string error)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
-                if (currentIndex < 0 | currentIndex >= EditingSessions.Length)
+                if (currentIndex < 0 | currentIndex >= _EditingSessions.Length)
                 {
                     error = "The model system to move is out of range!";
                     return false;
                 }
-                if (newIndex < 0 | newIndex >= EditingSessions.Length)
+                if (newIndex < 0 | newIndex >= _EditingSessions.Length)
                 {
                     error = "The new position is out of range!";
                     return false;
@@ -596,18 +582,18 @@ namespace XTMF
                     return false;
                 }
                 // move the indexes around
-                var temp = EditingSessions[currentIndex];
+                var temp = _EditingSessions[currentIndex];
                 if (currentIndex < newIndex)
                 {
                     // move everything up
-                    Array.Copy(EditingSessions, currentIndex + 1, EditingSessions, currentIndex, newIndex - currentIndex);
-                    EditingSessions[newIndex] = temp;
+                    Array.Copy(_EditingSessions, currentIndex + 1, _EditingSessions, currentIndex, newIndex - currentIndex);
+                    _EditingSessions[newIndex] = temp;
                 }
                 else
                 {
                     // move everything down
-                    Array.Copy(EditingSessions, newIndex, EditingSessions, newIndex + 1, currentIndex - newIndex);
-                    EditingSessions[newIndex] = temp;
+                    Array.Copy(_EditingSessions, newIndex, _EditingSessions, newIndex + 1, currentIndex - newIndex);
+                    _EditingSessions[newIndex] = temp;
                 }
                 return true;
             }
@@ -617,11 +603,7 @@ namespace XTMF
         /// Gets the configuration for the XTMF runtime environment
         /// </summary>
         /// <returns></returns>
-        public IConfiguration GetConfiguration()
-        {
-            return Runtime.Configuration;
-        }
-
+        public IConfiguration GetConfiguration() => _Runtime.Configuration;
 
         /// <summary>
         /// Edit a model system inside of the project
@@ -629,7 +611,7 @@ namespace XTMF
         /// <param name="modelSystemIndex">The index of the model system inside of the project</param>
         public ModelSystemEditingSession EditModelSystem(int modelSystemIndex)
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
                 // Make sure that we have a valid index. This needs to be inside of EditingSessionLock
                 if (Project.ModelSystemStructure.Count < modelSystemIndex | modelSystemIndex < 0)
@@ -637,40 +619,34 @@ namespace XTMF
                     throw new ArgumentOutOfRangeException(nameof(modelSystemIndex));
                 }
                 // if the session doesn't exist create it
-                if (EditingSessions[modelSystemIndex].Session == null)
+                if (_EditingSessions[modelSystemIndex].Session == null)
                 {
-                    EditingSessions[modelSystemIndex].Session = new ModelSystemEditingSession(Runtime, this, modelSystemIndex);
-                    EditingSessions[modelSystemIndex].Session.NameChanged += Session_NameChanged;
-                    EditingSessions[modelSystemIndex].Session.Saved += Session_Saved; ;
+                    _EditingSessions[modelSystemIndex].Session = new ModelSystemEditingSession(_Runtime, this, modelSystemIndex);
+                    _EditingSessions[modelSystemIndex].Session.NameChanged += Session_NameChanged;
+                    _EditingSessions[modelSystemIndex].Session.Saved += Session_Saved; ;
                 }
                 // in either case add a reference to it.
-                EditingSessions[modelSystemIndex].References++;
-                return EditingSessions[modelSystemIndex].Session;
+                _EditingSessions[modelSystemIndex].References++;
+                return _EditingSessions[modelSystemIndex].Session;
             }
         }
 
-        private void Session_Saved(object sender, EventArgs e)
-        {
-            ModelSystemSaved?.Invoke(this, e);
-        }
+        private void Session_Saved(object sender, EventArgs e) => ModelSystemSaved?.Invoke(this, e);
 
-        private void Session_NameChanged(object sender, PropertyChangedEventArgs e)
-        {
-            InvokeModelSystemNameChanged();
-        }
+        private void Session_NameChanged(object sender, PropertyChangedEventArgs e) => InvokeModelSystemNameChanged();
 
         internal void ModelSystemEditingSessionClosed(ModelSystemEditingSession modelSystemEditingSession, int modelSystemIndex)
         {
             // ensure this model system is not a past run
             if (modelSystemIndex >= 0)
             {
-                lock (EditingSessionsLock)
+                lock (_EditingSessionsLock)
                 {
-                    EditingSessions[modelSystemIndex].References--;
-                    if (EditingSessions[modelSystemIndex].References <= 0)
+                    _EditingSessions[modelSystemIndex].References--;
+                    if (_EditingSessions[modelSystemIndex].References <= 0)
                     {
-                        EditingSessions[modelSystemIndex].References = 0;
-                        EditingSessions[modelSystemIndex].Session = null;
+                        _EditingSessions[modelSystemIndex].References = 0;
+                        _EditingSessions[modelSystemIndex].Session = null;
                     }
                 }
             }
@@ -681,9 +657,9 @@ namespace XTMF
             // ensure this model system is not a past run
             if (modelSystemIndex >= 0)
             {
-                lock (EditingSessionsLock)
+                lock (_EditingSessionsLock)
                 {
-                    if (EditingSessions[modelSystemIndex].References <= 1)
+                    if (_EditingSessions[modelSystemIndex].References <= 1)
                     {
                         return true;
                     }
@@ -697,9 +673,9 @@ namespace XTMF
         /// </summary>
         public void Dispose()
         {
-            lock (EditingSessionsLock)
+            lock (_EditingSessionsLock)
             {
-                Runtime.ProjectController.RemoveEditingReference(this);
+                _Runtime.ProjectController.RemoveEditingReference(this);
             }
         }
 
@@ -716,17 +692,11 @@ namespace XTMF
         {
             CloseAllModelSystemEditingSessions();
             Dispose();
-            return Runtime.ProjectController.DeleteProject(Project, ref error);
+            return _Runtime.ProjectController.DeleteProject(Project, ref error);
         }
 
-        public XTMFRuntime GetRuntime()
-        {
-            return Runtime;
-        }
+        public XTMFRuntime GetRuntime() => _Runtime;
 
-        public bool ValidateModelSystemName(string name)
-        {
-            return Runtime.ProjectController.ValidateProjectName(name);
-        }
+        public bool ValidateModelSystemName(string name) => _Runtime.ProjectController.ValidateProjectName(name);
     }
 }
