@@ -21,6 +21,7 @@ namespace XTMF.Networking
     internal class Message
     {
         internal object Data;
+
         internal MessageType Type;
 
         internal Message(MessageType type, object data = null)

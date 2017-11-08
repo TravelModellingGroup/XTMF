@@ -25,18 +25,14 @@ namespace XTMF.Networking
     internal class DelayedResult : IDisposable
     {
         internal object Data;
+
         internal SemaphoreSlim Lock;
+
         internal string Name;
 
-        public DelayedResult()
-        {
-            Lock = new SemaphoreSlim( 0 );
-        }
+        public DelayedResult() => Lock = new SemaphoreSlim(0);
 
-        public void Dispose()
-        {
-            Dispose( true );
-        }
+        public void Dispose() => Dispose(true);
 
         protected virtual void Dispose(bool includeManaged)
         {
@@ -51,6 +47,7 @@ namespace XTMF.Networking
     internal class Result
     {
         internal object Data;
+
         internal string Name;
     }
 }

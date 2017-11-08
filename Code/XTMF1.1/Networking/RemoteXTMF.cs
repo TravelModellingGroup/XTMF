@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -34,62 +34,39 @@ namespace XTMF.Networking
 
         ~RemoteXTMF()
         {
-            Dispose( true );
+            Dispose(true);
         }
 
         public bool Connected { get; set; }
 
-        public string MachineName
-        {
-            get;
-            internal set;
-        }
+        public string MachineName { get; internal set; }
 
-        public float Progress
-        {
-            get;
-            internal set;
-        }
+        public float Progress { get; internal set; }
 
-        public string UniqueID
-        {
-            get;
-            internal set;
-        }
+        public string UniqueID { get; internal set; }
 
-        public void Dispose()
-        {
-            Dispose( false );
-        }
+        public void Dispose() => Dispose(false);
 
-        public void PollProgress()
-        {
-            Messages.Add( new Message( MessageType.RequestProgress ) );
-        }
+        public void PollProgress() => Messages.Add(new Message(MessageType.RequestProgress));
 
-        public void SendCancel(string reason)
-        {
-            Messages.Add( new Message( MessageType.PostCancel, reason ) );
-        }
+        public void SendCancel(string reason) => Messages.Add(new Message(MessageType.PostCancel, reason));
 
-        public void SendCustomMessage(object data, int customMessageNumber)
-        {
-            Messages.Add( new Message( MessageType.SendCustomMessage,
-                new SendCustomMessageMessage() { CustomMessageNumber = customMessageNumber, Data = data } ) );
-        }
+        public void SendCustomMessage(object data, int customMessageNumber) =>
+            Messages.Add(new Message(MessageType.SendCustomMessage, new SendCustomMessageMessage()
+            {
+                CustomMessageNumber = customMessageNumber,
+                Data = data
+            }));
 
-        public void SendModelSystem(IModelSystemStructure structure)
-        {
-            Messages.Add( new Message( MessageType.SendModelSystem, structure ) );
-        }
+        public void SendModelSystem(IModelSystemStructure structure) => Messages.Add(new Message(MessageType.SendModelSystem, structure));
 
         protected void Dispose(bool gcCall)
         {
-            if ( !gcCall )
+            if (!gcCall)
             {
-                GC.SuppressFinalize( this );
+                GC.SuppressFinalize(this);
             }
-            if ( Messages != null )
+            if (Messages != null)
             {
                 Messages.Dispose();
                 Messages = null;

@@ -28,44 +28,44 @@ namespace XTMF.Networking
 {
     internal class Client : IClient, IDisposable
     {
-        private string Address;
+        private string _Address;
 
-        private IConfiguration Configuration;
+        private IConfiguration _Configuration;
 
-        private volatile IModelSystemTemplate CurrentRunningModelSystem;
+        private volatile IModelSystemTemplate _CurrentRunningModelSystem;
 
-        private ConcurrentDictionary<int, List<Action<object>>> CustomHandlers = new ConcurrentDictionary<int, List<Action<object>>>();
+        private ConcurrentDictionary<int, List<Action<object>>> _CustomHandlers = new ConcurrentDictionary<int, List<Action<object>>>();
 
-        private ConcurrentDictionary<int, Func<Stream, object>> CustomReceivers = new ConcurrentDictionary<int, Func<Stream, object>>();
+        private ConcurrentDictionary<int, Func<Stream, object>> _CustomReceivers = new ConcurrentDictionary<int, Func<Stream, object>>();
 
-        private ConcurrentDictionary<int, Action<object, Stream>> CustomSenders = new ConcurrentDictionary<int, Action<object, Stream>>();
+        private ConcurrentDictionary<int, Action<object, Stream>> _CustomSenders = new ConcurrentDictionary<int, Action<object, Stream>>();
 
-        private bool Exit = false;
+        private bool _Exit = false;
 
-        private MessageQueue<Message> Messages = new MessageQueue<Message>();
+        private MessageQueue<Message> _Messages = new MessageQueue<Message>();
 
-        private Thread ModelSystemThread;
+        private Thread _ModelSystemThread;
 
-        private int Port;
+        private int _Port;
 
-        private float Progress = 0;
+        private float _Progress = 0;
 
         private LinkedList<DelayedResult> ResourceRequests = new LinkedList<DelayedResult>();
 
         public Client(string address, int port, IConfiguration configuration)
         {
-            Configuration = configuration;
-            Address = address;
-            Port = port;
+            _Configuration = configuration;
+            _Address = address;
+            _Port = port;
             new Thread(ClientMain).Start();
             Thread progressThread = new Thread(delegate ()
            {
-               while (!Exit)
+               while (!_Exit)
                {
                    Thread.Sleep(100);
                    try
                    {
-                       Progress = CurrentRunningModelSystem.Progress;
+                       _Progress = _CurrentRunningModelSystem.Progress;
                        NotifyProgress();
                    }
                    catch
@@ -77,11 +77,7 @@ namespace XTMF.Networking
             progressThread.Start();
         }
 
-        public string UniqueID
-        {
-            get;
-            internal set;
-        }
+        public string UniqueID { get; internal set; }
 
         public void ClientMain()
         {
@@ -89,7 +85,7 @@ namespace XTMF.Networking
             bool done = false;
             try
             {
-                connection = new TcpClient(Address, Port);
+                connection = new TcpClient(_Address, _Port);
                 var networkStream = connection.GetStream();
                 new Thread(delegate ()
                    {
@@ -97,9 +93,9 @@ namespace XTMF.Networking
                        {
                            BinaryReader reader = new BinaryReader(networkStream);
                            BinaryFormatter inputFormat = new BinaryFormatter();
-                            // we need some connection every 60 minutes, the host should be trying to request progress
-                            networkStream.ReadTimeout = Timeout.Infinite;
-                           while (!done || Exit)
+                           // we need some connection every 60 minutes, the host should be trying to request progress
+                           networkStream.ReadTimeout = Timeout.Infinite;
+                           while (!done || _Exit)
                            {
                                var msg = new Message((MessageType)reader.ReadInt32());
                                switch (msg.Type)
@@ -107,10 +103,9 @@ namespace XTMF.Networking
                                    case MessageType.RequestProgress:
                                        {
                                            msg.Type = MessageType.PostProgess;
-                                           Messages.Add(msg);
+                                           _Messages.Add(msg);
                                        }
                                        break;
-
                                    case MessageType.ReturningResource:
                                        {
                                            var name = reader.ReadString();
@@ -122,16 +117,14 @@ namespace XTMF.Networking
                                            }
                                            Result res = new Result() { Name = name, Data = data };
                                            msg.Data = res;
-                                           Messages.Add(msg);
+                                           _Messages.Add(msg);
                                        }
                                        break;
-
                                    case MessageType.PostCancel:
                                        {
-                                           Messages.Add(msg);
+                                           _Messages.Add(msg);
                                        }
                                        break;
-
                                    case MessageType.SendModelSystem:
                                        {
                                            var length = reader.ReadInt32();
@@ -142,22 +135,20 @@ namespace XTMF.Networking
                                                soFar += reader.Read(data, soFar, length - soFar);
                                            }
                                            msg.Data = data;
-                                           Messages.Add(msg);
+                                           _Messages.Add(msg);
                                        }
                                        break;
-
                                    case MessageType.Quit:
                                        {
                                            done = true;
-                                           Exit = true;
+                                           _Exit = true;
                                            Console.WriteLine("Exiting.");
                                        }
                                        break;
-
                                    case MessageType.SendCustomMessage:
                                        {
-                                            // Time to receive a new custom message
-                                            var number = reader.ReadInt32();
+                                           // Time to receive a new custom message
+                                           var number = reader.ReadInt32();
                                            var length = reader.ReadInt32();
                                            var buff = new byte[length];
                                            MemoryStream buffer = new MemoryStream(buff);
@@ -166,7 +157,7 @@ namespace XTMF.Networking
                                            {
                                                soFar += reader.Read(buff, soFar, length - soFar);
                                            }
-                                           Messages.Add(new Message(MessageType.ReceiveCustomMessage,
+                                           _Messages.Add(new Message(MessageType.ReceiveCustomMessage,
                                                new ReceiveCustomMessageMessage()
                                                {
                                                    CustomMessageNumber = number,
@@ -177,9 +168,9 @@ namespace XTMF.Networking
 
                                    default:
                                        {
-                                            // We don't know how to deal with this
-                                            done = true;
-                                           Exit = true;
+                                           // We don't know how to deal with this
+                                           done = true;
+                                           _Exit = true;
                                            Console.WriteLine("Came across a message number " + msg.Type + " not sure what to do with it.  Exiting.");
                                        }
                                        break;
@@ -191,7 +182,7 @@ namespace XTMF.Networking
                        {
                            done = true;
                            Thread.MemoryBarrier();
-                           Exit = true;
+                           _Exit = true;
                            Console.WriteLine("Host has disconnected Client");
                            Environment.Exit(0);
                        }
@@ -207,21 +198,20 @@ namespace XTMF.Networking
                            Console.WriteLine("Client reader has exited.");
                            connection.Close();
                            done = true;
-                           Exit = true;
+                           _Exit = true;
                            Thread.MemoryBarrier();
                        }
                    }).Start();
                 BinaryWriter writer = new BinaryWriter(networkStream);
                 BinaryFormatter outputFormat = new BinaryFormatter();
                 networkStream.WriteTimeout = 20000;
-                while (!done && !Exit)
+                while (!done && !_Exit)
                 {
-                    var message = Messages.GetMessageOrTimeout(200);
+                    var message = _Messages.GetMessageOrTimeout(200);
                     Thread.MemoryBarrier();
                     if (!done && message != null)
                     {
-                        var exit = ProcessMessage(writer, outputFormat, message);
-                        if (exit)
+                        if (ProcessMessage(writer, outputFormat, message))
                         {
                             done = true;
                         }
@@ -242,32 +232,23 @@ namespace XTMF.Networking
                 done = true;
             }
             done = true;
-            Exit = true;
+            _Exit = true;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
-        public void NotifyComplete(int status = 0, string error = null)
-        {
-            Messages.Add(new Message(MessageType.PostComplete));
-        }
+        public void NotifyComplete(int status = 0, string error = null) => _Messages.Add(new Message(MessageType.PostComplete));
 
-        public void NotifyProgress()
-        {
-            Messages.Add(new Message(MessageType.PostProgess));
-        }
+        public void NotifyProgress() => _Messages.Add(new Message(MessageType.PostProgess));
 
         public void RegisterCustomMessageHandler(int customMessageNumber, Action<object> handler)
         {
             lock (this)
             {
-                if (!CustomHandlers.TryGetValue(customMessageNumber, out List<Action<object>> port))
+                if (!_CustomHandlers.TryGetValue(customMessageNumber, out List<Action<object>> port))
                 {
                     port = new List<Action<object>>();
-                    CustomHandlers[customMessageNumber] = port;
+                    _CustomHandlers[customMessageNumber] = port;
                 }
                 port.Add(handler);
             }
@@ -275,7 +256,7 @@ namespace XTMF.Networking
 
         public void RegisterCustomReceiver(int customMessageNumber, Func<Stream, object> converter)
         {
-            if (!CustomReceivers.TryAdd(customMessageNumber, converter))
+            if (!_CustomReceivers.TryAdd(customMessageNumber, converter))
             {
                 throw new XTMFRuntimeException(null, "The Custom Receiver port " + customMessageNumber + " was attempted to be registered twice!");
             }
@@ -283,7 +264,7 @@ namespace XTMF.Networking
 
         public void RegisterCustomSender(int customMessageNumber, Action<object, Stream> converter)
         {
-            if (!CustomSenders.TryAdd(customMessageNumber, converter))
+            if (!_CustomSenders.TryAdd(customMessageNumber, converter))
             {
                 throw new XTMFRuntimeException(null, "The Custom Sender port " + customMessageNumber + " was attempted to be registered twice!");
             }
@@ -292,7 +273,7 @@ namespace XTMF.Networking
         public object RetriveResource(string name, Type t)
         {
             DelayedResult result = new DelayedResult() { Name = name };
-            Messages.Add(new Message(MessageType.RequestResource, result));
+            _Messages.Add(new Message(MessageType.RequestResource, result));
             result.Lock.Wait();
             result.Lock.Dispose();
             return result.Data;
@@ -300,23 +281,23 @@ namespace XTMF.Networking
 
         public void SendCustomMessage(object data, int customMessageNumber)
         {
-            Messages.Add(new Message(MessageType.SendCustomMessage,
+            _Messages.Add(new Message(MessageType.SendCustomMessage,
                 new SendCustomMessageMessage() { CustomMessageNumber = customMessageNumber, Data = data }));
         }
 
         public bool SetResource(string name, object o)
         {
             Result data = new Result() { Name = name, Data = o };
-            Messages.Add(new Message(MessageType.PostResource, data));
+            _Messages.Add(new Message(MessageType.PostResource, data));
             return true;
         }
 
         protected virtual void Dispose(bool includeManaged)
         {
-            if (Messages != null)
+            if (_Messages != null)
             {
-                Messages.Dispose();
-                Messages = null;
+                _Messages.Dispose();
+                _Messages = null;
             }
         }
 
@@ -324,10 +305,10 @@ namespace XTMF.Networking
         {
             string error = null;
             var mss = modelSystemStructure as IModelSystemStructure;
-            var project = Configuration.ProjectRepository.ActiveProject;
+            var project = _Configuration.ProjectRepository.ActiveProject;
             if (project == null)
             {
-                project = new Project("Remote", Configuration, true);
+                project = new Project("Remote", _Configuration, true);
             }
             if (project.ModelSystemStructure.Count == 0)
             {
@@ -337,10 +318,10 @@ namespace XTMF.Networking
             {
                 project.ModelSystemStructure[0] = mss;
             }
-            ((ProjectRepository)Configuration.ProjectRepository).SetActiveProject(project);
+            ((ProjectRepository)_Configuration.ProjectRepository).SetActiveProject(project);
             var modelSystem = project.CreateModelSystem(ref error, 0);
             var now = DateTime.Now;
-            var runDirectory = Path.GetFullPath(Path.Combine(Configuration.ProjectDirectory,
+            var runDirectory = Path.GetFullPath(Path.Combine(_Configuration.ProjectDirectory,
                 project.Name, String.Format("{0:##}.{1:##}.{2:##}-{3}", now.Hour, now.Minute, now.Second, Guid.NewGuid())));
             bool crashed = false;
             if (!Directory.Exists(runDirectory))
@@ -353,7 +334,7 @@ namespace XTMF.Networking
             {
                 if (RunTimeValidation(ref error, mss))
                 {
-                    CurrentRunningModelSystem = modelSystem;
+                    _CurrentRunningModelSystem = modelSystem;
                     modelSystem.Start();
                 }
             }
@@ -364,11 +345,11 @@ namespace XTMF.Networking
                 Console.WriteLine(e.StackTrace);
             }
             CleanUp(mss);
-            CurrentRunningModelSystem = null;
+            _CurrentRunningModelSystem = null;
             NotifyComplete();
             if (crashed)
             {
-                Exit = true;
+                _Exit = true;
                 Thread.MemoryBarrier();
             }
         }
@@ -401,7 +382,6 @@ namespace XTMF.Networking
                         writer.Write((Int32)MessageType.PostComplete);
                     }
                     break;
-
                 case MessageType.PostResource:
                     {
                         var data = message.Data as Result;
@@ -409,15 +389,13 @@ namespace XTMF.Networking
                         outputFormat.Serialize(writer.BaseStream, data.Data);
                     }
                     break;
-
                 case MessageType.PostProgess:
                     {
                         writer.Write((Int32)MessageType.PostProgess);
-                        writer.Write(Progress);
+                        writer.Write(_Progress);
                         writer.Flush();
                     }
                     break;
-
                 case MessageType.RequestResource:
                     {
                         var dr = message.Data as DelayedResult;
@@ -427,7 +405,6 @@ namespace XTMF.Networking
                         writer.Flush();
                     }
                     break;
-
                 case MessageType.ReturningResource:
                     {
                         var result = message.Data as Result;
@@ -448,10 +425,9 @@ namespace XTMF.Networking
                         }
                     }
                     break;
-
                 case MessageType.PostCancel:
                     {
-                        var ms = CurrentRunningModelSystem;
+                        var ms = _CurrentRunningModelSystem;
                         // if we don't have a model system then we are done
                         if (ms == null) break;
                         try
@@ -464,44 +440,39 @@ namespace XTMF.Networking
                         }
                     }
                     break;
-
                 case MessageType.SendModelSystem:
+                    try
                     {
-                        try
+                        var mssBuff = message.Data as byte[];
+                        IModelSystemStructure mss = null;
+                        using (MemoryStream memory = new MemoryStream())
                         {
-                            var mssBuff = message.Data as byte[];
-                            IModelSystemStructure mss = null;
-                            using (MemoryStream memory = new MemoryStream())
-                            {
-                                memory.Write(mssBuff, 0, mssBuff.Length);
-                                memory.Position = 0;
-                                mss = ModelSystemStructure.Load(memory, Configuration);
-                            }
-
-                            if (ModelSystemThread != null && ModelSystemThread.IsAlive)
-                            {
-                                try
-                                {
-                                    ModelSystemThread.Abort();
-                                }
-                                catch
-                                {
-                                }
-                            }
-                            // now that the other thread is going to end
-                            // we can now go and start generating ourselves
-                            // in another run thread
-                            (ModelSystemThread =
-                                new Thread(ModelSystemStartup)).Start(mss);
+                            memory.Write(mssBuff, 0, mssBuff.Length);
+                            memory.Position = 0;
+                            mss = ModelSystemStructure.Load(memory, _Configuration);
                         }
-                        catch (Exception e)
+                        if (_ModelSystemThread != null && _ModelSystemThread.IsAlive)
                         {
-                            Console.WriteLine(e.ToString());
-                            return true;
+                            try
+                            {
+                                _ModelSystemThread.Abort();
+                            }
+                            catch
+                            {
+                            }
                         }
+                        // now that the other thread is going to end
+                        // we can now go and start generating ourselves
+                        // in another run thread
+                        (_ModelSystemThread =
+                            new Thread(ModelSystemStartup)).Start(mss);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        return true;
                     }
                     break;
-
                 case MessageType.SendCustomMessage:
                     {
                         var msg = message.Data as SendCustomMessageMessage;
@@ -513,7 +484,7 @@ namespace XTMF.Networking
                         bool getConverter = false;
                         lock (this)
                         {
-                            getConverter = CustomSenders.TryGetValue(msgNumber, out customConverter);
+                            getConverter = _CustomSenders.TryGetValue(msgNumber, out customConverter);
                         }
                         if (getConverter)
                         {
@@ -542,7 +513,6 @@ namespace XTMF.Networking
                         }
                     }
                     break;
-
                 case MessageType.ReceiveCustomMessage:
                     {
                         var msg = message.Data as ReceiveCustomMessageMessage;
@@ -551,7 +521,7 @@ namespace XTMF.Networking
                         bool getConverted = false;
                         lock (this)
                         {
-                            getConverted = CustomReceivers.TryGetValue(customNumber, out customConverter);
+                            getConverted = _CustomReceivers.TryGetValue(customNumber, out customConverter);
                         }
                         if (getConverted)
                         {
@@ -560,7 +530,7 @@ namespace XTMF.Networking
                                 try
                                 {
                                     object output = customConverter(stream);
-                                    if (CustomHandlers.TryGetValue(msg.CustomMessageNumber, out List<Action<object>> handlers))
+                                    if (_CustomHandlers.TryGetValue(msg.CustomMessageNumber, out List<Action<object>> handlers))
                                     {
                                         foreach (var handler in handlers)
                                         {
@@ -582,13 +552,10 @@ namespace XTMF.Networking
                         }
                     }
                     break;
-
                 default:
-                    {
-                        // FAIL!
-                        Console.WriteLine("Processing a message of type " + message.Type + " and we didn't know what to do with it.");
-                        return true;
-                    }
+                    // FAIL!
+                    Console.WriteLine("Processing a message of type " + message.Type + " and we didn't know what to do with it.");
+                    return true;
             }
             return false;
         }
