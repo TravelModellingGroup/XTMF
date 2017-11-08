@@ -29,8 +29,8 @@ namespace XTMF.Gui.Controllers
 {
     internal static class EditorController
     {
-
         static SingleAccess<List<MainWindow>> OpenWindows = new SingleAccess<List<MainWindow>>(new List<MainWindow>());
+
         public static XTMFRuntime Runtime { get; private set; }
 
         internal static void Register(MainWindow window, Action OnComplete, bool loadModules = true)
@@ -38,7 +38,6 @@ namespace XTMF.Gui.Controllers
             Task.Factory.StartNew(
                 () =>
             {
-              
                 OpenWindows.Run((list) =>
                {
                    if (Runtime == null)
@@ -49,44 +48,37 @@ namespace XTMF.Gui.Controllers
                        }
                        else
                        {
-                           Configuration configuration = new Configuration(window.ConfigurationFilePath,loadModules: loadModules);
+                           Configuration configuration = new Configuration(window.ConfigurationFilePath, loadModules: loadModules);
                            Runtime = new XTMFRuntime(configuration);
                        }
                        var loadError = ((Configuration)Runtime.Configuration).LoadError;
-                       
-                           window.Dispatcher.BeginInvoke(new Action(() =>
+                       window.Dispatcher.BeginInvoke(new Action(() =>
+                     {
+                         window.Title = "XTMF Version " + Runtime.Configuration.XTMFVersion.ToString();
+                         if (loadError != null)
                          {
-                             window.Title = "XTMF Version " + Runtime.Configuration.XTMFVersion.ToString();
-                             if (loadError != null)
+                             MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);
+                             Clipboard.SetText(loadError);
+                             if (((Configuration)Runtime.Configuration).LoadErrorTerminal)
                              {
-                                 MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);
-                                 Clipboard.SetText(loadError);
-                                 if (((Configuration)Runtime.Configuration).LoadErrorTerminal)
-                                 {
-                                     Application.Current.Shutdown(-1);
-                                 }
+                                 Application.Current.Shutdown(-1);
                              }
-                         }));
+                         }
+                     }));
                    }
                    if (!list.Contains(window))
                    {
                        list.Add(window);
                    }
-                   if (OnComplete != null)
-                   {
-                       OnComplete();
-                   }
+                   OnComplete?.Invoke();
                });
             });
         }
 
         public static void FreeRuntime()
         {
-            if (Runtime != null)
-            {
-                Runtime.Dispose();
-                Runtime = null;
-            }
+            Runtime?.Dispose();
+            Runtime = null;
         }
 
         internal static void Unregister(MainWindow window)
@@ -94,23 +86,13 @@ namespace XTMF.Gui.Controllers
             OpenWindows.Run((list) =>
                 {
                     list.Remove(window);
-                }
-            );
+                });
         }
 
-        internal static bool IsControlDown()
-        {
-            return (Keyboard.IsKeyDown(Key.LeftCtrl) | Keyboard.IsKeyDown(Key.RightCtrl));
-        }
+        internal static bool IsControlDown() => (Keyboard.IsKeyDown(Key.LeftCtrl) | Keyboard.IsKeyDown(Key.RightCtrl));
 
-        internal static bool IsShiftDown()
-        {
-            return (Keyboard.IsKeyDown(Key.LeftShift) | Keyboard.IsKeyDown(Key.RightShift));
-        }
+        internal static bool IsShiftDown() => (Keyboard.IsKeyDown(Key.LeftShift) | Keyboard.IsKeyDown(Key.RightShift));
 
-        internal static bool IsAltDown()
-        {
-            return (Keyboard.IsKeyDown(Key.LeftAlt) | Keyboard.IsKeyDown(Key.RightAlt));
-        }
+        internal static bool IsAltDown() => (Keyboard.IsKeyDown(Key.LeftAlt) | Keyboard.IsKeyDown(Key.RightAlt));
     }
 }

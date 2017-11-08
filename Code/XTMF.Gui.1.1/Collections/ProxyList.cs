@@ -27,90 +27,38 @@ namespace XTMF.Gui.Collections
 {
     internal sealed class ProxyList<T> : IList<T>
     {
-        private IList<T> TrueList;
+        private IList<T> _TrueList;
 
-        public ProxyList(IList<T> proxyThis)
-        {
-            TrueList = proxyThis;
-        }
+        public ProxyList(IList<T> proxyThis) => _TrueList = proxyThis;
 
         public T this[int index]
         {
-            get
-            {
-                return TrueList[index];
-            }
-
-            set
-            {
-                TrueList[index] = value;
-            }
+            get => _TrueList[index];
+            set => _TrueList[index] = value;
         }
 
-        public int Count
-        {
-            get
-            {
-                return TrueList.Count;
-            }
-        }
+        public int Count => _TrueList.Count;
 
-        public bool IsReadOnly
-        {
-            get
-            {
-                return TrueList.IsReadOnly;
-            }
-        }
+        public bool IsReadOnly => _TrueList.IsReadOnly;
 
-        public void Add(T item)
-        {
-            TrueList.Add(item);
-        }
+        public void Add(T item) => _TrueList.Add(item);
 
-        public void Clear()
-        {
-            TrueList.Clear();
-        }
+        public void Clear() => _TrueList.Clear();
 
-        public bool Contains(T item)
-        {
-            return TrueList.Contains(item);
-        }
+        public bool Contains(T item) => _TrueList.Contains(item);
 
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            TrueList.CopyTo(array, arrayIndex);
-        }
+        public void CopyTo(T[] array, int arrayIndex) => _TrueList.CopyTo(array, arrayIndex);
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public IEnumerator<T> GetEnumerator() => GetEnumerator();
 
-        public int IndexOf(T item)
-        {
-            return TrueList.IndexOf(item);
-        }
+        public int IndexOf(T item) => _TrueList.IndexOf(item);
 
-        public void Insert(int index, T item)
-        {
-            TrueList.Insert(index, item);
-        }
+        public void Insert(int index, T item) => _TrueList.Insert(index, item);
 
-        public bool Remove(T item)
-        {
-            return TrueList.Remove(item);
-        }
+        public bool Remove(T item) => _TrueList.Remove(item);
 
-        public void RemoveAt(int index)
-        {
-            TrueList.RemoveAt(index);
-        }
+        public void RemoveAt(int index) => _TrueList.RemoveAt(index);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)(TrueList)).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)(_TrueList)).GetEnumerator();
     }
 }

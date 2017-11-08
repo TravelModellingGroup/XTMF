@@ -34,16 +34,14 @@ namespace XTMF.Gui.Models
 
         internal readonly ParameterModel RealParameter;
 
-        private readonly bool MultipleSelected;
+        private readonly bool _MultipleSelected;
 
         public ParameterDisplayModel(ParameterModel realParameter, bool multipleSelected = false)
         {
             RealParameter = realParameter;
-            MultipleSelected = multipleSelected;
+            _MultipleSelected = multipleSelected;
             realParameter.PropertyChanged += RealParameter_PropertyChanged;
             FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
-
-         
         }
 
         private void RealParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -58,9 +56,6 @@ namespace XTMF.Gui.Models
                 FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
                 property = nameof(FontColour);
             }
-
-         
-
             ModelHelper.PropertyChanged(PropertyChanged, this, property);
         }
 
@@ -68,10 +63,7 @@ namespace XTMF.Gui.Models
         /// Get the true name of the parameter without any module information
         /// </summary>
         /// <returns></returns>
-        internal string GetBaseName()
-        {
-            return RealParameter.Name;
-        }
+        internal string GetBaseName() => RealParameter.Name;
 
         ~ParameterDisplayModel()
         {
@@ -84,17 +76,13 @@ namespace XTMF.Gui.Models
             PropertyChanged = null;
         }
 
-        public string Name { get { return GetName(MultipleSelected); } }
+        public string Name => GetName(_MultipleSelected);
 
-        public string Description { get { return RealParameter.Description; } }
+        public string Description => RealParameter.Description;
 
         public string Value
         {
-            get
-            {
-                return RealParameter.Value;
-            }
-
+            get => RealParameter.Value;
             set
             {
                 // only update if something changed
@@ -110,50 +98,19 @@ namespace XTMF.Gui.Models
             }
         }
 
-        public Visibility SystemParameterVisibility
-        {
-            get
-            {
-                return RealParameter.IsSystemParameter ? Visibility.Visible : Visibility.Hidden;
-            }
-        }
+        public Visibility SystemParameterVisibility => RealParameter.IsSystemParameter ? Visibility.Visible : Visibility.Hidden;
 
-        public Visibility LinkedParameterVisibility
-        {
-            get
-            {
-                return RealParameter.IsLinked ? Visibility.Visible : Visibility.Hidden;
-            }
-        }
+        public Visibility LinkedParameterVisibility => RealParameter.IsLinked ? Visibility.Visible : Visibility.Hidden;
 
-        public string LinkedParameterName
-        {
-            get
-            {
-                var lp = RealParameter.GetLinkedParameter();
-                return lp != null ? lp.Name : String.Empty;
-            }
-        }
+        public string LinkedParameterName => RealParameter.GetLinkedParameter()?.Name ?? String.Empty;
 
         public bool QuickParameter
         {
-            get
-            {
-                return RealParameter.QuickParameter;
-            }
-            set
-            {
-                RealParameter.QuickParameter = value;
-            }
+            get => RealParameter.QuickParameter;
+            set => RealParameter.QuickParameter = value;
         }
 
-        public string QuickParameterName
-        {
-            get
-            {
-                return GetName(true);
-            }
-        }
+        public string QuickParameterName => GetName(true);
 
         private string GetName(bool includeModuleName)
         {
@@ -173,20 +130,11 @@ namespace XTMF.Gui.Models
         /// <param name="newName">The new name to give the parameter</param>
         /// <param name="error">A message in case of an error</param>
         /// <returns>True if successful, otherwise returns an error message</returns>
-        public bool SetName(string newName, ref string error)
-        {
-            return RealParameter.SetName(newName, ref error);
-        }
+        public bool SetName(string newName, ref string error) => RealParameter.SetName(newName, ref error);
 
-        internal bool RevertNameToDefault(ref string error)
-        {
-            return RealParameter.RevertNameToDefault(ref error);
-        }
+        internal bool RevertNameToDefault(ref string error) => RealParameter.RevertNameToDefault(ref error);
 
-        public bool SetHidden(bool hidden, ref string error)
-        {
-            return RealParameter.SetHidden(hidden, ref error);
-        }
+        public bool SetHidden(bool hidden, ref string error) => RealParameter.SetHidden(hidden, ref error);
 
         public Brush FontColour { get; set; }
 
@@ -221,44 +169,15 @@ namespace XTMF.Gui.Models
             return lp.RemoveParameter(RealParameter, ref error);
         }
 
-        internal bool ResetToDefault(ref string error)
-        {
-            return RealParameter.SetToDefault(ref error);
-        }
+        internal bool ResetToDefault(ref string error) => RealParameter.SetToDefault(ref error);
 
-        public bool IsEnumeration
-        {
-            get
-            {
-                return RealParameter.Type.IsEnum;
-            }
-        }
+        public bool IsEnumeration => RealParameter.Type.IsEnum;
 
         private static readonly List<string> BoolValueList = new List<string>(new string[] { "True", "False" });
 
-        public List<string> PossibleEnumerationValues
-        {
-            get
-            {
-                if (RealParameter.Type == typeof(bool))
-                {
-                    return BoolValueList;
-                }
-                else
-                {
-                    return RealParameter.Type.GetEnumNames().ToList();
-                }
-                
-            }
-        }
+        public List<string> PossibleEnumerationValues => RealParameter.Type == typeof(bool) ? BoolValueList : RealParameter.Type.GetEnumNames().ToList();
 
-        public IModelSystemStructure BelongsTo
-        {
-            get
-            {
-                return RealParameter.BelongsTo;
-            }
-        }
+        public IModelSystemStructure BelongsTo => RealParameter.BelongsTo;
     }
 
     public class ParameterTypeSelector : DataTemplateSelector
@@ -275,7 +194,6 @@ namespace XTMF.Gui.Models
                 {
                     return Enumeration;
                 }
-
                 if (param.RealParameter.Type == typeof(bool))
                 {
                     return Enumeration;

@@ -29,29 +29,29 @@ namespace XTMF.Gui.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ModelSystemStructureDisplayModel DisplayModel;
+        private ModelSystemStructureDisplayModel _DisplayModel;
 
         public string ErrorString { get; private set; }
 
-        public string ModuleName => DisplayModel?.Name ?? "Unknown Module";
+        public string ModuleName => _DisplayModel?.Name ?? "Unknown Module";
 
-        public ModelSystemStructureDisplayModel DisplayModule => DisplayModel;
+        public ModelSystemStructureDisplayModel DisplayModule => _DisplayModel;
 
         public ValidationErrorDisplayModel(ModelSystemStructureDisplayModel root, string error, IReadOnlyList<int> path)
         {
             ErrorString = error;
             if(path == null)
             {
-                DisplayModel = null;
+                _DisplayModel = null;
             }
             else if(path.Count == 0)
             {
-                DisplayModel = root;
+                _DisplayModel = root;
             }
             else
             {
                 // make a copy of the path in case something else is also going to use it
-                DisplayModel = MapModuleWithPath(root, path.ToList());
+                _DisplayModel = MapModuleWithPath(root, path.ToList());
             }
         }
 

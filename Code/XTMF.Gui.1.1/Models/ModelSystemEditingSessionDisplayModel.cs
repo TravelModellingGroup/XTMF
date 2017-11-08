@@ -27,24 +27,20 @@ namespace XTMF.Gui.Models
 {
     public sealed class ModelSystemEditingSessionDisplayModel : ActiveEditingSessionDisplayModel
     {
+        private readonly ModelSystemEditingSession _Session;
 
-        private readonly ModelSystemEditingSession Session;
-
-        private readonly ModelSystemDisplay Display;
-
-
-  
+        private readonly ModelSystemDisplay _Display;
 
         public ModelSystemEditingSessionDisplayModel(ModelSystemDisplay display) : base(true)
         {
             var session = display.Session;
-            Display = display;
-            Session = session;
-            _CanUndo = Session.CanUndo;
-            _CanRedo = Session.CanRedo;
+            _Display = display;
+            _Session = session;
+            _CanUndo = _Session.CanUndo;
+            _CanRedo = _Session.CanRedo;
             UndoList = new ObservableCollection<CommandDisplayModel>();
             RedoList = new ObservableCollection<CommandDisplayModel>();
-            Session.CommandExecuted += Session_CommandExecuted;
+            _Session.CommandExecuted += Session_CommandExecuted;
         }
 
         public readonly ObservableCollection<CommandDisplayModel> UndoList;
@@ -53,10 +49,10 @@ namespace XTMF.Gui.Models
 
         private void Session_CommandExecuted(object sender, EventArgs e)
         {
-            RebuildCommandList(UndoList, Session.CopyOnUndo());
-            RebuildCommandList(RedoList, Session.CopyOnRedo());
-            SetUndo(Session.CanUndo);
-            SetRedo(Session.CanRedo);
+            RebuildCommandList(UndoList, _Session.CopyOnUndo());
+            RebuildCommandList(RedoList, _Session.CopyOnRedo());
+            SetUndo(_Session.CanUndo);
+            SetRedo(_Session.CanRedo);
             InvokeParameterChanged(nameof(CanUndo));
             InvokeParameterChanged(nameof(CanRedo));
             InvokeParameterChanged(nameof(UndoName));
@@ -99,7 +95,9 @@ namespace XTMF.Gui.Models
         }
 
         private bool _CanUndo;
+
         private bool _CanRedo;
+
         public override bool CanUndo => _CanUndo;
 
         public override bool CanRedo => _CanRedo;
@@ -128,24 +126,15 @@ namespace XTMF.Gui.Models
 
         internal override void Undo()
         {
-            Display.Undo();
+            _Display.Undo();
         }
 
-        internal override void Redo()
-        {
-            Display.Redo();
-        }
+        internal override void Redo() => _Display.Redo();
 
-        public override void Save()
-        {
-            Display.SaveRequested(false);
-        }
+        public override void Save() => _Display.SaveRequested(false);
 
-        public override void SaveAs()
-        {
-            Display.SaveRequested(true);
-        }
+        public override void SaveAs() => _Display.SaveRequested(true);
 
-        public override bool CanExecuteRun => !Session.IsRunning;
+        public override bool CanExecuteRun => !_Session.IsRunning;
     }
 }

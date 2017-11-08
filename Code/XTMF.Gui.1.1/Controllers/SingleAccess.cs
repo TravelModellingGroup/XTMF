@@ -25,19 +25,20 @@ namespace XTMF.Gui.Controllers
 {
     internal sealed class SingleAccess<T>
     {
-        private object LockObject = new object();
-        private T Target;
+        private object _LockObject = new object();
+
+        private T _Target;
 
         public SingleAccess(T toAccess)
         {
-            Target = toAccess;
+            _Target = toAccess;
         }
 
         internal void Run(Action<T> toRun)
         {
-            lock (LockObject)
+            lock (_LockObject)
             {
-                toRun(Target);
+                toRun(_Target);
             }
         }
     }

@@ -33,19 +33,19 @@ namespace XTMF.Gui.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public virtual bool CanUndo { get { return false; } }
+        public virtual bool CanUndo => false;
 
-        public virtual bool CanRedo { get { return false; } }
+        public virtual bool CanRedo => false;
 
-        public virtual bool CanSave { get { return false; } }
+        public virtual bool CanSave => false;
 
-        public virtual bool CanSaveAs { get { return false; } }
+        public virtual bool CanSaveAs => false;
 
-        public virtual string SaveName { get { return "_Save (Ctrl+S)"; } }
-        public virtual string SaveAsName { get { return "Save _As"; } }
+        public virtual string SaveName => "_Save (Ctrl+S)";
+        public virtual string SaveAsName => "Save _As";
 
-        public virtual string UndoName { get { return "Undo (Ctrl+Z)"; } }
-        public virtual string RedoName { get { return "Redo (Ctrl+Y)"; } }
+        public virtual string UndoName => "Undo (Ctrl+Z)";
+        public virtual string RedoName => "Redo (Ctrl+Y)";
 
         public ActiveEditingSessionDisplayModel(bool canClose)
         {
@@ -54,31 +54,19 @@ namespace XTMF.Gui.Models
 
         public bool CanClose { get; private set; }
 
-        public virtual bool CanExecuteRun { get { return true; } }
+        public virtual bool CanExecuteRun => true;
 
         protected void InvokeParameterChanged(string parameterName)
         {
             ModelHelper.PropertyChanged(PropertyChanged, this, parameterName);
         }
 
-        public virtual void Save()
-        {
-            throw new InvalidOperationException();
-        }
+        public virtual void Save() => throw new InvalidOperationException();
 
-        public virtual void SaveAs()
-        {
-            throw new InvalidOperationException();
-        }
+        public virtual void SaveAs() => throw new InvalidOperationException();
 
-        internal virtual void Redo()
-        {
-            throw new InvalidOperationException();
-        }
+        internal virtual void Redo() => throw new InvalidOperationException();
 
-        internal virtual void Undo()
-        {
-            throw new InvalidOperationException();
-        }
+        internal virtual void Undo() => throw new InvalidOperationException();
     }
 }
