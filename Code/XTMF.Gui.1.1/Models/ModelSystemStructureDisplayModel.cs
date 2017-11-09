@@ -270,6 +270,8 @@ namespace XTMF.Gui.Models
 
         public bool IsDisabled => BaseModel.IsDisabled;
 
+        public bool IsMetaModule => BaseModel.IsMetaModule;
+
         internal bool SetDisabled(bool disabled, ref string error) => BaseModel.SetDisabled(disabled, ref error);
 
         internal bool SetMetaModule(bool set, ref string error) => BaseModel.SetMetaModule(set, ref error);

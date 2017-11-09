@@ -234,7 +234,8 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                     <TreeView Grid.Row="1"   BorderThickness="0" 
                         x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
-                      PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown" >
+                      PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown" 
+                              TreeViewItem.Selected="ModuleDisplay_Selected">
                         <TreeView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling"
@@ -365,6 +366,7 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                             <ContentControl Template="{DynamicResource CopyIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
+                                    <MenuItem Header="Go To Module" Click="GoToModule_Click" />
                                     <Separator />
                                     <MenuItem Header="Open">
                                         <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">

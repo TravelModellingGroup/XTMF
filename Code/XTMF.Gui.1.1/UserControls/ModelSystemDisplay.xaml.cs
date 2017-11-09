@@ -1212,6 +1212,66 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private ModelSystemStructureDisplayModel GetModelFor(ModelSystemStructureModel model)
+        {
+            bool IsContainedWithin(ModelSystemStructureModel current, ModelSystemStructureModel toFind)
+            {
+                if (current == toFind)
+                {
+                    return true;
+                }
+                foreach (var c in current.Children)
+                {
+                    if (IsContainedWithin(c, toFind))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            ModelSystemStructureDisplayModel find(ModelSystemStructureDisplayModel current, ModelSystemStructureModel toFind)
+            {
+                if (current.BaseModel == toFind)
+                {
+                    return current;
+                }
+                if (current.IsMetaModule)
+                {
+                    return IsContainedWithin(current.BaseModel, toFind) ? current : null;
+                }
+                else
+                {
+                    foreach (var c in current.Children)
+                    {
+                        var ret = find(c, toFind);
+                        if (ret != null)
+                        {
+                            return ret;
+                        }
+                    }
+                }
+                return null;
+            }
+            return find(DisplayRoot, model);
+        }
+
+        private void GoToModule(ModelSystemStructure mss)
+        {
+            var displayModel = GetModelFor(ModelSystem.GetModelFor(mss));
+            CurrentlySelected.Clear();
+            ExpandToRoot(displayModel);
+            displayModel.IsSelected = true;
+        }
+
+        private void GotoSelectedParameterModule()
+        {
+            if (ParameterTabControl.SelectedItem == QuickParameterTab &&
+                QuickParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
+            {
+                GoToModule((ModelSystemStructure)currentParameter.BelongsTo);
+            }
+        }
+
         private void CopyCurrentModule()
         {
             var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
@@ -2514,6 +2574,19 @@ namespace XTMF.Gui.UserControls
         private void ModuleValidationErrorListView_LostFocus(object sender, RoutedEventArgs e)
         {
             (sender as ListView).SelectedItem = null;
+        }
+
+        private void GoToModule_Click(object sender, RoutedEventArgs e)
+        {
+            GotoSelectedParameterModule();
+        }
+
+        private void ModuleDisplay_Selected(object sender, RoutedEventArgs e)
+        {
+            if(e.OriginalSource is TreeViewItem tvi)
+            {
+                tvi.BringIntoView();
+            }
         }
     }
 }
