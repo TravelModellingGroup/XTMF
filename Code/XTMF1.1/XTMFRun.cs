@@ -183,6 +183,7 @@ namespace XTMF
 
         protected void InvokeRuntimeError(ErrorWithPath error)
         {
+            SaveErrorMessage(error);
             RuntimeError?.Invoke(error);
         }
 
@@ -195,14 +196,13 @@ namespace XTMF
             return value;
         }
 
-        protected static void SaveErrorMessage(Exception errorMessage)
+        protected static void SaveErrorMessage(ErrorWithPath error)
         {
             using (var writer = new StreamWriter("XTMF.ErrorLog.txt", true))
             {
-                var realExeption = GetTopRootException(errorMessage);
-                writer.WriteLine(realExeption.Message);
+                writer.WriteLine(error.Message);
                 writer.WriteLine();
-                writer.WriteLine(realExeption.StackTrace);
+                writer.WriteLine(error.StackTrace);
             }
         }
 
