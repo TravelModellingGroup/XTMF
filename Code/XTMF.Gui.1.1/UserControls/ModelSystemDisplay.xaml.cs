@@ -1037,6 +1037,10 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                         }
                         break;
+                    case Key.E:
+                        ExpandParameterDocumentation(sender);
+                        e.Handled = true;
+                        break;
                     case Key.F2:
                         RenameParameter();
                         e.Handled = true;
@@ -1269,6 +1273,23 @@ namespace XTMF.Gui.UserControls
                 QuickParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
             {
                 GoToModule((ModelSystemStructure)currentParameter.BelongsTo);
+            }
+        }
+
+        private void ExpandParameterDocumentation(object sender)
+        {
+            var current = sender as DependencyObject;
+            while (current != null)
+            {
+                if(current is StackPanel container)
+                {
+                    if (container.Children[0] is Expander exp)
+                    {
+                        exp.IsExpanded = !exp.IsExpanded;
+                        return;
+                    }
+                }
+                current = VisualTreeHelper.GetParent(current);
             }
         }
 

@@ -467,8 +467,6 @@
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.4" />
                         </Trigger>
-
-
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -656,8 +654,64 @@
                 </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
             <Grid>
-                <TextBlock x:Name="CollapsedArrow" Foreground="{DynamicResource ThemeTextColorBrush}" FontStyle="Italic" Text="(Show More)" Cursor="Hand" FontSize="12" VerticalAlignment="Center" />
-                <TextBlock x:Name="ExpandededArrow" Foreground="{DynamicResource ThemeTextColorBrush}" FontStyle="Italic" Text="(Show Less)" Visibility="Hidden" FontSize="12" VerticalAlignment="Center" />
+                <TextBlock x:Name="CollapsedArrow" Foreground="{DynamicResource ThemeTextColorBrush}"
+                           FontStyle="Italic" Text="Show More - Ctrl + E" Cursor="Hand" FontSize="12" Opacity="0.5" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style>
+                            <Style.Triggers>
+                                <EventTrigger RoutedEvent="ScrollBar.MouseEnter">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation From="0.5" To="1.0" Duration="0:0:0.20"
+                                                    Storyboard.TargetProperty="Opacity" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="ScrollBar.MouseLeave">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation From="1.0" To="0.5" Duration="0:0:0.20"
+                                                    Storyboard.TargetProperty="Opacity" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock x:Name="ExpandededArrow" Foreground="{DynamicResource ThemeTextColorBrush}" 
+                           FontStyle="Italic" Text="Show Less - Ctrl + E" Visibility="Hidden" FontSize="12" Opacity="0.5" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style>
+                            <Style.Triggers>
+                                <EventTrigger RoutedEvent="ScrollBar.MouseEnter">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation From="0.5" To="1.0" Duration="0:0:0.20"
+                                                    Storyboard.TargetProperty="Opacity" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="ScrollBar.MouseLeave">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation From="1.0" To="0.5" Duration="0:0:0.20"
+                                                    Storyboard.TargetProperty="Opacity" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </Grid>
         </Border>
     </ControlTemplate>
