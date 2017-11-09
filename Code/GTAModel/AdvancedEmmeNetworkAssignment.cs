@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -54,6 +54,9 @@ namespace TMG.GTAModel
         [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
         public string EmmeProjectFile;
 
+        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+        public string EmmeDatabank;
+
         private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(255, 173, 28);
         private ModellerController Controller;
 
@@ -62,30 +65,17 @@ namespace TMG.GTAModel
         private Func<float> GetToolProgress = (() => 0.0f);
         private float ProgressIncrement;
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
         public float Progress => CurrentProgress + ProgressIncrement * GetToolProgress();
 
         public Tuple<byte, byte, byte> ProgressColour => _progressColour;
 
-        public void RunInitialAssignments()
-        {
-            ExecuteToolList(InitialRun);
-        }
+        public void RunInitialAssignments() => ExecuteToolList(InitialRun);
 
-        public void RunModelSystemSetup()
-        {
-            ExecuteToolList(ModelSystemSetup);
-        }
+        public void RunModelSystemSetup() => ExecuteToolList(ModelSystemSetup);
 
-        public void RunNetworkAssignment()
-        {
-            ExecuteToolList(IterationRuns);
-        }
+        public void RunNetworkAssignment() => ExecuteToolList(IterationRuns);
 
         public void RunPostAssignments()
         {
@@ -97,15 +87,9 @@ namespace TMG.GTAModel
             }
         }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        public bool RuntimeValidation(ref string error) => true;
 
-        public override string ToString()
-        {
-            return CurrentToolStatus;
-        }
+        public override string ToString() => CurrentToolStatus;
 
         private void ExecuteToolList(List<IEmmeTool> tools)
         {
@@ -113,7 +97,7 @@ namespace TMG.GTAModel
             {
                 if (Controller == null)
                 {
-                    Controller = new ModellerController(this, EmmeProjectFile, PerformanceAnalysis);
+                    Controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, PerformanceAnalysis);
                 }
                 CurrentProgress = 0.0f;
                 ProgressIncrement = 1.0f / tools.Count;
@@ -128,10 +112,7 @@ namespace TMG.GTAModel
             }
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         ~AdvancedEmmeNetworkAssignment()
         {

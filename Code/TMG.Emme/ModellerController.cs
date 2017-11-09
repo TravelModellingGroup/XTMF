@@ -107,7 +107,7 @@ namespace TMG.Emme
         /// <param name="projectFile"></param>
         /// <param name="performanceAnalysis"></param>
         /// <param name="userInitials"></param>
-        public ModellerController(IModule module, string projectFile, bool performanceAnalysis = false, string userInitials = "XTMF")
+        public ModellerController(IModule module, string projectFile, string databank = null, bool performanceAnalysis = false, string userInitials = "XTMF")
         {
             if (!projectFile.EndsWith(".emp") | !File.Exists(projectFile))
             {
@@ -150,13 +150,16 @@ namespace TMG.Emme
             PipeFromEMME = new NamedPipeServerStream(pipeName, PipeDirection.In);
             //The first argument that gets passed into the Bridge is the name of the Emme project file
             argumentString += " " + AddQuotes(projectFile) + " " + userInitials + " " + (performanceAnalysis ? 1 : 0) + " \"" + pipeName + "\"";
-
+            if (!String.IsNullOrWhiteSpace(databank))
+            {
+                argumentString += " " + AddQuotes(databank);
+            }
             //Setup up the new process
             // When creating this process, we can not start in our own window because we are re-directing the I/O
             // and windows won't allow us to have a window and take its standard I/O streams at the same time
             Emme = new Process();
             var startInfo = new ProcessStartInfo(pythonPath, "-u " + argumentString);
-            startInfo.EnvironmentVariables["PATH"] += ";" + pythonLib + ";" + Path.Combine(emmePath,"programs");
+            startInfo.EnvironmentVariables["PATH"] += ";" + pythonLib + ";" + Path.Combine(emmePath, "programs");
             Emme.StartInfo = startInfo;
             Emme.StartInfo.CreateNoWindow = true;
             Emme.StartInfo.UseShellExecute = false;
@@ -178,10 +181,6 @@ namespace TMG.Emme
             // no more standard out
             PipeFromEMME.WaitForConnection();
             //this.FromEmme = this.Emme.StandardOutput;
-        }
-
-        public ModellerController(string projectFolder, bool newWindow = false) : this(null, projectFolder)
-        {
         }
 
         ~ModellerController()
@@ -314,7 +313,7 @@ namespace TMG.Emme
             string unused = null;
             return Run(module, macroName, arguments, null, ref unused);
         }
-    
+
         public bool Run(IModule module, string macroName, string arguments, ref string returnValue)
         {
             return Run(module, macroName, arguments, null, ref returnValue);
@@ -435,7 +434,7 @@ namespace TMG.Emme
                         ToEmme.Close();
                         ToEmme = null;
                     }
-                    catch(IOException)
+                    catch (IOException)
                     {
                     }
                 }

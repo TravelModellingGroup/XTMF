@@ -33,6 +33,9 @@ path to where the Emme project is located. It also has another parameter called 
         [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
         public string EmmeProjectFile;
 
+        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+        public string EmmeDatabank;
+
         [RunParameter( "Emme Tool Arguments", "", "The arguments to pass to this tool" )]
         public string EmmeToolArguments;
 
@@ -86,7 +89,7 @@ path to where the Emme project is located. It also has another parameter called 
 
         public void Start()
         {
-            using ( ModellerController controller = new ModellerController(this, EmmeProjectFile, PerformanceTesting ) )
+            using ( ModellerController controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, PerformanceTesting ) )
             {
                 if ( CleanLogbook )
                 {

@@ -44,6 +44,9 @@ and another tool for execution. This module requires the root module of the mode
         [RunParameter("Emme Project Folder", @"C:\Users\James\Documents\Project\Macro", "The name of the auto network to use.")]
         public string EmmeProjectFolder;
 
+        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+        public string EmmeDatabank;
+
         [RunParameter("Modeller Performance Test", false, "Store the execution time in the modeller logbook for how long it takes to run the model system.")]
         public bool ModellerPerformanceAnalysis;
 
@@ -169,7 +172,7 @@ and another tool for execution. This module requires the root module of the mode
         private void InitializeController()
         {
             Controller = UseModeller ?
-                  new ModellerController(this, EmmeProjectFolder, ModellerPerformanceAnalysis)
+                  new ModellerController(this, EmmeProjectFolder, EmmeDatabank, ModellerPerformanceAnalysis)
                 : new Controller(EmmeProjectFolder);
         }
 

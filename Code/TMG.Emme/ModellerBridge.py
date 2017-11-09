@@ -539,9 +539,18 @@ class XTMFBridge:
             self.SendRuntimeError(str(inst))
         return
             
-            
-    def Run(self, emmeApplication, performanceMode):
+    def SwitchToDatabank(self, emmeApplication, databankName):
+        databankName = databankName.lower()
+        for db in emmeApplication.data_explorer().databases():
+            if db.name().lower() == databankName:
+                db.open()
+                return
+        self.SendRuntimeError("The databank " + databankName + " does not exist!")
+
+    def Run(self, emmeApplication, databankName, performanceMode):
         self.emmeApplication = emmeApplication
+        if databankName is not None:
+            self.SwitchToDatabank(emmeApplication, databankName)
         self.Modeller = inro.modeller.Modeller(emmeApplication)
         _m.logbook_write("Activated modeller from ModellerBridge for XTMF")
         if performanceMode:
@@ -607,12 +616,15 @@ projectFile = args[1]
 userInitials = args[2]
 performancFlag = bool(int(args[3]))
 pipeName = args[4]
+databank = None
+if len(args) > 5:
+    databank = args[5]
 #sys.stderr.write(args)
 print userInitials
 print projectFile
 try:
     TheEmmeEnvironmentXMTF = _app.start_dedicated(visible=False, user_initials=userInitials, project=projectFile)
-    XTMFBridge().Run(TheEmmeEnvironmentXMTF, performancFlag)
+    XTMFBridge().Run(TheEmmeEnvironmentXMTF, databank, performancFlag)
     TheEmmeEnvironmentXMTF.close()
 except Exception as e:
     print dir(e).__class__

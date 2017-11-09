@@ -31,17 +31,14 @@ namespace TMG.NetworkEstimation
         [SubModelInformation(Required = true, Description = "The location of the Emme project file.")]
         public FileLocation ProjectFolder;
 
+        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+        public string EmmeDatabank;
+
         private ModellerController Data;
 
-        public ModellerController GiveData()
-        {
-            return Data;
-        }
+        public ModellerController GiveData() => Data;
 
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
+        public bool Loaded => Data != null;
 
         public void LoadData()
         {
@@ -52,7 +49,7 @@ namespace TMG.NetworkEstimation
                     if (Data == null)
                     {
                         GC.ReRegisterForFinalize(this);
-                        Data = new ModellerController(this, ProjectFolder.GetFilePath());
+                        Data = new ModellerController(this, ProjectFolder, EmmeDatabank);
                     }
                 }
             }
@@ -65,15 +62,9 @@ namespace TMG.NetworkEstimation
 
         public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {
