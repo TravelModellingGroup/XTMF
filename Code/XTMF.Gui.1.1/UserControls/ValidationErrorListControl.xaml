@@ -88,8 +88,11 @@
             <Label Name="ModuleNameLabel" Style="{DynamicResource HoverLabel}" HorizontalAlignment="Left" Tag="{Binding DisplayModule}" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Foreground,Mode=TwoWay}" VerticalAlignment="Center"  Grid.Column="0"  >
                 <TextBlock Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Foreground,Mode=TwoWay}" TextWrapping="WrapWithOverflow" TextDecorations="Underline"  Text="{Binding ModuleName}"></TextBlock>
             </Label>
- 
-            <TextBlock VerticalAlignment="Center" Name="ErrorStringTextBlock" TextWrapping="WrapWithOverflow"   Grid.Column="2" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Foreground,Mode=TwoWay}"  Text="{Binding ErrorString}"></TextBlock>
+            <ScrollViewer Grid.Column="2">
+            <TextBlock VerticalAlignment="Center" Name="ErrorStringTextBlock" TextWrapping="WrapWithOverflow"
+                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Foreground,Mode=TwoWay}"
+                       Text="{Binding ErrorString}" />
+            </ScrollViewer>
 
         </Grid>
     </Border>

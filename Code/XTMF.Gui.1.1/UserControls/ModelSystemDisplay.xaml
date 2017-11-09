@@ -561,7 +561,6 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
 
 
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14"  Foreground="{DynamicResource ControlTextColourBrush}">
-
                     <ScrollViewer>
                         <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
                             <Grid.RowDefinitions>
@@ -580,17 +579,11 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                     <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Model System Information" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold" />
                                 </Grid>
                             </Border>
-
                             <Border Grid.Row="1">
-
-
                             </Border>
                             <Border Grid.Row="2">
-
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Disabled Modules" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
-
-
                                     <Grid HorizontalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1*"></ColumnDefinition>
@@ -600,11 +593,9 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                         <Label Foreground="{DynamicResource ThemeTextColorBrush}"  Grid.Column="1" Content="Action"></Label>
                                     </Grid>
                                     <ListView ItemTemplateSelector="{StaticResource ModelSystemInfoTemplateSelector}" Background="Transparent" BorderBrush="{x:Null}" Focusable="False"  x:Name="DisabledModulesList" SelectionMode="Single" >
-
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">
                                                 <Setter Property="Background" Value="Transparent" />
-
                                                 <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
@@ -615,7 +606,6 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                                         </ControlTemplate>
                                                     </Setter.Value>
                                                 </Setter>
-
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Path=IsDisabled}" Value="True">
                                                         <Setter Property="ContentTemplate" Value="{StaticResource ModuleDisabledTemplate}" />
@@ -634,7 +624,6 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
 
                             </Border>
                             <Border Grid.Row="3">
-
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
                                     <Grid Height="Auto">
