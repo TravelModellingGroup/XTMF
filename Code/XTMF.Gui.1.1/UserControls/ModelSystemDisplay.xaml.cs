@@ -1038,8 +1038,11 @@ namespace XTMF.Gui.UserControls
                         }
                         break;
                     case Key.E:
-                        ExpandParameterDocumentation(sender);
-                        e.Handled = true;
+                        if (ctrlDown)
+                        {
+                            ExpandParameterDocumentation(sender);
+                            e.Handled = true;
+                        }
                         break;
                     case Key.F2:
                         RenameParameter();
