@@ -223,8 +223,10 @@ namespace XTMF
                         cloneProject.ModelSystemStructure[_ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
                         cloneProject.ModelSystemDescriptions[_ModelSystemIndex] = ModelSystemModel.Description;
                         cloneProject.LinkedParameters[_ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
-                        run = XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite);
-                        //run = XTMFRun.CreateRemoteHost(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName, overwrite);
+                        //TODO: Remove this commenting out once we are confident in the bridge
+                        run = /*System.Diagnostics.Debugger.IsAttached ||*/ !((Configuration)Configuration).RunInSeperateProcess ?
+                            XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite) :
+                            XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite);
                     }
                     else
                     {

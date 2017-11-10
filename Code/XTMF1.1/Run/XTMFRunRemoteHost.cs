@@ -51,7 +51,7 @@ namespace XTMF.Run
         }
 
         private string GetXTMFRunFileName() => Path.Combine(Path.GetDirectoryName(
-    Assembly.GetEntryAssembly().Location), "XTMF.Run.exe");
+                Assembly.GetEntryAssembly().Location), "XTMF.Run.exe");
 
         private void StartupHost()
         {
@@ -242,7 +242,7 @@ namespace XTMF.Run
         {
             StartupHost();
             StartClientListener();
-            // Send the instructiosn to run the model system
+            // Send the instructions to run the model system
             InitializeClientAndSendModelSystem();
         }
 

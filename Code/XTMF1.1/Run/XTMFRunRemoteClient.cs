@@ -104,10 +104,12 @@ namespace XTMF.Run
                     SetupRunDirectory();
                     if (!ValidateRuntimeModelSystem())
                     {
+                        // The call will already signal the errors.
                         return;
                     }
                     _Root.Save(Path.Combine(RunDirectory, "RunParameters.xml"));
                     _MST.Start();
+                    InvokeRunCompleted();
                 }
                 catch (ThreadAbortException)
                 {

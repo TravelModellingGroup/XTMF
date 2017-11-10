@@ -66,6 +66,7 @@ namespace XTMF.Testing.Editing
         public void TestAddingAGenericModule()
         {
             var runtime = TestXTMFCore.CreateRuntime();
+            ((Configuration)runtime.Configuration).RunInSeperateProcess = false;
             var controller = runtime.ProjectController;
             string error = null;
             controller.DeleteProject("TestProject", ref error);

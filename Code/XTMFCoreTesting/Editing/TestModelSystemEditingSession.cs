@@ -22,6 +22,8 @@ using XTMF.Testing.Modules;
 using XTMF.Testing.Modules.Editing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
+using System.Collections.Generic;
+using System;
 
 namespace XTMF.Testing.Editing
 {
@@ -346,6 +348,7 @@ namespace XTMF.Testing.Editing
             controller.DeleteProject("TestProject", ref error);
             Project project;
             Assert.IsTrue((project = controller.LoadOrCreate("TestProject", ref error)) != null);
+            ((Configuration)runtime.Configuration).RunInSeperateProcess = false;
             using (var session = controller.EditProject(project))
             {
                 var testModelSystem = CreateTestModelSystem(runtime);
@@ -359,13 +362,21 @@ namespace XTMF.Testing.Editing
                     XTMFRun run;
                     Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
                     bool finished = false;
+                    List<ErrorWithPath> errors = null;
+                    Action<List<ErrorWithPath>> catchErrors = (errorPath) =>
+                    {
+                        errors = errorPath;
+                        finished = true;
+                    };
+                    run.ValidationError += catchErrors;
+                    run.RuntimeValidationError += catchErrors;
                     run.RunCompleted += () =>
                     {
                         finished = true;
                     };
                     Assert.IsFalse(collection.AddCollectionMember(typeof(TestModule), ref error));
                     run.Start();
-                    for(int i = 0; i < 100 & !finished; i++)
+                    for(int i = 0; i < 10000 & !finished; i++)
                     {
                         Thread.Sleep(i);
                         Thread.MemoryBarrier();
@@ -374,12 +385,15 @@ namespace XTMF.Testing.Editing
                     {
                         Assert.Fail("The model system did not complete in time.");
                     }
+                    if(errors != null)
+                    {
+                        Assert.Fail(errors[0].Message);
+                    }
                     // now that it is done we should be able to edit it again
                     Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), error);
                 }
             }
         }
-
 
         private ModelSystem CreateTestModelSystem(XTMFRuntime runtime)
         {

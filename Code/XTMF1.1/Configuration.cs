@@ -198,6 +198,8 @@ namespace XTMF
             }
         }
 
+        public bool RunInSeperateProcess { get; set; } = true;
+
         public void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> c = null)
         {
             lock (this)
