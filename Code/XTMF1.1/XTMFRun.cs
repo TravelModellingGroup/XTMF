@@ -35,6 +35,7 @@ namespace XTMF
     /// </summary>
     public abstract class XTMFRun : IDisposable
     {
+        public IModelSystemTemplate MST { get; protected set; }
         /// <summary>
         /// The link to XTMF's settings
         /// </summary>
@@ -48,7 +49,7 @@ namespace XTMF
         /// <summary>
         /// The model system root if we are using a past run
         /// </summary>
-        protected ModelSystemStructureModel ModelSystemStructureModelRoot;
+        public ModelSystemStructureModel ModelSystemStructureModelRoot { get; protected set; }
 
         public string RunDirectory { get; private set; }
 

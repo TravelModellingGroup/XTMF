@@ -55,7 +55,7 @@ namespace XTMF.Run
 
         private void StartupHost()
         {
-            var debugMode = Debugger.IsAttached;
+            var debugMode = !((Configuration)Configuration).RunInSeperateProcess; // Debugger.IsAttached;
             var pipeName = debugMode ? "DEBUG_MODEL_SYSTEM" : Guid.NewGuid().ToString();
             _Pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             if (!debugMode)
@@ -95,6 +95,7 @@ namespace XTMF.Run
             // terminated
             _Pipe?.Dispose();
             ClientExiting.Release();
+            InvokeRunCompleted();
         }
 
         private void RequestSignal(ToClient signal)
@@ -140,7 +141,7 @@ namespace XTMF.Run
                             case ToHost.Heartbeat:
                                 break;
                             case ToHost.ClientReportedProgress:
-                                _RemoteProgress = reader.ReadInt32();
+                                _RemoteProgress = reader.ReadSingle();
                                 break;
                             case ToHost.ClientReportedStatus:
                                 _RemoteStatus = reader.ReadString();
@@ -244,6 +245,7 @@ namespace XTMF.Run
             StartClientListener();
             // Send the instructions to run the model system
             InitializeClientAndSendModelSystem();
+            SetStatusToRunning();
         }
 
         public override void Wait() => ClientExiting.Wait();

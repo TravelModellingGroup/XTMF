@@ -76,11 +76,13 @@ namespace XTMF.Run
             }
         }
 
+        private static XTMFRun CurrentRun;
+
         private static void StartupExecuteRunsInADifferentProcess(string pipeName)
         {
             using (var clientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous))
             {
-                if(!clientStream.IsConnected)
+                if (!clientStream.IsConnected)
                 {
                     clientStream.Connect();
                 }
@@ -104,13 +106,13 @@ namespace XTMF.Run
                                         // do nothing
                                         break;
                                     case ToClient.RunModelSystem:
-                                        RunModelSystem(config, ref root, reader, messagesToSend);
+                                        RunModelSystem(config, reader, messagesToSend);
                                         break;
                                     case ToClient.RequestProgress:
-                                        ProgressRequested(root, messagesToSend);
+                                        ProgressRequested(messagesToSend);
                                         break;
                                     case ToClient.RequestStatus:
-                                        StatusRequested(root, messagesToSend);
+                                        StatusRequested(messagesToSend);
                                         break;
                                     case ToClient.CancelModelRun:
                                         CancelModelSystem(root);
@@ -140,7 +142,7 @@ namespace XTMF.Run
             }
         }
 
-        private static void RunModelSystem(Configuration config, ref IModelSystemStructure root, BinaryReader reader, BlockingCollection<byte[]> messageQueue)
+        private static void RunModelSystem(Configuration config, BinaryReader reader, BlockingCollection<byte[]> messageQueue)
         {
             var runName = reader.ReadString();
             var runDirectory = reader.ReadString();
@@ -182,6 +184,7 @@ namespace XTMF.Run
                     });
                     messageQueue.CompleteAdding();
                 };
+                CurrentRun = run;
                 run.Start();
                 run.Wait();
             }, TaskCreationOptions.LongRunning);
@@ -225,23 +228,19 @@ namespace XTMF.Run
             }
         }
 
-        private static void ProgressRequested(IModelSystemStructure root, BlockingCollection<byte[]> messagesToSend)
+        private static void ProgressRequested(BlockingCollection<byte[]> messagesToSend)
         {
+            var root = CurrentRun?.MST;
             if (root != null)
             {
                 WriteMessageToStream(messagesToSend, (writer) =>
                 {
                     try
                     {
-                        var module = root.Module;
-                        if (module != null)
-                        {
-                            var progress = module.Progress;
-                            var status = module.ToString();
-                            // make sure there is no error gathering the progress
-                            writer.Write((Int32)ToHost.ClientReportedProgress);
-                            writer.Write(progress);
-                        }
+                        var progress = root.Progress;
+                        // make sure there is no error gathering the progress
+                        writer.Write((Int32)ToHost.ClientReportedProgress);
+                        writer.Write(progress);
                     }
                     catch
                     {
@@ -250,26 +249,32 @@ namespace XTMF.Run
             }
         }
 
-        private static void StatusRequested(IModelSystemStructure root, BlockingCollection<byte[]> messagesToSend)
+        private static void StatusRequested(BlockingCollection<byte[]> messagesToSend)
         {
+            var root = CurrentRun?.MST;
             if (root != null)
             {
                 WriteMessageToStream(messagesToSend, (writer) =>
                 {
                     try
                     {
-                        var module = root.Module;
-                        if (module != null)
-                        {
-                            var status = module.ToString();
-                            // make sure there is no error gathering the progress
-                            writer.Write((Int32)ToHost.ClientReportedStatus);
-                            writer.Write(status);
-                        }
+                        var status = root.ToString();
+                        // make sure there is no error gathering the progress
+                        writer.Write((Int32)ToHost.ClientReportedStatus);
+                        writer.Write(status);
                     }
                     catch
                     {
                     }
+                });
+            }
+            else
+            {
+                WriteMessageToStream(messagesToSend, (writer) =>
+                {
+                    // make sure there is no error gathering the progress
+                    writer.Write((Int32)ToHost.ClientReportedStatus);
+                    writer.Write("Model System Initializing");
                 });
             }
         }

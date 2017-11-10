@@ -28,7 +28,6 @@ namespace XTMF.Run
 {
     sealed class XTMFRunRemoteClient : XTMFRun
     {
-        private IModelSystemTemplate _MST;
 
         private Thread _RunThread;
 
@@ -81,18 +80,15 @@ namespace XTMF.Run
 
         public override bool ExitRequest() => DeepExitRequest();
 
-        public override Tuple<byte, byte, byte> PollColour() => _MST?.ProgressColour ?? new Tuple<byte, byte, byte>(50, 150, 50);
+        public override Tuple<byte, byte, byte> PollColour() => MST?.ProgressColour ?? new Tuple<byte, byte, byte>(50, 150, 50);
 
-        public override float PollProgress() => _MST?.Progress ?? 1.0f;
+        public override float PollProgress() => MST?.Progress ?? 1.0f;
 
-        public override string PollStatusMessage() => _MST?.ToString() ?? String.Empty;
+        public override string PollStatusMessage() => MST?.ToString() ?? "No MST";
 
         public override void Start()
         {
-            (_RunThread = new Thread(() =>
-            {
-                Run();
-            })).Start();
+            (_RunThread = new Thread(() => Run())).Start();
         }
 
         private void Run()
@@ -108,7 +104,7 @@ namespace XTMF.Run
                         return;
                     }
                     _Root.Save(Path.Combine(RunDirectory, "RunParameters.xml"));
-                    _MST.Start();
+                    MST.Start();
                     InvokeRunCompleted();
                 }
                 catch (ThreadAbortException)
@@ -172,8 +168,8 @@ namespace XTMF.Run
                     InvokeValidationError(CreateFromSingleError(error));
                     return false;
                 }
-                _MST = _Root.Module as IModelSystemTemplate;
-                if (_MST == null)
+                MST = _Root.Module as IModelSystemTemplate;
+                if (MST == null)
                 {
                     InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, "Unable to generate MST!")));
                     return false;

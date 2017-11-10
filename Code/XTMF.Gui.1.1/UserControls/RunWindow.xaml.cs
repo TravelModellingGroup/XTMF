@@ -260,7 +260,6 @@ namespace XTMF.Gui.UserControls
         private void StartRun(XTMFRun run, string runName)
         {
             _run = run;
-
             MainWindow.Us.Closing += MainWindowClosing;
             OpenDirectoryButton.IsEnabled = true;
             Dispatcher.BeginInvoke(new Action(() =>
