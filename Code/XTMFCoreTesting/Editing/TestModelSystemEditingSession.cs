@@ -376,7 +376,7 @@ namespace XTMF.Testing.Editing
                     };
                     Assert.IsFalse(collection.AddCollectionMember(typeof(TestModule), ref error));
                     run.Start();
-                    for(int i = 0; i < 10000 & !finished; i++)
+                    for(int i = 0; i < 100 & !finished; i++)
                     {
                         Thread.Sleep(i);
                         Thread.MemoryBarrier();
