@@ -114,14 +114,7 @@ namespace XTMF.Gui.Models
 
         private string GetName(bool includeModuleName)
         {
-            if (includeModuleName)
-            {
-                return RealParameter.Name + " : " + RealParameter.BelongsTo.Name;
-            }
-            else
-            {
-                return RealParameter.Name;
-            }
+            return includeModuleName ? RealParameter.Name + " : " + RealParameter.BelongsTo.Name : RealParameter.Name;
         }
 
         /// <summary>
@@ -148,15 +141,9 @@ namespace XTMF.Gui.Models
             return new ObservableCollection<ParameterDisplayModel>(parameterModel.Select(p => new ParameterDisplayModel(p, multipleSelected)));
         }
 
-        internal bool AddToLinkedParameter(LinkedParameterModel newLP, ref string error)
-        {
-            return newLP.AddParameter(RealParameter, ref error);
-        }
+        internal bool AddToLinkedParameter(LinkedParameterModel newLP, ref string error) => newLP.AddParameter(RealParameter, ref error);
 
-        internal LinkedParameterModel GetLinkedParameter()
-        {
-            return RealParameter.GetLinkedParameter();
-        }
+        internal LinkedParameterModel GetLinkedParameter() => RealParameter.GetLinkedParameter();
 
         internal bool RemoveLinkedParameter(ref string error)
         {

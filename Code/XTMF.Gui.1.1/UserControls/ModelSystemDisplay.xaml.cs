@@ -193,7 +193,6 @@ namespace XTMF.Gui.UserControls
                 ModuleValidationErrorListView.Items.Clear();
                 foreach (var error in errorList)
                 {
-
                     ModuleValidationErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
                 }
                 ParameterTabControl.SelectedIndex = 2;
@@ -333,12 +332,8 @@ namespace XTMF.Gui.UserControls
 
         private bool FilterParameters(object arg1, string arg2)
         {
-            if (arg1 is ParameterDisplayModel parameter)
-            {
-                return string.IsNullOrWhiteSpace(arg2) ||
-                       parameter.Name.IndexOf(arg2, StringComparison.InvariantCultureIgnoreCase) >= 0;
-            }
-            return false;
+            return arg1 is ParameterDisplayModel parameter &&
+                 (string.IsNullOrWhiteSpace(arg2) || parameter.Name.IndexOf(arg2, StringComparison.InvariantCultureIgnoreCase) >= 0);
         }
 
         private void OnTreeExpanded(object sender, RoutedEventArgs e)
@@ -1259,12 +1254,10 @@ namespace XTMF.Gui.UserControls
                         ParameterFilterBox.Filter = FilterParameters;
                         ParameterFilterBox.RefreshFilter();
                         var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
-
                         if (type != null)
                         {
-                            SelectedName.Text = type.Name;
+                            SelectedName.Text = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Name : "Multiple Modules Selected";
                             SelectedNamespace.Text = type.FullName;
-
                             var attr =
                                 (ModuleInformationAttribute)
                                 Attribute.GetCustomAttribute(type, typeof(ModuleInformationAttribute));
