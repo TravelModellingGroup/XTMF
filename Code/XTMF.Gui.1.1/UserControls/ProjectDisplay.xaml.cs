@@ -47,17 +47,12 @@ namespace XTMF.Gui.UserControls
     public partial class ProjectDisplay : UserControl, INotifyPropertyChanged
     {
         public static readonly DependencyProperty ProjectProperty = DependencyProperty.Register("Project", typeof(Project), typeof(ProjectDisplay),
-    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectChanged));
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectChanged));
 
         public static readonly DependencyProperty ProjectModelProperty = DependencyProperty.Register("Model", typeof(ProjectModel), typeof(ProjectDisplay),
-    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectModelChanged));
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectModelChanged));
 
         public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
-
-
-
-
-
 
         public class ProjectModel : INotifyPropertyChanged
         {
@@ -67,54 +62,29 @@ namespace XTMF.Gui.UserControls
 
                 private ProjectEditingSession _session;
 
-                public IModelSystemStructure ModelSystemStructure
-                {
-                    get { return Root; }
-                }
+                public IModelSystemStructure ModelSystemStructure => Root;
 
                 public event PropertyChangedEventHandler PropertyChanged;
 
-                public string Name { get { return Root.Name; } }
+                public string Name => Root.Name;
 
-                public string StatusText
-                {
-                    get
-                    {
-
-                        if (!_IsMissingModules)
-                        {
-                            return null;
-                        }
-                        else
-                        {
-                            return "This module requires additional setup, or a required module is not present.";
-                        }
-                    }
-                }
+                public string StatusText => _IsMissingModules ? "This module requires additional setup, or a required module is not present." : null;
 
                 public string Description { get { return Root.Description; } }
 
-                public bool IsMissingModules
-                {
-                    get
-                    {
-                        return _IsMissingModules;
-                    }
-
-                }
+                public bool IsMissingModules => _IsMissingModules;
 
                 public int RealIndex { get; private set; }
 
                 private bool _IsMissingModules = false;
 
                 private IProject _project;
+
                 private bool _IsSelected;
+
                 public bool IsSelected
                 {
-                    get
-                    {
-                        return _IsSelected;
-                    }
+                    get => _IsSelected;
                     set
                     {
                         if (_IsSelected != value)
@@ -144,13 +114,9 @@ namespace XTMF.Gui.UserControls
                             {
                                 _IsMissingModules = true;
                             }
-                            else
-                            {
-                            }
                         }
                         catch (Exception)
                         {
-
                         }
                     });
 
@@ -191,8 +157,11 @@ namespace XTMF.Gui.UserControls
             public class PreviousRun : INotifyPropertyChanged
             {
                 public string Name { get; internal set; }
+
                 public string Path { get; internal set; }
+
                 internal DateTime Time { get; set; }
+
                 public string TimeStamp => Time.ToString(CultureInfo.InvariantCulture);
 
                 public event PropertyChangedEventHandler PropertyChanged;
@@ -266,10 +235,7 @@ namespace XTMF.Gui.UserControls
             {
                 if (ContainedModelSystems == null)
                 {
-
-
                     ContainedModelSystems = new List<ContainedModelSystemModel>();
-
                 }
                 else
                 {
@@ -280,12 +246,11 @@ namespace XTMF.Gui.UserControls
                 }
                 Task.Factory.StartNew(() =>
                 {
-                    var modelSystems = (from ms in Project.ModelSystemStructure
-                                        orderby ms.Name ascending
-                                        select new ContainedModelSystemModel(Session, ms, Project));
                     lock (ContainedModelSystems)
                     {
-                        ContainedModelSystems.AddRange(modelSystems);
+                        ContainedModelSystems.AddRange((from ms in Project.ModelSystemStructure
+                                                        orderby ms.Name ascending
+                                                        select new ContainedModelSystemModel(Session, ms, Project)));
                     }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
                 });
@@ -299,24 +264,15 @@ namespace XTMF.Gui.UserControls
 
         private Project Project
         {
-            get
-            {
-                return GetValue(ProjectProperty) as Project;
-            }
-            set
-            {
-                SetValue(ProjectProperty, value);
-            }
+            get => GetValue(ProjectProperty) as Project;
+            set => SetValue(ProjectProperty, value);
         }
 
         private ProjectEditingSession _session;
 
         public ProjectEditingSession Session
         {
-            get
-            {
-                return _session;
-            }
+            get => _session;
             set
             {
                 _session = value;
@@ -326,17 +282,9 @@ namespace XTMF.Gui.UserControls
 
         public ProjectModel Model
         {
-            get
-            {
-                return GetValue(ProjectModelProperty) as ProjectModel;
-            }
-            set
-            {
-                SetValue(ProjectModelProperty, value);
-            }
+            get => GetValue(ProjectModelProperty) as ProjectModel;
+            set => SetValue(ProjectModelProperty, value);
         }
-
-
 
         public ProjectDisplay()
         {
@@ -371,15 +319,9 @@ namespace XTMF.Gui.UserControls
             }));
         }
 
-        private void Session_ModelSystemSaved(object sender, EventArgs e)
-        {
-            RefreshModelSystems();
-        }
+        private void Session_ModelSystemSaved(object sender, EventArgs e) => RefreshModelSystems();
 
-        private void Session_ModelSystemNameChanged(object sender, EventArgs e)
-        {
-            RefreshModelSystems();
-        }
+        private void Session_ModelSystemNameChanged(object sender, EventArgs e) => RefreshModelSystems();
 
         private bool FilterMS(object e, string text)
         {
@@ -402,7 +344,6 @@ namespace XTMF.Gui.UserControls
         {
             var us = source as ProjectDisplay;
             us.DataContext = us.Project;
-
             us.Model.PropertyChanged += (obj, ev) =>
             {
                 us.Dispatcher.BeginInvoke(new Action(() =>
@@ -421,10 +362,8 @@ namespace XTMF.Gui.UserControls
             {
                 us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
             }
-
             us.FilterModelSystemsBox.Display = us.ModelSystemDisplay;
             us.FilterModelSystemsBox.Filter = us.FilterMS;
-
             us.FilterPastRunsBox.Display = us.PastRunDisplay;
             us.FilterPastRunsBox.Filter = us.FilterRuns;
         }
@@ -496,7 +435,6 @@ namespace XTMF.Gui.UserControls
                             SaveCurrentAsModelSystem(true);
                         }
                         break;
-
                     case Key.V:
                         if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
                         {
@@ -525,15 +463,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
-
-        private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-            var s = ModelSystemDisplay.SelectedItem;
-
-        }
-
         private void LoadModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
@@ -554,15 +483,9 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RefreshPreviousRuns_Clicked(object obj)
-        {
-            Model.RefreshPastRuns(Session);
-        }
+        private void RefreshPreviousRuns_Clicked(object obj) => Model.RefreshPastRuns(Session);
 
-        private void OpenProjectFolder_Clicked(object obj)
-        {
-            OpenProjectFolder();
-        }
+        private void OpenProjectFolder_Clicked(object obj) => OpenProjectFolder();
 
         private void OpenPreviousRun_Click(object sender, RoutedEventArgs e)
         {
@@ -613,46 +536,44 @@ namespace XTMF.Gui.UserControls
         private void ImportModelSystem_Clicked(object obj)
         {
             var xtmf = Session.GetRuntime();
-            var openMS = new OpenWindow();
-            openMS.Owner = GetWindow();
+            var openMS = new OpenWindow
+            {
+                Owner = GetWindow()
+            };
             using (var modelSystemSession = openMS.OpenModelSystem(xtmf))
             {
                 var loading = openMS.LoadTask;
-
-
                 if (loading != null)
                 {
                     loading.Wait();
                     using (var realSession = openMS.ModelSystemSession)
                     {
-                        if (realSession == null)
+                        if (realSession != null)
                         {
-                            return;
-                        }
-                        string error = null;
-                        StringRequest sr = new StringRequest("Save Model System As?", newName =>
-                        {
-                            return Session.ValidateModelSystemName(newName);
-                        });
-                        sr.Owner = GetWindow();
-                        if (sr.ShowDialog() == true)
-                        {
-                            if (!Session.AddModelSystem(realSession.ModelSystemModel, sr.Answer, ref error))
+                            string error = null;
+                            StringRequest sr = new StringRequest("Save Model System As?", newName =>
                             {
-                                MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                                return;
+                                return Session.ValidateModelSystemName(newName);
+                            })
+                            {
+                                Owner = GetWindow()
+                            };
+                            if (sr.ShowDialog() == true)
+                            {
+                                if (!Session.AddModelSystem(realSession.ModelSystemModel, sr.Answer, ref error))
+                                {
+                                    MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                                    return;
+                                }
+                                Model.RefreshModelSystems();
                             }
-                            Model.RefreshModelSystems();
                         }
                     }
                 }
             }
         }
 
-        private void DeleteModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            DeleteCurrentModelSystem();
-        }
+        private void DeleteModelSystem_Click(object sender, RoutedEventArgs e) => DeleteCurrentModelSystem();
 
         private void DeleteCurrentModelSystem()
         {
@@ -715,20 +636,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RenameModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            RenameCurrentModelSystem();
-        }
+        private void RenameModelSystem_Click(object sender, RoutedEventArgs e) => RenameCurrentModelSystem();
 
-        private void SaveModelSystemAs_Click(object sender, RoutedEventArgs e)
-        {
-            SaveCurrentAsModelSystem(false);
-        }
+        private void SaveModelSystemAs_Click(object sender, RoutedEventArgs e) => SaveCurrentAsModelSystem(false);
 
-        private void ExportModelSystemAs_Click(object sender, RoutedEventArgs e)
-        {
-            SaveCurrentAsModelSystem(true);
-        }
+        private void ExportModelSystemAs_Click(object sender, RoutedEventArgs e) => SaveCurrentAsModelSystem(true);
 
         private void SaveCurrentAsModelSystem(bool exportToFile)
         {
@@ -753,8 +665,10 @@ namespace XTMF.Gui.UserControls
                     StringRequest sr = new StringRequest("Save Model System As?", newName =>
                     {
                         return Session.ValidateModelSystemName(newName);
-                    });
-                    sr.Owner = GetWindow();
+                    })
+                    {
+                        Owner = GetWindow()
+                    };
                     if (sr.ShowDialog() == true)
                     {
                         string error = null;
@@ -772,46 +686,30 @@ namespace XTMF.Gui.UserControls
         {
             // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
             ModelSystemDisplay.IsCanPasteModelSystem = true;
-
             CloneCurrentModelSystem();
         }
 
         private void CloneCurrentModelSystem()
         {
-
-
-
             if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
-                var error = string.Empty;
                 MainWindow.Us.ClipboardModel = selected;
-
-
             }
         }
 
-        private void NewModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            CreateNewModelSystem();
-        }
+        private void NewModelSystem_Click(object sender, RoutedEventArgs e) => CreateNewModelSystem();
 
-        private void CreateNewModelSystem_Clicked(object obj)
-        {
-            CreateNewModelSystem();
-        }
+        private void CreateNewModelSystem_Clicked(object obj) => CreateNewModelSystem();
 
         private void CreateNewModelSystem()
         {
             StringRequest sr = new StringRequest("New Model System's Name?", newName =>
             {
                 return Session.ValidateModelSystemName(newName);
-            });
-
-
-
-
-            sr.Owner = Window.GetWindow(this);
-
+            })
+            {
+                Owner = Window.GetWindow(this)
+            };
             if (sr.ShowDialog() == true)
             {
                 string error = null;
@@ -828,11 +726,8 @@ namespace XTMF.Gui.UserControls
 
         private ProjectModel.ContainedModelSystemModel GetFirstItem()
         {
-            if (ModelSystemDisplay.ItemContainerGenerator.Items.Count > 0)
-            {
-                return ModelSystemDisplay.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel;
-            }
-            return null;
+            return ModelSystemDisplay.ItemContainerGenerator.Items.Any() ?
+                ModelSystemDisplay.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel : null;
         }
 
         private void FilterModelSystemsBox_EnterPressed(object sender, EventArgs e)
@@ -848,17 +743,12 @@ namespace XTMF.Gui.UserControls
 
         private void PastRuns_MouseButton(object sender, MouseButtonEventArgs e)
         {
-
-
             if (PastRunDisplay.SelectedItem is ProjectModel.PreviousRun selected)
             {
                 var invoke = InitiateModelSystemEditingSession;
                 if (invoke != null)
                 {
                     string error = null;
-
-
-
                     if (Session.LoadPreviousRun(selected.Path, ref error, out ModelSystemEditingSession newSession))
                     {
                         if (newSession != null)
@@ -874,32 +764,26 @@ namespace XTMF.Gui.UserControls
                 }
                 PastRunDisplay.SelectedItem = null;
             }
-
         }
 
-        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            LoadModelSystem();
-        }
+        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e) => LoadModelSystem();
 
         private void ImportModelSystemFromFile_OnClicked(object obj)
         {
             var fileDialog = new System.Windows.Forms.OpenFileDialog();
             var result = fileDialog.ShowDialog();
-
             switch (result)
             {
                 case System.Windows.Forms.DialogResult.OK:
                     string error = null;
-
                     try
                     {
                         ModelSystem modelSystem = ModelSystem.LoadDetachedModelSystem(fileDialog.OpenFile(), EditorController.Runtime.Configuration,
                        ref error);
-
-
-                        StringRequest sr = new StringRequest("Save Model System As?", newName => Session.ValidateModelSystemName(newName));
-                        sr.Owner = GetWindow();
+                        StringRequest sr = new StringRequest("Save Model System As?", newName => Session.ValidateModelSystemName(newName))
+                        {
+                            Owner = GetWindow()
+                        };
                         if (sr.ShowDialog() == true)
                         {
                             if (!Session.AddModelSystem(modelSystem, sr.Answer, ref error))
@@ -910,17 +794,13 @@ namespace XTMF.Gui.UserControls
                             }
                             Model.RefreshModelSystems();
                         }
-
                     }
                     catch
                     {
                         MessageBox.Show(GetWindow(), "There was an error importing the model system.", "Unable to Import Model System", MessageBoxButton.OK,
                                     MessageBoxImage.Error, MessageBoxResult.OK);
                     }
-
-
                     break;
-                case System.Windows.Forms.DialogResult.Cancel:
                 default:
                     break;
             }
@@ -928,24 +808,20 @@ namespace XTMF.Gui.UserControls
 
         private void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
         {
-
             string error = null;
             if (MainWindow.Us.ClipboardModel != null)
             {
-
                 ModelSystem cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
                 StringRequest sr = new StringRequest("Paste: Model System's Name?", newName =>
                 {
                     return Session.ValidateModelSystemName(newName);
-                });
-                sr.Owner = GetWindow();
+                })
+                {
+                    Owner = GetWindow()
+                };
                 if (sr.ShowDialog() == true)
                 {
-
-
-                    if (
-                        !Session.AddExternalModelSystem(cloned, sr.Answer,
-                            ref error))
+                    if (!Session.AddExternalModelSystem(cloned, sr.Answer, ref error))
                     {
                         MessageBox.Show(error, "Unable to Paste Model System", MessageBoxButton.OK,
                             MessageBoxImage.Error);
@@ -954,10 +830,8 @@ namespace XTMF.Gui.UserControls
                     {
                         Model.RefreshModelSystems();
                     }
-
                 }
             }
-
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

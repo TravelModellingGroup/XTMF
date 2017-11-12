@@ -35,30 +35,30 @@ namespace XTMF.Gui
     {
         private Action<object> ClickedAction;
 
-        private Color ControlBackground = (Color)Application.Current.FindResource( "ControlBackgroundColour" );
+        private Color ControlBackground = (Color)Application.Current.FindResource("ControlBackgroundColour");
 
-        private List<object> DisplayedItems = new List<object>( 10 );
+        private List<object> DisplayedItems = new List<object>(10);
 
         private int FocusedSelectedModule;
 
-        private List<object> Items = new List<object>( 10 );
+        private List<object> Items = new List<object>(10);
 
-        private List<BorderIconButton> ModelSystemsButtons = new List<BorderIconButton>( 10 );
+        private List<BorderIconButton> ModelSystemsButtons = new List<BorderIconButton>(10);
 
         private Action<object> RightClickedAction;
 
-        private List<string> Searchable = new List<string>( 10 );
+        private List<string> Searchable = new List<string>(10);
 
-        private Color SelectionBlue = (Color)Application.Current.FindResource( "SelectionBlue" );
+        private Color SelectionBlue = (Color)Application.Current.FindResource("SelectionBlue");
 
-        private BitmapImage SettingsImage = new BitmapImage( new Uri( "pack://application:,,,/XTMF.Gui;component/Resources/Settings.png" ) );
+        private BitmapImage SettingsImage = new BitmapImage(new Uri("pack://application:,,,/XTMF.Gui;component/Resources/Settings.png"));
 
         public Selector()
         {
             FocusedSelectedModule = -1;
-            ClickedAction = newModelSystem_Clicked;
-            RightClickedAction = newModelSystem_RightClicked;
-            var selectDelegate = new KeyEventHandler( SearchBox_PreviewKeyDown );
+            ClickedAction = NewModelSystem_Clicked;
+            RightClickedAction = NewModelSystem_RightClicked;
+            var selectDelegate = new KeyEventHandler(SearchBox_PreviewKeyDown);
             InitializeComponent();
             SearchBox.PreviewKeyDown += selectDelegate;
             ModelSystemPanel.PreviewKeyDown += selectDelegate;
@@ -82,7 +82,7 @@ namespace XTMF.Gui
             set
             {
                 Orientation o = value;
-                if ( o == Orientation.Horizontal )
+                if (o == Orientation.Horizontal)
                 {
                     Containment.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
                     Containment.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
@@ -98,53 +98,57 @@ namespace XTMF.Gui
 
         public void Add(string name, string description, object data)
         {
-            Add( name, description, data, null, ControlBackground );
+            Add(name, description, data, null, ControlBackground);
         }
 
         public void Add(string name, string description, object data, ContextMenu menu)
         {
             FocusedSelectedModule = -1;
-            BorderIconButton newModelSystem = new BorderIconButton();
-            newModelSystem.HorizontalAlignment = HorizontalAlignment.Left;
-            newModelSystem.VerticalAlignment = VerticalAlignment.Center;
-            newModelSystem.Header = name;
-            newModelSystem.Margin = new Thickness( 5 );
-            newModelSystem.Width = 250;
-            newModelSystem.Text = description;
-            //newModelSystem.HighlightColour = SelectionBlue;
-            newModelSystem.Icon = SettingsImage;
+            BorderIconButton newModelSystem = new BorderIconButton
+            {
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+                Header = name,
+                Margin = new Thickness(5),
+                Width = 250,
+                Text = description,
+                //newModelSystem.HighlightColour = SelectionBlue;
+                Icon = SettingsImage
+            };
             newModelSystem.Clicked += ClickedAction;
             newModelSystem.RightClicked += RightClickedAction;
             newModelSystem.ContextMenu = menu;
-            Items.Add( data );
-            DisplayedItems.Add( data );
-            Searchable.Add( String.Concat( ( name == null ? String.Empty : name.ToLower() ), " ", ( description == null ? String.Empty : description.ToLower() ) ) );
-            ModelSystemsButtons.Add( newModelSystem );
-            ModelSystemPanel.Children.Add( newModelSystem );
+            Items.Add(data);
+            DisplayedItems.Add(data);
+            Searchable.Add(String.Concat((name == null ? String.Empty : name.ToLower()), " ", (description == null ? String.Empty : description.ToLower())));
+            ModelSystemsButtons.Add(newModelSystem);
+            ModelSystemPanel.Children.Add(newModelSystem);
             NothingFound.Visibility = Visibility.Collapsed;
         }
 
         public void Add(string name, string description, object data, ContextMenu menu, Color colour)
         {
             FocusedSelectedModule = -1;
-            BorderIconButton newModelSystem = new BorderIconButton();
-            newModelSystem.HorizontalAlignment = HorizontalAlignment.Left;
-            newModelSystem.VerticalAlignment = VerticalAlignment.Center;
-            newModelSystem.Header = name;
-            newModelSystem.Margin = new Thickness( 5 );
-            newModelSystem.Width = 250;
-            newModelSystem.Text = description;
-           // newModelSystem.HighlightColour = SelectionBlue;
-            newModelSystem.Icon = SettingsImage;
+            BorderIconButton newModelSystem = new BorderIconButton
+            {
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+                Header = name,
+                Margin = new Thickness(5),
+                Width = 250,
+                Text = description,
+                // newModelSystem.HighlightColour = SelectionBlue;
+                Icon = SettingsImage
+            };
             newModelSystem.Clicked += ClickedAction;
             newModelSystem.RightClicked += RightClickedAction;
             newModelSystem.ContextMenu = menu;
-           // newModelSystem.ShadowColour = colour;
-            Items.Add( data );
-            DisplayedItems.Add( data );
-            Searchable.Add( String.Concat( ( name == null ? String.Empty : name.ToLower() ), " ", ( description == null ? String.Empty : description.ToLower() ) ) );
-            ModelSystemsButtons.Add( newModelSystem );
-            ModelSystemPanel.Children.Add( newModelSystem );
+            // newModelSystem.ShadowColour = colour;
+            Items.Add(data);
+            DisplayedItems.Add(data);
+            Searchable.Add(String.Concat((name == null ? String.Empty : name.ToLower()), " ", (description == null ? String.Empty : description.ToLower())));
+            ModelSystemsButtons.Add(newModelSystem);
+            ModelSystemPanel.Children.Add(newModelSystem);
             NothingFound.Visibility = Visibility.Collapsed;
         }
 
@@ -161,12 +165,12 @@ namespace XTMF.Gui
 
         public void TextChanged(string text)
         {
-            Dispatcher.BeginInvoke( new Action( delegate
-            {
-                    FocusedSelectedModule = -1;
-                    SetModuleFocus();
-                    ApplyFilter( text );
-                } ) );
+            Dispatcher.BeginInvoke(new Action(delegate
+          {
+              FocusedSelectedModule = -1;
+              SetModuleFocus();
+              ApplyFilter(text);
+          }));
         }
 
         internal void ClearFilter()
@@ -176,31 +180,31 @@ namespace XTMF.Gui
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if ( !e.Handled )
+            if (!e.Handled)
             {
-                if ( e.Key == Key.Down )
+                if (e.Key == Key.Down)
                 {
-                    MoveModuleFocus( 1 );
+                    MoveModuleFocus(1);
                     e.Handled = true;
                 }
-                else if ( e.Key == Key.Up )
+                else if (e.Key == Key.Up)
                 {
-                    MoveModuleFocus( -1 );
+                    MoveModuleFocus(-1);
                     e.Handled = true;
                 }
-                else if ( e.Key == Key.Enter )
+                else if (e.Key == Key.Enter)
                 {
                     SelectFocusedModule();
                     e.Handled = true;
                 }
             }
-            base.OnKeyDown( e );
+            base.OnKeyDown(e);
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
-            OnKeyDown( e );
-            base.OnPreviewKeyDown( e );
+            OnKeyDown(e);
+            base.OnPreviewKeyDown(e);
         }
 
         private void ApplyFilter(string filterText)
@@ -210,83 +214,73 @@ namespace XTMF.Gui
             DisplayedItems.Clear();
             ModelSystemPanel.Children.Clear();
             // Check to see if there is no filter
-            if ( String.IsNullOrEmpty( filterText ) )
+            if (String.IsNullOrEmpty(filterText))
             {
                 // if so just add everything
-                for ( int i = 0; i < numberOfModelSystems; i++ )
+                for (int i = 0; i < numberOfModelSystems; i++)
                 {
-                    DisplayedItems.Add( Items[i] );
-                    ModelSystemPanel.Children.Add( ModelSystemsButtons[i] );
+                    DisplayedItems.Add(Items[i]);
+                    ModelSystemPanel.Children.Add(ModelSystemsButtons[i]);
                 }
             }
             else
             {
                 // if there is a filter then go through everything and only include the things that
                 // contain the text of the filter
-                if ( numberOfModelSystems > 500 )
+                if (numberOfModelSystems > 500)
                 {
                     // go through them all in parallel then add them in order
-                    /*var result = this.Searchable.AsParallel().AsOrdered()
-                        .Select( (str, index) => new { Index = index } )
-                        .Where( ind => this.Searchable[ind.Index].Contains( filterText ) );
-                    */
                     List<int> final = new List<int>();
                     var finalLock = new object();
-                    Parallel.For( 0, numberOfModelSystems, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                        delegate {
+                    Parallel.For(0, numberOfModelSystems, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                        delegate
+                        {
                             return new List<int>();
                         },
-                        delegate(int i, ParallelLoopState unused, List<int> results)
+                        delegate (int i, ParallelLoopState unused, List<int> results)
                         {
-                            if ( Searchable[i].Contains( filterText ) )
+                            if (Searchable[i].Contains(filterText))
                             {
-                                results.Add( i );
+                                results.Add(i);
                             }
                             return results;
                         },
-                        delegate(List<int> results)
+                        delegate (List<int> results)
                         {
-                            lock ( finalLock )
+                            lock (finalLock)
                             {
-                                final.AddRange( results );
+                                final.AddRange(results);
                             }
-                        } );
+                        });
                     final.Sort();
                     //var buttons = new System.ComponentModel.BindingList<BorderIconButton>();
-                    foreach ( var i in final )
+                    foreach (var i in final)
                     {
-                        DisplayedItems.Add( Items[i] );
-                        ModelSystemPanel.Children.Add( ModelSystemsButtons[i] );
+                        DisplayedItems.Add(Items[i]);
+                        ModelSystemPanel.Children.Add(ModelSystemsButtons[i]);
                     }
                 }
                 else
                 {
-                    for ( int i = 0; i < numberOfModelSystems; i++ )
+                    for (int i = 0; i < numberOfModelSystems; i++)
                     {
-                        if ( Searchable[i].Contains( filterText ) )
+                        if (Searchable[i].Contains(filterText))
                         {
-                            DisplayedItems.Add( Items[i] );
-                            ModelSystemPanel.Children.Add( ModelSystemsButtons[i] );
+                            DisplayedItems.Add(Items[i]);
+                            ModelSystemPanel.Children.Add(ModelSystemsButtons[i]);
                         }
                     }
                 }
             }
-            if ( DisplayedItems.Count == 0 )
-            {
-                NothingFound.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                NothingFound.Visibility = Visibility.Collapsed;
-            }
+            NothingFound.Visibility = DisplayedItems.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private int FindIndex(object obj)
         {
             var numberOfModelSystems = Items.Count;
-            for ( int i = 0; i < numberOfModelSystems; i++ )
+            for (int i = 0; i < numberOfModelSystems; i++)
             {
-                if ( ModelSystemPanel.Children[i] == obj )
+                if (ModelSystemPanel.Children[i] == obj)
                 {
                     return i;
                 }
@@ -297,35 +291,35 @@ namespace XTMF.Gui
         private void MoveModuleFocus(int increment)
         {
             FocusedSelectedModule += increment;
-            if ( FocusedSelectedModule < 0 )
+            if (FocusedSelectedModule < 0)
             {
                 FocusedSelectedModule = -1;
             }
-            if ( FocusedSelectedModule >= ModelSystemPanel.Children.Count )
+            else if (FocusedSelectedModule >= ModelSystemPanel.Children.Count)
             {
                 FocusedSelectedModule = ModelSystemPanel.Children.Count - 1;
             }
             SetModuleFocus();
         }
 
-        private void newModelSystem_Clicked(object obj)
+        private void NewModelSystem_Clicked(object obj)
         {
-            int index = FindIndex( obj );
+            int index = FindIndex(obj);
             FocusedSelectedModule = index;
             SetModuleFocus();
             var e = ItemSelected;
-            if ( e != null )
+            if (e != null)
             {
-                if ( index != -1 )
+                if (index != -1)
                 {
-                    e( DisplayedItems[index] );
+                    e(DisplayedItems[index]);
                 }
             }
         }
 
-        private void newModelSystem_RightClicked(object obj)
+        private void NewModelSystem_RightClicked(object obj)
         {
-            int index = FindIndex( obj );
+            int index = FindIndex(obj);
             FocusedSelectedModule = index;
             SetModuleFocus();
             // open the button's menu if it exists
@@ -336,26 +330,19 @@ namespace XTMF.Gui
                 {
                     menu.PlacementTarget = button;
                     menu.IsOpen = true;
-                    var e = ItemRightClicked;
-                    if (e != null)
-                    {
-                        e(button, DisplayedItems[index]);
-                    }
+                    ItemRightClicked?.Invoke(button, DisplayedItems[index]);
                 }
             }
         }
 
-        private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            OnKeyDown( e );
-        }
+        private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e) => OnKeyDown(e);
 
         private void SelectFocusedModule()
         {
             var panelChildren = ModelSystemPanel.Children;
-            if ( panelChildren != null && FocusedSelectedModule >= 0 && FocusedSelectedModule < panelChildren.Count )
+            if (panelChildren != null && FocusedSelectedModule >= 0 && FocusedSelectedModule < panelChildren.Count)
             {
-                ClickedAction( panelChildren[FocusedSelectedModule] );
+                ClickedAction(panelChildren[FocusedSelectedModule]);
                 FocusedSelectedModule = -1;
             }
         }
@@ -363,7 +350,7 @@ namespace XTMF.Gui
         private void SetModuleFocus()
         {
             int count = 0;
-            foreach ( var child in ModelSystemPanel.Children )
+            foreach (var child in ModelSystemPanel.Children)
             {
                 if (child is BorderIconButton button)
                 {
@@ -376,11 +363,7 @@ namespace XTMF.Gui
                     count++;
                 }
             }
-            var e = ItemFocused;
-            if ( e != null )
-            {
-                e( FocusedSelectedModule < 0 ? null : DisplayedItems[FocusedSelectedModule] );
-            }
+            ItemFocused?.Invoke(FocusedSelectedModule < 0 ? null : DisplayedItems[FocusedSelectedModule]);
         }
     }
 }

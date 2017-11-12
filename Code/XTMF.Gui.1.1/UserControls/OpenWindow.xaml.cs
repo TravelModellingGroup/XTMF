@@ -31,16 +31,13 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class OpenWindow : Window
     {
-
         private class Model : INotifyPropertyChanged
         {
             private string _currentName;
+
             public string CurrentName
             {
-                get
-                {
-                    return _currentName;
-                }
+                get => _currentName;
                 set
                 {
                     if (_currentName != value)
@@ -54,10 +51,7 @@ namespace XTMF.Gui.UserControls
             private string _currentText;
             public string CurrentText
             {
-                get
-                {
-                    return _currentText;
-                }
+                get => _currentText;
                 set
                 {
                     if (_currentText != value)
@@ -83,6 +77,7 @@ namespace XTMF.Gui.UserControls
                 }
 
                 public string Name { get; private set; }
+
                 public string Text { get; private set; }
 
                 public event PropertyChangedEventHandler PropertyChanged;
@@ -90,10 +85,7 @@ namespace XTMF.Gui.UserControls
                 private bool _IsSelected;
                 public bool IsSelected
                 {
-                    get
-                    {
-                        return _IsSelected;
-                    }
+                    get => _IsSelected;
                     set
                     {
                         if (_IsSelected != value)
@@ -214,28 +206,18 @@ namespace XTMF.Gui.UserControls
             var index = Display.SelectedIndex;
             if (index < 0) return;
             IsEnabled = false;
-
             var result = InternalModel.Data[InternalModel.Data.IndexOf((Model.ModelElement)Display.SelectedItem)].Data;
-            if (result is Project)
-            {
-                MainWindow.SetStatusText("Loading Project...");
-            }
-            else
-            {
-                MainWindow.SetStatusText("Loading Model System...");
-            }
+            MainWindow.SetStatusText(result is Project ? "Loading Project..." : "Loading Model System...");
             LoadTask = Task.Factory.StartNew(() =>
                 {
-                    if (result is Project)
+                    if (result is Project p)
                     {
-                        ProjectSession = _pEditSession = Runtime.ProjectController.EditProject(result as Project);
+                        ProjectSession = _pEditSession = Runtime.ProjectController.EditProject(p);
                     }
                     else
                     {
-
                         ModelSystem a = result as ModelSystem;
                         _msEditSession = Runtime.ModelSystemController.EditModelSystem(result as ModelSystem);
-
                         ModelSystemSession = _msEditSession;
                     }
                 });
@@ -247,7 +229,6 @@ namespace XTMF.Gui.UserControls
             var index = Display.SelectedIndex;
             if (index < 0) return;
             IsEnabled = false;
-
             var result = InternalModel.Data[InternalModel.Data.IndexOf((Model.ModelElement)Display.SelectedItem)].Data;
             string error = null;
             if (result is Project)
@@ -313,8 +294,6 @@ namespace XTMF.Gui.UserControls
                 Close();
             }
         }
-
-        
 
         private void Display_GotFocus(object sender, RoutedEventArgs e)
         {

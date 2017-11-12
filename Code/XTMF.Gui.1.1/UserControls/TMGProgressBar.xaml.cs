@@ -31,13 +31,21 @@ namespace XTMF.Gui
     public partial class TMGProgressBar : Control
     {
         private bool _IsIndeterminate;
+
         private int _Maximum;
+
         private int _Minimum;
+
         private float _Value;
+
         private LinearGradientBrush BottomBrush = new LinearGradientBrush();
+
         private SolidColorBrush ForgroundBrush;
+
         private Pen OutlinePen = new Pen { Brush = Brushes.Gray };
+
         private LinearGradientBrush OverlayBrush;
+
         private DateTime StartTime = DateTime.Now;
 
         private LinearGradientBrush TopBrush = new LinearGradientBrush();
@@ -47,56 +55,46 @@ namespace XTMF.Gui
             Finished = false;
             InitializeComponent();
             ForgroundBrush = new SolidColorBrush();
-            OverlayBrush = new LinearGradientBrush();
-            OverlayBrush.StartPoint = new Point( 0, 0.5 );
-            OverlayBrush.EndPoint = new Point( 1, 0.5 );
+            OverlayBrush = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0.5),
+                EndPoint = new Point(1, 0.5)
+            };
             OverlayBrush.GradientStops.Add( new GradientStop( Colors.Transparent, -1 ) );
             OverlayBrush.GradientStops.Add( new GradientStop( Colors.Transparent, 0.1 ) );
             OverlayBrush.GradientStops.Add( new GradientStop( Color.FromArgb( 50, 255, 255, 255 ), 0.2 ) );
             OverlayBrush.GradientStops.Add( new GradientStop( Color.FromArgb( 50, 255, 255, 255 ), 0.2 ) );
             OverlayBrush.GradientStops.Add( new GradientStop( Colors.Transparent, 0.1 ) );
             OverlayBrush.GradientStops.Add( new GradientStop( Colors.Transparent, 2 ) );
-
             Color transparent = Color.FromArgb( 40, 255, 255, 255 );
             TopBrush.StartPoint = BottomBrush.StartPoint = new Point( 0.5, 0 );
             TopBrush.EndPoint = BottomBrush.EndPoint = new Point( 0.5, 1 );
             TopBrush.GradientStops.Add( new GradientStop( transparent, 0 ) );
             TopBrush.GradientStops.Add( new GradientStop( Colors.Transparent, 1 ) );
-
             BottomBrush.GradientStops.Add( new GradientStop( Colors.Transparent, 0 ) );
             BottomBrush.GradientStops.Add( new GradientStop( transparent, 1 ) );
-
             Value = 25;
         }
 
-        public bool Finished
-        {
-            get;
-            set;
-        }
+        public bool Finished { get; set; }
+        
 
         public bool IsIndeterminate
         {
-            get { return _IsIndeterminate; }
+            get => _IsIndeterminate;
             set { _IsIndeterminate = value; InvalidateVisual(); }
         }
 
-        public int Maximum { get { return _Maximum; } set { _Maximum = value; InvalidateVisual(); } }
+        public int Maximum { get => _Maximum; set { _Maximum = value; InvalidateVisual(); } }
 
-        public int Minimum { get { return _Minimum; } set { _Minimum = value; InvalidateVisual(); } }
+        public int Minimum { get => _Minimum; set { _Minimum = value; InvalidateVisual(); } }
 
-        public float Value
-        {
-            get { return _Value; }
-            set { _Value = value; InvalidateVisual(); }
-        }
+        public float Value { get => _Value; set { _Value = value; InvalidateVisual(); } }
 
-        public void SetForgroundColor(Color colour)
-        {
-            ForgroundBrush.Color = colour;
-        }
+        public void SetForgroundColor(Color colour) => ForgroundBrush.Color = colour;
 
         RectangleGeometry RectGeo = new RectangleGeometry();
+
         RectangleGeometry ShadowGeo = new RectangleGeometry();
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -118,14 +116,7 @@ namespace XTMF.Gui
             double firstStop;
             double secondStop;
             double totalTime = 1 * 1000;
-            if ( !Finished )
-            {
-                firstStop = 3 * ( ( now.TotalMilliseconds % totalTime ) / totalTime ) - 1;
-            }
-            else
-            {
-                firstStop = 0.5 - 0.08;
-            }
+            firstStop = !Finished ? 3 * ((now.TotalMilliseconds % totalTime) / totalTime) - 1 : 0.5 - 0.08;
             secondStop = firstStop + 0.08;
             RectGeo.Rect = rect;
             ShadowGeo.Rect = shadowRect;

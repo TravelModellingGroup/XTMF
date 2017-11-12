@@ -32,16 +32,14 @@ namespace XTMF.Gui.UserControls
     public partial class ModuleTypeSelect : Window
     {
         private ModelSystemStructureModel _selectedModule;
+
         private ModelSystemEditingSession _modelSystemSession;
 
         private class Model : INotifyPropertyChanged
         {
             internal Type type;
 
-            public Model(Type type)
-            {
-                this.type = type;
-            }
+            public Model(Type type) => this.type = type;
 
             public string Name => type.Name;
 
@@ -50,17 +48,16 @@ namespace XTMF.Gui.UserControls
             public event PropertyChangedEventHandler PropertyChanged;
         }
 
-        public ModuleTypeSelect()
-        {
-            InitializeComponent();
-        }
+        public ModuleTypeSelect() => InitializeComponent();
 
         private bool CheckAgainstFilter(object o, string text)
         {
-            var model = o as Model;
             if (string.IsNullOrWhiteSpace(text)) return true;
-            if (model == null) return false;
-            return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0 || model.Text.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
+            if (o is Model model)
+            {
+                return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0 || model.Text.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
+            }
+            return false;
         }
 
         public ModuleTypeSelect(ModelSystemEditingSession session, ModelSystemStructureModel selectedModule)
@@ -97,8 +94,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void BuildRequirements(ModelSystemEditingSession session)
         {
-            List<Type> available = session.GetValidModules(_selectedModule);
-            Display.ItemsSource = _availableModules = Convert(available);
+            Display.ItemsSource = _availableModules = Convert(session.GetValidModules(_selectedModule));
         }
 
         private List<Model> Convert(List<Type> before)
@@ -134,10 +130,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void BorderIconButton_Clicked(object obj)
-        {
-            Select();
-        }
+        private void BorderIconButton_Clicked(object obj) => Select();
 
         private void Select()
         {
@@ -200,7 +193,7 @@ namespace XTMF.Gui.UserControls
 
         private Model GetFirstItem()
         {
-            if (Display.ItemContainerGenerator.Items.Count > 0)
+            if (Display.ItemContainerGenerator.Items.Any())
             {
                 return Display.ItemContainerGenerator.Items[0] as Model;
             }

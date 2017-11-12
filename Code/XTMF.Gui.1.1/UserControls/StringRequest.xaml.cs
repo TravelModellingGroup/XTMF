@@ -46,8 +46,6 @@ namespace XTMF.Gui.UserControls
         {
             InitializeComponent();
             AnswerBox.PreviewKeyDown += AnswerBox_PreviewKeyDown;
-
-
             if (Owner == null)
             {
                 var window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
@@ -61,8 +59,6 @@ namespace XTMF.Gui.UserControls
             AnswerBox.Focus();
         }
 
-
-
         public StringRequest(string question, Func<string, bool> validation)
             : this()
         {
@@ -72,17 +68,12 @@ namespace XTMF.Gui.UserControls
             {
                 ValidationLabel.Visibility = validation(Answer) ? Visibility.Hidden : Visibility.Visible;
             }
-
             var window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
             Owner = window;
         }
 
-
-
         private void AnswerBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-
-       
             if (Validation != null)
             {
                 ValidationLabel.Visibility = Validation(Answer) ? Visibility.Hidden : Visibility.Visible;
@@ -127,19 +118,9 @@ namespace XTMF.Gui.UserControls
 
         public string Answer { get; private set; }
 
-       
-
-        private void EnterButton_Click(object sender, RoutedEventArgs e)
-        {
-            CloseSuccessfully();
-        }
+        private void EnterButton_Click(object sender, RoutedEventArgs e) => CloseSuccessfully();
 
         private void AnswerBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void AnswerBox_TextChanged_1(object sender, TextChangedEventArgs e)
         {
             Validation(Answer);
             Answer = AnswerBox.Text;

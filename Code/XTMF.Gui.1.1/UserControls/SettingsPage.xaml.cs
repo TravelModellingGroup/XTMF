@@ -41,15 +41,12 @@ namespace XTMF.Gui.UserControls
             DataContext = new SettingsModel(configuration);
             InitializeComponent();
             Loaded += SettingsPage_Loaded;
-
             if (MainWindow.Us.IsNonDefaultConfig)
             {
                 NonStandardConfigLabel.Visibility = Visibility.Visible;
-
                 ConfigLocationLabel.Content = MainWindow.Us.ConfigurationFilePath;
                 ConfigLocationLabel.Visibility = Visibility.Visible;
                 CreateLocalConfigButton.Visibility = Visibility.Collapsed;
-
                 if (MainWindow.Us.IsLocalConfig)
                 {
                     DeleteConfigLabel.Visibility = Visibility.Visible;
@@ -58,12 +55,8 @@ namespace XTMF.Gui.UserControls
             else
             {
                 CreateLocalConfigButton.Visibility = Visibility.Visible;
-
-
                 DeleteConfigLabel.Visibility = Visibility.Collapsed;
             }
-
-
             foreach (var theme in MainWindow.Us.ThemeController.Themes)
             {
                 ComboBoxItem comboBoxItem = new ComboBoxItem
@@ -71,10 +64,8 @@ namespace XTMF.Gui.UserControls
                     Content = theme.Name,
                     Tag = theme
                 };
-
                 ThemeComboBox.Items.Add(comboBoxItem);
             }
-            
             if (((Configuration) _configuration).Theme != null)
             {
                 foreach (ComboBoxItem item in ThemeComboBox.Items)
@@ -92,15 +83,9 @@ namespace XTMF.Gui.UserControls
             } 
         }
 
-        private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            Keyboard.Focus(ProjectDirectoryBox);
-        }
+        private void SettingsPage_Loaded(object sender, RoutedEventArgs e) => Keyboard.Focus(ProjectDirectoryBox);
 
-        public void Close()
-        {
-            ((SettingsModel)DataContext).Unbind();
-        }
+        public void Close() => ((SettingsModel)DataContext).Unbind();
 
         public class SettingsModel : INotifyPropertyChanged
         {
@@ -109,10 +94,7 @@ namespace XTMF.Gui.UserControls
             private string _projectDirectory;
             public string ProjectDirectory
             {
-                get
-                {
-                    return _projectDirectory;
-                }
+                get => _projectDirectory;
                 set
                 {
                     if (_projectDirectory != value)
@@ -135,10 +117,7 @@ namespace XTMF.Gui.UserControls
             private string _modelSystemDirectory;
             public string ModelSystemDirectory
             {
-                get
-                {
-                    return _modelSystemDirectory;
-                }
+                get => _modelSystemDirectory;
                 set
                 {
                     if (_modelSystemDirectory != value)
@@ -162,10 +141,7 @@ namespace XTMF.Gui.UserControls
             private int _hostPort;
             public int HostPort
             {
-                get
-                {
-                    return _hostPort;
-                }
+                get => _hostPort;
                 set
                 {
                     if (_hostPort != value)
@@ -196,10 +172,7 @@ namespace XTMF.Gui.UserControls
                 HostPort = Configuration.HostPort;
             }
 
-            internal void Unbind()
-            {
-                Configuration.PropertyChanged -= Configuration_PropertyChanged;
-            }
+            internal void Unbind() => Configuration.PropertyChanged -= Configuration_PropertyChanged;
         }
 
         private void HintedTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -230,15 +203,12 @@ namespace XTMF.Gui.UserControls
             if (dir != null)
             {
                 ((SettingsModel)DataContext).ModelSystemDirectory = dir;
-
                 _configuration.Save();
                 MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
-
                 if (result == MessageBoxResult.Yes)
                 {
                     if (MainWindow.Us.IsNonDefaultConfig)
                     {
-
                         MainWindow.Us.ReloadWithConfiguration(MainWindow.Us.ConfigurationFilePath);
                     }
                     else
@@ -255,16 +225,13 @@ namespace XTMF.Gui.UserControls
             if (dir != null)
             {
                 ((SettingsModel)DataContext).ProjectDirectory = dir;
-
                 _configuration.Save();
-
                 MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
 
                 if (result == MessageBoxResult.Yes)
                 {
                     if (MainWindow.Us.IsNonDefaultConfig)
                     {
-
                         MainWindow.Us.ReloadWithConfiguration(MainWindow.Us.ConfigurationFilePath);
                     }
                     else
@@ -277,38 +244,30 @@ namespace XTMF.Gui.UserControls
 
         private void CreateLocalConfigButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-        
         }
 
         private void CreateLocalConfigButton_Click(object sender, RoutedEventArgs e)
         {
             /* Reload the entire UI overriding the the configuration file to be loaded */
-
-            var result = MessageBox.Show(MainWindow.Us,
-                "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration", MessageBoxButton.OKCancel, MessageBoxImage.Information);
-
-            if (result == MessageBoxResult.OK)
+            if (MessageBox.Show(MainWindow.Us,
+                "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration", 
+                MessageBoxButton.OKCancel, MessageBoxImage.Information) == MessageBoxResult.OK)
             {
                 MainWindow.Us.IsLocalConfig = true;
                 MainWindow.Us.ReloadWithConfiguration(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
             }
-
-           
         }
 
         private void DeleteConfigLabel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
             var result = MessageBox.Show(MainWindow.Us,
                 "Are you sure you wish to delete the local configuration?", 
                 "Confirm Deletion",
                 MessageBoxButton.YesNo, 
                 MessageBoxImage.Information);
-
             if (result == MessageBoxResult.Yes)
             {
                 File.Delete(MainWindow.Us.ConfigurationFilePath);
-
                 MainWindow.Us.ReloadWithDefaultConfiguration();
             }
         }

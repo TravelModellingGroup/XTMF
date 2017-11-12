@@ -41,11 +41,7 @@ namespace XTMF.Gui
 
         public string Filter
         {
-            get
-            {
-                return _Filter;
-            }
-
+            get => _Filter;
             set
             {
                 _Filter = value;
@@ -53,10 +49,7 @@ namespace XTMF.Gui
             }
         }
 
-        protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
-        {
-            Keyboard.Focus(Search);
-        }
+        protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e) => Keyboard.Focus(Search);
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -82,24 +75,15 @@ namespace XTMF.Gui
             return false;
         }
 
-        private void Search_KeyDown(object sender, KeyEventArgs e)
-        {
-            OnKeyDown(e);
-        }
+        private void Search_KeyDown(object sender, KeyEventArgs e) => OnKeyDown(e);
 
         private void Search_TextChanged(object sender, TextChangedEventArgs e)
         {
             var changed = TextChanged;
             Filter = Search.Text;
-            if (changed != null )
-            {
-                changed(Filter);
-            }
+            changed?.Invoke(Filter);
         }
 
-        private void ClearFilter_Click(object sender, RoutedEventArgs e)
-        {
-            ClearFilter();
-        }
+        private void ClearFilter_Click(object sender, RoutedEventArgs e) => ClearFilter();
     }
 }

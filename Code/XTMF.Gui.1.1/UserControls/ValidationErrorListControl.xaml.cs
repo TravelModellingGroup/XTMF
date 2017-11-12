@@ -42,75 +42,44 @@ namespace XTMF.Gui.UserControls
     public partial class ValidationErrorListControl : UserControl, INotifyPropertyChanged
     {
         public static readonly DependencyProperty ErrorStringDependencyProperty = 
-            
-            DependencyProperty.Register("ErrorString", 
-            typeof(string), typeof(ValidationErrorListControl),
-                new PropertyMetadata("Test"));
-
+            DependencyProperty.Register("ErrorString", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata("Test"));
 
         public static readonly DependencyProperty ModuleNameDependencyProperty =
-
-            DependencyProperty.Register("ModuleName",
-            typeof(string), typeof(ValidationErrorListControl),
-                new PropertyMetadata(null));
-
-
-
-      
-
+            DependencyProperty.Register("ModuleName", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata(null));
 
         public static readonly DependencyProperty IsSelectedDependencyProperty =
-         DependencyProperty.Register("IsSelected",
-             typeof(bool), typeof(ValidationErrorListControl),
-                 new PropertyMetadata(true));
-
+            DependencyProperty.Register("IsSelected", typeof(bool), typeof(ValidationErrorListControl), new PropertyMetadata(true));
 
         public ValidationErrorListControl()
         {
             InitializeComponent();
-  
         }
-
-     
 
         public bool IsSelected
         {
-            get { return (bool)this.GetValue(IsSelectedDependencyProperty); }
-            set
-            {
-                this.SetValue(IsSelectedDependencyProperty, value);
-            }
+            get => (bool)GetValue(IsSelectedDependencyProperty);
+            set => SetValue(IsSelectedDependencyProperty, value);
         }
-
-
-
-    
 
         public string ErrorString
         {
-            get { return (string)this.GetValue(ErrorStringDependencyProperty); }
+            get => (string)GetValue(ErrorStringDependencyProperty);
             set
             {
-               
-                this.SetValue(ErrorStringDependencyProperty, value);
-                this.ErrorStringTextBlock.Text = value;
-
+                SetValue(ErrorStringDependencyProperty, value);
+                ErrorStringTextBlock.Text = value;
             }
         }
 
         public string ModuleName
         {
-            get { return (string)this.GetValue(ModuleNameDependencyProperty); }
+            get => (string)GetValue(ModuleNameDependencyProperty);
             set
-            {
-
-                this.SetValue(ModuleNameDependencyProperty, value);
-                this.ModuleNameLabel.Content = value;
+            { 
+                SetValue(ModuleNameDependencyProperty, value);
+                ModuleNameLabel.Content = value;
             }
         }
-
-
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -118,12 +87,10 @@ namespace XTMF.Gui.UserControls
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
         }
 
         private void ModuleNameLabel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
         }
     }
 }

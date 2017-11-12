@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -51,15 +52,9 @@ namespace XTMF.Gui.UserControls
             };
         }
 
-        private void ProjectRepository_ProjectRemoved(IProject removedProject, int position)
-        {
-            RefreshProjects();
-        }
+        private void ProjectRepository_ProjectRemoved(IProject removedProject, int position) => RefreshProjects();
 
-        private void ProjectRepository_ProjectAdded(IProject newProject)
-        {
-            RefreshProjects();
-        }
+        private void ProjectRepository_ProjectAdded(IProject newProject) => RefreshProjects();
 
         private void ProjectsDisplay_Loaded(object sender, RoutedEventArgs e)
         {
@@ -92,70 +87,29 @@ namespace XTMF.Gui.UserControls
             return prev.GetType();
         }
 
-        private void Project_DoubleClicked(object obj)
-        {
-            LoadCurrentProject();
-        }
+        private void Project_DoubleClicked(object obj) => LoadCurrentProject();
 
-        private void LoadCurrentProject()
-        {
-            var project = Display.SelectedItem as Project;
-            LoadProject(project);
-        }
+        private void LoadCurrentProject() => LoadProject(Display.SelectedItem as Project);
 
-        public void LoadProject(Project project)
-        {
+        public void LoadProject(Project project) => MainWindow.Us.LoadProject(project);
 
-            
-            MainWindow.Us.LoadProject(project);
-            
-        
-        }
+        private void NewProject_Click(object sender, RoutedEventArgs e) => CreateNewProject();
 
-        private void NewProject_Click(object sender, RoutedEventArgs e)
-        {
-            CreateNewProject();
-        }
+        private void Rename_Click(object sender, RoutedEventArgs e) => RenameCurrentProject();
 
-        private void Rename_Click(object sender, RoutedEventArgs e)
-        {
-            RenameCurrentProject();
-        }
+        private void Clone_Click(object sender, RoutedEventArgs e) => CloneCurrentProject();
 
-        private void Clone_Click(object sender, RoutedEventArgs e)
-        {
-            CloneCurrentProject();
-        }
+        private void Delete_Click(object sender, RoutedEventArgs e) => DeleteCurrentProject();
 
-        private void Delete_Click(object sender, RoutedEventArgs e)
-        {
-            DeleteCurrentProject();
-        }
+        private void DeleteProject_Clicked(object obj) => DeleteCurrentProject();
 
-        private void DeleteProject_Clicked(object obj)
-        {
-            DeleteCurrentProject();
-        }
+        private void CloneProject_Clicked(object obj) => CloneCurrentProject();
 
-        private void CloneProject_Clicked(object obj)
-        {
-            CloneCurrentProject();
-        }
+        private void RenameProject_Clicked(object obj) => RenameCurrentProject();
 
-        private void RenameProject_Clicked(object obj)
-        {
-            RenameCurrentProject();
-        }
+        private void NewProject_Clicked(object sender) => CreateNewProject();
 
-        private void NewProject_Clicked(object sender)
-        {
-            CreateNewProject();
-        }
-
-        private void ChangeDescription_Click(object sender, RoutedEventArgs e)
-        {
-            ChangeCurrentDescription();
-        }
+        private void ChangeDescription_Click(object sender, RoutedEventArgs e) => ChangeCurrentDescription();
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -279,19 +233,13 @@ namespace XTMF.Gui.UserControls
 
         private void RefreshProjects()
         {
-            var selected = Display.SelectedItem;
             Display.Items.Refresh();
             FilterBox.RefreshFilter();
-            Display.SelectedItem = selected;
-
-    
+            Display.SelectedItem = Display.SelectedItem;
             MainWindow.Us.UpdateRecentProjectsMenu();
         }
 
-        private void Adorn_Unloaded(object sender, RoutedEventArgs e)
-        {
-            Renaming = false;
-        }
+        private void Adorn_Unloaded(object sender, RoutedEventArgs e) => Renaming = false;
 
         private void CloneCurrentProject()
         {
@@ -301,8 +249,10 @@ namespace XTMF.Gui.UserControls
                 StringRequest sr = new StringRequest("Clone Project As?", newName =>
                 {
                     return Runtime.ProjectController.ValidateProjectName(newName);
-                });
-                sr.Owner = GetWindow();
+                })
+                {
+                    Owner = GetWindow()
+                };
                 if (sr.ShowDialog() == true)
                 {
                     if (!Runtime.ProjectController.CloneProject(project, sr.Answer, ref error))
@@ -310,15 +260,10 @@ namespace XTMF.Gui.UserControls
                         MessageBox.Show(GetWindow(), error, "Unable to Clone Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
-
-
                     Runtime.Configuration.AddRecentProject(sr.Answer);
                     Runtime.Configuration.Save();
-
                     RefreshProjects();
-
                 }
-
             }
         }
 
@@ -335,25 +280,18 @@ namespace XTMF.Gui.UserControls
                         MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
-
                 }
-
                 //remove from recent projects
                 Runtime.Configuration.RemoveRecentProject(project.Name);
                 Runtime.Configuration.Save();
-
                 RefreshProjects();
-
             }
         }
 
         private Project GetFirstItem()
         {
-            if (Display.ItemContainerGenerator.Items.Count > 0)
-            {
-                return Display.ItemContainerGenerator.Items[0] as Project;
-            }
-            return null;
+            return Display.ItemContainerGenerator.Items.Any()
+                ? Display.ItemContainerGenerator.Items[0] as Project : null;
         }
 
         private void FilterBox_EnterPressed(object sender, EventArgs e)
@@ -366,9 +304,6 @@ namespace XTMF.Gui.UserControls
             LoadProject(selected);
         }
 
-        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            LoadCurrentProject();
-        }
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => LoadCurrentProject();
     }
 }

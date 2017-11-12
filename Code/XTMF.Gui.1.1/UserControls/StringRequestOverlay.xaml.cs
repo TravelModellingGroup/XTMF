@@ -43,35 +43,24 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class StringRequestOverlay : UserControl, INotifyPropertyChanged
     {
-
         public static readonly DependencyProperty StringEntryCompleteDependencyProperty =
-            DependencyProperty.Register("StringEntryComplete",
-                typeof(RoutedEventHandler), typeof(StringRequestOverlay),
-                new PropertyMetadata(null));
+            DependencyProperty.Register("StringEntryComplete", typeof(RoutedEventHandler), typeof(StringRequestOverlay), new PropertyMetadata(null));
 
         public static readonly DependencyProperty StringEntryValueDependencyProperty =
-            DependencyProperty.Register("EntryValue",
-                typeof(string), typeof(StringRequestOverlay),
-                new PropertyMetadata(null));
+            DependencyProperty.Register("EntryValue", typeof(string), typeof(StringRequestOverlay), new PropertyMetadata(null));
 
         public static readonly DependencyProperty DescriptionDependencyProperty =
-            DependencyProperty.Register("Description",
-                typeof(string), typeof(StringRequestOverlay),
-                new PropertyMetadata(null));
+            DependencyProperty.Register("Description", typeof(string), typeof(StringRequestOverlay), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ExtraInfoDependencyProperty =
-          DependencyProperty.Register("ExtraInfo",
-              typeof(string), typeof(StringRequestOverlay),
-              new PropertyMetadata(null));
+            DependencyProperty.Register("ExtraInfo", typeof(string), typeof(StringRequestOverlay), new PropertyMetadata(null));
 
         public StringRequestOverlay()
         {
             InitializeComponent();
         }
 
-
         public event PropertyChangedEventHandler PropertyChanged;
-
 
         public void Reset()
         {
@@ -84,17 +73,13 @@ namespace XTMF.Gui.UserControls
 
         public string StringEntryValue
         {
-            get { return StringInput.Text; }
-
-            set { SetValue(StringEntryValueDependencyProperty, value); }
+            get => StringInput.Text;
+            set => SetValue(StringEntryValueDependencyProperty, value);
         }
 
         public String ExtraInfo
         {
-            get
-            {
-                return (string)GetValue(ExtraInfoDependencyProperty);
-            }
+            get => (string)GetValue(ExtraInfoDependencyProperty);
             set
             {
                 if (!string.IsNullOrEmpty(value))
@@ -112,29 +97,25 @@ namespace XTMF.Gui.UserControls
 
         public string Description
         {
-            get { return (string)GetValue(DescriptionDependencyProperty); }
-
+            get => (string)GetValue(DescriptionDependencyProperty);
             set
             {
                 SetValue(DescriptionDependencyProperty, value);
                 DescriptionLabel.Content = value;
-
             }
         }
 
         public RoutedEventHandler StringEntryComplete
         {
-            get { return (RoutedEventHandler)GetValue(StringEntryCompleteDependencyProperty); }
-            set { SetValue(StringEntryCompleteDependencyProperty, value); }
+            get => (RoutedEventHandler)GetValue(StringEntryCompleteDependencyProperty);
+            set => SetValue(StringEntryCompleteDependencyProperty, value);
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
         }
-
 
         private void ClearListeners()
         {
@@ -150,38 +131,32 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void FlatButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            StringEntryComplete?.Invoke(this, new RoutedEventArgs());
-        }
+        private void FlatButton_OnClick(object sender, RoutedEventArgs e) => StringEntryComplete?.Invoke(this, new RoutedEventArgs());
 
         private void StringInput_OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            switch(e.Key)
             {
-                e.Handled = true;
-                StringEntryComplete?.Invoke(this, new RoutedEventArgs());
+                case Key.Enter:
+                    e.Handled = true;
+                    StringEntryComplete?.Invoke(this, new RoutedEventArgs());
+                    break;
+                case Key.Escape:
+                    Reset();
+                    e.Handled = true;
+                    break;
             }
-            else if (e.Key == Key.Escape)
-            {
-                Reset();
-                e.Handled = true;
-            }
-
         }
 
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (Visibility == Visibility.Visible)
             {
-                this.Dispatcher.BeginInvoke((Action)delegate
+                Dispatcher.BeginInvoke((Action)delegate
                 {
                     Keyboard.Focus(StringInput);
                 }, DispatcherPriority.Render);
             }
         }
     }
-
-
-
 }

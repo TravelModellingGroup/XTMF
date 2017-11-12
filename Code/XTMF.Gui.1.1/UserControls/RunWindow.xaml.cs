@@ -60,52 +60,27 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        ///     Requires Windows 7
+        /// Requires Windows 7
         /// </summary>
         private TaskbarItemInfo _taskbarInformation;
 
         public static readonly DependencyProperty IsRunCancellableDependencyProperty =
-     DependencyProperty.Register("IsRunCancellable", typeof(bool), typeof(RunWindow),
-             new PropertyMetadata(false));
+            DependencyProperty.Register("IsRunCancellable", typeof(bool), typeof(RunWindow), new PropertyMetadata(false));
+
 
         public static readonly DependencyProperty IsRunClearableDependencyProperty =
-   DependencyProperty.Register("IsRunClearable", typeof(bool), typeof(RunWindow),
-           new PropertyMetadata(false));
-
-
+            DependencyProperty.Register("IsRunClearable", typeof(bool), typeof(RunWindow), new PropertyMetadata(false));
 
         public bool IsRunClearable
         {
-            get
-            {
-                if (_isActive) return false;
-
-                return (bool)GetValue(IsRunClearableDependencyProperty);
-            }
-            set
-            {
-                SetValue(IsRunClearableDependencyProperty, value);
-            }
+            get => !_isActive && (bool)GetValue(IsRunClearableDependencyProperty);
+            set => SetValue(IsRunClearableDependencyProperty, value);
         }
 
         public bool IsRunCancellable
         {
-            get
-            {
-                return (bool)GetValue(IsRunCancellableDependencyProperty);
-            }
-            set
-            {
-                if (_run != null)
-                {
-                    SetValue(IsRunCancellableDependencyProperty, true);
-                }
-
-                else
-                {
-                    SetValue(IsRunCancellableDependencyProperty, false);
-                }
-            }
+            get => (bool)GetValue(IsRunCancellableDependencyProperty);
+            set => SetValue(IsRunCancellableDependencyProperty, _run != null);
         }
 
         static RunWindow()
@@ -139,7 +114,9 @@ namespace XTMF.Gui.UserControls
             public string ConsoleOutput { get; set; }
 
             private MemoryStream _memoryStream = new MemoryStream();
+
             private StreamWriter _writer;
+
             internal volatile bool Done = false;
 
             public ConsoleOutputController(RunWindow page)
@@ -156,7 +133,6 @@ namespace XTMF.Gui.UserControls
                         var reader = new StreamReader(_memoryStream, Encoding.Unicode);
                         while (true)
                         {
-
                             Thread.Sleep(60);
                             _writer.Flush();
                             var currentPosition = _writer.BaseStream.Position;
@@ -168,7 +144,6 @@ namespace XTMF.Gui.UserControls
                                 var length = reader.ReadBlock(buff, 0, buff.Length);
                                 lastPosition = currentPosition;
                                 if (length > 0)
-
                                 {
                                     page.Dispatcher.BeginInvoke(new Action(() =>
                                     {
@@ -208,6 +183,7 @@ namespace XTMF.Gui.UserControls
         }
 
         private int _consoleLength;
+
         private int _oldCaret;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -335,16 +311,7 @@ namespace XTMF.Gui.UserControls
                         {
                             // ignored
                         }
-                        progress = progress * 10000;
-
-                        if (progress > 10000)
-                        {
-                            progress = 10000;
-                        }
-                        if (progress < 0)
-                        {
-                            progress = 0;
-                        }
+                        progress = Math.Max(Math.Min(progress * 10000, 10000), 0);
                         if (colour != null)
                         {
                             ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
@@ -389,16 +356,8 @@ namespace XTMF.Gui.UserControls
                         var elapsedTime = DateTime.Now - _startTime;
                         var days = elapsedTime.Days;
                         elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
-                        if (days < 1)
-                        {
-
-                            ElapsedTimeLabel.Content = $"Elapsed Time: {elapsedTime:g}";
-                        }
-                        else
-                        {
-                            ElapsedTimeLabel.Content = string.Format("Elapsed Time: {1} Day(s), {0:g}",
-                                elapsedTime, days);
-                        }
+                        ElapsedTimeLabel.Content = days < 1 ?
+                            $"Elapsed Time: {elapsedTime:g}" : $"Elapsed Time: {elapsedTime} Day(s), {days:g}";
                     }
                     else
                     {
@@ -472,7 +431,6 @@ namespace XTMF.Gui.UserControls
                 });
             }
             _isFinished = true;
-
             MainWindow.Us.Closing -= MainWindowClosing;
             Dispatcher.BeginInvoke((Action)(() =>
            {
@@ -487,7 +445,6 @@ namespace XTMF.Gui.UserControls
                MainWindow.Us.HideStatusLink();
 
            }));
-
         }
 
         private void Run_RunStarted()
@@ -550,11 +507,8 @@ namespace XTMF.Gui.UserControls
                 if (_run != null)
                 {
                     _run.DeepExitRequest();
-
                     _wasCanceled = _run.ExitRequest();
-
                     _wasCanceled = true;
-
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
 
@@ -673,7 +627,6 @@ namespace XTMF.Gui.UserControls
 
         private void ClearRunButton_Click(object sender, RoutedEventArgs e)
         {
-
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 StatusLabel.Text = string.Empty;
@@ -684,7 +637,6 @@ namespace XTMF.Gui.UserControls
                 ElapsedTimeLabel.Content = string.Empty;
                 StartTimeLabel.Content = string.Empty;
                 _runDirectory = string.Empty;
-
                 OpenDirectoryButton.IsEnabled = false;
                 ConsoleOutput.Clear();
             }));

@@ -43,11 +43,7 @@ namespace XTMF.Gui.UserControls
 
         public string HeaderText
         {
-            get
-            {
-                return _Header;
-            }
-
+            get => _Header;
             set
             {
                 _Header = value;
@@ -57,28 +53,14 @@ namespace XTMF.Gui.UserControls
 
         public string HintText
         {
-            get
-            {
-                return InputTextBox.HintText;
-            }
-
-            set
-            {
-                InputTextBox.HintText = value;
-            }
+            get => InputTextBox.HintText;
+            set => InputTextBox.HintText = value;
         }
 
         public string Text
         {
-            get
-            {
-                return InputTextBox.Text;
-            }
-
-            set
-            {
-                InputTextBox.Text = value;
-            }
+            get => InputTextBox.Text;
+            set => InputTextBox.Text = value;
         }
 
         protected override void OnGotFocus(RoutedEventArgs e)
@@ -94,18 +76,12 @@ namespace XTMF.Gui.UserControls
         private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             NotifyChanged( "Text" );
-            if ( TextChanged != null )
-            {
-                TextChanged( this );
-            }
+            TextChanged?.Invoke(this);
         }
 
         private void NotifyChanged(string propertyName)
         {
-            if ( PropertyChanged != null )
-            {
-                PropertyChanged( this, new PropertyChangedEventArgs( propertyName ) );
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

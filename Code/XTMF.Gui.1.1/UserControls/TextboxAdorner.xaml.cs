@@ -32,12 +32,13 @@ namespace XTMF.Gui.UserControls
     public partial class TextboxAdorner
     {
         private static readonly Brush Background;
-        private readonly Border Border = new Border();
 
+        private readonly Border Border = new Border();
 
         private readonly Action<string> _giveResult;
 
         private readonly Grid Grid = new Grid();
+
         private readonly TextBlock TextBlock = new TextBlock();
 
         private readonly TextBox _textbox = new TextBox
@@ -50,10 +51,7 @@ namespace XTMF.Gui.UserControls
 
         private IInputElement PreviousFocus;
 
-        static TextboxAdorner()
-        {
-            Background = (Brush) Application.Current.TryFindResource("ControlBackgroundBrush");
-        }
+        static TextboxAdorner() => Background = (Brush)Application.Current.TryFindResource("ControlBackgroundBrush");
 
         public TextboxAdorner(UIElement adornedElement) :
             base(adornedElement)
@@ -100,10 +98,7 @@ namespace XTMF.Gui.UserControls
             Keyboard.Focus(_textbox);
         }
 
-        private void Textbox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ExitAdorner(true);
-        }
+        private void Textbox_LostFocus(object sender, RoutedEventArgs e) => ExitAdorner(true);
 
         private void ExitAdorner(bool save = false)
         {

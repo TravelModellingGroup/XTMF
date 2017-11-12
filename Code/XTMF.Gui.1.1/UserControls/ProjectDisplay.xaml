@@ -70,7 +70,7 @@
 
                         <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,0,5"/>
                         <xtmf:ModelSystemListView  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
-                                 SelectionChanged="ModelSystemDisplay_SelectionChanged" BorderBrush="{x:Null}"  >
+                                 BorderBrush="{x:Null}"  >
                             <ListView.ContextMenu>
                                 <ContextMenu Name="ContextMenu" >
                                     <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
