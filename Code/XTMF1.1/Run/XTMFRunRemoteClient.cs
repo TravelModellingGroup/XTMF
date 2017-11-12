@@ -28,7 +28,6 @@ namespace XTMF.Run
 {
     sealed class XTMFRunRemoteClient : XTMFRun
     {
-
         private Thread _RunThread;
 
         private bool _Overwrite = false;

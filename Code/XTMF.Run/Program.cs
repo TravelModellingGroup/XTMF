@@ -192,6 +192,7 @@ namespace XTMF.Run
 
         private static void WriteErrors(BinaryWriter writer, List<ErrorWithPath> errors)
         {
+            writer.Write(errors.Count);
             foreach (var error in errors)
             {
                 WriteError(writer, error);
