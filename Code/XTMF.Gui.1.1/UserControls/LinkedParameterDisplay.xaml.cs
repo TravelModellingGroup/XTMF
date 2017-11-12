@@ -277,8 +277,7 @@ namespace XTMF.Gui.UserControls
 
         private void RemoveCurrentlySelectedParameter(object sender, RoutedEventArgs e)
         {
-            var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
-            if (selectedLinkedParameter != null)
+            if (Display.SelectedItem is LinkedParameterDisplayModel selectedLinkedParameter)
             {
                 string error = null;
                 var index = _linkedParametersModel.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);

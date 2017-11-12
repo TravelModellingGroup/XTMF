@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -35,98 +35,59 @@ namespace XTMF.Gui.UserControls
     {
 
         public static readonly DependencyProperty ModuleTypeDependencyProperty =
-  DependencyProperty.Register("ModuleType",
-      typeof(ModuleType), typeof(ModuleTreeViewItem),
-          new PropertyMetadata(null));
+            DependencyProperty.Register("ModuleType", typeof(ModuleType), typeof(ModuleTreeViewItem), new PropertyMetadata(null));
 
         public static readonly DependencyProperty BackingModelDependencyProperty =
-DependencyProperty.Register("BackingModel",
-   typeof(ModelSystemStructureDisplayModel), typeof(ModuleTreeViewItem),
-       new PropertyMetadata(null));
-
+            DependencyProperty.Register("BackingModel", typeof(ModelSystemStructureDisplayModel), typeof(ModuleTreeViewItem), new PropertyMetadata(null));
 
         public static readonly DependencyProperty IsSelectedDependencyProperty =
-         DependencyProperty.Register("IsSelected",
-             typeof(bool), typeof(ModuleTreeViewItem),
-                 new PropertyMetadata(true));
+            DependencyProperty.Register("IsSelected", typeof(bool), typeof(ModuleTreeViewItem), new PropertyMetadata(true));
 
         public static readonly DependencyProperty IsExpandedDependencyProperty =
-        DependencyProperty.Register("IsExpanded",
-            typeof(bool), typeof(ModuleTreeViewItem),
-                new PropertyMetadata(true));
-
+            DependencyProperty.Register("IsExpanded", typeof(bool), typeof(ModuleTreeViewItem), new PropertyMetadata(true));
 
         public static readonly DependencyProperty TitleTextDependencyProperty =
-
-            DependencyProperty.Register("TitleText",
-            typeof(string), typeof(ModuleTreeViewItem),
-                new PropertyMetadata(null));
-
+            DependencyProperty.Register("TitleText", typeof(string), typeof(ModuleTreeViewItem), new PropertyMetadata(null));
 
         public static readonly DependencyProperty SubTextDependencyProperty =
-        DependencyProperty.Register("SubText",
-            typeof(string), typeof(ModuleTreeViewItem),
-                new PropertyMetadata(null));
+            DependencyProperty.Register("SubText", typeof(string), typeof(ModuleTreeViewItem), new PropertyMetadata(null));
 
         public static readonly DependencyProperty BitmapIconDependencyProperty =
-        DependencyProperty.Register("IsBitmapIcon",
-            typeof(bool), typeof(ModuleTreeViewItem),
-                new PropertyMetadata(false));
+            DependencyProperty.Register("IsBitmapIcon", typeof(bool), typeof(ModuleTreeViewItem), new PropertyMetadata(false));
 
         public static readonly DependencyProperty PathIconDependencyProperty =
-        DependencyProperty.Register("IsPathIcon",
-            typeof(bool), typeof(ModuleTreeViewItem),
-                new PropertyMetadata(true));
+            DependencyProperty.Register("IsPathIcon", typeof(bool), typeof(ModuleTreeViewItem), new PropertyMetadata(true));
 
         public static readonly DependencyProperty IconPathDependencyProperty =
-       DependencyProperty.Register("IconPath",
-           typeof(Path), typeof(ModuleTreeViewItem),
-               new PropertyMetadata(null));
+            DependencyProperty.Register("IconPath", typeof(Path), typeof(ModuleTreeViewItem), new PropertyMetadata(null));
 
         public ModuleTreeViewItem()
         {
             InitializeComponent();
-
-
-            
-
-
-            this.Loaded += ModuleTreeViewItem_Loaded;
+            Loaded += ModuleTreeViewItem_Loaded;
         }
 
         private void ModuleTreeViewItem_Loaded(object sender, RoutedEventArgs e)
         {
-
             BackingModel.BaseModel.PropertyChanged += BaseModelOnPropertyChanged;
             BackingModel.PropertyChanged += BaseModelOnPropertyChanged;
             if (BackingModel.BaseModel.IsMetaModule)
             {
-                Path path = new Path { Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"] };
-
-
-                this.IconPath = path;
+                IconPath = new Path { Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"] };
             }
             else if (!BackingModel.BaseModel.IsMetaModule && !BackingModel.BaseModel.IsCollection)
             {
-                Path path = new Path
+                IconPath = new Path
                 {
                     Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"],
-
                 };
-
-                this.IconPath = path;
             }
             else if (BackingModel.BaseModel.IsCollection)
             {
-                Path path = new Path { Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"] };
-
-                this.IconPath = path;
+                IconPath = new Path { Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"] };
             }
-
-
             if (BackingModel.BaseModel.IsDisabled)
             {
-
                 SubTextLabel.Opacity = 0.4;
                 Title.Opacity = 0.4;
                 IconPath.Opacity = 0.4;
@@ -137,7 +98,6 @@ DependencyProperty.Register("BackingModel",
                 Title.Opacity = 1.0;
                 IconPath.Opacity = 1.0;
             }
-
             if (BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
             {
                 ContentBorder.BorderThickness = new Thickness(1);
@@ -146,8 +106,6 @@ DependencyProperty.Register("BackingModel",
                 NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
                 NotificationIcon.Visibility = Visibility.Visible;
                 NotificationIcon.Fill = Brushes.OliveDrab;
-
-
             }
             else if (!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
             {
@@ -175,19 +133,7 @@ DependencyProperty.Register("BackingModel",
                 NotificationIcon.Visibility = Visibility.Hidden;
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
                 ContentBorder.BorderThickness = new Thickness(1);
-
-
             }
-
-
-
-
-
-        }
-
-        private void UpdateComponents()
-        {
-
         }
 
         private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -197,44 +143,39 @@ DependencyProperty.Register("BackingModel",
                 if (propertyChangedEventArgs.PropertyName == "IsSelected")
                 {
                     IsSelected = ((ModelSystemStructureDisplayModel) sender).IsSelected;
-
                 }
-
                 if (propertyChangedEventArgs.PropertyName == "IsExpanded")
                 {
                     IsExpanded = ((ModelSystemStructureDisplayModel) sender).IsExpanded;
-
                 }
             }
-
             if (propertyChangedEventArgs.PropertyName == "IsMetaModule")
             {
                 if (BackingModel.BaseModel.IsMetaModule)
                 {
-                    Path path = new Path();
-
-                    path.Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"];
-                    path.Fill = Brushes.DarkSlateGray;
-                    this.IconPath = path;
+                    Path path = new Path
+                    {
+                        Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"],
+                        Fill = Brushes.DarkSlateGray
+                    };
+                    IconPath = path;
                 }
                 else if (!BackingModel.BaseModel.IsMetaModule)
                 {
-                    Path path = new Path();
-
-                    path.Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"];
-                    path.Fill = Brushes.DarkSlateGray;
-                    this.IconPath = path;
+                    Path path = new Path
+                    {
+                        Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"],
+                        Fill = Brushes.DarkSlateGray
+                    };
+                    IconPath = path;
                 }
             }
-
             if (propertyChangedEventArgs.PropertyName == "IsDisabled")
             {
-
                 if (BackingModel != null)
                 {
                     if (BackingModel.BaseModel.IsDisabled)
                     {
-
                         SubTextLabel.Opacity = 0.4;
                         Title.Opacity = 0.4;
                         IconPath.Opacity = 0.4;
@@ -247,9 +188,8 @@ DependencyProperty.Register("BackingModel",
                     }
                 }
             }
-            this.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
-
                 if (BackingModel == null)
                 {
                     return;
@@ -263,8 +203,6 @@ DependencyProperty.Register("BackingModel",
                     NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
                     NotificationIcon.Visibility = Visibility.Visible;
                     NotificationIcon.Fill = Brushes.OliveDrab;
-
-
                 }
                 else if (!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
                 {
@@ -292,105 +230,70 @@ DependencyProperty.Register("BackingModel",
                     ContentBorder.BorderThickness = new Thickness(1);
                     BlockBorder.Opacity = 1.0;
                     NotificationIcon.Visibility = Visibility.Hidden;
-
-
-
                 }
             });
-
         }
-
 
         public ModuleType ModuleType
         {
-
-            get { return (ModuleType)GetValue(ModuleTypeDependencyProperty); }
-
-            set { SetValue(ModuleTypeDependencyProperty, value); }
+            get => (ModuleType)GetValue(ModuleTypeDependencyProperty);
+            set => SetValue(ModuleTypeDependencyProperty, value);
         }
-
 
         public bool IsSelected
         {
-            get
-            {
-
-                return (bool)this.GetValue(IsSelectedDependencyProperty);
-            }
+            get => (bool)GetValue(IsSelectedDependencyProperty);
             set
             {
-
                 if (value == true)
                 {
-                    this.BringIntoView();
+                    BringIntoView();
                 }
-                this.SetValue(IsSelectedDependencyProperty, value);
-
-
+                SetValue(IsSelectedDependencyProperty, value);
             }
         }
 
         public Path IconPath
         {
-            get { return (Path)this.GetValue(IconPathDependencyProperty); }
-            set { this.SetValue(IconPathDependencyProperty, value); }
+            get => (Path)GetValue(IconPathDependencyProperty);
+            set => SetValue(IconPathDependencyProperty, value);
         }
 
         public bool IsBitmapIcon
         {
-            get { return (bool)this.GetValue(BitmapIconDependencyProperty); }
-            set
-            {
-
-                this.SetValue(BitmapIconDependencyProperty, value);
-            }
+            get => (bool)GetValue(BitmapIconDependencyProperty);
+            set => SetValue(BitmapIconDependencyProperty, value);
         }
-
-
 
         public ModelSystemStructureDisplayModel BackingModel
         {
-            get { return (ModelSystemStructureDisplayModel)GetValue(BackingModelDependencyProperty); }
-
-            set
-            {
-                SetValue(BackingModelDependencyProperty, value);
-            }
+            get => (ModelSystemStructureDisplayModel)GetValue(BackingModelDependencyProperty);
+            set => SetValue(BackingModelDependencyProperty, value);
         }
 
         public bool IsPathIcon
         {
-            get { return (bool)this.GetValue(PathIconDependencyProperty); }
-            set
-            {
-
-                this.SetValue(PathIconDependencyProperty, value);
-            }
+            get => (bool)GetValue(PathIconDependencyProperty);
+            set => SetValue(PathIconDependencyProperty, value);
         }
 
         public string TitleText
         {
-            get { return (string)this.GetValue(TitleTextDependencyProperty); }
+            get => (string)GetValue(TitleTextDependencyProperty);
             set
             {
-
-                this.SetValue(TitleTextDependencyProperty, value);
-                this.Title.Content = value;
+                SetValue(TitleTextDependencyProperty, value);
+                Title.Content = value;
             }
         }
 
         public string SubText
         {
-            get { return (string)this.GetValue(SubTextDependencyProperty); }
-            set
-            {
-
-                this.SetValue(SubTextDependencyProperty, value);
-            }
+            get => (string)GetValue(SubTextDependencyProperty);
+            set => SetValue(SubTextDependencyProperty, value);
         }
 
         public bool IsExpanded { get; set; } = false;
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -405,7 +308,4 @@ DependencyProperty.Register("BackingModel",
     {
         Optional, Meta, Required
     }
-
-
-
 }

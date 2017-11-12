@@ -50,15 +50,9 @@ namespace XTMF.Gui.UserControls
             Loaded += ModelSystemsDisplay_Loaded;
         }
 
-        private void ModelSystemRepository_ModelSystemRemoved(IModelSystem arg1, int arg2)
-        {
-            RefreshModelSystems();
-        }
+        private void ModelSystemRepository_ModelSystemRemoved(IModelSystem arg1, int arg2) => RefreshModelSystems();
 
-        private void ModelSystemRepository_ModelSystemAdded(IModelSystem obj)
-        {
-            RefreshModelSystems();
-        }
+        private void ModelSystemRepository_ModelSystemAdded(IModelSystem obj) => RefreshModelSystems();
 
         private void ModelSystemsDisplay_Loaded(object sender, RoutedEventArgs e)
         {
@@ -79,15 +73,9 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
-        private void ModelSystem_DoubleClicked(object obj)
-        {
-            LoadCurrentModelSystem();
-        }
+        private void ModelSystem_DoubleClicked(object obj) => LoadCurrentModelSystem();
 
-        private void LoadCurrentModelSystem()
-        {
-            LoadModelSystem(Display.SelectedItem as ModelSystem);
-        }
+        private void LoadCurrentModelSystem() => LoadModelSystem(Display.SelectedItem as ModelSystem);
 
         private void LoadModelSystem(ModelSystem modelSystem)
         {
@@ -118,55 +106,25 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void NewModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            CreateNewModelSystem();
-        }
+        private void NewModelSystem_Click(object sender, RoutedEventArgs e) => CreateNewModelSystem();
 
-        private void Rename_Click(object sender, RoutedEventArgs e)
-        {
-            RenameCurrentModelSystem();
-        }
+        private void Rename_Click(object sender, RoutedEventArgs e) => RenameCurrentModelSystem();
 
-        private void Clone_Click(object sender, RoutedEventArgs e)
-        {
-            CloneCurrentModelSystem();
-        }
+        private void Clone_Click(object sender, RoutedEventArgs e) => CloneCurrentModelSystem();
 
-        private void Delete_Click(object sender, RoutedEventArgs e)
-        {
-            DeleteCurrentModelSystem();
-        }
+        private void Delete_Click(object sender, RoutedEventArgs e) => DeleteCurrentModelSystem();
 
-        private void DeleteModelSystem_Clicked(object obj)
-        {
-            DeleteCurrentModelSystem();
-        }
+        private void DeleteModelSystem_Clicked(object obj) => DeleteCurrentModelSystem();
 
-        private void CloneModelSystem_Clicked(object obj)
-        {
-            CloneCurrentModelSystem();
-        }
+        private void CloneModelSystem_Clicked(object obj) => CloneCurrentModelSystem();
 
-        private void RenameModelSystem_Clicked(object obj)
-        {
-            RenameCurrentModelSystem();
-        }
+        private void RenameModelSystem_Clicked(object obj) => RenameCurrentModelSystem();
 
-        private void NewModelSystem_Clicked(object sender)
-        {
-            CreateNewModelSystem();
-        }
+        private void NewModelSystem_Clicked(object sender) => CreateNewModelSystem();
 
-        private void Export_Click(object sender, RoutedEventArgs e)
-        {
-            ExportCurrentModelSystem();
-        }
+        private void Export_Click(object sender, RoutedEventArgs e) => ExportCurrentModelSystem();
 
-        private void Export_Clicked(object obj)
-        {
-            ExportCurrentModelSystem();
-        }
+        private void Export_Clicked(object obj) => ExportCurrentModelSystem();
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -223,10 +181,7 @@ namespace XTMF.Gui.UserControls
             Display.SelectedItem = selected;
         }
 
-        private UIElement GetCurrentlySelectedControl()
-        {
-            return Display.ItemContainerGenerator.ContainerFromItem(Display.SelectedItem) as UIElement;
-        }
+        private UIElement GetCurrentlySelectedControl() => Display.ItemContainerGenerator.ContainerFromItem(Display.SelectedItem) as UIElement;
 
         bool Renaming;
 
@@ -255,10 +210,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void Adorn_Unloaded(object sender, RoutedEventArgs e)
-        {
-            Renaming = false;
-        }
+        private void Adorn_Unloaded(object sender, RoutedEventArgs e) => Renaming = false;
 
         private void CreateNewModelSystem()
         {
@@ -275,8 +227,10 @@ namespace XTMF.Gui.UserControls
                 {
                     string e = null;
                     return Runtime.ModelSystemController.ValidateModelSystemName(newName, ref e);
-                });
-                sr.Owner = GetWindow();
+                })
+                {
+                    Owner = GetWindow()
+                };
                 if (sr.ShowDialog() == true)
                 {
                     if (!Runtime.ModelSystemController.CloneModelSystem(modelSystem, sr.Answer, ref error))
@@ -323,14 +277,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private ModelSystem GetFirstItem()
-        {
-            if (Display.ItemContainerGenerator.Items.Count > 0)
-            {
-                return Display.ItemContainerGenerator.Items[0] as ModelSystem;
-            }
-            return null;
-        }
+        private ModelSystem GetFirstItem() =>
+            Display.ItemContainerGenerator.Items.Count > 0 ?
+                Display.ItemContainerGenerator.Items[0] as ModelSystem : null;
+
 
         private void FilterBox_EnterPressed(object sender, EventArgs e)
         {
@@ -342,14 +292,8 @@ namespace XTMF.Gui.UserControls
             LoadModelSystem(selected);
         }
 
-        private void ImportModelSystemButton_OnClicked(object obj)
-        {
-            MainWindow.Us.ImportModelSystem();
-        }
+        private void ImportModelSystemButton_OnClicked(object obj) => MainWindow.Us.ImportModelSystem();
 
-        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            LoadCurrentModelSystem();
-        }
+        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e) => LoadCurrentModelSystem();
     }
 }
