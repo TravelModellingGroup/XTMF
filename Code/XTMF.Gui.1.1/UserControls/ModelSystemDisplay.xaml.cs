@@ -253,12 +253,18 @@ namespace XTMF.Gui.UserControls
                 });
                 return true;
             };
+            LinkedParameterDisplayOverlay.GoToModule += (module) =>
+            {
+                if (module != null)
+                {
+                    GoToModule((ModelSystemStructure)module);
+                }
+            };
             LinkedParameterDisplayOverlay.OnCloseDisplay += () =>
             {
                 Dispatcher.Invoke(() =>
                 {
                     var newLP = LinkedParameterDisplayOverlay.SelectedLinkParameter;
-
                     if (AddCurrentParameterToLinkedParameter(newLP))
                     {
                         LinkedParameterDisplayModel matched;

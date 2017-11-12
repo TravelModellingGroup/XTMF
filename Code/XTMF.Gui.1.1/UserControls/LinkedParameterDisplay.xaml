@@ -19,14 +19,12 @@
 <UserControl x:Class="XTMF.Gui.UserControls.LinkedParameterDisplay"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:xtmfgui="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui" MouseDown="UserControl_MouseDown" 
               KeyDown="Window_KeyDown" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown">
     <Grid x:Name="LayoutRoot">
-
         <Grid x:Name="Overlay" Panel.ZIndex="1000" Visibility="Collapsed">
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity=".6"/>
@@ -35,7 +33,7 @@
         </Grid>
         <Grid MinWidth="800" MinHeight="500" MaxHeight="500" VerticalAlignment="Center" HorizontalAlignment="Center" >
             <Grid.RowDefinitions>
-                <RowDefinition Height="20"></RowDefinition>
+                <RowDefinition Height="20"/>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -58,25 +56,19 @@
                             <Button Click="Button_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}"
                                 BorderBrush="{x:Null}">
                                 <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                    Width="20"
-                                    Height="20"
-                                    Visibility="Visible"
-                                    Margin="0,0,0,0"
-                                    BorderThickness="0">
+                                    Width="20" Height="20"
+                                    Visibility="Visible" Margin="0,0,0,0" BorderThickness="0">
                                     <Border.Style>
                                         <Style TargetType="{x:Type Border}">
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
-
-                                                    </Setter>
+                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
                                     <Border.BorderBrush>
-                                        <LinearGradientBrush StartPoint="0,0"
-                                                         EndPoint="0,1">
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                             <LinearGradientBrush.GradientStops>
                                                 <GradientStopCollection>
                                                     <GradientStop Color="{DynamicResource ThemeTextColor}" Offset="0.0"  />
@@ -97,7 +89,6 @@
                                     </Path>
                                 </Border>
                             </Button>
-
                         </Border>
                     </StackPanel>
                 </DockPanel>
@@ -107,7 +98,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <my:BorderIconButton BorderThickness="0" HorizontalAlignment="Left" Grid.Column="0" Header="New"   Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
+                <my:BorderIconButton BorderThickness="0" HorizontalAlignment="Left" Grid.Column="0" Header="New" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
                                  Icon="/XTMF.Gui;component/Resources/ic_create_white_48dp.png" Margin="2"/>
                 <DockPanel Grid.Column="1"/>
             </Grid>
@@ -163,7 +154,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}" Background="{DynamicResource WindowBackgroundBrush1}">
-                        <StackPanel >
+                        <StackPanel>
                             <Label Content="Parameter Properties" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
                             <DockPanel FlowDirection="LeftToRight" >
                                 <Label Content="Name" Width="50" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
@@ -178,8 +169,10 @@
                     <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
                         <StackPanel Background="{DynamicResource WindowBackgroundBrush1}" >
                             <Label Content="Linked Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
-                            <ListView PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                               x:Name="ContainedParameterDisplay" Focusable="False" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}">
+                            <ListView PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"
+                                      ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                      x:Name="ContainedParameterDisplay" Focusable="False" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}"
+                                      MouseDoubleClick="ContainedParameterDisplay_MouseDoubleClick">
                                 <ListView.Resources>
                                     <Style TargetType="{x:Type ListViewItem}">
                                         <Setter Property="BorderThickness" Value="0" />
@@ -231,8 +224,6 @@
             </Grid>
         </Grid>
     </Grid>
-
-
 </UserControl>
 
 

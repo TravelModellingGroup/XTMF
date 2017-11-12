@@ -61,6 +61,8 @@ namespace XTMF.Gui.UserControls
 
         public Action OnCloseDisplay;
 
+        public Action<IModelSystemStructure> GoToModule;
+
         public void ShowLinkedParameterDisplay(bool assignLinkedParameter = false) => _assignMode = assignLinkedParameter;
 
         public LinkedParameterDisplay()
@@ -89,7 +91,6 @@ namespace XTMF.Gui.UserControls
             else if (!e.Handled && e.Key == Key.Enter)
             {
                 e.Handled = true;
-
                 AssignCurrentlySelected();
                 ChangesMade = true;
                 CleanupSelectedParameters();
@@ -128,6 +129,8 @@ namespace XTMF.Gui.UserControls
         ///     This will be set to true if there were any changes made to linked parameters when invoked
         /// </summary>
         public bool ChangesMade { get; private set; }
+
+        public IModelSystemStructure module { get; private set; }
 
         private void Display_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -245,7 +248,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private UIElement GetCurrentlySelectedControl() => 
+        private UIElement GetCurrentlySelectedControl() =>
             Display.ItemContainerGenerator.ContainerFromItem(Display.SelectedItem) as UIElement;
 
         private void NewLinkedParameter_Clicked(object obj)
@@ -364,7 +367,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void Unlink_MouseDown(object sender, MouseButtonEventArgs e) => 
+        private void Unlink_MouseDown(object sender, MouseButtonEventArgs e) =>
             UnlinkParameter((sender as Label).Tag.ToString());
 
         private void ContainedParameterDisplay_KeyDown(object sender, KeyEventArgs e)
@@ -372,6 +375,10 @@ namespace XTMF.Gui.UserControls
             if (e.Key == Key.Delete)
             {
                 UnlinkParameter(((sender as ListView).SelectedItem as ParameterDisplay).ParameterName);
+            }
+            else if(e.Key == Key.Enter)
+            {
+                GoToCurrentContainedParameter();
             }
         }
 
@@ -445,6 +452,22 @@ namespace XTMF.Gui.UserControls
             {
                 Rename();
             }
+        }
+
+        private void GoToCurrentContainedParameter()
+        {
+            module = (ContainedParameterDisplay.SelectedItem as ParameterDisplay)?.Parameter.BelongsTo;
+            if (module != null)
+            {
+                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+                Visibility = Visibility.Collapsed;
+                GoToModule?.Invoke(module);
+            }
+        }
+
+        private void ContainedParameterDisplay_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            GoToCurrentContainedParameter();
         }
     }
 
