@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -23,34 +23,31 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace XTMF.Gui.UserControls
 {
     public class HintedTextBox : TextBox
     {
-        private string hintText;
+        private string _hintText;
+
         private FormattedText HintTextImage;
+
         private static ContextMenu _LocalContextMenu;
 
         static HintedTextBox()
         {
-
-           
             var contextMenu = new ContextMenu();
             // copy
             contextMenu.Items.Add(new MenuItem
             {
                 Header = "Copy",
                 Command = ApplicationCommands.Copy,
-                
             });
             // cut
             contextMenu.Items.Add(new MenuItem
             {
                 Header = "Cut",
                 Command = ApplicationCommands.Cut,
-               
             });
             // paste
             contextMenu.Items.Add(new MenuItem
@@ -71,15 +68,11 @@ namespace XTMF.Gui.UserControls
 
         public string HintText
         {
-            get
-            {
-                return hintText;
-            }
-
+            get => _hintText;
             set
             {
-                hintText = value;
-                if (!String.IsNullOrEmpty(hintText))
+                _hintText = value;
+                if (!String.IsNullOrEmpty(_hintText))
                 {
                     Background = Brushes.Transparent;
                 }
@@ -114,13 +107,13 @@ namespace XTMF.Gui.UserControls
 
         private void RebuildFont()
         {
-            if (hintText == null)
+            if (_hintText == null)
             {
                 HintTextImage = null;
             }
             else
             {
-                HintTextImage = new FormattedText(hintText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                HintTextImage = new FormattedText(_hintText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                     new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), FontSize, Brushes.Gray);
                 int constantBorder = 8;
                 if (ActualWidth > 0)

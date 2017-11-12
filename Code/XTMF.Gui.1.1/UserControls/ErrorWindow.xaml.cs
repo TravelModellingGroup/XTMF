@@ -42,66 +42,35 @@ namespace XTMF.Gui.UserControls
 
         public string ErrorMessage
         {
-            get { return GetValue(ErrorMessageProperty) as string; }
-
-            set { SetValue(ErrorMessageProperty, value); }
+            get => GetValue(ErrorMessageProperty) as string;
+            set => SetValue(ErrorMessageProperty, value);
         }
 
         public string ErrorStackTrace
         {
-            get { return GetValue(ErrorStackTraceProperty) as string; }
-
-            set { SetValue(ErrorStackTraceProperty, value); }
+            get => GetValue(ErrorStackTraceProperty) as string;
+            set => SetValue(ErrorStackTraceProperty, value);
         }
 
-
-        public void Continue(object bob)
-        {
-            Close();
-        }
-
+        public void Continue(object bob) => Close();
 
         private static void OnErrorStackTraceChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            var window = source as ErrorWindow;
-            if (e.NewValue is string value)
-            {
-                window.StackTraceBox.Text = value;
-            }
-            else
-            {
-                window.StackTraceBox.Text = "No error found!";
-            }
+            (source as ErrorWindow).StackTraceBox.Text = e.NewValue is string value ? value : "No error found!";
         }
 
         private static void OnErrorMessageChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            var window = source as ErrorWindow;
-            if (e.NewValue is string value)
-            {
-                window.MessageBox.Text = value;
-            }
-            else
-            {
-                window.MessageBox.Text = "No error found!";
-            }
+            (source as ErrorWindow).MessageBox.Text = e.NewValue is string value ? value : "No error found!";
         }
 
         public void Copy(object bob)
         {
-            if (ErrorStackTrace == null)
-            {
-                SetToClipboard(ErrorMessage);
-            }
-            else
-            {
-                SetToClipboard(ErrorMessage + "\r\n" + ErrorStackTrace);
-            }
+            SetToClipboard(ErrorStackTrace == null ?
+                ErrorMessage :
+                ErrorMessage + "\r\n" + ErrorStackTrace);
         }
 
-        private void SetToClipboard(string str)
-        {
-            Clipboard.SetText(str);
-        }
+        private void SetToClipboard(string str) => Clipboard.SetText(str);
     }
 }

@@ -34,11 +34,7 @@ namespace XTMF.Gui
 
         public bool EditMode
         {
-            get
-            {
-                return OptionalColour.Visibility == Visibility.Visible;
-            }
-
+            get => OptionalColour.Visibility == Visibility.Visible;
             set
             {
                 if ( value )

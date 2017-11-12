@@ -40,15 +40,8 @@ namespace XTMF.Gui
 
         public double InternalHeight
         {
-            get
-            {
-                return _internalHeight;
-            }
-
-            set
-            {
-                InnerContentContainer.Height = _internalHeight = value;
-            }
+            get => _internalHeight;
+            set => InnerContentContainer.Height = _internalHeight = value;
         }
 
         public void Add(UIElement element)

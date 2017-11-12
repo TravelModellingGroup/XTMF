@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -91,15 +91,9 @@ namespace XTMF.Gui.UserControls
             Process.Start(Path.Combine(GetXTMFDirectory(), "XTMF.RemoteClient.exe"), AddQuotes(address) + " " + port);
         }
 
-        private string GetXTMFDirectory()
-        {
-            return  Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        }
+        private string GetXTMFDirectory() => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        private string AddQuotes(string address)
-        {
-            return string.Concat("\"", address, "\"");
-        }
+        private string AddQuotes(string address) => string.Concat("\"", address, "\"");
 
         private void Port_PreviewKeyDown(object sender, KeyEventArgs e)
         {

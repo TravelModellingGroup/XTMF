@@ -18,7 +18,6 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,20 +26,12 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Xceed.Wpf.AvalonDock.Layout;
-using Xceed.Wpf.AvalonDock.Themes;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
@@ -48,7 +39,6 @@ using Application = System.Windows.Application;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
-using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui
 {
@@ -127,30 +117,15 @@ namespace XTMF.Gui
             e.CanExecute = ResizeMode == ResizeMode.CanResize || ResizeMode == ResizeMode.CanResizeWithGrip;
         }
 
-        private void OnCanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = ResizeMode != ResizeMode.NoResize;
-        }
+        private void OnCanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = ResizeMode != ResizeMode.NoResize;
 
-        private void OnCloseWindow(object target, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.CloseWindow(this);
-        }
+        private void OnCloseWindow(object target, ExecutedRoutedEventArgs e) => SystemCommands.CloseWindow(this);
 
-        private void OnMaximizeWindow(object target, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.MaximizeWindow(this);
-        }
+        private void OnMaximizeWindow(object target, ExecutedRoutedEventArgs e) => SystemCommands.MaximizeWindow(this);
 
-        private void OnMinimizeWindow(object target, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.MinimizeWindow(this);
-        }
+        private void OnMinimizeWindow(object target, ExecutedRoutedEventArgs e) => SystemCommands.MinimizeWindow(this);
 
-        private void OnRestoreWindow(object target, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.RestoreWindow(this);
-        }
+        private void OnRestoreWindow(object target, ExecutedRoutedEventArgs e) => SystemCommands.RestoreWindow(this);
 
         private bool CheckHasLocalConfiguration()
         {
@@ -223,15 +198,9 @@ namespace XTMF.Gui
             });
         }
 
-        private void RecentProjectMenuItem_Click(object sender, RoutedEventArgs e, string projectName)
-        {
-            LoadProjectByName(projectName);
-        }
+        private void RecentProjectMenuItem_Click(object sender, RoutedEventArgs e, string projectName) => LoadProjectByName(projectName);
 
-        public void UpdateStatusDisplay(string text)
-        {
-            StatusDisplay.Text = text;
-        }
+        public void UpdateStatusDisplay(string text) => StatusDisplay.Text = text;
 
         public void ReloadWithDefaultConfiguration()
         {
@@ -318,10 +287,7 @@ namespace XTMF.Gui
             ShowStart_Click(this, null);
         }
 
-        public void ApplyTheme(ThemeController.Theme theme)
-        {
-            ThemeController.SetThemeActive(theme);
-        }
+        public void ApplyTheme(ThemeController.Theme theme) => ThemeController.SetThemeActive(theme);
 
         public void LoadProjectByName(string projectName)
         {
@@ -412,25 +378,13 @@ namespace XTMF.Gui
             });
         }
 
-        public void HideStatusLink()
-        {
-            StatusLinkLabel.Visibility = Visibility.Collapsed;
-        }
+        public void HideStatusLink() => StatusLinkLabel.Visibility = Visibility.Collapsed;
 
-        public static void SetStatusText(string text)
-        {
-            Us.Dispatcher.BeginInvoke(new Action(() => { Us.StatusDisplay.Text = text; }));
-        }
+        public static void SetStatusText(string text) => Us.Dispatcher.BeginInvoke(new Action(() => { Us.StatusDisplay.Text = text; }));
 
-        private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+        private void Exit_Click(object sender, RoutedEventArgs e) => Close();
 
-        private void OpenProject_Click(object sender, RoutedEventArgs e)
-        {
-            OpenProject();
-        }
+        private void OpenProject_Click(object sender, RoutedEventArgs e) => OpenProject();
 
         public void OpenProject()
         {
@@ -479,16 +433,10 @@ namespace XTMF.Gui
             }
         }
 
-        private void OpenModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            OpenModelSystem();
-        }
+        private void OpenModelSystem_Click(object sender, RoutedEventArgs e) => OpenModelSystem();
 
-        public void OpenModelSystem()
-        {
-            AddNewWindow("Model Systems", new ModelSystemsDisplay(EditorController.Runtime),
+        public void OpenModelSystem() => AddNewWindow("Model Systems", new ModelSystemsDisplay(EditorController.Runtime),
                 typeof(ActiveEditingSessionDisplayModel));
-        }
 
         /// <summary>
         /// The pages that are currently open from the main window
@@ -638,25 +586,13 @@ namespace XTMF.Gui
             }
         }
 
-        private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            ImportModelSystem();
-        }
+        private void ImportModelSystem_Click(object sender, RoutedEventArgs e) => ImportModelSystem();
 
-        private void Undo_Click(object sender, RoutedEventArgs e)
-        {
-            EditingDisplayModel.Undo();
-        }
+        private void Undo_Click(object sender, RoutedEventArgs e) => EditingDisplayModel.Undo();
 
-        private void Redo_Click(object sender, RoutedEventArgs e)
-        {
-            EditingDisplayModel.Redo();
-        }
+        private void Redo_Click(object sender, RoutedEventArgs e) => EditingDisplayModel.Redo();
 
-        private void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
-        {
-            NewModelSystem();
-        }
+        private void NewModelSystemButton_Click(object sender, RoutedEventArgs e) => NewModelSystem();
 
         public void NewModelSystem()
         {
@@ -685,10 +621,7 @@ namespace XTMF.Gui
             }
         }
 
-        private bool ValidateName(string name)
-        {
-            return Project.ValidateProjectName(name);
-        }
+        private bool ValidateName(string name) => Project.ValidateProjectName(name);
 
         internal void EditModelSystem(ModelSystemEditingSession modelSystemSession, string titleBar = null)
         {
@@ -804,10 +737,8 @@ namespace XTMF.Gui
                             catch
                             {
                                 Dispatcher.Invoke(() =>
-                                {
                                     MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!",
-                                        MessageBoxButton.OK, MessageBoxImage.Error);
-                                });
+                                        MessageBoxButton.OK, MessageBoxImage.Error));
                             }
                         })
                         .Wait();
@@ -875,9 +806,7 @@ namespace XTMF.Gui
         {
             try
             {
-                var path = Assembly.GetExecutingAssembly().Location;
-
-                Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), DocumentationName));
+                Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), DocumentationName));
             }
             catch
             {
@@ -911,15 +840,9 @@ namespace XTMF.Gui
             documentationControl.Focus();
         }
 
-        private void RunMenu_Click(object sender, RoutedEventArgs e)
-        {
-            ExecuteRun();
-        }
+        private void RunMenu_Click(object sender, RoutedEventArgs e) => ExecuteRun();
 
-        private void RunModel_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            ExecuteRun();
-        }
+        private void RunModel_MouseUp(object sender, MouseButtonEventArgs e) => ExecuteRun();
 
         private void RunRemoteMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -1018,20 +941,11 @@ namespace XTMF.Gui
             }
         }
 
-        private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e)
-        {
-            LaunchHelpWindow();
-        }
+        private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e) => LaunchHelpWindow();
 
-        private void NewProjectButton_Click(object sender, RoutedEventArgs e)
-        {
-            NewProject();
-        }
+        private void NewProjectButton_Click(object sender, RoutedEventArgs e) => NewProject();
 
-        private void Settings_Click(object sender, RoutedEventArgs e)
-        {
-            LaunchSettingsPage();
-        }
+        private void Settings_Click(object sender, RoutedEventArgs e) => LaunchSettingsPage();
 
         private void MetaModuleHiddenParametersToggle_Click(object sender, RoutedEventArgs e)
         {
@@ -1077,10 +991,7 @@ namespace XTMF.Gui
             }
         }
 
-        private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            SystemCommands.CloseWindow(this);
-        }
+        private void Close_Click(object sender, RoutedEventArgs e) => SystemCommands.CloseWindow(this);
 
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {

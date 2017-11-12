@@ -32,23 +32,15 @@ namespace XTMF.Gui
     /// </summary>
     public partial class BorderIconButton : UserControl, INotifyPropertyChanged
     {
-
-
         public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register("Header", typeof(string), typeof(BorderIconButton),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender, OnHeaderChanged, OnCoerceChanged));
-
 
         public static readonly DependencyProperty TextProperty = DependencyProperty.Register("Text", typeof(string), typeof(BorderIconButton),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender, OnTextChanged, OnCoerceChanged));
 
-        public static DependencyProperty SelectedProperty = DependencyProperty.Register("Selected", typeof(bool), typeof(BorderIconButton),
-            new FrameworkPropertyMetadata(false, OnSelectedChanged));
+        public static DependencyProperty SelectedProperty = DependencyProperty.Register("Selected", typeof(bool), typeof(BorderIconButton));
 
         private ImageSource _Icon;
-
-        private double _baseWidth;
-
-        private bool _isConstructing = true;
 
         private bool _mouseDownInside;
 
@@ -66,66 +58,33 @@ namespace XTMF.Gui
             }
         }
 
-        private static void BorderThicknessChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-
-        }
-
-        private static void BorderBrushChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-
-        }
-
         public BorderIconButton()
         {
             Selected = false;
             InitializeComponent();
             IsEnabledChanged += BorderIconButton_IsEnabledChanged;
-            _baseWidth = 200;
-            _isConstructing = false;
-            Loaded += BorderIconButton_Loaded;
-            Unloaded += BorderIconButton_Unloaded;
-
             BorderThickness = new Thickness(0);
         }
 
-        void BorderIconButton_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        void BorderIconButton_Unloaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         public event Action<object> Clicked;
+
         public event Action<object> DoubleClicked;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public event Action<object> RightClicked;
 
-        public bool AllowDrag
-        {
-            get;
-            set;
-        }
-
-
+        public bool AllowDrag { get; set; }
 
         public string Header
         {
-            get { return (string)GetValue(HeaderProperty); }
+            get => (string)GetValue(HeaderProperty);
             set { SetValue(HeaderProperty, value); }
         }
 
-
-
         public ImageSource Icon
         {
-            get { return _Icon; }
-
+            get => _Icon;
             set
             {
                 _Icon = value;
@@ -137,64 +96,18 @@ namespace XTMF.Gui
 
         public bool Selected
         {
-            get { return (bool)GetValue(SelectedProperty); }
+            get => (bool)GetValue(SelectedProperty);
             set { SetValue(SelectedProperty, value); }
         }
 
-
-
         public string Text
         {
-            get { return (string)GetValue(TextProperty); }
+            get => (string)GetValue(TextProperty);
             set { SetValue(TextProperty, value); }
-        }
-
-        public void DoContractAnimation()
-        {
-        }
-
-        public void DoExpandAnimation()
-        {
-        }
-
-        public void DoFadeInAnimation()
-        {
-        }
-
-        public void DoFadeOutAnimation()
-        {
-
-        }
-
-        public void FadeInContent()
-        {
-
-        }
-
-        public void FadeOutContent()
-        {
-
-        }
-
-        public void FlashAnimation(int times = 3)
-        {
-        }
-
-
-        protected override void OnGotFocus(RoutedEventArgs e)
-        {
-
-        }
-
-        protected override void OnLostFocus(RoutedEventArgs e)
-        {
-
-            base.OnLostFocus(e);
         }
 
         protected override void OnMouseEnter(MouseEventArgs e)
         {
-
             e.Handled = true;
             MouseInside = true;
             base.OnMouseEnter(e);
@@ -202,12 +115,12 @@ namespace XTMF.Gui
 
         protected override void OnMouseLeave(MouseEventArgs e)
         {
-
-            if (!IsHitTestVisible) return;
-            _mouseDownInside = false;
-
-            e.Handled = true;
-            MouseInside = false;
+            if (IsHitTestVisible)
+            {
+                _mouseDownInside = false;
+                e.Handled = true;
+                MouseInside = false;
+            }
             base.OnMouseLeave(e);
         }
 
@@ -259,7 +172,7 @@ namespace XTMF.Gui
             if (RightClicked != null)
             {
                 _mouseDownInside = true;
-                }
+            }
             base.OnMouseRightButtonDown(e);
         }
 
@@ -269,7 +182,7 @@ namespace XTMF.Gui
             {
                 if (e.ClickCount == 1)
                 {
-         
+
                     if (_mouseDownInside && RightClicked != null)
                     {
                         RightClicked(this);
@@ -281,15 +194,9 @@ namespace XTMF.Gui
             base.OnMouseRightButtonUp(e);
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-        {
-            base.OnRenderSizeChanged(sizeInfo);
-        }
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) => base.OnRenderSizeChanged(sizeInfo);
 
-        private static object OnCoerceChanged(DependencyObject source, object e)
-        {
-            return e;
-        }
+        private static object OnCoerceChanged(DependencyObject source, object e) => e;
 
         private static void OnHeaderChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
@@ -300,32 +207,12 @@ namespace XTMF.Gui
             }
         }
 
-        private static void OnSelectedChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-          
-        }
-
-        private static void OnHighlightColourChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-           
-        }
-
-        private static void OnShadowColourChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-           
-        }
-
         private static void OnTextChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var us = source as BorderIconButton;
-            if (string.IsNullOrWhiteSpace(us.Text))
-            {
-                us.ToolTip = us.Header;
-            }
-            else
-            {
+            us.ToolTip = string.IsNullOrWhiteSpace(us.Text) ?
+                us.ToolTip = us.Header :
                 us.ToolTip = e.NewValue;
-            }
         }
 
         private void BorderIconButton_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -342,17 +229,6 @@ namespace XTMF.Gui
                 TextContent.Opacity = 1.0;
                 HeaderContent.Opacity = 1.0;
                 IconImage.Opacity = 1.0;
-            }
-            if ((bool)e.NewValue != (bool)e.OldValue)
-            {
-                if ((bool)e.NewValue)
-                {
-                    FadeInContent();
-                }
-                else
-                {
-                    FadeOutContent();
-                }
             }
         }
 
@@ -371,10 +247,7 @@ namespace XTMF.Gui
 
         private void NotifyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

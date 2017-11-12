@@ -33,7 +33,9 @@ namespace XTMF.Gui.UserControls
     public partial class FreeVariableEntry : Window
     {
         private readonly Type[] Conditions;
+
         private readonly ModelSystemEditingSession Session;
+
         public FreeVariableEntry(Type freeVariable, ModelSystemEditingSession session)
         {
             InitializeComponent();
@@ -44,24 +46,18 @@ namespace XTMF.Gui.UserControls
 
         class Model : INotifyPropertyChanged
         {
-            internal Type type;
+            internal Type Type;
 
-            public Model(Type type)
-            {
-                this.type = type;
-            }
+            public Model(Type type) => Type = type;
 
-            public string Name { get { return type.Name; } }
+            public string Name => Type.Name;
 
-            public string Text { get { return type.FullName; } }
+            public string Text => Type.FullName;
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            internal static Task<ObservableCollection<Model>> CreateModel(ICollection<Type> types)
-            {
-
-                return Task.Run(() => new ObservableCollection<Model>(types.AsParallel().Select(t => new Model(t)).OrderBy(t => t.Name).ToList()));
-            }
+            internal static Task<ObservableCollection<Model>> CreateModel(ICollection<Type> types) =>
+                Task.Run(() => new ObservableCollection<Model>(types.AsParallel().Select(t => new Model(t)).OrderBy(t => t.Name).ToList()));
         }
 
         private async void FreeVariableEntry_Loaded(object sender, RoutedEventArgs e)
@@ -125,10 +121,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void BorderIconButton_Clicked(object obj)
-        {
-            Select();
-        }
+        private void BorderIconButton_Clicked(object obj) => Select();
 
         private void Select()
         {
@@ -139,11 +132,8 @@ namespace XTMF.Gui.UserControls
 
         private Model GetFirstItem()
         {
-            if (Display.ItemContainerGenerator.Items.Count > 0)
-            {
-                return Display.ItemContainerGenerator.Items[0] as Model;
-            }
-            return null;
+            return Display.ItemContainerGenerator.Items.Count > 0 ?
+                Display.ItemContainerGenerator.Items[0] as Model : null;
         }
 
         private void FilterBox_EnterPressed(object sender, EventArgs e)
@@ -161,11 +151,8 @@ namespace XTMF.Gui.UserControls
         {
             if (model != null)
             {
-                SelectedType = model.type;
-                if (SelectedType == null)
-                {
-                }
-                else
+                SelectedType = model.Type;
+                if(SelectedType != null)
                 {
                     if(ContainsFreeVariables(SelectedType))
                     {
@@ -200,26 +187,10 @@ namespace XTMF.Gui.UserControls
             return selectedType.MakeGenericType(newTypes);
         }
 
-        private IEnumerable<Type> GetFreeVariables(Type selectedType)
-        {
-            return selectedType.GetGenericArguments().Where(t => t.IsGenericParameter);
-        }
+        private IEnumerable<Type> GetFreeVariables(Type selectedType) => selectedType.GetGenericArguments().Where(t => t.IsGenericParameter);
 
-        private bool ContainsFreeVariables(Type selectedType)
-        {
-            return selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
-        }
+        private bool ContainsFreeVariables(Type selectedType) => selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
 
-        int TimesLoaded;
-
-        private void BorderIconButton_Loaded(object sender, RoutedEventArgs e)
-        {
-            TimesLoaded++;
-        }
-
-        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            Select();
-        }
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
     }
 }

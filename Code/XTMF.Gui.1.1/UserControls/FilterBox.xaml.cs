@@ -36,11 +36,13 @@ namespace XTMF.Gui
     public partial class FilterBox : UserControl
     {
         private ICollectionView _itemsSource;
+
         public FilterBox()
         {
             UseItemSourceFilter = true;
             InitializeComponent();
         }
+
         public static readonly DependencyProperty FilterWatermarkProperty = DependencyProperty.Register("FilterWatermark", typeof(string), typeof(FilterBox),
     new FrameworkPropertyMetadata("Search...", FrameworkPropertyMetadataOptions.AffectsRender, OnFilterWatermarkChanged));
 
@@ -51,24 +53,21 @@ namespace XTMF.Gui
 
         public string FilterWatermark
         {
-            get { return GetValue(FilterWatermarkProperty) as string; }
-            set { SetValue(FilterWatermarkProperty, value); }
+            get => GetValue(FilterWatermarkProperty) as string;
+            set => SetValue(FilterWatermarkProperty, value);
         }
 
         public bool UseItemSourceFilter { get; set; }
 
         private Action Refresh;
+
         private Func<object, string, bool> _filter;
 
         public event EventHandler EnterPressed;
 
-
         public Func<object, string, bool> Filter
         {
-            get
-            {
-                return _filter;
-            }
+            get => _filter;
             set
             {
                 _filter = value;
@@ -89,10 +88,7 @@ namespace XTMF.Gui
         private ItemsControl _display;
         public ItemsControl Display
         {
-            get
-            {
-                return _display;
-            }
+            get => _display;
             set
             {
                 _display = value;
@@ -167,10 +163,7 @@ namespace XTMF.Gui
             return false;
         }
 
-        private void ClearFilter_Click(object sender, RoutedEventArgs e)
-        {
-            ClearFilter();
-        }
+        private void ClearFilter_Click(object sender, RoutedEventArgs e) => ClearFilter();
 
         private string _currentBoxText = String.Empty;
 
@@ -189,21 +182,13 @@ namespace XTMF.Gui
             }
         }
 
-        private void Box_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-
-        }
-
         private void Box_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-
             if (e.Key == Key.Down)
             {
                 TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
                 UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
-
                 keyboardFocus?.MoveFocus(tRequest);
-
                 e.Handled = true;
             }
         }

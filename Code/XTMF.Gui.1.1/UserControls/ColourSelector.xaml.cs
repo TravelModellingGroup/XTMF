@@ -36,28 +36,20 @@ namespace XTMF.Gui
 
         public event Action<Color> ColourSelected;
 
-        private void redSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void RedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var cs = ColourSelected;
-            if ( cs != null )
-            {
-                cs( Color.FromRgb( (byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value ) );
-            }
-            ResetStops();
-        }
-
-        private void ResetStops()
-        {
+            ColourSelected?.Invoke(Color.FromRgb((byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value));
+            //Reset stops
             var r = (byte)redSlider.Value;
             var g = (byte)greenSlider.Value;
             var b = (byte)blueSlider.Value;
-            RedStart.Color = Color.FromRgb( 0, g, b );
-            GreenStart.Color = Color.FromRgb( r, 0, b );
-            BlueStart.Color = Color.FromRgb( r, g, 0 );
+            RedStart.Color = Color.FromRgb(0, g, b);
+            GreenStart.Color = Color.FromRgb(r, 0, b);
+            BlueStart.Color = Color.FromRgb(r, g, 0);
 
-            RedStop.Color = Color.FromRgb( 255, g, b );
-            GreenStop.Color = Color.FromRgb( r, 255, b );
-            BlueStop.Color = Color.FromRgb( r, g, 255 );
+            RedStop.Color = Color.FromRgb(255, g, b);
+            GreenStop.Color = Color.FromRgb(r, 255, b);
+            BlueStop.Color = Color.FromRgb(r, g, 255);
         }
     }
 }

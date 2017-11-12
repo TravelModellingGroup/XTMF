@@ -35,12 +35,10 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class DocumentationControl : UserControl
     {
-
-
         public Type Type
         {
-            get { return (Type)GetValue(TypeProperty); }
-            set { SetValue(TypeProperty, value); }
+            get => (Type)GetValue(TypeProperty);
+            set => SetValue(TypeProperty, value);
         }
 
         public string TypeNameText { get { var t = Type; return t == null ? "No Type!" : t.Name; } }
@@ -58,8 +56,8 @@ namespace XTMF.Gui.UserControls
 
         public string ModuleName
         {
-            get { return (string)GetValue(ModuleNameProperty); }
-            set { SetValue(ModuleNameProperty, value); }
+            get => (string)GetValue(ModuleNameProperty);
+            set => SetValue(ModuleNameProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
@@ -68,8 +66,8 @@ namespace XTMF.Gui.UserControls
 
         public string ModuleNamespace
         {
-            get { return (string)GetValue(ModuleNamespaceProperty); }
-            set { SetValue(ModuleNamespaceProperty, value); }
+            get => (string)GetValue(ModuleNamespaceProperty);
+            set => SetValue(ModuleNamespaceProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
@@ -78,27 +76,25 @@ namespace XTMF.Gui.UserControls
 
         public string ModuleDescription
         {
-            get { return (string)GetValue(ModuleDescriptionProperty); }
-            set { SetValue(ModuleDescriptionProperty, value); }
+            get => (string)GetValue(ModuleDescriptionProperty);
+            set => SetValue(ModuleDescriptionProperty, value);
         }
 
         public Parameter[] ModuleParameters
         {
-            get { return (Parameter[])GetValue(ModuleParametersProperty); }
-            set { SetValue(ModuleParametersProperty, value); }
+            get => (Parameter[])GetValue(ModuleParametersProperty);
+            set => SetValue(ModuleParametersProperty, value);
         }
 
         public SubModule[] ModuleSubmodules
         {
-            get { return (SubModule[])GetValue(ModuleSubmodulesProperty); }
-            set { SetValue(ModuleSubmodulesProperty, value); }
+            get => (SubModule[])GetValue(ModuleSubmodulesProperty);
+            set => SetValue(ModuleSubmodulesProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ModuleDescriptionProperty =
             DependencyProperty.Register("ModuleDescription", typeof(string), typeof(DocumentationControl), new PropertyMetadata(""));
-
-
 
         private static void OnTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -159,11 +155,7 @@ namespace XTMF.Gui.UserControls
             {
                 if(e.Key == Key.W)
                 {
-                    var ev = RequestClose;
-                    if(ev != null)
-                    {
-                        ev(this);
-                    }
+                    RequestClose?.Invoke(this);
                     e.Handled = true;
                 }
             }
@@ -247,7 +239,6 @@ namespace XTMF.Gui.UserControls
             builder.Append('>');
             return builder.ToString();
         }
-
 
         private static SubModule[] GetSubmodules(IModelSystemStructure mss)
         {
