@@ -521,6 +521,7 @@ namespace XTMF.Gui
             };
             var insertedTo = DocumentPane.Children.Count;
             DocumentPane.InsertChildAt(0, document);
+            OpenPages.Add(document);
             document.IsActiveChanged += Document_IsActive;
             if (typeof(ActiveEditingSessionDisplayModel) == typeOfController)
             {
