@@ -77,7 +77,6 @@ namespace XTMF.Gui.UserControls
         public double ParameterWidth
         {
             get => (double)GetValue(ParameterWidthDependencyProperty);
-
             set => SetValue(ParameterWidthDependencyProperty, value);
         }
 

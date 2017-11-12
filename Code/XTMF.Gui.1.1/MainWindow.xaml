@@ -33,11 +33,9 @@
         Background="Transparent"
         MouseDown="Window_MouseDown" MouseDoubleClick="MainWindow_OnMouseDoubleClick"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"
-        AllowsTransparency="True" StateChanged="Window_StateChanged"  
-        >
-    <Border
-           Name="WindowGrid"  Margin="0,0,0,0" Background="Transparent"  BorderBrush="{DynamicResource WindowBackgroundBrush3}"
- BorderThickness="1">
+        AllowsTransparency="True" StateChanged="Window_StateChanged">
+    <Border Name="WindowGrid"  Margin="0,0,0,0" Background="Transparent"  BorderBrush="{DynamicResource WindowBackgroundBrush3}"
+        BorderThickness="1">
         <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -52,14 +50,12 @@
                             <Rectangle Fill="#FF0764A4" Width="12" />
                             <Label
                             Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
-
                             Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0"
                             Foreground="{DynamicResource ThemeTextColorBrush}" HorizontalContentAlignment="Left" FontSize="15"
                             Background="{x:Null}" />
                         </StackPanel>
                     </Border>
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
-
                         <Border>
                             <Border.Style>
                                 <Style TargetType="{x:Type Border}">
@@ -108,9 +104,7 @@
                                         <Style TargetType="{x:Type Border}">
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
-
-                                                    </Setter>
+                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
@@ -120,8 +114,6 @@
                             </Button>
                         </Border>
                         <Border HorizontalAlignment="Right" Width="20" Margin="0,0,0,0">
-
-
                             <Border.Style>
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
@@ -152,8 +144,7 @@
                                         </Style>
                                     </Border.Style>
                                     <Border.BorderBrush>
-                                        <LinearGradientBrush StartPoint="0,0"
-                                                         EndPoint="0,1">
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                             <LinearGradientBrush.GradientStops>
                                                 <GradientStopCollection>
                                                     <GradientStop Color="#333333"
@@ -163,16 +154,12 @@
                                                 </GradientStopCollection>
                                             </LinearGradientBrush.GradientStops>
                                         </LinearGradientBrush>
-
                                     </Border.BorderBrush>
-
                                     <Path x:Name="CheckMark"
-
                                       Visibility="Visible"
                                       SnapsToDevicePixels="False"
                                       Margin="5,5,5,5"
                                       StrokeThickness="2" Stretch="Fill"
-
                                       Data="M 0 0 L 7 7 M 0 7 L 7 0">
                                         <Path.Stroke>
                                             <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
@@ -186,7 +173,6 @@
                 </DockPanel>
             </Border>
             <Grid Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush1}">
-
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="837*" />
@@ -276,7 +262,7 @@
                             <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True"
                                   Click="MetaModuleHiddenParametersToggle_Click" />
                         </MenuItem>
-                    
+
                         <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
                             <MenuItem.Icon>
                                 <ContentControl Template="{DynamicResource HelpIcon}" />
@@ -287,10 +273,7 @@
                                 <ContentControl Template="{DynamicResource SettingsIcon}" />
                             </MenuItem.Icon>
                         </MenuItem>
-
-                        <MenuItem Header="_Model Run Pane" Click="ShowModelRunPane_OnClick">
-
-                        </MenuItem>
+                        <MenuItem Header="_Model Run Pane" Click="ShowModelRunPane_OnClick"/>
                     </MenuItem>
                     <MenuItem Header="_Help">
                         <MenuItem.Background>
@@ -306,15 +289,12 @@
                     </MenuItem>
                 </Menu>
                 <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-                <xcad:DockingManager BorderThickness="0"  IsHitTestVisible="True" x:Name="DockManager"
+                <xcad:DockingManager BorderThickness="0" IsHitTestVisible="True" x:Name="DockManager"
                                  Grid.Row="1" ScrollViewer.CanContentScroll="True"
-                                 ScrollViewer.PanningMode="HorizontalOnly" DataContext="self"
-                                     
+                                 ScrollViewer.PanningMode="HorizontalOnly" DataContext="self"                                    
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
                                  Margin="0,7,0,0" Grid.ColumnSpan="2" Grid.Column="0"
-                                  Background="{DynamicResource WindowBackgroundBrush1}" ActiveContentChanged="DockManager_ActiveContentChanged">
-
-
+                                 Background="{DynamicResource WindowBackgroundBrush1}" ActiveContentChanged="DockManager_ActiveContentChanged">
                     <xcad:DockingManager.DocumentTitleTemplate>
                         <DataTemplate>
                             <Grid HorizontalAlignment="Stretch">
@@ -347,25 +327,17 @@
                     <xcad:DockingManager.Theme>
                         <xcad:Vs2013LightTheme />
                     </xcad:DockingManager.Theme>
-
-
-
                     <xcad:LayoutRoot x:Name="LayoutRoot">
                         <xcad:LayoutPanel Orientation="Vertical">
                             <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
-                                <xcad:LayoutDocumentPane x:Name="DocumentPane"
-                                                     />
+                                <xcad:LayoutDocumentPane x:Name="DocumentPane"/>
                             </xcad:LayoutDocumentPaneGroup>
-
                             <xcad:LayoutAnchorablePane DockHeight="250" FloatingHeight="250">
-
-                                <xcad:LayoutAnchorable  IsVisible="False" IsMaximized="False" x:Name="ModelRunPane"  Title="Model System Run" CanClose="False" CanAutoHide="False" CanFloat="True" CanHide="True" AutoHideMinWidth="200" AutoHideWidth="200" AutoHideHeight="200">
+                                <xcad:LayoutAnchorable  IsVisible="False" IsMaximized="False" x:Name="ModelRunPane" Title="Model System Run" CanClose="False" CanAutoHide="False" CanFloat="True" CanHide="True" AutoHideMinWidth="200" AutoHideWidth="200" AutoHideHeight="200">
                                     <uc:RunWindow   HorizontalAlignment="Stretch"></uc:RunWindow>
                                 </xcad:LayoutAnchorable>
                             </xcad:LayoutAnchorablePane>
                         </xcad:LayoutPanel>
-
-
                     </xcad:LayoutRoot>
                 </xcad:DockingManager>
                 <StatusBar Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch"
@@ -381,9 +353,7 @@
                             <Label  x:Name="RunLabel" Content="Run Model (F5)" Style="{DynamicResource HoverLabel}"
                                ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0"
                                FontSize="14" MouseUp="RunModel_MouseUp">
-
                             </Label>
-
                         </StackPanel>
                     </StatusBarItem>
                 </StatusBar>
