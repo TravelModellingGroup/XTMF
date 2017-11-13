@@ -260,7 +260,7 @@ namespace XTMF.Gui.UserControls
                 string error = null;
                 if (name == string.Empty || name == null)
                 {
-                    MessageBox.Show(MainWindow.Us, "Linked Paramter must have a name.", "Failed to create new Linked Parameter", MessageBoxButton.OK,
+                    MessageBox.Show(MainWindow.Us, "Linked Parameter must have a name.", "Failed to create new Linked Parameter", MessageBoxButton.OK,
                    MessageBoxImage.Error);
                     return;
                 }
