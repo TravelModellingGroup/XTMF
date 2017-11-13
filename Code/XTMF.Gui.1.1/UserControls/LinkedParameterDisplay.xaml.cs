@@ -130,8 +130,6 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public bool ChangesMade { get; private set; }
 
-        public IModelSystemStructure module { get; private set; }
-
         private void Display_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CleanupSelectedParameters();
@@ -456,12 +454,12 @@ namespace XTMF.Gui.UserControls
 
         private void GoToCurrentContainedParameter()
         {
-            module = (ContainedParameterDisplay.SelectedItem as ParameterDisplay)?.Parameter.BelongsTo;
-            if (module != null)
+            var moduleToGoTo = (ContainedParameterDisplay.SelectedItem as ParameterDisplay)?.Parameter.BelongsTo;
+            if (moduleToGoTo != null)
             {
                 ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
                 Visibility = Visibility.Collapsed;
-                GoToModule?.Invoke(module);
+                GoToModule?.Invoke(moduleToGoTo);
             }
         }
 
