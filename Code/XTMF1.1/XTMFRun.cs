@@ -222,11 +222,11 @@ namespace XTMF
             RunStarted?.Invoke();
         }
 
-        private bool disposedValue = false; // To detect redundant calls
+        private bool _disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
@@ -236,7 +236,7 @@ namespace XTMF
                     ValidationStarting = null;
                     RuntimeValidationError = null;
                 }
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 
@@ -253,11 +253,10 @@ namespace XTMF
 
         protected static List<ErrorWithPath> CreateFromSingleError(ErrorWithPath error)
         {
-            var ret = new List<ErrorWithPath>(1)
+            return new List<ErrorWithPath>(1)
             {
                 error
             };
-            return ret;
         }
 
         protected static void GetInnermostError(ref Exception caughtError)
