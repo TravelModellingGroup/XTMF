@@ -167,6 +167,9 @@
     <Compile Include="UserControls\FlatToolButton.xaml.cs">
       <DependentUpon>FlatToolButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ModuleContextControl.xaml.cs">
+      <DependentUpon>ModuleContextControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ValidationErrorListControl.xaml.cs">
       <DependentUpon>ValidationErrorListControl.xaml</DependentUpon>
     </Compile>
@@ -304,6 +307,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\FlatToolButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ModuleContextControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
