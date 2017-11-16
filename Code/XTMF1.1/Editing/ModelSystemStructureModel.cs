@@ -1042,9 +1042,10 @@ namespace XTMF
                 }
                 else
                 {
-                    foreach (var child in from child in Children
+                    var previousChildren = (from child in Children
                                           where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
-                                          select child)
+                                          select child).ToList();
+                    foreach (var child in previousChildren)
                     {
                         ret.Remove(child);
                     }
