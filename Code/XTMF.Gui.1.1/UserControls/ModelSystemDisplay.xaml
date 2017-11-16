@@ -96,11 +96,11 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <TextBox TextWrapping="Wrap"  VerticalContentAlignment="Center" 
+                    <TextBox TextWrapping="Wrap" VerticalContentAlignment="Center" 
                              MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
-                             Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}"
-                                             PreviewKeyDown="HintedTextBox_PreviewKeyDown"  Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
+                             Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}"
+                                             PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
                                          SelectionOpacity="0.6" BorderThickness="0" MinHeight="25" Padding="10" SelectionBrush="{DynamicResource ControlHighlightColourBrush}">
                         <TextBox.Background>
                             <SolidColorBrush Color="{DynamicResource WindowBackgroundColor4}" />
