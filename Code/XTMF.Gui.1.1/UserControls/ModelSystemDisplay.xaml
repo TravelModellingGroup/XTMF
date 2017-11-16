@@ -49,9 +49,8 @@
                     <ColumnDefinition Width="1*"></ColumnDefinition>
                     <ColumnDefinition Width="30"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="{Binding Name}"></Label>
-                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
-
+                <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="{Binding Name}"/>
+                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"/>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="ModuleEnabledTemplate" DataType="{x:Type models:ModelSystemStructureDisplayModel}">
@@ -62,9 +61,9 @@
                     <ColumnDefinition Width="30"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="{Binding Name}"></Label>
-                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Disable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
+                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Disable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"/>
                 <Border ToolTip="Remove module from list" Cursor="Hand"  Tag="{Binding Path=.}" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}" MouseDown="Path_MouseDown">
-                    <Path IsHitTestVisible="False" Tag="{Binding Path=.}"  Data="{DynamicResource CancelIconPath}" Fill="{DynamicResource ThemeTextColorBrush}" Opacity="0.5"  ></Path>
+                    <Path IsHitTestVisible="False" Tag="{Binding Path=.}"  Data="{DynamicResource CancelIconPath}" Fill="{DynamicResource ThemeTextColorBrush}" Opacity="0.5" />
                 </Border>
             </Grid>
         </DataTemplate>
@@ -143,9 +142,9 @@
                     </Expander>
                     <ComboBox PreviewKeyDown="ComboBox_PreviewKeyDown" 
                          MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
-                        IsReadOnly="True"  Margin="5,5,5,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
-                                         BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" />
+                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="True"
+                        IsReadOnly="False" Margin="5,5,5,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
+                                         BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True" />
                 </StackPanel>
             </Border>
         </DataTemplate>

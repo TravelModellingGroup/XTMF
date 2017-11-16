@@ -89,10 +89,13 @@ namespace XTMF.Gui.Models
                 if (value != RealParameter.Value)
                 {
                     string error = null;
-                    if (!RealParameter.SetValue(value, ref error))
+                    if (value != null)
                     {
-                        MessageBox.Show(MainWindow.Us, "We were unable to set the parameter '" + Name + "' with the value '" + value + "'.\r\n" + error, "Unable to Set Parameter",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        if (!RealParameter.SetValue(value, ref error))
+                        {
+                            MessageBox.Show(MainWindow.Us, "We were unable to set the parameter '" + Name + "' with the value '" + value + "'.\r\n" + error, "Unable to Set Parameter",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                 }
             }

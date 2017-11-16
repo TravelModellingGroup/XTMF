@@ -2220,7 +2220,7 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
                 return;
             }
-            if (e.Key == Key.Up)
+            else if (e.Key == Key.Up)
             {
                 var tRequest = new TraversalRequest(FocusNavigationDirection.Previous);
                 if (Keyboard.FocusedElement is UIElement keyboardFocus)
@@ -2229,6 +2229,10 @@ namespace XTMF.Gui.UserControls
                 }
                 e.Handled = true;
                 return;
+            }
+            else if (e.Key == Key.Enter)
+            {
+                MoveFocusNext(e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift));
             }
             base.OnPreviewKeyDown(e);
         }
