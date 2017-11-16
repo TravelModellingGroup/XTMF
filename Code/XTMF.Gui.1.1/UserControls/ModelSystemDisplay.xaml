@@ -141,10 +141,10 @@
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
                     <ComboBox PreviewKeyDown="ComboBox_PreviewKeyDown" 
-                         MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="True"
-                        IsReadOnly="False" Margin="5,5,5,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
-                                         BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True" />
+                        MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                        AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="True"
+                        IsReadOnly="False" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14"
+                        BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True"/>
                 </StackPanel>
             </Border>
         </DataTemplate>
