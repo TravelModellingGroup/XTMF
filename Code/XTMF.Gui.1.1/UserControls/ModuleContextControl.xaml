@@ -81,9 +81,10 @@
                                 </Style>
                             </Border.Style>
                             <StackPanel   Orientation="Horizontal"  HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Label  Tag="{Binding Path=.}"  Content="{Binding Path=Name}" MouseDoubleClick="Control_OnMouseDoubleClick" HorizontalAlignment="Center">
+                                <Label Foreground="{DynamicResource ThemeTextColorBrush}" Tag="{Binding Path=.}"  Content="{Binding Path=Name}" MouseDoubleClick="Control_OnMouseDoubleClick" HorizontalAlignment="Center">
                                     <Label.Style >
                                         <Style TargetType="{x:Type Label}">
+                                            
                                             
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">

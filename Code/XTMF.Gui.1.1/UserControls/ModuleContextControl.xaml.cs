@@ -216,10 +216,11 @@ namespace XTMF.Gui.UserControls
             }
 
             //scale and set colour of the icon path
-            path.Fill = Brushes.Black;
+            path.Fill = (System.Windows.Media.Brush)Application.Current.Resources["ThemeTextColorBrush"];
             path.Stretch = Stretch.UniformToFill;
             path.MaxWidth = 12;
             path.MaxHeight = 12;
+
             return path;
         }
     }
