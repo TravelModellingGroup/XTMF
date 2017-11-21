@@ -590,7 +590,7 @@ namespace XTMF
         {
             foreach (var redirection in type.GetCustomAttributes(typeof(RedirectModule)))
             {
-                // Remove the whitespace because it is inconsitant between .Net versions
+                // Remove the whitespace because it is inconstant between .Net versions
                 ModuleRedirection[(redirection as RedirectModule).FromType.Replace(" ", "")] = type;
             }
         }
