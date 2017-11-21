@@ -134,7 +134,5 @@ namespace XTMF.Gui.Models
         public override void Save() => _Display.SaveRequested(false);
 
         public override void SaveAs() => _Display.SaveRequested(true);
-
-        public override bool CanExecuteRun => !_Session.IsRunning;
     }
 }

@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller\RunController.cs" />
     <Compile Include="ErrorWithPath.cs" />
     <Compile Include="Run\RemoteRunCommands.cs" />
     <Compile Include="Configuration.cs" />

@@ -71,7 +71,7 @@ namespace XTMF.Run
                 {
                     if (args.Data != null)
                     {
-                        Console.WriteLine(args.Data);
+                        SendRunMessage(args.Data);
                     }
                 };
                 var runProcess = new Process
@@ -241,11 +241,14 @@ namespace XTMF.Run
 
         public override void Start()
         {
-            StartupHost();
-            StartClientListener();
-            // Send the instructions to run the model system
-            InitializeClientAndSendModelSystem();
-            SetStatusToRunning();
+            Task.Run(() =>
+            {
+                StartupHost();
+                StartClientListener();
+                // Send the instructions to run the model system
+                InitializeClientAndSendModelSystem();
+                SetStatusToRunning();
+            });
         }
 
         public override void Wait() => ClientExiting.Wait();

@@ -44,7 +44,7 @@ namespace XTMF
         /// <summary>
         /// The name of this run
         /// </summary>
-        protected string RunName;
+        public string RunName { get; protected set; }
 
         /// <summary>
         /// The model system root if we are using a past run
@@ -97,6 +97,11 @@ namespace XTMF
             }
             directory.Delete(true);
         }
+
+        /// <summary>
+        /// An event that is fired when the run sends back a message
+        /// </summary>
+        public event Action<string> RunMessage;
 
         /// <summary>
         /// An event that fires when the run completes successfully
@@ -163,6 +168,9 @@ namespace XTMF
         /// <returns></returns>
         public abstract bool DeepExitRequest();
 
+        /// <summary>
+        /// Start the run on a different thread.
+        /// </summary>
         public abstract void Start();
 
         /// <summary>
@@ -300,6 +308,18 @@ namespace XTMF
                 path.RemoveAt(path.Count - 1);
             }
             return ret;
+        }
+
+        /// <summary>
+        /// Report back that a message has been sent through the console.
+        /// </summary>
+        /// <param name="message"></param>
+        protected void SendRunMessage(string message)
+        {
+            lock (this)
+            {
+                RunMessage?.Invoke(message);
+            }
         }
     }
 }

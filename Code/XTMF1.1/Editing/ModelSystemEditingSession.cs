@@ -89,16 +89,6 @@ namespace XTMF
 
         private object _SessionLock = new object();
 
-        private List<XTMFRun> _Run = new List<XTMFRun>();
-
-        private volatile bool _IsRunning;
-
-        public bool IsRunning
-        {
-            get { return _IsRunning; }
-        }
-
-
         public bool SaveWait()
         {
             return _saveSemaphor.WaitOne();
@@ -189,8 +179,6 @@ namespace XTMF
             get { return EditingProject; }
         }
 
-        private static volatile bool _AnyRunning = false;
-
         private static object _RunningLock = new object();
 
         /// <summary>
@@ -198,8 +186,9 @@ namespace XTMF
         /// </summary>
         /// <param name="runName"></param>
         /// <param name="error">A message in case of error</param>
-        /// <returns></returns>
-        public XTMFRun Run(string runName, ref string error, bool overwrite = false)
+        /// <param name="executeNow">Should the run start executing now or wait for all other runs to finish first?</param>
+        /// <returns>A reference to the run.</returns>
+        public XTMFRun Run(string runName, ref string error, bool overwrite = false, bool executeNow = true)
         {
             // this needs to block as if a command is running
             lock (_SessionLock)
@@ -211,11 +200,6 @@ namespace XTMF
                 }
                 lock (_RunningLock)
                 {
-                    if (_AnyRunning)
-                    {
-                        error = "Only one run can be executing at the same time!";
-                        return null;
-                    }
                     XTMFRun run;
                     if (_ModelSystemIndex >= 0)
                     {
@@ -239,13 +223,7 @@ namespace XTMF
                     {
                         run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel.Root, _Runtime.Configuration, runName, overwrite);
                     }
-                    _Run.Add(run);
-                    _AnyRunning = true;
-                    _IsRunning = true;
-                    run.RunCompleted += () => TerminateRun(run);
-                    run.ValidationError += (e) => TerminateRun(run);
-                    run.RuntimeValidationError += (e) => TerminateRun(run);
-                    run.RuntimeError += (e) => TerminateRun(run);
+                    _Runtime.RunController.ExecuteRun(run, true);
                     return run;
                 }
             }
@@ -272,24 +250,6 @@ namespace XTMF
                     {
                         return otherSession.Save(ref error);
                     }
-                }
-            }
-        }
-
-        private void TerminateRun(XTMFRun run)
-        {
-            lock (_SessionLock)
-            {
-                if (_Run.Remove(run))
-                {
-                    lock (_RunningLock)
-                    {
-                        _AnyRunning = false;
-                    }
-                }
-                if (_Run.Count == 0)
-                {
-                    _IsRunning = false;
                 }
             }
         }
@@ -415,11 +375,6 @@ namespace XTMF
         {
             lock (_SessionLock)
             {
-                if (_IsRunning)
-                {
-                    error = "You can not edit a model system while it is running.";
-                    return false;
-                }
                 if (command.Do(ref error))
                 {
                     HasChanged = true;

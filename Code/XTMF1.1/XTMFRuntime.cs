@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
+using XTMF.Controller;
 using XTMF.Networking;
 
 namespace XTMF
@@ -36,6 +37,8 @@ namespace XTMF
         public ModelSystemController ModelSystemController { get; private set; }
 
         public ProjectController ProjectController { get; private set; }
+
+        public RunController RunController { get; private set; } = new RunController();
 
         public XTMFRuntime(Configuration configuration = null)
         {

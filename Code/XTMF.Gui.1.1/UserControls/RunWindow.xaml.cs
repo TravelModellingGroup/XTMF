@@ -34,7 +34,7 @@ using System.Windows.Threading;
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    ///     Interaction logic for RunWindow.xaml
+    /// Interaction logic for RunWindow.xaml
     /// </summary>
     public partial class RunWindow : UserControl, INotifyPropertyChanged
     {
@@ -93,13 +93,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public RunWindow()
-        {
-            InitializeComponent();
-            ConsoleOutput.DataContext = new ConsoleOutputController(this);
-            OpenDirectoryButton.IsEnabled = false;
-        }
-
         private void MainWindowClosing(object sender, CancelEventArgs e)
         {
             if (_isActive)
@@ -111,74 +104,25 @@ namespace XTMF.Gui.UserControls
 
         public class ConsoleOutputController : INotifyPropertyChanged, IDisposable
         {
-            public string ConsoleOutput { get; set; }
 
-            private MemoryStream _memoryStream = new MemoryStream();
-
-            private StreamWriter _writer;
-
-            internal volatile bool Done = false;
-
-            public ConsoleOutputController(RunWindow page)
+            public ConsoleOutputController(RunWindow runWindow, XTMFRun run)
             {
-                var previousConsole = Console.Out;
-                _writer = new StreamWriter(_memoryStream, Encoding.Unicode);
-                page._oldCaret = 0;
-                Console.SetOut(_writer);
-                new Task(() =>
-                {
-                    try
-                    {
-                        var lastPosition = 0L;
-                        var reader = new StreamReader(_memoryStream, Encoding.Unicode);
-                        while (true)
-                        {
-                            Thread.Sleep(60);
-                            _writer.Flush();
-                            var currentPosition = _writer.BaseStream.Position;
-                            if (currentPosition > lastPosition)
-                            {
-
-                                var buff = new char[(currentPosition - lastPosition) / sizeof(char)];
-                                _memoryStream.Position = lastPosition;
-                                var length = reader.ReadBlock(buff, 0, buff.Length);
-                                lastPosition = currentPosition;
-                                if (length > 0)
-                                {
-                                    page.Dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        page.Dispatcher.Invoke(() => { page._oldCaret = page.ConsoleOutput.CaretIndex; });
-                                        ConsoleOutput = ConsoleOutput + new string(buff, 0, length);
-                                        var e = PropertyChanged;
-                                        e?.Invoke(this, new PropertyChangedEventArgs("ConsoleOutput"));
-
-                                    }));
-                                }
-                            }
-                            if (Done)
-                            {
-                                _writer.Dispose();
-                                _writer = null;
-                                return;
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        Console.SetOut(previousConsole);
-                    }
-                }, TaskCreationOptions.LongRunning).Start();
+                run.RunMessage += Run_RunMessage;
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
+            private void Run_RunMessage(string message)
+            {
+                ConsoleOutput = ConsoleOutput + message + "\r\n";
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
+            }
 
+            public string ConsoleOutput { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            
             public void Dispose()
             {
-                _writer?.Dispose();
-                _writer = null;
-                _memoryStream?.Dispose();
-                _memoryStream = null;
-                ConsoleOutput = null;
+                ConsoleOutput = String.Empty;
             }
         }
 
@@ -212,29 +156,17 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
-        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
-        {
-            InitializeComponent();
-            Session = session;
-            session.SessionClosed += Session_SessionClosed;
-            StartRun(run, runName);
-        }
-
-        public void StartRun(ModelSystemEditingSession session, XTMFRun run, string runName)
-        {
-            Session = session;
-            session.SessionClosed += Session_SessionClosed;
-            StartRun(run, runName);
-        }
-
         public Action<List<ErrorWithPath>> ValidationError;
 
         public Action<List<ErrorWithPath>> RuntimeValidationError;
 
         public Action<ErrorWithPath> RuntimeError;
 
-        private void StartRun(XTMFRun run, string runName)
+        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
+            InitializeComponent();
+            Session = session;
+            session.SessionClosed += Session_SessionClosed;
             _run = run;
             MainWindow.Us.Closing += MainWindowClosing;
             OpenDirectoryButton.IsEnabled = true;
@@ -271,9 +203,8 @@ namespace XTMF.Gui.UserControls
                     _taskbarInformation.ProgressValue = 0;
                 }
             }
-            ConsoleOutput.DataContext = new ConsoleOutputController(this);
+            ConsoleOutput.DataContext = new ConsoleOutputController(this, _run);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
-
             StartRunAsync();
             _timer.Start();
         }
@@ -476,7 +407,6 @@ namespace XTMF.Gui.UserControls
         {
             _startTime = DateTime.Now;
             StartTimeLabel.Content = $"Start Time: {_startTime:g}";
-            _run.Start();
         }
 
         private void Session_SessionClosed(object sender, EventArgs e)
@@ -511,7 +441,6 @@ namespace XTMF.Gui.UserControls
                     _wasCanceled = true;
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
-
                         MainWindow.Us.UpdateStatusDisplay("Ready");
                         MainWindow.Us.HideStatusLink();
                     }));
@@ -602,10 +531,11 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() => { MainWindow.ShowPageContaining(this); });
             //Are you sure?
             var window = GetWindow(this);
+            var message = "Are you sure you want to cancel the run '" + _run.RunName + "'?";
             if (window == null
-                ? MessageBox.Show("Are you sure you want to cancel this run?", "Cancel run?",
+                ? MessageBox.Show(message, "Cancel run?",
                       MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes
-                : MessageBox.Show(window, "Are you sure you want to cancel this run?", "Cancel run?",
+                : MessageBox.Show(window, message, "Cancel run?",
                       MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
                 lock (this)
@@ -615,7 +545,6 @@ namespace XTMF.Gui.UserControls
                     Dispatcher.BeginInvoke((Action)(() =>
                     {
                         CancelButton.IsEnabled = false;
-
                     }));
                     _timer.Stop();
                     _run.TerminateRun();

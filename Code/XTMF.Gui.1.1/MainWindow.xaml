@@ -272,7 +272,6 @@
                                 <ContentControl Template="{DynamicResource SettingsIcon}" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="_Model Run Pane" Click="ShowModelRunPane_OnClick"/>
                     </MenuItem>
                     <MenuItem Header="_Help">
                         <MenuItem.Background>
@@ -332,11 +331,6 @@
                             <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
                                 <xcad:LayoutDocumentPane x:Name="DocumentPane"/>
                             </xcad:LayoutDocumentPaneGroup>
-                            <xcad:LayoutAnchorablePane DockHeight="250" FloatingHeight="250">
-                                <xcad:LayoutAnchorable  IsVisible="False" IsMaximized="False" x:Name="ModelRunPane" Title="Model System Run" CanClose="False" CanAutoHide="False" CanFloat="True" CanHide="True" AutoHideMinWidth="200" AutoHideWidth="200" AutoHideHeight="200">
-                                    <uc:RunWindow   HorizontalAlignment="Stretch"></uc:RunWindow>
-                                </xcad:LayoutAnchorable>
-                            </xcad:LayoutAnchorablePane>
                         </xcad:LayoutPanel>
                     </xcad:LayoutRoot>
                 </xcad:DockingManager>

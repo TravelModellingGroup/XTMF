@@ -784,18 +784,14 @@ namespace XTMF.Gui.UserControls
                 }
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
-                    var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false);
+                    var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false, true);
                     if (run != null)
                     {
                         ModuleValidationErrorListView.Items.Clear();
                         ModuleRuntimeValidationErrorListView.Items.Clear();
                         ModuleRuntimeErrorListView.Items.Clear();
                         MainWindow.Us.UpdateStatusDisplay("Running Model System ");
-                        MainWindow.Us.ModelRunPane.Show();
-                        MainWindow.Us.RunWindow.ValidationError = Run_ValidationError;
-                        MainWindow.Us.RunWindow.RuntimeValidationError = Run_RuntimeValidationError;
-                        MainWindow.Us.RunWindow.RuntimeError = Run_RuntimeError;
-                        MainWindow.Us.RunWindow.StartRun(Session, run, runName);
+                        MainWindow.Us.CreateRunWindow(Session, run, runName);
                         MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " + Session.Name,
                             () => { MainWindow.Us.LoadPageId(ContentGuid); });
                     }

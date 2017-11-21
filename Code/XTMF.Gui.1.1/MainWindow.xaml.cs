@@ -61,8 +61,6 @@ namespace XTMF.Gui
 
         public ThemeController ThemeController { get; private set; }
 
-        public RunWindow RunWindow => (RunWindow)ModelRunPane.Content;
-
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
             get => (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty);
@@ -99,7 +97,6 @@ namespace XTMF.Gui
                     "XTMF", "Configuration.xml"))
                 : System.IO.Path.GetDirectoryName(ConfigurationFilePath));
             InitializeComponent();
-            ModelRunPane.Hide();
             Loaded += FrameworkElement_Loaded;
             Us = this;
             operationProgressing = new OperationProgressing();
@@ -700,9 +697,7 @@ namespace XTMF.Gui
         {
             foreach (var document in OpenPages.Select(page => page.Content).ToList())
             {
-                var modelSystemPage = document as ModelSystemDisplay;
-                var runPage = document as RunWindow;
-                if (modelSystemPage != null)
+                if (document is ModelSystemDisplay modelSystemPage)
                 {
                     if (!modelSystemPage.CloseRequested())
                     {
@@ -710,7 +705,7 @@ namespace XTMF.Gui
                         return;
                     }
                 }
-                if (runPage != null)
+                else if (document is RunWindow runPage)
                 {
                     if (!runPage.CloseRequested())
                     {
@@ -718,7 +713,6 @@ namespace XTMF.Gui
                         return;
                     }
                 }
-                CloseWindow(runPage);
             }
             if (!e.Cancel)
             {
@@ -813,6 +807,23 @@ namespace XTMF.Gui
                 MessageBox.Show("We were unable to find the documentation", "Documentation Missing!",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        internal void CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
+        {
+            var runWindow = new RunWindow(session, run, runName);
+            var doc = new LayoutDocument()
+            {
+                Content = runWindow,
+                Title = "Run - " + runName
+            };
+            doc.Closing += (object sender, CancelEventArgs e) =>
+            {
+                e.Cancel = !runWindow.CloseRequested();
+            };
+            OpenPages.Add(doc);
+            DocumentPane.Children.Add(doc);
+            doc.Float();
         }
 
         private const string UpdateProgram = "XTMF.Update2.exe";
@@ -1039,18 +1050,6 @@ namespace XTMF.Gui
                         Bottom = 7
                     };
                     break;
-            }
-        }
-
-        private void ShowModelRunPane_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (ModelRunPane.IsHidden)
-            {
-                ModelRunPane.Show();
-            }
-            else
-            {
-                ModelRunPane.Hide();
             }
         }
 
