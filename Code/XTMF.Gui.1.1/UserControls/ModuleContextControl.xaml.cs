@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using XTMF.Gui.Models;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace XTMF.Gui.UserControls
 {
@@ -102,9 +106,30 @@ namespace XTMF.Gui.UserControls
                 return;
             }
 
+
+            this.PrepareMenu(selectedModule,listView.ContextMenu);
+
             listView.ContextMenu.PlacementTarget = listView;
-            listView.ContextMenu.Placement = PlacementMode.Bottom;
-            listView.ContextMenu.Items.Clear();
+            listView.ContextMenu.Placement = PlacementMode.Center;
+
+            //suppress menu when there are no siblings
+            if (listView.ContextMenu.Items.Count == 0)
+            {
+                e.Handled = true;
+            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedModule"></param>
+        /// <param name="menu"></param>
+        private void PrepareMenu(ModelSystemStructureDisplayModel selectedModule, ContextMenu menu)
+        {
+            //menu.PlacementTarget = listView;
+            menu.Placement = PlacementMode.Bottom;
+            menu.Items.Clear();
 
             if (selectedModule.Parent != null)
             {
@@ -113,17 +138,16 @@ namespace XTMF.Gui.UserControls
                     MenuItem menuItem = new MenuItem();
                     menuItem.Header = item.Name;
                     menuItem.Tag = item;
-                    listView.ContextMenu.Items.Add(menuItem);
+                    menu.Items.Add(menuItem);
                     menuItem.Click += ModuleContextMenuItem_Click;
+
+                    menuItem.Icon = GenerateIconForModule(selectedModule);
                 });
 
             }
 
-            //suppress menu when there are no siblings
-            if (listView.ContextMenu.Items.Count == 0)
-            {
-                e.Handled = true;
-            }
+            
+
 
         }
 
@@ -139,8 +163,67 @@ namespace XTMF.Gui.UserControls
             ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)senderMenuItem.Tag));
         }
 
-      
+        /// <summary>
+        /// Mouse up trigger for module context menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UIElement_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ListView listView = (ListView)sender;
+
+            if (!(listView.SelectedItem is ModelSystemStructureDisplayModel selectedModule))
+            {
+                e.Handled = true;
+                return;
+            }
+
+        
+            this.PrepareMenu(selectedModule, listView.ContextMenu);
+
+            ListViewItem listViewItem = (ListViewItem)listView.ItemContainerGenerator.ContainerFromItem(selectedModule);
+
+            listView.ContextMenu.PlacementTarget = listViewItem;
+            listView.ContextMenu.Placement = PlacementMode.Bottom;
+            listView.ContextMenu.HorizontalOffset = -20;
+            listView.ContextMenu.VerticalOffset = -8;
+            listView.ContextMenu.IsOpen = true;
+
+
+
+        }
+
+        /// <summary>
+        /// Generates a path to use as an icon for the module context menu (displays same icon as in the model system tree view)
+        /// </summary>
+        /// <param name="module"></param>
+        private Path GenerateIconForModule(ModelSystemStructureDisplayModel module)
+        {
+            Path path = new Path();
+            if (module.IsCollection)
+            {
+               
+                path.Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"];
+               
+            }
+            else if (module.IsMetaModule)
+            {
+                path.Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"];
+            }
+            else if (!module.IsMetaModule && !module.IsCollection)
+            {
+                path.Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"];
+            }
+
+            //scale and set colour of the icon path
+            path.Fill = Brushes.Black;
+            path.Stretch = Stretch.UniformToFill;
+            path.MaxWidth = 12;
+            path.MaxHeight = 12;
+            return path;
+        }
     }
+
 
 
     /// <summary>
