@@ -317,6 +317,22 @@ namespace XTMF.Gui.UserControls
             }));
             UpdateQuickParameters();
             EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
+            ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
+        }
+
+        /// <summary>
+        /// Callback for when the Module Context control changes the active "selected module
+        /// </summary>
+        /// <param name="sender1"></param>
+        /// <param name="eventArgs"></param>
+        private void ModuleContextControlOnModuleContextChanged(object sender1, ModuleContextChangedEventArgs eventArgs)
+        {
+         
+            if (eventArgs.Module != null)
+            {
+                ExpandToRoot(eventArgs.Module);
+                eventArgs.Module.IsSelected = true;
+            }
         }
 
         private void EnumerateDisabled(ModelSystemStructureDisplayModel model)
@@ -1334,6 +1350,9 @@ namespace XTMF.Gui.UserControls
                 {
                     ParameterTabControl.SelectedIndex = 1;
                 }
+
+                //update the module context control
+                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel) e.NewValue;
             }
         }
 

@@ -168,29 +168,41 @@
                 <ColumnDefinition MinWidth="330px" Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="24"></RowDefinition>
+                <RowDefinition Height="48"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="3"></RowDefinition>
             </Grid.RowDefinitions>
+
             <Grid Grid.Row="0" Grid.ColumnSpan="3">
-                <StackPanel Orientation="Horizontal">
-                    <this:FlatToolButton ToolText="Linked Parameters" Height="24" Click="LinkedParameter_Click">
-                        <this:FlatToolButton.IconPath  >
-                            <Path Data="{DynamicResource LinkIconPath}" Stretch="Uniform" />
-                        </this:FlatToolButton.IconPath>
-                    </this:FlatToolButton>
-                    <Rectangle VerticalAlignment="Stretch" Fill="{DynamicResource WindowBackgroundBrush3}" Width="1" Height="20"/>
-                    <this:FlatToolButton IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"></RowDefinition>
+                        <RowDefinition Height="24"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <this:FlatToolButton ToolText="Linked Parameters" Height="24" Click="LinkedParameter_Click">
+                            <this:FlatToolButton.IconPath  >
+                                <Path Data="{DynamicResource LinkIconPath}" Stretch="Uniform" />
+                            </this:FlatToolButton.IconPath>
+                        </this:FlatToolButton>
+                        <Rectangle VerticalAlignment="Stretch" Fill="{DynamicResource WindowBackgroundBrush3}" Width="1" Height="20"/>
+                        <this:FlatToolButton IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
 AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                         x:Name="RunModelSystemButton" ToolText="Run Model System" Height="24" Click="RunModelSystem_Click">
-                        <this:FlatToolButton.IconPath  >
-                            <Path  Data="{DynamicResource RunIconPathGeometry}" Stretch="Uniform" />
-                        </this:FlatToolButton.IconPath>
-                    </this:FlatToolButton>
-                </StackPanel>
+                            <this:FlatToolButton.IconPath  >
+                                <Path  Data="{DynamicResource RunIconPathGeometry}" Stretch="Uniform" />
+                            </this:FlatToolButton.IconPath>
+                        </this:FlatToolButton>
+                    </StackPanel>
+                    <this:ModuleContextControl Background="{DynamicResource WindowBackgroundBrush2}" Grid.Row="1" x:Name="ModuleContextControl"></this:ModuleContextControl>
+                </Grid>
             </Grid>
             <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
                 <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30*"/>
+                        <ColumnDefinition Width="269*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.Effect>
                         <DropShadowEffect RenderingBias="Performance" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3" />
                     </Grid.Effect>
@@ -198,12 +210,12 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
+                    <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" Grid.ColumnSpan="2" />
                     <TreeView Grid.Row="1"   BorderThickness="0" 
                         x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown" 
-                              TreeViewItem.Selected="ModuleDisplay_Selected">
+                              TreeViewItem.Selected="ModuleDisplay_Selected" Grid.ColumnSpan="2">
                         <TreeView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling"

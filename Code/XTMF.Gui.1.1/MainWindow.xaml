@@ -287,6 +287,7 @@
                         <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
                     </MenuItem>
                 </Menu>
+              
                 <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
                 <xcad:DockingManager BorderThickness="0" IsHitTestVisible="True" x:Name="DockManager"
                                  Grid.Row="1" ScrollViewer.CanContentScroll="True"

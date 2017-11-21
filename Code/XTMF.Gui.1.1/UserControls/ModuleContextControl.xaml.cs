@@ -30,8 +30,9 @@ namespace XTMF.Gui.UserControls
         /// 
         /// </summary>
         public static readonly DependencyProperty DisplayModelDependencyProperty =
-          DependencyProperty.Register("DisplayModule", typeof(ModelSystemStructureDisplayModel), typeof(ModuleContextControl), new PropertyMetadata(null));
+          DependencyProperty.Register("ActiveDisplayModule", typeof(ModelSystemStructureDisplayModel), typeof(ModuleContextControl), new PropertyMetadata(null));
 
+        public event EventHandler<ModuleContextChangedEventArgs> ModuleContextChanged;
 
         public ModuleContextControl()
         {
@@ -41,16 +42,32 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
-        public ModelSystemStructureDisplayModel DisplayModel
+        public ModelSystemStructureDisplayModel ActiveDisplayModule
         {
-            get
-            {
-                return (ModelSystemStructureDisplayModel)GetValue(DisplayModelDependencyProperty);
-            }
+            get => (ModelSystemStructureDisplayModel)GetValue(DisplayModelDependencyProperty);
             set
             {
                 SetValue(DisplayModelDependencyProperty, value);
+                UpdateModulePathToRoot(value);
+             }
+
+        }
+
+        /// <summary>
+        /// Updates the item source of ModulePathList to contain the path to the root module
+        /// </summary>
+        /// <param name="module"></param>
+        private void UpdateModulePathToRoot(ModelSystemStructureDisplayModel module)
+        {
+            List<ModelSystemStructureDisplayModel> pathList = new List<ModelSystemStructureDisplayModel>();
+            pathList.Add(module);
+            while (module.Parent != null)
+            {
+                pathList.Insert(0,module.Parent);
+                module = module.Parent;
             }
+            ModulePathList.ItemsSource = pathList;
+
         }
 
         /// <summary>
@@ -62,12 +79,42 @@ namespace XTMF.Gui.UserControls
             base.OnInitialized(e);
 
 
-            Console.WriteLine(DisplayModel);
+            Console.WriteLine(ActiveDisplayModule);
 
            
             
         }
 
 
+        /// <summary>
+        /// Mouse double-click handler for each individual list in the module context path. This will call the associated event listeners
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            
+
+           
+            Label sourceLabel = sender as Label;
+           
+            if (this.ModuleContextChanged != null)
+            {
+                this.ModuleContextChanged(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)sourceLabel.Tag));
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ModuleContextChangedEventArgs : EventArgs
+    {
+        public ModuleContextChangedEventArgs(ModelSystemStructureDisplayModel module)
+        {
+            this.Module = module;
+        }
+        public ModelSystemStructureDisplayModel Module { get; }
     }
 }

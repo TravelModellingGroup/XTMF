@@ -91,5 +91,6 @@ bin/
 *.gitattributes
 *.vspx
 *.psess
+/.vs
 /Code/Packages
 /Code/TMG.Estimation/CalcFitness.cs
