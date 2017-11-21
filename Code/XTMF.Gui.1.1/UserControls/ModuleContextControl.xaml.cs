@@ -49,7 +49,8 @@ namespace XTMF.Gui.UserControls
             {
                 SetValue(DisplayModelDependencyProperty, value);
                 UpdateModulePathToRoot(value);
-             }
+                ModulePathList.SelectedItem = value;
+            }
 
         }
 
