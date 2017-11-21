@@ -96,27 +96,7 @@ namespace XTMF.Gui.UserControls
         {
 
 
-            ListView listView = (ListView) sender;
-
-            var selectedModule = listView.SelectedItem as ModelSystemStructureDisplayModel;
-
-            if (selectedModule == null)
-            {
-                e.Handled = true;
-                return;
-            }
-
-
-            this.PrepareMenu(selectedModule,listView.ContextMenu);
-
-            listView.ContextMenu.PlacementTarget = listView;
-            listView.ContextMenu.Placement = PlacementMode.Center;
-
-            //suppress menu when there are no siblings
-            if (listView.ContextMenu.Items.Count == 0)
-            {
-                e.Handled = true;
-            }
+           
 
         }
 
@@ -163,35 +143,7 @@ namespace XTMF.Gui.UserControls
             ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)senderMenuItem.Tag));
         }
 
-        /// <summary>
-        /// Mouse up trigger for module context menu
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void UIElement_OnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            ListView listView = (ListView)sender;
-
-            if (!(listView.SelectedItem is ModelSystemStructureDisplayModel selectedModule))
-            {
-                e.Handled = true;
-                return;
-            }
-
-        
-            this.PrepareMenu(selectedModule, listView.ContextMenu);
-
-            ListViewItem listViewItem = (ListViewItem)listView.ItemContainerGenerator.ContainerFromItem(selectedModule);
-
-            listView.ContextMenu.PlacementTarget = listViewItem;
-            listView.ContextMenu.Placement = PlacementMode.Bottom;
-            listView.ContextMenu.HorizontalOffset = -20;
-            listView.ContextMenu.VerticalOffset = -8;
-            listView.ContextMenu.IsOpen = true;
-
-
-
-        }
+       
 
         /// <summary>
         /// Generates a path to use as an icon for the module context menu (displays same icon as in the model system tree view)
@@ -222,6 +174,47 @@ namespace XTMF.Gui.UserControls
             path.MaxHeight = 12;
 
             return path;
+        }
+
+       
+        /// <summary>
+        /// Invoked when the selected module in the path list is changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModulePathList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)ModulePathList.SelectedItem));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModulePathList_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            StackPanel listView = (StackPanel) sender;
+
+            var selectedModule = listView.Tag as ModelSystemStructureDisplayModel;
+
+            if (selectedModule == null)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            this.PrepareMenu(selectedModule, ModulePathList.ContextMenu);
+
+            ListViewItem listViewItem = (ListViewItem)ModulePathList.ItemContainerGenerator.ContainerFromItem(selectedModule);
+
+            ModulePathList.ContextMenu.PlacementTarget = listViewItem;
+            ModulePathList.ContextMenu.Placement = PlacementMode.Bottom;
+            ModulePathList.ContextMenu.HorizontalOffset = -20;
+            ModulePathList.ContextMenu.VerticalOffset = -8;
+            ModulePathList.ContextMenu.IsOpen = true;
+
+            e.Handled = true;
         }
     }
 
