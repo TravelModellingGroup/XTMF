@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,60 +9,61 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using XTMF.Gui.Models;
-using Brushes = System.Windows.Media.Brushes;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for ModuleContextControl.xaml
-    /// 
-    /// The ModuleContextControl is a horizontal / slim control that displays a context path to the currently
-    /// displayed module. Interaction is allowed to select different modules along the path and provide
-    /// feedback for the user to see which set of modules the active module exists under.
+    ///     Interaction logic for ModuleContextControl.xaml
+    ///     The ModuleContextControl is a horizontal / slim control that displays a context path to the currently
+    ///     displayed module. Interaction is allowed to select different modules along the path and provide
+    ///     feedback for the user to see which set of modules the active module exists under.
     /// </summary>
     public partial class ModuleContextControl : UserControl
     {
-
         /// <summary>
-        /// Dependency propery for the ActiveDisplayModule
+        ///     Dependency propery for the ActiveDisplayModule
         /// </summary>
         public static readonly DependencyProperty DisplayModelDependencyProperty =
-          DependencyProperty.Register("ActiveDisplayModule", typeof(ModelSystemStructureDisplayModel), typeof(ModuleContextControl), new PropertyMetadata(null));
+            DependencyProperty.Register("ActiveDisplayModule", typeof(ModelSystemStructureDisplayModel),
+                typeof(ModuleContextControl), new PropertyMetadata(null));
 
         /// <summary>
-        /// Event Handler for ModuleContextChanged
+        /// Constructor
         /// </summary>
-        public event EventHandler<ModuleContextChangedEventArgs> ModuleContextChanged;
-
         public ModuleContextControl()
         {
             InitializeComponent();
         }
 
         /// <summary>
-        /// The active display module. This changes when the selected module changes from ModelSystemDisplay
+        ///     The active display module. This changes when the selected module changes from ModelSystemDisplay
         /// </summary>
         public ModelSystemStructureDisplayModel ActiveDisplayModule
         {
-            get => (ModelSystemStructureDisplayModel)GetValue(DisplayModelDependencyProperty);
+            get => (ModelSystemStructureDisplayModel) GetValue(DisplayModelDependencyProperty);
             set
             {
                 SetValue(DisplayModelDependencyProperty, value);
                 UpdateModulePathToRoot(value);
                 ModulePathList.SelectedItem = value;
             }
-
         }
+
+        /// <summary>
+        ///     Event Handler for ModuleContextChanged
+        /// </summary>
+        public event EventHandler<ModuleContextChangedEventArgs> ModuleContextChanged;
 
 
         /// <summary>
-        /// Generates a list, in order from root to passed active module
+        ///     Generates a list, in order from root to passed active module
         /// </summary>
         /// <param name="moduleDisplayModel"></param>
         /// <returns></returns>
-        private List<ModelSystemStructureDisplayModel> GenerateUpdateModulePathToRoot(ModelSystemStructureDisplayModel moduleDisplayModel)
+        private List<ModelSystemStructureDisplayModel> GenerateUpdateModulePathToRoot(
+            ModelSystemStructureDisplayModel moduleDisplayModel)
         {
-            List<ModelSystemStructureDisplayModel> pathList = new List<ModelSystemStructureDisplayModel>();
+            var pathList = new List<ModelSystemStructureDisplayModel>();
             pathList.Add(moduleDisplayModel);
             while (moduleDisplayModel.Parent != null)
             {
@@ -73,44 +73,44 @@ namespace XTMF.Gui.UserControls
 
             return pathList;
         }
+
         /// <summary>
-        /// Updates the item source of ModulePathList to contain the path to the root module
+        ///     Updates the item source of ModulePathList to contain the path to the root module
         /// </summary>
         /// <param name="module"></param>
         private void UpdateModulePathToRoot(ModelSystemStructureDisplayModel module)
-        {   
+        {
             ModulePathList.ItemsSource = GenerateUpdateModulePathToRoot(module);
         }
 
 
-
         /// <summary>
-        /// Mouse double-click handler for each individual list in the module context path. This will call the associated event listeners
+        ///     Mouse double-click handler for each individual list in the module context path. This will call the associated event
+        ///     listeners
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            Label sourceLabel = sender as Label;
-    
-            ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)sourceLabel.Tag));
+            var sourceLabel = sender as Label;
+
+            ModuleContextChanged?.Invoke(sender,
+                new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel) sourceLabel.Tag));
         }
 
 
-
         /// <summary>
-        /// 
+        /// Prepares the contetx menu with appropriate items before rendering
         /// </summary>
         /// <param name="selectedModule"></param>
         /// <param name="menu"></param>
         private void PrepareMenu(ModelSystemStructureDisplayModel selectedModule, ContextMenu menu)
         {
-
             menu.Items.Clear();
 
             selectedModule.Children?.ToList().ForEach(item =>
             {
-                MenuItem menuItem = new MenuItem
+                var menuItem = new MenuItem
                 {
                     Header = item.Name,
                     Tag = item
@@ -124,72 +124,58 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// Event listener for click of the module context listview's menu. This will trigger the ModuleContextChanged event (if set).
+        ///     Event listener for click of the module context listview's menu. This will trigger the ModuleContextChanged event
+        ///     (if set).
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ModuleContextMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem senderMenuItem = sender as MenuItem;
+            var senderMenuItem = sender as MenuItem;
 
-            ModelSystemStructureDisplayModel moduleDisplayModel = senderMenuItem.Tag as ModelSystemStructureDisplayModel;
-            
+            var moduleDisplayModel = senderMenuItem.Tag as ModelSystemStructureDisplayModel;
+
             //determine type of module, non-collections get immediately called the the listener
-            if ((moduleDisplayModel != null && moduleDisplayModel.Children != null && !moduleDisplayModel.IsCollection) && moduleDisplayModel.Children.Count == 0)
-            {
-                ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)senderMenuItem.Tag));
-            }
+            if (moduleDisplayModel != null && moduleDisplayModel.Children != null && !moduleDisplayModel.IsCollection &&
+                moduleDisplayModel.Children.Count == 0)
+                ModuleContextChanged?.Invoke(sender,
+                    new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel) senderMenuItem.Tag));
             else
-            {
-              
                 Application.Current.Dispatcher.BeginInvoke(
                     DispatcherPriority.DataBind,
-                    new Action(() => {
-                        this.ModulePathList.ItemsSource = GenerateUpdateModulePathToRoot(moduleDisplayModel);
+                    new Action(() =>
+                    {
+                        ModulePathList.ItemsSource = GenerateUpdateModulePathToRoot(moduleDisplayModel);
 
                         var item =
-                            this.ModulePathList.ItemContainerGenerator.ContainerFromItem(moduleDisplayModel) as
+                            ModulePathList.ItemContainerGenerator.ContainerFromItem(moduleDisplayModel) as
                                 ListViewItem;
                         if (item != null)
                         {
                             item.ContextMenu = new ContextMenu();
                             DisplayModulePathContextMenu(moduleDisplayModel, item, item.ContextMenu);
-
                         }
                     }));
-
-
-            }
-
-        
         }
 
-       
 
         /// <summary>
-        /// Generates a path to use as an icon for the module context menu (displays same icon as in the model system tree view)
+        ///     Generates a path to use as an icon for the module context menu (displays same icon as in the model system tree
+        ///     view)
         /// </summary>
         /// <param name="module"></param>
         private Path GenerateIconForModule(ModelSystemStructureDisplayModel module)
         {
-            Path path = new Path();
+            var path = new Path();
             if (module.IsCollection)
-            {
-               
-                path.Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"];
-               
-            }
+                path.Data = (PathGeometry) Application.Current.Resources["CollectionIconPath"];
             else if (module.IsMetaModule)
-            {
                 path.Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"];
-            }
             else if (!module.IsMetaModule && !module.IsCollection)
-            {
                 path.Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"];
-            }
 
             //scale and set colour of the icon path
-            path.Fill = (System.Windows.Media.Brush)Application.Current.Resources["ThemeTextColorBrush"];
+            path.Fill = (Brush) Application.Current.Resources["ThemeTextColorBrush"];
             path.Stretch = Stretch.UniformToFill;
             path.MaxWidth = 12;
             path.MaxHeight = 12;
@@ -197,67 +183,66 @@ namespace XTMF.Gui.UserControls
             return path;
         }
 
-       
+
         /// <summary>
-        /// Invoked when the selected module in the path list is changed.
+        ///     Invoked when the selected module in the path list is changed.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ModulePathList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)ModulePathList.SelectedItem));
+            ModuleContextChanged?.Invoke(sender,
+                new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel) ModulePathList.SelectedItem));
         }
 
 
         /// <summary>
-        /// Displays the selected module's context menu, placing it at the listViewItem target.
+        ///     Displays the selected module's context menu, placing it at the listViewItem target.
         /// </summary>
         /// <param name="selectedModule"></param>
         /// <param name="listViewItem"></param>
         /// <param name="menu"></param>
-        private void DisplayModulePathContextMenu(ModelSystemStructureDisplayModel selectedModule, ListViewItem listViewItem, ContextMenu menu)
+        private void DisplayModulePathContextMenu(ModelSystemStructureDisplayModel selectedModule,
+            ListViewItem listViewItem, ContextMenu menu)
         {
-            this.PrepareMenu(selectedModule, menu);
+            PrepareMenu(selectedModule, menu);
 
             if (menu != null && selectedModule.Children != null && selectedModule.Children.Count > 0)
             {
-
                 menu.PlacementTarget = listViewItem;
                 menu.Placement = PlacementMode.Bottom;
                 menu.HorizontalOffset = -20;
                 menu.VerticalOffset = -8;
                 menu.IsOpen = true;
             }
-
         }
 
         /// <summary>
-        /// 
+        /// Event for when the context menu closes, will select the active module if navigation terminated on a list item.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ContextMenu_Closed(object sender, RoutedEventArgs e)
         {
             //if the menu closed, make sure the proper item is selected
-            var listViewItem = ModulePathList.ItemContainerGenerator.ContainerFromIndex(ModulePathList.Items.Count - 1) as ListViewItem;
+            var listViewItem =
+                ModulePathList.ItemContainerGenerator.ContainerFromIndex(
+                    ModulePathList.Items.Count - 1) as ListViewItem;
             var module = listViewItem.DataContext as ModelSystemStructureDisplayModel;
 
             if (ActiveDisplayModule != module)
-            {
                 ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs(module));
-            }
         }
 
-     
 
         /// <summary>
-        /// 
+        /// Right mouse button event listener for each item in the context list, will display the module's context menu.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ModulePathList_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            StackPanel listView = (StackPanel) sender;
+            var listView = (StackPanel) sender;
 
             var selectedModule = listView.Tag as ModelSystemStructureDisplayModel;
 
@@ -266,24 +251,20 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
                 return;
             }
-            ListViewItem listViewItem = (ListViewItem)ModulePathList.ItemContainerGenerator.ContainerFromItem(selectedModule);
+            var listViewItem = (ListViewItem) ModulePathList.ItemContainerGenerator.ContainerFromItem(selectedModule);
             listViewItem.ContextMenu = new ContextMenu();
 
 
+            DisplayModulePathContextMenu(selectedModule, listViewItem, listViewItem.ContextMenu);
 
-            DisplayModulePathContextMenu(selectedModule,listViewItem, listViewItem.ContextMenu);
-          
 
             e.Handled = true;
         }
-
-    
     }
 
 
-
     /// <summary>
-    /// Custom Event for triggering selected Module context change inside of the ModelSystemDisplay control
+    ///     Custom Event for triggering selected Module context change inside of the ModelSystemDisplay control
     /// </summary>
     public class ModuleContextChangedEventArgs : EventArgs
     {
@@ -291,6 +272,7 @@ namespace XTMF.Gui.UserControls
         {
             Module = module;
         }
+
         public ModelSystemStructureDisplayModel Module { get; }
     }
 }
