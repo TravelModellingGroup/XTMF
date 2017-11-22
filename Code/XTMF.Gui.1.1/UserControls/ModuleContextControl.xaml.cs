@@ -105,27 +105,23 @@ namespace XTMF.Gui.UserControls
         /// <param name="menu"></param>
         private void PrepareMenu(ModelSystemStructureDisplayModel selectedModule, ContextMenu menu)
         {
-            //menu.PlacementTarget = listView;
-            menu.Placement = PlacementMode.Bottom;
+
             menu.Items.Clear();
 
-            if (selectedModule.Children != null)
+            selectedModule.Children?.ToList().ForEach(item =>
             {
-                selectedModule.Children.ToList().ForEach(item =>
+                MenuItem menuItem = new MenuItem
                 {
-                    MenuItem menuItem = new MenuItem();
-                    menuItem.Header = item.Name;
-                    menuItem.Tag = item;
-                    menu.Items.Add(menuItem);
-                    menuItem.Click += ModuleContextMenuItem_Click;
+                    Header = item.Name,
+                    Tag = item
+                };
+                menu.Items.Add(menuItem);
+                menuItem.Click += ModuleContextMenuItem_Click;
 
-                    menuItem.Icon = GenerateIconForModule(item);
-                });
-
-            }
-
-
+                menuItem.Icon = GenerateIconForModule(item);
+            });
         }
+
 
         /// <summary>
         /// Event listener for click of the module context listview's menu. This will trigger the ModuleContextChanged event (if set).
@@ -155,7 +151,11 @@ namespace XTMF.Gui.UserControls
                             this.ModulePathList.ItemContainerGenerator.ContainerFromItem(moduleDisplayModel) as
                                 ListViewItem;
                         if (item != null)
-                            DisplayModulePathContextMenu(moduleDisplayModel,item);
+                        {
+                            item.ContextMenu = new ContextMenu();
+                            DisplayModulePathContextMenu(moduleDisplayModel, item, item.ContextMenu);
+
+                        }
                     }));
 
 
@@ -209,21 +209,26 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        private void DisplayModulePathContextMenu(ModelSystemStructureDisplayModel selectedModule, ListViewItem listViewItem)
+        /// <summary>
+        /// Displays the selected module's context menu, placing it at the listViewItem target.
+        /// </summary>
+        /// <param name="selectedModule"></param>
+        /// <param name="listViewItem"></param>
+        /// <param name="menu"></param>
+        private void DisplayModulePathContextMenu(ModelSystemStructureDisplayModel selectedModule, ListViewItem listViewItem, ContextMenu menu)
         {
-            this.PrepareMenu(selectedModule, ModulePathList.ContextMenu);
+            this.PrepareMenu(selectedModule, menu);
 
-            if (ModulePathList.ContextMenu != null)
+            if (menu != null && selectedModule.Children != null && selectedModule.Children.Count > 0)
             {
-                ModulePathList.ContextMenu.PlacementTarget = listViewItem;
-                ModulePathList.ContextMenu.Placement = PlacementMode.Bottom;
-                ModulePathList.ContextMenu.HorizontalOffset = -20;
-                ModulePathList.ContextMenu.VerticalOffset = -8;
-                ModulePathList.ContextMenu.IsOpen = true;
+
+                menu.PlacementTarget = listViewItem;
+                menu.Placement = PlacementMode.Bottom;
+                menu.HorizontalOffset = -20;
+                menu.VerticalOffset = -8;
+                menu.IsOpen = true;
             }
 
-         
-           
         }
 
         /// <summary>
@@ -262,7 +267,11 @@ namespace XTMF.Gui.UserControls
                 return;
             }
             ListViewItem listViewItem = (ListViewItem)ModulePathList.ItemContainerGenerator.ContainerFromItem(selectedModule);
-            DisplayModulePathContextMenu(selectedModule,listViewItem);
+            listViewItem.ContextMenu = new ContextMenu();
+
+
+
+            DisplayModulePathContextMenu(selectedModule,listViewItem, listViewItem.ContextMenu);
           
 
             e.Handled = true;

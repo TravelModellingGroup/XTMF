@@ -6,8 +6,12 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    
+   
+    
     <Grid SnapsToDevicePixels="True"  Background="{DynamicResource WindowBackgroundBrush2}">
 
+        
 
 
         <ListView  SnapsToDevicePixels="True"  SelectionMode="Single" SelectionChanged="ModulePathList_OnSelectionChanged"  BorderThickness="0"  Background="{DynamicResource WindowBackgroundBrush2}"   x:Name="ModulePathList">
@@ -32,14 +36,11 @@
                     </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
-            <ListView.ContextMenu>
-                <ContextMenu Closed="ContextMenu_Closed" Name="ModuleContextMenu" Placement="Bottom">
-
-                </ContextMenu>
-            </ListView.ContextMenu>
+ 
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel SnapsToDevicePixels="True" Orientation="Horizontal">
+                      
 
                     </StackPanel>
                 </ItemsPanelTemplate>
