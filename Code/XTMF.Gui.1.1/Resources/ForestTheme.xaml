@@ -35,6 +35,9 @@
     <SolidColorBrush x:Key="AvalonDockThemeVs2013PanelBorderBrush" Color="#FFCCCEDB" />
     <SolidColorBrush x:Key="AvalonDockThemeVs2013TabBackground" Color="#FFF5F5F5" />
 
+    <Color x:Key="AccentColour">#BFE4CA</Color>
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColour}"></SolidColorBrush>
+
     <!-- Auto Hide : Tab -->
     <SolidColorBrush x:Key="AvalonDockThemeVs2013AutoHideTabDefaultBackground" Color="#EEEEF2" />
     <SolidColorBrush x:Key="AvalonDockThemeVs2013AutoHideTabDefaultBorder" Color="#CCCEDB" />

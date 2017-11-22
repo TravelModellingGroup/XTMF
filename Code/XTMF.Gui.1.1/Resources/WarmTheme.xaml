@@ -32,6 +32,9 @@
         <GradientStop Color="#FFD69E09" Offset="0"/>
     </LinearGradientBrush>
 
+    <Color x:Key="AccentColour">#BFCAE4</Color>
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColour}"></SolidColorBrush>
+
     <!-- General -->
     <SolidColorBrush x:Key="AvalonDockThemeVs2013Background" Color="#EEEEF2" />
     <SolidColorBrush x:Key="AvalonDockThemeVs2013PanelBorderBrush" Color="#FFCCCEDB" />

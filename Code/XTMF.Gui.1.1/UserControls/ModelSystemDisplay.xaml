@@ -168,7 +168,7 @@
                 <ColumnDefinition MinWidth="330px" Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="54"></RowDefinition>
+                <RowDefinition Height="44"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="3"></RowDefinition>
             </Grid.RowDefinitions>
@@ -177,7 +177,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="24"></RowDefinition>
-                        <RowDefinition Height="32"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <this:FlatToolButton ToolText="Linked Parameters" Height="24" Click="LinkedParameter_Click">

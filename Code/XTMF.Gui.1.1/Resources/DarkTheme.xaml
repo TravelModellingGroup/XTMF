@@ -44,6 +44,9 @@
     <SolidColorBrush x:Key="MediumGrayBackgroundBrush" Color="#FF252526"></SolidColorBrush>
     <SolidColorBrush x:Key="DarkGrayBackgroundBrush" Color="#FF1F1F1F"></SolidColorBrush>
 
+    <Color x:Key="AccentColour">#4C6087</Color>
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColour}"></SolidColorBrush>
+
     <Color x:Key="GridStrokeColour">#434343</Color>
     <SolidColorBrush x:Key="GridStrokeBrush" Color="{DynamicResource GridStrokeColour}"></SolidColorBrush>
     <s:String x:Key="AvalonDockTheme">Xceed.Wpf.AvalonDock.Themes.Vs2013DarkTheme,Xceed.Wpf.AvalonDock.Themes.VS2013</s:String>

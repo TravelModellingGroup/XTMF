@@ -8,6 +8,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using XTMF.Gui.Models;
 using Brushes = System.Windows.Media.Brushes;
 
@@ -54,21 +55,31 @@ namespace XTMF.Gui.UserControls
 
         }
 
+
+        /// <summary>
+        /// Generates a list, in order from root to passed active module
+        /// </summary>
+        /// <param name="moduleDisplayModel"></param>
+        /// <returns></returns>
+        private List<ModelSystemStructureDisplayModel> GenerateUpdateModulePathToRoot(ModelSystemStructureDisplayModel moduleDisplayModel)
+        {
+            List<ModelSystemStructureDisplayModel> pathList = new List<ModelSystemStructureDisplayModel>();
+            pathList.Add(moduleDisplayModel);
+            while (moduleDisplayModel.Parent != null)
+            {
+                pathList.Insert(0, moduleDisplayModel.Parent);
+                moduleDisplayModel = moduleDisplayModel.Parent;
+            }
+
+            return pathList;
+        }
         /// <summary>
         /// Updates the item source of ModulePathList to contain the path to the root module
         /// </summary>
         /// <param name="module"></param>
         private void UpdateModulePathToRoot(ModelSystemStructureDisplayModel module)
-        {
-            List<ModelSystemStructureDisplayModel> pathList = new List<ModelSystemStructureDisplayModel>();
-            pathList.Add(module);
-            while (module.Parent != null)
-            {
-                pathList.Insert(0,module.Parent);
-                module = module.Parent;
-            }
-            ModulePathList.ItemsSource = pathList;
-
+        {   
+            ModulePathList.ItemsSource = GenerateUpdateModulePathToRoot(module);
         }
 
 
@@ -80,26 +91,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-          
             Label sourceLabel = sender as Label;
-
+    
             ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)sourceLabel.Tag));
         }
 
-        
 
-        /// <summary>
-        /// Called before the context menu opens (specific module context menu)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FrameworkElement_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-
-
-           
-
-        }
 
         /// <summary>
         /// 
@@ -112,9 +109,9 @@ namespace XTMF.Gui.UserControls
             menu.Placement = PlacementMode.Bottom;
             menu.Items.Clear();
 
-            if (selectedModule.Parent != null)
+            if (selectedModule.Children != null)
             {
-                selectedModule.Parent.Children.ToList().ForEach(item =>
+                selectedModule.Children.ToList().ForEach(item =>
                 {
                     MenuItem menuItem = new MenuItem();
                     menuItem.Header = item.Name;
@@ -122,12 +119,10 @@ namespace XTMF.Gui.UserControls
                     menu.Items.Add(menuItem);
                     menuItem.Click += ModuleContextMenuItem_Click;
 
-                    menuItem.Icon = GenerateIconForModule(selectedModule);
+                    menuItem.Icon = GenerateIconForModule(item);
                 });
 
             }
-
-            
 
 
         }
@@ -141,7 +136,32 @@ namespace XTMF.Gui.UserControls
         {
             MenuItem senderMenuItem = sender as MenuItem;
 
-            ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)senderMenuItem.Tag));
+            ModelSystemStructureDisplayModel moduleDisplayModel = senderMenuItem.Tag as ModelSystemStructureDisplayModel;
+            
+            //determine type of module, non-collections get immediately called the the listener
+            if ((moduleDisplayModel != null && moduleDisplayModel.Children != null && !moduleDisplayModel.IsCollection) && moduleDisplayModel.Children.Count == 0)
+            {
+                ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)senderMenuItem.Tag));
+            }
+            else
+            {
+              
+                Application.Current.Dispatcher.BeginInvoke(
+                    DispatcherPriority.DataBind,
+                    new Action(() => {
+                        this.ModulePathList.ItemsSource = GenerateUpdateModulePathToRoot(moduleDisplayModel);
+
+                        var item =
+                            this.ModulePathList.ItemContainerGenerator.ContainerFromItem(moduleDisplayModel) as
+                                ListViewItem;
+                        if (item != null)
+                            DisplayModulePathContextMenu(moduleDisplayModel,item);
+                    }));
+
+
+            }
+
+        
         }
 
        
@@ -188,6 +208,43 @@ namespace XTMF.Gui.UserControls
             ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs((ModelSystemStructureDisplayModel)ModulePathList.SelectedItem));
         }
 
+
+        private void DisplayModulePathContextMenu(ModelSystemStructureDisplayModel selectedModule, ListViewItem listViewItem)
+        {
+            this.PrepareMenu(selectedModule, ModulePathList.ContextMenu);
+
+            if (ModulePathList.ContextMenu != null)
+            {
+                ModulePathList.ContextMenu.PlacementTarget = listViewItem;
+                ModulePathList.ContextMenu.Placement = PlacementMode.Bottom;
+                ModulePathList.ContextMenu.HorizontalOffset = -20;
+                ModulePathList.ContextMenu.VerticalOffset = -8;
+                ModulePathList.ContextMenu.IsOpen = true;
+            }
+
+         
+           
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ContextMenu_Closed(object sender, RoutedEventArgs e)
+        {
+            //if the menu closed, make sure the proper item is selected
+            var listViewItem = ModulePathList.ItemContainerGenerator.ContainerFromIndex(ModulePathList.Items.Count - 1) as ListViewItem;
+            var module = listViewItem.DataContext as ModelSystemStructureDisplayModel;
+
+            if (ActiveDisplayModule != module)
+            {
+                ModuleContextChanged?.Invoke(sender, new ModuleContextChangedEventArgs(module));
+            }
+        }
+
+     
+
         /// <summary>
         /// 
         /// </summary>
@@ -204,19 +261,14 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
                 return;
             }
-
-            this.PrepareMenu(selectedModule, ModulePathList.ContextMenu);
-
             ListViewItem listViewItem = (ListViewItem)ModulePathList.ItemContainerGenerator.ContainerFromItem(selectedModule);
-
-            ModulePathList.ContextMenu.PlacementTarget = listViewItem;
-            ModulePathList.ContextMenu.Placement = PlacementMode.Bottom;
-            ModulePathList.ContextMenu.HorizontalOffset = -20;
-            ModulePathList.ContextMenu.VerticalOffset = -8;
-            ModulePathList.ContextMenu.IsOpen = true;
+            DisplayModulePathContextMenu(selectedModule,listViewItem);
+          
 
             e.Handled = true;
         }
+
+    
     }
 
 

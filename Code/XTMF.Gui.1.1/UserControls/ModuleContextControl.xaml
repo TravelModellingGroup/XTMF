@@ -6,13 +6,11 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid  Background="{DynamicResource WindowBackgroundBrush2}">
+    <Grid SnapsToDevicePixels="True"  Background="{DynamicResource WindowBackgroundBrush2}">
 
 
 
-        <Label Content="Some Text"></Label>
-
-        <ListView  SelectionMode="Single" SelectionChanged="ModulePathList_OnSelectionChanged"  BorderThickness="0"  Background="{DynamicResource WindowBackgroundBrush2}"   x:Name="ModulePathList"  ContextMenuOpening="FrameworkElement_OnContextMenuOpening">
+        <ListView  SnapsToDevicePixels="True"  SelectionMode="Single" SelectionChanged="ModulePathList_OnSelectionChanged"  BorderThickness="0"  Background="{DynamicResource WindowBackgroundBrush2}"   x:Name="ModulePathList">
 
             <ListView.ItemContainerStyle>
 
@@ -34,14 +32,14 @@
                     </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
-            <ListView.ContextMenu  >
-                <ContextMenu Name="ModuleContextMenu" Placement="Bottom">
+            <ListView.ContextMenu>
+                <ContextMenu Closed="ContextMenu_Closed" Name="ModuleContextMenu" Placement="Bottom">
 
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel SnapsToDevicePixels="True" Orientation="Horizontal">
 
                     </StackPanel>
                 </ItemsPanelTemplate>
@@ -49,39 +47,130 @@
 
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel PreviewMouseRightButtonDown="ModulePathList_OnPreviewMouseRightButtonDown" Tag="{Binding Path=.}"  Orientation="Horizontal">
+                    <StackPanel SnapsToDevicePixels="True"  Margin="-8,0,0,0" PreviewMouseRightButtonDown="ModulePathList_OnPreviewMouseRightButtonDown" Tag="{Binding Path=.}"  Orientation="Horizontal">
 
+                        <Grid SnapsToDevicePixels="True">
+                            <Polyline  SnapsToDevicePixels="True" StrokeThickness="1" Points="0,0 6,10 0,19" Stroke="{DynamicResource AccentBrush}">
+                            <Polyline.Style>
+                                <Style TargetType="{x:Type Polyline}">
+                                    <Style.Triggers>
 
+                                      
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
+                                            <Setter Property="StrokeThickness" Value="0">
 
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Polyline.Style>
+                            </Polyline>
+                            <Polyline  SnapsToDevicePixels="True" StrokeThickness="0" Points="1,0 7,10 1,19 8,19 8,0">
+                                <Polyline.Style>
+                                    <Style TargetType="{x:Type Polyline}">
+                                        <Style.Triggers>
 
-                        <Border BorderThickness="0,1,0,1"  BorderBrush="{DynamicResource WindowBackgroundBrush4}">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="False" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Fill" Value="{DynamicResource WindowBackgroundBrush2}">
+
+                                                </Setter>
+                                            </MultiDataTrigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="True" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover3}">
+
+                                                </Setter>
+                                            </MultiDataTrigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="True" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover2}">
+
+                                                </Setter>
+                                            </MultiDataTrigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="False" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Fill" Value="{DynamicResource ControlColourBrush}">
+
+                                                </Setter>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Polyline.Style>
+                            </Polyline>
+                        </Grid>
+
+                     
+                        <Border  SnapsToDevicePixels="True" BorderThickness="0,0,0,0"  BorderBrush="{DynamicResource WindowBackgroundBrush4}">
                             <Border.Style>
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
 
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}" Value="True">
+                                         <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="False" />
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}">
+
+                                        </Setter>
+                                        </MultiDataTrigger>
+
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="True" />
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}">
+
+                                            </Setter>
+                                        </MultiDataTrigger>
+
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="True" />
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False" />
+                                            </MultiDataTrigger.Conditions>
                                             <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}">
 
                                             </Setter>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}" Value="False">
-                                            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}">
+                                        </MultiDataTrigger>
 
-                                            </Setter>
-                                        </DataTrigger>
-
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="False" />
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
                                             <Setter Property="Background" Value="{DynamicResource ControlColourBrush}">
 
                                             </Setter>
-                                        </DataTrigger>
+                                        </MultiDataTrigger>
+
+
+
+
                                     </Style.Triggers>
 
 
                                 </Style>
                             </Border.Style>
-                            <StackPanel   Orientation="Horizontal"  HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Label  Tag="{Binding Path=.}"  Content="{Binding Path=Name}" MouseDoubleClick="Control_OnMouseDoubleClick" HorizontalAlignment="Center">
+                            <StackPanel  SnapsToDevicePixels="True"   Orientation="Horizontal"  HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Label Margin="0,-5,0,0" SnapsToDevicePixels="True"  Tag="{Binding Path=.}"  Content="{Binding Path=Name}" MouseDoubleClick="Control_OnMouseDoubleClick" HorizontalAlignment="Center">
                                     <Label.Style >
                                         <Style TargetType="{x:Type Label}">
                                             
@@ -113,28 +202,53 @@
 
                             </StackPanel>
                         </Border>
-                        <Grid>
-                            <Polyline StrokeThickness="2" Points="0,0 14,14, 0,28" Stroke="{DynamicResource WindowBackgroundBrush4}" Fill="{DynamicResource WindowBackgroundBrush2}" />
-                            <Polyline StrokeThickness="2" Points="0,0 13,14, 0,28">
+                        <Grid  SnapsToDevicePixels="True">
+                            
+                            <Polyline  SnapsToDevicePixels="True" StrokeThickness="2" Points="0,0 5,10, 0,19">
                                 <Polyline.Style>
                                     <Style TargetType="{x:Type Polyline}">
                                         <Style.Triggers>
 
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}" Value="True">
-                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover2}">
 
-                                                </Setter>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}" Value="False">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="False" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False" />
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter Property="Fill" Value="{DynamicResource WindowBackgroundBrush2}">
 
                                                 </Setter>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
+                                            </MultiDataTrigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="True" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover3}">
+
+                                                </Setter>
+                                            </MultiDataTrigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="True" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover2}">
+
+                                                </Setter>
+                                            </MultiDataTrigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"  Value="False" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter Property="Fill" Value="{DynamicResource ControlColourBrush}">
 
                                                 </Setter>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Polyline.Style>
