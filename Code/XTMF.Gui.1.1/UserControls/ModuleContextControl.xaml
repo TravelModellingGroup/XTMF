@@ -47,7 +47,7 @@
 
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel SnapsToDevicePixels="True"  Margin="-8,0,0,0" PreviewMouseRightButtonDown="ModulePathList_OnPreviewMouseRightButtonDown" Tag="{Binding Path=.}"  Orientation="Horizontal">
+                    <StackPanel ToolTip="{Binding Name}"  SnapsToDevicePixels="True"  Margin="-8,0,0,0" PreviewMouseRightButtonDown="ModulePathList_OnPreviewMouseRightButtonDown" Tag="{Binding Path=.}"  Orientation="Horizontal">
 
                         <Grid SnapsToDevicePixels="True">
                             <Polyline  SnapsToDevicePixels="True" StrokeThickness="1" Points="0,0 6,10 0,19" Stroke="{DynamicResource AccentBrush}">
@@ -170,7 +170,8 @@
                                 </Style>
                             </Border.Style>
                             <StackPanel  SnapsToDevicePixels="True"   Orientation="Horizontal"  HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Label Margin="0,-5,0,0" SnapsToDevicePixels="True"  Tag="{Binding Path=.}"  Content="{Binding Path=Name}" MouseDoubleClick="Control_OnMouseDoubleClick" HorizontalAlignment="Center">
+                                <Label  MaxWidth="200" Margin="0,-5,0,0" SnapsToDevicePixels="True"  Tag="{Binding Path=.}"  MouseDoubleClick="Control_OnMouseDoubleClick" HorizontalAlignment="Center">
+                                
                                     <Label.Style >
                                         <Style TargetType="{x:Type Label}">
                                             
@@ -195,6 +196,8 @@
                                             
                                         </Style>
                                     </Label.Style>
+
+                                    <TextBlock TextTrimming="CharacterEllipsis" Text="{Binding Name}"></TextBlock>
                                 </Label>
 
 
