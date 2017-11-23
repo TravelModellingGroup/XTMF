@@ -58,8 +58,8 @@
                                 Tag="{Binding Path=.}" Orientation="Horizontal">
 
                         <Grid SnapsToDevicePixels="True">
-                            <Polyline SnapsToDevicePixels="True" StrokeThickness="1" Points="0,0 6,10 0,19"
-                                      Stroke="{DynamicResource AccentBrush}">
+                            <Polyline SnapsToDevicePixels="True" StrokeThickness="1.5" Points="0,0 6,10 0,19"
+                                    >
                                 <Polyline.Style>
                                     <Style TargetType="{x:Type Polyline}">
                                         <Style.Triggers>
@@ -68,7 +68,12 @@
                                             <DataTrigger
                                                 Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                 Value="True">
-                                                <Setter Property="StrokeThickness" Value="0" />
+                                                <Setter Property="Stroke" Value="{DynamicResource FocusBrushHover2}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
+                                                Value="False">
+                                                <Setter Property="Stroke" Value="{DynamicResource AccentBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

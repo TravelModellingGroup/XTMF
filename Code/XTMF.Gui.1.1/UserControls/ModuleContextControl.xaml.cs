@@ -117,6 +117,7 @@ namespace XTMF.Gui.UserControls
                 };
                 menu.Items.Add(menuItem);
                 menuItem.Click += ModuleContextMenuItem_Click;
+                menu.Closed += ContextMenu_Closed;
 
                 menuItem.Icon = GenerateIconForModule(item);
             });
