@@ -43,10 +43,13 @@ namespace XTMF.Run
                 {
                     Project temp = new Project(Path.GetFileName(runDirectory), configuration, true);
                     ((ProjectRepository)(configuration.ProjectRepository)).SetActiveProject(temp);
+                    temp.ExternallySaved += (o, e) =>
+                    {
+                        SendProjectSaved(null);
+                    };
                     var msAsBytes = Encoding.Unicode.GetBytes(modelSystemString);
                     memStream.Write(msAsBytes, 0, msAsBytes.Length);
                     memStream.Position = 0;
-
                     var mss = ModelSystemStructure.Load(memStream, configuration);
                     _Root = (ModelSystemStructure)mss;
                     temp.ModelSystemStructure.Add(_Root);
@@ -103,6 +106,7 @@ namespace XTMF.Run
                         return;
                     }
                     _Root.Save(Path.Combine(RunDirectory, "RunParameters.xml"));
+                    ModelSystemStructureModelRoot = new ModelSystemStructureModel(null, _Root);
                     MST.Start();
                     InvokeRunCompleted();
                 }

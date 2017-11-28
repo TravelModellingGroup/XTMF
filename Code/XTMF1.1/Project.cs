@@ -408,13 +408,22 @@ namespace XTMF
             {
                 Directory.CreateDirectory(dirName);
             }
-            var ret = Save(Path.Combine(dirName, "Project.xml"), ref error);
-            if (_ClonedFrom != null)
+            bool ret;
+            if (((Configuration)_Configuration).DivertSaveRequests)
             {
-                var e = _ClonedFrom.ExternallySaved;
-                // swap the project that this was a clone of and replace the real project.
-                ((ProjectRepository)_Configuration.ProjectRepository).ReplaceProjectFromClone(_ClonedFrom, this);
-                e?.Invoke(_ClonedFrom, new ProjectExternallySavedEventArgs(_ClonedFrom, this));
+                ret = true;
+                ExternallySaved?.Invoke(this, new ProjectExternallySavedEventArgs(this, null));
+            }
+            else
+            {
+                ret = Save(Path.Combine(dirName, "Project.xml"), ref error);
+                if (_ClonedFrom != null)
+                {
+                    var e = _ClonedFrom.ExternallySaved;
+                    // swap the project that this was a clone of and replace the real project.
+                    ((ProjectRepository)_Configuration.ProjectRepository).ReplaceProjectFromClone(_ClonedFrom, this);
+                    e?.Invoke(_ClonedFrom, new ProjectExternallySavedEventArgs(_ClonedFrom, this));
+                }
             }
             return ret;
         }

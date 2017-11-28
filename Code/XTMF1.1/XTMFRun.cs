@@ -135,6 +135,11 @@ namespace XTMF
         public event Action ValidationStarting;
 
         /// <summary>
+        /// An event the fires when the running project has saved itself
+        /// </summary>
+        public event Action<XTMFRun, ModelSystemStructure> ProjectSavedByRun;
+
+        /// <summary>
         /// Attempt to ask the model system to exit.
         /// Even if this returns true it will not happen right away.
         /// </summary>
@@ -320,6 +325,11 @@ namespace XTMF
             {
                 RunMessage?.Invoke(message);
             }
+        }
+
+        protected void SendProjectSaved(ModelSystemStructure mss)
+        {
+            ProjectSavedByRun?.Invoke(this, mss);
         }
     }
 }

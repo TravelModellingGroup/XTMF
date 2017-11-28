@@ -1,5 +1,4 @@
-﻿using System;
-/*
+﻿/*
     Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
@@ -17,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -190,11 +190,7 @@ namespace TMG.Estimation
             if (CurrentJobIndex < CurrentJobs.Count)
             {
                 CurrentJobs[CurrentJobIndex].Value = result;
-                var e = FitnessFunctionEvaluated;
-                if (e != null)
-                {
-                    e(CurrentJobs[CurrentJobIndex], CurrentIteration, result);
-                }
+                FitnessFunctionEvaluated?.Invoke(CurrentJobs[CurrentJobIndex], CurrentIteration, result);
                 CurrentJobIndex++;
             }
             Progress = ((float)CurrentIteration / TotalIterations) + ((float)CurrentJobIndex) / (CurrentJobs.Count * TotalIterations);

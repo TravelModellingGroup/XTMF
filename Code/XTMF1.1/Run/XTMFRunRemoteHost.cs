@@ -155,6 +155,9 @@ namespace XTMF.Run
                             case ToHost.ClientFinishedModelSystem:
                             case ToHost.ClientExiting:
                                 return;
+                            case ToHost.ProjectSaved:
+                                LoadAndSignalModelSystem(reader);
+                                break;
                         }
                     }
                 }
@@ -163,6 +166,29 @@ namespace XTMF.Run
                     ClientExiting.Release();
                 }
             }, TaskCreationOptions.LongRunning);
+        }
+
+        private void LoadAndSignalModelSystem(BinaryReader reader)
+        {
+            try
+            {
+                var length = (int)reader.ReadInt64();
+                byte[] msText = new byte[length];
+                var soFar = 0;
+                while(soFar < length)
+                {
+                    soFar += reader.Read(msText, soFar, length - soFar);
+                }
+                using (var stream = new MemoryStream(msText))
+                {
+                    var mss = ModelSystemStructure.Load(stream, Configuration);
+                    SendProjectSaved(mss as ModelSystemStructure);
+                }
+            }
+            catch(Exception e)
+            {
+                SendRunMessage(e.Message + "\r\n" + e.StackTrace);
+            }
         }
 
         private static List<ErrorWithPath> ReadErrors(BinaryReader reader)

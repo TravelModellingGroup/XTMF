@@ -1043,8 +1043,8 @@ namespace XTMF
                 else
                 {
                     var previousChildren = (from child in Children
-                                          where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
-                                          select child).ToList();
+                                            where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
+                                            select child).ToList();
                     foreach (var child in previousChildren)
                     {
                         ret.Remove(child);
@@ -1275,6 +1275,34 @@ namespace XTMF
                 ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
             }
             return true;
+        }
+
+        /// <summary>
+        /// Save a model system starting at this point as the root.
+        /// </summary>
+        /// <param name="saveTo">The stream to save the result to.</param>
+        /// <returns>True if the operation was successfully completed.</returns>
+        public bool Save(Stream saveTo)
+        {
+            // save to a temporary stream in case of a failure
+            using (MemoryStream tempStream = new MemoryStream())
+            {
+                try
+                {
+                    RealModelSystemStructure.Save(tempStream);
+                    tempStream.Position = 0;
+                    // if we have successfully saved continue by copying it to the real stream.
+                    BinaryWriter writer = new BinaryWriter(saveTo, Encoding.Unicode, true);
+                    writer.Write(tempStream.Length);
+                    writer.Flush();
+                    tempStream.WriteTo(saveTo);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
         }
     }
 }

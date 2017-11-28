@@ -94,7 +94,10 @@ namespace XTMF.Run
                     Task.Factory.StartNew(() =>
                     {
                         var reader = new BinaryReader(clientStream, Encoding.Unicode, true);
-                        Configuration config = new Configuration(reader.ReadString());
+                        Configuration config = new Configuration(reader.ReadString())
+                        {
+                            DivertSaveRequests = true
+                        };
                         runtime = new XTMFRuntime(config);
                         try
                         {
@@ -175,6 +178,16 @@ namespace XTMF.Run
                         WriteError(writer, error);
                     });
                     messageQueue.CompleteAdding();
+                };
+                run.ProjectSavedByRun += (_,_2) =>
+                {
+                    WriteMessageToStream(messageQueue, (writer) =>
+                    {
+                        writer.Write((Int32)ToHost.ProjectSaved);
+                        writer.Flush();
+                        run.ModelSystemStructureModelRoot.Save(writer.BaseStream);
+                        writer.BaseStream.Flush();
+                    });
                 };
                 run.RunCompleted += () =>
                 {

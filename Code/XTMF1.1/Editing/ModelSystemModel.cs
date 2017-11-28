@@ -223,6 +223,11 @@ namespace XTMF
             return quickParameters;
         }
 
+        internal void SetRoot(ModelSystemStructure newMSS)
+        {
+            
+        }
+
         private void AddQuickParameters(ObservableCollection<ParameterModel> quickParameters, ModelSystemStructureModel current)
         {
             var parameters = current.Parameters.Parameters;

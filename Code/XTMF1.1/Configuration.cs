@@ -200,6 +200,8 @@ namespace XTMF
 
         public bool RunInSeperateProcess { get; set; } = true;
 
+        public bool DivertSaveRequests { get; set; } = false;
+
         public void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> c = null)
         {
             lock (this)

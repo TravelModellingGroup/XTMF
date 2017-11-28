@@ -35,6 +35,7 @@ namespace XTMF.Run
         ClientReportedProgress = 6,
         SendModelSystemResult = 7,
         ClientReportedStatus = 8,
+        ProjectSaved = 9
     }
 
     public enum ToClient
