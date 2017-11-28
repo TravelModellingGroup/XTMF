@@ -49,7 +49,7 @@ namespace TMG.Estimation.Utilities
         bool Attached;
 
         [RootModule]
-        public LocalEstimatinHost Root;
+        public LocalEstimationHost Root;
 
         public bool RuntimeValidation(ref string error)
         {

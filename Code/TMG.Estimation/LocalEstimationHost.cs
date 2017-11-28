@@ -25,7 +25,8 @@ using XTMF;
 
 namespace TMG.Estimation
 {
-    public class LocalEstimatinHost : IEstimationHost
+    [RedirectModule("TMG.Estimation.LocalEstimatinHost, TMG.Estimation, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = null")]
+    public class LocalEstimationHost : IEstimationHost
     {
 
         [SubModelInformation(Required = true, Description = "The AI to explore the parameter space.")]

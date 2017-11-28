@@ -27,7 +27,7 @@ namespace TMG.Estimation
     {
 
         [RootModule]
-        public LocalEstimatinHost Root;
+        public LocalEstimationHost Root;
 
         private IModelSystemStructure ClientStructure;
 
