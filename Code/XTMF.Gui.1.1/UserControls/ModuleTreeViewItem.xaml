@@ -24,112 +24,83 @@
              xmlns:local="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d"  
-             d:DesignHeight="150" d:DesignWidth="300" Margin="2,2,2,3" SnapsToDevicePixels="True" >
+             d:DesignHeight="150" d:DesignWidth="300" Margin="2,2,2,3" SnapsToDevicePixels="True">
     <UserControl.Resources>
-
-
         <Style TargetType="{x:Type userControls:ModuleTreeViewItem}">
-            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWay}" />
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWay}"/>
             <Style.Triggers>
-                <MultiDataTrigger >
+                <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
-                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"></Condition>
-                        <Condition  Value="False"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"></Condition>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
+                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
-
                     <MultiDataTrigger.Setters>
-                        <Setter   Property="Background" Value="{DynamicResource FocusBrushHover2}"></Setter>
-                        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
-                    </MultiDataTrigger.Setters>
-
-                </MultiDataTrigger>
-
-
-                <MultiDataTrigger >
-                    <MultiDataTrigger.Conditions>
-                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"></Condition>
-                        <Condition  Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"></Condition>
-                    </MultiDataTrigger.Conditions>
-
-                    <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}"></Setter>
-                        <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"></Setter>
-                    </MultiDataTrigger.Setters>
-
-
-
-                </MultiDataTrigger>
-
-                <MultiDataTrigger >
-                    <MultiDataTrigger.Conditions>
-                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"></Condition>
-                        <Condition  Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"></Condition>
-                    </MultiDataTrigger.Conditions>
-
-                    <MultiDataTrigger.Setters>
-                        <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"></Setter>
-                        <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
+                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
-
-                <MultiDataTrigger >
+                <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
-                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"></Condition>
-                        <Condition  Value="False"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"></Condition>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
-
                     <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource ModuleTreeViewItemBackground}"></Setter>
-                        <Setter Property="Foreground" Value="{DynamicResource ModuleTreeViewItemForeground}"></Setter>
+                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
-
-
-
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"/>
+                        <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"/>
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
+                        <Condition  Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="Background" Value="{DynamicResource ModuleTreeViewItemBackground}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource ModuleTreeViewItemForeground}"/>
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
             </Style.Triggers>
         </Style>
-
-
     </UserControl.Resources>
-
     <Grid>
-        <Grid Margin="1"  Name="InfoBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        </Grid>
-        <Grid Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Background,Mode=TwoWay}"  Name="BlockBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        </Grid>
+        <Grid Margin="1" Name="InfoBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Grid Name="BlockBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Background,Mode=TwoWay}"/>
         <Grid>
-            <Border   Name="ContentBorder" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
-                <Grid Name="ContentGrid" UseLayoutRounding="True" SnapsToDevicePixels="True" >
-                    <Grid  HorizontalAlignment="Stretch"  >
+            <Border Name="ContentBorder" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Grid Name="ContentGrid" UseLayoutRounding="True" SnapsToDevicePixels="True">
+                    <Grid  HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Path Width="24" Height="24" Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
-                  Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
-                  Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=IconPath.Data,Mode=TwoWay}">
-
-                            </Path>
-
+                                  Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                                  Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=IconPath.Data,Mode=TwoWay}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center" Orientation="Vertical" Grid.Column="1" Margin="0,8,7,0" TextOptions.TextFormattingMode="Display">
-                            <DockPanel  >
-                                <Label DockPanel.Dock="Left"  Margin="0,0,7,1" Padding="0" TextOptions.TextFormattingMode="Display"  FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
-                   Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=TitleText,Mode=TwoWay}" ></Label>
-
-
-                                <Path Visibility="Hidden" DockPanel.Dock="Right"  Width="16" Height="16" Margin="5,1,1,1" Name="NotificationIcon" Stretch="Uniform" Opacity="0.8"
-                  Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=OneWay}"
-                 HorizontalAlignment="Right">
-
-
-                                </Path>
+                            <DockPanel>
+                                <Label DockPanel.Dock="Left" Margin="0,0,7,1" Padding="0" TextOptions.TextFormattingMode="Display" FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                                       Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=TitleText,Mode=TwoWay}"/>
+                                <Path Visibility="Hidden" DockPanel.Dock="Right" Width="16" Height="16" Margin="5,1,1,1" Name="NotificationIcon" Stretch="Uniform" Opacity="0.8"
+                                      Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=OneWay}"
+                                      HorizontalAlignment="Right"/>
                             </DockPanel>
-                            <TextBlock   Margin="0,3,4,7" TextWrapping="WrapWithOverflow" MaxWidth="400" TextOptions.TextFormattingMode="Display"  Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
-                   
-                   Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=SubText,Mode=TwoWay}"></TextBlock>
+                            <TextBlock Margin="0,3,4,7" TextWrapping="WrapWithOverflow" MaxWidth="400" TextOptions.TextFormattingMode="Display" Name="SubTextLabel"
+                                       Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                                       Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=SubText,Mode=TwoWay}"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
