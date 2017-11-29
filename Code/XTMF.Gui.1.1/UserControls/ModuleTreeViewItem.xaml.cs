@@ -86,36 +86,31 @@ namespace XTMF.Gui.UserControls
             {
                 IconPath = new Path { Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"] };
             }
-            if (BackingModel.BaseModel.IsDisabled)
+            var ammount = BackingModel.BaseModel.IsDisabled ? 0.4 : 1.0;
+            SubTextLabel.Opacity = ammount;
+            Title.Opacity = ammount;
+            IconPath.Opacity = ammount;
+            if (BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
             {
-                SubTextLabel.Opacity = 0.4;
-                Title.Opacity = 0.4;
-                IconPath.Opacity = 0.4;
-            }
-            else
-            {
-                SubTextLabel.Opacity = 1.0;
-                Title.Opacity = 1.0;
-                IconPath.Opacity = 1.0;
-            }
-            if (BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
-            {
-                ContentBorder.BorderThickness = new Thickness(1);
-                ContentBorder.BorderBrush = new SolidColorBrush(Colors.OliveDrab);
-                IconPath.Fill = new SolidColorBrush(Colors.OliveDrab);
-                NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
-                NotificationIcon.Visibility = Visibility.Visible;
-                NotificationIcon.Fill = Brushes.OliveDrab;
-            }
-            else if (!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
-            {
-                ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
-                ContentBorder.BorderThickness = new Thickness(1);
-                NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
-                NotificationIcon.Visibility = Visibility.Visible;
-                NotificationIcon.Fill = Brushes.IndianRed;
-                InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
-                BlockBorder.Opacity = 0.7;
+                if (BackingModel.BaseModel.IsOptional)
+                {
+                    ContentBorder.BorderThickness = new Thickness(1);
+                    ContentBorder.BorderBrush = new SolidColorBrush(Colors.OliveDrab);
+                    IconPath.Fill = new SolidColorBrush(Colors.OliveDrab);
+                    NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
+                    NotificationIcon.Visibility = Visibility.Visible;
+                    NotificationIcon.Fill = Brushes.OliveDrab;
+                }
+                else
+                {
+                    ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
+                    ContentBorder.BorderThickness = new Thickness(1);
+                    NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
+                    NotificationIcon.Visibility = Visibility.Visible;
+                    NotificationIcon.Fill = Brushes.IndianRed;
+                    InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
+                    BlockBorder.Opacity = 0.7;
+                }
             }
             else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null && !BackingModel.IsCollection)
             {
@@ -138,98 +133,78 @@ namespace XTMF.Gui.UserControls
 
         private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
-            if (sender is ModelSystemStructureDisplayModel)
+            switch (propertyChangedEventArgs.PropertyName)
             {
-                if (propertyChangedEventArgs.PropertyName == "IsSelected")
-                {
-                    IsSelected = ((ModelSystemStructureDisplayModel) sender).IsSelected;
-                }
-                if (propertyChangedEventArgs.PropertyName == "IsExpanded")
-                {
-                    IsExpanded = ((ModelSystemStructureDisplayModel) sender).IsExpanded;
-                }
-            }
-            if (propertyChangedEventArgs.PropertyName == "IsMetaModule")
-            {
-                if (BackingModel.BaseModel.IsMetaModule)
-                {
-                    Path path = new Path
+                case "IsSelected":
                     {
-                        Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"],
+                        if (sender is ModelSystemStructureDisplayModel s) IsSelected = s.IsSelected;
+                    }
+                    break;
+                case "IsExpanded":
+                    {
+                        if (sender is ModelSystemStructureDisplayModel s) IsExpanded = s.IsExpanded;
+                    }
+                    break;
+                case "IsMetaModule":
+                    IconPath =
+                    new Path
+                    {
+                        Data = BackingModel.BaseModel.IsMetaModule ? (PathGeometry)Application.Current.Resources["MetaModuleIconPath"] :
+                                                                     (PathGeometry)Application.Current.Resources["ModuleIcon2Path"],
                         Fill = Brushes.DarkSlateGray
                     };
-                    IconPath = path;
-                }
-                else if (!BackingModel.BaseModel.IsMetaModule)
-                {
-                    Path path = new Path
+                    break;
+                case "IsDisabled":
+                    if (BackingModel != null)
                     {
-                        Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"],
-                        Fill = Brushes.DarkSlateGray
-                    };
-                    IconPath = path;
-                }
-            }
-            if (propertyChangedEventArgs.PropertyName == "IsDisabled")
-            {
-                if (BackingModel != null)
-                {
-                    if (BackingModel.BaseModel.IsDisabled)
-                    {
-                        SubTextLabel.Opacity = 0.4;
-                        Title.Opacity = 0.4;
-                        IconPath.Opacity = 0.4;
+                        var ammount = BackingModel.BaseModel.IsDisabled ? 0.4 : 1.0;
+                        SubTextLabel.Opacity = ammount;
+                        Title.Opacity = ammount;
+                        IconPath.Opacity = ammount;
                     }
-                    else
-                    {
-                        SubTextLabel.Opacity = 1.0;
-                        Title.Opacity = 1.0;
-                        IconPath.Opacity = 1.0;
-                    }
-                }
+                    break;
             }
             Dispatcher.Invoke(() =>
             {
-                if (BackingModel == null)
+                if (BackingModel != null)
                 {
-                    return;
-                }
-                if (BackingModel.BaseModel.IsOptional && BackingModel.IsCollection &&
-                    BackingModel.BaseModel.Children.Count == 0)
-                {
-                    ContentBorder.BorderThickness = new Thickness(1);
-                    ContentBorder.BorderBrush = new SolidColorBrush(Colors.OliveDrab);
-                    IconPath.Fill = new SolidColorBrush(Colors.OliveDrab);
-                    NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
-                    NotificationIcon.Visibility = Visibility.Visible;
-                    NotificationIcon.Fill = Brushes.OliveDrab;
-                }
-                else if (!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
-                {
-                    ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
-                    ContentBorder.BorderThickness = new Thickness(1);
-                    NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
-                    NotificationIcon.Visibility = Visibility.Visible;
-                    NotificationIcon.Fill = Brushes.IndianRed;
-                    InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
-                    BlockBorder.Opacity = 0.7;
-                }
-                else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null && !BackingModel.IsCollection)
-                {
-                    ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
-                    ContentBorder.BorderThickness = new Thickness(1);
-                    NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
-                    NotificationIcon.Visibility = Visibility.Visible;
-                    NotificationIcon.Fill = Brushes.IndianRed;
-                    InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
-                    BlockBorder.Opacity = 0.7;
-                }
-                else
-                {
-                    ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
-                    ContentBorder.BorderThickness = new Thickness(1);
-                    BlockBorder.Opacity = 1.0;
-                    NotificationIcon.Visibility = Visibility.Hidden;
+                    if (BackingModel.BaseModel.IsOptional && BackingModel.IsCollection &&
+                        BackingModel.BaseModel.Children.Count == 0)
+                    {
+                        ContentBorder.BorderThickness = new Thickness(1);
+                        ContentBorder.BorderBrush = new SolidColorBrush(Colors.OliveDrab);
+                        IconPath.Fill = new SolidColorBrush(Colors.OliveDrab);
+                        NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
+                        NotificationIcon.Visibility = Visibility.Visible;
+                        NotificationIcon.Fill = Brushes.OliveDrab;
+                    }
+                    else if (!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
+                    {
+                        ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
+                        ContentBorder.BorderThickness = new Thickness(1);
+                        NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
+                        NotificationIcon.Visibility = Visibility.Visible;
+                        NotificationIcon.Fill = Brushes.IndianRed;
+                        InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
+                        BlockBorder.Opacity = 0.7;
+                    }
+                    else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null && !BackingModel.IsCollection)
+                    {
+                        ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
+                        ContentBorder.BorderThickness = new Thickness(1);
+                        NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
+                        NotificationIcon.Visibility = Visibility.Visible;
+                        NotificationIcon.Fill = Brushes.IndianRed;
+                        InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
+                        BlockBorder.Opacity = 0.7;
+                    }
+                    else
+                    {
+                        ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
+                        ContentBorder.BorderThickness = new Thickness(1);
+                        BlockBorder.Opacity = 1.0;
+                        NotificationIcon.Visibility = Visibility.Hidden;
+                    }
                 }
             });
         }

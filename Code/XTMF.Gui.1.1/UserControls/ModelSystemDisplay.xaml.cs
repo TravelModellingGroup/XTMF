@@ -327,7 +327,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="eventArgs"></param>
         private void ModuleContextControlOnModuleContextChanged(object sender1, ModuleContextChangedEventArgs eventArgs)
         {
-         
             if (eventArgs.Module != null)
             {
                 ExpandToRoot(eventArgs.Module);
@@ -873,9 +872,6 @@ namespace XTMF.Gui.UserControls
             {
                 var be = box.GetBindingExpression(TextBox.TextProperty);
                 be.UpdateSource();
-                if (box == null)
-                {
-                }
             }
         }
 
@@ -2254,10 +2250,19 @@ namespace XTMF.Gui.UserControls
 
         private void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse = true)
         {
-            module.IsExpanded = collapse;
-            foreach (var child in module.Children)
+            if(module != null)
             {
-                ExpandModule(child);
+                var toProcess = new Queue<ModelSystemStructureDisplayModel>();
+                toProcess.Enqueue(module);
+                while(toProcess.Count > 0)
+                {
+                    module = toProcess.Dequeue();
+                    module.IsExpanded = collapse;
+                    foreach (var child in module.Children)
+                    {
+                        toProcess.Enqueue(child);
+                    }
+                }
             }
         }
 
@@ -2304,7 +2309,7 @@ namespace XTMF.Gui.UserControls
         private void ValidationListModuleNameMouseDown(object sender, MouseButtonEventArgs e)
         {
             var label = sender as ValidationErrorListControl;
-            if (label.Tag is ModelSystemStructureDisplayModel model)
+            if (label?.Tag is ModelSystemStructureDisplayModel model)
             {
                 ExpandToRoot(model);
                 model.IsSelected = true;
@@ -2313,13 +2318,13 @@ namespace XTMF.Gui.UserControls
 
         private void ExpandToRoot(ModelSystemStructureDisplayModel module)
         {
-            if (module == null)
+            // don't expand the bottom node
+            module = module?.Parent;
+            while(module != null)
             {
-                return;
+                module.IsExpanded = true;
+                module = module.Parent;
             }
-            module.IsExpanded = true;
-            if (module.Parent != null)
-                ExpandToRoot(module.Parent);
         }
 
         private void ParameterTabControl_SizeChanged(object sender, SizeChangedEventArgs e)

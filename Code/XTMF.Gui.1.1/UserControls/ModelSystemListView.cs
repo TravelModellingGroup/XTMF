@@ -40,14 +40,8 @@ namespace XTMF.Gui.UserControls
 
         public bool IsCanPasteModelSystem
         {
-            set
-            {
-                SetValue(IsCanPasteModelSystemDependencyProperty, value);
-            }
-            get
-            {
-                return (bool)GetValue(IsCanPasteModelSystemDependencyProperty);
-            }
+            set => SetValue(IsCanPasteModelSystemDependencyProperty, value);
+            get => (bool)GetValue(IsCanPasteModelSystemDependencyProperty);
         }
     }
 }

@@ -245,7 +245,6 @@
                                     <MenuItem Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click"/>
                                     <MenuItem Header="Convert From(Ctrl+Alt+M)" Click="ConvertFromMetaModule_Click"/>
                                 </MenuItem>
-
                                 <MenuItem Name="ModuleMenuItem" Header="Module (Ctrl+M)" Click="Module_Clicked"/>
                                 <MenuItem Name="DisableModuleMenuItem" Header="Disable Module (Ctrl+D)" Click="DisableModuleMenuItem_OnClick"/>
                                 <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
@@ -380,7 +379,7 @@
                                     </MenuItem>
                                     <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
                                         <MenuItem.Icon>
-                                            <ContentControl Template="{DynamicResource RefreshIcon}/>
+                                            <ContentControl Template="{DynamicResource RefreshIcon}"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                 </ContextMenu>
