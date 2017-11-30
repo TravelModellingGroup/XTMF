@@ -790,7 +790,8 @@ namespace XTMF.Gui.UserControls
                         ModuleRuntimeValidationErrorListView.Items.Clear();
                         ModuleRuntimeErrorListView.Items.Clear();
                         MainWindow.Us.UpdateStatusDisplay("Running Model System ");
-                        MainWindow.Us.CreateRunWindow(Session, run, runName);
+                        var runWindow = MainWindow.Us.CreateRunWindow(Session, run, runName);
+                        MainWindow.Us.AddRunToSchedulerWindow(runWindow);
                         MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " + Session.Name,
                             () => { MainWindow.Us.LoadPageId(ContentGuid); });
                     }

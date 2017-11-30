@@ -77,6 +77,8 @@ namespace XTMF.Gui
 
         private ActiveEditingSessionDisplayModel NullEditingDisplayModel;
 
+        private SchedulerWindow _schedulerWindow;
+
         public ProjectDisplay.ProjectModel.ContainedModelSystemModel ClipboardModel { get; set; }
 
         public MainWindow()
@@ -107,6 +109,8 @@ namespace XTMF.Gui
                 OnCanMinimizeWindow));
             CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow,
                 OnCanResizeWindow));
+
+            _schedulerWindow = new SchedulerWindow();
         }
 
         private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
@@ -809,7 +813,39 @@ namespace XTMF.Gui
             }
         }
 
-        internal void CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
+        /// <summary>
+        /// Adds the run session to the scheduler window. A new scheduler window is created if it does not already exist.
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="run"></param>
+        /// <param name="runName"></param>
+        internal void AddRunToSchedulerWindow(RunWindow runWindow)
+        {
+            //create a new scheduler window if one does not exist
+            if(!OpenPages.Exists((doc) => doc.Content == _schedulerWindow))
+            {
+                var doc = new LayoutDocument()
+                {
+                    Content = _schedulerWindow,
+                    Title = "XTMF Run Schedule"
+
+                };
+
+                OpenPages.Add(doc);
+                DocumentPane.Children.Add(doc);
+            }
+
+            (OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow).AddRun(runWindow);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="run"></param>
+        /// <param name="runName"></param>
+        /// <returns></returns>
+        internal RunWindow CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             var runWindow = new RunWindow(session, run, runName);
             var doc = new LayoutDocument()
@@ -824,6 +860,7 @@ namespace XTMF.Gui
             OpenPages.Add(doc);
             DocumentPane.Children.Add(doc);
             doc.Float();
+            return runWindow;
         }
 
         private const string UpdateProgram = "XTMF.Update2.exe";

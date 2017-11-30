@@ -20,9 +20,22 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class SchedulerWindow : UserControl
     {
+
+        private List<RunWindow> _runWindows;
+
         public SchedulerWindow()
         {
             InitializeComponent();
+
+            _runWindows = new List<RunWindow>();
+        }
+
+        public void AddRun(RunWindow run)
+        {
+            ActiveRunContent.Content = run;
+
         }
     }
+
+    
 }

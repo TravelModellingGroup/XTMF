@@ -42,7 +42,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
-    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -123,6 +123,8 @@
     <Compile Include="Office\ConvertCSVToXLSX.cs" />
     <Compile Include="Parallel\ParallelWorkSerialRecombination.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Testing\TestExecutingModule.cs" />
+    <Compile Include="Testing\TestRootModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">

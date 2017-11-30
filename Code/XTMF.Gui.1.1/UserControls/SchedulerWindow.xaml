@@ -7,6 +7,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-            
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="300"></RowDefinition>
+        </Grid.RowDefinitions>
+           
+        <ContentControl Grid.Row="0" Name="ActiveRunContent"></ContentControl>
+        <ListView Grid.Row="1" Name="ScheduledRuns"></ListView>
     </Grid>
 </UserControl>
