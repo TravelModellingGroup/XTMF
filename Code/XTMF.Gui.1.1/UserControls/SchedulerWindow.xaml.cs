@@ -35,18 +35,33 @@ namespace XTMF.Gui.UserControls
         public void AddRun(RunWindow run)
         {
             ActiveRunContent.Content = run;
-            ScheduledRuns.Items.Add(new SchedulerRunItem(run.RunNameLabel.Text));
+            ScheduledRuns.Items.Add(new SchedulerRunItem(run));
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScheduledRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            ActiveRunContent.Content = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
         }
     }
 
     public class SchedulerRunItem
     {
+ 
+
+        public RunWindow RunWindow { get; set; }
         public string Name { get; set; }
 
-        public SchedulerRunItem(string name)
+        public SchedulerRunItem(RunWindow runWindow)
         {
-            Name = name;
+            Name = runWindow.Session.Name;
+            RunWindow = runWindow;
         }
     }
 

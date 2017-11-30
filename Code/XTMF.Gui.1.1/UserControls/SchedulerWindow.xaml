@@ -14,14 +14,15 @@
         </Grid.RowDefinitions>
            
         <ContentControl Grid.Row="0" Name="ActiveRunContent"></ContentControl>
-        <ListView Grid.Row="1" Name="ScheduledRuns">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <Label Content="Test"></Label>
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
+        <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Status"  Width="100" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Progress"  Width="100" DisplayMemberBinding="{Binding Name}"/>
+                </GridView>
+            </ListView.View>
+        
         </ListView>
     </Grid>
 </UserControl>
