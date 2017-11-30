@@ -14,6 +14,14 @@
         </Grid.RowDefinitions>
            
         <ContentControl Grid.Row="0" Name="ActiveRunContent"></ContentControl>
-        <ListView Grid.Row="1" Name="ScheduledRuns"></ListView>
+        <ListView Grid.Row="1" Name="ScheduledRuns">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <Label Content="Test"></Label>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </UserControl>

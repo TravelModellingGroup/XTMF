@@ -28,12 +28,25 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
 
             _runWindows = new List<RunWindow>();
+
+           
         }
 
         public void AddRun(RunWindow run)
         {
             ActiveRunContent.Content = run;
+            ScheduledRuns.Items.Add(new SchedulerRunItem(run.RunNameLabel.Text));
 
+        }
+    }
+
+    public class SchedulerRunItem
+    {
+        public string Name { get; set; }
+
+        public SchedulerRunItem(string name)
+        {
+            Name = name;
         }
     }
 

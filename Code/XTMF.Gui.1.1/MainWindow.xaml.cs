@@ -827,12 +827,13 @@ namespace XTMF.Gui
                 var doc = new LayoutDocument()
                 {
                     Content = _schedulerWindow,
-                    Title = "XTMF Run Schedule"
+                    Title = "XTMF Run Scheduler"
 
                 };
 
                 OpenPages.Add(doc);
                 DocumentPane.Children.Add(doc);
+                doc.IsActive = true;
             }
 
             (OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow).AddRun(runWindow);
@@ -857,9 +858,9 @@ namespace XTMF.Gui
             {
                 e.Cancel = !runWindow.CloseRequested();
             };
-            OpenPages.Add(doc);
-            DocumentPane.Children.Add(doc);
-            doc.Float();
+            //OpenPages.Add(doc);
+            //DocumentPane.Children.Add(doc);
+            //doc.Float();
             return runWindow;
         }
 
