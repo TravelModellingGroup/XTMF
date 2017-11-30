@@ -4,17 +4,22 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
 
         <Grid.RowDefinitions>
+            <RowDefinition>
+                <RowDefinition.Height>200</RowDefinition.Height>
+            </RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="300"></RowDefinition>
         </Grid.RowDefinitions>
-           
-        <ContentControl Grid.Row="0" Name="ActiveRunContent"></ContentControl>
-        <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged">
+          
+        <materialDesign:Card Grid.Row="0"></materialDesign:Card>
+        <ContentControl Grid.Row="1" Name="ActiveRunContent"></ContentControl>
+        <ListView Grid.Row="2" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
