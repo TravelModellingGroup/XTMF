@@ -27,10 +27,7 @@ namespace XTMF
 
         protected override void RemoveItem(int index)
         {
-            if ( BeforeRemove != null )
-                BeforeRemove( this,
-                      new ListChangedEventArgs( ListChangedType.ItemDeleted, index ) );
-
+            BeforeRemove?.Invoke(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
             base.RemoveItem( index );
         }
     }

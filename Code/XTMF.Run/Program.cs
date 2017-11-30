@@ -22,6 +22,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Threading.Tasks;
 using XTMF.Run;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
@@ -78,6 +79,8 @@ namespace XTMF.Run
 
         private static XTMFRun CurrentRun;
 
+        private static IConfiguration Configuration;
+
         private static void StartupExecuteRunsInADifferentProcess(string pipeName)
         {
             using (var clientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous))
@@ -97,6 +100,36 @@ namespace XTMF.Run
                         Configuration config = new Configuration(reader.ReadString())
                         {
                             DivertSaveRequests = true
+                        };
+                        Configuration = config;
+                        config.AddingNewProgressReport += (o) =>
+                        {
+                            WriteMessageToStream(messagesToSend, (writer) =>
+                            {
+                                var newReport = (IProgressReport)o;
+                                var colour = newReport.Colour;
+                                writer.Write((Int32)ToHost.ClientCreatedProgressReport);
+                                writer.Write(newReport.Name);
+                                writer.Write(colour.Item1);
+                                writer.Write(colour.Item2);
+                                writer.Write(colour.Item3);
+                            });
+                        };
+                        config.ProgressReports.BeforeRemove += (o, e) =>
+                        {
+                            var toBeRemoved = config.ProgressReports[e.NewIndex];
+                            WriteMessageToStream(messagesToSend, (writer) =>
+                            {
+                                writer.Write((Int32)ToHost.ClientRemovedProgressReport);
+                                writer.Write(toBeRemoved.Name);
+                            });
+                        };
+                        config.DeletedProgressReports += () =>
+                        {
+                            WriteMessageToStream(messagesToSend, (writer) =>
+                            {
+                                writer.Write((Int32)ToHost.ClientClearedProgressReports);
+                            });
                         };
                         runtime = new XTMFRuntime(config);
                         try
@@ -179,7 +212,7 @@ namespace XTMF.Run
                     });
                     messageQueue.CompleteAdding();
                 };
-                run.ProjectSavedByRun += (_,_2) =>
+                run.ProjectSavedByRun += (_, _2) =>
                 {
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
@@ -255,6 +288,29 @@ namespace XTMF.Run
                         // make sure there is no error gathering the progress
                         writer.Write((Int32)ToHost.ClientReportedProgress);
                         writer.Write(progress);
+                        var reports = Configuration.ProgressReports;
+                        if (reports != null)
+                        {
+                            lock (((ICollection)reports).SyncRoot)
+                            {
+                                var length = reports.Count;
+                                writer.Write(length);
+                                int i = 0;
+                                for (; i < length; ++i)
+                                {
+                                    IProgressReport report = reports[i];
+                                    writer.Write(report.Name);
+                                    writer.Write(report.GetProgress());
+                                    writer.Write(report.Colour.Item1);
+                                    writer.Write(report.Colour.Item2);
+                                    writer.Write(report.Colour.Item3);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            writer.Write(0);
+                        }
                     }
                     catch
                     {

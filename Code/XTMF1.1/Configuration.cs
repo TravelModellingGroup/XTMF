@@ -214,15 +214,20 @@ namespace XTMF
                         return;
                     }
                 }
-                ProgressReports.Add(new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = c });
+                var newReport = new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = c };
+                ProgressReports.Add(newReport);
+                AddingNewProgressReport?.Invoke(newReport);
             }
         }
+        public event Action<IProgressReport> AddingNewProgressReport;
+        public event Action DeletedProgressReports;
 
         public void DeleteAllProgressReport()
         {
             lock (this)
             {
                 ProgressReports.Clear();
+                DeletedProgressReports?.Invoke();
             }
         }
 

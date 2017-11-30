@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -141,7 +142,7 @@ namespace XTMF.Run
                             case ToHost.Heartbeat:
                                 break;
                             case ToHost.ClientReportedProgress:
-                                _RemoteProgress = reader.ReadSingle();
+                                ReadProgress(reader);
                                 break;
                             case ToHost.ClientReportedStatus:
                                 _RemoteStatus = reader.ReadString();
@@ -152,6 +153,15 @@ namespace XTMF.Run
                             case ToHost.ClientErrorWhenRunningModelSystem:
                                 InvokeRuntimeError(ReadError(reader));
                                 return;
+                            case ToHost.ClientCreatedProgressReport:
+                                AddProgressReport(reader);
+                                break;
+                            case ToHost.ClientRemovedProgressReport:
+                                RemoveProgressRport(reader);
+                                break;
+                            case ToHost.ClientClearedProgressReports:
+                                ClearProgressReports();
+                                break;
                             case ToHost.ClientFinishedModelSystem:
                             case ToHost.ClientExiting:
                                 return;
@@ -168,6 +178,76 @@ namespace XTMF.Run
             }, TaskCreationOptions.LongRunning);
         }
 
+        private class ProgressReport : IProgressReport
+        {
+            public Tuple<byte, byte, byte> Colour { get; set; }
+
+            public Func<float> GetProgress { get; }
+
+            internal float Progress;
+
+            public string Name { get; }
+
+            public ProgressReport(string name, byte r, byte g, byte b)
+            {
+                Name = name;
+                GetProgress = () => Progress;
+                Colour = new Tuple<byte, byte, byte>(r, g, b);
+            }
+        }
+
+        private void ClearProgressReports()
+        {
+            Configuration.DeleteAllProgressReport();
+        }
+
+        private void AddProgressReport(BinaryReader reader)
+        {
+            Configuration.ProgressReports.Add(new ProgressReport(reader.ReadString(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
+        }
+
+        private void RemoveProgressRport(BinaryReader reader)
+        {
+            var name = reader.ReadString();
+            var toRemove = Configuration.ProgressReports.FirstOrDefault(rep => rep.Name == name);
+            if (toRemove != null)
+            {
+                Configuration.ProgressReports.Remove(toRemove);
+            }
+        }
+
+        private void ReadProgress(BinaryReader reader)
+        {
+            _RemoteProgress = reader.ReadSingle();
+            var length = reader.ReadInt32();
+            if (length > 0)
+            {
+                var reports = Configuration.ProgressReports;
+                lock (((ICollection)reports).SyncRoot)
+                {
+                    var givenReports = new List<(string name, float progress, byte r, byte g, byte b)>(length);
+                    for (int i = 0; i < length; i++)
+                    {
+                        givenReports.Add((reader.ReadString(), reader.ReadSingle(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
+                    }
+                    foreach(var rep in givenReports)
+                    {
+                        foreach(var holdRep in reports)
+                        {
+                            if(rep.name == holdRep.Name)
+                            {
+                                if (holdRep is ProgressReport remoteProgress)
+                                {
+                                   remoteProgress. Progress = rep.progress;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private void LoadAndSignalModelSystem(BinaryReader reader)
         {
             try
@@ -175,7 +255,7 @@ namespace XTMF.Run
                 var length = (int)reader.ReadInt64();
                 byte[] msText = new byte[length];
                 var soFar = 0;
-                while(soFar < length)
+                while (soFar < length)
                 {
                     soFar += reader.Read(msText, soFar, length - soFar);
                 }
@@ -185,7 +265,7 @@ namespace XTMF.Run
                     SendProjectSaved(mss as ModelSystemStructure);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 SendRunMessage(e.Message + "\r\n" + e.StackTrace);
             }
