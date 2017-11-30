@@ -209,9 +209,7 @@ namespace XTMF.Run
         private void RemoveProgressRport(BinaryReader reader)
         {
             var name = reader.ReadString();
-            SendRunMessage($"Asked to remove a progress report with the name {name}\r\n");
             var toRemove = Configuration.ProgressReports.FirstOrDefault(rep => rep.Name == name);
-            SendRunMessage($"Found the progress report? {toRemove != null}\r\n");
             if (toRemove != null)
             {
                 Configuration.ProgressReports.Remove(toRemove);
