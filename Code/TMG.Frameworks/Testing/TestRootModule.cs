@@ -47,7 +47,7 @@ namespace TMG.Frameworks.Testing
         [RunParameter("Input Directory", "../../Input", "The input directory for the Model System")]
         public string InputBaseDirectory { get; set; }
 
-        [RunParameter("Input Directory", "../../Output", "The output directory for the Model System")]
+        [RunParameter("Output Directory", "../../Output", "The output directory for the Model System")]
         public string OutputBaseDirectory { get; set; }
 
 
