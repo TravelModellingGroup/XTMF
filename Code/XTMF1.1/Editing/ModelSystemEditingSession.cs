@@ -209,8 +209,8 @@ namespace XTMF
                         cloneProject.LinkedParameters[_ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
                         if (((Configuration)Configuration).RunInSeperateProcess)
                         {
-                            run = //System.Diagnostics.Debugger.IsAttached ?
-                                    //XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite) :
+                            run = System.Diagnostics.Debugger.IsAttached ?
+                                    XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite) :
                                     XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite);
                             run.ProjectSavedByRun += (theRun, newMSS) =>
                             {
