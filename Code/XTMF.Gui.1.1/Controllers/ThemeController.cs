@@ -35,7 +35,8 @@ namespace XTMF.Gui.Controllers
         {
             new Uri("Resources/ControlStyles.xaml", UriKind.RelativeOrAbsolute),
             new Uri("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
-           new Uri("UserControls/MenuStyles.xaml", UriKind.RelativeOrAbsolute)
+            new Uri("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
+         
         };
 
         public class Theme
@@ -98,7 +99,7 @@ namespace XTMF.Gui.Controllers
             foreach (var uri in RequiredResources)
             {
                 Application.Current.Resources.MergedDictionaries.RemoveAt(0);
-                Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
+               Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
 
             }
             /* Look up Avalon Theme if present */

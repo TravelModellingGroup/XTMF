@@ -27,14 +27,14 @@ namespace XTMF.Gui
 
                     if (EditorController.Runtime.Configuration.Theme == null)
                     {
-                        xtmfMainWindow.ThemeController.SetThemeActive(xtmfMainWindow.ThemeController.GetDefaultTheme());
+                        //xtmfMainWindow.ThemeController.SetThemeActive(xtmfMainWindow.ThemeController.GetDefaultTheme());
                     }
                     else
                     {
                           ThemeController.Theme theme =
                                 xtmfMainWindow.ThemeController.FindThemeByName(EditorController.Runtime.Configuration.Theme);
 
-                        xtmfMainWindow.ThemeController.SetThemeActive(theme ?? xtmfMainWindow.ThemeController.GetDefaultTheme());
+                        //xtmfMainWindow.ThemeController.SetThemeActive(theme ?? xtmfMainWindow.ThemeController.GetDefaultTheme());
                     }
                     xtmfMainWindow.UpdateRecentProjectsMenu();
                     xtmfMainWindow.Show();
