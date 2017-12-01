@@ -29,6 +29,7 @@
     <UserControl.Resources>
         <Style TargetType="{x:Type local:ListViewControl}">
 
+            <!--
             <Style.Triggers>
                 <MultiDataTrigger >
                     <MultiDataTrigger.Conditions>
@@ -73,7 +74,7 @@
                     <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
                 </DataTrigger>
 
-            </Style.Triggers>
+            </Style.Triggers> -->
         </Style>
     </UserControl.Resources>
     <Grid HorizontalAlignment="Stretch" Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Background,Mode=TwoWay}" >
