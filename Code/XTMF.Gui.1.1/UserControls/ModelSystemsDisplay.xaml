@@ -24,6 +24,7 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
     <Grid Background="{DynamicResource MaterialDesignPaper}">
@@ -32,7 +33,29 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
+        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                  Margin="12 12 12 12"
+                                  materialDesign:ShadowAssist.ShadowDepth="Depth4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                </Button>
+
+                <my:FilterBox Grid.Column="1" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
+                <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
+
+                </Button>
+            </Grid>
+        </materialDesign:ColorZone>
+       
         <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0">
             <ListView.ContextMenu>
                 <ContextMenu>

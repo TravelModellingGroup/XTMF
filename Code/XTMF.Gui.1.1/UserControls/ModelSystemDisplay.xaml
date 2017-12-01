@@ -27,6 +27,7 @@
              xmlns:my="clr-namespace:XTMF.Gui" Margin="0"
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
              xmlns:this2="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" Name="MDisplay"
@@ -93,7 +94,7 @@
                                       ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
                             </Grid>
                         </Expander.Header>
-                        <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Normal"
+                        <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"
                                    FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}"/>
                     </Expander>
                     <TextBox TextWrapping="Wrap" VerticalContentAlignment="Center" 
@@ -159,7 +160,7 @@
             <this:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay"/>
         </Grid>
         <!-- Use whatever layout you need -->
-        <Grid Background="{DynamicResource WindowBackgroundBrush2}">
+        <Grid Background="{DynamicResource MaterialDesignPaper}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="100px" Width="*"/>
                 <ColumnDefinition Width="AUTO"/>
@@ -182,7 +183,7 @@
                                 <Path Data="{DynamicResource LinkIconPath}" Stretch="Uniform"/>
                             </this:FlatToolButton.IconPath>
                         </this:FlatToolButton>
-                        <Rectangle VerticalAlignment="Stretch" Fill="{DynamicResource WindowBackgroundBrush3}" Width="1" Height="20"/>
+                        <Rectangle VerticalAlignment="Stretch" Fill="{DynamicResource MaterialDesignPaper}" Width="1" Height="20"/>
                         <this:FlatToolButton IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                              x:Name="RunModelSystemButton" ToolText="Run Model System" Height="24" Click="RunModelSystem_Click">
@@ -191,7 +192,7 @@
                             </this:FlatToolButton.IconPath>
                         </this:FlatToolButton>
                     </StackPanel>
-                    <this:ModuleContextControl Background="{DynamicResource WindowBackgroundBrush2}" Grid.Row="1" x:Name="ModuleContextControl"/>
+                    <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl"/>
                 </Grid>
             </Grid>
             <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
@@ -287,26 +288,48 @@
             <GridSplitter Grid.Row="1" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True"/>
             <TabControl Grid.Row="1" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}" SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged">
                 <TabItem IsSelected="True" Style="{DynamicResource XtmfTabItem}" Header="Quick Parameters" x:Name="QuickParameterTab" FontSize="14" Foreground="{DynamicResource ControlTextColourBrush}">
-                    <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
+                    <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Border Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                        <Border Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
                             </Grid>
                         </Border>
-                        <my:FilterBox Grid.Row="0" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2"/>
+                        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                                  Margin="12 12 12 12"
+                                                  materialDesign:ShadowAssist.ShadowDepth="Depth4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                </Button>
+
+                                <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2"/>
+                                <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
+
+                                </Button>
+                            </Grid>
+                        </materialDesign:ColorZone>
+                       
                         <ListView Grid.Row="2" x:Name="QuickParameterDisplay"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                  Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">
+                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="KeyboardNavigation.IsTabStop" Value="False"/>
@@ -388,38 +411,60 @@
                     </Grid>
                 </TabItem>
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters" x:Name="ModuleParameterTab" FontSize="14" Foreground="{DynamicResource ControlTextColourBrush}">
-                    <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
+                    <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Border Padding="0" HorizontalAlignment="Stretch"  Name="ListBorder" Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" >
+                        <Border Padding="0" HorizontalAlignment="Stretch"  Name="ListBorder" Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource MaterialDesignPaper}" BorderThickness="0" >
                             <Grid HorizontalAlignment="Stretch" Name="ListGrid">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"/>
-                                <Expander Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
+                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Style="{DynamicResource MaterialDesignHeadlineTextBlock}"/>
+                                <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" />
+                                <Expander Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
                                           Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                                     Name="DescriptionExpander" Grid.Row="2" VerticalAlignment="Bottom" Background="Transparent">
-                                    <Border Margin="0,4,0,0" Background="{DynamicResource WindowBackgroundBrush4}" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                    <Border Margin="0,4,0,0" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                                             MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}">
-                                        <TextBox Margin="8" BorderThickness="0" BorderBrush="Transparent" IsReadOnly="True"  Padding="5" Background="{DynamicResource WindowBackgroundBrush4}" TextWrapping="Wrap"
-                                                 HorizontalAlignment="Stretch"  x:Name="SelectedDescription" Text="No description available." Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12"/>
+                                        <TextBlock Margin="20 0 0 0"  Padding="5"  TextWrapping="Wrap"
+                                                 HorizontalAlignment="Stretch"  x:Name="SelectedDescription" Text="No description available." Style="{DynamicResource MaterialDesignBody1TextBlock}"/>
                                     </Border>
                                 </Expander>
                             </Grid>
                         </Border>
-                        <my:FilterBox Grid.Row="0" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2"/>
+                        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                                  Margin="12 12 12 12"
+                                                  materialDesign:ShadowAssist.ShadowDepth="Depth4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                </Button>
+
+                                <my:FilterBox Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2"/>
+                                <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
+
+                                </Button>
+                            </Grid>
+                        </materialDesign:ColorZone>
+                  
                         <ListView ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" 
@@ -519,7 +564,7 @@
                 </TabItem>
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14" Foreground="{DynamicResource ControlTextColourBrush}">
                     <ScrollViewer>
-                        <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
+                        <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="AUTO"/>
                                 <RowDefinition Height="AUTO"/>
@@ -528,25 +573,25 @@
                                 <RowDefinition Height="AUTO"/>
                                 <RowDefinition Height="AUTO"/>
                             </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                            <Border Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Model System Information" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold"/>
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Model System Information" Foreground="{DynamicResource MaterialDesignBody}" FontSize="18" FontWeight="Bold"/>
                                 </Grid>
                             </Border>
                             <Border Grid.Row="1"/>
                             <Border Grid.Row="2">
                                 <StackPanel Orientation="Vertical">
-                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Disabled Modules" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5"/>
+                                    <TextBlock Style="{StaticResource MaterialDesignHeadlineTextBlock}" Grid.Row="0" HorizontalAlignment="Center" Text="Disabled Modules"  Margin="0,15,0,5"/>
                                     <Grid HorizontalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1*"/>
                                             <ColumnDefinition Width="1*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="Module Name"/>
-                                        <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="1" Content="Action"/>
+                                        <TextBlock Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Grid.Column="0" Text="Module Name"/>
+                                        <TextBlock Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Grid.Column="1" Text="Action"/>
                                     </Grid>
                                     <ListView ItemTemplateSelector="{StaticResource ModelSystemInfoTemplateSelector}" Background="Transparent" BorderBrush="{x:Null}" Focusable="False" x:Name="DisabledModulesList" SelectionMode="Single">
                                         <ListView.ItemContainerStyle>
@@ -578,7 +623,7 @@
                             </Border>
                             <Border Grid.Row="3">
                                 <StackPanel Orientation="Vertical">
-                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5"/>
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Validation Errors" Style="{DynamicResource MaterialDesignHeadlineTextBlock}" Margin="0,15,0,5"/>
                                     <Grid Height="Auto">
                                         <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}"
                                                   ItemTemplate="{StaticResource ModuleValidationErrorTemplate}" Name="ModuleValidationErrorListView" LostFocus="ModuleValidationErrorListView_LostFocus"/>
@@ -587,14 +632,14 @@
                             </Border>
                             <Border Grid.Row="4">
                                 <StackPanel Orientation="Vertical">
-                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5"/>
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Validation Errors" Style="{DynamicResource MaterialDesignHeadlineTextBlock}" Margin="0,15,0,5"/>
                                     <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}"
                                               Name="ModuleRuntimeValidationErrorListView" LostFocus="ModuleRuntimeValidationErrorListView_LostFocus"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Row="5">
                                 <StackPanel Orientation="Vertical">
-                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5"/>
+                                    <TextBlock Style="{DynamicResource MaterialDesignHeadlineTextBlock}" Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Errors"  Margin="0,15,0,5"/>
                                     <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}"
                                               Name="ModuleRuntimeErrorListView" LostFocus="ModuleRuntimeValidationErrorListView_LostFocus"/>
                                 </StackPanel>
