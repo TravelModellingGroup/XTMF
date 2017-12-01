@@ -23,16 +23,41 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
-    <Grid>
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
-        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource WindowBackgroundBrush2}" BorderBrush="{x:Null}">
+       
+        <materialDesign:ColorZone Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                  Margin="12 12 12 12"
+                                  materialDesign:ShadowAssist.ShadowDepth="Depth4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                </Button>
+
+                        <my:FilterBox Grid.Column="1" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
+                        <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                        <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
+                  
+                </Button>
+            </Grid>
+        </materialDesign:ColorZone>
+          
+        
+        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">

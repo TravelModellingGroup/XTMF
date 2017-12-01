@@ -5,16 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              mc:Ignorable="d"  BorderThickness="0"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="317.725" d:DesignWidth="419.902">
     <Grid >
-        <Grid.Background>
-            <SolidColorBrush Color="{DynamicResource WindowBackgroundColor2}"/>
-        </Grid.Background>
-        <StackPanel  Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center" Background="{DynamicResource WindowBackgroundBrush1}">
-            <Label Margin="0.25cm,20,0.25cm,0" Content="Theme" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" />
+
+        <StackPanel  Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
+            <Label Margin="0.25cm,20,0.25cm,0" Content="Theme"  FontSize="12" />
             <ComboBox Margin="0.25cm,0,0.25cm,2" Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
-            
+
             </ComboBox>
             <Grid  Margin="0.25cm,0,0.25cm,2" >
                 <Grid.ColumnDefinitions>
@@ -26,10 +26,10 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource ThemeTextColorBrush}" Content="Project Directory" FontSize="12" />
-                <local:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" HintText="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                <Label Grid.Row="0" Grid.Column="0" Content="Project Directory" FontSize="12" />
+                <TextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" materialDesign:HintAssist.Hint="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
                 <Button BorderBrush="Transparent" Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ProjectDirectory" >
-                    <Path  Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
+                    <Path  Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
                 </Button>
             </Grid>
             <Grid Margin="0.25cm,2,0.25cm,2" >
@@ -43,10 +43,10 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource ThemeTextColorBrush}" Content="Model System Directory" FontSize="12" />
-                <local:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding ModelSystemDirectory}" HintText="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                <Label Grid.Row="0" Grid.Column="0"  Content="Model System Directory" FontSize="12" />
+                <TextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding ModelSystemDirectory}" materialDesign:HintAssist.Hint="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
                 <Button BorderBrush="Transparent" Grid.Row="1" Grid.Column="2" Width="20" Height="20" Click="Select_ModelSystemDirectory">
-                    <Path Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
+                    <Path Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
                 </Button>
             </Grid>
             <Grid Margin="9.44881889763779,2,9.44881889763779,0" >
@@ -59,14 +59,14 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource ThemeTextColorBrush}" Content="Host Networking Port" FontSize="12" />
-                <local:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
+                <Label Grid.Row="0" Grid.Column="0"  Content="Host Networking Port" FontSize="12" />
+                <TextBox  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" materialDesign:HintAssist.Hint="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
             </Grid>
 
-            <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" Margin="9.4,0"/>
-            <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource ThemeTextColorBrush}" Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>
+            <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0"/>
+            <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>
             <Label Content="Delete local configuration?" Cursor="Hand" Name="DeleteConfigLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource FocusBrush}" FontSize="12" Margin="9.4,-3,9.4,6" MouseDown="DeleteConfigLabel_MouseDown"/>
-            <Button  Name="CreateLocalConfigButton" Foreground="{DynamicResource ControlTextColourBrush}" Background="{DynamicResource ControlColourBrush}" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>
+            <Button  Name="CreateLocalConfigButton"  Background="{DynamicResource ControlColourBrush}" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>
             <Separator Background="Transparent" Height="25"></Separator>
         </StackPanel>
     </Grid>

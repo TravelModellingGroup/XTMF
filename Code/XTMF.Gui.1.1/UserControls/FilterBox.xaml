@@ -23,14 +23,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" Focusable="True"
-             d:DesignHeight="20" d:DesignWidth="200">
-    <Grid Height="20">
+             d:DesignHeight="40" d:DesignWidth="200">
+    <Grid Height="30">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="AUTO" />
         </Grid.ColumnDefinitions>
-        <userControls:HintedTextBox Grid.Column="0" x:Name="Box" HintText="Search..." TextChanged="Box_TextChanged" PreviewKeyDown="Box_PreviewKeyDown" />
+        <TextBox Grid.Column="0" x:Name="Box" materialDesign:HintAssist.Hint="Search..." TextChanged="Box_TextChanged" PreviewKeyDown="Box_PreviewKeyDown" />
         <Button Margin="2,0,0,0" BorderThickness="0" Background="Transparent" Grid.Column="1" x:Name="ClearFilterButton" Click="ClearFilter_Click" Visibility="Collapsed" >
             <Path Stretch="Uniform" Fill="Red"  Data="{DynamicResource CancelIconPath}" />
         </Button>

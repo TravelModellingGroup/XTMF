@@ -18,6 +18,8 @@
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!--
     <MenuScrollingVisibilityConverter x:Key="MenuScrollingVisibilityConverter" />
     <Style x:Key="MenuScrollViewer"
        TargetType="{x:Type ScrollViewer}"
@@ -92,7 +94,7 @@
         </Setter>
     </Style>
 
-    <!-- TopLevelHeader -->
+ 
     <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}"
                  TargetType="{x:Type MenuItem}">
         <Border x:Name="Border" Height="28" >
@@ -174,7 +176,6 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
-    <!-- TopLevelItem -->
     <ControlTemplate x:Key="{x:Static MenuItem.TopLevelItemTemplateKey}"
                  TargetType="{x:Type MenuItem}">
         <Border x:Name="Border" >
@@ -215,7 +216,6 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
-    <!-- SubmenuItem -->
     <ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}"
                  TargetType="{x:Type MenuItem}">
         <Border x:Name="Border" Height="28" VerticalAlignment="Center"
@@ -468,7 +468,6 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
-    <!-- MenuItem Style -->
     <Style x:Key="{x:Type MenuItem}"
        TargetType="{x:Type MenuItem}">
         <Setter Property="OverridesDefaultStyle"
@@ -541,5 +540,5 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+    </Style> -->
 </ResourceDictionary>

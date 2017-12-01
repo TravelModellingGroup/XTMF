@@ -902,6 +902,7 @@
 
 
 
+    <!--
     <Style TargetType="{x:Type ListViewItem}">
 
 
@@ -963,7 +964,7 @@
         </Setter>
 
 
-    </Style>
+    </Style> -->
 
     <Style x:Key="ExpandCollapseToggleStyle"
        TargetType="ToggleButton">

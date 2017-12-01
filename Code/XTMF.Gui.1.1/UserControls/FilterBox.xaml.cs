@@ -48,7 +48,8 @@ namespace XTMF.Gui
 
         private static void OnFilterWatermarkChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            ((FilterBox)source).Box.HintText = e.NewValue as string;
+            Console.WriteLine(source);
+            //((FilterBox)source).Box. = e.NewValue as string;
         }
 
         public string FilterWatermark

@@ -20,6 +20,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:XTMF.Gui.UserControls">
 
+    <!--
     <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -114,5 +115,5 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers />
-    </Style>
+    </Style> -->
 </ResourceDictionary>

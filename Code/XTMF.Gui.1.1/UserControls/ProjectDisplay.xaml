@@ -21,21 +21,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:xtmf="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
              Focusable="True" SnapsToDevicePixels="True"
+             Background="{DynamicResource MaterialDesignPaper}"
              d:DesignHeight="400" d:DesignWidth="800">
-    <UserControl.Background>
-        <SolidColorBrush Color="{DynamicResource WindowBackgroundColor2}"/>
-    </UserControl.Background>
+   
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
         <Border BorderThickness="0" BorderBrush="DarkGray" Grid.Row="1" HorizontalAlignment="Stretch">
-            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush3}">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource MaterialDesignCardBackground}">
                 <my:BorderIconButton BorderThickness="0" Margin="10,12,5,12" Header="Open" Width="170" Text="Open project directory" Icon="/XTMF.Gui;component/Resources/ic_folder_open_white_18dp.png" 
                                      Clicked="OpenProjectFolder_Clicked"/>
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Import" Width="170" Text="Model System" Icon="/XTMF.Gui;component/Resources/ic_cloud_download_white_18dp.png"
@@ -65,11 +65,34 @@
                         <RowDefinition Height="AUTO"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
-                    <DockPanel Grid.Row="1" LastChildFill="True" Background="{DynamicResource WindowBackgroundBrush2}">
+                    <materialDesign:ColorZone Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                              Margin="12 12 12 12"
+                                              materialDesign:ShadowAssist.ShadowDepth="Depth4">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                            </Button>
 
-                        <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,0,5"/>
-                        <xtmf:ModelSystemListView  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
+                            <my:FilterBox Grid.Column="1" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
+                            <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                            <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
+
+                            </Button>
+                        </Grid>
+                    </materialDesign:ColorZone>
+
+                   
+                    <DockPanel Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" >
+
+                        <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
+                        <xtmf:ModelSystemListView Background="{DynamicResource MaterialDesignPaper}"  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay"
                                  BorderBrush="{x:Null}"  >
                             <ListView.ContextMenu>
                                 <ContextMenu Name="ContextMenu" >
@@ -139,17 +162,39 @@
                         </xtmf:ModelSystemListView>
                     </DockPanel>
                 </Grid>
-                <GridSplitter  Width="4" Background="{DynamicResource WindowBackgroundBrush1}"></GridSplitter>
-                <Grid  Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}">
+                <GridSplitter  Width="3" Background="{DynamicResource MaterialDesignDarkBackground}"></GridSplitter>
+                <Grid  Grid.Column="1" Background="{DynamicResource MaterialDesignPaper}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="1" FlowDirection="LeftToRight" >
-                        <Label Content="Previous Runs" Width="Auto"  Background="Transparent" FontSize="22" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,0,5"/>
+                        <Label Content="Previous Runs" Width="Auto"  Background="Transparent" FontSize="22" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,0,5"/>
                     </DockPanel>
-                    <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
+                    <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                              Margin="12 12 12 12"
+                                              materialDesign:ShadowAssist.ShadowDepth="Depth4">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                            </Button>
+
+                            <my:FilterBox Grid.Column="1" x:Name="FilterPastRunsBox" />
+                            <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                            <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
+
+                            </Button>
+                        </Grid>
+                    </materialDesign:ColorZone>
+                   
                     <ListView Grid.Row="2" x:Name="PastRunDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
                                  
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
@@ -201,3 +246,4 @@
 
     </Grid>
 </UserControl>
+

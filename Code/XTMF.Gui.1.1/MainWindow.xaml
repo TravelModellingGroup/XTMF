@@ -24,7 +24,8 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
-         MaxWidth="{Binding Source={x:Static SystemParameters.MaximizedPrimaryScreenWidth}}"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        MaxWidth="{Binding Source={x:Static SystemParameters.MaximizedPrimaryScreenWidth}}"
         MaxHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}"
         Title="XTMF Version 1.3" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="1000"
@@ -40,7 +41,7 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         FontFamily="{DynamicResource MaterialDesignFont}">
-    <Border Name="WindowGrid"  Margin="0,0,0,0" Background="Transparent"  BorderBrush="{DynamicResource WindowBackgroundBrush3}"
+    <Border Name="WindowGrid"  Margin="0,0,0,0" Background="Transparent"  BorderBrush="{DynamicResource MaterialDesignBackground}"
         BorderThickness="1">
         <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
             <Grid.RowDefinitions>
@@ -48,7 +49,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush1}"
+            <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}"
                 MouseDown="Window_MouseDown">
                 <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,5,0">
                     <Border DockPanel.Dock="Left">
@@ -57,7 +58,7 @@
                             <Label
                             Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
                             Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0"
-                            Foreground="{DynamicResource ThemeTextColorBrush}" HorizontalContentAlignment="Left" FontSize="15"
+                            Foreground="{DynamicResource MaterialDesignBody}" HorizontalContentAlignment="Left" FontSize="15"
                             Background="{x:Null}" />
                         </StackPanel>
                     </Border>
@@ -67,7 +68,7 @@
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                            <Setter Property="Background" Value="{DynamicResource MaterialDesignBackground}">
 
                                             </Setter>
                                         </Trigger>
@@ -80,14 +81,14 @@
                                         <Style TargetType="{x:Type Border}">
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                                    <Setter Property="Background" Value="{DynamicResource MaterialDesignBackground}">
 
                                                     </Setter>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <Border Margin="5,5,5,-2" BorderBrush="{DynamicResource ThemeTextColorBrush}" BorderThickness="2" Height="2" />
+                                    <Border Margin="5,5,5,-2" BorderBrush="{DynamicResource MaterialDesignBody}" BorderThickness="2" Height="2" />
                                 </Border>
                             </Button>
                         </Border>
@@ -97,7 +98,7 @@
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                            <Setter Property="Background" Value="{DynamicResource MaterialDesignBackground}">
 
                                             </Setter>
                                         </Trigger>
@@ -110,12 +111,12 @@
                                         <Style TargetType="{x:Type Border}">
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}"/>
+                                                    <Setter Property="Background" Value="{DynamicResource MaterialDesignBackground}"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <Border Margin="5,10,5,10" BorderBrush="{DynamicResource ThemeTextColorBrush}" BorderThickness="2" />
+                                    <Border Margin="5,10,5,10" BorderBrush="{DynamicResource MaterialDesignBody}" BorderThickness="2" />
                                 </Border>
                             </Button>
                         </Border>
@@ -124,7 +125,7 @@
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                            <Setter Property="Background" Value="{DynamicResource MaterialDesignBackground}">
                                             </Setter>
                                         </Trigger>
                                     </Style.Triggers>
@@ -142,7 +143,7 @@
                                         <Style TargetType="{x:Type Border}">
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                                    <Setter Property="Background" Value="{DynamicResource MaterialDesignBackground}">
 
                                                     </Setter>
                                                 </Trigger>
@@ -165,11 +166,10 @@
                                       Visibility="Visible"
                                       SnapsToDevicePixels="False"
                                       Margin="5,5,5,5"
+                                          Stroke="{DynamicResource MaterialDesignBody}"
                                       StrokeThickness="2" Stretch="Fill"
                                       Data="M 0 0 L 7 7 M 0 7 L 7 0">
-                                        <Path.Stroke>
-                                            <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
-                                        </Path.Stroke>
+                                        
                                     </Path>
                                 </Border>
                             </Button>
@@ -178,7 +178,7 @@
                     </StackPanel>
                 </DockPanel>
             </Border>
-            <Grid Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush1}">
+            <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="837*" />
@@ -189,35 +189,33 @@
                     <RowDefinition Height="AUTO" />
                 </Grid.RowDefinitions>
                 <!-- The main menu -->
-                <Menu Grid.Row="0" MouseDown="Window_MouseDown" Background="{DynamicResource WindowBackgroundBrush}"
+                <Menu IsMainMenu="True" Style="{DynamicResource MaterialDesignMenu}" Grid.Row="0" MouseDown="Window_MouseDown"
                   Margin="0,0,0,0" Grid.ColumnSpan="1">
                     <MenuItem Header="_File">
-                        <MenuItem.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
-                        </MenuItem.Background>
+                      
                         <MenuItem Header="_New">
                             <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
                             <MenuItem x:Name="NewModelSystemButton" Header="_Model System"
                                   Click="NewModelSystemButton_Click" />
                         </MenuItem>
-                        <MenuItem x:Name="OpenMenuItem" Header="_Open">
+                        <MenuItem Style="{DynamicResource MaterialDesignMenuItem}"  x:Name="OpenMenuItem" Header="_Open">
                             <MenuItem.Icon>
-                                <ContentControl Template="{DynamicResource OpenIcon}" />
+                                <materialDesign:PackIcon Kind="Folder" />
                             </MenuItem.Icon>
                             <MenuItem Header="_Project" Click="OpenProject_Click" />
                             <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
                         </MenuItem>
-                        <MenuItem x:Name="RecentProjectsMenuItem" Header="_RecentProjects" />
-                        <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click"
+                        <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="RecentProjectsMenuItem" Header="_RecentProjects" />
+                        <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click"
                               IsEnabled="{Binding CanClose, Mode=OneWay}" />
-                        <Separator Background="{StaticResource ControlBackgroundBrush}" />
-                        <MenuItem x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click"
+                        <Separator Style="{DynamicResource MaterialDesignSeparator}" />
+                        <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click"
                               IsEnabled="{Binding CanSave, Mode=OneWay}">
                             <MenuItem.Icon>
-                                <ContentControl Template="{DynamicResource SaveIcon}" />
+                                <materialDesign:PackIcon Kind="ContentSave" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
+                        <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
                               IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
                         <!--
                     <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
@@ -225,44 +223,46 @@
                             <ContentControl Template="{DynamicResource ImportIcon}" />
                         </MenuItem.Icon>
                     </MenuItem> -->
-                        <Separator Background="{StaticResource ControlBackgroundBrush}" />
+                        <Separator Style="{DynamicResource MaterialDesignSeparator}" />
                         <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
                             <MenuItem.Icon>
-                                <Image Source="/XTMF.Gui;component/Resources/XTMF_refresh.png" Width="20" Height="20" />
+                                <materialDesign:PackIcon Kind="Download" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <Separator Background="{StaticResource ControlBackgroundBrush}" />
+                        <Separator Style="{StaticResource MaterialDesignSeparator}" />
                         <MenuItem Header="E_xit" Click="Exit_Click" />
                     </MenuItem>
                     <MenuItem Header="_Edit">
-                        <MenuItem.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
-                        </MenuItem.Background>
+
                         <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click"
-                              IsEnabled="{Binding CanUndo, Mode=OneWay}" />
+                              IsEnabled="{Binding CanUndo, Mode=OneWay}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="Undo" />
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click"
-                              IsEnabled="{Binding CanRedo, Mode=OneWay}" />
+                              IsEnabled="{Binding CanRedo, Mode=OneWay}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="Redo" />
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem Header="_Run">
-                        <MenuItem.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
-                        </MenuItem.Background>
+                       
                         <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click"
                               IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
                             <MenuItem.Icon>
-                                <ContentControl Template="{DynamicResource RunIcon}" />
+                                <materialDesign:PackIcon Kind="Run" />
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client" Click="RunRemoteMenu_Click">
                             <MenuItem.Icon>
-                                <ContentControl Template="{DynamicResource RunIcon}" />
+                                <materialDesign:PackIcon Kind="Run" />
                             </MenuItem.Icon>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem Header="_View">
-                        <MenuItem.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
-                        </MenuItem.Background>
+                        
                         <MenuItem Header="_Start Window" Click="ShowStart_Click" />
                         <MenuItem Header="_Interface Settings">
                             <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True"
@@ -270,22 +270,20 @@
                         </MenuItem>
                         <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
                             <MenuItem.Icon>
-                                <ContentControl Template="{DynamicResource HelpIcon}" />
+                                <materialDesign:PackIcon Kind="BookOpen" />
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Header="_Settings" Click="Settings_Click">
                             <MenuItem.Icon>
-                                <ContentControl Template="{DynamicResource SettingsIcon}" />
+                                <materialDesign:PackIcon Kind="Settings" />
                             </MenuItem.Icon>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem Header="_Help">
-                        <MenuItem.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
-                        </MenuItem.Background>
+                        
                         <MenuItem Header="Search _Help" Click="LaunchHelpWindow_Click">
                             <MenuItem.Icon>
-                                <ContentControl Template="{DynamicResource HelpIcon}" />
+                                <materialDesign:PackIcon Kind="Help" />
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
@@ -299,7 +297,7 @@
                                  ScrollViewer.PanningMode="HorizontalOnly" DataContext="self"                                    
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
                                  Margin="0,7,0,0" Grid.ColumnSpan="2" Grid.Column="0"
-                                 Background="{DynamicResource WindowBackgroundBrush1}" ActiveContentChanged="DockManager_ActiveContentChanged">
+                                 Background="{DynamicResource MaterialDesignPaper}" ActiveContentChanged="DockManager_ActiveContentChanged">
                     <xcad:DockingManager.DocumentTitleTemplate>
                         <DataTemplate>
                             <Grid HorizontalAlignment="Stretch">
