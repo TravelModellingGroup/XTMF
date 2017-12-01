@@ -900,8 +900,6 @@
     </LinearGradientBrush>
 
 
-<!--
-
     <!--
     <Style TargetType="{x:Type ListViewItem}">
 
@@ -1026,7 +1024,7 @@
             <SolidColorBrush x:Key="{x:Static SystemColors.ActiveBorderBrush}" Color="{DynamicResource SelectionBlue}"/>
         </Style.Resources>
 
-    </Style> -->
+    </Style> 
 
 
 
