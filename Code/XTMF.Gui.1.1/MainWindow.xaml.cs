@@ -31,6 +31,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
+using MahApps.Metro.Controls;
 using Xceed.Wpf.AvalonDock.Layout;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
@@ -45,7 +46,7 @@ namespace XTMF.Gui
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         private StartWindow _StartWindow;
 
@@ -102,13 +103,13 @@ namespace XTMF.Gui
             Loaded += FrameworkElement_Loaded;
             Us = this;
             operationProgressing = new OperationProgressing();
-            CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, Close_Click));
+            /*CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, Close_Click));
             CommandBindings.Add(new CommandBinding(SystemCommands.MaximizeWindowCommand, MaxNorm_OnClick,
                 OnCanResizeWindow));
             CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, Minimize_Click,
                 OnCanMinimizeWindow));
             CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow,
-                OnCanResizeWindow));
+                OnCanResizeWindow)); */
 
             _schedulerWindow = new SchedulerWindow();
         }
@@ -1009,6 +1010,7 @@ namespace XTMF.Gui
             }
         }
 
+        /*
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
@@ -1019,7 +1021,7 @@ namespace XTMF.Gui
                     DragMove();
                 }
             }
-        }
+        } */
 
         private void MaxNorm_OnClick(object sender, RoutedEventArgs e)
         {
@@ -1061,7 +1063,7 @@ namespace XTMF.Gui
                 if (e.GetPosition(this).Y < 90)
                 {
                     e.Handled = true;
-                    MaxNorm_OnClick(null, null);
+                    //MaxNorm_OnClick(null, null);
                 }
             }
         }

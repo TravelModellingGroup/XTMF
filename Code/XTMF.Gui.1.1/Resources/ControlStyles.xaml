@@ -1092,9 +1092,9 @@
             RelativeSource={RelativeSource TemplatedParent}}"/>
                         <Border x:Name="Bd"
                   Grid.Column="1"
-                  Background="{DynamicResource MaterialDesignPaper}"
+                  Background="Transparent"
                   BorderBrush="{TemplateBinding BorderBrush}"
-                  BorderThickness="0"
+                  BorderThickness="0" 
                   Padding="{TemplateBinding Padding}">
                             <ContentPresenter x:Name="PART_Header"
                               ContentSource="Header"
@@ -1140,10 +1140,10 @@
             </Setter.Value>
         </Setter>
 
-        <Style.Resources>
+        <!--<Style.Resources>
             <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{DynamicResource ControlColour}"/>
             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource ControlHighlightColour}"/>
-        </Style.Resources>
+        </Style.Resources> -->
     </Style>  
 
 </ResourceDictionary>
