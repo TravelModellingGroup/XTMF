@@ -207,24 +207,17 @@ namespace XTMF
                         cloneProject.ModelSystemStructure[_ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
                         cloneProject.ModelSystemDescriptions[_ModelSystemIndex] = ModelSystemModel.Description;
                         cloneProject.LinkedParameters[_ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
-                        if (((Configuration)Configuration).RunInSeperateProcess)
+                        run = System.Diagnostics.Debugger.IsAttached || !((Configuration)Configuration).RunInSeperateProcess ?
+                                XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite) :
+                                XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite);
+                        run.ProjectSavedByRun += (theRun, newMSS) =>
                         {
-                            run = System.Diagnostics.Debugger.IsAttached ?
-                                    XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite) :
-                                    XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite);
-                            run.ProjectSavedByRun += (theRun, newMSS) =>
-                            {
-                                string e = null;
-                                ProjectEditingSession.Project.ModelSystemStructure[_ModelSystemIndex] = newMSS;
-                                ProjectEditingSession.Project.Save(ref e);
-                                Reload();
-                                ProjectWasExternallySaved?.Invoke(this, new EventArgs());
-                            };
-                        }
-                        else
-                        {
-                            run = XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite);
-                        }
+                            string e = null;
+                            ProjectEditingSession.Project.ModelSystemStructure[_ModelSystemIndex] = newMSS;
+                            ProjectEditingSession.Project.Save(ref e);
+                            Reload();
+                            ProjectWasExternallySaved?.Invoke(this, new EventArgs());
+                        };
                     }
                     else
                     {

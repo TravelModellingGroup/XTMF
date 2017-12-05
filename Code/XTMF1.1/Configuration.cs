@@ -44,7 +44,6 @@ namespace XTMF
         private string _ModuleDirectory = "Modules";
         public Version XTMFVersion { get; private set; }
         public string BuildDate { get; private set; }
-        public bool ExecuteRunsInADifferentProcess { get; private set; }
         public Configuration(Assembly baseAssembly = null)
             : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF", "Configuration.xml"))
         {
@@ -728,18 +727,6 @@ namespace XTMF
                             }
                         }
                         break;
-                    case "ExecuteRunsInADifferentProcess":
-                        {
-                            var attribute = child.Attributes["Value"];
-                            if (attribute != null)
-                            {
-                                if (bool.TryParse(attribute.InnerText, out var result))
-                                {
-                                    ExecuteRunsInADifferentProcess = result;
-                                }
-                            }
-                        }
-                        break;
                     case "ProjectDirectory":
                         {
                             var attribute = child.Attributes["Value"];
@@ -938,10 +925,6 @@ namespace XTMF
                 // Host Port
                 writer.WriteStartElement("HostPort");
                 writer.WriteAttributeString("Value", HostPort.ToString());
-                writer.WriteEndElement();
-                // ExecuteRunsInADifferentProcess
-                writer.WriteStartElement("ExecuteRunsInADifferentProcess");
-                writer.WriteAttributeString("Value", ExecuteRunsInADifferentProcess.ToString());
                 writer.WriteEndElement();
                 if (AdditionalSettings != null)
                 {

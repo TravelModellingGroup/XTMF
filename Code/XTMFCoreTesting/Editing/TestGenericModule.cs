@@ -89,8 +89,8 @@ namespace XTMF.Testing.Editing
                     {
                         finished = true;
                     };
-                    Assert.IsFalse(collection.AddCollectionMember(typeof(TestModule), ref error));
-                    run.Start();
+                    // Runs now allow changes during the execution
+                    // Assert.IsFalse(collection.AddCollectionMember(typeof(TestModule), ref error));
                     for (int i = 0; i < 100 & !finished; i++)
                     {
                         Thread.Sleep(i);
