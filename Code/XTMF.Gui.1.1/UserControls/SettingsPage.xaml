@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              mc:Ignorable="d"  BorderThickness="0"
              d:DesignHeight="317.725" d:DesignWidth="419.902">
@@ -62,6 +63,32 @@
                 <Label Grid.Row="0" Grid.Column="0"  Content="Host Networking Port" FontSize="12" />
                 <TextBox  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" materialDesign:HintAssist.Hint="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
             </Grid>
+
+            <StackPanel Orientation="Horizontal">
+                
+                <Label>Primary Colour</Label>
+                <ComboBox SelectionChanged="PrimaryColourComboBox_OnSelectionChanged" Name="PrimaryColourComboBox"  ItemsSource="{Binding Swatches, Mode=OneTime}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
+                            <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding ExemplarHue.Color, Mode=OneTime}" />
+                                </Border.Background>
+                                <Label Content="{Binding Name, Mode=OneTime}">
+                                    <Label.Foreground >
+                                        <SolidColorBrush Color="{Binding ExemplarHue.Foreground, Mode=OneTime}" >
+                                           
+                                        </SolidColorBrush>
+                                    </Label.Foreground>
+                                   </Label>
+                                </Border>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <ComboBox.DataContext>
+                        <local:SettingsViewModel></local:SettingsViewModel>
+                    </ComboBox.DataContext>
+                </ComboBox>
+            </StackPanel>
 
             <Label Content="Use Dark Theme">
                </Label>

@@ -192,6 +192,7 @@
     <Compile Include="UserControls\SchedulerWindow.xaml.cs">
       <DependentUpon>SchedulerWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\SettingsViewModel.cs" />
     <Compile Include="UserControls\ValidationErrorListControl.xaml.cs">
       <DependentUpon>ValidationErrorListControl.xaml</DependentUpon>
     </Compile>

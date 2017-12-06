@@ -25,6 +25,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
+using System.Collections.Generic;
+using MaterialDesignColors;
 
 namespace XTMF.Gui.UserControls
 {
@@ -36,8 +38,14 @@ namespace XTMF.Gui.UserControls
 
         private readonly IConfiguration _configuration;
 
+       
+
+     
+
         public SettingsPage(Configuration configuration)
         {
+           
+
             _configuration = configuration;
             DataContext = new SettingsModel(configuration);
             InitializeComponent();
@@ -316,6 +324,16 @@ namespace XTMF.Gui.UserControls
                 configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
                 _configuration.Save();
             }
+        }
+
+        /// <summary>
+        /// Activates and replaces primary display colour.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PrimaryColourComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            new PaletteHelper().ReplacePrimaryColor((Swatch) PrimaryColourComboBox.SelectedItem);
         }
     }
 }
