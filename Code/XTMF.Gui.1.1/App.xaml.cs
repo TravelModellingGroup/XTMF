@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 
 namespace XTMF.Gui
@@ -37,6 +38,11 @@ namespace XTMF.Gui
                         //xtmfMainWindow.ThemeController.SetThemeActive(theme ?? xtmfMainWindow.ThemeController.GetDefaultTheme());
                     }
                     xtmfMainWindow.UpdateRecentProjectsMenu();
+
+                    if (EditorController.Runtime.Configuration.IsDarkTheme)
+                    {
+                        new PaletteHelper().SetLightDark(true);
+                    }
                     xtmfMainWindow.Show();
 
                     EditorController.Runtime.Configuration.LoadModules(() =>
