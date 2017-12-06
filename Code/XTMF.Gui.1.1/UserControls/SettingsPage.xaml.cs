@@ -335,5 +335,15 @@ namespace XTMF.Gui.UserControls
         {
             new PaletteHelper().ReplacePrimaryColor((Swatch) PrimaryColourComboBox.SelectedItem);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AccentColourComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            new PaletteHelper().ReplaceAccentColor((Swatch)AccentColourComboBox.SelectedItem);
+        }
     }
 }
