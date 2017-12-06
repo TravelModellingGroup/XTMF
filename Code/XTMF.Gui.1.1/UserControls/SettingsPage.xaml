@@ -63,7 +63,11 @@
                 <TextBox  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" materialDesign:HintAssist.Hint="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
             </Grid>
 
-            <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0"/>
+            <Label Content="Use Dark Theme">
+               </Label>
+            <ToggleButton Unchecked="ThemeBaseToggleButton_OnUnchecked" Name="ThemeBaseToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}"  Checked="ToggleButton_OnChecked"/>
+
+                <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0"/>
             <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>
             <Label Content="Delete local configuration?" Cursor="Hand" Name="DeleteConfigLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource FocusBrush}" FontSize="12" Margin="9.4,-3,9.4,6" MouseDown="DeleteConfigLabel_MouseDown"/>
             <Button  Name="CreateLocalConfigButton"  Background="{DynamicResource ControlColourBrush}" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>

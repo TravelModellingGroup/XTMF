@@ -44,19 +44,11 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"></ColumnDefinition>
+        
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Orientation="Vertical">
-            <Label Style="{StaticResource StartWindowLabelStyle}">New Project</Label>
-            <Label Style="{StaticResource StartWindowLabelStyle}">New Model System</Label>
-            <Label Style="{StaticResource StartWindowLabelStyle}">Projects</Label>
-            <Label Style="{StaticResource StartWindowLabelStyle}">Model Systems</Label>
-            <Label Style="{StaticResource StartWindowLabelStyle}">Settings</Label>
-            <Label Style="{StaticResource StartWindowLabelStyle}">Documentation</Label>
-
-        </StackPanel>
-        <Grid Grid.Column="1" MinWidth="760" MinHeight="460">
+   
+        <Grid Grid.Column="0" MinWidth="760" MinHeight="460">
             <Grid.Background>
                 <ImageBrush/>
             </Grid.Background>

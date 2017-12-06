@@ -1100,5 +1100,17 @@ namespace XTMF.Gui
                     ? DisplaysForLayout[(LayoutDocument)DockManager.Layout.ActiveContent]
                     : NullEditingDisplayModel;
         }
+
+        private void ListBoxItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            MenuToggleButton.IsChecked = false;
+            this.Settings_Click(sender,e);
+        }
+
+        private void HelpMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            MenuToggleButton.IsChecked = false;
+            LaunchHelpWindow(null);
+        }
     }
 }

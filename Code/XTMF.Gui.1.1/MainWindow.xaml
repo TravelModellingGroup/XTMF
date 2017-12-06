@@ -44,9 +44,9 @@
     <metro:MetroWindow.LeftWindowCommands>
         <metro:WindowCommands BorderThickness="0">
 
-       
-          
-                    <ToggleButton Background="Transparent" Name="MenuToggleButton"  Style="{StaticResource MaterialDesignActionToggleButton}"
+
+
+            <ToggleButton Background="Transparent" Name="MenuToggleButton"  Style="{StaticResource MaterialDesignActionToggleButton}"
                           ToolTip="MaterialDesignActionLightToggleButton">
                 <ToggleButton.Content>
                     <materialDesign:PackIcon Kind="Menu" />
@@ -54,217 +54,220 @@
                 <materialDesign:ToggleButtonAssist.OnContent>
                     <materialDesign:PackIcon Kind="KeyboardBackspace" />
                 </materialDesign:ToggleButtonAssist.OnContent>
-            </ToggleButton> 
+            </ToggleButton>
 
 
-          
+
         </metro:WindowCommands>
-          
-        </metro:MetroWindow.LeftWindowCommands>
+
+    </metro:MetroWindow.LeftWindowCommands>
     <Border Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource MaterialDesignBackground}"
         BorderThickness="1">
-        <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
-        <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
 
-           
-            <Grid Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="837*" />
-                </Grid.ColumnDefinitions>
+
+        <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
+            <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="AUTO" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="AUTO" />
                 </Grid.RowDefinitions>
-                <!-- The main menu -->
-                <Menu IsMainMenu="True" Style="{DynamicResource MaterialDesignMenu}" Grid.Row="0" 
+
+
+                <Grid Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="837*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="AUTO" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="AUTO" />
+                    </Grid.RowDefinitions>
+                    <!-- The main menu -->
+                    <Menu IsMainMenu="True" Style="{DynamicResource MaterialDesignMenu}" Grid.Row="0" 
                   Margin="0,0,0,0" Grid.ColumnSpan="1">
-                    <MenuItem Header="_File">
-                      
-                        <MenuItem Header="_New">
-                            <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
-                            <MenuItem x:Name="NewModelSystemButton" Header="_Model System"
+                        <MenuItem Header="_File">
+
+                            <MenuItem Header="_New">
+                                <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
+                                <MenuItem x:Name="NewModelSystemButton" Header="_Model System"
                                   Click="NewModelSystemButton_Click" />
-                        </MenuItem>
-                        <MenuItem Style="{DynamicResource MaterialDesignMenuItem}"  x:Name="OpenMenuItem" Header="_Open">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="Folder" />
-                            </MenuItem.Icon>
-                            <MenuItem Header="_Project" Click="OpenProject_Click" />
-                            <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
-                        </MenuItem>
-                        <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="RecentProjectsMenuItem" Header="_RecentProjects" />
-                        <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click"
+                            </MenuItem>
+                            <MenuItem Style="{DynamicResource MaterialDesignMenuItem}"  x:Name="OpenMenuItem" Header="_Open">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Folder" />
+                                </MenuItem.Icon>
+                                <MenuItem Header="_Project" Click="OpenProject_Click" />
+                                <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
+                            </MenuItem>
+                            <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="RecentProjectsMenuItem" Header="_RecentProjects" />
+                            <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click"
                               IsEnabled="{Binding CanClose, Mode=OneWay}" />
-                        <Separator Style="{DynamicResource MaterialDesignSeparator}" />
-                        <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click"
+                            <Separator Style="{DynamicResource MaterialDesignSeparator}" />
+                            <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click"
                               IsEnabled="{Binding CanSave, Mode=OneWay}">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="ContentSave" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="ContentSave" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
                               IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
-                        <!--
+                            <!--
                     <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
                         <MenuItem.Icon>
                             <ContentControl Template="{DynamicResource ImportIcon}" />
                         </MenuItem.Icon>
                     </MenuItem> -->
-                        <Separator Style="{DynamicResource MaterialDesignSeparator}" />
-                        <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="Download" />
-                            </MenuItem.Icon>
+                            <Separator Style="{DynamicResource MaterialDesignSeparator}" />
+                            <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Download" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <Separator Style="{StaticResource MaterialDesignSeparator}" />
+                            <MenuItem Header="E_xit" Click="Exit_Click" />
                         </MenuItem>
-                        <Separator Style="{StaticResource MaterialDesignSeparator}" />
-                        <MenuItem Header="E_xit" Click="Exit_Click" />
-                    </MenuItem>
-                    <MenuItem Header="_Edit">
+                        <MenuItem Header="_Edit">
 
-                        <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click"
+                            <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click"
                               IsEnabled="{Binding CanUndo, Mode=OneWay}">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="Undo" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click"
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Undo" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click"
                               IsEnabled="{Binding CanRedo, Mode=OneWay}">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="Redo" />
-                            </MenuItem.Icon>
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Redo" />
+                                </MenuItem.Icon>
+                            </MenuItem>
                         </MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="_Run">
-                       
-                        <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click"
+                        <MenuItem Header="_Run">
+
+                            <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click"
                               IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="Run" />
-                            </MenuItem.Icon>
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Run" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client" Click="RunRemoteMenu_Click">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Run" />
+                                </MenuItem.Icon>
+                            </MenuItem>
                         </MenuItem>
-                        <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client" Click="RunRemoteMenu_Click">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="Run" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="_View">
-                        
-                        <MenuItem Header="_Start Window" Click="ShowStart_Click" />
-                        <MenuItem Header="_Interface Settings">
-                            <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True"
+                        <MenuItem Header="_View">
+
+                            <MenuItem Header="_Start Window" Click="ShowStart_Click" />
+                            <MenuItem Header="_Interface Settings">
+                                <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True"
                                   Click="MetaModuleHiddenParametersToggle_Click" />
+                            </MenuItem>
+                            <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="BookOpen" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_Settings" Click="Settings_Click">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Settings" />
+                                </MenuItem.Icon>
+                            </MenuItem>
                         </MenuItem>
-                        <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="BookOpen" />
-                            </MenuItem.Icon>
+                        <MenuItem Header="_Help">
+
+                            <MenuItem Header="Search _Help" Click="LaunchHelpWindow_Click">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Help" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
+                            <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
                         </MenuItem>
-                        <MenuItem Header="_Settings" Click="Settings_Click">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="Settings" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="_Help">
-                        
-                        <MenuItem Header="Search _Help" Click="LaunchHelpWindow_Click">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="Help" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
-                        <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
-                    </MenuItem>
-                </Menu>
-              
-                <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-                <xcad:DockingManager BorderThickness="0" IsHitTestVisible="True" x:Name="DockManager"
+                    </Menu>
+
+                    <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
+                    <xcad:DockingManager BorderThickness="0" IsHitTestVisible="True" x:Name="DockManager"
                                  Grid.Row="1" ScrollViewer.CanContentScroll="True"
                                  ScrollViewer.PanningMode="HorizontalOnly" DataContext="self"                                    
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
                                  Margin="0,7,0,0" Grid.ColumnSpan="2" Grid.Column="0"
                                  Background="{DynamicResource MaterialDesignPaper}" ActiveContentChanged="DockManager_ActiveContentChanged">
-                    <xcad:DockingManager.DocumentTitleTemplate>
-                        <DataTemplate>
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0" />
-                                <TextBlock Grid.Column="2" Text="{Binding Title}"  Margin="1"
+                        <xcad:DockingManager.DocumentTitleTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Title}"  Margin="1"
                                         />
-                            </Grid>
-                        </DataTemplate>
-                    </xcad:DockingManager.DocumentTitleTemplate>
-                    <xcad:DockingManager.DocumentHeaderTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="{Binding IconSource}" Margin="0,0,4,0" />
-                                <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" >
-                                    <TextBlock.Style>
-                                        <Style TargetType="{x:Type TextBlock}">
+                                </Grid>
+                            </DataTemplate>
+                        </xcad:DockingManager.DocumentTitleTemplate>
+                        <xcad:DockingManager.DocumentHeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding IconSource}" Margin="0,0,4,0" />
+                                    <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" >
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
 
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </StackPanel>
-                        </DataTemplate>
-                    </xcad:DockingManager.DocumentHeaderTemplate>
-                    <xcad:DockingManager.Theme>
-                        <xcad:Vs2013LightTheme />
-                    </xcad:DockingManager.Theme>
-                    <xcad:LayoutRoot x:Name="LayoutRoot">
-                        <xcad:LayoutPanel Orientation="Vertical">
-                            <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
-                                <xcad:LayoutDocumentPane x:Name="DocumentPane"/>
-                            </xcad:LayoutDocumentPaneGroup>
-                        </xcad:LayoutPanel>
-                    </xcad:LayoutRoot>
-                </xcad:DockingManager>
-                <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </xcad:DockingManager.DocumentHeaderTemplate>
+                        <xcad:DockingManager.Theme>
+                            <xcad:Vs2013LightTheme />
+                        </xcad:DockingManager.Theme>
+                        <xcad:LayoutRoot x:Name="LayoutRoot">
+                            <xcad:LayoutPanel Orientation="Vertical">
+                                <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
+                                    <xcad:LayoutDocumentPane x:Name="DocumentPane"/>
+                                </xcad:LayoutDocumentPaneGroup>
+                            </xcad:LayoutPanel>
+                        </xcad:LayoutRoot>
+                    </xcad:DockingManager>
+                    <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
                        Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
-                    <StatusBarItem HorizontalAlignment="Left">
-                        <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource MaterialDesignBody}" />
-                    </StatusBarItem>
-                    <StatusBarItem HorizontalAlignment="Left" Margin="-5,0,0,0" >
-                        <Label FontSize="12" Visibility="Hidden" Name="StatusLinkLabel" Foreground="{DynamicResource MaterialDesignBody}" Content="Click here"  ></Label>
-                    </StatusBarItem>
-                    <StatusBarItem HorizontalAlignment="Right">
-                        <StackPanel Orientation="Horizontal">
-                            <Label  x:Name="RunLabel" Content="Run Model (F5)" Foreground="{DynamicResource PrimaryHueMidBrush}"
+                        <StatusBarItem HorizontalAlignment="Left">
+                            <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource MaterialDesignBody}" />
+                        </StatusBarItem>
+                        <StatusBarItem HorizontalAlignment="Left" Margin="-5,0,0,0" >
+                            <Label FontSize="12" Visibility="Hidden" Name="StatusLinkLabel" Foreground="{DynamicResource MaterialDesignBody}" Content="Click here"  ></Label>
+                        </StatusBarItem>
+                        <StatusBarItem HorizontalAlignment="Right">
+                            <StackPanel Orientation="Horizontal">
+                                <Label  x:Name="RunLabel" Content="Run Model (F5)" Foreground="{DynamicResource PrimaryHueMidBrush}"
                                ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0"
                                FontSize="14" MouseUp="RunModel_MouseUp">
-                            </Label>
-                        </StackPanel>
-                    </StatusBarItem>
-                </StatusBar>
-                <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1"
+                                </Label>
+                            </StackPanel>
+                        </StatusBarItem>
+                    </StatusBar>
+                    <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1"
                           VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" Grid.Column="0" />
+                </Grid>
             </Grid>
-        </Grid>
             <materialDesign:DrawerHost.LeftDrawerContent>
                 <StackPanel MinWidth="212" HorizontalAlignment="Left" VerticalAlignment="Center" >
-                    <ListBox>
+                    <ListBox >
                         <ListBoxItem>New Project</ListBoxItem>
                         <ListBoxItem>Open Project</ListBoxItem>
                         <ListBoxItem>New Model System</ListBoxItem>
                         <ListBoxItem>Open Model System</ListBoxItem>
-                        <ListBoxItem>Settings</ListBoxItem>
-                        <ListBoxItem>Help</ListBoxItem>
+                        <ListBoxItem Selected="ListBoxItem_OnSelected" MouseDown="Settings_Click">Settings</ListBoxItem>
+                        <ListBoxItem Name="HelpMenuItem" Selected="HelpMenuItem_OnSelected">Help</ListBoxItem>
                         <ListBoxItem>Documentation</ListBoxItem>
                     </ListBox>
-                    </StackPanel>
+                </StackPanel>
             </materialDesign:DrawerHost.LeftDrawerContent>
         </materialDesign:DrawerHost>
+
     </Border>
 </metro:MetroWindow>
 

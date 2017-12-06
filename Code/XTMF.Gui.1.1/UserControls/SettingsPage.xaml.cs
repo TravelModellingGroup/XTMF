@@ -23,6 +23,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 
 namespace XTMF.Gui.UserControls
@@ -272,6 +273,8 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+       
+
         private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (IsLoaded)
@@ -283,6 +286,17 @@ namespace XTMF.Gui.UserControls
                     _configuration.Save();
                 }
             }
+        }
+
+        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            new PaletteHelper().SetLightDark((bool) ThemeBaseToggleButton.IsChecked);
+            //ApplyBase(ThemeBaseToggleButton.IsChecked);
+        }
+
+        private void ThemeBaseToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
         }
     }
 }
