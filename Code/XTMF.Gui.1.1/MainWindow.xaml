@@ -43,12 +43,27 @@
         FontFamily="{DynamicResource MaterialDesignFont}">
     <metro:MetroWindow.LeftWindowCommands>
         <metro:WindowCommands BorderThickness="0">
-           
+
+       
+          
+                    <ToggleButton Background="Transparent" Name="MenuToggleButton"  Style="{StaticResource MaterialDesignActionToggleButton}"
+                          ToolTip="MaterialDesignActionLightToggleButton">
+                <ToggleButton.Content>
+                    <materialDesign:PackIcon Kind="Menu" />
+                </ToggleButton.Content>
+                <materialDesign:ToggleButtonAssist.OnContent>
+                    <materialDesign:PackIcon Kind="KeyboardBackspace" />
+                </materialDesign:ToggleButtonAssist.OnContent>
+            </ToggleButton> 
+
+
+          
         </metro:WindowCommands>
           
         </metro:MetroWindow.LeftWindowCommands>
     <Border Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource MaterialDesignBackground}"
         BorderThickness="1">
+        <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
         <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -236,68 +251,21 @@
                           VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" Grid.Column="0" />
             </Grid>
         </Grid>
+            <materialDesign:DrawerHost.LeftDrawerContent>
+                <StackPanel MinWidth="212" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                    <ListBox>
+                        <ListBoxItem>New Project</ListBoxItem>
+                        <ListBoxItem>Open Project</ListBoxItem>
+                        <ListBoxItem>New Model System</ListBoxItem>
+                        <ListBoxItem>Open Model System</ListBoxItem>
+                        <ListBoxItem>Settings</ListBoxItem>
+                        <ListBoxItem>Help</ListBoxItem>
+                        <ListBoxItem>Documentation</ListBoxItem>
+                    </ListBox>
+                    </StackPanel>
+            </materialDesign:DrawerHost.LeftDrawerContent>
+        </materialDesign:DrawerHost>
     </Border>
 </metro:MetroWindow>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
