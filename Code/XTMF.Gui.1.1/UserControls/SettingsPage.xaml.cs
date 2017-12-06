@@ -93,8 +93,11 @@ namespace XTMF.Gui.UserControls
 
             if (((Configuration) _configuration).IsDarkTheme)
             {
+
                 ThemeBaseToggleButton.IsChecked = true;
             }
+            PrimaryColourComboBox.SelectedIndex = 0;
+            AccentColourComboBox.SelectedIndex = 0;
         }
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e) => Keyboard.Focus(ProjectDirectoryBox);

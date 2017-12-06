@@ -93,7 +93,7 @@
             <StackPanel Orientation="Horizontal">
 
                 <Label>Accent Colour</Label>
-                <ComboBox SelectionChanged="AccentColourComboBox_OnSelectionChanged" Name="AccentColourComboBox"  ItemsSource="{Binding Swatches, Mode=OneTime}">
+                <ComboBox SelectionChanged="AccentColourComboBox_OnSelectionChanged" Name="AccentColourComboBox"  ItemsSource="{Binding AccentSwatches, Mode=OneTime}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
                             <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
