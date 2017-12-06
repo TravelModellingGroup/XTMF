@@ -254,7 +254,7 @@
                 </Grid>
             </Grid>
             <materialDesign:DrawerHost.LeftDrawerContent>
-                <StackPanel MinWidth="212" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                <StackPanel MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
                     <ListBox >
                         <ListBoxItem>New Project</ListBoxItem>
                         <ListBoxItem>Open Project</ListBoxItem>

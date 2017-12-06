@@ -52,6 +52,8 @@ namespace XTMF
 
         public string Theme { get; set; }
 
+        public bool IsDarkTheme { get; set; }
+
         public Configuration(string configurationFileName, Assembly baseAssembly = null, bool loadModules = true)
         {
             HostPort = 1447;
@@ -716,6 +718,24 @@ namespace XTMF
             {
                 switch (child.Name)
                 {
+                    case "IsDarkTheme":
+                    {
+                        var attribute = child.Attributes["Value"];
+                        if (attribute != null)
+                        {
+                            bool isDarkTheme = false;
+                            if (bool.TryParse(attribute.InnerText, out isDarkTheme))
+                            {
+                                IsDarkTheme = isDarkTheme;
+                            }
+                            else
+                            {
+                                IsDarkTheme = false;
+                            }
+                        }
+                        break;
+                    }
+
                     case "RecentProjects":
 
                         foreach (XmlNode recentProjectNode in child.ChildNodes)
@@ -952,6 +972,9 @@ namespace XTMF
                 writer.WriteEndElement();
                 writer.WriteStartElement("Theme");
                 writer.WriteAttributeString("Value", Theme);
+                writer.WriteEndElement();
+                writer.WriteStartElement("IsDarkTheme");
+                writer.WriteAttributeString("Value", IsDarkTheme.ToString());
                 writer.WriteEndElement();
                 //Finished writing all of the settings so we can finish the document now
                 writer.WriteEndElement();

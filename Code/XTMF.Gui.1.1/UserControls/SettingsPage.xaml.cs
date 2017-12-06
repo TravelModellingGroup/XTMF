@@ -288,15 +288,34 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
         {
             new PaletteHelper().SetLightDark((bool) ThemeBaseToggleButton.IsChecked);
-            //ApplyBase(ThemeBaseToggleButton.IsChecked);
+            if (_configuration is Configuration configuration)
+            {
+                configuration.IsDarkTheme = (bool) ThemeBaseToggleButton.IsChecked;
+                _configuration.Save();
+            }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ThemeBaseToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
             new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
+            if (_configuration is Configuration configuration)
+            {
+                configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
+                _configuration.Save();
+            }
         }
     }
 }
