@@ -89,7 +89,12 @@ namespace XTMF.Gui.UserControls
             else
             {
                 ThemeComboBox.SelectedIndex = 0;
-            } 
+            }
+
+            if (((Configuration) _configuration).IsDarkTheme)
+            {
+                ThemeBaseToggleButton.IsChecked = true;
+            }
         }
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e) => Keyboard.Focus(ProjectDirectoryBox);
@@ -333,7 +338,13 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void PrimaryColourComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            new PaletteHelper().ReplacePrimaryColor((Swatch) PrimaryColourComboBox.SelectedItem);
+            if (_configuration is Configuration configuration)
+            {
+                new PaletteHelper().ReplacePrimaryColor((Swatch)PrimaryColourComboBox.SelectedItem);
+                configuration.PrimaryColour = ((Swatch) PrimaryColourComboBox.SelectedItem).Name;
+                _configuration.Save();
+            }
+           
         }
 
         /// <summary>
@@ -343,7 +354,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void AccentColourComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            new PaletteHelper().ReplaceAccentColor((Swatch)AccentColourComboBox.SelectedItem);
+            if (_configuration is Configuration configuration)
+            {
+                new PaletteHelper().ReplaceAccentColor((Swatch)AccentColourComboBox.SelectedItem);
+                configuration.AccentColour = ((Swatch)AccentColourComboBox.SelectedItem).Name;
+                _configuration.Save();
+            }
         }
     }
 }

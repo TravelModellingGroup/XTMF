@@ -52,6 +52,10 @@ namespace XTMF
 
         public string Theme { get; set; }
 
+        public string PrimaryColour { get; set; }
+
+        public string AccentColour { get; set; }
+
         public bool IsDarkTheme { get; set; }
 
         public Configuration(string configurationFileName, Assembly baseAssembly = null, bool loadModules = true)
@@ -976,6 +980,20 @@ namespace XTMF
                 writer.WriteStartElement("IsDarkTheme");
                 writer.WriteAttributeString("Value", IsDarkTheme.ToString());
                 writer.WriteEndElement();
+
+                if (PrimaryColour != null)
+                {
+                    writer.WriteStartElement("PrimaryColour");
+                    writer.WriteAttributeString("Value", PrimaryColour.ToString());
+                    writer.WriteEndElement();
+                }
+
+                if (AccentColour != null)
+                {
+                    writer.WriteStartElement("AccentColour");
+                    writer.WriteAttributeString("Value", AccentColour.ToString());
+                    writer.WriteEndElement();
+                }
                 //Finished writing all of the settings so we can finish the document now
                 writer.WriteEndElement();
                 writer.WriteEndDocument();
