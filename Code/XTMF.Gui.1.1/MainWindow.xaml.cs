@@ -104,21 +104,16 @@ namespace XTMF.Gui
             Loaded += FrameworkElement_Loaded;
             Us = this;
             operationProgressing = new OperationProgressing();
-            /*CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, Close_Click));
-            CommandBindings.Add(new CommandBinding(SystemCommands.MaximizeWindowCommand, MaxNorm_OnClick,
-                OnCanResizeWindow));
-            CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, Minimize_Click,
-                OnCanMinimizeWindow));
-            CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow,
-                OnCanResizeWindow)); */
+
 
             _schedulerWindow = new SchedulerWindow();
 
             ContentControl.DataContext = new ViewModelBase();
             ViewTitleBlock.DataContext = ContentControl.DataContext;
 
-            ((ViewModelBase) ContentControl.DataContext).ViewModelControl = new StartWindow();
-            ((ViewModelBase) ContentControl.DataContext).ViewTitle = "XTMF";
+            SetDisplayActive(new StartWindow(),"XTMF");
+
+      
         }
 
         private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
@@ -1107,6 +1102,17 @@ namespace XTMF.Gui
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="display"></param>
+        /// <param name="title"></param>
+        private void SetDisplayActive(System.Windows.Controls.UserControl display, string title)
+        {
+            ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
+            ((ViewModelBase)ContentControl.DataContext).ViewTitle = title;
+        }
+
         private void DockManager_ActiveContentChanged(object sender, EventArgs e)
         {
             /*EditingDisplayModel =
@@ -1119,11 +1125,8 @@ namespace XTMF.Gui
 
         private void ListBoxItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            
-           
 
-            ((ViewModelBase)ContentControl.DataContext).ViewModelControl = new SettingsPage(EditorController.Runtime.Configuration);
-            ((ViewModelBase) ContentControl.DataContext).ViewTitle = "Settings";
+            SetDisplayActive(new SettingsPage(EditorController.Runtime.Configuration),"Settings");
 
             MenuToggleButton.IsChecked = false;
             //this.Settings_Click(sender,e);
