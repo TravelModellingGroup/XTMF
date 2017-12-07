@@ -116,6 +116,9 @@ namespace XTMF.Gui
 
             ContentControl.DataContext = new ViewModelBase();
             ViewTitleBlock.DataContext = ContentControl.DataContext;
+
+            ((ViewModelBase) ContentControl.DataContext).ViewModelControl = new StartWindow();
+            ((ViewModelBase) ContentControl.DataContext).ViewTitle = "XTMF";
         }
 
         private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
