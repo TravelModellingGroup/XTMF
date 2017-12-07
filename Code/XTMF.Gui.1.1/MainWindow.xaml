@@ -270,16 +270,28 @@
                           VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" Grid.Column="0" />
                 </Grid>
             </Grid>
-            <materialDesign:DrawerHost.LeftDrawerContent>
-                <StackPanel MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
+            <materialDesign:DrawerHost.LeftDrawerContent >
+                <StackPanel   MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
                     <ListBox >
-                        <ListBoxItem>New Project</ListBoxItem>
-                        <ListBoxItem>Open Project</ListBoxItem>
-                        <ListBoxItem>New Model System</ListBoxItem>
-                        <ListBoxItem>Open Model System</ListBoxItem>
-                        <ListBoxItem Selected="ListBoxItem_OnSelected" MouseDown="Settings_Click">Settings</ListBoxItem>
-                        <ListBoxItem Name="HelpMenuItem" Selected="HelpMenuItem_OnSelected">Help</ListBoxItem>
-                        <ListBoxItem>Documentation</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8">New Project</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8">Open Project</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8">New Model System</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8">Open Model System</ListBoxItem>
+
+                    </ListBox>
+
+                    <Separator />
+                    <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">Workspace</TextBlock>
+
+                    <Separator />
+                    <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">XTMF</TextBlock>
+                    <ListBox >
+
+
+
+                        <ListBoxItem Padding="15 8 5 8" Selected="ListBoxItem_OnSelected" MouseDown="Settings_Click">Settings</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8" Name="HelpMenuItem" Selected="HelpMenuItem_OnSelected">Help</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8">Documentation</ListBoxItem>
                     </ListBox>
                 </StackPanel>
             </materialDesign:DrawerHost.LeftDrawerContent>
