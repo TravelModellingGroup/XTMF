@@ -22,7 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d"  BorderThickness="0"
-             d:DesignHeight="600" d:DesignWidth="800" Background="{DynamicResource WindowBackgroundBrush2}" >
+             d:DesignHeight="600" d:DesignWidth="800" Background="{DynamicResource MaterialDesignPaper}" >
     
     <UserControl.Resources>
         <ResourceDictionary>
@@ -60,11 +60,11 @@
             <Grid  Grid.Row="0" MinHeight="50">
                 <StackPanel Width="128" Orientation="Vertical" HorizontalAlignment="Left">
                     <Image HorizontalAlignment="Left"  Source="/XTMF.Gui;component/Resources/XTMF_corner_splash.png" Height="128" Width="128" />
-                    <Label Content="XTMF" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,-45,0,0" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Bold" FontSize="24" FontFamily="Lucida Console"/>
+                    <Label Content="XTMF" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,-45,0,0" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Bold" FontSize="24" FontFamily="Lucida Console"/>
                 </StackPanel>
                 <StackPanel HorizontalAlignment="Center"  VerticalAlignment="Center">
-                    <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeTextColorBrush}" />
-                    <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{DynamicResource ThemeTextColorBrush}" />
+                    <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                    <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{DynamicResource MaterialDesignBody}" />
                 </StackPanel>
             </Grid>
             <Grid Grid.Row="1">
@@ -81,19 +81,19 @@
                         <ColumnDefinition Width="200"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
-                        <Label Content="Projects" FontSize="18" Foreground="{DynamicResource ThemeTextColorBrush}" />
-                        <Label Style="{DynamicResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
-                        <Label Style="{DynamicResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
+                        <Label Content="Projects" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
+                        <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
+                        <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}"  Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left">
-                        <Label Content="Recent" FontSize="18" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="1,15,0,0" />
+                        <Label Content="Recent" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" Margin="1,15,0,0" />
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Name="RecentProjectsStackPanel">
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left">
-                        <Label Content="Model Systems" FontSize="18" Foreground="{DynamicResource ThemeTextColorBrush}" />
-                        <Label Style="{DynamicResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
-                        <Label Style="{DynamicResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
+                        <Label Content="Model Systems" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
+                        <Button  HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
+                        <Button   HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
                     </StackPanel>
                 </Grid>
             </Grid>

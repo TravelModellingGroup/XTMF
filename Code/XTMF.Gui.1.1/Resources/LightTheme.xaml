@@ -86,8 +86,8 @@
     <SolidColorBrush x:Key="FocusBrushHover2" Color="#FFB9D8FF" />
     <SolidColorBrush x:Key="FocusBrushHover3" Color="#FF73B0FB" />
     <Color x:Key="ThemeTextColor">#111111</Color>
-    
-    <SolidColorBrush x:Key="ThemeTextColorBrush" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
+
+    <SolidColorBrush x:Key="MaterialDesignBodyThemeTextColorBrush" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="AddingYellowBrush" Color="{DynamicResource ResourceKey=AddingYellow}" />
     <SolidColorBrush x:Key="InformationGreenBrush" Color="{DynamicResource ResourceKey=InformationGreen}" />
     <SolidColorBrush x:Key="WarningRedBrush" Color="{DynamicResource ResourceKey=WarningRed}" />

@@ -10,13 +10,15 @@
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              mc:Ignorable="d"  BorderThickness="0"
              d:DesignHeight="917.725" d:DesignWidth="800.902">
-    <Grid >
+    <Grid Background="{DynamicResource MaterialDesignPaper}" >
 
-        <StackPanel  Margin="0.25cm" MaxWidth="900" VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
+        <StackPanel  MaxWidth="1000" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
 
-            <materialDesign:Card Padding="5 5 5 5" Width="700">
+            <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left">Directory Settings
+            </TextBlock>
+            <materialDesign:Card Padding="5 5 5 5" Width="700" Background="{DynamicResource MaterialDesignCardBackground}">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Margin="16 16 12 8" FontSize="16" HorizontalAlignment="Left">Directory Settings</TextBlock>
+                    
                     
                     <Grid Margin="16 16 12 8">
                         <Grid.ColumnDefinitions>
@@ -43,9 +45,10 @@
                     </Grid>
                 </StackPanel>
             </materialDesign:Card>
+            <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left">Network Settings</TextBlock>
             <materialDesign:Card Padding="5 5 5 5" Width="700">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Margin="16 16 12 8" FontSize="16" HorizontalAlignment="Left">Network Settings</TextBlock>
+                   
 
                     <Grid Margin="16 16 12 8">
                         <Grid.ColumnDefinitions>
@@ -67,9 +70,10 @@
                     </Grid>
                 </StackPanel>
             </materialDesign:Card>
+            <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left">Appearance</TextBlock>
             <materialDesign:Card Padding="5 5 5 5" Width="700">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Margin="16 16 12 8" FontSize="16" HorizontalAlignment="Left">Appearance</TextBlock>
+                   
 
                     <Grid Margin="16 16 12 8">
                         <Grid.ColumnDefinitions>
@@ -152,7 +156,19 @@
                     <Path  Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
                 </Button>
             </Grid> -->
-            <Grid Margin="0.25cm,2,0.25cm,2" >
+            <TextBlock Margin="16 16 12 8" FontSize="14" >Advanced</TextBlock>
+            <materialDesign:Card Margin="0 0  0 0"  Padding="5 5 5 5" Width="700">
+                <StackPanel>
+                    <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0"/>
+                    <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>
+                    <Label Content="Delete local configuration?" Cursor="Hand" Name="DeleteConfigLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource FocusBrush}" FontSize="12" Margin="9.4,-3,9.4,6" MouseDown="DeleteConfigLabel_MouseDown"/>
+                    <Button  Name="CreateLocalConfigButton"  Background="{DynamicResource ControlColourBrush}" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+
+
+                <Grid Margin="9.44881889763779,2,9.44881889763779,0" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
@@ -162,43 +178,17 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-
                
-               
-            </Grid>
-            <Grid Margin="9.44881889763779,2,9.44881889763779,0" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="auto" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Label Grid.Row="0" Grid.Column="0"  Content="Host Networking Port" FontSize="12" />
                 
             </Grid>
 
-            <StackPanel Orientation="Horizontal">
-                
-               
-            </StackPanel>
+           
 
-            <StackPanel Orientation="Horizontal">
+           
+
 
               
-            </StackPanel>
-
-            <Label Content="Use Dark Theme">
-               </Label>
-            
-
-                <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0"/>
-            <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>
-            <Label Content="Delete local configuration?" Cursor="Hand" Name="DeleteConfigLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource FocusBrush}" FontSize="12" Margin="9.4,-3,9.4,6" MouseDown="DeleteConfigLabel_MouseDown"/>
-            <Button  Name="CreateLocalConfigButton"  Background="{DynamicResource ControlColourBrush}" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>
-            <Separator Background="Transparent" Height="25"></Separator>
+        
         </StackPanel>
     </Grid>
 </UserControl>
