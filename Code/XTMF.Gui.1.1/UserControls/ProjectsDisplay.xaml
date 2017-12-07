@@ -111,7 +111,7 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     
-                    <local:ListViewControl MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" MouseDoubleClick="Control_OnMouseDoubleClick">
+                    <local:ListViewControl  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" MouseDoubleClick="Control_OnMouseDoubleClick">
 
                         <local:ListViewControl.IconPath>
 
