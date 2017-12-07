@@ -289,9 +289,33 @@
 
 
 
-                        <ListBoxItem Padding="15 8 5 8" Selected="ListBoxItem_OnSelected" MouseDown="Settings_Click">Settings</ListBoxItem>
-                        <ListBoxItem Padding="15 8 5 8" Name="HelpMenuItem" Selected="HelpMenuItem_OnSelected">Help</ListBoxItem>
-                        <ListBoxItem Padding="15 8 5 8">Documentation</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8" Selected="ListBoxItem_OnSelected" MouseDown="Settings_Click">
+                            <StackPanel Orientation="Horizontal">
+                              
+                                <materialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0"                                                 
+                                />
+                                <TextBlock>Settings</TextBlock>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8" Name="HelpMenuItem" Selected="HelpMenuItem_OnSelected">
+                            <StackPanel Orientation="Horizontal">
+
+                                <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16"   Margin="0 0 8 0"                                                    
+                                />
+                                <TextBlock>Help</TextBlock>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8">
+                            <StackPanel Orientation="Horizontal">
+
+                                <materialDesign:PackIcon Kind="BookOpen" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0"                                                      
+                                />
+                                <TextBlock>Documentation</TextBlock>
+                            </StackPanel>
+                        </ListBoxItem>
                     </ListBox>
                 </StackPanel>
             </materialDesign:DrawerHost.LeftDrawerContent>
