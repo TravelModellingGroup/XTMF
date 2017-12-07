@@ -181,6 +181,7 @@
     <Compile Include="Models\ParameterDisplayModel.cs" />
     <Compile Include="Models\RunControllerDisplayModel.cs" />
     <Compile Include="Models\ValidationErrorDisplayModel.cs" />
+    <Compile Include="Models\ViewModelBase.cs" />
     <Compile Include="Resources\ForestTheme.cs" />
     <Compile Include="Resources\WarmTheme.cs" />
     <Compile Include="UserControls\FlatButton.xaml.cs">

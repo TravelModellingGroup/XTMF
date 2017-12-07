@@ -9,12 +9,134 @@
              xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              mc:Ignorable="d"  BorderThickness="0"
-             d:DesignHeight="317.725" d:DesignWidth="419.902">
+             d:DesignHeight="917.725" d:DesignWidth="800.902">
     <Grid >
 
-        <StackPanel  Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
-         
-            <Grid  Margin="0.25cm,0,0.25cm,2" >
+        <StackPanel  Margin="0.25cm" MaxWidth="900" VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
+
+            <materialDesign:Card Padding="5 5 5 5" Width="700">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Margin="16 16 12 8" FontSize="16" HorizontalAlignment="Left">Directory Settings</TextBlock>
+                    
+                    <Grid Margin="16 16 12 8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="60"></ColumnDefinition>
+
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition ></RowDefinition>
+                        </Grid.RowDefinitions>
+                        
+                   
+                    <TextBlock Text="Project Directory" Grid.Row="0"  Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+                   
+                    <TextBox Grid.Row="0"   Grid.Column="1" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" materialDesign:HintAssist.Hint="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                        <Button Margin="10 0 0 0" Content="..." BorderBrush="Transparent" Grid.Row="0" Grid.Column="2"  Click="Select_ProjectDirectory" />
+                            <TextBlock Margin="0 15 0 0"  Grid.Row="1" Grid.Column="0"  Text="Model System Directory" VerticalAlignment="Center"  />
+                        <TextBox Margin="0 15 0 0"  Grid.Row="1" Grid.Column="1" Text="{Binding ModelSystemDirectory}" materialDesign:HintAssist.Hint="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                        <Button Margin="10 0 0 0" Content="..."  BorderBrush="Transparent" Grid.Row="1" Grid.Column="2"  Click="Select_ModelSystemDirectory">
+                          
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </materialDesign:Card>
+            <materialDesign:Card Padding="5 5 5 5" Width="700">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Margin="16 16 12 8" FontSize="16" HorizontalAlignment="Left">Network Settings</TextBlock>
+
+                    <Grid Margin="16 16 12 8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180"/>
+                            <ColumnDefinition Width="*"/>
+
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+
+                        </Grid.RowDefinitions>
+
+
+                        <TextBlock Text="Host Networking Port" Grid.Row="0"  Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+                        <TextBox  Grid.Row="0"  Grid.Column="1" Text="{Binding HostPort}" materialDesign:HintAssist.Hint="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
+
+
+                    </Grid>
+                </StackPanel>
+            </materialDesign:Card>
+            <materialDesign:Card Padding="5 5 5 5" Width="700">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Margin="16 16 12 8" FontSize="16" HorizontalAlignment="Left">Appearance</TextBlock>
+
+                    <Grid Margin="16 16 12 8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180"/>
+                            <ColumnDefinition Width="*"/>
+
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+
+
+                        <TextBlock Grid.Row="0" Grid.Column="0">Primary Colour</TextBlock>
+                        <ComboBox Grid.Row="0" Grid.Column="1" SelectedValue="{Binding PrimarySwatch}" SelectionChanged="PrimaryColourComboBox_OnSelectionChanged" Name="PrimaryColourComboBox"  ItemsSource="{Binding Swatches, Mode=OneTime}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
+                                    <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding ExemplarHue.Color, Mode=OneTime}" />
+                                        </Border.Background>
+                                        <Label Content="{Binding Name, Mode=OneTime}">
+                                            <Label.Foreground >
+                                                <SolidColorBrush Color="{Binding ExemplarHue.Foreground, Mode=OneTime}" >
+
+                                                </SolidColorBrush>
+                                            </Label.Foreground>
+                                        </Label>
+                                    </Border>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+
+                        </ComboBox>
+
+                        <TextBlock Margin="0 15 0 0"  Grid.Row="1" Grid.Column="0">Accent Colour</TextBlock>
+                        <ComboBox Margin="0 15 0 0"  Grid.Row="1" Grid.Column="1"  SelectedValue="{Binding AccentSwatch}"  SelectionChanged="AccentColourComboBox_OnSelectionChanged" Name="AccentColourComboBox"  ItemsSource="{Binding AccentSwatches, Mode=OneTime}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
+                                    <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding AccentExemplarHue.Color, Mode=OneTime}" />
+                                        </Border.Background>
+                                        <Label Content="{Binding Name, Mode=OneTime}">
+                                            <Label.Foreground >
+                                                <SolidColorBrush Color="{Binding AccentExemplarHue.Foreground, Mode=OneTime}" >
+
+                                                </SolidColorBrush>
+                                            </Label.Foreground>
+                                        </Label>
+                                    </Border>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+
+                        </ComboBox>
+
+                        <TextBlock Margin="0 15 0 0"  Grid.Column="0" Grid.Row="2" Text="Use Dark Theme"></TextBlock>
+
+                        <ToggleButton Margin="0 15 0 0"  HorizontalAlignment="Left" Grid.Column="1" Grid.Row="2" IsChecked="{Binding IsDarkTheme}" Unchecked="ThemeBaseToggleButton_OnUnchecked" Name="ThemeBaseToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}"  Checked="ToggleButton_OnChecked"/>
+
+
+
+                    </Grid>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- <Grid  Margin="0.25cm,0,0.25cm,2" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
@@ -29,7 +151,7 @@
                 <Button BorderBrush="Transparent" Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ProjectDirectory" >
                     <Path  Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
                 </Button>
-            </Grid>
+            </Grid> -->
             <Grid Margin="0.25cm,2,0.25cm,2" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
@@ -41,11 +163,8 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0"  Content="Model System Directory" FontSize="12" />
-                <TextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding ModelSystemDirectory}" materialDesign:HintAssist.Hint="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
-                <Button BorderBrush="Transparent" Grid.Row="1" Grid.Column="2" Width="20" Height="20" Click="Select_ModelSystemDirectory">
-                    <Path Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
-                </Button>
+               
+               
             </Grid>
             <Grid Margin="9.44881889763779,2,9.44881889763779,0" >
                 <Grid.ColumnDefinitions>
@@ -58,60 +177,22 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0"  Content="Host Networking Port" FontSize="12" />
-                <TextBox  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" materialDesign:HintAssist.Hint="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
+                
             </Grid>
 
             <StackPanel Orientation="Horizontal">
                 
-                <Label>Primary Colour</Label>
-                <ComboBox SelectedValue="{Binding PrimarySwatch}" SelectionChanged="PrimaryColourComboBox_OnSelectionChanged" Name="PrimaryColourComboBox"  ItemsSource="{Binding Swatches, Mode=OneTime}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
-                            <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
-                                <Border.Background>
-                                    <SolidColorBrush Color="{Binding ExemplarHue.Color, Mode=OneTime}" />
-                                </Border.Background>
-                                <Label Content="{Binding Name, Mode=OneTime}">
-                                    <Label.Foreground >
-                                        <SolidColorBrush Color="{Binding ExemplarHue.Foreground, Mode=OneTime}" >
-                                           
-                                        </SolidColorBrush>
-                                    </Label.Foreground>
-                                   </Label>
-                                </Border>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                   
-                </ComboBox>
+               
             </StackPanel>
 
             <StackPanel Orientation="Horizontal">
 
-                <Label>Accent Colour</Label>
-                <ComboBox  SelectedValue="{Binding AccentSwatch}"  SelectionChanged="AccentColourComboBox_OnSelectionChanged" Name="AccentColourComboBox"  ItemsSource="{Binding AccentSwatches, Mode=OneTime}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
-                            <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
-                                <Border.Background>
-                                    <SolidColorBrush Color="{Binding AccentExemplarHue.Color, Mode=OneTime}" />
-                                </Border.Background>
-                                <Label Content="{Binding Name, Mode=OneTime}">
-                                    <Label.Foreground >
-                                        <SolidColorBrush Color="{Binding AccentExemplarHue.Foreground, Mode=OneTime}" >
-
-                                        </SolidColorBrush>
-                                    </Label.Foreground>
-                                </Label>
-                            </Border>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                   
-                </ComboBox>
+              
             </StackPanel>
 
             <Label Content="Use Dark Theme">
                </Label>
-            <ToggleButton IsChecked="{Binding IsDarkTheme}" Unchecked="ThemeBaseToggleButton_OnUnchecked" Name="ThemeBaseToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}"  Checked="ToggleButton_OnChecked"/>
+            
 
                 <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0"/>
             <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>

@@ -81,6 +81,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="1" />
                         <RowDefinition Height="AUTO" />
                     </Grid.RowDefinitions>
                     <!-- The main menu -->
@@ -187,7 +188,18 @@
                         </MenuItem>
                     </Menu> -->
 
-                    <dragablz:TabablzControl  Grid.Row="1"  x:Name="DockManager"  Grid.ColumnSpan="2" Grid.Column="0">
+                    <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                        <materialDesign:ColorZone DockPanel.Dock="Top"  Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                                  Mode="PrimaryMid">
+                            <DockPanel>
+                                <TextBlock Name="ViewTitleBlock"  HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="22" Text="{Binding ViewTitle}"/>
+                            </DockPanel>
+                            </materialDesign:ColorZone>
+                                <ContentControl DockPanel.Dock="Bottom" Content="{Binding ViewModelControl}" Name="ContentControl"  Grid.Row="1"   Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
+                    </DockPanel>
+
+                   
+                    <dragablz:TabablzControl  Grid.Row="2"  x:Name="DockManager"  Grid.ColumnSpan="2" Grid.Column="0">
                         </dragablz:TabablzControl>
                         <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
                     <!--

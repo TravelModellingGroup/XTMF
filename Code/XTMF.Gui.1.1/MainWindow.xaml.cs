@@ -113,6 +113,9 @@ namespace XTMF.Gui
                 OnCanResizeWindow)); */
 
             _schedulerWindow = new SchedulerWindow();
+
+            ContentControl.DataContext = new ViewModelBase();
+            ViewTitleBlock.DataContext = ContentControl.DataContext;
         }
 
         private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
@@ -1109,10 +1112,18 @@ namespace XTMF.Gui
                     : NullEditingDisplayModel; */
         }
 
+       public System.Windows.Controls.UserControl CurrentViewModel { get; set; }
+
         private void ListBoxItem_OnSelected(object sender, RoutedEventArgs e)
         {
+            
+           
+
+            ((ViewModelBase)ContentControl.DataContext).ViewModelControl = new SettingsPage(EditorController.Runtime.Configuration);
+            ((ViewModelBase) ContentControl.DataContext).ViewTitle = "Settings";
+
             MenuToggleButton.IsChecked = false;
-            this.Settings_Click(sender,e);
+            //this.Settings_Click(sender,e);
         }
 
         private void HelpMenuItem_OnSelected(object sender, RoutedEventArgs e)
@@ -1121,4 +1132,5 @@ namespace XTMF.Gui
             LaunchHelpWindow(null);
         }
     }
+
 }
