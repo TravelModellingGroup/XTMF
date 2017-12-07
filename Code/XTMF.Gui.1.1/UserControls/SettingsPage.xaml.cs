@@ -26,6 +26,7 @@ using System.Windows.Input;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 using System.Collections.Generic;
+using System.Linq;
 using MaterialDesignColors;
 
 namespace XTMF.Gui.UserControls
@@ -38,13 +39,10 @@ namespace XTMF.Gui.UserControls
 
         private readonly IConfiguration _configuration;
 
-       
-
      
 
         public SettingsPage(Configuration configuration)
         {
-           
 
             _configuration = configuration;
             DataContext = new SettingsModel(configuration);
@@ -66,38 +64,9 @@ namespace XTMF.Gui.UserControls
                 CreateLocalConfigButton.Visibility = Visibility.Visible;
                 DeleteConfigLabel.Visibility = Visibility.Collapsed;
             }
-            foreach (var theme in MainWindow.Us.ThemeController.Themes)
-            {
-                ComboBoxItem comboBoxItem = new ComboBoxItem
-                {
-                    Content = theme.Name,
-                    Tag = theme
-                };
-                ThemeComboBox.Items.Add(comboBoxItem);
-            }
-            if (((Configuration) _configuration).Theme != null)
-            {
-                foreach (ComboBoxItem item in ThemeComboBox.Items)
-                {
-                    if ((string)item.Content == ((Configuration) _configuration).Theme)
-                    {
-                        item.IsSelected = true;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                ThemeComboBox.SelectedIndex = 0;
-            }
+            
 
-            if (((Configuration) _configuration).IsDarkTheme)
-            {
-
-                ThemeBaseToggleButton.IsChecked = true;
-            }
-            PrimaryColourComboBox.SelectedIndex = 0;
-            AccentColourComboBox.SelectedIndex = 0;
+            
         }
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e) => Keyboard.Focus(ProjectDirectoryBox);
@@ -109,6 +78,17 @@ namespace XTMF.Gui.UserControls
             public event PropertyChangedEventHandler PropertyChanged;
 
             private string _projectDirectory;
+
+            public Swatch PrimarySwatch { get; set; }
+
+            public Swatch AccentSwatch { get; set; }
+
+            public IEnumerable<Swatch> Swatches { get; }
+
+            public IEnumerable<Swatch> AccentSwatches { get; }
+
+            public bool IsDarkTheme { get; set; }
+
             public string ProjectDirectory
             {
                 get => _projectDirectory;
@@ -175,11 +155,31 @@ namespace XTMF.Gui.UserControls
 
             public SettingsModel(Configuration config)
             {
+                Swatches = new SwatchesProvider().Swatches;
+                AccentSwatches = new SwatchesProvider().Swatches.Where((swatch) => swatch.IsAccented);
+
+
                 Configuration = config;
                 _projectDirectory = config.ProjectDirectory;
                 _modelSystemDirectory = config.ModelSystemDirectory;
                 _hostPort = config.HostPort;
                 Configuration.PropertyChanged += Configuration_PropertyChanged;
+
+                if (Configuration.PrimaryColour != null)
+                {
+                    PrimarySwatch = Swatches.First((s) => s.Name == Configuration.PrimaryColour);
+                    Console.WriteLine("Primary swatch");
+                }
+
+                if (Configuration.AccentColour != null)
+                {
+                    AccentSwatch = AccentSwatches.First((s) => s.Name == Configuration.AccentColour);
+                }
+
+                if (Configuration.IsDarkTheme)
+                {
+                    IsDarkTheme = true;
+                }
             }
 
             private void Configuration_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -291,14 +291,21 @@ namespace XTMF.Gui.UserControls
 
        
 
-        private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+     
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
         {
             if (IsLoaded)
             {
+                new PaletteHelper().SetLightDark((bool) ThemeBaseToggleButton.IsChecked);
                 if (_configuration is Configuration configuration)
                 {
-                    configuration.Theme = ((ThemeController.Theme)((ComboBoxItem)ThemeComboBox.SelectedItem).Tag).Name;
-                    MainWindow.Us.ApplyTheme(((ThemeController.Theme)((ComboBoxItem)ThemeComboBox.SelectedItem).Tag));
+                    configuration.IsDarkTheme = (bool) ThemeBaseToggleButton.IsChecked;
                     _configuration.Save();
                 }
             }
@@ -309,28 +316,16 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
-        {
-            new PaletteHelper().SetLightDark((bool) ThemeBaseToggleButton.IsChecked);
-            if (_configuration is Configuration configuration)
-            {
-                configuration.IsDarkTheme = (bool) ThemeBaseToggleButton.IsChecked;
-                _configuration.Save();
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ThemeBaseToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
-            new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
-            if (_configuration is Configuration configuration)
+            if (IsLoaded)
             {
-                configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
-                _configuration.Save();
+                new PaletteHelper().SetLightDark((bool) ThemeBaseToggleButton.IsChecked);
+                if (_configuration is Configuration configuration)
+                {
+                    configuration.IsDarkTheme = (bool) ThemeBaseToggleButton.IsChecked;
+                    _configuration.Save();
+                }
             }
         }
 
@@ -341,13 +336,15 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void PrimaryColourComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_configuration is Configuration configuration)
+            if (IsLoaded)
             {
-                new PaletteHelper().ReplacePrimaryColor((Swatch)PrimaryColourComboBox.SelectedItem);
-                configuration.PrimaryColour = ((Swatch) PrimaryColourComboBox.SelectedItem).Name;
-                _configuration.Save();
+                if (_configuration is Configuration configuration)
+                {
+                    new PaletteHelper().ReplacePrimaryColor((Swatch) PrimaryColourComboBox.SelectedItem);
+                    configuration.PrimaryColour = ((Swatch) PrimaryColourComboBox.SelectedItem).Name;
+                    _configuration.Save();
+                }
             }
-           
         }
 
         /// <summary>
@@ -357,11 +354,14 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void AccentColourComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_configuration is Configuration configuration)
+            if (IsLoaded)
             {
-                new PaletteHelper().ReplaceAccentColor((Swatch)AccentColourComboBox.SelectedItem);
-                configuration.AccentColour = ((Swatch)AccentColourComboBox.SelectedItem).Name;
-                _configuration.Save();
+                if (_configuration is Configuration configuration)
+                {
+                    new PaletteHelper().ReplaceAccentColor((Swatch) AccentColourComboBox.SelectedItem);
+                    configuration.AccentColour = ((Swatch) AccentColourComboBox.SelectedItem).Name;
+                    _configuration.Save();
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 
@@ -25,6 +26,27 @@ namespace XTMF.Gui
 
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
+                    IEnumerable<Swatch> swatches = new SwatchesProvider().Swatches;
+
+                    if (EditorController.Runtime.Configuration.PrimaryColour != null) 
+                    {
+                        Swatch swatch = swatches.First((s) => s.Name == EditorController.Runtime.Configuration.PrimaryColour);
+                        new PaletteHelper().ReplacePrimaryColor(swatch);
+
+                    }
+
+
+                    if (EditorController.Runtime.Configuration.AccentColour != null)
+                    {
+                        Swatch swatch = swatches.First((s) => s.Name == EditorController.Runtime.Configuration.AccentColour);
+                        new PaletteHelper().ReplaceAccentColor(swatch);
+
+                    }
+
+                    if (EditorController.Runtime.Configuration.IsDarkTheme)
+                    {
+                        new PaletteHelper().SetLightDark(true);
+                    }
 
                     if (EditorController.Runtime.Configuration.Theme == null)
                     {

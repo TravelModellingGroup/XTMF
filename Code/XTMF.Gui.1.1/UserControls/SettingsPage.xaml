@@ -13,10 +13,7 @@
     <Grid >
 
         <StackPanel  Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
-            <Label Margin="0.25cm,20,0.25cm,0" Content="Theme"  FontSize="12" />
-            <ComboBox Margin="0.25cm,0,0.25cm,2" Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
-
-            </ComboBox>
+         
             <Grid  Margin="0.25cm,0,0.25cm,2" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
@@ -67,7 +64,7 @@
             <StackPanel Orientation="Horizontal">
                 
                 <Label>Primary Colour</Label>
-                <ComboBox SelectionChanged="PrimaryColourComboBox_OnSelectionChanged" Name="PrimaryColourComboBox"  ItemsSource="{Binding Swatches, Mode=OneTime}">
+                <ComboBox SelectedValue="{Binding PrimarySwatch}" SelectionChanged="PrimaryColourComboBox_OnSelectionChanged" Name="PrimaryColourComboBox"  ItemsSource="{Binding Swatches, Mode=OneTime}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
                             <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
@@ -84,16 +81,14 @@
                                 </Border>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
-                    <ComboBox.DataContext>
-                        <local:SettingsViewModel></local:SettingsViewModel>
-                    </ComboBox.DataContext>
+                   
                 </ComboBox>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal">
 
                 <Label>Accent Colour</Label>
-                <ComboBox SelectionChanged="AccentColourComboBox_OnSelectionChanged" Name="AccentColourComboBox"  ItemsSource="{Binding AccentSwatches, Mode=OneTime}">
+                <ComboBox  SelectedValue="{Binding AccentSwatch}"  SelectionChanged="AccentColourComboBox_OnSelectionChanged" Name="AccentColourComboBox"  ItemsSource="{Binding AccentSwatches, Mode=OneTime}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
                             <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
@@ -110,15 +105,13 @@
                             </Border>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
-                    <ComboBox.DataContext>
-                        <local:SettingsViewModel></local:SettingsViewModel>
-                    </ComboBox.DataContext>
+                   
                 </ComboBox>
             </StackPanel>
 
             <Label Content="Use Dark Theme">
                </Label>
-            <ToggleButton Unchecked="ThemeBaseToggleButton_OnUnchecked" Name="ThemeBaseToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}"  Checked="ToggleButton_OnChecked"/>
+            <ToggleButton IsChecked="{Binding IsDarkTheme}" Unchecked="ThemeBaseToggleButton_OnUnchecked" Name="ThemeBaseToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}"  Checked="ToggleButton_OnChecked"/>
 
                 <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0"/>
             <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>

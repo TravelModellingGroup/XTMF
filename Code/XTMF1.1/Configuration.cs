@@ -722,6 +722,25 @@ namespace XTMF
             {
                 switch (child.Name)
                 {
+                    case "PrimaryColour":
+                    {
+                        var attribute = child.Attributes["Value"];
+                        if (attribute != null)
+                        {
+                            PrimaryColour = attribute.InnerText;
+                        }
+                        break;
+                    }
+                    case "AccentColour":
+                    {
+                        var attribute = child.Attributes["Value"];
+                        if (attribute != null)
+                        {
+                            AccentColour = attribute.InnerText;
+                        }
+                        break;
+                    }
+
                     case "IsDarkTheme":
                     {
                         var attribute = child.Attributes["Value"];
