@@ -28,6 +28,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -182,14 +183,14 @@ namespace XTMF.Gui
             recentProjects.Reverse();
             Dispatcher.Invoke(() =>
             {
-                RecentProjectsMenuItem.Items.Clear();
+                //RecentProjectsMenuItem.Items.Clear();
                 foreach (var recentProject in recentProjects)
                 {
                     var recentProjectMenuItem = new MenuItem
                     {
                         Header = recentProject
                     };
-                    RecentProjectsMenuItem.Items.Add(recentProjectMenuItem);
+                   // RecentProjectsMenuItem.Items.Add(recentProjectMenuItem);
 
                     recentProjectMenuItem.Click += (sender, EventArgs) =>
                     {
@@ -253,7 +254,8 @@ namespace XTMF.Gui
             }
             EditorController.Runtime.ProjectController.ClearEditingSessions();
             EditorController.Unregister(this);
-            DocumentPane.Children.Clear();
+            //DockManager.RemoveFromSource();
+            //DocumentPane.Children.Clear();
             OpenPages.Clear();
             DisplaysForLayout.Clear();
             EditorController.FreeRuntime();
@@ -469,8 +471,13 @@ namespace XTMF.Gui
                 onClose?.Invoke();
                 Focus();
             };
-            var insertedTo = DocumentPane.Children.Count;
-            DocumentPane.InsertChildAt(0, document);
+            //var insertedTo = DocumentPane.Children.Count;
+            //DocumentPane.InsertChildAt(0, document);
+            TabItem tabItem = new TabItem();
+            tabItem.Header = name;
+            tabItem.Content = document.Content;
+            tabItem.IsSelected = true;
+            DockManager.AddToSource(tabItem);
             OpenPages.Add(document);
             document.IsActiveChanged += Document_IsActive;
             if (typeof(ActiveEditingSessionDisplayModel) == typeOfController)
@@ -833,7 +840,8 @@ namespace XTMF.Gui
                 };
 
                 OpenPages.Add(doc);
-                DocumentPane.Children.Add(doc);
+                DockManager.AddToSource(new TabItem());
+                //DocumentPane.Children.Add(doc);
                 doc.IsActive = true;
             }
 
@@ -1095,10 +1103,10 @@ namespace XTMF.Gui
 
         private void DockManager_ActiveContentChanged(object sender, EventArgs e)
         {
-            EditingDisplayModel =
+            /*EditingDisplayModel =
                 DisplaysForLayout.ContainsKey((LayoutDocument)DockManager.Layout.ActiveContent)
                     ? DisplaysForLayout[(LayoutDocument)DockManager.Layout.ActiveContent]
-                    : NullEditingDisplayModel;
+                    : NullEditingDisplayModel; */
         }
 
         private void ListBoxItem_OnSelected(object sender, RoutedEventArgs e)

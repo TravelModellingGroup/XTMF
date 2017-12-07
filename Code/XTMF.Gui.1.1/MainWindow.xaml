@@ -27,7 +27,8 @@
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         ShowIconOnTitleBar="False"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-       
+        xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+
         Title="XTMF Version 1.3" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="1000"
         ResizeMode="CanResizeWithGrip"
@@ -61,8 +62,8 @@
         </metro:WindowCommands>
 
     </metro:MetroWindow.LeftWindowCommands>
-    <Border Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource MaterialDesignBackground}"
-        BorderThickness="1">
+    <Border Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+        BorderThickness="0">
 
 
         <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
@@ -83,6 +84,7 @@
                         <RowDefinition Height="AUTO" />
                     </Grid.RowDefinitions>
                     <!-- The main menu -->
+                    <!--
                     <Menu IsMainMenu="True" Style="{DynamicResource MaterialDesignMenu}" Grid.Row="0" 
                   Margin="0,0,0,0" Grid.ColumnSpan="1">
                         <MenuItem Header="_File">
@@ -111,12 +113,12 @@
                             </MenuItem>
                             <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
                               IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
-                            <!--
+                           
                     <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
                         <MenuItem.Icon>
                             <ContentControl Template="{DynamicResource ImportIcon}" />
                         </MenuItem.Icon>
-                    </MenuItem> -->
+                    </MenuItem> 
                             <Separator Style="{DynamicResource MaterialDesignSeparator}" />
                             <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
                                 <MenuItem.Icon>
@@ -183,9 +185,12 @@
                             <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
                             <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
                         </MenuItem>
-                    </Menu>
+                    </Menu> -->
 
-                    <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
+                    <dragablz:TabablzControl  Grid.Row="1"  x:Name="DockManager"  Grid.ColumnSpan="2" Grid.Column="0">
+                        </dragablz:TabablzControl>
+                        <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
+                    <!--
                     <xcad:DockingManager BorderThickness="0" IsHitTestVisible="True" x:Name="DockManager"
                                  Grid.Row="1" ScrollViewer.CanContentScroll="True"
                                  ScrollViewer.PanningMode="HorizontalOnly" DataContext="self"                                    
@@ -231,7 +236,7 @@
                                 </xcad:LayoutDocumentPaneGroup>
                             </xcad:LayoutPanel>
                         </xcad:LayoutRoot>
-                    </xcad:DockingManager>
+                    </xcad:DockingManager> -->
                     <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
                        Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
                         <StatusBarItem HorizontalAlignment="Left">
