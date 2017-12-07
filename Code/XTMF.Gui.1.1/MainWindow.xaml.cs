@@ -1137,6 +1137,12 @@ namespace XTMF.Gui
             MenuToggleButton.IsChecked = false;
             LaunchHelpWindow(null);
         }
+
+        private void OpenProjectGlobalMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            SetDisplayActive(new ProjectsDisplay(EditorController.Runtime), "Projects" );
+            MenuToggleButton.IsChecked = false;
+        }
     }
 
 }

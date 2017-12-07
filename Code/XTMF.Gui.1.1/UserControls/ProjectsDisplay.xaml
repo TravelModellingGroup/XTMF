@@ -24,9 +24,24 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:models="clr-namespace:XTMF.Gui.Models"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
-    <Grid Background="{DynamicResource MaterialDesignPaper}">
+    
+    <UserControl.DataContext>
+        <models:ViewModelBase>
+            <models:ViewModelBase.ContentPresenter>
+                <ContentControl>
+                <TextBlock>Hello</TextBlock>
+                    </ContentControl>
+            </models:ViewModelBase.ContentPresenter>
+        </models:ViewModelBase>
+    </UserControl.DataContext>
+    
+
+
+
+        <Grid Background="{DynamicResource MaterialDesignPaper}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />

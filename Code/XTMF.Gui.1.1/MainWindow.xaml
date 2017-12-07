@@ -191,9 +191,23 @@
                     <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                         <materialDesign:ColorZone DockPanel.Dock="Top"  Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                                   Mode="PrimaryMid">
-                            <DockPanel>
-                                <TextBlock Name="ViewTitleBlock"  HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="22" Text="{Binding ViewTitle}"/>
-                            </DockPanel>
+                            <Grid>
+                                <TextBlock DockPanel.Dock="Left" Name="ViewTitleBlock"  HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="22" Text="{Binding ViewTitle}"/>
+                                <materialDesign:ColorZone Width="250"  Mode="PrimaryDark" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                                          Margin="12 12 12 12"
+                                                          materialDesign:ShadowAssist.ShadowDepth="Depth1">
+                                    <my:FilterBox Grid.Column="1" x:Name="FilterBox" FilterWatermark="Search... (Ctrl+E)" />
+                                </materialDesign:ColorZone>
+                                <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right">
+                                    <StackPanel>
+                                        <Button Content="Hello World"/>
+                                        <Button Content="Nice Popup" />
+                                        <Button Content="Can't Touch This" IsEnabled="False" />
+                                        <Separator/>
+                                        <Button Content="Goodbye" />
+                                    </StackPanel>
+                                </materialDesign:PopupBox>
+                            </Grid>
                             </materialDesign:ColorZone>
                                 <ContentControl DockPanel.Dock="Bottom" Content="{Binding ViewModelControl}" Name="ContentControl"  Grid.Row="1"   Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
                     </DockPanel>
@@ -274,7 +288,7 @@
                 <StackPanel   MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
                     <ListBox >
                         <ListBoxItem Padding="15 8 5 8">New Project</ListBoxItem>
-                        <ListBoxItem Padding="15 8 5 8">Open Project</ListBoxItem>
+                        <ListBoxItem Name="OpenProjectGlobalMenuItem" Selected="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
                         <ListBoxItem Padding="15 8 5 8">New Model System</ListBoxItem>
                         <ListBoxItem Padding="15 8 5 8">Open Model System</ListBoxItem>
 

@@ -22,6 +22,8 @@ namespace XTMF.Gui.Models
             }
         }
 
+        public ContentControl ContentPresenter { get; set; }
+
         private UserControl _viewModelControl;
 
         private string _viewTitle;
