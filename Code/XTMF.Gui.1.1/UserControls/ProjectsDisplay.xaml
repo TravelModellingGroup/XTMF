@@ -72,7 +72,7 @@
         </materialDesign:ColorZone>
           
         
-        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}">
+        <ListView MouseDoubleClick="Control_OnMouseDoubleClick" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">
@@ -111,7 +111,7 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     
-                    <local:ListViewControl  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" MouseDoubleClick="Control_OnMouseDoubleClick">
+                    <local:ListViewControl  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}">
 
                         <local:ListViewControl.IconPath>
 

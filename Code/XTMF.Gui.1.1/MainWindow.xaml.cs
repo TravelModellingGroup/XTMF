@@ -63,6 +63,8 @@ namespace XTMF.Gui
 
         public ThemeController ThemeController { get; private set; }
 
+        public IDictionary<Project, System.Windows.Controls.UserControl> WorkspaceProjects { get; set; }
+
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
             get => (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty);
@@ -112,6 +114,8 @@ namespace XTMF.Gui
             ViewTitleBlock.DataContext = ContentControl.DataContext;
 
             SetDisplayActive(new StartWindow(),"XTMF");
+
+            WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
 
       
         }
@@ -337,11 +341,12 @@ namespace XTMF.Gui
                         {
                             Application.Current.Dispatcher.Invoke((Action)delegate { progressing.Close(); });
                             //progressing.Visibility = Visibility.Hidden;
-                            var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
+                            SetDisplayActive(new ProjectDisplay(), project.Name);
+                            /*var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
                             if (item != null)
                             {
                                 item.IsSelected = true;
-                            }
+                            } */
                         }));
                     EditorController.Runtime.Configuration.AddRecentProject(project.Name);
                     EditorController.Runtime.Configuration.Save();
