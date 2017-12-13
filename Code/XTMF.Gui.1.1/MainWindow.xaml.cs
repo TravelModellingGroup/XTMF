@@ -120,6 +120,8 @@ namespace XTMF.Gui
       
         }
 
+
+
         private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = ResizeMode == ResizeMode.CanResize || ResizeMode == ResizeMode.CanResizeWithGrip;
@@ -341,7 +343,19 @@ namespace XTMF.Gui
                         {
                             Application.Current.Dispatcher.Invoke((Action)delegate { progressing.Close(); });
                             //progressing.Visibility = Visibility.Hidden;
-                            SetDisplayActive(new ProjectDisplay(), project.Name);
+
+                            if(WorkspaceProjects.ContainsKey(project))
+                            {
+                                SetDisplayActive(WorkspaceProjects[project], project.Name);
+                            }
+
+                            else {
+                                ProjectDisplay display = new ProjectDisplay();
+                                SetDisplayActive(display, project.Name);
+                            }
+                            
+
+                            
                             /*var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
                             if (item != null)
                             {
@@ -423,19 +437,25 @@ namespace XTMF.Gui
                                 ? null
                                 : editingSession.ProjectEditingSession.Name + " - " + editingSession.PreviousRunName);
 
-                        var doc = AddNewWindow("Project - " + projectSession.Project.Name, display,
+
+                        SetDisplayActive(display, projectSession.Name);
+                        WorkspaceProjects.Add(projectSession.Project, display);
+                        /*var doc = AddNewWindow("Project - " + projectSession.Project.Name, display,
                             typeof(ActiveEditingSessionDisplayModel), () => { projectSession.Dispose(); });
-                        doc.IsSelected = true;
+                        doc.IsSelected = true; */
                         PropertyChangedEventHandler onRename = (o, e) =>
                         {
-                            doc.Title = "Project - " + projectSession.Project.Name;
+                            //doc.Title = "Project - " + projectSession.Project.Name;
+
+                            
                         };
                         projectSession.NameChanged += onRename;
                         display.RequestClose += (ignored) =>
                         {
-                            doc.Close();
+                            //doc.Close();
                             display.Model.Unload();
                             projectSession.NameChanged -= onRename;
+
                         };
                         SetStatusText("Ready");
                     }
@@ -1128,6 +1148,11 @@ namespace XTMF.Gui
 
        public System.Windows.Controls.UserControl CurrentViewModel { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListBoxItem_OnSelected(object sender, RoutedEventArgs e)
         {
 
@@ -1137,15 +1162,36 @@ namespace XTMF.Gui
             //this.Settings_Click(sender,e);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HelpMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
             MenuToggleButton.IsChecked = false;
             LaunchHelpWindow(null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenProjectGlobalMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
             SetDisplayActive(new ProjectsDisplay(EditorController.Runtime), "Projects" );
+            MenuToggleButton.IsChecked = false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenModelSystemGlobalMenuItem_Selected(object sender, RoutedEventArgs e)
+        {
+            SetDisplayActive(new ModelSystemsDisplay(EditorController.Runtime), "Model Systems");
             MenuToggleButton.IsChecked = false;
         }
     }

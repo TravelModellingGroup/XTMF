@@ -290,7 +290,7 @@
                         <ListBoxItem Padding="15 8 5 8">New Project</ListBoxItem>
                         <ListBoxItem Name="OpenProjectGlobalMenuItem" Selected="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
                         <ListBoxItem Padding="15 8 5 8">New Model System</ListBoxItem>
-                        <ListBoxItem Padding="15 8 5 8">Open Model System</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8" Name="OpenModelSystemGlobalMenuItem" Selected="OpenModelSystemGlobalMenuItem_Selected">Open Model System</ListBoxItem>
 
                     </ListBox>
 
