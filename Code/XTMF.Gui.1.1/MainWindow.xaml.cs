@@ -678,22 +678,24 @@ namespace XTMF.Gui
                           modelSystemSession.ModelSystemModel.Name
                         : "Model System - " + modelSystemSession.ModelSystemModel.Name)
 ;
-                var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel), null,
-                    display.ContentGuid, displayModel);
+               // var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel), null,
+               //     display.ContentGuid, displayModel);
+
+                SetDisplayActive(display, "Model System - " + modelSystemSession.ModelSystemModel.Name);
 
                 //DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        doc.Title = modelSystemSession.EditingProject
-                            ? modelSystemSession.ProjectEditingSession.Name + " - " +
-                              modelSystemSession.ModelSystemModel.Name
-                            : "Model System - " + modelSystemSession.ModelSystemModel.Name;
+                        //doc.Title = modelSystemSession.EditingProject
+                        //    ? modelSystemSession.ProjectEditingSession.Name + " - " +
+                        //      modelSystemSession.ModelSystemModel.Name
+                        //    : "Model System - " + modelSystemSession.ModelSystemModel.Name;
                     });
                 };
                 modelSystemSession.NameChanged += onRename;
-                doc.Closing += (o, e) =>
+                /*doc.Closing += (o, e) =>
                 {
                     e.Cancel = !display.CloseRequested();
                     if (e.Cancel == false)
@@ -703,7 +705,7 @@ namespace XTMF.Gui
                 };
                 doc.Closed += (o, e) => { modelSystemSession.Dispose(); };
                 display.RequestClose += (ignored) => doc.Close();
-                doc.IsSelected = true;
+                doc.IsSelected = true; */
                 Keyboard.Focus(display);
                 display.Focus();
             }
