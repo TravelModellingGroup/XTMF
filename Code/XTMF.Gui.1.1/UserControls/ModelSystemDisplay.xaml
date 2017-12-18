@@ -330,7 +330,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
+                                <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Style="{DynamicResource MaterialDesignHeadlineTextBlock}"/>
                             </Grid>
                         </Border>
                         <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Inverted" Padding="4 4 4 4" CornerRadius="2" Panel.ZIndex="1"
@@ -628,7 +628,7 @@
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">
                                                 <Setter Property="Background" Value="Transparent"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="{x:Type ListViewItem}">

@@ -8,13 +8,13 @@
              d:DesignHeight="300" d:DesignWidth="300">
 
 
-    <Grid SnapsToDevicePixels="True" Background="{DynamicResource WindowBackgroundBrush2}" HorizontalAlignment="Left"
+    <Grid SnapsToDevicePixels="True" Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Left"
           VerticalAlignment="Center">
 
 
         <ListView SnapsToDevicePixels="True" SelectionMode="Single"
                   SelectionChanged="ModulePathList_OnSelectionChanged" BorderThickness="0"
-                  Background="{DynamicResource WindowBackgroundBrush2}" x:Name="ModulePathList">
+                  Background="{DynamicResource MaterialDesignPaper}" x:Name="ModulePathList">
 
             <ListView.ItemContainerStyle>
 
@@ -305,7 +305,7 @@
         </ListView>
 
         <Label FontStyle="Italic" Content="No module currently selected."
-               Foreground="{DynamicResource ThemeTextColorBrush}" HorizontalAlignment="Left" Margin="0,-4,0,0"
+               Foreground="{DynamicResource MaterialDesignBodyLight}" HorizontalAlignment="Left" Margin="0,-4,0,0"
                FontFamily="Segoe UI Semibold">
             <Label.Style>
                 <Style TargetType="{x:Type Label}">

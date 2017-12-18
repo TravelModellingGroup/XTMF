@@ -60,8 +60,8 @@
                                 <Condition Value="True" Property="IsMouseOver"></Condition>
                             </MultiTrigger.Conditions>
                             <MultiTrigger.Setters>
-                                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush4}"></Setter>
-                                <Setter Property="BorderBrush" Value="{DynamicResource WindowBackgroundBrush1}"></Setter>
+                                <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}"></Setter>
+                                <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignBackground}"></Setter>
                             </MultiTrigger.Setters>
                         </MultiTrigger>
 
@@ -72,7 +72,7 @@
                                 <Condition Value="True" Property="IsPressed"></Condition>
                             </MultiTrigger.Conditions>
                             <MultiTrigger.Setters>
-                                <Setter Property="Background" Value="{DynamicResource ControlHighlightColourBrush}"></Setter>
+                                <Setter Property="Background" Value="{DynamicResource MaterialD}"></Setter>
                                 <Setter Property="BorderBrush" Value="{DynamicResource WindowBackgroundBrush1}"></Setter>
                             </MultiTrigger.Setters>
                         </MultiTrigger>
@@ -100,9 +100,9 @@
             </Button.Style>
 
             <StackPanel VerticalAlignment="Center" Margin="2,0,0,0" Orientation="Horizontal" >
-                <Path Margin="2" Name="IconPathComponent" Stretch="Uniform" Data="{Binding IconPath.Data}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
+                <Path Margin="2" Name="IconPathComponent" Stretch="Uniform" Data="{Binding IconPath.Data}" Fill="{DynamicResource MaterialDesignBody}"></Path>
                 <Label VerticalAlignment="Center" 
-                       Foreground="{DynamicResource ThemeTextColorBrush}" 
+                       Foreground="{DynamicResource MaterialDesignBody}" 
                        Padding="0" Margin="4,0,4,0"  Content="{Binding ToolText }"></Label>
             </StackPanel>
         </Button>
