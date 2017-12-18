@@ -42,6 +42,20 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         FontFamily="{DynamicResource MaterialDesignFont}">
+    
+    <metro:MetroWindow.RightWindowCommands>
+        <metro:WindowCommands BorderThickness="0">
+            <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right">
+                <StackPanel>
+                    <Button Content="Hello World"/>
+                    <Button Content="Nice Popup" />
+                    <Button Content="Can't Touch This" IsEnabled="False" />
+                    <Separator/>
+                    <Button Content="Goodbye" />
+                </StackPanel>
+            </materialDesign:PopupBox>
+        </metro:WindowCommands>
+    </metro:MetroWindow.RightWindowCommands>
     <metro:MetroWindow.LeftWindowCommands>
         <metro:WindowCommands BorderThickness="0">
 
@@ -188,7 +202,7 @@
                         </MenuItem>
                     </Menu> -->
 
-                    <DockPanel Name="ViewDockPanel"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <DockPanel Name="ViewDockPanel"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                         <materialDesign:ColorZone DockPanel.Dock="Top"  Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                                   Mode="PrimaryMid">
                             <Grid>
@@ -213,7 +227,7 @@
                     </DockPanel>
 
                    
-                    <dragablz:TabablzControl  Grid.Row="2"  x:Name="DockManager"  Grid.ColumnSpan="2" Grid.Column="0">
+                    <dragablz:TabablzControl  Grid.Row="1"  x:Name="DockManager"  Grid.ColumnSpan="2" Grid.Column="0">
                         </dragablz:TabablzControl>
                         <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
                     <!--

@@ -1147,7 +1147,12 @@ namespace XTMF.Gui
             ((ViewModelBase)ContentControl.DataContext).ViewTitle = title;
             ((ViewModelBase)ContentControl.DataContext).IsSearchBoxVisible = searchable;
 
-        
+            TabItem tabItem = new TabItem();
+            tabItem.Content = display;
+            tabItem.Header = title;
+            DockManager.Items.Add(tabItem);
+
+
         }
 
         private void DockManager_ActiveContentChanged(object sender, EventArgs e)
