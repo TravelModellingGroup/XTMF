@@ -65,6 +65,8 @@ namespace XTMF.Gui
 
         public IDictionary<Project, System.Windows.Controls.UserControl> WorkspaceProjects { get; set; }
 
+        public ViewModelBase ViewModelBase { get; set; }
+
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
             get => (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty);
@@ -87,8 +89,10 @@ namespace XTMF.Gui
 
         public MainWindow()
         {
-            // start it with a blank editing display model
-            DataContext = this;
+        
+            ViewModelBase = new ViewModelBase();
+            
+            
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ParseCommandLineArgs();
             if (!IsNonDefaultConfig)
@@ -110,10 +114,12 @@ namespace XTMF.Gui
 
             _schedulerWindow = new SchedulerWindow();
 
-            ContentControl.DataContext = new ViewModelBase();
+            ViewDockPanel.DataContext = ViewModelBase;
+            ContentControl.DataContext = ViewModelBase;
+            FilterBox.DataContext = ContentControl.DataContext;
             ViewTitleBlock.DataContext = ContentControl.DataContext;
 
-            SetDisplayActive(new StartWindow(),"XTMF");
+            SetDisplayActive(new StartWindow(),"XTMF",false);
 
             WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
 
@@ -1134,10 +1140,14 @@ namespace XTMF.Gui
         /// </summary>
         /// <param name="display"></param>
         /// <param name="title"></param>
-        private void SetDisplayActive(System.Windows.Controls.UserControl display, string title)
+        /// <param name="searchable"></param>
+        private void SetDisplayActive(System.Windows.Controls.UserControl display, string title, bool searchable = false)
         {
             ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
             ((ViewModelBase)ContentControl.DataContext).ViewTitle = title;
+            ((ViewModelBase)ContentControl.DataContext).IsSearchBoxVisible = searchable;
+
+        
         }
 
         private void DockManager_ActiveContentChanged(object sender, EventArgs e)

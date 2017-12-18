@@ -188,15 +188,15 @@
                         </MenuItem>
                     </Menu> -->
 
-                    <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <DockPanel Name="ViewDockPanel"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                         <materialDesign:ColorZone DockPanel.Dock="Top"  Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                                   Mode="PrimaryMid">
                             <Grid>
                                 <TextBlock DockPanel.Dock="Left" Name="ViewTitleBlock"  HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="22" Text="{Binding ViewTitle}"/>
-                                <materialDesign:ColorZone Width="250"  Mode="PrimaryDark" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                <materialDesign:ColorZone  Visibility="{Binding SearchBoxVisiblity}" Width="250"  Mode="PrimaryDark" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                                           Margin="12 12 12 12"
                                                           materialDesign:ShadowAssist.ShadowDepth="Depth1">
-                                    <my:FilterBox Grid.Column="1" x:Name="FilterBox" FilterWatermark="Search... (Ctrl+E)" />
+                                    <my:FilterBox   Grid.Column="1" x:Name="FilterBox" FilterWatermark="Search... (Ctrl+E)" />
                                 </materialDesign:ColorZone>
                                 <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right">
                                     <StackPanel>

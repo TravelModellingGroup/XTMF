@@ -303,7 +303,6 @@
     <Compile Include="UserControls\TMGProgressBar.xaml.cs">
       <DependentUpon>TMGProgressBar.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\ViewBase.cs" />
     <Compile Include="UserControls\VirtualizingWrapPanel.cs" />
     <Compile Include="Win32Helper.cs" />
     <Page Include="MainWindow.xaml">

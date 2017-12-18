@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using XTMF.Annotations;
 
@@ -26,7 +27,19 @@ namespace XTMF.Gui.Models
 
         private UserControl _viewModelControl;
 
+        public bool IsSearchBoxVisible
+        {
+            get => _isSearchBarVisible;
+            set
+            {
+                _isSearchBarVisible = value;
+                OnPropertyChanged(nameof(IsSearchBoxVisible));
+            }
+        }
+
         private string _viewTitle;
+
+        private bool _isSearchBarVisible = false;
 
         public UserControl ViewModelControl
         {
@@ -44,5 +57,23 @@ namespace XTMF.Gui.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public Visibility SearchBoxVisiblity
+        {
+            get
+            {
+                if (IsSearchBoxVisible)
+                {
+                    return Visibility.Visible;
+                }
+                else
+                {
+                    return Visibility.Collapsed;
+                }
+            }
+
+        }
+
+       
     }
 }
