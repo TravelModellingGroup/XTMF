@@ -47,7 +47,7 @@
         <metro:WindowCommands BorderThickness="0">
             <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right">
                 <StackPanel>
-                    <Button Content="Close Tab"/>
+                    <Button Name="CloseTabButton"  Content="Close Tab" Click="CloseTabButton_OnClick"/>
                 </StackPanel>
             </materialDesign:PopupBox>
         </metro:WindowCommands>

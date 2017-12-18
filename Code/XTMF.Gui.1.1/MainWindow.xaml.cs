@@ -1150,7 +1150,9 @@ namespace XTMF.Gui
             TabItem tabItem = new TabItem();
             tabItem.Content = display;
             tabItem.Header = title;
+         
             DockManager.Items.Add(tabItem);
+            tabItem.IsSelected = true;
 
 
         }
@@ -1210,6 +1212,19 @@ namespace XTMF.Gui
         {
             SetDisplayActive(new ModelSystemsDisplay(EditorController.Runtime), "Model Systems");
             MenuToggleButton.IsChecked = false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CloseTabButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (DockManager.SelectedItem != null)
+            {
+                DockManager.Items.Remove(DockManager.SelectedItem);
+            }
         }
     }
 
