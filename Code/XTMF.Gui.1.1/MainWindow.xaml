@@ -224,7 +224,10 @@
 
                    
                     <dragablz:TabablzControl  Grid.Row="1"  x:Name="DockManager"  Grid.ColumnSpan="2" Grid.Column="0">
-                        </dragablz:TabablzControl>
+                        <dragablz:TabablzControl.InterTabController>
+                            <dragablz:InterTabController />
+                            </dragablz:TabablzControl.InterTabController>
+                    </dragablz:TabablzControl>
                         <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
                     <!--
                     <xcad:DockingManager BorderThickness="0" IsHitTestVisible="True" x:Name="DockManager"
