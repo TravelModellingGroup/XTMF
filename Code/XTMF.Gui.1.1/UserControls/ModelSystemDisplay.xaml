@@ -71,13 +71,13 @@
         </DataTemplate>
         <models:ModelSystemInfoTemplateSelector  x:Key="ModelSystemInfoTemplateSelector" ModuleDisabled="{StaticResource ModuleDisabledTemplate}"
                                                 ModuleEnabled="{StaticResource ModuleEnabledTemplate}"/>
-        <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
+        <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}" >
             <StackPanel MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
-                    Name="b" HorizontalAlignment="Stretch">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
+                    Name="b" HorizontalAlignment="Stretch" Margin="0 0 0 0">
+                <StackPanel  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder" Background="{DynamicResource MaterialDesignCardBackground}">
-                    <Expander Margin="0,0,0.0,0" Foreground="{DynamicResource MaterialDesignBody}"
+                    <Expander Padding="0 0 0 0"  Margin="0,0,0.0,0" Foreground="{DynamicResource MaterialDesignBody}"
                                   HorizontalAlignment="Stretch" >
                         <Expander.Header>
                             <Grid HorizontalAlignment="Stretch">

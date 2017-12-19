@@ -23,20 +23,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
-             mc:Ignorable="d"  
+             mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="300" Margin="2,2,2,3" SnapsToDevicePixels="True">
     <UserControl.Resources>
         <Style TargetType="{x:Type userControls:ModuleTreeViewItem}">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWay}"/>
             <Style.Triggers>
-                <MultiDataTrigger>
+                <MultiDataTrigger >
                     <MultiDataTrigger.Conditions>
                         <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
                         <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
-                    <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}"/>
+                    <MultiDataTrigger.Setters >
+                        <Setter Property="CustomBackground" Value="{DynamicResource FocusBrushHover2}"/>
                         <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
@@ -46,7 +46,7 @@
                         <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}"/>
+                        <Setter Property="CustomBackground" Value="{DynamicResource FocusBrushHover3}"/>
                         <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
@@ -57,7 +57,7 @@
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
                         <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"/>
-                        <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"/>
+                        <Setter Property="CustomBackground" Value="{DynamicResource ControlColourBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
                 <MultiDataTrigger>
@@ -66,19 +66,19 @@
                         <Condition  Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource ModuleTreeViewItemBackground}"/>
+                        <Setter Property="CustomBackground" Value="{DynamicResource ModuleTreeViewItemBackground}"/>
                         <Setter Property="Foreground" Value="{DynamicResource ModuleTreeViewItemForeground}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Grid>
+    <Grid >
         <Grid Margin="1" Name="InfoBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        <Grid Name="BlockBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Background,Mode=TwoWay}"/>
-        <Grid>
-            <Border Name="ContentBorder" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Border Name="BlockBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CornerRadius="5"
+              Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=CustomBackground,Mode=TwoWay}"/>
+        <Border CornerRadius="5">
+            <Border CornerRadius="5" Name="ContentBorder" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <Grid Name="ContentGrid" UseLayoutRounding="True" SnapsToDevicePixels="True">
                     <Grid  HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
@@ -105,6 +105,6 @@
                     </Grid>
                 </Grid>
             </Border>
-        </Grid>
+        </Border>
     </Grid>
 </UserControl>

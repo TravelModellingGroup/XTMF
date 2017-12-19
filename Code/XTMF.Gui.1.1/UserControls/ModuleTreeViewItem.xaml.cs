@@ -61,10 +61,20 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty IconPathDependencyProperty =
             DependencyProperty.Register("IconPath", typeof(Path), typeof(ModuleTreeViewItem), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty CustomBackgrounDependencyProperty =
+            DependencyProperty.Register("CustomBackground", typeof(Brush), typeof(ModuleTreeViewItem), new PropertyMetadata(Brushes.Transparent));
+
         public ModuleTreeViewItem()
         {
             InitializeComponent();
             Loaded += ModuleTreeViewItem_Loaded;
+        }
+
+
+        public Brush CustomBackground
+        {
+            get => (Brush)GetValue(CustomBackgrounDependencyProperty);
+            set => SetValue(CustomBackgrounDependencyProperty,value);
         }
 
         private void ModuleTreeViewItem_Loaded(object sender, RoutedEventArgs e)
