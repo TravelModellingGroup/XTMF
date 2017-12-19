@@ -174,7 +174,7 @@
                 <ColumnDefinition MinWidth="330px" Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="86"/>
+                <RowDefinition Height="78"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="3"/>
             </Grid.RowDefinitions>
@@ -182,7 +182,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="54"/>
-                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
 
                     <ToolBarTray Grid.Row="0" Height="54" >

@@ -33,7 +33,7 @@
         </Grid.ColumnDefinitions>
         <TextBox Grid.Column="0" x:Name="Box" materialDesign:HintAssist.Hint="Search..." TextChanged="Box_TextChanged" PreviewKeyDown="Box_PreviewKeyDown" />
         <Button Margin="2,0,0,0" BorderThickness="0" Background="Transparent" Grid.Column="1" x:Name="ClearFilterButton" Click="ClearFilter_Click" Visibility="Collapsed" >
-            <Path Stretch="Uniform" Fill="{DynamicResource AccentColorBrush}"  Data="{DynamicResource CancelIconPath}" />
+            <Path Stretch="Uniform" Fill="{DynamicResource SecondaryAccentBrush}"  Data="{DynamicResource CancelIconPath}" />
         </Button>
     </Grid>
 </UserControl>

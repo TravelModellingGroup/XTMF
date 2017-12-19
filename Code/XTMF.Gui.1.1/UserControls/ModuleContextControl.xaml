@@ -31,7 +31,7 @@
                     </Setter>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}" />
+                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}" />
                         </Trigger>
 
                         <DataTrigger
@@ -68,12 +68,12 @@
                                             <DataTrigger
                                                 Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                 Value="True">
-                                                <Setter Property="Stroke" Value="{DynamicResource FocusBrushHover2}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                             </DataTrigger>
                                             <DataTrigger
                                                 Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                 Value="False">
-                                                <Setter Property="Stroke" Value="{DynamicResource AccentBrush}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource MaterialDesignPaper}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -94,7 +94,7 @@
                                                         Value="False" />
                                                 </MultiDataTrigger.Conditions>
                                                 <Setter Property="Fill"
-                                                        Value="{DynamicResource WindowBackgroundBrush2}" />
+                                                        Value="{DynamicResource MaterialDesignPaper}" />
                                             </MultiDataTrigger>
 
                                             <MultiDataTrigger>
@@ -106,7 +106,7 @@
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="True" />
                                                 </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover3}" />
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueLightBrush}" />
                                             </MultiDataTrigger>
 
                                             <MultiDataTrigger>
@@ -118,7 +118,7 @@
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="False" />
                                                 </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover2}" />
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueMidBrush}" />
                                             </MultiDataTrigger>
 
                                             <MultiDataTrigger>
@@ -130,7 +130,7 @@
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="True" />
                                                 </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource ControlColourBrush}" />
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                             </MultiDataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -140,7 +140,7 @@
 
 
                         <Border SnapsToDevicePixels="True" BorderThickness="0,0,0,0"
-                                BorderBrush="{DynamicResource WindowBackgroundBrush4}">
+                                BorderBrush="{DynamicResource MaterialDesignDivider}">
                             <Border.Style>
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
@@ -155,7 +155,7 @@
                                                     Value="False" />
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="Background"
-                                                    Value="{DynamicResource WindowBackgroundBrush2}" />
+                                                    Value="{DynamicResource MaterialDesignPaper}" />
                                         </MultiDataTrigger>
 
                                         <MultiDataTrigger>
@@ -167,7 +167,7 @@
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                     Value="True" />
                                             </MultiDataTrigger.Conditions>
-                                            <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}" />
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
                                         </MultiDataTrigger>
 
                                         <MultiDataTrigger>
@@ -179,7 +179,7 @@
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                     Value="False" />
                                             </MultiDataTrigger.Conditions>
-                                            <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}" />
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}" />
                                         </MultiDataTrigger>
 
                                         <MultiDataTrigger>
@@ -191,7 +191,7 @@
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                     Value="True" />
                                             </MultiDataTrigger.Conditions>
-                                            <Setter Property="Background" Value="{DynamicResource ControlColourBrush}" />
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                         </MultiDataTrigger>
 
 
@@ -214,7 +214,7 @@
                                                 <DataTrigger
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                     Value="True">
-                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}" />
 
 
                                                 </DataTrigger>
@@ -223,7 +223,7 @@
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                     Value="False">
                                                     <Setter Property="Foreground"
-                                                            Value="{DynamicResource ThemeTextColorBrush}" />
+                                                            Value="{DynamicResource MaterialDesignBody}" />
 
 
                                                 </DataTrigger>
@@ -256,7 +256,7 @@
                                                         Value="False" />
                                                 </MultiDataTrigger.Conditions>
                                                 <Setter Property="Fill"
-                                                        Value="{DynamicResource WindowBackgroundBrush2}" />
+                                                        Value="{DynamicResource MaterialDesignPaper}" />
                                             </MultiDataTrigger>
 
                                             <MultiDataTrigger>
@@ -268,7 +268,7 @@
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="True" />
                                                 </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover3}" />
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueLightBrush}" />
                                             </MultiDataTrigger>
 
                                             <MultiDataTrigger>
@@ -280,7 +280,7 @@
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="False" />
                                                 </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource FocusBrushHover2}" />
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueMidBrush}" />
                                             </MultiDataTrigger>
 
                                             <MultiDataTrigger>
@@ -292,7 +292,7 @@
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="True" />
                                                 </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource ControlColourBrush}" />
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                             </MultiDataTrigger>
                                         </Style.Triggers>
                                     </Style>
