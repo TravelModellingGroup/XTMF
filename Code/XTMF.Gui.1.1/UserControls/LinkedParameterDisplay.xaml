@@ -37,7 +37,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush1}">
+            <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
                 <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,0,0">
                     <Border DockPanel.Dock="Left">
                         <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal"/>
@@ -48,7 +48,7 @@
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}"/>
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -62,7 +62,7 @@
                                         <Style TargetType="{x:Type Border}">
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}"/>
+                                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
@@ -93,7 +93,7 @@
                     </StackPanel>
                 </DockPanel>
             </Border>
-            <Grid Grid.Row="2" Margin="0" Background="{DynamicResource WindowBackgroundBrush1}">
+            <Grid Grid.Row="2" Margin="0" Background="{DynamicResource MaterialDesignPaper}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -115,7 +115,7 @@
                     </Grid.RowDefinitions>
                     <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
                     <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{DynamicResource WindowBackgroundBrush2}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
+                          Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel Orientation="Vertical" />
@@ -124,7 +124,7 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <xtmfgui:ListViewControl PreviewKeyDown="LinkedParameterValue_PreviewKeyDown" IsTabStop="True" Margin="0" TitleText="{Binding Name}" 
-                                             MouseDoubleClick="Control_OnMouseDoubleClick" VerticalAlignment="Center">
+                                             MouseDoubleClick="Control_OnMouseDoubleClick" VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
                                     <xtmfgui:ListViewControl.IconPath>
                                         <Path Data="{DynamicResource LinkIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
                                     </xtmfgui:ListViewControl.IconPath>
@@ -148,14 +148,14 @@
                     </ListView>
                 </Grid>
                 <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
-                <Grid Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}">
+                <Grid Grid.Column="2" Background="{DynamicResource MaterialDesignPaper}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}" Background="{DynamicResource WindowBackgroundBrush1}">
+                    <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource MaterialDesignBackground}" Background="{DynamicResource MaterialDesignPaper}">
                         <StackPanel>
-                            <Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
+                            <Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignBackground}"/>
                             <DockPanel FlowDirection="LeftToRight" >
                                 <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
                                 <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"/>
@@ -166,9 +166,9 @@
                             </DockPanel>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
-                        <StackPanel Background="{DynamicResource WindowBackgroundBrush1}" >
-                            <Label Content="Linked Parameters" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
+                    <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignPaper}">
+                        <StackPanel Background="{DynamicResource MaterialDesignPaper}" >
+                            <Label Content="Linked Parameters" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignPaper}"/>
                             <ListView PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"
                                       ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                       x:Name="ContainedParameterDisplay" Focusable="False" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}"
