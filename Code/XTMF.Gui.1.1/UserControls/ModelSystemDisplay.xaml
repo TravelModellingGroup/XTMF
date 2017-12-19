@@ -174,17 +174,33 @@
                 <ColumnDefinition MinWidth="330px" Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="44"/>
+                <RowDefinition Height="86"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="3"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.ColumnSpan="3">
+            <Grid Grid.Row="0" Grid.ColumnSpan="4">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="24"/>
-                        <RowDefinition Height="22"/>
+                        <RowDefinition Height="54"/>
+                        <RowDefinition Height="32"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+
+                    <ToolBarTray Grid.Row="0">
+                        <ToolBar Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="False">
+                            <Button ToolTip="Save Model System" Click="LinkedParameter_Click">
+                                <materialDesign:PackIcon Kind="ContentSave" />
+                            </Button>
+                            <Button ToolTip="Linked Parameters" Click="LinkedParameter_Click">
+                                <materialDesign:PackIcon Kind="LinkVariant" />
+                            </Button>
+                            <Button ToolTip="Run Model System" Click="RunModelSystem_Click" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
+                                             AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}">
+                                <materialDesign:PackIcon Kind="Run" />
+                            </Button>
+                        </ToolBar>
+                    </ToolBarTray>
+                    <!--
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <this:FlatToolButton ToolText="Linked Parameters" Height="24" Click="LinkedParameter_Click">
                             <this:FlatToolButton.IconPath>
                                 <Path Data="{DynamicResource LinkIconPath}" Stretch="Uniform"/>
@@ -198,7 +214,7 @@
                                 <Path  Data="{DynamicResource RunIconPathGeometry}" Stretch="Uniform"/>
                             </this:FlatToolButton.IconPath>
                         </this:FlatToolButton>
-                    </StackPanel>
+                    </StackPanel> -->
                     <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl"/>
                 </Grid>
             </Grid>
@@ -317,8 +333,8 @@
                     </TreeView>
                 </Grid>
             </Grid>
-            <GridSplitter Grid.Row="1" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-            <TabControl Grid.Row="1" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged">
+            <GridSplitter Grid.RowSpan="2" Grid.Row="0" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
+            <TabControl Grid.Row="0" Grid.RowSpan="2" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged">
                 <TabItem IsSelected="True" Style="{DynamicResource XtmfTabItem}" Header="Quick Parameters" x:Name="QuickParameterTab" FontSize="14" Foreground="{DynamicResource ControlTextColourBrush}">
                     <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
