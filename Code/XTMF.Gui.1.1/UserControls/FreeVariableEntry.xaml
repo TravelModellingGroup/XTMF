@@ -38,7 +38,7 @@
                   ScrollViewer.CanContentScroll="True"
                   VirtualizingPanel.IsVirtualizing="True"
                   VirtualizingPanel.VirtualizationMode="Recycling"
-                  x:Name="Display" Foreground="{DynamicResource ThemeTextColorBrush}" BorderBrush="{x:Null}" Background="{DynamicResource WindowBackgroundBrush2}">
+                  x:Name="Display" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}" Background="{DynamicResource WindowBackgroundBrush2}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel></VirtualizingStackPanel>

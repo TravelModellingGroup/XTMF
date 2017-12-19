@@ -71,7 +71,7 @@
                 </DataTrigger>
 
                 <DataTrigger Value="False"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}">
-                    <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
+                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"></Setter>
                 </DataTrigger>
 
             </Style.Triggers>

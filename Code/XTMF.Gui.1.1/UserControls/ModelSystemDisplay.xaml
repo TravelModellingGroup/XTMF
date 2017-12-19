@@ -136,7 +136,7 @@
                         AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="True"
                                           IsReadOnly="False" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14"
                                           BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True"/>
-                                <!--<TextBlock Grid.Column="1" Margin="5,4,2,2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource ThemeTextColorBrush}" TextTrimming="CharacterEllipsis" Cursor="Hand"/> -->
+                                <!--<TextBlock Grid.Column="1" Margin="5,4,2,2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource MaterialDesignBody}" TextTrimming="CharacterEllipsis" Cursor="Hand"/> -->
                                 <Path MaxHeight="16" VerticalAlignment="Center" Stretch="Uniform" Grid.Column="2" Margin="4,4,6,0" Data="{DynamicResource LinkIconPath}" Fill="DarkGoldenrod" 
                                       ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                                 <Path MaxHeight="16" VerticalAlignment="Center" Stretch="Uniform" Grid.Column="3" Data="{DynamicResource SettingsIconPathGeometry}" Fill="SlateGray" 

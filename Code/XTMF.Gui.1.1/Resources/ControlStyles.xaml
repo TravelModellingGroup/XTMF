@@ -72,7 +72,7 @@
 
     <ControlTemplate x:Key="PasteIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource PasteIconPathGeometry}" />
@@ -81,7 +81,7 @@
 
     <ControlTemplate x:Key="RunIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource RunIconPathGeometry}" />
@@ -90,7 +90,7 @@
 
     <ControlTemplate x:Key="SettingsIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource SettingsIconPathGeometry}" />
@@ -99,7 +99,7 @@
 
     <ControlTemplate x:Key="CopyIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource CopyIconPathGeometry}" />
@@ -108,7 +108,7 @@
 
     <ControlTemplate x:Key="CancelIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource CancelIconPath}" />
@@ -117,7 +117,7 @@
 
     <ControlTemplate x:Key="LinkIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource LinkIconPath}" />
@@ -126,7 +126,7 @@
 
     <ControlTemplate x:Key="RefreshIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource RefreshIconPathGeometry}" />
@@ -135,7 +135,7 @@
 
     <ControlTemplate x:Key="EditIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource EditIconPathGeometry}" />
@@ -144,7 +144,7 @@
 
     <ControlTemplate x:Key="OpenIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource FolderOpenIconPath}" />
@@ -153,7 +153,7 @@
 
     <ControlTemplate x:Key="SaveIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource SaveIconPathGeometry}" />
@@ -162,7 +162,7 @@
 
     <ControlTemplate x:Key="NewIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource NewIconPathGeometry}" />
@@ -171,7 +171,7 @@
 
     <ControlTemplate x:Key="ImportIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource ImportIconPathGeometry}" />
@@ -180,7 +180,7 @@
 
     <ControlTemplate x:Key="HelpIcon">
         <Canvas Left="-4" Top="-4" Width="16" Height="16">
-            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+            <Path Width="16" Height="16" Fill="{DynamicResource MaterialDesignBody}"
                        
                           Stretch="Uniform"
                           Data="{DynamicResource HelpIconPathGeometry}" />
@@ -266,7 +266,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
-                    <Border Background="{DynamicResource ThemeTextColorBrush}" />
+                    <Border Background="{DynamicResource MaterialDesignBody}" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -655,7 +655,7 @@
                 </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
             <Grid>
-                <TextBlock x:Name="CollapsedArrow" Foreground="{DynamicResource ThemeTextColorBrush}"
+                <TextBlock x:Name="CollapsedArrow" Foreground="{DynamicResource MaterialDesignBody}"
                            FontStyle="Italic" Text="Show More - Ctrl + E" Cursor="Hand" FontSize="12" Opacity="0.5" VerticalAlignment="Center">
                     <TextBlock.Style>
                         <Style>
@@ -684,7 +684,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <TextBlock x:Name="ExpandededArrow" Foreground="{DynamicResource ThemeTextColorBrush}" 
+                <TextBlock x:Name="ExpandededArrow" Foreground="{DynamicResource MaterialDesignBody}" 
                            FontStyle="Italic" Text="Show Less - Ctrl + E" Visibility="Hidden" FontSize="12" Opacity="0.5" VerticalAlignment="Center">
                     <TextBlock.Style>
                         <Style>
@@ -718,7 +718,7 @@
     </ControlTemplate>
 
     <Style x:Key="ParameterNameStyle" TargetType="{x:Type Expander}">
-        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"></Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate x:Name="ParameterNameStyleTemplate" TargetType="{x:Type Expander}">

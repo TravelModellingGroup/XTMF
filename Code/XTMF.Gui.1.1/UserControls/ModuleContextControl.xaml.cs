@@ -176,7 +176,7 @@ namespace XTMF.Gui.UserControls
                 path.Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"];
 
             //scale and set colour of the icon path
-            path.Fill = (Brush) Application.Current.Resources["ThemeTextColorBrush"];
+            path.Fill = (Brush) Application.Current.Resources["MaterialDesignBody"];
             path.Stretch = Stretch.UniformToFill;
             path.MaxWidth = 12;
             path.MaxHeight = 12;

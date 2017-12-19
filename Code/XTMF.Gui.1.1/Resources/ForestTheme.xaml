@@ -185,7 +185,7 @@
     <SolidColorBrush x:Key="HighlightBrush1" Color="{DynamicResource HighlightBackground1}"></SolidColorBrush>
     <SolidColorBrush x:Key="HighlightBrush2" Color="{DynamicResource HighlightBackground2}"></SolidColorBrush>
     <Color x:Key="ThemeTextColor">#222230</Color>
-    <SolidColorBrush x:Key="ThemeTextColorBrush" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
+    <SolidColorBrush x:Key="MaterialDesignBody" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
 
     <Color x:Key="FocusColour">#FF559154</Color>

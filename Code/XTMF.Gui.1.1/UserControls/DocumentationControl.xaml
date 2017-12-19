@@ -34,8 +34,8 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Margin="5" HorizontalAlignment="Center" FontSize="24" Text="{Binding ModuleName}" Foreground="{DynamicResource ThemeTextColorBrush}" />
-            <TextBlock Grid.Row="1" Margin="5" HorizontalAlignment="Center" FontSize="16" Text="{Binding ModuleNamespace}" Foreground="{DynamicResource ThemeTextColorBrush}" />
+            <TextBlock Grid.Row="0" Margin="5" HorizontalAlignment="Center" FontSize="24" Text="{Binding ModuleName}" Foreground="{DynamicResource MaterialDesignBody}" />
+            <TextBlock Grid.Row="1" Margin="5" HorizontalAlignment="Center" FontSize="16" Text="{Binding ModuleNamespace}" Foreground="{DynamicResource MaterialDesignBody}" />
             <WebBrowser Grid.Row="2" x:Name="Browser" Margin="5" HorizontalAlignment="Stretch" DataContext="{Binding ModuleDescription}" VerticalAlignment="Top"
                         ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.CanContentScroll="False" />
             <Grid Grid.Row="3" Background="{DynamicResource WindowBackgroundBrush4}" Height="2" HorizontalAlignment="Stretch" Margin="5" />
@@ -44,7 +44,7 @@
                     <RowDefinition Height="AUTO" />
                     <RowDefinition Height="AUTO" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" HorizontalAlignment="Center" FontSize="20" Text="SubModules" Foreground="{DynamicResource ThemeTextColorBrush}" />
+                <TextBlock Grid.Row="0" HorizontalAlignment="Center" FontSize="20" Text="SubModules" Foreground="{DynamicResource MaterialDesignBody}" />
                 <ItemsControl Grid.Row="1" ItemsSource="{Binding ModuleSubmodules}">
                     <ItemsControl.ItemTemplate>
                         <ItemContainerTemplate DataType="{x:Type my:SubModule}">
@@ -54,9 +54,9 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="3*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Name}" />
-                                <TextBlock Grid.Column="1" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Type}" />
-                                <TextBlock Grid.Column="2" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Description}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Column="0" Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding Name}" />
+                                <TextBlock Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding Type}" />
+                                <TextBlock Grid.Column="2" Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding Description}" TextWrapping="Wrap"/>
                             </Grid>
                         </ItemContainerTemplate>
                     </ItemsControl.ItemTemplate>
@@ -67,7 +67,7 @@
                     <RowDefinition Height="AUTO" />
                     <RowDefinition Height="AUTO" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" HorizontalAlignment="Center" FontSize="20" Text="Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" />
+                <TextBlock Grid.Row="0" HorizontalAlignment="Center" FontSize="20" Text="Parameters" Foreground="{DynamicResource MaterialDesignBody}" />
                 <ItemsControl Grid.Row="1" ItemsSource="{Binding ModuleParameters}">
                     <ItemsControl.ItemTemplate>
                         <ItemContainerTemplate DataType="{x:Type my:Parameter}">
@@ -77,9 +77,9 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="3*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Name}" />
-                                <TextBlock Grid.Column="1" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Type}" />
-                                <TextBlock Grid.Column="2" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Description}" TextWrapping="Wrap" />
+                                <TextBlock Grid.Column="0" Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding Name}" />
+                                <TextBlock Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding Type}" />
+                                <TextBlock Grid.Column="2" Foreground="{DynamicResource MaterialDesignBody}" Text="{Binding Description}" TextWrapping="Wrap" />
                                 </Grid>
                             </ItemContainerTemplate>
                     </ItemsControl.ItemTemplate>

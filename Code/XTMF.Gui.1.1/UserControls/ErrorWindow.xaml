@@ -42,19 +42,19 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" Margin="5px,5px,5px,5px">Error Message</TextBlock>
+                    <TextBlock Foreground="{DynamicResource MaterialDesignBody}" FontSize="20" Margin="5px,5px,5px,5px">Error Message</TextBlock>
 
                     <Path Margin="6,6,6,6" Data="{DynamicResource ErrorIconPath}" Fill="Red" Stretch="Uniform" Width="32"></Path>
 
                 </StackPanel>
                 <ScrollViewer MaxHeight="150" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
-                    <TextBox x:Name="MessageBox" Margin="5" TextWrapping="Wrap" IsReadOnly="True" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" Background="{DynamicResource WindowBackgroundBrush1}" />
+                    <TextBox x:Name="MessageBox" Margin="5" TextWrapping="Wrap" IsReadOnly="True" Foreground="{DynamicResource MaterialDesignBody}" FontSize="12" Background="{DynamicResource WindowBackgroundBrush1}" />
                 </ScrollViewer>
             </StackPanel>
             <StackPanel Grid.Row="1">
-                <TextBlock Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" Margin="5px,5px,5px,5px">Stack Trace (For Debugging)</TextBlock>
+                <TextBlock Foreground="{DynamicResource MaterialDesignBody}" FontSize="20" Margin="5px,5px,5px,5px">Stack Trace (For Debugging)</TextBlock>
                 <ScrollViewer MaxHeight="150" Margin="5" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
-                    <TextBox x:Name="StackTraceBox" TextWrapping="Wrap" IsReadOnly="True" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" Background="{DynamicResource WindowBackgroundBrush1}" />
+                    <TextBox x:Name="StackTraceBox" TextWrapping="Wrap" IsReadOnly="True" Foreground="{DynamicResource MaterialDesignBody}" FontSize="12" Background="{DynamicResource WindowBackgroundBrush1}" />
                 </ScrollViewer>
             </StackPanel>
         </Grid>

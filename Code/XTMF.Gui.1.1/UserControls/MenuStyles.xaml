@@ -510,7 +510,7 @@
         <Setter Property="HasDropShadow"
           Value="True" />
 
-        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"></Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">

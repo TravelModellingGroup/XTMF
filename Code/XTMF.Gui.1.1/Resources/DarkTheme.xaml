@@ -80,7 +80,7 @@
     <SolidColorBrush x:Key="HighlightBrush1" Color="{DynamicResource HighlightBackground1}"></SolidColorBrush>
     <SolidColorBrush x:Key="HighlightBrush2" Color="{DynamicResource HighlightBackground2}"></SolidColorBrush>
     <Color x:Key="ThemeTextColor">#FFFFFF</Color>
-    <SolidColorBrush x:Key="ThemeTextColorBrush" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
+    <SolidColorBrush x:Key="MaterialDesignBody" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
 
     <Color x:Key="FocusColour">#FF979EA5</Color>

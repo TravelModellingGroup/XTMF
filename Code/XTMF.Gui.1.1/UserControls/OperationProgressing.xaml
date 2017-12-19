@@ -12,7 +12,7 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
-            <Label Content="Please Wait..." Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" />
+            <Label Content="Please Wait..." Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" />
             <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" Foreground="{DynamicResource ProgressBrush}" >
               
             </ProgressBar>

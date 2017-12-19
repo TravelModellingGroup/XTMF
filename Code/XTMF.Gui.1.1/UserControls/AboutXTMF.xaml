@@ -38,14 +38,14 @@
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="AUTO" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="XTMF.GUI" FontSize="24" Foreground="{DynamicResource ThemeTextColorBrush}" />
+        <TextBlock Grid.Row="0" Text="XTMF.GUI" FontSize="24" Foreground="{DynamicResource MaterialDesignBody}" />
         <Image Grid.Row="1" Source="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Width="128" Height="128" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="AUTO" />
                 <ColumnDefinition Width="AUTO" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Version: " Foreground="{DynamicResource ThemeTextColorBrush}" />
+            <TextBlock Grid.Column="0" Text="Version: " Foreground="{DynamicResource MaterialDesignBody}" />
             <TextBlock Grid.Column="1" x:Name="VersionBlock" Foreground="White" />
         </Grid>
         <Grid Grid.Row="3">
@@ -53,11 +53,11 @@
                 <ColumnDefinition Width="AUTO" />
                 <ColumnDefinition Width="AUTO" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Build Date: " Foreground="{DynamicResource ThemeTextColorBrush}" />
+            <TextBlock Grid.Column="0" Text="Build Date: " Foreground="{DynamicResource MaterialDesignBody}" />
             <TextBlock Grid.Column="1" x:Name="BuildBlock" Foreground="White" />
         </Grid>
-        <TextBlock Grid.Row="4" Foreground="{DynamicResource ThemeTextColorBrush}" Text="Created by the Travel Modelling Group" />
-        <TextBlock Grid.Row="5" Foreground="{DynamicResource ThemeTextColorBrush}" Text="This software is Open-Source, copyrighted under the GPLv3 License." />
+        <TextBlock Grid.Row="4" Foreground="{DynamicResource MaterialDesignBody}" Text="Created by the Travel Modelling Group" />
+        <TextBlock Grid.Row="5" Foreground="{DynamicResource MaterialDesignBody}" Text="This software is Open-Source, copyrighted under the GPLv3 License." />
         <TextBlock Grid.Row="6" x:Name="TMGUrl" Cursor="Hand" Text="http://tmg.utoronto.ca" MouseUp="TextBlock_MouseUp" Foreground="{StaticResource FocusBrush}" />
         <TextBlock Grid.Row="7" Cursor="Hand" Text="http://github.com/TravelModellingGroup/XTMF" MouseUp="TextBlock_MouseUp" Foreground="{StaticResource FocusBrush}" />
         <TextBlock Grid.Row="8" Cursor="Hand" Text="https://www.gnu.org/licenses/gpl-3.0-standalone.html" MouseUp="TextBlock_MouseUp" Foreground="{StaticResource FocusBrush}"/>
@@ -66,7 +66,7 @@
                 <ColumnDefinition Width="AUTO" />
                 <ColumnDefinition Width="AUTO" />
             </Grid.ColumnDefinitions>
-            <TextBlock Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Text="Number of installed modules:" />
+            <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Grid.Column="0" Text="Number of installed modules:" />
             <TextBlock Foreground="White" x:Name="NumberOfModules" Grid.Column="1" Text="" />
         </Grid>
     </Grid>

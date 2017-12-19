@@ -35,7 +35,7 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Margin="0,0,0,4" x:Name="QuestionLabel" Foreground="{DynamicResource ThemeTextColorBrush}" />
+            <TextBlock Grid.Row="0" Margin="0,0,0,4" x:Name="QuestionLabel" Foreground="{DynamicResource MaterialDesignBody}" />
             <TextBlock Grid.Row="1" x:Name="ValidationLabel" Text="Invalid answer" Foreground="Red" Visibility="Collapsed" />
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>

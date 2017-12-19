@@ -31,7 +31,7 @@
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" />
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <ListView x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      GotFocus="Display_GotFocus" BorderBrush="{x:Null}" Foreground="{DynamicResource ThemeTextColorBrush}" Background="{DynamicResource WindowBackgroundBrush2}">
+                      GotFocus="Display_GotFocus" BorderBrush="{x:Null}" Foreground="{DynamicResource MaterialDesignBody}" Background="{DynamicResource WindowBackgroundBrush2}">
                 <ListView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="_Remove (Del)" Click="Remove_Click">

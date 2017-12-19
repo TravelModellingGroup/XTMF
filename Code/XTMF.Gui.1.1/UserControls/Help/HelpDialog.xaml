@@ -42,7 +42,7 @@
 
 
             <ListView HorizontalContentAlignment="Stretch" Grid.Row="1" HorizontalAlignment="Stretch"     x:Name="ResultBox" Background="{DynamicResource WindowBackgroundBrush1}"
-                             Foreground="{DynamicResource ThemeTextColorBrush}" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" BorderBrush="{x:Null}" />
+                             Foreground="{DynamicResource MaterialDesignBody}" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" BorderBrush="{x:Null}" />
             </Grid>
 
         </Grid>
