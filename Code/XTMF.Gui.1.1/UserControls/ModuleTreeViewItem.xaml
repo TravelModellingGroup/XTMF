@@ -36,8 +36,8 @@
                         <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters >
-                        <Setter Property="CustomBackground" Value="{DynamicResource FocusBrushHover2}"/>
-                        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"/>
+                        <Setter Property="CustomBackground" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueLightForegroundBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
                 <MultiDataTrigger>
@@ -56,8 +56,8 @@
                         <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
-                        <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"/>
-                        <Setter Property="CustomBackground" Value="{DynamicResource ControlColourBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"/>
+                        <Setter Property="CustomBackground" Value="{DynamicResource PrimaryHueDarkBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
                 <MultiDataTrigger>
@@ -66,8 +66,8 @@
                         <Condition  Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
-                        <Setter Property="CustomBackground" Value="{DynamicResource ModuleTreeViewItemBackground}"/>
-                        <Setter Property="Foreground" Value="{DynamicResource ModuleTreeViewItemForeground}"/>
+                        <Setter Property="CustomBackground" Value="{DynamicResource MaterialDesignBackground}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
             </Style.Triggers>
