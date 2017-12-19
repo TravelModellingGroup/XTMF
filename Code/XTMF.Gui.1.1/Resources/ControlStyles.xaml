@@ -475,7 +475,7 @@
     </Style>
 
     <Style x:Key="XtmfTabItem" TargetType="{x:Type TabItem}">
-        <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
+        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
         <Setter Property="HeaderTemplate">
             <Setter.Value>
                 <DataTemplate>
@@ -500,15 +500,15 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"></Setter>
                         </Trigger>
 
                         <Trigger SourceName="Border"  Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlHighlightColourBrush}"></Setter>
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
                         </Trigger>
 
                         <Trigger Property="IsSelected" Value="False">
-                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlColourUnselectedBrush}"></Setter>
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"></Setter>
                             <Setter Property="Opacity" Value="0.7"></Setter>
                         </Trigger>
 
@@ -519,7 +519,7 @@
                             </MultiTrigger.Conditions>
 
                             <MultiTrigger.Setters>
-                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlHighlightColourBrush}"></Setter>
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"></Setter>
                                 <Setter Property="Opacity" Value="0.7"></Setter>
                             </MultiTrigger.Setters>
 

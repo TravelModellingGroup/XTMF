@@ -457,7 +457,7 @@
                         </ListView>
                     </Grid>
                 </TabItem>
-                <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters" x:Name="ModuleParameterTab" FontSize="14" Foreground="{DynamicResource ControlTextColourBrush}">
+                <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters" x:Name="ModuleParameterTab" FontSize="14" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}">
                     <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO"/>
