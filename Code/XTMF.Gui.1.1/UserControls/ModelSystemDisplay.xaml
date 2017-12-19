@@ -349,7 +349,7 @@
                                 <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Style="{DynamicResource MaterialDesignHeadlineTextBlock}"/>
                             </Grid>
                         </Border>
-                        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Inverted" Padding="4 4 4 4" CornerRadius="2" Panel.ZIndex="1"
+                        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="4 4 4 4" CornerRadius="2" Panel.ZIndex="1"
                                                   Margin="12 12 12 12"
                                                   materialDesign:ShadowAssist.ShadowDepth="Depth4">
                             <Grid>
@@ -489,7 +489,7 @@
                                 </Expander>
                             </Grid>
                         </Border>
-                        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                                   Margin="12 12 12 12"
                                                   materialDesign:ShadowAssist.ShadowDepth="Depth4">
                             <Grid>

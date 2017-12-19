@@ -47,7 +47,7 @@
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
                         <Setter Property="CustomBackground" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                        <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueLightForegroundBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
                 <MultiDataTrigger>
