@@ -91,8 +91,7 @@ namespace XTMF.Gui
         {
         
             ViewModelBase = new ViewModelBase();
-            
-            
+           
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ParseCommandLineArgs();
             if (!IsNonDefaultConfig)
@@ -111,7 +110,6 @@ namespace XTMF.Gui
             Us = this;
             operationProgressing = new OperationProgressing();
 
-
             _schedulerWindow = new SchedulerWindow();
 
             ViewDockPanel.DataContext = ViewModelBase;
@@ -119,33 +117,16 @@ namespace XTMF.Gui
             FilterBox.DataContext = ContentControl.DataContext;
             ViewTitleBlock.DataContext = ContentControl.DataContext;
 
-
             DockManager.InterTabController.InterTabClient = new InterTabClient();
-
-            //SetDisplayActive(new StartWindow(),"XTMF",false);
 
             WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
 
-      
         }
 
-
-
-        private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = ResizeMode == ResizeMode.CanResize || ResizeMode == ResizeMode.CanResizeWithGrip;
-        }
-
-        private void OnCanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = ResizeMode != ResizeMode.NoResize;
-
-        private void OnCloseWindow(object target, ExecutedRoutedEventArgs e) => SystemCommands.CloseWindow(this);
-
-        private void OnMaximizeWindow(object target, ExecutedRoutedEventArgs e) => SystemCommands.MaximizeWindow(this);
-
-        private void OnMinimizeWindow(object target, ExecutedRoutedEventArgs e) => SystemCommands.MinimizeWindow(this);
-
-        private void OnRestoreWindow(object target, ExecutedRoutedEventArgs e) => SystemCommands.RestoreWindow(this);
-
+        /// <summary>
+        /// Determines if a local Configuration file exists.
+        /// </summary>
+        /// <returns></returns>
         private bool CheckHasLocalConfiguration()
         {
             if (System.IO.File.Exists(
@@ -160,6 +141,9 @@ namespace XTMF.Gui
             return false;
         }
 
+        /// <summary>
+        /// Parses command line arguments
+        /// </summary>
         private void ParseCommandLineArgs()
         {
             /* Check for existence of configuration command line argument
@@ -219,8 +203,16 @@ namespace XTMF.Gui
 
         private void RecentProjectMenuItem_Click(object sender, RoutedEventArgs e, string projectName) => LoadProjectByName(projectName);
 
+
+        /// <summary>
+        /// Updates the Status display text
+        /// </summary>
+        /// <param name="text"></param>
         public void UpdateStatusDisplay(string text) => StatusDisplay.Text = text;
 
+        /// <summary>
+        /// Reloads XTMF using the default configuration
+        /// </summary>
         public void ReloadWithDefaultConfiguration()
         {
             if (!ClosePages())
@@ -278,6 +270,10 @@ namespace XTMF.Gui
             return false;
         }
 
+        /// <summary>
+        /// Reloads Configuration using the specified names
+        /// </summary>
+        /// <param name="name"></param>
         public void ReloadWithConfiguration(string name)
         {
             if (!ClosePages())
