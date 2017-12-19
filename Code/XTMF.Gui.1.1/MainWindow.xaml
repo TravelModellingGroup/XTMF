@@ -28,6 +28,7 @@
         ShowIconOnTitleBar="False"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+        xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
 
         Title="XTMF Version 1.3" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="1000"
@@ -222,13 +223,15 @@
                                 <ContentControl DockPanel.Dock="Bottom" Content="{Binding ViewModelControl}" Name="ContentControl"  Grid.Row="1"   Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
                     </DockPanel>
 
-                   
-                    <dragablz:TabablzControl  Grid.Row="1"  x:Name="DockManager"  Grid.ColumnSpan="2" Grid.Column="0">
+
+                    <dockablz:Layout  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0">
+                    <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager"  >
                         <dragablz:TabablzControl.InterTabController>
-                            <dragablz:InterTabController />
+                            <dragablz:InterTabController Partition="" />
                             </dragablz:TabablzControl.InterTabController>
                     </dragablz:TabablzControl>
-                        <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
+                    </dockablz:Layout>
+                    <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
                     <!--
                     <xcad:DockingManager BorderThickness="0" IsHitTestVisible="True" x:Name="DockManager"
                                  Grid.Row="1" ScrollViewer.CanContentScroll="True"
