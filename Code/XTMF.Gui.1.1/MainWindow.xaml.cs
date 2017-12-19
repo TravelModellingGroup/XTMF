@@ -122,7 +122,7 @@ namespace XTMF.Gui
 
             DockManager.InterTabController.InterTabClient = new InterTabClient();
 
-            SetDisplayActive(new StartWindow(),"XTMF",false);
+            //SetDisplayActive(new StartWindow(),"XTMF",false);
 
             WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
 

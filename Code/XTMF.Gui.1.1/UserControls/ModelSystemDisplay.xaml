@@ -609,7 +609,7 @@
                         </ListView>
                     </Grid>
                 </TabItem>
-                <TabItem Style="{DynamicResource XtmfTabItem}" Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14" Foreground="{DynamicResource MaterialDesignBodyLight}">
+                <TabItem Style="{DynamicResource XtmfTabItem}" Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" >
                     <ScrollViewer>
                         <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                             <Grid.RowDefinitions>
