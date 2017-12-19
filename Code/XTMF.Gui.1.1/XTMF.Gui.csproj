@@ -190,6 +190,7 @@
     <Compile Include="UserControls\FlatToolButton.xaml.cs">
       <DependentUpon>FlatToolButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\InterTabClient.cs" />
     <Compile Include="UserControls\ModuleContextControl.xaml.cs">
       <DependentUpon>ModuleContextControl.xaml</DependentUpon>
     </Compile>
@@ -197,6 +198,9 @@
       <DependentUpon>SchedulerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\SettingsViewModel.cs" />
+    <Compile Include="UserControls\TabHostWindow.xaml.cs">
+      <DependentUpon>TabHostWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ValidationErrorListControl.xaml.cs">
       <DependentUpon>ValidationErrorListControl.xaml</DependentUpon>
     </Compile>
@@ -342,6 +346,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\SchedulerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\TabHostWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

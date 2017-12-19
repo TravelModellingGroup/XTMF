@@ -119,6 +119,9 @@ namespace XTMF.Gui
             FilterBox.DataContext = ContentControl.DataContext;
             ViewTitleBlock.DataContext = ContentControl.DataContext;
 
+
+            DockManager.InterTabController.InterTabClient = new InterTabClient();
+
             SetDisplayActive(new StartWindow(),"XTMF",false);
 
             WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
