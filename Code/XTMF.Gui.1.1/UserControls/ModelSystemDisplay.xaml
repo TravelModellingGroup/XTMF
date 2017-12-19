@@ -38,7 +38,7 @@
           Viewbox="0,0,14,14" ViewportUnits="Absolute" 
           ViewboxUnits="Absolute">
             <VisualBrush.Visual>
-                <Rectangle SnapsToDevicePixels="True" Opacity="0.4" Stroke="{DynamicResource GridStrokeBrush}" StrokeThickness="0.8" Width="20" Height="20"/>
+                <Rectangle SnapsToDevicePixels="True" Opacity="0.2" Stroke="{DynamicResource PrimaryHueLightForegroundBrush}" StrokeThickness="0.8" Width="20" Height="20"/>
             </VisualBrush.Visual>
         </VisualBrush>
         <DataTemplate x:Key="ModuleValidationErrorTemplate" x:Name="ModuleValidationErrorTemplate" DataType="{x:Type models:ValidationErrorDisplayModel}">
