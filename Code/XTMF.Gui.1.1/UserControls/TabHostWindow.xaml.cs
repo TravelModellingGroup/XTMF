@@ -23,6 +23,9 @@ namespace XTMF.Gui.UserControls
         public TabHostWindow()
         {
             InitializeComponent();
+
+            TabablzControl.InterTabController.InterTabClient = new InterTabClient();
+            
         }
     }
 }

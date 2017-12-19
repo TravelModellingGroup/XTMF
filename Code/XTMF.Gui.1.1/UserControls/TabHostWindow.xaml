@@ -9,7 +9,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
 
-        <dragablz:TabablzControl Margin="0" Name="TabablzControl" ConsolidateOrphanedItems="True" ShowDefaultCloseButton="True">
+        <dragablz:TabablzControl  Margin="0" Name="TabablzControl" ConsolidateOrphanedItems="True" ShowDefaultCloseButton="True">
             <dragablz:TabablzControl.InterTabController>
                 <dragablz:InterTabController />
             </dragablz:TabablzControl.InterTabController>
