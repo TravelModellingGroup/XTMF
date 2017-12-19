@@ -673,18 +673,19 @@ namespace XTMF.Gui
                     VerticalAlignment = VerticalAlignment.Stretch,
                     Session = modelSystemSession,
                     ModelSystem = modelSystemSession.ModelSystemModel,
+                    
                 };
-
+               
                 display.ContentGuid = Guid.NewGuid().ToString();
-                var displayModel = new ModelSystemEditingSessionDisplayModel(display);
+               // var displayModel = new ModelSystemEditingSessionDisplayModel(display);
 
                 var titleBarName = titleBar ?? (modelSystemSession.EditingProject
                         ? modelSystemSession.ProjectEditingSession.Name + " - " +
                           modelSystemSession.ModelSystemModel.Name
                         : "Model System - " + modelSystemSession.ModelSystemModel.Name)
 ;
-               // var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel), null,
-               //     display.ContentGuid, displayModel);
+                //var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel), null,
+                //    display.ContentGuid, displayModel);
 
                 SetDisplayActive(display, "Model System - " + modelSystemSession.ModelSystemModel.Name);
 
@@ -1109,30 +1110,7 @@ namespace XTMF.Gui
             }
         }
 
-        private void Window_StateChanged(object sender, EventArgs e)
-        {
-            switch (WindowState)
-            {
-                case WindowState.Normal:
-                    WindowGrid.Margin = new Thickness()
-                    {
-                        Left = 0,
-                        Top = 0,
-                        Right = 0,
-                        Bottom = 0
-                    };
-                    break;
-                case WindowState.Maximized:
-                    WindowGrid.Margin = new Thickness()
-                    {
-                        Left = 7,
-                        Top = 7,
-                        Right = 7,
-                        Bottom = 7
-                    };
-                    break;
-            }
-        }
+      
 
         /// <summary>
         /// 

@@ -841,5 +841,20 @@ namespace XTMF.Gui.UserControls
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemDisplay_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+            LoadModelSystem(selected);
+        }
     }
 }

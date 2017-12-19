@@ -94,7 +94,7 @@
                     <DockPanel Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" >
 
                         <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
-                        <xtmf:ModelSystemListView Background="{DynamicResource MaterialDesignPaper}"  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay"
+                        <xtmf:ModelSystemListView MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" Background="{DynamicResource MaterialDesignPaper}"  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay"
                                  BorderBrush="{x:Null}"  >
                             <ListView.ContextMenu>
                                 <ContextMenu Name="ContextMenu" >
