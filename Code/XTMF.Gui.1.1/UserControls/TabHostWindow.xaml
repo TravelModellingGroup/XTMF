@@ -1,11 +1,19 @@
-﻿<Window x:Class="XTMF.Gui.UserControls.TabHostWindow"
+﻿<controls:MetroWindow x:Class="XTMF.Gui.UserControls.TabHostWindow"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
              mc:Ignorable="d" 
+                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                      TextElement.FontWeight="Regular"
+                      TextElement.FontSize="13"
+ 
+                      TextOptions.TextFormattingMode="Ideal" 
+                      TextOptions.TextRenderingMode="Auto"        
+                      FontFamily="{DynamicResource MaterialDesignFont}"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
 
@@ -16,4 +24,5 @@
         </dragablz:TabablzControl>
 
     </Grid>
-</Window>
+</controls:MetroWindow>
+

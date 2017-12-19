@@ -12,13 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MahApps.Metro.Controls;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
     /// Interaction logic for TabHostWindow.xaml
     /// </summary>
-    public partial class TabHostWindow : Window
+    public partial class TabHostWindow : MetroWindow
     {
         public TabHostWindow()
         {
