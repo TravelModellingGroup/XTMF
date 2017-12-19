@@ -185,8 +185,8 @@
                         <RowDefinition Height="32"/>
                     </Grid.RowDefinitions>
 
-                    <ToolBarTray Grid.Row="0">
-                        <ToolBar Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="False">
+                    <ToolBarTray Grid.Row="0" Height="54" >
+                        <ToolBar VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                             <Button ToolTip="Save Model System" Click="LinkedParameter_Click">
                                 <materialDesign:PackIcon Kind="ContentSave" />
                             </Button>
@@ -197,6 +197,26 @@
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}">
                                 <materialDesign:PackIcon Kind="Run" />
                             </Button>
+                            <materialDesign:ColorZone  Width="300"  Mode="Standard" Padding="2 2 2 2" CornerRadius="2" Panel.ZIndex="1"
+                                                      Margin="12 4 12 12"
+                                                      >
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                   
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                        <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                    </Button>
+
+                                    <my:FilterBox Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
+                                    <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                                    
+                                </Grid>
+                            </materialDesign:ColorZone>
                         </ToolBar>
                     </ToolBarTray>
                     <!--
@@ -231,28 +251,7 @@
                         <RowDefinition Height="AUTO"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <materialDesign:ColorZone Grid.ColumnSpan="2" Grid.Row="0" Width="300"  Mode="Inverted" Padding="4 4 4 4" CornerRadius="2" Panel.ZIndex="1"
-                                              Margin="12 12 12 12"
-                                              materialDesign:ShadowAssist.ShadowDepth="Depth4">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
-                                <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                            </Button>
-
-                            <my:FilterBox Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
-                            <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
-                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                         MinWidth="200" VerticalAlignment="Center" />-->
-                            <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
-
-                            </Button>
-                        </Grid>
-                    </materialDesign:ColorZone>
+                    
                   
                     <TreeView Grid.Row="1"  BorderThickness="0" 
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
