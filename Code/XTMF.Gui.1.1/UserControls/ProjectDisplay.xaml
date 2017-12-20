@@ -34,8 +34,33 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-        <Border BorderThickness="0" BorderBrush="DarkGray" Grid.Row="1" HorizontalAlignment="Stretch">
-            <materialDesign:Card Margin="20,10,10,20">
+        <Border Margin="10 10 40 10"  Height="130"  Grid.Row="1" HorizontalAlignment="Right">
+            <materialDesign:PopupBox
+                Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
+                PlacementMode="TopAndAlignCentres"
+                UnfurlOrientation="Vertical"
+                ToolTipService.Placement="Left"
+                ToolTip="PopupBox, Style MaterialDesignMultiFloatingActionPopupBox"
+                >
+                <StackPanel>
+                    <Button Click="ButtonBase_OnClick" ToolTip="Open Project Directory" Opacity="0.5">
+                        <materialDesign:PackIcon Kind="Folder" />
+                    </Button>
+                    <Button ToolTip="Import Model System">
+                        <materialDesign:PackIcon Kind="Import" />
+                    </Button>
+                    <Button ToolTip="Import Model System From File">
+                        <materialDesign:PackIcon Kind="FileImport" />
+                    </Button>
+                    <Button ToolTip="Create new model system">
+                        <materialDesign:PackIcon Kind="ShapePlus" />
+                    </Button>
+                    <Button ToolTip="Refresh previous runs">
+                        <materialDesign:PackIcon Kind="Refresh" />
+                    </Button>
+                </StackPanel>
+            </materialDesign:PopupBox>
+           <!-- <materialDesign:Card Margin="20,10,10,20">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch"   Background="{DynamicResource MaterialDesignCardBackground}">
                 <my:BorderIconButton BorderThickness="0" Margin="10,12,5,12" Header="Open" Width="170" Text="Open project directory" Icon="/XTMF.Gui;component/Resources/ic_folder_open_white_18dp.png" 
                                      Clicked="OpenProjectFolder_Clicked"/>
@@ -48,7 +73,7 @@
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12" Header="Refresh" Text="Refresh previous runs"
                                          Icon="/XTMF.Gui;component/Resources/ic_refresh_white_18dp.png" Clicked="RefreshPreviousRuns_Clicked" Background="{DynamicResource HighlightBrush1}" />
             </WrapPanel>
-       </materialDesign:Card>
+       </materialDesign:Card> -->
             </Border>
 
         <Grid Grid.Row="0">

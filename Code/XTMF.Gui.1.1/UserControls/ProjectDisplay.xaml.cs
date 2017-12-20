@@ -856,5 +856,10 @@ namespace XTMF.Gui.UserControls
             }
             LoadModelSystem(selected);
         }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            OpenProjectFolder();
+        }
     }
 }
