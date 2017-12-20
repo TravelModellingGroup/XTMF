@@ -904,6 +904,8 @@ namespace XTMF.Gui
             //OpenPages.Add(doc);
             //DocumentPane.Children.Add(doc);
             //doc.Float();
+
+            SetDisplayActive(runWindow,runName,false);
             return runWindow;
         }
 
