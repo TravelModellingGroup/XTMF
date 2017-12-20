@@ -24,7 +24,7 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             mc:Ignorable="d" Background="{DynamicResource WindowBackgroundBrush3}" >
+             mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}">
     <Grid Name="BaseGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
@@ -87,7 +87,7 @@
             </Border>
         </GroupBox>
         <GroupBox Foreground="{DynamicResource MaterialDesignBody}" Margin="3" Grid.Row="1" Grid.Column="1" Header="Run Status" BorderThickness="0.5" >
-            <Grid  Background="{DynamicResource WindowBackgroundBrush3}">
+            <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -109,7 +109,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{DynamicResource WindowBackgroundBrush3}"  
+                    <Border Grid.Column="0" 
                     VerticalAlignment="Stretch" >
                         <Grid>
                             <Grid.RowDefinitions>
@@ -119,7 +119,7 @@
                             </Grid.RowDefinitions>
                         </Grid>
                     </Border>
-                    <Border HorizontalAlignment="Stretch"  Background="{DynamicResource WindowBackgroundBrush3}" BorderThickness="0"  Margin="5">
+                    <Border HorizontalAlignment="Stretch"   BorderThickness="0"  Margin="5">
                         <ScrollViewer  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -140,17 +140,17 @@
             </Grid>
         </GroupBox>
         <GroupBox Foreground="{DynamicResource MaterialDesignBody}" Margin="3" Grid.Row="1" Grid.Column="2" Header="Console Output" BorderThickness="0.5">
-            <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush3}"
+            <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch"
                 Visibility="Visible" >
                 <Grid VerticalAlignment="Stretch">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1"  Grid.Row="0" BorderBrush="{DynamicResource WindowBackgroundBrush3}">
+                    <Border HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1"  Grid.Row="0" >
                         <ScrollViewer  Padding="0" x:Name="ConsoleScrollViewer"   BorderThickness="0"  
                               HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible"
-                              VerticalAlignment="Stretch"  BorderBrush="{DynamicResource WindowBackgroundBrush1}" Margin="0,0,0,0">
-                            <TextBox  HorizontalAlignment="Stretch" Padding="0" Margin="0" x:Name="ConsoleOutput" Background="{DynamicResource WindowBackgroundBrush2}"
+                              VerticalAlignment="Stretch"  Margin="0,0,0,0">
+                            <TextBox  HorizontalAlignment="Stretch" Padding="0" Margin="0" x:Name="ConsoleOutput" 
                                       Foreground="{DynamicResource MaterialDesignBody}"
                                       TextWrapping="Wrap" Text="{Binding ConsoleOutput}" UndoLimit="0" IsUndoEnabled="False"
                                       TextChanged="ConsoleOutput_TextChanged" IsReadOnly="True" IsReadOnlyCaretVisible="True" BorderBrush="{x:Null}"/>

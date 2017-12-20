@@ -236,7 +236,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="FlatScrollThumbs" TargetType="{x:Type Thumb}">
+    <!--<Style x:Key="FlatScrollThumbs" TargetType="{x:Type Thumb}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
@@ -441,7 +441,7 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+    </Style> -->
 
     <!-- Tab control -->
 
