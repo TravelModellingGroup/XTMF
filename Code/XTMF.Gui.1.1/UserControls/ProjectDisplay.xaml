@@ -43,7 +43,7 @@
                 ToolTip="PopupBox, Style MaterialDesignMultiFloatingActionPopupBox"
                 >
                 <StackPanel>
-                    <Button Click="ButtonBase_OnClick" ToolTip="Open Project Directory" Opacity="0.5">
+                    <Button Click="ButtonBase_OnClick" ToolTip="Open Project Directory">
                         <materialDesign:PackIcon Kind="Folder" />
                     </Button>
                     <Button ToolTip="Import Model System">

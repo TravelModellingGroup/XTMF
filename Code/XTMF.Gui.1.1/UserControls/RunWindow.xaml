@@ -23,6 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" Background="{DynamicResource WindowBackgroundBrush3}" >
     <Grid Name="BaseGrid">
         <Grid.ColumnDefinitions>
@@ -31,11 +32,31 @@
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="54"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" ColumnSpan="3" Background="{DynamicResource WindowBackgroundBrush1}">
-            <StackPanel Margin="0" FlowDirection="LeftToRight" Orientation="Horizontal">
+
+            <ToolBarTray Grid.Row="0" Height="54" >
+                <ToolBar VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
+                    <Button  x:Name="OpenDirectoryButton" Click="OpenDirectoryButton_Clicked" ToolTip="Open run output folder" >
+                        <materialDesign:PackIcon Kind="FolderOutline" />
+                    </Button>
+                    <Button x:Name="CancelButton" Click="CancelButton_Clicked"  ToolTip="Stop Run" >
+                        <materialDesign:PackIcon Kind="StopCircleOutline" />
+                    </Button>
+                    <Button x:Name="ClearRunButton"  Click="ClearRunButton_Click" ToolTip="Clear Run Display" >
+                        <materialDesign:PackIcon Kind="NotificationClearAll" />
+                    </Button>
+                    <Button x:Name="ContinueButton"  Click="ClearRunButton_Click" ToolTip="Continue to Run" >
+                        <materialDesign:PackIcon Kind="FolderMove" />
+                    </Button>
+
+
+                </ToolBar>
+                </ToolBarTray>
+            <!--
+                    <StackPanel Margin="0" FlowDirection="LeftToRight" Orientation="Horizontal">
                 <userControls:FlatToolButton  x:Name="OpenDirectoryButton" ToolText="Open Run Output" Click="OpenDirectoryButton_Clicked" >
                     <userControls:FlatToolButton.IconPath  >
                         <Path Data="{DynamicResource FolderOpenIconPath}" Stretch="Uniform" />
@@ -58,7 +79,7 @@
                         <Path Data="{DynamicResource Checkmark}" Stretch="Uniform" />
                     </userControls:FlatToolButton.IconPath>
                 </userControls:FlatToolButton>
-            </StackPanel>
+            </StackPanel> -->
         </Grid>
         <GroupBox Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1"  Grid.Column="0" Margin="3" Header="Module Execution Status" BorderThickness="0.5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center">
             <Border Grid.Row="2" x:Name="AdditionDetailsPanelBorder" BorderBrush="White" Height="0" BorderThickness="0" CornerRadius="5" Margin="5" Visibility="Collapsed">
