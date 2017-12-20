@@ -302,7 +302,7 @@
             </Grid>
             <materialDesign:DrawerHost.LeftDrawerContent >
                 <StackPanel   MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
-                    <ListBox >
+                    <ListBox Name="XTMFWorkspaceListBox" SelectionChanged="XTMFWorkspaceListBox_OnSelectionChanged" >
                         <ListBoxItem Padding="15 8 5 8">New Project</ListBoxItem>
                         <ListBoxItem Name="OpenProjectGlobalMenuItem" Selected="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
                         <ListBoxItem Padding="15 8 5 8">New Model System</ListBoxItem>
@@ -315,11 +315,11 @@
 
                     <Separator />
                     <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">XTMF</TextBlock>
-                    <ListBox >
+                    <ListBox SelectionChanged="XTMFSideMenuListBox_OnSelectionChanged"  Name="XTMFSideMenuListBox" >
 
 
 
-                        <ListBoxItem Padding="15 8 5 8" Selected="ListBoxItem_OnSelected" MouseDown="Settings_Click">
+                        <ListBoxItem Selected="SettingsMenuItem_OnSelected" Name="SettingsMenuItem" Padding="15 8 5 8">
                             <StackPanel Orientation="Horizontal">
                               
                                 <materialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -328,7 +328,7 @@
                                 <TextBlock>Settings</TextBlock>
                             </StackPanel>
                         </ListBoxItem>
-                        <ListBoxItem Padding="15 8 5 8" Name="HelpMenuItem" Selected="HelpMenuItem_OnSelected">
+                        <ListBoxItem  Padding="15 8 5 8" Name="HelpMenuItem" >
                             <StackPanel Orientation="Horizontal">
 
                                 <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -337,7 +337,7 @@
                                 <TextBlock>Help</TextBlock>
                             </StackPanel>
                         </ListBoxItem>
-                        <ListBoxItem Padding="15 8 5 8">
+                        <ListBoxItem Selected="DocumentationMenuItem_OnSelected" Name="DocumentationMenuItem"  Padding="15 8 5 8">
                             <StackPanel Orientation="Horizontal">
 
                                 <materialDesign:PackIcon Kind="BookOpen" VerticalAlignment="Center" HorizontalAlignment="Center"

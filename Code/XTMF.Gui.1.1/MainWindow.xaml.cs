@@ -32,6 +32,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using MahApps.Metro.Controls;
 using Xceed.Wpf.AvalonDock.Layout;
 using XTMF.Gui.Controllers;
@@ -880,6 +881,9 @@ namespace XTMF.Gui
             }
 
             (OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow).AddRun(runWindow);
+
+            SetDisplayActive((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow),"Scheduler",false);
+           // DockManager.Items.Add((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow))
         }
 
         /// <summary>
@@ -1054,65 +1058,8 @@ namespace XTMF.Gui
             }
         }
 
-        /*
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
-            {
-                if (e.GetPosition(this).Y < 90)
-                {
-                    e.Handled = true;
-                    DragMove();
-                }
-            }
-        } */
 
-        private void MaxNorm_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (WindowState == WindowState.Maximized)
-            {
-                SystemCommands.RestoreWindow(this);
-            }
-            else if (WindowState == WindowState.Normal)
-            {
-                ExternalGrid.Margin = new Thickness()
-                {
-                    Left = 0,
-                    Top = 0,
-                    Right = 0,
-                    Bottom = 0,
-                };
-                SystemCommands.MaximizeWindow(this);
-            }
-        }
 
-        private void Close_Click(object sender, RoutedEventArgs e) => SystemCommands.CloseWindow(this);
-
-        private void Minimize_Click(object sender, RoutedEventArgs e)
-        {
-            if (WindowState == WindowState.Maximized || WindowState == WindowState.Normal)
-            {
-                SystemCommands.MinimizeWindow(this);
-            }
-            else
-            {
-                SystemCommands.RestoreWindow(this);
-            }
-        }
-
-        private void MainWindow_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                if (e.GetPosition(this).Y < 90)
-                {
-                    e.Handled = true;
-                    //MaxNorm_OnClick(null, null);
-                }
-            }
-        }
-
-      
 
         /// <summary>
         /// 
@@ -1136,13 +1083,6 @@ namespace XTMF.Gui
 
         }
 
-        private void DockManager_ActiveContentChanged(object sender, EventArgs e)
-        {
-            /*EditingDisplayModel =
-                DisplaysForLayout.ContainsKey((LayoutDocument)DockManager.Layout.ActiveContent)
-                    ? DisplaysForLayout[(LayoutDocument)DockManager.Layout.ActiveContent]
-                    : NullEditingDisplayModel; */
-        }
 
        public System.Windows.Controls.UserControl CurrentViewModel { get; set; }
 
@@ -1151,13 +1091,11 @@ namespace XTMF.Gui
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ListBoxItem_OnSelected(object sender, RoutedEventArgs e)
+        private void SettingsMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
 
             SetDisplayActive(new SettingsPage(EditorController.Runtime.Configuration),"Settings");
-
             MenuToggleButton.IsChecked = false;
-            //this.Settings_Click(sender,e);
         }
 
         /// <summary>
@@ -1204,6 +1142,36 @@ namespace XTMF.Gui
             {
                 DockManager.Items.Remove(DockManager.SelectedItem);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void XTMFSideMenuListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            XTMFSideMenuListBox.UnselectAll();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DocumentationMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+          
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void XTMFWorkspaceListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            XTMFWorkspaceListBox.UnselectAll();
         }
     }
 
