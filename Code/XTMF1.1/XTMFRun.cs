@@ -70,7 +70,7 @@ namespace XTMF
         public static XTMFRun CreateRemoteHost(Project project, int modelSystemIndex, ModelSystemModel root,
             Configuration config, string runName, bool overwrite = false)
         {
-            return new XTMFRunRemoteHost(config, root.Root, runName, Path.Combine(config.ProjectDirectory, project.Name, runName));
+            return new XTMFRunRemoteHost(config, root.Root, project.LinkedParameters[modelSystemIndex], runName, Path.Combine(config.ProjectDirectory, project.Name, runName));
         }
 
         public static XTMFRun CreateLocalRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName, bool overwrite = false)
@@ -80,7 +80,7 @@ namespace XTMF
 
         public static XTMFRun CreateRemoteHost(Project project, ModelSystemStructureModel root, Configuration config, string runName, bool overwrite = false)
         {
-            return new XTMFRunRemoteHost(config, root, runName, Path.Combine(config.ProjectDirectory, project.Name, runName));
+            return new XTMFRunRemoteHost(config, root, new List<ILinkedParameter>(), runName, Path.Combine(config.ProjectDirectory, project.Name, runName));
         }
 
         public static XTMFRun CreateRemoteClient(Configuration configuration, string runName, string runDirectory, string modelSystem)

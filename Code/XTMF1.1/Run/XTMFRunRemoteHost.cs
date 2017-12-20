@@ -27,6 +27,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace XTMF.Run
 {
@@ -45,10 +46,13 @@ namespace XTMF.Run
 
         public override bool RunsRemotely => true;
 
-        public XTMFRunRemoteHost(IConfiguration configuration, ModelSystemStructureModel root, string runName, string runDirectory)
+        private List<ILinkedParameter> _LinkedParameters;
+
+        public XTMFRunRemoteHost(IConfiguration configuration, ModelSystemStructureModel root, List<ILinkedParameter> linkedParameters, string runName, string runDirectory)
             : base(runName, runDirectory, configuration)
         {
             ModelSystemStructureModelRoot = root;
+            _LinkedParameters = linkedParameters;
         }
 
         private string GetXTMFRunFileName() => Path.Combine(Path.GetDirectoryName(
@@ -68,13 +72,13 @@ namespace XTMF.Run
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
-                DataReceivedEventHandler messageHandler = (sender, args) =>
+                void messageHandler(object sender, DataReceivedEventArgs args)
                 {
                     if (args.Data != null)
                     {
                         SendRunMessage(args.Data);
                     }
-                };
+                }
                 var runProcess = new Process
                 {
                     StartInfo = info,
@@ -230,15 +234,15 @@ namespace XTMF.Run
                     {
                         givenReports.Add((reader.ReadString(), reader.ReadSingle(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
                     }
-                    foreach(var rep in givenReports)
+                    foreach(var (name, progress, r, g, b) in givenReports)
                     {
                         foreach(var holdRep in reports)
                         {
-                            if(rep.name == holdRep.Name)
+                            if(name == holdRep.Name)
                             {
                                 if (holdRep is ProgressReport remoteProgress)
                                 {
-                                   remoteProgress. Progress = rep.progress;
+                                   remoteProgress. Progress = progress;
                                 }
                                 break;
                             }
@@ -303,6 +307,34 @@ namespace XTMF.Run
             return new ErrorWithPath(path, message, stackTrace);
         }
 
+        private static string LookupName(IModuleParameter reference, IModelSystemStructure current)
+        {
+            var param = current.Parameters;
+            if (param != null)
+            {
+                int index = param.Parameters.IndexOf(reference);
+                if (index >= 0)
+                {
+                    return current.Parameters.Parameters[index].Name;
+                }
+            }
+            var childrenList = current.Children;
+            if (childrenList != null)
+            {
+                for (int i = 0; i < childrenList.Count; i++)
+                {
+                    var res = LookupName(reference, childrenList[i]);
+                    if (res != null)
+                    {
+                        // make sure to use an escape character before the . to avoid making the mistake of reading it as another index
+                        return string.Concat(current.IsCollection ? i.ToString()
+                            : childrenList[i].ParentFieldName.Replace(".", "\\."), '.', res);
+                    }
+                }
+            }
+            return null;
+        }
+
         private void WriteModelSystemToStream()
         {
             lock (this)
@@ -310,11 +342,35 @@ namespace XTMF.Run
                 using (var memStream = new MemoryStream())
                 {
                     BinaryWriter writer = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
-                    ModelSystemStructureModelRoot.RealModelSystemStructure.Save(memStream);
-                    writer.Write((UInt32)ToClient.RunModelSystem);
-                    writer.Write(RunName);
-                    writer.Write(RunDirectory);
-                    writer.Write(Encoding.Unicode.GetString(memStream.ToArray()));
+                    using (XmlWriter xml = XmlTextWriter.Create(memStream))
+                    {
+                        xml.WriteStartDocument();
+                        xml.WriteStartElement("Root");
+                        var root = ModelSystemStructureModelRoot.RealModelSystemStructure;
+                        root.Save(xml);
+                        xml.WriteStartElement("LinkedParameters");
+                        foreach(var lp in _LinkedParameters)
+                        {
+                            xml.WriteStartElement("LinkedParameter");
+                            xml.WriteAttributeString("Name", lp.Name);
+                            xml.WriteAttributeString("Value", lp.Value ?? String.Empty);
+                            foreach(var reference in lp.Parameters)
+                            {
+                                xml.WriteStartElement("Reference");
+                                xml.WriteAttributeString("Name", LookupName(reference, root));
+                                xml.WriteEndElement();
+                            }
+                            xml.WriteEndElement();
+                        }
+                        xml.WriteEndElement();
+                        xml.WriteEndElement();
+                        xml.WriteEndDocument();
+                        xml.Flush();
+                        writer.Write((UInt32)ToClient.RunModelSystem);
+                        writer.Write(RunName);
+                        writer.Write(RunDirectory);
+                        writer.Write(Encoding.Unicode.GetString(memStream.ToArray()));
+                    }
                 }
             }
         }
