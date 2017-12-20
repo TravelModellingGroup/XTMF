@@ -128,7 +128,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Grid  Margin="10 10 40 20"  Grid.Row="2" HorizontalAlignment="Right">
+        <Grid  Margin="10 10 30 30"  Grid.Row="2" HorizontalAlignment="Right">
             <materialDesign:PopupBox
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
@@ -140,7 +140,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create New project" Opacity="1.0"></Label>
                         </Border>
                         
-                    <Button>
+                    <Button Click="NewProject_Click">
                         <materialDesign:PackIcon Kind="FolderPlus" />
                     </Button>
                     </StackPanel>
@@ -150,7 +150,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Rename Project" Opacity="1.0"></Label>
                         </Border>
 
-                        <Button >
+                        <Button Click="Rename_Click" >
                             <materialDesign:PackIcon Kind="Refresh" />
                         </Button>
                     </StackPanel>
@@ -160,7 +160,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Clone Projeect" Opacity="1.0"></Label>
                         </Border>
 
-                        <Button >
+                        <Button Click="Clone_Click" >
                             <materialDesign:PackIcon Kind="ContentCopy" />
                         </Button>
                     </StackPanel>
@@ -170,7 +170,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Delete Project" Opacity="1.0"></Label>
                         </Border>
 
-                        <Button >
+                        <Button Click="Delete_Click" >
                             <materialDesign:PackIcon Kind="Delete" />
                         </Button>
                     </StackPanel>

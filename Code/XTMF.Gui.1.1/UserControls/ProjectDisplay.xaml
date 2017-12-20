@@ -34,9 +34,9 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-        <Border Margin="10 10 40 10"  Height="130"  Grid.Row="1" HorizontalAlignment="Right">
+        <Border  Margin="10 10 30 30"   Grid.Row="1" HorizontalAlignment="Right">
             <materialDesign:PopupBox
-                Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
+                Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignCentres"
                 UnfurlOrientation="Vertical"
                 ToolTipService.Placement="Left"
@@ -46,13 +46,13 @@
                     <Button Click="ButtonBase_OnClick" ToolTip="Open Project Directory">
                         <materialDesign:PackIcon Kind="Folder" />
                     </Button>
-                    <Button ToolTip="Import Model System">
+                    <Button   ToolTip="Import Model System">
                         <materialDesign:PackIcon Kind="Import" />
                     </Button>
                     <Button ToolTip="Import Model System From File">
                         <materialDesign:PackIcon Kind="FileImport" />
                     </Button>
-                    <Button ToolTip="Create new model system">
+                    <Button Click="NewModelSystem_Click"  ToolTip="Create new model system">
                         <materialDesign:PackIcon Kind="ShapePlus" />
                     </Button>
                     <Button ToolTip="Refresh previous runs">
