@@ -109,7 +109,7 @@ namespace XTMF
                     var oldChildren = Children?.ToList();
                     var oldParameters = Parameters;
                     var oldDirty = IsDirty;
-                    XTMFCommand.XTMFCommandMethod apply = (ref string e) =>
+                    bool apply(ref string e)
                     {
                         // right now we are using a clone
                         Dirty = true;
@@ -123,7 +123,7 @@ namespace XTMF
                         }
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
                         return true;
-                    };
+                    }
                     string error = null;
                     // run the command to change the type so we can undo it later
                     _Session.RunCommand(XTMFCommand.CreateCommand(

@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace XTMF.Run
 {
@@ -51,16 +52,183 @@ namespace XTMF.Run
                     memStream.Write(msAsBytes, 0, msAsBytes.Length);
                     memStream.Position = 0;
                     var mss = ModelSystemStructure.Load(memStream, configuration);
+                    memStream.Position = 0;
                     _Root = (ModelSystemStructure)mss;
                     temp.ModelSystemStructure.Add(_Root);
                     temp.ModelSystemDescriptions.Add(String.Empty);
-                    temp.LinkedParameters.Add(new List<ILinkedParameter>());
+                    temp.LinkedParameters.Add(LoadLinkedParameters(_Root, memStream));
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
             }
+        }
+
+        private List<ILinkedParameter> LoadLinkedParameters(ModelSystemStructure root, Stream stream)
+        {
+            var ret = new List<ILinkedParameter>();
+            string error = null;
+            using (XmlReader reader = XmlReader.Create(stream))
+            {
+                bool skipRead = false;
+                while (!reader.EOF && (skipRead || reader.Read()))
+                {
+                    skipRead = false;
+                    if (reader.NodeType != XmlNodeType.Element) continue;
+                    switch (reader.LocalName)
+                    {
+                        case "LinkedParameter":
+                            {
+                                string linkedParameterName = "Unnamed";
+                                string valueRepresentation = null;
+                                var startingDepth = reader.Depth;
+                                while (reader.MoveToNextAttribute())
+                                {
+                                    if (reader.NodeType == XmlNodeType.Attribute)
+                                    {
+                                        if (reader.LocalName == "Name")
+                                        {
+                                            linkedParameterName = reader.ReadContentAsString();
+                                        }
+                                        else if (reader.LocalName == "Value")
+                                        {
+                                            valueRepresentation = reader.ReadContentAsString();
+                                        }
+                                    }
+                                }
+                                LinkedParameter lp = new LinkedParameter(linkedParameterName);
+                                lp.SetValue(valueRepresentation, ref error);
+                                ret.Add(lp);
+                                skipRead = true;
+                                while (reader.Read())
+                                {
+                                    if (reader.Depth <= startingDepth && reader.NodeType != XmlNodeType.Element)
+                                    {
+                                        break;
+                                    }
+                                    if (reader.NodeType != XmlNodeType.Element)
+                                    {
+                                        continue;
+                                    }
+                                    if (reader.LocalName == "Reference")
+                                    {
+                                        string variableLink = null;
+                                        while (reader.MoveToNextAttribute())
+                                        {
+                                            if (reader.Name == "Name")
+                                            {
+                                                variableLink = reader.ReadContentAsString();
+                                            }
+                                        }
+                                        if (variableLink != null)
+                                        {
+                                            IModuleParameter param = GetParameterFromLink(variableLink, root);
+                                            if (param != null)
+                                            {
+                                                // in any case if there is a type error, just throw it out
+                                                lp.Add(param, ref error);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        private IModuleParameter GetParameterFromLink(string variableLink, ModelSystemStructure root)
+        {
+            // we need to search the space now
+            return GetParameterFromLink(ParseLinkedParameterName(variableLink), 0, root);
+        }
+
+        private IModuleParameter GetParameterFromLink(string[] variableLink, int index, IModelSystemStructure current)
+        {
+            if (index == variableLink.Length - 1)
+            {
+                // search the parameters
+                var parameters = current.Parameters;
+                foreach (var p in parameters)
+                {
+                    if (p.Name == variableLink[index])
+                    {
+                        return p;
+                    }
+                }
+            }
+            else
+            {
+                IList<IModelSystemStructure> descList = current.Children;
+                if (descList == null)
+                {
+                    return null;
+                }
+                if (current.IsCollection)
+                {
+                    if (int.TryParse(variableLink[index], out int collectionIndex))
+                    {
+                        if (collectionIndex >= 0 && collectionIndex < descList.Count)
+                        {
+                            return GetParameterFromLink(variableLink, index + 1, descList[collectionIndex]);
+                        }
+                        return null;
+                    }
+                }
+                else
+                {
+                    foreach (var sub in descList)
+                    {
+                        if (sub.ParentFieldName == variableLink[index])
+                        {
+                            return GetParameterFromLink(variableLink, index + 1, sub);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static string[] ParseLinkedParameterName(string variableLink)
+        {
+            List<string> ret = new List<string>();
+            bool escape = false;
+            var length = variableLink.Length;
+            StringBuilder builder = new StringBuilder(length);
+            for (int i = 0; i < length; i++)
+            {
+                var c = variableLink[i];
+                // check to see if we need to add in the escape
+                if (escape & c != '.')
+                {
+                    builder.Append('\\');
+                }
+                // check to see if we need to move onto the next part
+                if (escape == false & c == '.')
+                {
+                    ret.Add(builder.ToString());
+                    builder.Clear();
+                    escape = false;
+                }
+                else if (c != '\\')
+                {
+                    builder.Append(c);
+                    escape = false;
+                }
+                else
+                {
+                    escape = true;
+                }
+            }
+            if (escape)
+            {
+                builder.Append('\\');
+            }
+            ret.Add(builder.ToString());
+            return ret.ToArray();
         }
 
         public override bool RunsRemotely => true;

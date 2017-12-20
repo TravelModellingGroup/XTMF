@@ -911,7 +911,6 @@ namespace XTMF
 
         private static void Load(IModelSystemStructure projectStructure, IModelSystemStructure parent, XmlNode currentNode, IConfiguration config, Dictionary<int, Type> lookup)
         {
-            var mod = projectStructure as ModelSystemStructure;
             var attributes = currentNode.Attributes;
             if (attributes == null)
             {
@@ -925,7 +924,7 @@ namespace XTMF
             var parentFieldTypeAttribute = attributes["ParentFieldType"];
             var parentTIndexAttribute = attributes["ParentTIndex"];
             var isMetaAttribute = attributes["IsMeta"];
-            if (mod != null)
+            if (projectStructure is ModelSystemStructure mod)
             {
                 var isDisabled = attributes["Disabled"];
                 var disabled = false;
@@ -1529,7 +1528,6 @@ namespace XTMF
 
         private void SaveCollection(XmlWriter writer, IModelSystemStructure s, Dictionary<Type, int> lookup)
         {
-            var mod = s as ModelSystemStructure;
             writer.WriteStartElement("Collection");
             if (s.ParentFieldType == null)
             {
@@ -1538,7 +1536,7 @@ namespace XTMF
             writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString());
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
             writer.WriteAttributeString("Name", s.Name);
-            if (mod != null && mod.IsDisabled)
+            if (s is ModelSystemStructure mod && mod.IsDisabled)
             {
                 writer.WriteAttributeString("Disabled", "true");
             }
@@ -1554,7 +1552,6 @@ namespace XTMF
 
         private void SaveModel(XmlWriter writer, IModelSystemStructure s, IModelSystemStructure parent, Dictionary<Type, int> lookup)
         {
-            var mod = s as ModelSystemStructure;
             writer.WriteStartElement("Module");
             writer.WriteAttributeString("Name", s.Name);
             if (GetDefaultDescription(s, parent) != s.Description)
@@ -1582,7 +1579,7 @@ namespace XTMF
             {
                 writer.WriteAttributeString("IsMeta", "true");
             }
-            if (mod != null && mod.IsDisabled)
+            if (s is ModelSystemStructure mod && mod.IsDisabled)
             {
                 writer.WriteAttributeString("Disabled", "true");
             }
