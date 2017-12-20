@@ -148,7 +148,7 @@
                                 <DataTemplate>
 
                                     <xtmf:ListViewControl  TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch"
-                                                          SubText="{Binding Description, Mode=OneWay}" StatusText="{Binding StatusText, Mode=OneWay}" MouseDoubleClick="ListViewControl_MouseDoubleClick"  >
+                                                          SubText="{Binding Description, Mode=OneWay}" StatusText="{Binding StatusText, Mode=OneWay}"   >
 
 
                                         <xtmf:ListViewControl.IconPath>
