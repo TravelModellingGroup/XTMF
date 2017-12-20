@@ -128,14 +128,34 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Border BorderThickness="0" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
-            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush3}">
+        <Grid  Margin="10 10 40 20"  Grid.Row="2" HorizontalAlignment="Right">
+            <materialDesign:PopupBox
+                Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
+                PlacementMode="TopAndAlignRightEdges"
+                UnfurlOrientation="Vertical"
+                ToolTipService.Placement="Left">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create New project" Opacity="1.0"></Label>
+                        </Border>
+                        
+                    <Button>
+                        <materialDesign:PackIcon Kind="FolderPlus" />
+                    </Button>
+                    </StackPanel>
+
+                </StackPanel>
+                </materialDesign:PopupBox> 
+            
+            <!--
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush3}">
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="New Project" Width="170" Text="Create a new Project." Icon="/XTMF.Gui;component/Resources/ic_create_new_folder_white_18dp.png" Clicked="NewProject_Clicked"/>
                 <my:BorderIconButton x:Name="RenameProject" BorderThickness="0" Margin="5,12,5,12" Header="Rename Project" Width="170" Text="Change the name of the project." Icon="/XTMF.Gui;component/Resources/ic_refresh_white_18dp.png" Clicked="RenameProject_Clicked"/>
                 <my:BorderIconButton x:Name="CloneProject"  BorderThickness="0" Margin="5,12,5,12" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Resources/ic_content_copy_white_2x.png" Clicked="CloneProject_Clicked"/>
                 <my:BorderIconButton x:Name="DeleteProject" BorderThickness="0" Margin="5,12,5,12" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Resources/ic_cancel_white_18pt_2x.png"
                                   Clicked="DeleteProject_Clicked"/>
-            </WrapPanel>
-        </Border>
+            </WrapPanel> -->
+        </Grid>
     </Grid>
 </UserControl>

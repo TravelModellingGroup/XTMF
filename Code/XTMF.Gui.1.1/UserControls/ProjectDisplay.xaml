@@ -36,7 +36,7 @@
         </Grid.RowDefinitions>
         <Border Margin="10 10 40 10"  Height="130"  Grid.Row="1" HorizontalAlignment="Right">
             <materialDesign:PopupBox
-                Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
+                Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
                 PlacementMode="TopAndAlignCentres"
                 UnfurlOrientation="Vertical"
                 ToolTipService.Placement="Left"
@@ -92,7 +92,7 @@
                         <RowDefinition Height="AUTO"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <materialDesign:ColorZone Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                    <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                               Margin="12 12 12 12"
                                               materialDesign:ShadowAssist.ShadowDepth="Depth4">
                         <Grid>
@@ -199,7 +199,7 @@
                     <DockPanel Grid.Row="1" FlowDirection="LeftToRight" >
                         <Label Content="Previous Runs" Width="Auto"  Background="Transparent" FontSize="22" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,0,5"/>
                     </DockPanel>
-                    <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Inverted" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                    <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                               Margin="12 12 12 12"
                                               materialDesign:ShadowAssist.ShadowDepth="Depth4">
                         <Grid>
