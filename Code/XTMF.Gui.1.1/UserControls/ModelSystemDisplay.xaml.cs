@@ -632,12 +632,16 @@ namespace XTMF.Gui.UserControls
                     switch (e.Key)
                     {
                         case Key.F:
-                            QuickParameterDialogHost.IsOpen = true;
-                            Dispatcher.Invoke(() =>
+                            if (ParameterTabControl.SelectedIndex == 0)
                             {
-                                QuickParameterFilterBox.Focus();
-                                //QuickParameterFilterBox.F
-                            });
+                                QuickParameterDialogHost.IsOpen = true;
+                            }
+                            else if (ParameterTabControl.SelectedIndex == 1)
+                            {
+                                ModuleParameterDialogHost.IsOpen = true;
+                            }
+                          
+                            
                        
                             break;
                     }

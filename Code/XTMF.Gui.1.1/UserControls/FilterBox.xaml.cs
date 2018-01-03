@@ -133,6 +133,7 @@ namespace XTMF.Gui
                 {
                     case Key.Escape:
                         e.Handled = ClearFilter();
+                        //e.Handled = false;
                         break;
                     case Key.Enter:
                         e.Handled = HandleEnterPress();

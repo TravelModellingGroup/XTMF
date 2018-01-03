@@ -463,7 +463,28 @@
                     </materialDesign:DialogHost>
                 </TabItem>
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters" x:Name="ModuleParameterTab" FontSize="14" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}">
-                    <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
+                    <materialDesign:DialogHost Name="ModuleParameterDialogHost" CloseOnClickAway="True">
+                        <materialDesign:DialogHost.DialogContent >
+                            <Grid Width="250">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                </Button>
+
+                                <my:FilterBox Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2"/>
+                                <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
+
+                                </Button>
+                            </Grid>
+                        </materialDesign:DialogHost.DialogContent>
+                            <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="AUTO"/>
@@ -496,25 +517,8 @@
                         </Border>
                         <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                                   Margin="12 12 12 12"
-                                                  materialDesign:ShadowAssist.ShadowDepth="Depth4">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
-                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                                </Button>
-
-                                <my:FilterBox Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2"/>
-                                <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
-                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                         MinWidth="200" VerticalAlignment="Center" />-->
-                                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
-
-                                </Button>
-                            </Grid>
+                                                >
+                           
                         </materialDesign:ColorZone>
 
                         <ListView  materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -613,6 +617,7 @@
                             </ListView.ContextMenu>
                         </ListView>
                     </Grid>
+                    </materialDesign:DialogHost>
                 </TabItem>
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" >
                     <ScrollViewer>
