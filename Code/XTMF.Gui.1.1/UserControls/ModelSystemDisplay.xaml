@@ -335,7 +335,28 @@
             <GridSplitter Grid.RowSpan="2" Grid.Row="0" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
             <TabControl Grid.Row="0" Grid.RowSpan="2" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged">
                 <TabItem IsSelected="True" Style="{DynamicResource XtmfTabItem}" Header="Quick Parameters" x:Name="QuickParameterTab" FontSize="14" Foreground="{DynamicResource ControlTextColourBrush}">
-                    <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
+                    <materialDesign:DialogHost Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" >
+                        <materialDesign:DialogHost.DialogContent >
+                            <Grid Width="200">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                </Button>
+
+                                <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2"/>
+                                <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                         MinWidth="200" VerticalAlignment="Center" />-->
+                                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
+
+                                </Button>
+                            </Grid>
+                        </materialDesign:DialogHost.DialogContent>
+                            <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="AUTO"/>
@@ -351,25 +372,8 @@
                         </Border>
                         <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="4 4 4 4" CornerRadius="2" Panel.ZIndex="1"
                                                   Margin="12 12 12 12"
-                                                  materialDesign:ShadowAssist.ShadowDepth="Depth4">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
-                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                                </Button>
-
-                                <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2"/>
-                                <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
-                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                         MinWidth="200" VerticalAlignment="Center" />-->
-                                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
-
-                                </Button>
-                            </Grid>
+                                                 >
+                          
                         </materialDesign:ColorZone>
                        
                         <ListView  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="2" x:Name="QuickParameterDisplay"
@@ -456,6 +460,7 @@
                             </ListView.ContextMenu>
                         </ListView>
                     </Grid>
+                    </materialDesign:DialogHost>
                 </TabItem>
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters" x:Name="ModuleParameterTab" FontSize="14" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}">
                     <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">

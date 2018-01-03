@@ -35,6 +35,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 
@@ -626,6 +627,22 @@ namespace XTMF.Gui.UserControls
             base.OnKeyDown(e);
             if (e.Handled == false)
             {
+                if (EditorController.IsShiftDown() && EditorController.IsControlDown())
+                {
+                    switch (e.Key)
+                    {
+                        case Key.F:
+                            QuickParameterDialogHost.IsOpen = true;
+                            Dispatcher.Invoke(() =>
+                            {
+                                QuickParameterFilterBox.Focus();
+                                //QuickParameterFilterBox.F
+                            });
+                       
+                            break;
+                    }
+                }
+
                 if (EditorController.IsControlDown())
                 {
                     switch (e.Key)
@@ -2351,6 +2368,16 @@ namespace XTMF.Gui.UserControls
             {
                 tvi.BringIntoView();
             }
+        }
+
+        private void QuickParameterDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs eventargs)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+             
+                QuickParameterFilterBox.Focus();
+                Keyboard.Focus(QuickParameterFilterBox);
+            }));
         }
     }
 }
