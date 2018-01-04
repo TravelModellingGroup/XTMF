@@ -341,8 +341,8 @@ namespace XTMF.Run
             {
                 using (var memStream = new MemoryStream())
                 {
-                    BinaryWriter writer = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
-                    using (XmlWriter xml = XmlTextWriter.Create(memStream))
+                    BinaryWriter pipeWriter = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
+                    using (XmlWriter xml = XmlTextWriter.Create(memStream, new XmlWriterSettings() { Encoding = Encoding.Unicode }))
                     {
                         xml.WriteStartDocument();
                         xml.WriteStartElement("Root");
@@ -366,10 +366,10 @@ namespace XTMF.Run
                         xml.WriteEndElement();
                         xml.WriteEndDocument();
                         xml.Flush();
-                        writer.Write((UInt32)ToClient.RunModelSystem);
-                        writer.Write(RunName);
-                        writer.Write(RunDirectory);
-                        writer.Write(Encoding.Unicode.GetString(memStream.ToArray()));
+                        pipeWriter.Write((UInt32)ToClient.RunModelSystem);
+                        pipeWriter.Write(RunName);
+                        pipeWriter.Write(RunDirectory);
+                        pipeWriter.Write(Encoding.Unicode.GetString(memStream.ToArray()));
                     }
                 }
             }

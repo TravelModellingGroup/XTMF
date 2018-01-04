@@ -263,6 +263,14 @@ namespace XTMF.Run
 
         private void Run()
         {
+            if(_Root == null)
+            {
+                InvokeRuntimeValidationError(new List<ErrorWithPath>(1)
+                {
+                    new ErrorWithPath(null, "Model System Root not found", "The model system was not processed properly and then run!")
+                });
+                return;
+            }
             if (ValidateModelSystem())
             {
                 try
