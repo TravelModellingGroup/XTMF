@@ -198,6 +198,9 @@
       <DependentUpon>SchedulerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\SettingsViewModel.cs" />
+    <Compile Include="UserControls\StringRequestDialog.xaml.cs">
+      <DependentUpon>StringRequestDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\TabHostWindow.xaml.cs">
       <DependentUpon>TabHostWindow.xaml</DependentUpon>
     </Compile>
@@ -346,6 +349,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\SchedulerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\StringRequestDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

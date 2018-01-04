@@ -24,6 +24,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Collections;
 
 namespace XTMF.Gui.UserControls
@@ -241,18 +242,19 @@ namespace XTMF.Gui.UserControls
 
         private void Adorn_Unloaded(object sender, RoutedEventArgs e) => Renaming = false;
 
-        private void CloneCurrentProject()
+    
+
+        private  async void CloneCurrentProject()
         {
             if (Display.SelectedItem is Project project)
             {
+                
+    
+
                 string error = null;
-                StringRequest sr = new StringRequest("Clone Project As?", newName =>
-                {
-                    return Runtime.ProjectController.ValidateProjectName(newName);
-                })
-                {
-                    Owner = GetWindow()
-                };
+                /*StringRequest sr = new StringRequest("Clone Project As?",
+                    newName => { return Runtime.ProjectController.ValidateProjectName(newName); });
+          
                 if (sr.ShowDialog() == true)
                 {
                     if (!Runtime.ProjectController.CloneProject(project, sr.Answer, ref error))
@@ -263,7 +265,22 @@ namespace XTMF.Gui.UserControls
                     Runtime.Configuration.AddRecentProject(sr.Answer);
                     Runtime.Configuration.Save();
                     RefreshProjects();
+                } */
+
+                StringRequestDialog dialog = new StringRequestDialog("Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); });
+                var result = await dialog.ShowAsync();
+                if (dialog.DidComplete)
+                {
+                    if (!Runtime.ProjectController.CloneProject(project, dialog.StringInputTextBox.Text, ref error))
+                    {
+                        MessageBox.Show(GetWindow(), error, "Unable to Clone Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        return;
+                    }
+                    Runtime.Configuration.AddRecentProject(dialog.StringInputTextBox.Text);
+                    Runtime.Configuration.Save();
+                    RefreshProjects();
                 }
+
             }
         }
 
