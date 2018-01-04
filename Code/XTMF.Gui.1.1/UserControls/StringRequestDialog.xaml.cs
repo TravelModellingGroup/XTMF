@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,8 @@ namespace XTMF.Gui.UserControls
 
         public bool DidComplete { get; set; }
 
+        public string UserInput { get; set; }
+
         private DialogSession _dialogSession;
 
         public StringRequestDialog(string question, Func<string, bool> validation)
@@ -37,6 +40,7 @@ namespace XTMF.Gui.UserControls
             _validation = validation;
             QuestionText = question;
             DidComplete = false;
+            UserInput = null;
             if (validation != null)
             {
                 //ValidationLabel.Visibility = validation(Answer) ? Visibility.Hidden : Visibility.Visible;
@@ -48,8 +52,14 @@ namespace XTMF.Gui.UserControls
             this._dialogSession = eventargs.Session;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
         private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
         {
+ 
         }
 
         /// <summary>
@@ -61,16 +71,13 @@ namespace XTMF.Gui.UserControls
             return await DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler);
         }
 
-        private void StringInputTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            //throw new NotImplementedException();
-        }
 
-        private void StringInputTextBox_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            //throw new NotImplementedException();
-        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void StringRequestDialog_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -79,8 +86,23 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
                 this._dialogSession.Close(false);
             }
+            else if (e.Key == Key.Escape)
+            {
+                DidComplete = false;
+                e.Handled = true;
+                this._dialogSession.Close(false);
+            }
         }
 
       
+    }
+    public class NotEmptyValidationRule : ValidationRule
+    {
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            return string.IsNullOrWhiteSpace((value ?? "").ToString())
+                ? new ValidationResult(false, "Field is required.")
+                : ValidationResult.ValidResult;
+        }
     }
 }

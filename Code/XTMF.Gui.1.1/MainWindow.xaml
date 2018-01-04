@@ -76,7 +76,7 @@
     <Border Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource PrimaryHueMidBrush}"
         BorderThickness="0">
 
-        <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" >
+        <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True"  >
         <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
             <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
                 <Grid.RowDefinitions>
@@ -303,10 +303,10 @@
             <materialDesign:DrawerHost.LeftDrawerContent >
                 <StackPanel   MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
                     <ListBox Name="XTMFWorkspaceListBox" SelectionChanged="XTMFWorkspaceListBox_OnSelectionChanged" >
-                        <ListBoxItem Padding="15 8 5 8">New Project</ListBoxItem>
-                        <ListBoxItem Name="OpenProjectGlobalMenuItem" Selected="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
-                        <ListBoxItem Padding="15 8 5 8">New Model System</ListBoxItem>
-                        <ListBoxItem Padding="15 8 5 8" Name="OpenModelSystemGlobalMenuItem" Selected="OpenModelSystemGlobalMenuItem_Selected">Open Model System</ListBoxItem>
+                        <ListBoxItem Padding="15 8 5 8" MouseUp="NewProjectButton_Click">New Project</ListBoxItem>
+                            <ListBoxItem Name="OpenProjectGlobalMenuItem" MouseUp="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
+                            <ListBoxItem Padding="15 8 5 8" MouseUp="NewModelSystemButton_Click">New Model System</ListBoxItem>
+                            <ListBoxItem Padding="15 8 5 8" Name="OpenModelSystemGlobalMenuItem" MouseUp="OpenModelSystemGlobalMenuItem_Selected">Open Model System</ListBoxItem>
 
                     </ListBox>
 

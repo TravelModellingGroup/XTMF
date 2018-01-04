@@ -633,26 +633,38 @@ namespace XTMF.Gui
 
         private void Redo_Click(object sender, RoutedEventArgs e) => EditingDisplayModel.Redo();
 
-        private void NewModelSystemButton_Click(object sender, RoutedEventArgs e) => NewModelSystem();
+        private async void NewModelSystemButton_Click(object sender, RoutedEventArgs e) => NewModelSystem();
 
-        public void NewModelSystem()
+        /// <summary>
+        /// 
+        /// </summary>
+        public async void NewModelSystem()
         {
-            var req = new StringRequest("Model System Name", ValidateName);
-            if (req.ShowDialog() == true)
+
+            StringRequestDialog dialog = new StringRequestDialog("Model System Name", ValidateName);
+            var result = await dialog.ShowAsync();
+            if (dialog.DidComplete)
             {
-                var name = req.Answer;
+
+                var name = dialog.UserInput;
                 var ms = EditorController.Runtime.ModelSystemController.LoadOrCreate(name);
-                ms.ModelSystemStructure.Name = req.Answer;
+                ms.ModelSystemStructure.Name = dialog.UserInput;
                 EditModelSystem(EditorController.Runtime.ModelSystemController.EditModelSystem(ms));
-            }
+               }
+          
         }
 
-        public void NewProject()
+        /// <summary>
+        /// Creates a dialog for the inputs required to create a new project
+        /// </summary>
+        public async void NewProject()
         {
-            var req = new StringRequest("Project Name", ValidateName) { Owner = this };
-            if (req.ShowDialog() == true)
+
+            StringRequestDialog dialog = new StringRequestDialog("Project Name", ValidateName);
+            var result = await dialog.ShowAsync();
+            if (dialog.DidComplete)
             {
-                var name = req.Answer;
+                var name = dialog.UserInput;
                 string error = null;
                 var ms = EditorController.Runtime.ProjectController.LoadOrCreate(name, ref error);
                 EditProject(EditorController.Runtime.ProjectController.EditProject(ms));
@@ -660,6 +672,8 @@ namespace XTMF.Gui
                 EditorController.Runtime.Configuration.Save();
                 UpdateRecentProjectsMenu();
             }
+
+         
         }
 
         private bool ValidateName(string name) => Project.ValidateProjectName(name);
@@ -1041,7 +1055,12 @@ namespace XTMF.Gui
 
         private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e) => LaunchHelpWindow();
 
-        private void NewProjectButton_Click(object sender, RoutedEventArgs e) => NewProject();
+        private void NewProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            NewProject();
+
+        } 
 
         private void Settings_Click(object sender, RoutedEventArgs e) => LaunchSettingsPage();
 
@@ -1171,7 +1190,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void XTMFWorkspaceListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            XTMFWorkspaceListBox.UnselectAll();
+           // XTMFWorkspaceListBox.UnselectAll();
         }
     }
 
