@@ -158,7 +158,7 @@
         <models:ParameterTypeSelector x:Key="ParameterSelecter" Standard="{StaticResource StandardParameterTemplate}" Enumeration="{StaticResource EnumerationParameterTemplate}"/>
     </UserControl.Resources>
     <Grid x:Name="LayoutRoot">
-        <materialDesign:DialogHost Name="LinkedParametersDialogHost">
+        <materialDesign:DialogHost Name="LinkedParametersDialogHost" DialogOpened="LinkedParametersDialogHost_OnDialogOpened">
             <materialDesign:DialogHost.DialogContent >
                 <Grid x:Name="Overlay" Panel.ZIndex="1000">
 

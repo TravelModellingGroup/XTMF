@@ -2397,5 +2397,10 @@ namespace XTMF.Gui.UserControls
         {
             SaveRequested(false);
         }
+
+        private void LinkedParametersDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs eventargs)
+        {
+            LinkedParameterDisplayOverlay.DialogOpenedEventArgs = eventargs;
+        }
     }
 }

@@ -26,6 +26,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
+using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
@@ -65,6 +66,7 @@ namespace XTMF.Gui.UserControls
 
         public void ShowLinkedParameterDisplay(bool assignLinkedParameter = false) => _assignMode = assignLinkedParameter;
 
+        public DialogOpenedEventArgs DialogOpenedEventArgs { get; set; }
         public LinkedParameterDisplay()
         {
             InitializeComponent();
@@ -387,12 +389,20 @@ namespace XTMF.Gui.UserControls
                 MessageBoxButton.OKCancel);
         }
 
+        /// <summary>
+        /// Window key listener
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape && !e.Handled)
             {
-                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
-                Visibility = Visibility.Collapsed;
+                if (DialogOpenedEventArgs != null)
+                {
+                    DialogOpenedEventArgs.Session.Close();
+                }
+               
             }
         }
 
@@ -421,10 +431,17 @@ namespace XTMF.Gui.UserControls
 
         private void UserControl_MouseDown(object sender, MouseButtonEventArgs e) => Display.Focus();
 
+        /// <summary>
+        /// Close button click listener
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
-            Visibility = Visibility.Collapsed;
+            if (DialogOpenedEventArgs != null)
+            {
+                DialogOpenedEventArgs.Session.Close();
+            }
         }
 
         private void ListViewControl_KeyDown(object sender, KeyEventArgs e)
