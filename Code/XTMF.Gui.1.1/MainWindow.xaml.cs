@@ -322,7 +322,7 @@ namespace XTMF.Gui
             {
                 Task.Run(() =>
                 {
-                    progressing.Dispatcher.BeginInvoke(new Action(() => { progressing.ShowDialog(); }));
+                   // progressing.Dispatcher.BeginInvoke(new Action(() => { progressing.ShowDialog(); }));
                     try
                     {
                         ProjectEditingSession session = null;
@@ -331,6 +331,7 @@ namespace XTMF.Gui
                             session = EditorController.Runtime.ProjectController.EditProject(project);
                         });
                         loadingTask.Wait();
+                        //progressing.Close();
                         if (session != null)
                         {
                             Us.EditProject(session);
@@ -345,7 +346,7 @@ namespace XTMF.Gui
                             MessageBox.Show(this, inner.Message, "Error Loading Project", MessageBoxButton.OK, MessageBoxImage.Error);
                         });
                     }
-                    progressing.Dispatcher.BeginInvoke(new Action(() =>
+                    /*progressing.Dispatcher.BeginInvoke(new Action(() =>
                         {
                             Application.Current.Dispatcher.Invoke((Action)delegate { progressing.Close(); });
                             //progressing.Visibility = Visibility.Hidden;
@@ -366,8 +367,8 @@ namespace XTMF.Gui
                             if (item != null)
                             {
                                 item.IsSelected = true;
-                            } */
-                        }));
+                            } 
+                        }));*/
                     EditorController.Runtime.Configuration.AddRecentProject(project.Name);
                     EditorController.Runtime.Configuration.Save();
                     UpdateRecentProjectsMenu();
