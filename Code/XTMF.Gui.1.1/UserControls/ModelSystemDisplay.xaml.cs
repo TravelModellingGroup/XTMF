@@ -786,19 +786,26 @@ namespace XTMF.Gui.UserControls
             return Project.ValidateProjectName(name);
         }
 
-        public void ExecuteRun()
+        public async void ExecuteRun()
         {
             var runName = string.Empty;
             string error = null;
-            StringRequestOverlay.Description = "Please enter a run name.";
-            Overlay.Visibility = Visibility.Visible;
-            StringRequestOverlay.Visibility = Visibility.Visible;
-            StringRequestOverlay.ExtraInfo = DisabledModules.Any(m => m.IsDisabled) ?
-                $"There are currently {DisabledModules.Count(m => m.IsDisabled)} disabled module(s)." :
-                string.Empty;
-            StringRequestOverlay.StringEntryComplete = (sender, args) =>
+           // StringRequestOverlay.Description = "Please enter a run name.";
+           // Overlay.Visibility = Visibility.Visible;
+           // StringRequestOverlay.Visibility = Visibility.Visible;
+           // StringRequestOverlay.ExtraInfo = DisabledModules.Any(m => m.IsDisabled) ?
+           //     $"There are currently {DisabledModules.Count(m => m.IsDisabled)} disabled module(s)." :
+           //     string.Empty;
+
+
+            StringRequestDialog dialog = new StringRequestDialog("Please enter a run name", ValidateName);
+            var result = await dialog.ShowAsync();
+
+            if (dialog.DidComplete)
             {
-                runName = StringRequestOverlay.StringEntryValue;
+
+         
+                runName = dialog.UserInput;
                 var runQuestion = MessageBoxResult.Yes;
                 if (Session.RunNameExists(runName))
                 {
@@ -827,7 +834,7 @@ namespace XTMF.Gui.UserControls
                             "Unable to start run.\r\n" + error,
                             "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
-                    StringRequestOverlay.Reset();
+                    //StringRequestOverlay.Reset();
                 }
             };
         }
