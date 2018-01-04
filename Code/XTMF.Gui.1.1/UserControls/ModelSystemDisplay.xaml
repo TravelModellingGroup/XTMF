@@ -187,7 +187,7 @@
 
                     <ToolBarTray Grid.Row="0" Height="54" >
                         <ToolBar VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
-                            <Button ToolTip="Save Model System" Click="LinkedParameter_Click">
+                            <Button ToolTip="Save Model System" Click="ButtonBase_OnClick">
                                 <materialDesign:PackIcon Kind="ContentSave" />
                             </Button>
                             <Button ToolTip="Linked Parameters" Click="LinkedParameter_Click">
@@ -347,7 +347,7 @@
                                     <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                 </Button>
 
-                                <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2"/>
+                                <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2"/>
                                 <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
                          materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
                          MinWidth="200" VerticalAlignment="Center" />-->
@@ -475,7 +475,7 @@
                                     <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                 </Button>
 
-                                <my:FilterBox Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2"/>
+                                <my:FilterBox Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2"/>
                                 <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
                          materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
                          MinWidth="200" VerticalAlignment="Center" />-->

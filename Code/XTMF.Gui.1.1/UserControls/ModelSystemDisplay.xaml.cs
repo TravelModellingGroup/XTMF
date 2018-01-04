@@ -2383,5 +2383,14 @@ namespace XTMF.Gui.UserControls
                 Keyboard.Focus(QuickParameterFilterBox);
             }));
         }
+        /// <summary>
+        /// Click handlre for save button / icon
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            SaveRequested(false);
+        }
     }
 }
