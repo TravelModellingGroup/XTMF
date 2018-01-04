@@ -410,10 +410,15 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// Shows the Linked Parameter dialog
+        /// </summary>
+        /// <param name="assign"></param>
         private void ShowLinkedParameterDialog(bool assign = false)
         {
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
             LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
+            LinkedParametersDialogHost.IsOpen = true;
             LinkedParameterDisplayOverlay.Show();
         }
 

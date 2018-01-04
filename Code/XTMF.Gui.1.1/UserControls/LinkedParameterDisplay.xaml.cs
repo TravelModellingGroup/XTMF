@@ -398,8 +398,8 @@ namespace XTMF.Gui.UserControls
 
         public void Show()
         {
-            ((FrameworkElement)Parent).Visibility = Visibility.Visible;
-            Visibility = Visibility.Visible;
+            //((FrameworkElement)Parent).Visibility = Visibility.Visible;
+            //Visibility = Visibility.Visible;
             Dispatcher.BeginInvoke((Action)delegate
             {
                 Keyboard.Focus(LinkedParameterFilterBox);
