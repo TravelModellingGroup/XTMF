@@ -890,7 +890,7 @@ namespace XTMF.Gui
                 };
 
                 OpenPages.Add(doc);
-                DockManager.AddToSource(new TabItem());
+                
                 //DocumentPane.Children.Add(doc);
                 doc.IsActive = true;
             }
@@ -911,20 +911,7 @@ namespace XTMF.Gui
         internal RunWindow CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             var runWindow = new RunWindow(session, run, runName);
-            var doc = new LayoutDocument()
-            {
-                Content = runWindow,
-                Title = "Run - " + runName
-            };
-            doc.Closing += (object sender, CancelEventArgs e) =>
-            {
-                e.Cancel = !runWindow.CloseRequested();
-            };
-            //OpenPages.Add(doc);
-            //DocumentPane.Children.Add(doc);
-            //doc.Float();
 
-            SetDisplayActive(runWindow,runName,false);
             return runWindow;
         }
 

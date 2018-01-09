@@ -825,8 +825,8 @@ namespace XTMF.Gui.UserControls
                         MainWindow.Us.UpdateStatusDisplay("Running Model System ");
                         var runWindow = MainWindow.Us.CreateRunWindow(Session, run, runName);
                         MainWindow.Us.AddRunToSchedulerWindow(runWindow);
-                        MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " + Session.Name,
-                            () => { MainWindow.Us.LoadPageId(ContentGuid); });
+                        //MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " + Session.Name,
+                        //    () => { MainWindow.Us.LoadPageId(ContentGuid); });
                     }
                     else
                     {
@@ -839,6 +839,9 @@ namespace XTMF.Gui.UserControls
             };
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ShowQuickParameters()
         {
             QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel
