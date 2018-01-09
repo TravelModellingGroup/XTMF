@@ -786,7 +786,7 @@ namespace XTMF.Gui.UserControls
             return Project.ValidateProjectName(name);
         }
 
-        public async void ExecuteRun()
+        public async void ExecuteRun(bool executeNow = true)
         {
             var runName = string.Empty;
             string error = null;
@@ -816,7 +816,7 @@ namespace XTMF.Gui.UserControls
                 }
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
-                    var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false, true);
+                    var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false, executeNow);
                     if (run != null)
                     {
                         ModuleValidationErrorListView.Items.Clear();
@@ -2411,6 +2411,16 @@ namespace XTMF.Gui.UserControls
         private void LinkedParametersDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs eventargs)
         {
             LinkedParameterDisplayOverlay.DialogOpenedEventArgs = eventargs;
+        }
+
+        /// <summary>
+        /// Event handler for schedule model system run button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScheduleModuleSystemButton_OnClick(object sender, RoutedEventArgs e)
+        {
+           ExecuteRun(false);
         }
     }
 }
