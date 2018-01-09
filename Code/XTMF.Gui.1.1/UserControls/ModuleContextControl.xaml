@@ -58,7 +58,7 @@
                                 Tag="{Binding Path=.}" Orientation="Horizontal">
 
                         <Grid SnapsToDevicePixels="True">
-                            <Polyline SnapsToDevicePixels="True" StrokeThickness="1.5" Points="0,0 6,10 0,19"
+                            <Polyline SnapsToDevicePixels="True" StrokeThickness="1.5" Points="0,0 6,12 0,21"
                                     >
                                 <Polyline.Style>
                                     <Style TargetType="{x:Type Polyline}">
@@ -79,7 +79,7 @@
                                     </Style>
                                 </Polyline.Style>
                             </Polyline>
-                            <Polyline SnapsToDevicePixels="True" StrokeThickness="0" Points="1,0 7,10 1,19 8,19 8,0">
+                            <Polyline SnapsToDevicePixels="True" StrokeThickness="0" Points="1,0 7,12 1,21 8,21 8,0">
                                 <Polyline.Style>
                                     <Style TargetType="{x:Type Polyline}">
                                         <Style.Triggers>
@@ -240,7 +240,7 @@
                         </Border>
                         <Grid SnapsToDevicePixels="True">
 
-                            <Polyline SnapsToDevicePixels="True" StrokeThickness="2" Points="0,0 5,10, 0,19">
+                            <Polyline SnapsToDevicePixels="True" StrokeThickness="2" Points="0,0 5,12, 0,21">
                                 <Polyline.Style>
                                     <Style TargetType="{x:Type Polyline}">
                                         <Style.Triggers>
