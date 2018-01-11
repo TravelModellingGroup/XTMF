@@ -21,6 +21,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:XTMF.Gui"
         xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterOwner"
         Title="Select Module" Height="500" Width="400">
@@ -29,7 +30,12 @@
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
+        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+        Margin="12 12 12 12"
+        materialDesign:ShadowAssist.ShadowDepth="Depth4">
+            <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
+        </materialDesign:ColorZone>
+      
         <ListView x:Name="Display"  
                       Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}">
             <ListView.ItemsPanel>
