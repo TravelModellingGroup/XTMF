@@ -39,6 +39,8 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class RunWindow : UserControl, INotifyPropertyChanged
     {
+
+
         private XTMFRun _run;
         private string _runDirectory;
         private DateTime _startTime;
@@ -48,6 +50,11 @@ namespace XTMF.Gui.UserControls
         private volatile bool _isFinished;
         private volatile bool _wasCanceled;
         private static readonly Tuple<byte, byte, byte> ErrorColour;
+
+        public XTMFRun Run
+        {
+            get =>  _run;
+        }
 
         private readonly BindingListWithRemoving<SubProgress> _subProgressBars =
             new BindingListWithRemoving<SubProgress>();

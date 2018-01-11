@@ -35,6 +35,7 @@ namespace XTMF.Gui.UserControls
         public void AddRun(RunWindow run)
         {
             ActiveRunContent.Content = run;
+         
             ScheduledRuns.Items.Add(new SchedulerRunItem(run));
 
         }
@@ -60,7 +61,7 @@ namespace XTMF.Gui.UserControls
 
         public SchedulerRunItem(RunWindow runWindow)
         {
-            Name = runWindow.Session.Name;
+            Name = runWindow.Run.RunName;
             RunWindow = runWindow;
         }
     }
