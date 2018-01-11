@@ -281,7 +281,7 @@ namespace XTMF.Run
                      }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
             var root = ModelSystemStructureModelRoot;
