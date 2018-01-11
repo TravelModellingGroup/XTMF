@@ -51,6 +51,11 @@ namespace XTMF.Gui.UserControls
         private volatile bool _wasCanceled;
         private static readonly Tuple<byte, byte, byte> ErrorColour;
 
+
+        public Action UpdateRunStatus { get; }
+        public Action UpdateRunProgress { get; }
+
+
         public XTMFRun Run
         {
             get =>  _run;
@@ -217,6 +222,11 @@ namespace XTMF.Gui.UserControls
             _timer.Start();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Timer_Tick(object sender, EventArgs e)
         {
             try
