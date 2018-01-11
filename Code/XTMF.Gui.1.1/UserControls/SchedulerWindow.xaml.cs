@@ -52,13 +52,24 @@ namespace XTMF.Gui.UserControls
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class SchedulerRunItem
     {
  
-
         public RunWindow RunWindow { get; set; }
+
         public string Name { get; set; }
 
+        public string StatusText { get; set; }
+
+        public float ProgressValue { get; set; }
+
+        /// <summary>
+        /// Constructor of the ScheduleRunItem, takes in the RunWindow (run control) in the constructor.
+        /// </summary>
+        /// <param name="runWindow"></param>
         public SchedulerRunItem(RunWindow runWindow)
         {
             Name = runWindow.Run.RunName;
