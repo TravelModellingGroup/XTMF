@@ -25,7 +25,7 @@
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Background="{DynamicResource WindowBackgroundBrush1}">
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition  MinWidth="150" />
             <ColumnDefinition Width="3" />
@@ -41,12 +41,12 @@
             <userControls:HintedTextBox MinHeight="10" Grid.Row="0"  x:Name="SearchBox"  Height="20" HintText="Search..." />
 
 
-            <ListView HorizontalContentAlignment="Stretch" Grid.Row="1" HorizontalAlignment="Stretch"     x:Name="ResultBox" Background="{DynamicResource WindowBackgroundBrush1}"
+            <ListView HorizontalContentAlignment="Stretch" Grid.Row="1" HorizontalAlignment="Stretch"     x:Name="ResultBox" Background="{DynamicResource MaterialDesignPaper}"
                              Foreground="{DynamicResource MaterialDesignBody}" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" BorderBrush="{x:Null}" />
             </Grid>
 
         </Grid>
-        <GridSplitter ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"  Grid.Column="1" Width="3" Background="{DynamicResource WindowBackgroundBrush3}" />
-        <Grid HorizontalAlignment="Stretch" Grid.Column="2" x:Name="ContentPresenter" Background="{DynamicResource WindowBackgroundBrush2}"/>
+        <GridSplitter ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"  Grid.Column="1" Width="3" Background="{DynamicResource MaterialDesignSelection}" />
+        <Grid HorizontalAlignment="Stretch" Grid.Column="2" x:Name="ContentPresenter" Background="{DynamicResource MaterialDesignPaper}"/>
     </Grid>
 </UserControl>

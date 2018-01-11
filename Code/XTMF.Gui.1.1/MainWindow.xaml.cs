@@ -38,6 +38,7 @@ using Xceed.Wpf.AvalonDock.Layout;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
+using XTMF.Gui.UserControls.Help;
 using Application = System.Windows.Application;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using MenuItem = System.Windows.Controls.MenuItem;
@@ -1168,7 +1169,8 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void DocumentationMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-          
+            SetDisplayActive(new HelpDialog(EditorController.Runtime.Configuration), "Documentation");
+            MenuToggleButton.IsChecked = false;
         }
 
         /// <summary>

@@ -38,7 +38,7 @@
             <TextBlock Grid.Row="1" Margin="5" HorizontalAlignment="Center" FontSize="16" Text="{Binding ModuleNamespace}" Foreground="{DynamicResource MaterialDesignBody}" />
             <WebBrowser Grid.Row="2" x:Name="Browser" Margin="5" HorizontalAlignment="Stretch" DataContext="{Binding ModuleDescription}" VerticalAlignment="Top"
                         ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.CanContentScroll="False" />
-            <Grid Grid.Row="3" Background="{DynamicResource WindowBackgroundBrush4}" Height="2" HorizontalAlignment="Stretch" Margin="5" />
+            <Grid Grid.Row="3" Background="{DynamicResource MaterialDesignPaper}" Height="2" HorizontalAlignment="Stretch" Margin="5" />
             <Grid Grid.Row="4" Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="AUTO" />
