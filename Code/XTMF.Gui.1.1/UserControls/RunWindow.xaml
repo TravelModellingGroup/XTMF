@@ -106,8 +106,8 @@
             </StackPanel> -->
         </Grid>
         <GroupBox Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1"  Grid.Column="0" Margin="3" Header="Module Execution Status" BorderThickness="0.5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center">
-            <Border Grid.Row="2" x:Name="AdditionDetailsPanelBorder" BorderBrush="White" Height="0" BorderThickness="0" CornerRadius="5" Margin="5" Visibility="Collapsed">
-                <my:CollapsePanel x:Name="AdditionDetailsPanel" IsExpanded="False" InternalHeight="150" Header="Additional Information" Foreground="White" />
+            <Border Grid.Row="2" x:Name="AdditionDetailsPanelBorder" Height="0" BorderThickness="0" CornerRadius="5" Margin="5" Visibility="Collapsed">
+                <my:CollapsePanel x:Name="AdditionDetailsPanel" IsExpanded="False" InternalHeight="150" Header="Additional Information"  />
             </Border>
         </GroupBox>
         <GroupBox Foreground="{DynamicResource MaterialDesignBody}" Margin="3" Grid.Row="1" Grid.Column="1" Header="Run Status" BorderThickness="0.5" >

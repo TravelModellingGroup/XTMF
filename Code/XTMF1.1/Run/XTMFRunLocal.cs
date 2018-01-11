@@ -273,8 +273,16 @@ namespace XTMF.Run
         {
             bool Exit(IModelSystemStructure current)
             {
+                if(current.Children != null)
+                { 
                 return current.Children.Aggregate(false, (acc, m) => acc | Exit(m))
                     | (current.Module is IModelSystemTemplate mst && mst.ExitRequest());
+
+                     }
+                else
+                {
+                    return false;
+                }
             }
             var root = ModelSystemStructureModelRoot;
             if (root != null)
