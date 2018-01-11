@@ -447,6 +447,9 @@ namespace XTMF.Gui.UserControls
                     _wasCanceled = true;
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
+                        ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
+                        ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
+                        CancelButton.IsEnabled = false;
                         MainWindow.Us.UpdateStatusDisplay("Ready");
                         MainWindow.Us.HideStatusLink();
                     }));
