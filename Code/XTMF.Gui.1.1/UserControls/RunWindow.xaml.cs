@@ -30,6 +30,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
 using System.Windows.Threading;
+using MaterialDesignThemes.Wpf;
 
 namespace XTMF.Gui.UserControls
 {
@@ -370,6 +371,8 @@ namespace XTMF.Gui.UserControls
                ContinueButton.IsEnabled = true;
                ProgressBar.Value = ProgressBar.Maximum;
                CancelButton.IsEnabled = false;
+               ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
+               ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
                ProgressBar.Finished = true;
                MainWindow.Us.UpdateStatusDisplay("Ready");
@@ -385,6 +388,9 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 CancelButton.IsEnabled = true;
+                ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, true);
+                ButtonProgressAssist.SetIsIndeterminate(CancelButton,true);
+                //ButtonProgressAssist.
                 IsRunClearable = false;
             }));
         }
@@ -544,6 +550,8 @@ namespace XTMF.Gui.UserControls
                     _isActive = false;
                     Dispatcher.BeginInvoke((Action)(() =>
                     {
+                        ButtonProgressAssist.SetIsIndicatorVisible(CancelButton,false);
+                        ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                         CancelButton.IsEnabled = false;
                     }));
                     _timer.Stop();
@@ -569,6 +577,16 @@ namespace XTMF.Gui.UserControls
                 OpenDirectoryButton.IsEnabled = false;
                 ConsoleOutput.Clear();
             }));
+        }
+    }
+
+    public class RunButtonTemplateSelecctor : DataTemplateSelector
+    {
+        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        {
+           
+
+            return null;
         }
     }
 }
