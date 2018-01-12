@@ -881,8 +881,11 @@ namespace XTMF.Gui
         internal void AddRunToSchedulerWindow(RunWindow runWindow)
         {
             //create a new scheduler window if one does not exist
+            bool exists = true;
             if(!OpenPages.Exists((doc) => doc.Content == _schedulerWindow))
             {
+
+                exists = false;
                 var doc = new LayoutDocument()
                 {
                     Content = _schedulerWindow,
@@ -898,7 +901,7 @@ namespace XTMF.Gui
 
             (OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow).AddRun(runWindow);
 
-            SetDisplayActive((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow),"Scheduler",false);
+            SetDisplayActive((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow),"Scheduler",false,!exists);
            // DockManager.Items.Add((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow))
         }
 
@@ -1075,20 +1078,31 @@ namespace XTMF.Gui
         /// <param name="display"></param>
         /// <param name="title"></param>
         /// <param name="searchable"></param>
-        private void SetDisplayActive(System.Windows.Controls.UserControl display, string title, bool searchable = false)
+        private void SetDisplayActive(System.Windows.Controls.UserControl display, string title, bool searchable = false, bool newTab = true)
         {
-            ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
-            ((ViewModelBase)ContentControl.DataContext).ViewTitle = title;
-            ((ViewModelBase)ContentControl.DataContext).IsSearchBoxVisible = searchable;
 
-            TabItem tabItem = new TabItem();
-            tabItem.Content = display;
-            tabItem.Header = title;
-         
-            DockManager.Items.Add(tabItem);
-            tabItem.IsSelected = true;
+            if (newTab)
+            {
+                ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
+                ((ViewModelBase) ContentControl.DataContext).ViewTitle = title;
+                ((ViewModelBase) ContentControl.DataContext).IsSearchBoxVisible = searchable;
 
-
+                TabItem tabItem = new TabItem();
+                tabItem.Content = display;
+                tabItem.Header = title;
+                DockManager.Items.Add(tabItem);
+                tabItem.IsSelected = true;
+            }
+            else
+            {
+                foreach (TabItem tab in DockManager.Items)
+                {
+                    if (tab.Content == display)
+                    {
+                        tab.IsSelected = true;
+                    }
+                }
+            }
         }
 
 

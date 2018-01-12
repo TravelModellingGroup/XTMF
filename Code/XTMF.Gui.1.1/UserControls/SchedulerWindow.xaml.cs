@@ -47,7 +47,8 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ScheduledRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            Console.WriteLine(runWindow?.Run.RunName);
             ActiveRunContent.Content = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
         }
     }

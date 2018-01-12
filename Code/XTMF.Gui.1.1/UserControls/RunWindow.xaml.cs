@@ -52,8 +52,8 @@ namespace XTMF.Gui.UserControls
         private static readonly Tuple<byte, byte, byte> ErrorColour;
 
 
-        public Action UpdateRunStatus { get; }
-        public Action UpdateRunProgress { get; }
+        public Action UpdateRunStatus { get; set; }
+        public Action UpdateRunProgress { get; set; }
 
 
         public XTMFRun Run
