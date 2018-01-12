@@ -54,6 +54,7 @@ namespace XTMF.Gui.UserControls
 
         public Action<string> UpdateRunStatus { get; set; }
         public Action<float> UpdateRunProgress { get; set; }
+        public Action<string> UpdateElapsedTime { get; set; }
 
 
         public XTMFRun Run
@@ -308,6 +309,8 @@ namespace XTMF.Gui.UserControls
                         elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
                         ElapsedTimeLabel.Content = days < 1 ?
                             $"Elapsed Time: {elapsedTime:g}" : $"Elapsed Time: {elapsedTime} Day(s), {days:g}";
+                        UpdateElapsedTime?.Invoke(days < 1 ?
+                            $"{elapsedTime:g}" : $"{elapsedTime} Day(s), {days:g}");
                     }
                     else
                     {
@@ -393,6 +396,7 @@ namespace XTMF.Gui.UserControls
                ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
 
+ 
                UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
                ProgressBar.Finished = true;
                MainWindow.Us.UpdateStatusDisplay("Ready");

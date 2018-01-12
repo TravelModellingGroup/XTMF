@@ -83,8 +83,19 @@ namespace XTMF.Gui.UserControls
     public class SchedulerRunItem : INotifyPropertyChanged
     {
 
-        private string _statusText;
+        private string _statusText = String.Empty;
+        private string _elapsedTime = String.Empty;
         public RunWindow RunWindow { get; set; }
+
+        public string ElapsedTime
+        {
+            get => _elapsedTime;
+            set
+            {
+                _elapsedTime = value;
+                OnPropertyChanged(nameof(ElapsedTime));
+            }
+        }
 
         public string Name { get; set; }
 
@@ -113,6 +124,7 @@ namespace XTMF.Gui.UserControls
             RunWindow = runWindow;
 
             runWindow.UpdateRunStatus = (val) => { StatusText = val; };
+            runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
 
         }
 

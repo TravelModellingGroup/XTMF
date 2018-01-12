@@ -23,6 +23,7 @@
                     <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
                     <GridViewColumn Header="Status"  Width="100" DisplayMemberBinding="{Binding StatusText}"/>
                     <GridViewColumn Header="Progress"  Width="100" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Elapsed Time"  Width="100" DisplayMemberBinding="{Binding ElapsedTime}"/>
                 </GridView>
             </ListView.View>
         
