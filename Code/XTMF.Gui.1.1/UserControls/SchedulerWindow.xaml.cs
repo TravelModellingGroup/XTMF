@@ -65,7 +65,7 @@ namespace XTMF.Gui.UserControls
             var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
             Console.WriteLine(runWindow?.Run.RunName);
             ActiveRunContent.DataContext = runWindow;
-            ActiveContent = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            ActiveContent = runWindow;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -80,14 +80,26 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     /// 
     /// </summary>
-    public class SchedulerRunItem
+    public class SchedulerRunItem : INotifyPropertyChanged
     {
- 
+
+        private string _statusText;
         public RunWindow RunWindow { get; set; }
 
         public string Name { get; set; }
 
-        public string StatusText { get; set; }
+        /// <summary>
+        /// StatusText property
+        /// </summary>
+        public string StatusText
+        {
+            get => _statusText;
+            set
+            {
+                _statusText = value;
+                OnPropertyChanged(nameof(StatusText));
+            }
+        }
 
         public float ProgressValue { get; set; }
 
@@ -99,6 +111,17 @@ namespace XTMF.Gui.UserControls
         {
             Name = runWindow.Run.RunName;
             RunWindow = runWindow;
+
+            runWindow.UpdateRunStatus = (val) => { StatusText = val; };
+
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

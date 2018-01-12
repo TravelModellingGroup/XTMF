@@ -25,25 +25,7 @@
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}">
-    <UserControl.Resources>
-        <DataTemplate x:Key="NotRunningTemplate" >
-            <Button Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButton}"  Width="24" Height="24"
-                    x:Name="CancelButton" Click="CancelButton_Clicked"  ToolTip="Stop Run" >
-                <materialDesign:PackIcon Kind="Stop" />
-            </Button>
-        </DataTemplate>
-        <DataTemplate x:Key="RunningTemplate" >
-            <Button Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButton}"  Width="24" Height="24"
-                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
-                    materialDesign:ButtonProgressAssist.Value="-1" 
-                    materialDesign:ButtonProgressAssist.IsIndeterminate="True"
-                    x:Name="CancelButton" Click="CancelButton_Clicked"  ToolTip="Stop Run" >
-                <materialDesign:PackIcon Kind="Stop" />
-            </Button>
-        </DataTemplate>
-        
-        <userControls:RunButtonTemplateSelecctor x:Key="RunButtonTemplateSelector"></userControls:RunButtonTemplateSelecctor>
-    </UserControl.Resources>
+   
     <Grid Name="BaseGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
@@ -62,7 +44,7 @@
                         <materialDesign:PackIcon Kind="FolderOutline" />
                     </Button>
 
-                    <Button ContentTemplateSelector="{StaticResource RunButtonTemplateSelector}" Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButton}"  Width="24" Height="24"
+                    <Button Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButton}"  Width="24" Height="24"
                             materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
                             materialDesign:ButtonProgressAssist.Value="-1" 
                             materialDesign:ButtonProgressAssist.IsIndeterminate="True"

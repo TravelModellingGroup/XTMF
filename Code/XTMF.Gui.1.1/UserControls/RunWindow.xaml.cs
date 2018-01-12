@@ -52,8 +52,8 @@ namespace XTMF.Gui.UserControls
         private static readonly Tuple<byte, byte, byte> ErrorColour;
 
 
-        public Action UpdateRunStatus { get; set; }
-        public Action UpdateRunProgress { get; set; }
+        public Action<string> UpdateRunStatus { get; set; }
+        public Action<float> UpdateRunProgress { get; set; }
 
 
         public XTMFRun Run
@@ -252,6 +252,7 @@ namespace XTMF.Gui.UserControls
                             if (status != null)
                             {
                                 StatusLabel.Text = status;
+                                UpdateRunStatus?.Invoke(status);
                             }
                             progress = _run.PollProgress();
                             colour = _run.PollColour();
@@ -391,6 +392,8 @@ namespace XTMF.Gui.UserControls
                ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
+
+               UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
                ProgressBar.Finished = true;
                MainWindow.Us.UpdateStatusDisplay("Ready");
                MainWindow.Us.HideStatusLink();
