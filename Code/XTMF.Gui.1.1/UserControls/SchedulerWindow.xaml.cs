@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,16 +14,29 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using XTMF.Annotations;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
     /// Interaction logic for SchedulerWindow.xaml
     /// </summary>
-    public partial class SchedulerWindow : UserControl
+    public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
     {
 
         private List<RunWindow> _runWindows;
+
+        private RunWindow _activeContent;
+
+        public RunWindow ActiveContent
+        {
+            get => _activeContent;
+            set
+            {
+                _activeContent = value;
+                OnPropertyChanged(nameof(ActiveContent));
+            }
+        }
 
         public SchedulerWindow()
         {
@@ -34,8 +49,8 @@ namespace XTMF.Gui.UserControls
 
         public void AddRun(RunWindow run)
         {
-            ActiveRunContent.Content = run;
-         
+            //ActiveRunContent.Content = run;
+            ActiveContent = run;
             ScheduledRuns.Items.Add(new SchedulerRunItem(run));
 
         }
@@ -49,7 +64,16 @@ namespace XTMF.Gui.UserControls
         {
             var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
             Console.WriteLine(runWindow?.Run.RunName);
-            ActiveRunContent.Content = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            ActiveRunContent.DataContext = runWindow;
+            ActiveContent = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
