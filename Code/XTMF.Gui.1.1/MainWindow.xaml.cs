@@ -33,7 +33,10 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
+using Dragablz;
 using MahApps.Metro.Controls;
+using MaterialDesignThemes.Wpf;
+using Xceed.Wpf.AvalonDock;
 using Xceed.Wpf.AvalonDock.Layout;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
@@ -121,8 +124,15 @@ namespace XTMF.Gui
 
             DockManager.InterTabController.InterTabClient = new InterTabClient();
 
-            WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
+            DockManager.ClosingItemCallback = ClosingItemCallback;
 
+          WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
+
+        }
+
+        private void ClosingItemCallback(ItemActionCallbackArgs<TabablzControl> args)
+        {
+            Console.WriteLine("Here");
         }
 
         /// <summary>
@@ -881,27 +891,9 @@ namespace XTMF.Gui
         internal void AddRunToSchedulerWindow(RunWindow runWindow)
         {
             //create a new scheduler window if one does not exist
-            bool exists = true;
-            if(!OpenPages.Exists((doc) => doc.Content == _schedulerWindow))
-            {
+        
 
-                exists = false;
-                var doc = new LayoutDocument()
-                {
-                    Content = _schedulerWindow,
-                    Title = "XTMF Run Scheduler"
-
-                };
-
-                OpenPages.Add(doc);
-                
-                //DocumentPane.Children.Add(doc);
-                doc.IsActive = true;
-            }
-
-            (OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow).AddRun(runWindow);
-
-            SetDisplayActive((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow),"Scheduler",false,!exists);
+            SetDisplayActive(_schedulerWindow,"Scheduler",false);
            // DockManager.Items.Add((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow))
         }
 
@@ -1078,11 +1070,21 @@ namespace XTMF.Gui
         /// <param name="display"></param>
         /// <param name="title"></param>
         /// <param name="searchable"></param>
-        private void SetDisplayActive(System.Windows.Controls.UserControl display, string title, bool searchable = false, bool newTab = true)
+        private void SetDisplayActive(System.Windows.Controls.UserControl display, string title, bool searchable = false)
         {
-
-            if (newTab)
+            bool exists = false;
+            foreach (TabItem tab in DockManager.Items)
             {
+                if (tab.Content == display)
+                {
+                    exists = true;
+                    tab.IsSelected = true;
+                }
+            }
+
+           if(!exists)
+            { 
+            
                 ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
                 ((ViewModelBase) ContentControl.DataContext).ViewTitle = title;
                 ((ViewModelBase) ContentControl.DataContext).IsSearchBoxVisible = searchable;
@@ -1092,17 +1094,9 @@ namespace XTMF.Gui
                 tabItem.Header = title;
                 DockManager.Items.Add(tabItem);
                 tabItem.IsSelected = true;
-            }
-            else
-            {
-                foreach (TabItem tab in DockManager.Items)
-                {
-                    if (tab.Content == display)
-                    {
-                        tab.IsSelected = true;
-                    }
-                }
-            }
+
+              
+            } 
         }
 
 
