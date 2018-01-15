@@ -54,7 +54,7 @@
                     <Button x:Name="ClearRunButton"  Click="ClearRunButton_Click" ToolTip="Clear Run Display" >
                         <materialDesign:PackIcon Kind="NotificationClearAll" />
                     </Button>
-                    <Button x:Name="ContinueButton"  Click="ClearRunButton_Click" ToolTip="Continue to Run" >
+                    <Button x:Name="ContinueButton"  Click="ContinueButton_OnClick" ToolTip="Continue to Run" >
                         <materialDesign:PackIcon Kind="FolderMove" />
                     </Button>
 

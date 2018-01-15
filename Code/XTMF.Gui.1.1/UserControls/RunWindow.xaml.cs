@@ -605,6 +605,16 @@ namespace XTMF.Gui.UserControls
                 ConsoleOutput.Clear();
             }));
         }
+
+        /// <summary>
+        /// Removes the RunWindow / control from the scheduler window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ContinueButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Us.SchedulerWindow.CloseRun(this);
+        }
     }
 
     public class RunButtonTemplateSelecctor : DataTemplateSelector

@@ -130,6 +130,11 @@ namespace XTMF.Gui
 
         }
 
+        public SchedulerWindow SchedulerWindow
+        {
+            get => _schedulerWindow;
+        }
+
         private void ClosingItemCallback(ItemActionCallbackArgs<TabablzControl> args)
         {
             Console.WriteLine("Here");

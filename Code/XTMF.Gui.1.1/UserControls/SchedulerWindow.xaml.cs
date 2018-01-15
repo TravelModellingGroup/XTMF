@@ -47,6 +47,11 @@ namespace XTMF.Gui.UserControls
         {
             
             ScheduledRuns.Items.Remove(run);
+
+            if (ActiveRunContent.DataContext == run)
+            {
+                ActiveRunContent.DataContext = Resources["DefaultDisplay"];
+            }
         }
 
         public SchedulerWindow()
