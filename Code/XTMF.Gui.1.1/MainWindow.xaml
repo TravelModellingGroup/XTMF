@@ -312,8 +312,18 @@
 
                     <Separator />
                     <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">Workspace</TextBlock>
+                    <ListBox Name="XtmfWorkspacesListBox" >
+                        <ListBoxItem Selected="SchedulerMenuItem_OnSelected"  Name="SchedulerMenuItem" Padding="15 8 5 8">
+                            <StackPanel Orientation="Horizontal">
 
-                    <Separator />
+                                <materialDesign:PackIcon Kind="Calendar" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0"                                                 
+                                />
+                                <TextBlock>Scheduler</TextBlock>
+                            </StackPanel>
+                        </ListBoxItem>
+                        </ListBox>
+                            <Separator />
                     <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">XTMF</TextBlock>
                     <ListBox SelectionChanged="XTMFSideMenuListBox_OnSelectionChanged"  Name="XTMFSideMenuListBox" >
 

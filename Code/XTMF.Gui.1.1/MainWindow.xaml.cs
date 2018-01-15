@@ -1190,6 +1190,17 @@ namespace XTMF.Gui
         {
            // XTMFWorkspaceListBox.UnselectAll();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SchedulerMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            SetDisplayActive(_schedulerWindow, "Scheduler");
+            MenuToggleButton.IsChecked = false;
+        }
     }
 
 }
