@@ -10,7 +10,7 @@
     <UserControl.Resources>
 
         <Border x:Key="DefaultDisplay">
-            <TextBlock Text="No run currently selected." HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+            <TextBlock Text="No run currently selected." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="32" Opacity="0.8"></TextBlock>
         </Border>
     </UserControl.Resources>
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">

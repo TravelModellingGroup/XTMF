@@ -38,6 +38,17 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+        /// <summary>
+        /// Removes a RunWindow from the SchedulerWindow
+        /// </summary>
+        /// <param name="run"></param>
+        public void CloseRun(RunWindow run)
+        {
+            
+            ScheduledRuns.Items.Remove(run);
+        }
+
         public SchedulerWindow()
         {
             InitializeComponent();
@@ -64,7 +75,7 @@ namespace XTMF.Gui.UserControls
         private void ScheduledRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
-            Console.WriteLine(runWindow?.Run.RunName);
+  
             
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
