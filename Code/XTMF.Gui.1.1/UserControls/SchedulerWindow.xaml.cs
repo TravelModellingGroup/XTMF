@@ -43,8 +43,9 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
 
             _runWindows = new List<RunWindow>();
+    
+            ActiveRunContent.DataContext = Resources["DefaultDisplay"];
 
-           
         }
 
         public void AddRun(RunWindow run)
@@ -64,6 +65,7 @@ namespace XTMF.Gui.UserControls
         {
             var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
             Console.WriteLine(runWindow?.Run.RunName);
+            
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
         }

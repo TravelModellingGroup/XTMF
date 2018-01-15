@@ -7,6 +7,12 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+
+        <Border x:Key="DefaultDisplay">
+            <TextBlock Text="No run currently selected." HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+        </Border>
+    </UserControl.Resources>
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 
         <Grid.RowDefinitions>
@@ -16,7 +22,9 @@
         </Grid.RowDefinitions>
           
       
-        <ContentControl Content="{Binding }"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="0" Name="ActiveRunContent"></ContentControl>
+        <ContentControl Content="{Binding }"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="0" Name="ActiveRunContent">
+            
+        </ContentControl>
         <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged">
             <ListView.View>
                 <GridView>
