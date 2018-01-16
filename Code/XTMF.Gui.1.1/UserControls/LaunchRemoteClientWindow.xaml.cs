@@ -63,6 +63,7 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
+
             base.OnKeyDown(e);
         }
 
@@ -80,6 +81,7 @@ namespace XTMF.Gui.UserControls
                 Server.Focus();
                 e.Handled = true;
             }
+
             base.OnGotFocus(e);
         }
 
@@ -97,9 +99,9 @@ namespace XTMF.Gui.UserControls
 
         private void Port_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if(!e.Handled)
+            if (!e.Handled)
             {
-                if(e.Key == Key.Enter)
+                if (e.Key == Key.Enter)
                 {
                     e.Handled = true;
                     if (!String.IsNullOrEmpty(Server.Text) && !String.IsNullOrEmpty(Port.Text))
@@ -125,12 +127,20 @@ namespace XTMF.Gui.UserControls
                     {
                         Launch_Clicked(null);
                     }
-                    else if(String.IsNullOrEmpty(Port.Text))
+                    else if (String.IsNullOrEmpty(Port.Text))
                     {
                         Keyboard.Focus(Port);
                     }
                 }
             }
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            var address = Server.Text;
+            var port = Port.Text;
+            var xtmfDirectory = GetXTMFDirectory();
+            Process.Start(Path.Combine(GetXTMFDirectory(), "XTMF.RemoteClient.exe"), AddQuotes(address) + " " + port);
         }
     }
 }
