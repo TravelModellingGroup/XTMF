@@ -45,6 +45,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="run"></param>
         public void CloseRun(RunWindow run)
         {
+
             
             ScheduledRuns.Items.Remove(run);
 
@@ -52,6 +53,7 @@ namespace XTMF.Gui.UserControls
             {
                 ActiveRunContent.DataContext = Resources["DefaultDisplay"];
             }
+       
         }
 
         public SchedulerWindow()
@@ -68,7 +70,10 @@ namespace XTMF.Gui.UserControls
         {
             //ActiveRunContent.Content = run;
             ActiveContent = run;
+           
             ScheduledRuns.Items.Add(new SchedulerRunItem(run));
+            ActiveRunContent.DataContext = run;
+            //ScheduledRuns.UpdateLayout();
 
         }
 
