@@ -347,6 +347,15 @@
                                 <TextBlock>Settings</TextBlock>
                             </StackPanel>
                         </ListBoxItem>
+                        <ListBoxItem Selected="UpdateXtmfMenuItem_OnSelected" Name="UpdateXtmfMenuItem" Padding="15 8 5 8">
+                            <StackPanel Orientation="Horizontal">
+
+                                <materialDesign:PackIcon Kind="Download" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0"                                                 
+                                />
+                                <TextBlock>Update XTMF</TextBlock>
+                            </StackPanel>
+                        </ListBoxItem>
                             <ListBoxItem Selected="DocumentationMenuItem_OnSelected"  Padding="15 8 5 8" Name="HelpMenuItem" >
                             <StackPanel Orientation="Horizontal">
 

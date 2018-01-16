@@ -1222,6 +1222,17 @@ namespace XTMF.Gui
             MenuToggleButton.IsChecked = false;
             remoteWindow.Focus();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpdateXtmfMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            LaunchUpdate = true;
+            Close();
+        }
     }
 
 }
