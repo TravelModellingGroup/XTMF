@@ -322,6 +322,15 @@
                                 <TextBlock>Scheduler</TextBlock>
                             </StackPanel>
                         </ListBoxItem>
+                        <ListBoxItem Selected="LaunchRemoteMenuItem_OnSelected"  Name="LaunchRemoteMenuItem" Padding="15 8 5 8">
+                            <StackPanel Orientation="Horizontal">
+
+                                <materialDesign:PackIcon Kind="RouterWireless" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0"                                                 
+                                />
+                                <TextBlock>Launch Remote</TextBlock>
+                            </StackPanel>
+                        </ListBoxItem>
                         </ListBox>
                             <Separator />
                     <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">XTMF</TextBlock>
