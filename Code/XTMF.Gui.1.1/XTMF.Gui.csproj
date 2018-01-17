@@ -197,6 +197,9 @@
     <Compile Include="UserControls\SchedulerWindow.xaml.cs">
       <DependentUpon>SchedulerWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\SelectRunDateTimeDialog.xaml.cs">
+      <DependentUpon>SelectRunDateTimeDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\SettingsViewModel.cs" />
     <Compile Include="UserControls\StringRequestDialog.xaml.cs">
       <DependentUpon>StringRequestDialog.xaml</DependentUpon>
@@ -349,6 +352,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\SchedulerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\SelectRunDateTimeDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
