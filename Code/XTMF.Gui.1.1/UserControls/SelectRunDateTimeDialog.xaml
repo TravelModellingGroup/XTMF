@@ -6,9 +6,14 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <StackPanel
-        Margin="0,32,0,0"
+             d:DesignHeight="300" d:DesignWidth="300" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
+
+
+    <StackPanel Orientation="Vertical">
+        
+        <StackPanel
+                                                                  
+                                                                       Margin="0,32,0,0"
         Orientation="Horizontal">
         <TextBlock
             VerticalAlignment="Center"
@@ -16,8 +21,7 @@
             Text="{Binding Time, StringFormat=t}" />
         <Button
             Margin="8,0,0,0"
-            materialDesign:DialogHost.DialogClosingAttached="ClockDialogClosingEventHandler"
-            materialDesign:DialogHost.DialogOpenedAttached="ClockDialogOpenedEventHandler"
+     
             Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
             Content="...">
             <Button.CommandParameter>
@@ -50,5 +54,25 @@
                 </Grid>
             </Button.CommandParameter>
         </Button>
+    </StackPanel>
+    <Grid MinHeight="60"  MinWidth="300" Margin="10 7 10 5" VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="300"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <TextBox   Grid.Column="0"  MinWidth="300"   x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"   Style="{DynamicResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Top">
+            <TextBox.Text>
+                <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <local:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+        <Button Margin="3 0 0 0"  Grid.Column="1" Style="{DynamicResource MaterialDesignRaisedAccentButton}" Width="50"
+                ToolTip="Resource name: MaterialDesignRaisedAccentButton">
+            OK
+        </Button>
+    </Grid>
     </StackPanel>
 </UserControl>
