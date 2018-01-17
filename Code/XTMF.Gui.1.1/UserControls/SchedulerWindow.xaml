@@ -25,7 +25,7 @@
         <ContentControl Content="{Binding }"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="0" Name="ActiveRunContent">
             
         </ContentControl>
-        <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged">
+        <ListView  Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>

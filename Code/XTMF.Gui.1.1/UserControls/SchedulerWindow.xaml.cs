@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -38,6 +39,8 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        public ObservableCollection<RunWindow> RunCollection { get; } = new ObservableCollection<RunWindow>();
+
 
         /// <summary>
         /// Removes a RunWindow from the SchedulerWindow
@@ -45,13 +48,27 @@ namespace XTMF.Gui.UserControls
         /// <param name="run"></param>
         public void CloseRun(RunWindow run)
         {
-            
-            ScheduledRuns.Items.Remove(run);
+            SchedulerRunItem toRemove = null;
+            foreach (SchedulerRunItem item in ScheduledRuns.Items)
+            {
+                if (item.RunWindow == run)
+                {
+                    toRemove = item;
+                    break;
+                }
+            }
 
+            if (toRemove != null)
+            {
+                ScheduledRuns.Items.Remove(toRemove);
+            }
             if (ActiveRunContent.DataContext == run)
             {
                 ActiveRunContent.DataContext = Resources["DefaultDisplay"];
             }
+
+            ScheduledRuns.Items.Refresh();
+       
         }
 
         public SchedulerWindow()
@@ -68,7 +85,10 @@ namespace XTMF.Gui.UserControls
         {
             //ActiveRunContent.Content = run;
             ActiveContent = run;
+           
             ScheduledRuns.Items.Add(new SchedulerRunItem(run));
+            ActiveRunContent.DataContext = run;
+            //ScheduledRuns.UpdateLayout();
 
         }
 
@@ -80,8 +100,6 @@ namespace XTMF.Gui.UserControls
         private void ScheduledRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
-  
-            
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
         }

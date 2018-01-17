@@ -94,9 +94,9 @@ namespace XTMF.Gui
 
         public MainWindow()
         {
-        
+
             ViewModelBase = new ViewModelBase();
-           
+
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ParseCommandLineArgs();
             if (!IsNonDefaultConfig)
@@ -126,7 +126,7 @@ namespace XTMF.Gui
 
             DockManager.ClosingItemCallback = ClosingItemCallback;
 
-          WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
+            WorkspaceProjects = new Dictionary<Project, System.Windows.Controls.UserControl>();
 
         }
 
@@ -207,7 +207,7 @@ namespace XTMF.Gui
                     {
                         Header = recentProject
                     };
-                   // RecentProjectsMenuItem.Items.Add(recentProjectMenuItem);
+                    // RecentProjectsMenuItem.Items.Add(recentProjectMenuItem);
 
                     recentProjectMenuItem.Click += (sender, EventArgs) =>
                     {
@@ -338,7 +338,7 @@ namespace XTMF.Gui
             {
                 Task.Run(() =>
                 {
-                   // progressing.Dispatcher.BeginInvoke(new Action(() => { progressing.ShowDialog(); }));
+                    // progressing.Dispatcher.BeginInvoke(new Action(() => { progressing.ShowDialog(); }));
                     try
                     {
                         ProjectEditingSession session = null;
@@ -470,7 +470,7 @@ namespace XTMF.Gui
                         {
                             //doc.Title = "Project - " + projectSession.Project.Name;
 
-                            
+
                         };
                         projectSession.NameChanged += onRename;
                         display.RequestClose += (ignored) =>
@@ -667,8 +667,8 @@ namespace XTMF.Gui
                 var ms = EditorController.Runtime.ModelSystemController.LoadOrCreate(name);
                 ms.ModelSystemStructure.Name = dialog.UserInput;
                 EditModelSystem(EditorController.Runtime.ModelSystemController.EditModelSystem(ms));
-               }
-          
+            }
+
         }
 
         /// <summary>
@@ -690,7 +690,7 @@ namespace XTMF.Gui
                 UpdateRecentProjectsMenu();
             }
 
-         
+
         }
 
         private bool ValidateName(string name) => Project.ValidateProjectName(name);
@@ -705,11 +705,11 @@ namespace XTMF.Gui
                     VerticalAlignment = VerticalAlignment.Stretch,
                     Session = modelSystemSession,
                     ModelSystem = modelSystemSession.ModelSystemModel,
-                    
+
                 };
-               
+
                 display.ContentGuid = Guid.NewGuid().ToString();
-               // var displayModel = new ModelSystemEditingSessionDisplayModel(display);
+                // var displayModel = new ModelSystemEditingSessionDisplayModel(display);
 
                 var titleBarName = titleBar ?? (modelSystemSession.EditingProject
                         ? modelSystemSession.ProjectEditingSession.Name + " - " +
@@ -896,10 +896,10 @@ namespace XTMF.Gui
         internal void AddRunToSchedulerWindow(RunWindow runWindow)
         {
             //create a new scheduler window if one does not exist
-        
+            _schedulerWindow.AddRun(runWindow);
+            SetDisplayActive(_schedulerWindow, "Scheduler", false);
 
-            SetDisplayActive(_schedulerWindow,"Scheduler",false);
-           // DockManager.Items.Add((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow))
+            // DockManager.Items.Add((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow))
         }
 
         /// <summary>
@@ -1049,7 +1049,7 @@ namespace XTMF.Gui
             e.Handled = true;
             NewProject();
 
-        } 
+        }
 
         private void Settings_Click(object sender, RoutedEventArgs e) => LaunchSettingsPage();
 
@@ -1087,12 +1087,12 @@ namespace XTMF.Gui
                 }
             }
 
-           if(!exists)
-            { 
-            
-                ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
-                ((ViewModelBase) ContentControl.DataContext).ViewTitle = title;
-                ((ViewModelBase) ContentControl.DataContext).IsSearchBoxVisible = searchable;
+            if (!exists)
+            {
+
+                ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
+                ((ViewModelBase)ContentControl.DataContext).ViewTitle = title;
+                ((ViewModelBase)ContentControl.DataContext).IsSearchBoxVisible = searchable;
 
                 TabItem tabItem = new TabItem();
                 tabItem.Content = display;
@@ -1100,12 +1100,12 @@ namespace XTMF.Gui
                 DockManager.Items.Add(tabItem);
                 tabItem.IsSelected = true;
 
-              
-            } 
+
+            }
         }
 
 
-       public System.Windows.Controls.UserControl CurrentViewModel { get; set; }
+        public System.Windows.Controls.UserControl CurrentViewModel { get; set; }
 
         /// <summary>
         /// 
@@ -1115,7 +1115,7 @@ namespace XTMF.Gui
         private void SettingsMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
 
-            SetDisplayActive(new SettingsPage(EditorController.Runtime.Configuration),"Settings");
+            SetDisplayActive(new SettingsPage(EditorController.Runtime.Configuration), "Settings");
             MenuToggleButton.IsChecked = false;
         }
 
@@ -1137,7 +1137,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void OpenProjectGlobalMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            SetDisplayActive(new ProjectsDisplay(EditorController.Runtime), "Projects" );
+            SetDisplayActive(new ProjectsDisplay(EditorController.Runtime), "Projects");
             MenuToggleButton.IsChecked = false;
         }
 
@@ -1193,7 +1193,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void XTMFWorkspaceListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-           // XTMFWorkspaceListBox.UnselectAll();
+            // XTMFWorkspaceListBox.UnselectAll();
         }
 
         /// <summary>
@@ -1205,6 +1205,33 @@ namespace XTMF.Gui
         {
             SetDisplayActive(_schedulerWindow, "Scheduler");
             MenuToggleButton.IsChecked = false;
+        }
+
+        /// <summary>
+        /// Launches remote menu item window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LaunchRemoteMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            var remoteWindow = new LaunchRemoteClientWindow();
+
+            SetDisplayActive(remoteWindow, "Launch Remote Client");
+            MenuToggleButton.IsChecked = false;
+            Keyboard.Focus(remoteWindow);
+            MenuToggleButton.IsChecked = false;
+            remoteWindow.Focus();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpdateXtmfMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            LaunchUpdate = true;
+            Close();
         }
     }
 
