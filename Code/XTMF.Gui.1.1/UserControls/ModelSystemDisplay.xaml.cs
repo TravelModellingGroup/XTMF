@@ -35,6 +35,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
@@ -2435,6 +2436,20 @@ namespace XTMF.Gui.UserControls
         private void ScheduleModuleSystemButton_OnClick(object sender, RoutedEventArgs e)
         {
            ExecuteRun(false);
+        }
+
+     
+
+        private void B_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+            StackPanel element = sender as StackPanel;
+            TextBox textbox = element.FindChild<TextBox>("TextBox");
+            if (!textbox.IsFocused)
+            {
+                textbox.Focus();
+                Keyboard.Focus(textbox);
+            }
+
         }
     }
 }

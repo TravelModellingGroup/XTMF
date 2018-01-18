@@ -94,7 +94,6 @@ namespace XTMF.Gui
 
         public MainWindow()
         {
-
             ViewModelBase = new ViewModelBase();
 
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
