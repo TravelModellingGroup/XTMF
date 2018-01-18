@@ -797,15 +797,29 @@ namespace XTMF.Gui.UserControls
            //     $"There are currently {DisabledModules.Count(m => m.IsDisabled)} disabled module(s)." :
            //     string.Empty;
 
+            object result;
+            bool didComplete = false;
+            string userInput = "";
+            if (executeNow)
+            {
+                StringRequestDialog dialog = new StringRequestDialog("Please enter a run name", ValidateName);
+                result = await dialog.ShowAsync();
+                didComplete = dialog.DidComplete;
+                userInput = dialog.UserInput;
+            }
+            else
+            {
+                SelectRunDateTimeDialog dialog = new SelectRunDateTimeDialog();
+                result = await dialog.ShowAsync();
+                didComplete = dialog.DidComplete;
+            }
+            
 
-            StringRequestDialog dialog = new StringRequestDialog("Please enter a run name", ValidateName);
-            var result = await dialog.ShowAsync();
-
-            if (dialog.DidComplete)
+            if (didComplete)
             {
 
-         
-                runName = dialog.UserInput;
+
+                runName = userInput;
                 var runQuestion = MessageBoxResult.Yes;
                 if (Session.RunNameExists(runName))
                 {
