@@ -103,8 +103,8 @@ namespace XTMF.Gui
             {
                 CheckHasLocalConfiguration();
             }
-            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 9;
-            MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth - 4;
+            //MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 9;
+            //MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth - 4;
             ThemeController = new ThemeController(ConfigurationFilePath == null
                 ? System.IO.Path.GetDirectoryName(System.IO.Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
