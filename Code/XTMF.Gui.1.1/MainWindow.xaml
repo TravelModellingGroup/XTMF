@@ -35,6 +35,7 @@
         
   Name="XtmfWindow"
        
+                   PreviewKeyDown="MainWindow_OnPreviewKeyDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" 
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -73,11 +74,11 @@
         </metro:WindowCommands>
 
     </metro:MetroWindow.LeftWindowCommands>
-    <Border Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+    <Border  Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource PrimaryHueMidBrush}"
         BorderThickness="0">
 
         <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True"  >
-        <materialDesign:DrawerHost materialDesign:ShadowAssist.ShadowDepth="Depth4"  IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
+        <materialDesign:DrawerHost Name="DrawerHost"  materialDesign:ShadowAssist.ShadowDepth="Depth4"  IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
             <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />

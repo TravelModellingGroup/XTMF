@@ -44,6 +44,7 @@ using XTMF.Gui.UserControls;
 using XTMF.Gui.UserControls.Help;
 using Application = System.Windows.Application;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 
@@ -1231,6 +1232,32 @@ namespace XTMF.Gui
         {
             LaunchUpdate = true;
             Close();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void WindowGrid_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (DrawerHost.IsLeftDrawerOpen)
+            {
+                DrawerHost.IsLeftDrawerOpen = false;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (DrawerHost.IsLeftDrawerOpen)
+            {
+                DrawerHost.IsLeftDrawerOpen = false;
+            }
         }
     }
 
