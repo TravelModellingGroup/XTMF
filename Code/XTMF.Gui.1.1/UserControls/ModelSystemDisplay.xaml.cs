@@ -2477,6 +2477,16 @@ namespace XTMF.Gui.UserControls
                         e.Handled = true;
                         return;
                     }
+                    else
+                    {
+                        ComboBox comboBox = selected.FindChild<ComboBox>("ComboBox");
+                        comboBox.Focus();
+                        Keyboard.Focus(comboBox);
+                        Console.WriteLine("combo");
+                        e.Handled = true;
+                        return;
+                    }
+                   
                 }
             }
         }
