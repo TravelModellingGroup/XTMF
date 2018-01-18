@@ -2501,5 +2501,52 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterDisplay_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up)
+            {
+                int newIndex =
+                ((e.Key == Key.Tab || e.Key == Key.Down) &&
+                 QuickParameterDisplay.SelectedIndex < QuickParameterDisplay.Items.Count - 1)
+                    ? QuickParameterDisplay.SelectedIndex + 1
+                    : -1;
+
+                newIndex = ((e.Key == Key.Up) &&
+                            QuickParameterDisplay.SelectedIndex > 0)
+                    ? QuickParameterDisplay.SelectedIndex - 1
+                    : newIndex;
+
+                if (newIndex >= 0)
+                {
+                    QuickParameterDisplay.SelectedIndex = newIndex;
+                    ListViewItem selected = QuickParameterDisplay.ItemContainerGenerator.ContainerFromIndex(QuickParameterDisplay.SelectedIndex) as ListViewItem;
+                    ;
+                    TextBox textbox = selected.FindChild<TextBox>("TextBox");
+                    if (textbox != null)
+                    {
+                        textbox.Focus();
+                        Keyboard.Focus(textbox);
+                        e.Handled = true;
+                        return;
+                    }
+                    else
+                    {
+                        ComboBox comboBox = selected.FindChild<ComboBox>("ComboBox");
+                        comboBox.Focus();
+                        Keyboard.Focus(comboBox);
+
+                        e.Handled = true;
+                        return;
+                    }
+
+                }
+            }
+        }
     }
 }

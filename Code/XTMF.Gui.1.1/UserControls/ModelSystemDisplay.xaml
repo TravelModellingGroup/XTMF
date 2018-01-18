@@ -384,7 +384,7 @@
                           
                         </materialDesign:ColorZone>
                        
-                        <ListView  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="2" x:Name="QuickParameterDisplay"
+                        <ListView PreviewKeyDown="QuickParameterDisplay_OnPreviewKeyDown"  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="2" x:Name="QuickParameterDisplay"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto"
