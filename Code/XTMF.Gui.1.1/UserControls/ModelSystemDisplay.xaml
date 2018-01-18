@@ -71,16 +71,16 @@
         </DataTemplate>
         <models:ModelSystemInfoTemplateSelector  x:Key="ModelSystemInfoTemplateSelector" ModuleDisabled="{StaticResource ModuleDisabledTemplate}"
                                                 ModuleEnabled="{StaticResource ModuleEnabledTemplate}"/>
-        <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}" >
-            <StackPanel Focusable="False" GotFocus="B_OnGotFocus" MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+        <DataTemplate  x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}" >
+            <StackPanel PreviewKeyDown="B_OnPreviewKeyDown" Focusable="False" GotFocus="B_OnGotFocus" MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                     Name="b" HorizontalAlignment="Stretch" Margin="0 0 0 0">
-                <StackPanel Focusable="False"  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
+                <StackPanel  Focusable="False"  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder" Background="{DynamicResource MaterialDesignCardBackground}">
-                    <Expander Focusable="False" Padding="0 0 0 0"  Margin="0,0,0.0,0" Foreground="{DynamicResource MaterialDesignBody}"
+                    <Expander IsTabStop="False" Focusable="False" Padding="0 0 0 0"  Margin="0,0,0.0,0" Foreground="{DynamicResource MaterialDesignBody}"
                                   HorizontalAlignment="Stretch" >
                         <Expander.Header>
-                            <Grid Focusable="False" HorizontalAlignment="Stretch">
+                            <Grid  Focusable="False" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="AUTO"/>
                                     <ColumnDefinition Width="*"/>
@@ -101,7 +101,7 @@
                                       ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/> -->
                             </Grid>
                         </Expander.Header>
-                        <StackPanel Orientation="Vertical"
+                        <StackPanel Focusable="False" Orientation="Vertical"
                                     TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                                     Margin="48,0,24,4">
                             <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"

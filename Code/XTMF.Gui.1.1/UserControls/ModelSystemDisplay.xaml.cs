@@ -2438,18 +2438,47 @@ namespace XTMF.Gui.UserControls
            ExecuteRun(false);
         }
 
-     
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void B_OnGotFocus(object sender, RoutedEventArgs e)
         {
             StackPanel element = sender as StackPanel;
             TextBox textbox = element.FindChild<TextBox>("TextBox");
             if (!textbox.IsFocused)
             {
-                textbox.Focus();
-                Keyboard.Focus(textbox);
+                //textbox.Focus();
+                //Keyboard.Focus(textbox);
             }
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void B_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Tab)
+            {
+                if (ParameterDisplay.SelectedIndex < ParameterDisplay.Items.Count - 1)
+                {
+                    ParameterDisplay.SelectedIndex = ParameterDisplay.SelectedIndex + 1;
+                    ListViewItem selected = ParameterDisplay.ItemContainerGenerator.ContainerFromIndex(ParameterDisplay.SelectedIndex) as ListViewItem;
+                    ;
+                    TextBox textbox = selected.FindChild<TextBox>("TextBox");
+                    if (textbox != null)
+                    {
+                        textbox.Focus();
+                        Keyboard.Focus(textbox);
+                        e.Handled = true;
+                        return;
+                    }
+                }
+            }
         }
     }
 }
