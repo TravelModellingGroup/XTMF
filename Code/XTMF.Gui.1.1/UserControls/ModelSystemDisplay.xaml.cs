@@ -2462,11 +2462,22 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void B_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Tab)
+            if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up)
             {
-                if (ParameterDisplay.SelectedIndex < ParameterDisplay.Items.Count - 1)
+                int newIndex =
+                ((e.Key == Key.Tab || e.Key == Key.Down) &&
+                 ParameterDisplay.SelectedIndex < ParameterDisplay.Items.Count - 1)
+                    ? ParameterDisplay.SelectedIndex + 1
+                    : -1;
+
+                newIndex = ((e.Key == Key.Up) &&
+                            ParameterDisplay.SelectedIndex > 0)
+                    ? ParameterDisplay.SelectedIndex - 1
+                    : newIndex;
+
+                if (newIndex >= 0)
                 {
-                    ParameterDisplay.SelectedIndex = ParameterDisplay.SelectedIndex + 1;
+                    ParameterDisplay.SelectedIndex = newIndex;
                     ListViewItem selected = ParameterDisplay.ItemContainerGenerator.ContainerFromIndex(ParameterDisplay.SelectedIndex) as ListViewItem;
                     ;
                     TextBox textbox = selected.FindChild<TextBox>("TextBox");
@@ -2482,7 +2493,7 @@ namespace XTMF.Gui.UserControls
                         ComboBox comboBox = selected.FindChild<ComboBox>("ComboBox");
                         comboBox.Focus();
                         Keyboard.Focus(comboBox);
-                        Console.WriteLine("combo");
+                  
                         e.Handled = true;
                         return;
                     }
