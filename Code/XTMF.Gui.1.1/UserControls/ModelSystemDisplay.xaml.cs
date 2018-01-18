@@ -2464,11 +2464,12 @@ namespace XTMF.Gui.UserControls
         {
             if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up)
             {
+
                 int newIndex =
                 ((e.Key == Key.Tab || e.Key == Key.Down) &&
                  ParameterDisplay.SelectedIndex < ParameterDisplay.Items.Count - 1)
                     ? ParameterDisplay.SelectedIndex + 1
-                    : -1;
+                    : 0;
 
                 newIndex = ((e.Key == Key.Up) &&
                             ParameterDisplay.SelectedIndex > 0)
@@ -2515,7 +2516,7 @@ namespace XTMF.Gui.UserControls
                 ((e.Key == Key.Tab || e.Key == Key.Down) &&
                  QuickParameterDisplay.SelectedIndex < QuickParameterDisplay.Items.Count - 1)
                     ? QuickParameterDisplay.SelectedIndex + 1
-                    : -1;
+                    : 0;
 
                 newIndex = ((e.Key == Key.Up) &&
                             QuickParameterDisplay.SelectedIndex > 0)
