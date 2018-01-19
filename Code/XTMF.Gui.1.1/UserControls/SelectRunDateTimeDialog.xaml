@@ -6,18 +6,18 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="250" d:DesignWidth="500" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
+             d:DesignHeight="400" d:DesignWidth="500" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
 
 
     <StackPanel Orientation="Vertical">
 
      
-    <Grid MinHeight="60"  MinWidth="300" Margin="10 3 10 5" VerticalAlignment="Center">
+    <Grid MinHeight="60"  MinWidth="300" Margin="10 10 10 5" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="300"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <TextBox   Grid.Column="0"  MinWidth="300"   x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"   Style="{DynamicResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Top">
+        <TextBox   Grid.Column="0"  MinWidth="300"   x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="Run Name"   Style="{DynamicResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Top">
             <TextBox.Text>
                 <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
@@ -26,28 +26,19 @@
                 </Binding>
             </TextBox.Text>
         </TextBox>
-        <Button Margin="3 0 0 0"  Grid.Column="1" Style="{DynamicResource MaterialDesignRaisedAccentButton}" Width="50"
-                ToolTip="Resource name: MaterialDesignRaisedAccentButton">
-            OK
-        </Button>
+        
     </Grid>
-        <Expander HorizontalAlignment="Stretch" Header="Advanced Run Options">
-            <StackPanel
-                Margin="24,8,24,16"
-                Orientation="Vertical"
-                TextBlock.Foreground="{DynamicResource MaterialDesignBody}">
-               
-                <StackPanel Orientation="Horizontal">
-                    <ToggleButton
-                    VerticalAlignment="Center"
-                    IsChecked="True"
-                    Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
-                    ToolTip="MaterialDesignSwitchAccentToggleButton">
-                      
-                    </ToggleButton>
-                    <TextBlock Margin="10 10 0 10" Text="Run Immediately"></TextBlock>
-                </StackPanel>
+        <StackPanel Margin="10" Orientation="Horizontal">
+         
+            <ComboBox MinWidth="300"  materialDesign:HintAssist.Hint="Run Options">
+            <ComboBoxItem Name="Immediate">Run Immediately</ComboBoxItem>
+           <ComboBoxItem Name="Queue">Queue Run</ComboBoxItem>
+           <ComboBoxItem Name="Schedule">Schedule Run</ComboBoxItem>
+        </ComboBox>
             </StackPanel>
-        </Expander>
+        <Button Margin="0 15 0 15"  Grid.Column="1" Style="{DynamicResource MaterialDesignRaisedAccentButton}" Width="100"
+                ToolTip="Resource name: MaterialDesignRaisedAccentButton" HorizontalAlignment="Center">
+            Start Run
+        </Button>
     </StackPanel>
 </UserControl>
