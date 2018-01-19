@@ -6,16 +6,12 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="500" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
+             d:DesignHeight="250" d:DesignWidth="500" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
 
 
     <StackPanel Orientation="Vertical">
 
-        <DockPanel >
-
-            <CheckBox Margin="10 5 10 0"  DockPanel.Dock="Left" Content="Use specific start time"></CheckBox>
-            <Button MaxWidth="150"  Margin="10 5 10 0" DockPanel.Dock="Right" Content="Select time" HorizontalAlignment="Right"></Button>
-        </DockPanel>
+     
     <Grid MinHeight="60"  MinWidth="300" Margin="10 3 10 5" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="300"></ColumnDefinition>
@@ -35,5 +31,23 @@
             OK
         </Button>
     </Grid>
+        <Expander HorizontalAlignment="Stretch" Header="Advanced Run Options">
+            <StackPanel
+                Margin="24,8,24,16"
+                Orientation="Vertical"
+                TextBlock.Foreground="{DynamicResource MaterialDesignBody}">
+               
+                <StackPanel Orientation="Horizontal">
+                    <ToggleButton
+                    VerticalAlignment="Center"
+                    IsChecked="True"
+                    Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                    ToolTip="MaterialDesignSwitchAccentToggleButton">
+                      
+                    </ToggleButton>
+                    <TextBlock Margin="10 10 0 10" Text="Run Immediately"></TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
     </StackPanel>
 </UserControl>
