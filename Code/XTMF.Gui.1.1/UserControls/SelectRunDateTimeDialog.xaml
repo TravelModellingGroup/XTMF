@@ -6,56 +6,17 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
+             d:DesignHeight="300" d:DesignWidth="500" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
 
 
     <StackPanel Orientation="Vertical">
-        
-        <StackPanel
-                                                                  
-                                                                       Margin="0,32,0,0"
-        Orientation="Horizontal">
-        <TextBlock
-            VerticalAlignment="Center"
-            FontSize="24"
-            Text="{Binding Time, StringFormat=t}" />
-        <Button
-            Margin="8,0,0,0"
-     
-            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
-            Content="...">
-            <Button.CommandParameter>
-                <Grid Margin="-1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <materialDesign:Clock
-                        x:Name="Clock"
-                        DisplayAutomation="Cycle" />
-                    <StackPanel
-                        Grid.Row="1"
-                        Margin="8"
-                        HorizontalAlignment="Right"
-                        Orientation="Horizontal">
-                        <Button
-                            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
-                            CommandParameter="1"
-                            Style="{DynamicResource MaterialDesignFlatButton}">
-                            OK
-                        </Button>
-                        <Button
-                            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
-                            CommandParameter="0"
-                            Style="{DynamicResource MaterialDesignFlatButton}">
-                            CANCEL
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Button.CommandParameter>
-        </Button>
-    </StackPanel>
-    <Grid MinHeight="60"  MinWidth="300" Margin="10 7 10 5" VerticalAlignment="Center">
+
+        <DockPanel >
+
+            <CheckBox Margin="10 5 10 0"  DockPanel.Dock="Left" Content="Use specific start time"></CheckBox>
+            <Button MaxWidth="150"  Margin="10 5 10 0" DockPanel.Dock="Right" Content="Select time" HorizontalAlignment="Right"></Button>
+        </DockPanel>
+    <Grid MinHeight="60"  MinWidth="300" Margin="10 3 10 5" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="300"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
