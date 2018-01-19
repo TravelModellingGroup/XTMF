@@ -435,14 +435,9 @@ namespace XTMF.Gui
 
         public void OpenProject()
         {
-            var projectPage = OpenPages.FirstOrDefault(p => p.Content.GetType() == typeof(ProjectsDisplay));
-            if (projectPage == null)
-            {
-                projectPage = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime),
-                    typeof(ActiveEditingSessionDisplayModel));
-            }
-            projectPage.IsSelected = true;
-            projectPage.IsActive = true;
+          
+
+            SetDisplayActive(new ProjectsDisplay(EditorController.Runtime), "Projects");
         }
 
         internal void EditProject(ProjectEditingSession projectSession)
@@ -1258,6 +1253,16 @@ namespace XTMF.Gui
             {
                 DrawerHost.IsLeftDrawerOpen = false;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void XtmfWorkspacesListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            XTMFWorkspaceListBox.UnselectAll();
         }
     }
 

@@ -313,7 +313,7 @@
 
                     <Separator />
                     <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">Workspace</TextBlock>
-                    <ListBox Name="XtmfWorkspacesListBox" >
+                    <ListBox Name="XtmfWorkspacesListBox" SelectionChanged="XtmfWorkspacesListBox_OnSelectionChanged">
                         <ListBoxItem Selected="SchedulerMenuItem_OnSelected"  Name="SchedulerMenuItem" Padding="15 8 5 8">
                             <StackPanel Orientation="Horizontal">
 
