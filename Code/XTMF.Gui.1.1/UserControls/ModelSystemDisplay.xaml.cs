@@ -798,7 +798,7 @@ namespace XTMF.Gui.UserControls
            //     $"There are currently {DisabledModules.Count(m => m.IsDisabled)} disabled module(s)." :
            //     string.Empty;
 
-            object result;
+           /* object result;
             bool didComplete = false;
             string userInput = "";
             if (executeNow)
@@ -813,14 +813,15 @@ namespace XTMF.Gui.UserControls
                 SelectRunDateTimeDialog dialog = new SelectRunDateTimeDialog();
                 result = await dialog.ShowAsync();
                 didComplete = dialog.DidComplete;
-            }
+            } */
+
+            SelectRunDateTimeDialog dialog = new SelectRunDateTimeDialog();
+            var result = await dialog.ShowAsync();
             
 
-            if (didComplete)
+            if (dialog.DidComplete)
             {
-
-
-                runName = userInput;
+                runName = (dialog.DataContext as RunConfigurationDisplayModel).UserInput;
                 var runQuestion = MessageBoxResult.Yes;
                 if (Session.RunNameExists(runName))
                 {

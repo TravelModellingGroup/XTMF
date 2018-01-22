@@ -14,8 +14,9 @@
     </UserControl.DataContext>
     <StackPanel Orientation="Vertical">
 
+        <TextBlock Style="{StaticResource MaterialDesignHeadlineTextBlock}" Margin="0 10 0 15" HorizontalAlignment="Center">Run Configuration</TextBlock>
      
-    <Grid MinHeight="60"  MinWidth="300" Margin="10 10 10 5" VerticalAlignment="Center">
+    <Grid MinHeight="60"  MinWidth="300" Margin="10 0 10 5" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="300"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -32,9 +33,10 @@
         
     </Grid>
 
-        <Expander  IsExpanded="{Binding UseAdvanced}">
+        <Expander>
             <Expander.Header>
-                <CheckBox IsChecked="{Binding UseAdvanced}"  Name="UseAdanced">Use advanced run options</CheckBox>
+                <TextBlock FontSize="14" Text="Advanced run options"></TextBlock>
+         
             </Expander.Header>
             <Expander.Content >
                 <StackPanel Margin="20 0 15 20">
@@ -44,7 +46,7 @@
                     <DockPanel Margin="20 20 20 0" IsEnabled="{Binding SelectScheduleEnabled}" HorizontalAlignment="Left">
                     <materialDesign:TimePicker DockPanel.Dock="Left" SelectedTime="{Binding ScheduleTime}"
                         x:Name="ScheduleTime"
-                                               materialDesign:HintAssist.Hint="Custom hint"
+                                            
 	            Style="{StaticResource MaterialDesignFloatingHintTimePicker}"
                         Width="100"
                         Margin="0,0,20,0"
@@ -60,6 +62,10 @@
                 </StackPanel>
             </Expander.Content>
         </Expander>
+        <StackPanel Margin="0 15 0 15" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Name="RunButton"  Margin="5 5 7 5" Click="RunButton_OnClick">Run</Button>
+            <Button Name="CancelButton"  Margin="5 5 7 5" Click="CancelButton_OnClick" Style="{StaticResource MaterialDesignFlatButton}">Cancel</Button>
+        </StackPanel>
         </StackPanel>
       
 </UserControl>

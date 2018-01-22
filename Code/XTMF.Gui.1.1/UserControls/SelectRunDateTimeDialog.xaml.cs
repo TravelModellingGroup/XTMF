@@ -90,12 +90,42 @@ namespace XTMF.Gui.UserControls
         {
             RunConfigurationDisplayModel context = this.DataContext as RunConfigurationDisplayModel;
 
-            if ((bool) RadioSchedule.IsChecked)
+            if (RadioSchedule.IsChecked != null && (bool) RadioSchedule.IsChecked)
             {
                 context.SelectScheduleEnabled = true;
             }
+            else
+            {
+                context.SelectScheduleEnabled = false;
+            }
           
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RunButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            DidComplete = true;
+            e.Handled = true;
+            this._dialogSession.Close(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CancelButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            DidComplete = false;
+            e.Handled = true;
+            this._dialogSession.Close(false);
+        }
+
+       
     }
 
     public class XtmfDialog

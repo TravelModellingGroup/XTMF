@@ -201,10 +201,7 @@
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}">
                                 <materialDesign:PackIcon Kind="Run" />
                             </Button>
-                            <Button Name="ScheduleModuleSystemButton"  ToolTip="Schedule Model System Run" Click="ScheduleModuleSystemButton_OnClick"  IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
-                                             AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}">
-                                <materialDesign:PackIcon Kind="Clock" />
-                            </Button>
+                            
                                 <materialDesign:ColorZone  Width="300"  Mode="Standard" Padding="2 2 2 2" CornerRadius="2" Panel.ZIndex="1"
                                                       Margin="12 4 12 12"
                                                       >
