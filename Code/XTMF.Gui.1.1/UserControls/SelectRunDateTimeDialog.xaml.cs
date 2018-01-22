@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
+using XTMF.Annotations;
 
 namespace XTMF.Gui.UserControls
 {
@@ -77,6 +80,22 @@ namespace XTMF.Gui.UserControls
                 this._dialogSession.Close(false);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            RunConfigurationDisplayModel context = this.DataContext as RunConfigurationDisplayModel;
+
+            if ((bool) RadioSchedule.IsChecked)
+            {
+                context.SelectScheduleEnabled = true;
+            }
+          
+        }
     }
 
     public class XtmfDialog
@@ -84,5 +103,53 @@ namespace XTMF.Gui.UserControls
         public bool DidComplete;
     }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class RunConfigurationDisplayModel : INotifyPropertyChanged
+  
+    {
+        private bool _selectScheduleEnabled = false;
+
+        private bool _useAdvanced = false;
+
+        public bool UseAdvanced
+        {
+            get => _useAdvanced;
+            set
+            {
+                _useAdvanced = true;
+                OnPropertyChanged(nameof(UseAdvanced));
+            }
+        }
+
+        public string UserInput { get; set; }
+
+        public DateTime ScheduleTime { get; set; } = DateTime.Now;
+
+        public DateTime ScheduleDate { get; set; } = DateTime.Today;
+
+        public bool SelectScheduleEnabled
+        {
+            get => _selectScheduleEnabled;
+            set
+            {
+                _selectScheduleEnabled = value;
+                OnPropertyChanged(nameof(SelectScheduleEnabled));
+
+
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        }
+    }
 
 }

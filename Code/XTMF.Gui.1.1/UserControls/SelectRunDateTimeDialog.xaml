@@ -9,6 +9,9 @@
              d:DesignHeight="400" d:DesignWidth="500" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
 
 
+    <UserControl.DataContext>
+        <local:RunConfigurationDisplayModel></local:RunConfigurationDisplayModel>
+    </UserControl.DataContext>
     <StackPanel Orientation="Vertical">
 
      
@@ -28,17 +31,35 @@
         </TextBox>
         
     </Grid>
-        <StackPanel Margin="10" Orientation="Horizontal">
-         
-            <ComboBox MinWidth="300"  materialDesign:HintAssist.Hint="Run Options">
-            <ComboBoxItem Name="Immediate">Run Immediately</ComboBoxItem>
-           <ComboBoxItem Name="Queue">Queue Run</ComboBoxItem>
-           <ComboBoxItem Name="Schedule">Schedule Run</ComboBoxItem>
-        </ComboBox>
-            </StackPanel>
-        <Button Margin="0 15 0 15"  Grid.Column="1" Style="{DynamicResource MaterialDesignRaisedAccentButton}" Width="100"
-                ToolTip="Resource name: MaterialDesignRaisedAccentButton" HorizontalAlignment="Center">
-            Start Run
-        </Button>
-    </StackPanel>
+
+        <Expander  IsExpanded="{Binding UseAdvanced}">
+            <Expander.Header>
+                <CheckBox IsChecked="{Binding UseAdvanced}"  Name="UseAdanced">Use advanced run options</CheckBox>
+            </Expander.Header>
+            <Expander.Content >
+                <StackPanel Margin="20 0 15 20">
+                    <RadioButton Name="RadioImmediate"  Checked="ToggleButton_OnChecked" Margin="0 5 0 2" GroupName="RunType">Run immediately</RadioButton>
+                    <RadioButton Name="RadioQueue"  Checked="ToggleButton_OnChecked" Margin="0 5 0 2" GroupName="RunType">Queue run</RadioButton>
+                    <RadioButton Name="RadioSchedule"  Checked="ToggleButton_OnChecked"  Margin="0 5 0 2" GroupName="RunType">Schedule run</RadioButton>
+                    <DockPanel Margin="20 20 20 0" IsEnabled="{Binding SelectScheduleEnabled}" HorizontalAlignment="Left">
+                    <materialDesign:TimePicker DockPanel.Dock="Left" SelectedTime="{Binding ScheduleTime}"
+                        x:Name="ScheduleTime"
+                                               materialDesign:HintAssist.Hint="Custom hint"
+	            Style="{StaticResource MaterialDesignFloatingHintTimePicker}"
+                        Width="100"
+                        Margin="0,0,20,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Is24Hours="True" />
+                        <DatePicker DockPanel.Dock="Right" x:Name="ScheduleRun" SelectedDate="{Binding ScheduleDate}"
+                            Width="100"
+                            Margin="0,0,0,0"
+                            materialDesign:HintAssist.Hint="Pick Date"
+                            Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
+                    </DockPanel>
+                </StackPanel>
+            </Expander.Content>
+        </Expander>
+        </StackPanel>
+      
 </UserControl>
