@@ -1046,6 +1046,104 @@ namespace XTMF.Testing.TMG.Data
             Assert.IsInstanceOfType(CompareMatrix("A / 2", data, 0.5f, 1.0f, 1.5f, 2.0f), typeof(Multiply));
         }
 
+        [TestMethod]
+        public void TestIfValueValue()
+        {
+            CompareMatrix("ZeroMatrix(B) + if(1, 2, 3)", new IDataSource[]
+            {
+                CreateData("B", 1, 0, 1, 1)
+            }, 2.0f, 2.0f, 2.0f, 2.0f);
+            CompareMatrix("ZeroMatrix(B) + if(0, 2, 3)", new IDataSource[]
+            {
+                CreateData("B", 1, 0, 1, 1)
+            }, 3.0f, 3.0f, 3.0f, 3.0f);
+        }
+
+        [TestMethod]
+        public void TestIfValueVector()
+        {
+            CompareMatrix("ZeroMatrix(B) + asHorizontal(if(1, A, C))", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 1, 0, 1, 1),
+                CreateData("C", -1, -2)
+            }, 1.0f, 2.0f, 1.0f, 2.0f);
+            CompareMatrix("ZeroMatrix(B) + AsHorizontal(if(0, A, C))", new IDataSource[]
+            {
+                CreateData("A", 1, 2),
+                CreateData("B", 1, 0, 1, 1),
+                CreateData("C", -1, -2)
+            }, -1.0f, -2.0f, -1.0f, -2.0f);
+        }
+
+        [TestMethod]
+        public void TestIfValueMatrix()
+        {
+            CompareMatrix("if(1, A, C)", new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("C", -1, -2, -3, -4)
+            }, 1.0f, 2.0f, 3.0f, 4.0f);
+            CompareMatrix("if(0, A, C)", new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("C", -1, -2, -3, -4)
+            }, -1.0f, -2.0f, -3.0f, -4.0f);
+        }
+
+        [TestMethod]
+        public void TestIfVectorValue()
+        {
+            CompareMatrix("ZeroMatrix(B) + asHorizontal(if(A, 4, 5))", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 1, 1),
+            }, 4.0f, 5.0f, 4.0f, 5.0f);
+        }
+
+        [TestMethod]
+        public void TestIfVectorVector()
+        {
+            CompareMatrix("ZeroMatrix(B) + asHorizontal(if(A, C, D))", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("B", 1, 0, 1, 1),
+                CreateData("C", 4, 5),
+                CreateData("D", -4, -5),
+            }, 4.0f, -5.0f, 4.0f, -5.0f);
+        }
+
+        [TestMethod]
+        public void TestIfVectorMatrixHorizontal()
+        {
+            CompareMatrix("if(asHorizontal(A), C, D)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("C", 4, 5, 6, 7),
+                CreateData("D", -4, -5, -6, -7),
+            }, 4.0f, -5.0f, 6.0f, -7.0f);
+        }
+
+        [TestMethod]
+        public void TestIfVectorMatrixVertical()
+        {
+            CompareMatrix("if(asVertical(A), C, D)", new IDataSource[]
+            {
+                CreateData("A", 1, 0),
+                CreateData("C", 4, 5, 6, 7),
+                CreateData("D", -4, -5, -6, -7),
+            }, 4.0f, 5.0f, -6.0f, -7.0f);
+        }
+
+        [TestMethod]
+        public void TestIfMatrixMatrix()
+        {
+            CompareMatrix("if(B, ZeroMatrix(B)+2, ZeroMatrix(B) + (0-2))", new IDataSource[]
+            {
+                CreateData("B", 1, 0, 1, 1)
+            }, 2.0f, -2.0f, 2.0f, 2.0f);
+        }
+
         /// <summary>
         /// Assert results
         /// </summary>

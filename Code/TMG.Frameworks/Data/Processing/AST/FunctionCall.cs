@@ -47,7 +47,8 @@ namespace TMG.Frameworks.Data.Processing.AST
             ZeroMatrix,
             Matrix,
             IdentityMatrix,
-            Log
+            Log,
+            If
         }
 
         private FunctionType Type;
@@ -146,6 +147,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "log":
                     type = FunctionType.Log;
+                    return true;
+                case "if":
+                    type = FunctionType.If;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -352,9 +356,132 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("Log must be executed with one parameter!");
                     }
                     return Log(values);
+                case FunctionType.If:
+                    if(values.Length != 3)
+                    {
+                        return new ComputationResult("If requires at 3 parameters (condition, valueIfTrue, valueIfFalse)!");
+                    }
+                    return ComputeIf(values);
 
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult ComputeIf(ComputationResult[] values)
+        {
+            var condition = values[0];
+            var ifTrue = values[1];
+            var ifFalse = values[2];
+            if((ifTrue.IsValue & !ifFalse.IsValue)
+                || (ifTrue.IsVectorResult & !ifFalse.IsVectorResult)
+                || (ifTrue.IsOdResult & !ifFalse.IsOdResult))
+            {
+                return new ComputationResult($"{Start + 1}:The True and False case of an if expression must be of the same dimensionality.");
+            }
+            if (condition.IsValue)
+            {
+                // in all cases we can just move the result to the next level
+                return condition.LiteralValue > 0f ? ifTrue : ifFalse;
+            }
+            else if (condition.IsVectorResult)
+            {
+                if (ifTrue.IsValue)
+                {
+                    var saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
+                    var result = saveTo.GetFlatData();
+                    var cond = condition.VectorData.GetFlatData();
+                    var t = ifTrue.LiteralValue;
+                    var f = ifFalse.LiteralValue;
+                    for (int i = 0; i < result.Length; i++)
+                    {
+                        result[i] = cond[i] > 0f ? t : f;
+                    }
+                    return new ComputationResult(saveTo, true, condition.Direction);
+                }
+                else if (ifTrue.IsVectorResult)
+                {
+                    var saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
+                    var result = saveTo.GetFlatData();
+                    var cond = condition.VectorData.GetFlatData();
+                    var t = ifTrue.VectorData.GetFlatData();
+                    var f = ifFalse.VectorData.GetFlatData();
+                    for (int i = 0; i < result.Length; i++)
+                    {
+                        result[i] = cond[i] > 0f ? t[i] : f[i];
+                    }
+                    return new ComputationResult(saveTo, true, condition.Direction);
+                }
+                else
+                {
+                    switch (condition.Direction)
+                    {
+                        case ComputationResult.VectorDirection.Unassigned:
+                            return new ComputationResult($"{Start + 1}:The directionality of the condition vector is required when working with a matrix values.");
+                        case ComputationResult.VectorDirection.Vertical:
+                            {
+                                var saveTo = values[1].Accumulator ? values[1].OdData : values[1].OdData.CreateSimilarArray<float>();
+                                var result = saveTo.GetFlatData();
+                                var cond = condition.VectorData.GetFlatData();
+                                var t = ifTrue.OdData.GetFlatData();
+                                var f = ifFalse.OdData.GetFlatData();
+                                for (int i = 0; i < result.Length; i++)
+                                {
+                                    var resRow = result[i];
+                                    var toAssign = cond[i] > 0 ? t[i] : f[i];
+                                    for (int j = 0; j < resRow.Length; j++)
+                                    {
+                                        resRow[j] = toAssign[j];
+                                    }
+                                }
+                                return new ComputationResult(saveTo, true);
+                            }
+                        case ComputationResult.VectorDirection.Horizontal:
+                            {
+                                var saveTo = values[1].Accumulator ? values[1].OdData : values[1].OdData.CreateSimilarArray<float>();
+                                var result = saveTo.GetFlatData();
+                                var cond = condition.VectorData.GetFlatData();
+                                var t = ifTrue.OdData.GetFlatData();
+                                var f = ifFalse.OdData.GetFlatData();
+                                for (int i = 0; i < result.Length; i++)
+                                {
+                                    var resRow = result[i];
+                                    var tRow = t[i];
+                                    var fRow = f[i];
+                                    for (int j = 0; j < resRow.Length; j++)
+                                    {
+                                        resRow[j] = cond[j] > 0 ? tRow[j] : fRow[j];
+                                    }
+                                }
+                                return new ComputationResult(saveTo, true);
+                            }
+                    }
+                }
+            }
+            if(condition.IsOdResult)
+            {
+                if(!ifTrue.IsOdResult)
+                {
+                    return new ComputationResult($"{Start + 1}:The True and False cases must be a Matrix when the condition is a matrix.");
+                }
+                var saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
+                var cond = condition.OdData.GetFlatData();
+                var tr = ifTrue.OdData.GetFlatData();
+                var fa = ifFalse.OdData.GetFlatData();
+                var sa = saveTo.GetFlatData();
+                for (int row = 0; row < cond.Length; row++)
+                {
+                    var condRow = cond[row];
+                    var trRow = tr[row];
+                    var faRow = fa[row];
+                    var saveRow = sa[row];
+                    for (int j = 0; j < condRow.Length; j++)
+                    {
+                        saveRow[j] = condRow[j] > 0 ? trRow[j] : faRow[j];
+                    }
+                }
+                return new ComputationResult(saveTo, true);
+            }
+            return new ComputationResult($"{Start + 1}:This combination of parameter types has not been implemented for if!");
         }
 
         private ComputationResult Log(ComputationResult[] values)

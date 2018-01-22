@@ -388,6 +388,16 @@ namespace TMG.Frameworks.Data.Processing.AST
                                 Expression p;
                                 for (int j = i + 1; j < endIndex; j++)
                                 {
+                                    if (buffer[j] == '(')
+                                    {
+                                        // skip to the end
+                                        var innerEndIndex = FindEndOfBracket(buffer, j + 1, endIndex, ref error);
+                                        if(innerEndIndex < 0)
+                                        {
+                                            return false;
+                                        }
+                                        j = innerEndIndex;
+                                    }
                                     if (buffer[j] == ',')
                                     {
                                         if (!Compile(buffer, lastStart, j - lastStart, out p, ref error))
