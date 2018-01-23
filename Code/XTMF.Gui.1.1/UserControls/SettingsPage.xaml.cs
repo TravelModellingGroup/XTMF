@@ -31,6 +31,10 @@ using MaterialDesignColors;
 
 namespace XTMF.Gui.UserControls
 {
+    using Dragablz.Themes;
+
+    using MaterialDesignThemes.Wpf.Transitions;
+
     /// <summary>
     /// Interaction logic for SettingsPage.xaml
     /// </summary>
@@ -372,7 +376,17 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void DisableTransitionsToggleButton_Checked(object sender, RoutedEventArgs e)
         {
+            if (IsLoaded)
+            {
+                //MainWindow.Us.SetValue(MaterialDesignAssist.)
+                TransitionAssist.SetDisableTransitions(MainWindow.Us, true);
 
+                if (_configuration is Configuration configuration)
+                {
+                    configuration.IsDisableTransitionAnimations = (bool)DisableTransitionsToggleButton.IsChecked;
+                    _configuration.Save();
+                }
+            }
         }
 
         /// <summary>
@@ -382,7 +396,17 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void DisableTransitionsToggleButton_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (IsLoaded)
+            {
 
+                TransitionAssist.SetDisableTransitions(MainWindow.Us, false);
+                if (_configuration is Configuration configuration)
+                    {
+                        configuration.IsDisableTransitionAnimations = (bool)DisableTransitionsToggleButton.IsChecked;
+                        _configuration.Save();
+                    }
+                
+            }
         }
     }
 }

@@ -58,6 +58,8 @@ namespace XTMF
 
         public bool IsDarkTheme { get; set; }
 
+        public bool IsDisableTransitionAnimations { get; set; }
+
         public Configuration(string configurationFileName, Assembly baseAssembly = null, bool loadModules = true)
         {
             HostPort = 1447;
@@ -758,6 +760,23 @@ namespace XTMF
                         }
                         break;
                     }
+                    case "IsDisableTransitionAnimations":
+                    {
+                        var attribute = child.Attributes["Value"];
+                        if (attribute != null)
+                        {
+                            bool isDisableTransitionAnimations = false;
+                            if (bool.TryParse(attribute.InnerText, out isDisableTransitionAnimations))
+                            {
+                                this.IsDisableTransitionAnimations = isDisableTransitionAnimations;
+                            }
+                            else
+                            {
+                                this.IsDisableTransitionAnimations = false;
+                            }
+                        }
+                        break;
+                    }
 
                     case "RecentProjects":
 
@@ -998,6 +1017,9 @@ namespace XTMF
                 writer.WriteEndElement();
                 writer.WriteStartElement("IsDarkTheme");
                 writer.WriteAttributeString("Value", IsDarkTheme.ToString());
+                writer.WriteEndElement();
+                writer.WriteStartElement("IsDisableTransitionAnimations");
+                writer.WriteAttributeString("Value", this.IsDisableTransitionAnimations.ToString());
                 writer.WriteEndElement();
 
                 if (PrimaryColour != null)

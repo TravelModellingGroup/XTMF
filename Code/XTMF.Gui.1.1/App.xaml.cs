@@ -10,6 +10,8 @@ using XTMF.Gui.Controllers;
 
 namespace XTMF.Gui
 {
+    using MaterialDesignThemes.Wpf.Transitions;
+
     /// <summary>
     /// Interaction logic for XtmfApplication.xaml
     /// </summary>
@@ -47,6 +49,12 @@ namespace XTMF.Gui
                     {
                         new PaletteHelper().SetLightDark(true);
                     }
+
+                    if (EditorController.Runtime.Configuration.IsDisableTransitionAnimations)
+                    {
+                        TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, false);
+                    }
+
 
                     if (EditorController.Runtime.Configuration.Theme == null)
                     {
