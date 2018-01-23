@@ -85,6 +85,7 @@
                             <RowDefinition></RowDefinition>
                             <RowDefinition></RowDefinition>
                             <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
                         </Grid.RowDefinitions>
 
 
@@ -134,6 +135,9 @@
 
                         <ToggleButton Margin="0 15 0 0"  HorizontalAlignment="Left" Grid.Column="1" Grid.Row="2" IsChecked="{Binding IsDarkTheme}" Unchecked="ThemeBaseToggleButton_OnUnchecked" Name="ThemeBaseToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}"  Checked="ToggleButton_OnChecked"/>
 
+                        <TextBlock Margin="0 15 0 0"  Grid.Column="0" Grid.Row="3" Text="Disable Animation Transitions"></TextBlock>
+
+                        <ToggleButton Margin="0 15 0 0"  HorizontalAlignment="Left" Grid.Column="1" Grid.Row="3"  Name="DisableTransitionsToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}" Checked="DisableTransitionsToggleButton_Checked" Unchecked="DisableTransitionsToggleButton_Unchecked" ></ToggleButton>
 
 
                     </Grid>

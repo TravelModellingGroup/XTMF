@@ -364,5 +364,25 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisableTransitionsToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisableTransitionsToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
