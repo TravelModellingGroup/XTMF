@@ -791,37 +791,13 @@ namespace XTMF.Gui.UserControls
         {
             var runName = string.Empty;
             string error = null;
-           // StringRequestOverlay.Description = "Please enter a run name.";
-           // Overlay.Visibility = Visibility.Visible;
-           // StringRequestOverlay.Visibility = Visibility.Visible;
-           // StringRequestOverlay.ExtraInfo = DisabledModules.Any(m => m.IsDisabled) ?
-           //     $"There are currently {DisabledModules.Count(m => m.IsDisabled)} disabled module(s)." :
-           //     string.Empty;
-
-           /* object result;
-            bool didComplete = false;
-            string userInput = "";
-            if (executeNow)
-            {
-                StringRequestDialog dialog = new StringRequestDialog("Please enter a run name", ValidateName);
-                result = await dialog.ShowAsync();
-                didComplete = dialog.DidComplete;
-                userInput = dialog.UserInput;
-            }
-            else
-            {
-                SelectRunDateTimeDialog dialog = new SelectRunDateTimeDialog();
-                result = await dialog.ShowAsync();
-                didComplete = dialog.DidComplete;
-            } */
 
             SelectRunDateTimeDialog dialog = new SelectRunDateTimeDialog();
             var result = await dialog.ShowAsync();
-            
 
             if (dialog.DidComplete)
             {
-                runName = (dialog.DataContext as RunConfigurationDisplayModel).UserInput;
+                runName = (dialog.DataContext as RunConfigurationDisplayModel)?.UserInput;
                 var runQuestion = MessageBoxResult.Yes;
                 if (Session.RunNameExists(runName))
                 {
