@@ -268,6 +268,7 @@ namespace XTMF.Gui.UserControls
                             ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
                         }
                         ProgressBar.Value = progress;
+                        UpdateRunProgress.Invoke(progress);
                         if (_windows7OrAbove)
                         {
                             _taskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
@@ -315,6 +316,7 @@ namespace XTMF.Gui.UserControls
                     else
                     {
                         ProgressBar.Value = _isFinished ? 10000 : 0;
+                        UpdateRunProgress.Invoke(_isFinished ? 10000 : 0);
                     }
                 }
             }
@@ -391,6 +393,8 @@ namespace XTMF.Gui.UserControls
                ProgressBar.Finished = true;
                ContinueButton.IsEnabled = true;
                ProgressBar.Value = ProgressBar.Maximum;
+               UpdateRunProgress(ProgressBar.Maximum);
+
                CancelButton.IsEnabled = false;
                ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);

@@ -123,6 +123,18 @@ namespace XTMF.Gui.UserControls
         private string _elapsedTime = String.Empty;
         public RunWindow RunWindow { get; set; }
 
+        private float _progress;
+
+        public float Progress
+        {
+            get => _progress;
+            set
+            {
+                _progress = value;
+                OnPropertyChanged(nameof(Progress));
+            }
+        }
+
         public string ElapsedTime
         {
             get => _elapsedTime;
@@ -148,7 +160,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public float ProgressValue { get; set; }
 
         /// <summary>
         /// Constructor of the ScheduleRunItem, takes in the RunWindow (run control) in the constructor.
@@ -161,6 +172,10 @@ namespace XTMF.Gui.UserControls
 
             runWindow.UpdateRunStatus = (val) => { StatusText = val; };
             runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
+            runWindow.UpdateRunProgress = (val) => { Progress = val; };
+
+
+            Progress = 0;
 
         }
 

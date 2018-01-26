@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="600">
     <UserControl.Resources>
 
         <Border x:Key="DefaultDisplay">
@@ -30,7 +30,18 @@
                 <GridView>
                     <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
                     <GridViewColumn Header="Status"  Width="200" DisplayMemberBinding="{Binding StatusText}"/>
-                    <GridViewColumn Header="Progress"  Width="100" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Progress"  >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" >
+                                    
+                                    <ProgressBar Width="150" HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="20" />
+                                    
+                                    </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Start Time"  Width="200" DisplayMemberBinding="{Binding StartTime}"/>
                     <GridViewColumn Header="Elapsed Time"  Width="200" DisplayMemberBinding="{Binding ElapsedTime}"/>
                 </GridView>
             </ListView.View>
