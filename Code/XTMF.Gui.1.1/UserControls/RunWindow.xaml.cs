@@ -55,6 +55,7 @@ namespace XTMF.Gui.UserControls
         public Action<string> UpdateRunStatus { get; set; }
         public Action<float> UpdateRunProgress { get; set; }
         public Action<string> UpdateElapsedTime { get; set; }
+        public Action<string> UpdateStartTime { get; set; }
 
 
         public XTMFRun Run
@@ -434,6 +435,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        public DateTime StartTime
+        {
+            get => _startTime;
+        }
+
         /// <summary>
         /// Starts the run asynchronously
         /// </summary>
@@ -441,6 +447,7 @@ namespace XTMF.Gui.UserControls
         {
             _startTime = DateTime.Now;
             StartTimeLabel.Content = $"Start Time: {_startTime:g}";
+            UpdateStartTime?.Invoke($"{_startTime:g}");
         }
 
         private void Session_SessionClosed(object sender, EventArgs e)

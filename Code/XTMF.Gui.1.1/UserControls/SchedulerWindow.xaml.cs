@@ -121,9 +121,20 @@ namespace XTMF.Gui.UserControls
 
         private string _statusText = String.Empty;
         private string _elapsedTime = String.Empty;
+        private string _startTime = String.Empty;
         public RunWindow RunWindow { get; set; }
 
         private float _progress;
+
+        public string StartTime
+        {
+            get => _startTime;
+            set
+            {
+                _startTime = value;
+                OnPropertyChanged(nameof(StartTime));
+            }
+        }
 
         public float Progress
         {
@@ -173,8 +184,9 @@ namespace XTMF.Gui.UserControls
             runWindow.UpdateRunStatus = (val) => { StatusText = val; };
             runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
             runWindow.UpdateRunProgress = (val) => { Progress = val; };
+            //runWindow.UpdateStartTime = (val) => { StartTime = val; };
 
-
+            StartTime = (string) $"{RunWindow.StartTime:g}";
             Progress = 0;
 
         }
