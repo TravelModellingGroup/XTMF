@@ -336,6 +336,7 @@ namespace XTMF.Gui
             };
             if (project != null && !EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
+                
                 Task.Run(() =>
                 {
                     // progressing.Dispatcher.BeginInvoke(new Action(() => { progressing.ShowDialog(); }));
@@ -392,11 +393,22 @@ namespace XTMF.Gui
             }
             else if (EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
-                var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
-                if (item != null)
+                var projectContorl = WorkspaceProjects[project];
+                bool visible = false;
+                foreach (TabItem tabItem in DockManager.Items)
                 {
-                    item.IsSelected = true;
+                    if (tabItem.Content == projectContorl)
+                    {
+                        visible = true;
+                        break;
+                    }
+                   
                 }
+                if (!visible)
+                {
+                    SetDisplayActive(projectContorl, "Project - " + project.Name);
+                }
+
             }
         }
 
