@@ -189,8 +189,8 @@
                         <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
 
-                    <ToolBarTray Grid.Row="0" Height="54" >
-                        <ToolBar VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
+                    <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" >
+                        <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                             <Button ToolTip="Save Model System" Click="ButtonBase_OnClick">
                                 <materialDesign:PackIcon Kind="ContentSave" />
                             </Button>

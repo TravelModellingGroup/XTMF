@@ -1,59 +1,47 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
+using MaterialDesignThemes.Wpf.Transitions;
 using XTMF.Gui.Controllers;
 
 namespace XTMF.Gui
 {
-    using MaterialDesignThemes.Wpf.Transitions;
-
     /// <summary>
-    /// Interaction logic for XtmfApplication.xaml
+    ///     Interaction logic for XtmfApplication.xaml
     /// </summary>
     public partial class App : Application
     {
-
-
-        MainWindow xtmfMainWindow = null;
+        private MainWindow xtmfMainWindow;
 
         private void RegisterEditorController()
         {
             EditorController.Register(xtmfMainWindow, () =>
             {
-
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    IEnumerable<Swatch> swatches = new SwatchesProvider().Swatches;
+                    var swatches = new SwatchesProvider().Swatches;
 
-                    if (EditorController.Runtime.Configuration.PrimaryColour != null) 
+                    if (EditorController.Runtime.Configuration.PrimaryColour != null)
                     {
-                        Swatch swatch = swatches.First((s) => s.Name == EditorController.Runtime.Configuration.PrimaryColour);
+                        var swatch = swatches.First(s =>
+                            s.Name == EditorController.Runtime.Configuration.PrimaryColour);
                         new PaletteHelper().ReplacePrimaryColor(swatch);
-
                     }
 
 
                     if (EditorController.Runtime.Configuration.AccentColour != null)
                     {
-                        Swatch swatch = swatches.First((s) => s.Name == EditorController.Runtime.Configuration.AccentColour);
+                        var swatch = swatches.First(s => s.Name == EditorController.Runtime.Configuration.AccentColour);
                         new PaletteHelper().ReplaceAccentColor(swatch);
-
                     }
 
-                    if (EditorController.Runtime.Configuration.IsDarkTheme)
-                    {
-                        new PaletteHelper().SetLightDark(true);
-                    }
+                    if (EditorController.Runtime.Configuration.IsDarkTheme) new PaletteHelper().SetLightDark(true);
 
                     if (EditorController.Runtime.Configuration.IsDisableTransitionAnimations)
-                    {
                         TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, false);
-                    }
 
 
                     if (EditorController.Runtime.Configuration.Theme == null)
@@ -62,17 +50,16 @@ namespace XTMF.Gui
                     }
                     else
                     {
-                          ThemeController.Theme theme =
-                                xtmfMainWindow.ThemeController.FindThemeByName(EditorController.Runtime.Configuration.Theme);
+                        var theme =
+                            xtmfMainWindow.ThemeController.FindThemeByName(EditorController.Runtime.Configuration
+                                .Theme);
 
                         //xtmfMainWindow.ThemeController.SetThemeActive(theme ?? xtmfMainWindow.ThemeController.GetDefaultTheme());
                     }
+
                     xtmfMainWindow.UpdateRecentProjectsMenu();
 
-                    if (EditorController.Runtime.Configuration.IsDarkTheme)
-                    {
-                        new PaletteHelper().SetLightDark(true);
-                    }
+                    if (EditorController.Runtime.Configuration.IsDarkTheme) new PaletteHelper().SetLightDark(true);
                     xtmfMainWindow.Show();
 
                     EditorController.Runtime.Configuration.LoadModules(() =>
@@ -80,37 +67,22 @@ namespace XTMF.Gui
                         xtmfMainWindow.IsEnabled = true;
                         xtmfMainWindow.StatusDisplay.Text = "Ready";
                     });
-                   
                 }));
-             
-           
-                
-            },loadModules:false);
-
+            }, false);
         }
 
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
+            DispatcherUnhandledException += AppGlobalDispatcherUnhandledException;
 
-            this.DispatcherUnhandledException += AppGlobalDispatcherUnhandledException;
-     
             xtmfMainWindow = new MainWindow();
             RegisterEditorController();
-                
-
-
-          
         }
-        private void AppGlobalDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+
+        private void AppGlobalDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             e.Handled = true;
         }
-
-
-      
-
     }
-
-
 }
