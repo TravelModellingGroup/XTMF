@@ -41,7 +41,7 @@
             <Expander.Content >
                 <StackPanel Margin="20 0 15 20">
                     <RadioButton Name="RadioImmediate"  Checked="ToggleButton_OnChecked" Margin="0 5 0 2" GroupName="RunType">Run immediately</RadioButton>
-                    <RadioButton Name="RadioQueue"  Checked="ToggleButton_OnChecked" Margin="0 5 0 2" GroupName="RunType">Queue run</RadioButton>
+                    <RadioButton Name="RadioQueue" IsChecked="True"  Checked="ToggleButton_OnChecked" Margin="0 5 0 2" GroupName="RunType">Queue run</RadioButton>
                     <RadioButton Name="RadioSchedule"  Checked="ToggleButton_OnChecked"  Margin="0 5 0 2" GroupName="RunType">Schedule run</RadioButton>
                     <DockPanel Margin="20 20 20 0" IsEnabled="{Binding SelectScheduleEnabled}" HorizontalAlignment="Left">
                     <materialDesign:TimePicker DockPanel.Dock="Left" SelectedTime="{Binding ScheduleTime}"

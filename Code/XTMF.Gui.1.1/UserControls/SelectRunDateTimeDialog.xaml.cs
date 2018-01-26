@@ -101,6 +101,10 @@ namespace XTMF.Gui.UserControls
           
         }
 
+        public bool IsQueueRun { get; set; }
+
+        public bool IsImmediateRun { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -110,6 +114,9 @@ namespace XTMF.Gui.UserControls
         {
             DidComplete = true;
             e.Handled = true;
+            if (RadioQueue.IsChecked != null) IsQueueRun = (bool) RadioQueue.IsChecked;
+            if (RadioImmediate.IsChecked != null) IsImmediateRun = (bool) RadioImmediate.IsChecked;
+
             this._dialogSession.Close(false);
         }
 
