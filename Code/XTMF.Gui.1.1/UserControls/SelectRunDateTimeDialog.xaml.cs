@@ -90,15 +90,18 @@ namespace XTMF.Gui.UserControls
         {
             RunConfigurationDisplayModel context = this.DataContext as RunConfigurationDisplayModel;
 
-            if (RadioSchedule.IsChecked != null && (bool) RadioSchedule.IsChecked)
+            if (RadioSchedule != null)
             {
-                context.SelectScheduleEnabled = true;
+                if (RadioSchedule.IsChecked != null && (bool) RadioSchedule.IsChecked)
+                {
+                    context.SelectScheduleEnabled = true;
+                }
+                else
+                {
+                    context.SelectScheduleEnabled = false;
+                }
             }
-            else
-            {
-                context.SelectScheduleEnabled = false;
-            }
-          
+
         }
 
         public bool IsQueueRun { get; set; }
