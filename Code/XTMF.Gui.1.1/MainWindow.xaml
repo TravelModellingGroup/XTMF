@@ -375,7 +375,16 @@
                                 <TextBlock>Documentation</TextBlock>
                             </StackPanel>
                         </ListBoxItem>
-                    </ListBox>
+                        <ListBoxItem Selected="AboutMenuItem_OnSelected" Name="AboutMenuItem"  Padding="15 8 5 8">
+                            <StackPanel Orientation="Horizontal">
+
+                                <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0"                                                      
+                                />
+                                <TextBlock>About XTMF</TextBlock>
+                            </StackPanel>
+                        </ListBoxItem>
+                        </ListBox>
                 </StackPanel>
             </materialDesign:DrawerHost.LeftDrawerContent>
         </materialDesign:DrawerHost>

@@ -838,13 +838,7 @@ namespace XTMF.Gui
         [ResourceExposure(ResourceScope.Machine)]
         public static extern bool TerminateProcess(IntPtr processHandle, int exitCode);
 
-        private void AboutXTMF_Click(object sender, RoutedEventArgs e)
-        {
-            new AboutXTMF()
-            {
-                Owner = this
-            }.ShowDialog();
-        }
+     
 
         private void ShowStart_Click(object sender, RoutedEventArgs e)
         {
@@ -1251,6 +1245,7 @@ namespace XTMF.Gui
 
         /// <summary>
         /// 
+        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1270,6 +1265,20 @@ namespace XTMF.Gui
         private void XtmfWorkspacesListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             XTMFWorkspaceListBox.UnselectAll();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AboutMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            MenuToggleButton.IsChecked = false;
+            new AboutXTMF()
+            {
+                Owner = this
+            }.ShowDialog();
         }
     }
 
