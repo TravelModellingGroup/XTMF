@@ -718,14 +718,10 @@ namespace XTMF.Gui
                 // var displayModel = new ModelSystemEditingSessionDisplayModel(display);
 
                 var titleBarName = titleBar ?? (modelSystemSession.EditingProject
-                        ? modelSystemSession.ProjectEditingSession.Name + " - " +
-                          modelSystemSession.ModelSystemModel.Name
-                        : "Model System - " + modelSystemSession.ModelSystemModel.Name)
-;
-                //var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel), null,
-                //    display.ContentGuid, displayModel);
-
-                SetDisplayActive(display, "Model System - " + modelSystemSession.ModelSystemModel.Name);
+                                       ? modelSystemSession.ProjectEditingSession.Name + " - " +
+                                         modelSystemSession.ModelSystemModel.Name
+                                       : "Model System - " + modelSystemSession.ModelSystemModel.Name);
+                SetDisplayActive(display, titleBarName);
 
                 //DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
