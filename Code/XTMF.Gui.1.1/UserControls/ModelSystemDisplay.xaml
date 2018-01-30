@@ -166,12 +166,7 @@
                                     Margin="48,0,24,4">
                             <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}"/>
-                            <StackPanel Orientation="Horizontal">
-
-                                <TextBlock>Helllo</TextBlock>
-                                <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
-                                <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
-                            </StackPanel>
+                           
                         </StackPanel>
                     </Expander>
                   
