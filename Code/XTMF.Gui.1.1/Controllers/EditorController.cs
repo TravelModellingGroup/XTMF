@@ -54,7 +54,7 @@ namespace XTMF.Gui.Controllers
                        var loadError = ((Configuration)Runtime.Configuration).LoadError;
                        window.Dispatcher.BeginInvoke(new Action(() =>
                      {
-                         window.Title = "XTMF Version " + Runtime.Configuration.XTMFVersion.ToString();
+                         window.Title = "XTMF Version " + Runtime.Configuration.XTMFVersion.Major + "." +Runtime.Configuration.XTMFVersion.Minor;
                          if (loadError != null)
                          {
                              MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);

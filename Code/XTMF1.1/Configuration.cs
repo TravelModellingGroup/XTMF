@@ -20,6 +20,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -106,7 +107,7 @@ namespace XTMF
             {
                 var assemblyLocation = Assembly.GetEntryAssembly().Location;
                 var versionFile = Path.Combine(Path.GetDirectoryName(assemblyLocation), "version.txt");
-
+               
                 if (File.Exists(versionFile))
                 {
                     using (StreamReader reader = new StreamReader(versionFile))
@@ -121,6 +122,7 @@ namespace XTMF
                 else
                 {
 
+                    version = Assembly.GetEntryAssembly().GetName().Version;
                 }
             }
             catch
