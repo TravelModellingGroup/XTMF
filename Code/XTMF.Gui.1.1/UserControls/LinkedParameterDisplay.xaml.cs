@@ -96,9 +96,10 @@ namespace XTMF.Gui.UserControls
                 AssignCurrentlySelected();
                 ChangesMade = true;
                 CleanupSelectedParameters();
-                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
-                Visibility = Visibility.Collapsed;
-                OnCloseDisplay.BeginInvoke(null, null);
+                //((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+                //Visibility = Visibility.Collapsed;
+                DialogOpenedEventArgs.Session.Close();
+                //OnCloseDisplay.BeginInvoke(null, null);
             }
         }
 

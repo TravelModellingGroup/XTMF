@@ -46,7 +46,7 @@
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <local:ListViewControl Name="ListViewControl" TitleText="{Binding Name}" SubText="{Binding Text}"
+                    <local:ListViewControl x:Name="ListViewControl" TitleText="{Binding Name}" SubText="{Binding Text}"
                                            MouseDoubleClick="Control_OnMouseDoubleClick"></local:ListViewControl>
                 </DataTemplate>
             </ListView.ItemTemplate>
