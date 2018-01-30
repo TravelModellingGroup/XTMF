@@ -447,8 +447,6 @@ namespace XTMF.Gui
 
         public void OpenProject()
         {
-          
-
             SetDisplayActive(new ProjectsDisplay(EditorController.Runtime), "Projects");
         }
 
