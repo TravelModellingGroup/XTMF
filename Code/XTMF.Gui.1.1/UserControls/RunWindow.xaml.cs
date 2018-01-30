@@ -392,7 +392,7 @@ namespace XTMF.Gui.UserControls
            {
                IsRunClearable = true;
                ProgressBar.Finished = true;
-               ContinueButton.IsEnabled = true;
+              
                ProgressBar.Value = ProgressBar.Maximum;
                UpdateRunProgress(ProgressBar.Maximum);
 

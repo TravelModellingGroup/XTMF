@@ -72,5 +72,17 @@ namespace XTMF.Gui.UserControls
         }
 
         private void SetToClipboard(string str) => Clipboard.SetText(str);
+
+        private void ContinueButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void CopyButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            SetToClipboard(ErrorStackTrace == null ?
+                ErrorMessage :
+                ErrorMessage + "\r\n" + ErrorStackTrace);
+        }
     }
 }
