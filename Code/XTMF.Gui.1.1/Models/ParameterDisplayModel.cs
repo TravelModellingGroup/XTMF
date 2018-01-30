@@ -101,9 +101,9 @@ namespace XTMF.Gui.Models
             }
         }
 
-        public Visibility SystemParameterVisibility => RealParameter.IsSystemParameter ? Visibility.Visible : Visibility.Hidden;
+        public Visibility SystemParameterVisibility => RealParameter.IsSystemParameter ? Visibility.Visible : Visibility.Collapsed;
 
-        public Visibility LinkedParameterVisibility => RealParameter.IsLinked ? Visibility.Visible : Visibility.Hidden;
+        public Visibility LinkedParameterVisibility => RealParameter.IsLinked ? Visibility.Visible : Visibility.Collapsed;
 
         public string LinkedParameterName => RealParameter.GetLinkedParameter()?.Name ?? String.Empty;
 
