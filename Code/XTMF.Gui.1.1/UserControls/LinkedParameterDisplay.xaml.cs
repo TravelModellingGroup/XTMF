@@ -99,7 +99,7 @@ namespace XTMF.Gui.UserControls
                 //((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
                 //Visibility = Visibility.Collapsed;
                 DialogOpenedEventArgs.Session.Close();
-                //OnCloseDisplay.BeginInvoke(null, null);
+                OnCloseDisplay.BeginInvoke(null, null);
             }
         }
 
@@ -428,7 +428,7 @@ namespace XTMF.Gui.UserControls
                 {
                     DialogOpenedEventArgs.Session.Close();
                 }
-                OnCloseDisplay.BeginInvoke(null, null);
+               OnCloseDisplay.BeginInvoke(null, null);
             }
         }
 
@@ -479,6 +479,11 @@ namespace XTMF.Gui.UserControls
             {
                 ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
                 Visibility = Visibility.Collapsed;
+
+                if (DialogOpenedEventArgs != null)
+                {
+                    DialogOpenedEventArgs.Session.Close();
+                }
                 GoToModule?.Invoke(moduleToGoTo);
             }
         }
