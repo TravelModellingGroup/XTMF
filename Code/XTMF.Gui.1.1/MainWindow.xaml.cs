@@ -38,6 +38,7 @@ using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
 using Xceed.Wpf.AvalonDock;
 using Xceed.Wpf.AvalonDock.Layout;
+using XTMF.Controller;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
@@ -135,9 +136,23 @@ namespace XTMF.Gui
             get => _schedulerWindow;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
         private void ClosingItemCallback(ItemActionCallbackArgs<TabablzControl> args)
         {
-            Console.WriteLine("Here");
+            if ((args.DragablzItem.Content as TabItem)?.Content is ProjectDisplay)
+            {
+                ProjectDisplay projectDisplay = (args.DragablzItem.Content as TabItem)?.Content as ProjectDisplay;
+                projectDisplay?.Model.Unload();
+                if (projectDisplay != null)
+                {
+                    //projectDisplay.Session.NameChanged -= onRename;
+                    projectDisplay.Session.Dispose();
+                    WorkspaceProjects.Remove(projectDisplay.Session.Project);
+                }
+            }
         }
 
         /// <summary>
@@ -323,9 +338,14 @@ namespace XTMF.Gui
 
         public void ApplyTheme(ThemeController.Theme theme) => ThemeController.SetThemeActive(theme);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="projectName"></param>
         public void LoadProjectByName(string projectName)
         {
             var project = new Project(projectName, EditorController.Runtime.Configuration, false);
+            //WorkspaceProjects['projectN']
             LoadProject(project);
         }
 
@@ -337,7 +357,7 @@ namespace XTMF.Gui
             };
             if (project != null && !EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
-                
+
                 Task.Run(() =>
                 {
                     // progressing.Dispatcher.BeginInvoke(new Action(() => { progressing.ShowDialog(); }));
@@ -347,6 +367,8 @@ namespace XTMF.Gui
                         var loadingTask = Task.Run(() =>
                         {
                             session = EditorController.Runtime.ProjectController.EditProject(project);
+
+                            
                         });
                         loadingTask.Wait();
                         //progressing.Close();
@@ -479,13 +501,8 @@ namespace XTMF.Gui
 
                         };
                         projectSession.NameChanged += onRename;
-                        display.RequestClose += (ignored) =>
-                        {
-                            //doc.Close();
-                            display.Model.Unload();
-                            projectSession.NameChanged -= onRename;
 
-                        };
+                      
                         SetStatusText("Ready");
                     }
                 ));
@@ -1095,6 +1112,8 @@ namespace XTMF.Gui
                 tabItem.Header = title;
                 DockManager.Items.Add(tabItem);
                 tabItem.IsSelected = true;
+
+         
 
 
             }

@@ -49,13 +49,13 @@ namespace XTMF.Gui
                 RecentProjectsStackPanel.Children.Clear();
                 foreach (var recentProject in MainWindow.Us.RecentProjects)
                 {
-                    Label x = new Label
-                    {
-                        Content = recentProject,
-                        Style = (Style)k
-                    };
-                    x.PreviewMouseUp += (senderc, EventArgs) => MainWindow.Us.LoadProjectByName(recentProject);
-                    RecentProjectsStackPanel.Children.Add(x);
+
+                    Button b = new Button();
+                    b.Content = recentProject;
+                    b.HorizontalContentAlignment = HorizontalAlignment.Left;
+                    b.Style = (Style)FindResource("MaterialDesignFlatButton");
+                    b.Click += (senderx, EventArgs) => MainWindow.Us.LoadProjectByName(recentProject);
+                    RecentProjectsStackPanel.Children.Add(b);
                 }
             }
         }
