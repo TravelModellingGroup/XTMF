@@ -2527,5 +2527,30 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        /// <summary>
+        /// When the module value textbox receives focus
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ParameterValueTextBox_OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            TextBox textInput = sender as TextBox;
+            ParameterDisplayModel pdm = textInput.Tag as ParameterDisplayModel;
+            if (ParameterTabControl.SelectedItem == ModuleParameterTab)
+            {
+                if (ParameterDisplay.ItemContainerGenerator.ContainerFromItem(pdm) is ListViewItem item)
+                {
+                    item.IsSelected = true;
+                }
+            }
+            else
+            {
+                if (QuickParameterDisplay.ItemContainerGenerator.ContainerFromItem(pdm) is ListViewItem item)
+                {
+                    item.IsSelected = true;
+                }
+            }
+        }
     }
 }

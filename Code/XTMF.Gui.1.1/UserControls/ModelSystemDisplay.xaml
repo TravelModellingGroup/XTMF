@@ -97,9 +97,9 @@
                                     
                            
                                      
-                                        <TextBox Grid.Column="2" Name="TextBox"  Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                                        <TextBox Tag="{Binding .}" Grid.Column="2" Name="TextBox"  Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
                                           Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}"
                                           PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}"
                                           SelectionOpacity="0.6" MinHeight="15" Padding="5"></TextBox>
@@ -410,23 +410,7 @@
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                   Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="KeyboardNavigation.IsTabStop" Value="False"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Style.Resources>
-                                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
-                                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
-                                    </Style.Resources>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsKeyboardFocusWithin" Value="true">
-                                            <Setter Property="IsSelected" Value="true"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ListView.ItemContainerStyle>
+                          
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
