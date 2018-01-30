@@ -115,7 +115,7 @@
                     </Grid.RowDefinitions>
                     <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
                     <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
+                          Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0" MouseDoubleClick="Display_OnMouseDoubleClick">
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel  Orientation="Vertical" />
@@ -124,7 +124,7 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <xtmfgui:ListViewControl PreviewKeyDown="LinkedParameterValue_PreviewKeyDown" IsTabStop="True" Margin="0" TitleText="{Binding Name}" 
-                                             MouseDoubleClick="Control_OnMouseDoubleClick" VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
+                                           VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
                                     <xtmfgui:ListViewControl.IconPath>
                                         <Path Data="{DynamicResource LinkIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
                                     </xtmfgui:ListViewControl.IconPath>

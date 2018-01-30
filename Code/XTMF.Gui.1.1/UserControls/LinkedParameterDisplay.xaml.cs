@@ -492,6 +492,16 @@ namespace XTMF.Gui.UserControls
         {
             GoToCurrentContainedParameter();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Display_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Control_OnMouseDoubleClick(sender, e);
+        }
     }
 
     public class ParameterDatatemplateSelector : DataTemplateSelector
