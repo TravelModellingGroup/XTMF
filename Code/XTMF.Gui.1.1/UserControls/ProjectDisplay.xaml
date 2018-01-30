@@ -43,13 +43,13 @@
                 ToolTip="PopupBox, Style MaterialDesignMultiFloatingActionPopupBox"
                 >
                 <StackPanel>
-                    <Button Click="ButtonBase_OnClick" ToolTip="Open Project Directory">
+                    <Button Click="ButtonBase_OnClick" ToolTip="Open Project Directory" >
                         <materialDesign:PackIcon Kind="Folder" />
                     </Button>
-                    <Button   ToolTip="Import Model System">
+                    <Button   ToolTip="Import Model System" Name="ImportButton" Click="ImportButton_OnClick">
                         <materialDesign:PackIcon Kind="Import" />
                     </Button>
-                    <Button ToolTip="Import Model System From File">
+                    <Button ToolTip="Import Model System From File" Name="ImportFromFileButton" Click="ImportFromFileButton_OnClick" >
                         <materialDesign:PackIcon Kind="FileImport" />
                     </Button>
                     <Button Click="NewModelSystem_Click"  ToolTip="Create new model system">

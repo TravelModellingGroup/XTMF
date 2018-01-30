@@ -163,6 +163,7 @@ namespace XTMF.Gui
         /// </summary>
         private void ParseCommandLineArgs()
         {
+            
             /* Check for existence of configuration command line argument
             * to override location of Configuration.xml */
             var arguments = Environment.GetCommandLineArgs();

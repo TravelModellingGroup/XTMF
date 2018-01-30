@@ -60,14 +60,19 @@ namespace XTMF.Gui.UserControls
         private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
         {
  
+            Console.WriteLine(eventArgs);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task<object> ShowAsync()
+        public async Task<object> ShowAsync(bool allowClickToClose = true)
         {
+
+            //DialogHost.
+
+            MainWindow.Us.RootDialogHost.CloseOnClickAway = allowClickToClose;
             return await DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler);
         }
 
