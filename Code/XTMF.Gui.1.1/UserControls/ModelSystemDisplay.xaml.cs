@@ -1149,9 +1149,10 @@ namespace XTMF.Gui.UserControls
 
                 Dispatcher.Invoke(new Action(() =>
                 {
-                    
                     ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, true);
                     ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, true);
+                    ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton, (Brush)FindResource("MaterialDesignPaper"));
+                    ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton, (Brush)FindResource("SecondaryAccentBrush"));
                     SaveModelSystemButton.Style = (Style) FindResource("MaterialDesignFloatingActionMiniDarkButton");
 
                 }));
@@ -1196,13 +1197,14 @@ namespace XTMF.Gui.UserControls
 
                             Dispatcher.Invoke(new Action(() =>
                             {
-
-                                SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniButton");
                                 SaveModelSystemButton.Background = Brushes.Transparent;
                                 SaveModelSystemButton.BorderBrush = Brushes.Transparent;
                                 ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, false);
                                 ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, false);
-                                
+                                ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton,Brushes.Transparent);
+                                ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton, Brushes.Transparent);
+                                //SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniButton");
+
                             }));
                           
                         }
