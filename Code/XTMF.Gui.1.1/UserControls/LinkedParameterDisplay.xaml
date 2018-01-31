@@ -22,7 +22,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:xtmfgui="clr-namespace:XTMF.Gui.UserControls"
-             xmlns:my="clr-namespace:XTMF.Gui" MouseDown="UserControl_MouseDown" 
+             xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             MouseDown="UserControl_MouseDown" 
               KeyDown="Window_KeyDown" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown">
     <Grid x:Name="LayoutRoot">
         <Grid x:Name="Overlay" Panel.ZIndex="1000" Visibility="Collapsed">
@@ -53,42 +55,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <Button Click="Button_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}"
-                                BorderBrush="{x:Null}">
-                                <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                    Width="20" Height="20"
-                                    Visibility="Visible" Margin="0,0,0,0" BorderThickness="0">
-                                    <Border.Style>
-                                        <Style TargetType="{x:Type Border}">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <Border.BorderBrush>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <LinearGradientBrush.GradientStops>
-                                                <GradientStopCollection>
-                                                    <GradientStop Color="{DynamicResource ThemeTextColor}" Offset="0.0"  />
-                                                    <GradientStop Color="{DynamicResource ThemeTextColor}" Offset="1.0"  />
-                                                </GradientStopCollection>
-                                            </LinearGradientBrush.GradientStops>
-                                        </LinearGradientBrush>
-                                    </Border.BorderBrush>
-                                    <Path x:Name="CheckMark"
-                                      Visibility="Visible"
-                                      SnapsToDevicePixels="False"
-                                      Margin="5,5,5,5"
-                                      StrokeThickness="2" Stretch="Fill"
-                                      Data="M 0 0 L 7 7 M 0 7 L 7 0">
-                                        <Path.Stroke>
-                                            <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
-                                        </Path.Stroke>
-                                    </Path>
-                                </Border>
-                            </Button>
+               
                         </Border>
                     </StackPanel>
                 </DockPanel>
@@ -98,8 +65,17 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <my:BorderIconButton BorderThickness="0" HorizontalAlignment="Left" Grid.Column="0" Header="New" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
-                                 Icon="/XTMF.Gui;component/Resources/ic_create_white_48dp.png" Margin="2"/>
+
+                <Button Margin="8" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Pencil" />
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock>New Linked Parameter</TextBlock>
+                           
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+               
                 <DockPanel Grid.Column="1"/>
             </Grid>
             <Grid Grid.Row="1">
@@ -113,7 +89,7 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
+                    <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="5" />
                     <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
                           Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0" MouseDoubleClick="Display_OnMouseDoubleClick">
                         <ListView.ItemsPanel>
@@ -158,11 +134,11 @@
                             <Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignBackground}"/>
                             <DockPanel FlowDirection="LeftToRight" >
                                 <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
-                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"/>
+                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right" Background="{DynamicResource MaterialDesignPaper}"/>
                             </DockPanel>
                             <DockPanel FlowDirection="LeftToRight" >
                                 <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
-                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"/>
+                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  Background="{DynamicResource MaterialDesignPaper}"/>
                             </DockPanel>
                         </StackPanel>
                     </Border>

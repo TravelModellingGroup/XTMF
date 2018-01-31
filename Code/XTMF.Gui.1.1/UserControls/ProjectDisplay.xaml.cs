@@ -647,17 +647,19 @@ namespace XTMF.Gui.UserControls
             CreateNewModelSystem();
         }
 
-        private void CreateNewModelSystem()
+        /// <summary>
+        /// Attempts to create a new model system
+        /// </summary>
+        private async void CreateNewModelSystem()
         {
-            var sr = new StringRequest("New Model System's Name?",
-                newName => { return Session.ValidateModelSystemName(newName); })
-            {
-                Owner = Window.GetWindow(this)
-            };
-            if (sr.ShowDialog() == true)
+           
+            var dialog = new StringRequestDialog("Name of New Model System",
+                newName => { return Session.ValidateModelSystemName(newName); });
+            var result = await dialog.ShowAsync(true);
+            if (dialog.DidComplete)
             {
                 string error = null;
-                if (!Session.AddModelSystem(sr.Answer, ref error))
+                if (!Session.AddModelSystem(dialog.UserInput, ref error))
                     MessageBox.Show(error, "Unable to create New Model System", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 else

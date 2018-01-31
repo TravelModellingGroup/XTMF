@@ -502,6 +502,16 @@ namespace XTMF.Gui.UserControls
         {
             Control_OnMouseDoubleClick(sender, e);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NewLinkedParameterButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            NewLinkedParameter_Clicked(sender);
+        }
     }
 
     public class ParameterDatatemplateSelector : DataTemplateSelector
