@@ -1146,6 +1146,15 @@ namespace XTMF.Gui.UserControls
             }
             else
             {
+
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    
+                    ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, true);
+                    ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, true);
+                    SaveModelSystemButton.Style = (Style) FindResource("MaterialDesignFloatingActionMiniDarkButton");
+
+                }));
                 MainWindow.SetStatusText("Saving...");
 
                 Task.Run(async () =>
@@ -1184,6 +1193,18 @@ namespace XTMF.Gui.UserControls
                             MainWindow.SetStatusText("Ready");
                             CanSaveModelSystem = false;
                             Session.SaveRelease();
+
+                            Dispatcher.Invoke(new Action(() =>
+                            {
+
+                                SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniButton");
+                                SaveModelSystemButton.Background = Brushes.Transparent;
+                                SaveModelSystemButton.BorderBrush = Brushes.Transparent;
+                                ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, false);
+                                ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, false);
+                                
+                            }));
+                          
                         }
                     }
                 });

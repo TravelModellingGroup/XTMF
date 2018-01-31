@@ -211,10 +211,14 @@
                     <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" >
                         <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                                 <Button ToolTip="Save Model System" Click="ButtonBase_OnClick" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
-                                             AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanSaveModelSystem}">
+                                             AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanSaveModelSystem}" Name="SaveModelSystemButton"
+                                        Width="36" Height="36" Margin="10 2 5 0" BorderBrush="Transparent"
+                                        Background="Transparent" Foreground="{DynamicResource MaterialDesignBody}"
+                                        Style="{DynamicResource MaterialDesignFloatingActionMiniButton}" VerticalAlignment="Center"
+                                       >
                                 <materialDesign:PackIcon Kind="ContentSave" />
                             </Button>
-                            <Button ToolTip="Linked Parameters" Click="LinkedParameter_Click">
+                            <Button ToolTip="Linked Parameters" Click="LinkedParameter_Click" Name="LinkedParameterDisplayButton">
                                 <materialDesign:PackIcon Kind="LinkVariant" />
                             </Button>
                             <Button ToolTip="Run Model System" Click="RunModelSystem_Click" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
