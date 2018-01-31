@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Media;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,15 +38,17 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
+using XTMF.Annotations;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
+using XTMF.Gui.UserControls.Interfaces;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
     ///     Interaction logic for ModelSystemDisplay.xaml
     /// </summary>
-    public partial class ModelSystemDisplay : UserControl
+    public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotifyPropertyChanged
     {
         public static readonly DependencyProperty ModelSystemProperty = DependencyProperty.Register("ModelSystem",
             typeof(ModelSystemModel), typeof(ModelSystemDisplay),
@@ -88,6 +91,9 @@ namespace XTMF.Gui.UserControls
                 if (_Session != null)
                 {
                     _Session.ProjectWasExternallySaved -= ProjectWasExternalSaved;
+                    _Session.CommandExecuted += SessionOnCommandExecuted;
+                    _Session.Saved += _Session_Saved;
+
                 }
                 _Session = value;
                 if (value != null)
@@ -98,12 +104,45 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void SessionOnCommandExecuted(object sender, EventArgs eventArgs)
+        {
+            CanSaveModelSystem = _Session.HasChanged;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void _Session_Saved(object sender, EventArgs e)
+        {
+            CanSaveModelSystem = false;
+        }
+
+        private bool _canSaveModelSystem = false;
+
+        public bool CanSaveModelSystem
+        {
+            get => _canSaveModelSystem;
+            set
+            {
+                _canSaveModelSystem = value;
+                OnPropertyChanged(nameof(CanSaveModelSystem));
+            }
+        }
+
         private Semaphore _saveSemaphor;
 
         private void ProjectWasExternalSaved(object sender, EventArgs e)
         {
             // If the project was saved we need to reload in the new model system model
             Dispatcher.Invoke(() => { ModelSystem = _Session.ModelSystemModel; });
+       
         }
 
         private ModelSystemStructureDisplayModel DisplayRoot;
@@ -287,6 +326,8 @@ namespace XTMF.Gui.UserControls
                     _selectedParameterDisplayModel = null;
                 });
             };
+
+   
         }
 
         private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
@@ -646,9 +687,9 @@ namespace XTMF.Gui.UserControls
                             {
                                 ModuleParameterDialogHost.IsOpen = true;
                             }
-                          
-                            
-                       
+
+
+
                             break;
                     }
                 }
@@ -808,7 +849,7 @@ namespace XTMF.Gui.UserControls
                 }
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
-                   
+
                     var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false, dialog.IsQueueRun);
                     if (run != null)
                     {
@@ -864,6 +905,7 @@ namespace XTMF.Gui.UserControls
 
         public void Close()
         {
+
             var e = RequestClose;
             if (e != null)
             {
@@ -1140,6 +1182,7 @@ namespace XTMF.Gui.UserControls
                         finally
                         {
                             MainWindow.SetStatusText("Ready");
+                            CanSaveModelSystem = false;
                             Session.SaveRelease();
                         }
                     }
@@ -1374,7 +1417,7 @@ namespace XTMF.Gui.UserControls
                 }
 
                 //update the module context control
-                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel) e.NewValue;
+                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
             }
         }
 
@@ -2280,11 +2323,11 @@ namespace XTMF.Gui.UserControls
 
         private void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse = true)
         {
-            if(module != null)
+            if (module != null)
             {
                 var toProcess = new Queue<ModelSystemStructureDisplayModel>();
                 toProcess.Enqueue(module);
-                while(toProcess.Count > 0)
+                while (toProcess.Count > 0)
                 {
                     module = toProcess.Dequeue();
                     module.IsExpanded = collapse;
@@ -2350,7 +2393,7 @@ namespace XTMF.Gui.UserControls
         {
             // don't expand the bottom node
             module = module?.Parent;
-            while(module != null)
+            while (module != null)
             {
                 module.IsExpanded = true;
                 module = module.Parent;
@@ -2386,7 +2429,7 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-             
+
                 QuickParameterFilterBox.Focus();
                 Keyboard.Focus(QuickParameterFilterBox);
             }));
@@ -2413,7 +2456,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ScheduleModuleSystemButton_OnClick(object sender, RoutedEventArgs e)
         {
-           ExecuteRun(false);
+            ExecuteRun(false);
         }
 
         /// <summary>
@@ -2472,11 +2515,11 @@ namespace XTMF.Gui.UserControls
                         ComboBox comboBox = selected.FindChild<ComboBox>("ComboBox");
                         comboBox.Focus();
                         Keyboard.Focus(comboBox);
-                  
+
                         e.Handled = true;
                         return;
                     }
-                   
+
                 }
             }
         }
@@ -2551,6 +2594,47 @@ namespace XTMF.Gui.UserControls
                     item.IsSelected = true;
                 }
             }
+        }
+
+        /// <summary>
+        /// Return 
+        /// </summary>
+        /// <returns></returns>
+        public bool HandleTabClose()
+        {
+            return !Session.CloseWillTerminate || !CanSaveModelSystem
+                                             || MessageBox.Show(
+                                                 "The model system has not been saved, closing this window will discard the changes!",
+                                                 "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question,
+                                                 MessageBoxResult.Cancel) == MessageBoxResult.OK;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// Called when module parameter text changes - makes session pseudo dirty
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            CanSaveModelSystem = true;
+        }
+
+        /// <summary>
+        /// Called when an enumeration module parameter changes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CanSaveModelSystem = true;
         }
     }
 }

@@ -190,6 +190,7 @@
     <Compile Include="UserControls\FlatToolButton.xaml.cs">
       <DependentUpon>FlatToolButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Interfaces\ITabCloseListener.cs" />
     <Compile Include="UserControls\InterTabClient.cs" />
     <Compile Include="UserControls\ModuleContextControl.xaml.cs">
       <DependentUpon>ModuleContextControl.xaml</DependentUpon>

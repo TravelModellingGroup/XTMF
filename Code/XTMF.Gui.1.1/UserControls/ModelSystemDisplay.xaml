@@ -101,7 +101,7 @@
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                              AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
                                           Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}"
-                                          PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}"
+                                          PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}" TextChanged="TextBox_OnTextChanged"
                                           SelectionOpacity="0.6" MinHeight="15" Padding="5"></TextBox>
 
 
@@ -151,8 +151,8 @@
                                 <ComboBox Name="ComboBox"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                         AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="True"
-                                          IsReadOnly="False" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14"
-                                          BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True"/>
+                                          IsReadOnly="False" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14" 
+                                          BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True" SelectionChanged="ComboBox_SelectionChanged"/>
                                 <!--<TextBlock Grid.Column="1" Margin="5,4,2,2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource MaterialDesignBody}" TextTrimming="CharacterEllipsis" Cursor="Hand"/> -->
                                 <StackPanel  Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
 
@@ -210,7 +210,8 @@
 
                     <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" >
                         <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
-                            <Button ToolTip="Save Model System" Click="ButtonBase_OnClick">
+                                <Button ToolTip="Save Model System" Click="ButtonBase_OnClick" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
+                                             AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanSaveModelSystem}">
                                 <materialDesign:PackIcon Kind="ContentSave" />
                             </Button>
                             <Button ToolTip="Linked Parameters" Click="LinkedParameter_Click">

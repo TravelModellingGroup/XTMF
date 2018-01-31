@@ -43,6 +43,7 @@ using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
 using XTMF.Gui.UserControls.Help;
+using XTMF.Gui.UserControls.Interfaces;
 using Application = System.Windows.Application;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -152,6 +153,10 @@ namespace XTMF.Gui
                     projectDisplay.Session.Dispose();
                     WorkspaceProjects.Remove(projectDisplay.Session.Project);
                 }
+            }
+            if ((args.DragablzItem.Content as TabItem)?.Content is ITabCloseListener closeListener && !closeListener.HandleTabClose())
+            {
+                args.Cancel();
             }
         }
 
@@ -1113,9 +1118,6 @@ namespace XTMF.Gui
                 DockManager.Items.Add(tabItem);
                 tabItem.IsSelected = true;
 
-         
-
-
             }
         }
 
@@ -1298,6 +1300,23 @@ namespace XTMF.Gui
             {
                 Owner = this
             }.ShowDialog();
+        }
+
+        /// <summary>
+        /// Closing event of the main window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void XtmfWindow_Closing(object sender, CancelEventArgs e)
+        {
+            foreach (TabItem tabItem in DockManager.Items)
+            {
+                if (tabItem.Content is ITabCloseListener closeListener && !closeListener.HandleTabClose())
+                {
+                    e.Cancel = true;
+                    break;
+                }
+            }
         }
     }
 
