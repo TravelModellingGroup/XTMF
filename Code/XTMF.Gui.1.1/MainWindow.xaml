@@ -226,9 +226,9 @@
 
 
                     <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0">
-                    <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager"  >
-                        <dragablz:TabablzControl.InterTabController >
-                            <dragablz:InterTabController Partition=""  />
+                    <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager" ConsolidateOrphanedItems="True"  >
+                        <dragablz:TabablzControl.InterTabController  >
+                                    <dragablz:InterTabController />
                             </dragablz:TabablzControl.InterTabController>
                     </dragablz:TabablzControl>
                     </dockablz:Layout>
