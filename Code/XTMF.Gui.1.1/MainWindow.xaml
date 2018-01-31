@@ -31,7 +31,7 @@
         xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
 
         Title="XTMF Version 1.4" Height="768" Width="1024" IsHitTestVisible="True"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="1000"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="500"
 
         
   Name="XtmfWindow"
