@@ -78,7 +78,7 @@
                
                 <DockPanel Grid.Column="1"/>
             </Grid>
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MinWidth="325" />
                     <ColumnDefinition Width="AUTO" />
@@ -89,7 +89,13 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="5" />
+
+                    <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1" Grid.Row="0"
+                                              Margin="0 0 0 15"
+                                              materialDesign:ShadowAssist.ShadowDepth="Depth4">
+                        <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="0"   materialDesign:ShadowAssist.ShadowDepth="Depth4" />
+                        </materialDesign:ColorZone>
+                        
                     <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
                           Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0" MouseDoubleClick="Display_OnMouseDoubleClick">
                         <ListView.ItemsPanel>
