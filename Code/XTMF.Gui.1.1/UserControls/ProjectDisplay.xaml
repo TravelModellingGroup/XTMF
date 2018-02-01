@@ -40,7 +40,6 @@
                 PlacementMode="TopAndAlignCentres"
                 UnfurlOrientation="Vertical"
                 ToolTipService.Placement="Left"
-                ToolTip="PopupBox, Style MaterialDesignMultiFloatingActionPopupBox"
                 >
                 <StackPanel>
                     <Button Click="ButtonBase_OnClick" ToolTip="Open Project Directory" >
