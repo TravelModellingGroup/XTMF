@@ -33,9 +33,7 @@
               
                 <!--<ResourceDictionary Source="Resources/ComboBoxStyle.xaml"/> -->
                 <!--<ResourceDictionary Source="UserControls/MenuStyles.xaml"/> -->
-                <ResourceDictionary Source="Resources/LightTheme.xaml"/>
-                <ResourceDictionary Source="Resources/ControlStyles.xaml"/>
-
+             
 
 
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
@@ -58,10 +56,9 @@
 
                 <!-- Include the Dragablz Material Design style -->
                 <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/materialdesign.xaml"/>
-                
-                <!-- Include the Dragablz Material Design style -->
-                <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/materialdesign.xaml"/>   
-
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="Resources/LightTheme.xaml"/>
+                <ResourceDictionary Source="Resources/ControlStyles.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
 
@@ -85,6 +82,7 @@
             <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchBrush.Win10" Color="{DynamicResource Primary500}" />
             <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchMouseOverBrush.Win10" Color="{DynamicResource Primary400}" />
             <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorCheckedBrush.Win10" Color="{DynamicResource Primary500Foreground}" />
+     
         </ResourceDictionary>
 
 

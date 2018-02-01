@@ -135,7 +135,8 @@
                 UnfurlOrientation="Vertical"
                 ToolTipService.Placement="Left">
                 <StackPanel>
-                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal">
+                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create New project" Opacity="1.0"></Label>
                         </Border>
@@ -145,7 +146,7 @@
                     </Button>
                     </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Rename Project" Opacity="1.0"></Label>
                         </Border>
@@ -155,7 +156,7 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Clone Projeect" Opacity="1.0"></Label>
                         </Border>
@@ -165,7 +166,7 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Delete Project" Opacity="1.0"></Label>
                         </Border>

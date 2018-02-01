@@ -43,6 +43,16 @@
                     </GridViewColumn>
                     <GridViewColumn Header="Start Time"  Width="200" DisplayMemberBinding="{Binding StartTime}"/>
                     <GridViewColumn Header="Elapsed Time"  Width="200" DisplayMemberBinding="{Binding ElapsedTime}"/>
+                    <GridViewColumn Header="Actions"  Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Stretch" >
+
+                                    <materialDesign:PackIcon Kind="Cancel" />
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         
