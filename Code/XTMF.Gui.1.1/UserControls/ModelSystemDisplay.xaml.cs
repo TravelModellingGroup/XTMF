@@ -1197,6 +1197,7 @@ namespace XTMF.Gui.UserControls
 
                             Dispatcher.Invoke(new Action(() =>
                             {
+                                StatusSnackBar.MessageQueue.Enqueue(("Model system finished saving"));
                                 SaveModelSystemButton.Background = Brushes.Transparent;
                                 SaveModelSystemButton.BorderBrush = Brushes.Transparent;
                                 ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, false);

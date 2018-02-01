@@ -721,5 +721,6 @@
             <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Height="3" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True"/>
         </Grid>
         </materialDesign:DialogHost>
+        <materialDesign:Snackbar x:Name="StatusSnackBar" MessageQueue="{materialDesign:MessageQueue}" />
     </Grid>
 </UserControl>
