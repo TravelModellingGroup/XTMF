@@ -34,6 +34,8 @@ namespace XTMF.Update
         public bool UseWebservices;
         private string ConfigFile;
 
+
+        public XTMFUpdateForm XtmfUpdate { get; set; }
         public UpdateController()
         {
             LoadConfiguration();
@@ -100,13 +102,20 @@ namespace XTMF.Update
             GetFilesFromServer((x64 ? 2 : 4), dir, null, out string[] routedPaths, update);
         }
 
-        private static void DisplayErrors(List<string> errors)
+        /// <summary>
+        ///     Displays relevent errors (if any) in the console box.
+        /// </summary>
+        /// <param name="errors"></param>
+        private void DisplayErrors(List<string> errors)
         {
+            MessageBox.Show("At least one or more errors occured during the update process.");
             if (errors != null)
             {
                 foreach (var errorPath in errors)
                 {
-                    MessageBox.Show("Unable to write to file \"" + errorPath + "\"!");
+
+                    this.XtmfUpdate.ConsoleTextBoxControl.Text += "Unable to write to file \"" + errorPath + "\"!";
+                    
                 }
             }
         }

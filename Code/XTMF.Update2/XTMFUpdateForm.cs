@@ -28,10 +28,12 @@ namespace XTMF.Update
     {
         private UpdateController Controller;
 
+        public TextBox ConsoleTextBoxControl => ConsoleTextBox;
         public XTMFUpdateForm()
         {
             InitializeComponent();
             Controller = new UpdateController();
+            Controller.XtmfUpdate = this;
             ArchitectureSelect.SelectedIndex = 0;
             if (ParentProcess != null)
             {

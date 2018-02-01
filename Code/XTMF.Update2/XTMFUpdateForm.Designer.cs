@@ -58,6 +58,7 @@ namespace XTMF.Update
             this.UpdateButton = new System.Windows.Forms.Button();
             this.ArchitectureSelect = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.ConsoleTextBox = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -67,16 +68,18 @@ namespace XTMF.Update
             // 
             this.tableLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(25)))), ((int)(((byte)(39)))));
             this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.3937F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 49.6063F));
             this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel2, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.ConsoleTextBox, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 67.59776F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(508, 128);
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(508, 268);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // panel1
@@ -86,10 +89,10 @@ namespace XTMF.Update
             this.panel1.Controls.Add(this.UpdateProgress);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.ServerTextBox);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(248, 122);
+            this.panel1.Size = new System.Drawing.Size(248, 169);
             this.panel1.TabIndex = 2;
             // 
             // WebserviceCheckBox
@@ -146,10 +149,9 @@ namespace XTMF.Update
             this.panel2.Controls.Add(this.UpdateButton);
             this.panel2.Controls.Add(this.ArchitectureSelect);
             this.panel2.Controls.Add(this.label2);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(257, 3);
+            this.panel2.Location = new System.Drawing.Point(258, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(248, 122);
+            this.panel2.Size = new System.Drawing.Size(218, 169);
             this.panel2.TabIndex = 3;
             // 
             // UpdateButton
@@ -190,24 +192,33 @@ namespace XTMF.Update
             this.label2.TabIndex = 0;
             this.label2.Text = "Architecture";
             // 
-            // Form1
+            // ConsoleTextBox
+            // 
+            this.tableLayoutPanel1.SetColumnSpan(this.ConsoleTextBox, 2);
+            this.ConsoleTextBox.Location = new System.Drawing.Point(3, 178);
+            this.ConsoleTextBox.Multiline = true;
+            this.ConsoleTextBox.Name = "ConsoleTextBox";
+            this.ConsoleTextBox.Size = new System.Drawing.Size(502, 87);
+            this.ConsoleTextBox.TabIndex = 4;
+            // 
+            // XTMFUpdateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(25)))), ((int)(((byte)(39)))));
-            this.ClientSize = new System.Drawing.Size(508, 128);
+            this.ClientSize = new System.Drawing.Size(508, 268);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(524, 167);
             this.MinimumSize = new System.Drawing.Size(524, 167);
-            this.Name = "Form1";
+            this.Name = "XTMFUpdateForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "XTMF.Update2";
             this.TransparencyKey = System.Drawing.Color.Turquoise;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
@@ -229,6 +240,7 @@ namespace XTMF.Update
         private System.Windows.Forms.ProgressBar UpdateProgress;
         private System.Windows.Forms.Label StatusLabel;
         private System.Windows.Forms.CheckBox WebserviceCheckBox;
+        private System.Windows.Forms.TextBox ConsoleTextBox;
     }
 }
 
