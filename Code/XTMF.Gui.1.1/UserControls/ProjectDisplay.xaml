@@ -28,7 +28,7 @@
              Focusable="True" SnapsToDevicePixels="True"
              Background="{DynamicResource MaterialDesignPaper}"
              d:DesignHeight="400" d:DesignWidth="800">
-   
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -37,29 +37,65 @@
         <Border  Margin="10 10 30 30"   Grid.Row="1" HorizontalAlignment="Right">
             <materialDesign:PopupBox
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
-                PlacementMode="TopAndAlignCentres"
+                PlacementMode="TopAndAlignRightEdges"
                 UnfurlOrientation="Vertical"
                 ToolTipService.Placement="Left"
                 >
                 <StackPanel>
-                    <Button Click="ButtonBase_OnClick" ToolTip="Open Project Directory" >
-                        <materialDesign:PackIcon Kind="Folder" />
-                    </Button>
-                    <Button   ToolTip="Import Model System" Name="ImportButton" Click="ImportButton_OnClick">
-                        <materialDesign:PackIcon Kind="Import" />
-                    </Button>
-                    <Button ToolTip="Import Model System From File" Name="ImportFromFileButton" Click="ImportFromFileButton_OnClick" >
-                        <materialDesign:PackIcon Kind="FileImport" />
-                    </Button>
-                    <Button Click="NewModelSystem_Click"  ToolTip="Create new model system">
-                        <materialDesign:PackIcon Kind="ShapePlus" />
-                    </Button>
-                    <Button ToolTip="Refresh previous runs">
-                        <materialDesign:PackIcon Kind="Refresh" />
-                    </Button>
+                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+
+                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Open Project Directory" Opacity="1.0"></Label>
+                        </Border>
+                        <Button Click="ButtonBase_OnClick" >
+
+                            <materialDesign:PackIcon Kind="Folder" />
+                        </Button>
+                    </StackPanel>
+
+                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+
+                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System" Opacity="1.0"></Label>
+                        </Border>
+                        <Button   Name="ImportButton" Click="ImportButton_OnClick" >
+                            <materialDesign:PackIcon Kind="Import" />
+                        </Button>
+                    </StackPanel>
+
+                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+
+                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System From File" Opacity="1.0"></Label>
+                        </Border>
+                        <Button  Name="ImportFromFileButton" Click="ImportFromFileButton_OnClick" >
+                            <materialDesign:PackIcon Kind="FileImport" />
+                        </Button>
+
+                    </StackPanel>
+
+                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+
+                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" Opacity="1.0"></Label>
+                        </Border>
+                        <Button Click="NewModelSystem_Click"  >
+                            <materialDesign:PackIcon Kind="ShapePlus" />
+                        </Button>
+                    </StackPanel>
+
+                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+
+                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Refresh previous runs" Opacity="1.0"></Label>
+                        </Border>
+                        <Button  >
+                            <materialDesign:PackIcon Kind="Refresh" />
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </materialDesign:PopupBox>
-           <!-- <materialDesign:Card Margin="20,10,10,20">
+            <!-- <materialDesign:Card Margin="20,10,10,20">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch"   Background="{DynamicResource MaterialDesignCardBackground}">
                 <my:BorderIconButton BorderThickness="0" Margin="10,12,5,12" Header="Open" Width="170" Text="Open project directory" Icon="/XTMF.Gui;component/Resources/ic_folder_open_white_18dp.png" 
                                      Clicked="OpenProjectFolder_Clicked"/>
@@ -73,7 +109,7 @@
                                          Icon="/XTMF.Gui;component/Resources/ic_refresh_white_18dp.png" Clicked="RefreshPreviousRuns_Clicked" Background="{DynamicResource HighlightBrush1}" />
             </WrapPanel>
        </materialDesign:Card> -->
-            </Border>
+        </Border>
 
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
@@ -83,7 +119,7 @@
             <Grid VerticalAlignment="Stretch" Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MinWidth="380"></ColumnDefinition>
-     
+
                     <ColumnDefinition Width="*" MinWidth="380"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0">
@@ -114,7 +150,7 @@
                         </Grid>
                     </materialDesign:ColorZone>
 
-                   
+
                     <DockPanel Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" >
 
                         <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
@@ -220,14 +256,14 @@
                             </Button>
                         </Grid>
                     </materialDesign:ColorZone>
-                   
+
                     <ListView Grid.Row="2" x:Name="PastRunDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
                                  
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
 
-                      
+
                         <ListBox.ItemsPanel>
-                            
+
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
                             </ItemsPanelTemplate>
@@ -245,8 +281,8 @@
                                         </Path>
                                     </xtmf:ListViewControl.IconPath>
                                 </xtmf:ListViewControl >
-                                
-                          
+
+
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.ContextMenu>

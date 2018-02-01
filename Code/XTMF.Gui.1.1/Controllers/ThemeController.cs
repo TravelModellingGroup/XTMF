@@ -72,11 +72,7 @@ namespace XTMF.Gui.Controllers
         /// </summary>
         private void LoadDefaultDarkTheme()
         {
-            ClearThemeDictionaries();
-            Uri NewTheme = new Uri("/XTMF.Gui;component/Resources/DarkTheme.xaml", UriKind.RelativeOrAbsolute);
-            ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
-            dictionary.Source = NewTheme;
-            Themes.Add(new Theme("Dark Theme Default", NewTheme.OriginalString, dictionary));
+            return;
         }
 
         private void ClearThemeDictionaries()
@@ -128,27 +124,17 @@ namespace XTMF.Gui.Controllers
         /// </summary>
         private void LoadDefaultLightTheme()
         {
-            ClearThemeDictionaries();
-            Uri NewTheme = new Uri("/XTMF.Gui;component/Resources/LightTheme.xaml", UriKind.RelativeOrAbsolute);
-            ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
-            dictionary.Source = NewTheme;
-            Themes.Add(new Theme("Light Theme Default", NewTheme.OriginalString, dictionary));
+          
         }
 
         private void LoadDefaultWarmTheme()
         {
-            Uri NewTheme = new Uri("/XTMF.Gui;component/Resources/WarmTheme.xaml", UriKind.RelativeOrAbsolute);
-            ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
-            dictionary.Source = NewTheme;
-            Themes.Add(new Theme("Warm Theme Default", NewTheme.OriginalString, dictionary));
+
         }
 
         private void LoadDefaultForestTheme()
         {
-            Uri NewTheme = new Uri("/XTMF.Gui;component/Resources/ForestTheme.xaml", UriKind.RelativeOrAbsolute);
-            ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
-            dictionary.Source = NewTheme;
-            Themes.Add(new Theme("Forest Theme Default", NewTheme.OriginalString, dictionary));
+           
         }
 
         public ThemeController(string configuration)
