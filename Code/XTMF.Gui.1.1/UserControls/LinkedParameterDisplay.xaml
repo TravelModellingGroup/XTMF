@@ -103,7 +103,13 @@
                                 <VirtualizingStackPanel  Orientation="Vertical" />
                             </ItemsPanelTemplate>
                         </ListView.ItemsPanel>
-                        <ListView.ItemTemplate>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"></TextBlock>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                        <!--<ListView.ItemTemplate>
                             <DataTemplate>
                                 <xtmfgui:ListViewControl PreviewKeyDown="LinkedParameterValue_PreviewKeyDown" IsTabStop="True" Margin="0" TitleText="{Binding Name}" 
                                            VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
@@ -112,7 +118,7 @@
                                     </xtmfgui:ListViewControl.IconPath>
                                 </xtmfgui:ListViewControl>
                             </DataTemplate>
-                        </ListView.ItemTemplate>
+                        </ListView.ItemTemplate> -->
                         <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Rename (F2)" Click="Rename_Click">

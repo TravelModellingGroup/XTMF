@@ -81,14 +81,19 @@ namespace XTMF.Gui.UserControls
 
         }
 
+        /// <summary>
+        /// Adds a new run to the scheduler window
+        /// </summary>
+        /// <param name="run"></param>
         public void AddRun(RunWindow run)
         {
-            //ActiveRunContent.Content = run;
-            ActiveContent = run;
-           
-            ScheduledRuns.Items.Add(new SchedulerRunItem(run));
-            ActiveRunContent.DataContext = run;
-            //ScheduledRuns.UpdateLayout();
+            Dispatcher.Invoke(new Action(()=>
+            {
+                ActiveContent = run;
+                ScheduledRuns.Items.Add(new SchedulerRunItem(run));
+                ActiveRunContent.DataContext = run;
+            }));
+        
 
         }
 
