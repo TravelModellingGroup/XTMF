@@ -485,12 +485,19 @@
         </Setter>
     </Style>
 
-    <Style x:Key="XtmfTabItem" TargetType="{x:Type TabItem}">
-        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
+    <Style x:Key="XtmfTabItem" TargetType="{x:Type TabItem}" BasedOn="{StaticResource {x:Type TabItem}}">
+        <!--<Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"></Setter>-->
         <Setter Property="HeaderTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <ContentPresenter Margin="0" Content="{TemplateBinding Content}">
+                    <DataTemplate.Triggers>
+
+                    </DataTemplate.Triggers>
+                    
+         
+                    
+                    <ContentPresenter Margin="0" Content="{TemplateBinding Content}" x:Name="HeaderContent">
+                        
 
                         <ContentPresenter.LayoutTransform>
                             <RotateTransform Angle="90" />
@@ -499,48 +506,56 @@
                 </DataTemplate>
             </Setter.Value>
         </Setter>
-        <Setter Property="Template">
+       <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
-                    <Border Name="Border" BorderThickness="0,0,0,0" BorderBrush="Gainsboro" CornerRadius="0,0,0,0" Margin="0,0">
-                        <ContentPresenter x:Name="ContentSite"
+                    <Border  BorderThickness="0,0,0,0" CornerRadius="0,0,0,0" Margin="0,0" Padding="5,10" Name="ContentBorder">
+                        <ContentPresenter x:Name="ContentSite" 
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
                                         ContentSource="Header"
-                                        Margin="5,10"/>
+                                        Margin="0"/>
+                        
+                        
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"></Setter>
-                        </Trigger>
-
-                        <Trigger SourceName="Border"  Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
-                        </Trigger>
-
-                        <Trigger Property="IsSelected" Value="False">
-                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"></Setter>
-                            <Setter Property="Opacity" Value="0.7"></Setter>
-                        </Trigger>
-
+                        <MultiTrigger >
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="False" ></Condition>
+                                <Condition Property="IsMouseOver" Value="False" SourceName="ContentBorder"></Condition>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.Setters>
+                                <Setter TargetName="ContentBorder" Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"></Setter>
+                                <Setter Property="Opacity" Value="0.7"></Setter>
+                                <Setter  Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"></Setter>
+                            </MultiTrigger.Setters>
+                        </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsSelected" Value="False"></Condition>
-                                <Condition Property="IsMouseOver" Value="True"></Condition>
+                                <Condition Property="IsSelected" Value="True"></Condition>
+                                <Condition Property="IsMouseOver" Value="False" SourceName="ContentBorder"></Condition>
                             </MultiTrigger.Conditions>
-
                             <MultiTrigger.Setters>
-                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"></Setter>
+                                <Setter TargetName="ContentBorder" Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
                                 <Setter Property="Opacity" Value="0.7"></Setter>
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"></Setter>
                             </MultiTrigger.Setters>
-
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"></Condition>
+                                <Condition Property="IsMouseOver" Value="True" SourceName="ContentBorder"></Condition>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.Setters>
+                                <Setter TargetName="ContentBorder" Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"></Setter>
+                                <Setter Property="Opacity" Value="0.7"></Setter>
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueLightForegroundBrush}"></Setter>
+                            </MultiTrigger.Setters>
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
-
             </Setter.Value>
-        </Setter>
-
+        </Setter> 
     </Style>
 
     <!-- Expander -->
