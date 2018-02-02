@@ -717,7 +717,7 @@ namespace XTMF.Gui
                 }
             }
         }
-        private async void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
+        private void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
         {
             NewModelSystem();
         }
