@@ -22,8 +22,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,175 +33,85 @@ using MaterialDesignThemes.Wpf;
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for RunWindow.xaml
+    ///     Interaction logic for RunWindow.xaml
     /// </summary>
     public partial class RunWindow : UserControl, INotifyPropertyChanged
     {
-
-
-        private XTMFRun _run;
-        private string _runDirectory;
-        private DateTime _startTime;
-        private DispatcherTimer _timer;
-        private bool _windows7OrAbove;
-        private volatile bool _isActive;
-        private volatile bool _isFinished;
-        private volatile bool _wasCanceled;
         private static readonly Tuple<byte, byte, byte> ErrorColour;
 
-
-        public Action<string> UpdateRunStatus { get; set; }
-        public Action<float> UpdateRunProgress { get; set; }
-        public Action<string> UpdateElapsedTime { get; set; }
-        public Action<string> UpdateStartTime { get; set; }
-
-
-        public XTMFRun Run
-        {
-            get =>  _run;
-        }
-
-        private readonly BindingListWithRemoving<SubProgress> _subProgressBars =
-            new BindingListWithRemoving<SubProgress>();
-
-        private BindingListWithRemoving<IProgressReport> _progressReports;
-
-        private struct SubProgress
-        {
-            internal Label Name;
-            internal TMGProgressBar ProgressBar;
-        }
-
-        /// <summary>
-        /// Requires Windows 7
-        /// </summary>
-        private TaskbarItemInfo _taskbarInformation;
-
         public static readonly DependencyProperty IsRunCancellableDependencyProperty =
-            DependencyProperty.Register("IsRunCancellable", typeof(bool), typeof(RunWindow), new PropertyMetadata(false));
+            DependencyProperty.Register("IsRunCancellable", typeof(bool), typeof(RunWindow),
+                new PropertyMetadata(false));
 
 
         public static readonly DependencyProperty IsRunClearableDependencyProperty =
             DependencyProperty.Register("IsRunClearable", typeof(bool), typeof(RunWindow), new PropertyMetadata(false));
 
-        public bool IsRunClearable
-        {
-            get => !_isActive && (bool)GetValue(IsRunClearableDependencyProperty);
-            set => SetValue(IsRunClearableDependencyProperty, value);
-        }
+        private readonly BindingListWithRemoving<SubProgress> _subProgressBars =
+            new BindingListWithRemoving<SubProgress>();
 
-        public bool IsRunCancellable
-        {
-            get => (bool)GetValue(IsRunCancellableDependencyProperty);
-            set => SetValue(IsRunCancellableDependencyProperty, _run != null);
-        }
+        private int _consoleLength;
+        private volatile bool _isActive;
+        private volatile bool _isFinished;
+
+        private int _oldCaret;
+
+        private readonly BindingListWithRemoving<IProgressReport> _progressReports;
+
+
+        private string _runDirectory;
+
+        /// <summary>
+        ///     Requires Windows 7
+        /// </summary>
+        private readonly TaskbarItemInfo _taskbarInformation;
+
+        private readonly DispatcherTimer _timer;
+        private volatile bool _wasCanceled;
+        private readonly bool _windows7OrAbove;
+
+        public Action<ErrorWithPath> RuntimeError;
+
+        public Action<List<ErrorWithPath>> RuntimeValidationError;
+
+        public Action<List<ErrorWithPath>> ValidationError;
 
         static RunWindow()
         {
             var findResource = Application.Current.FindResource("WarningRed");
             if (findResource != null)
             {
-                var errorColour = (Color)findResource;
+                var errorColour = (Color) findResource;
                 ErrorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
             }
         }
-
-        private void MainWindowClosing(object sender, CancelEventArgs e)
-        {
-            if (_isActive)
-            {
-                MessageBoxResult result = MessageBox.Show("A run is currently active. Are you sure you wish to close XTMF?", "Run Currently Active", MessageBoxButton.YesNoCancel);
-                e.Cancel = result != MessageBoxResult.Yes;
-            }
-        }
-
-        public class ConsoleOutputController : INotifyPropertyChanged, IDisposable
-        {
-
-            public ConsoleOutputController(RunWindow runWindow, XTMFRun run)
-            {
-                run.RunMessage += Run_RunMessage;
-            }
-
-            private void Run_RunMessage(string message)
-            {
-                ConsoleOutput = ConsoleOutput + message + "\r\n";
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
-            }
-
-            public string ConsoleOutput { get; set; }
-
-            public event PropertyChangedEventHandler PropertyChanged;
-            
-            public void Dispose()
-            {
-                ConsoleOutput = String.Empty;
-            }
-        }
-
-        private int _consoleLength;
-
-        private int _oldCaret;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void ConsoleOutput_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var newTextLength = ConsoleOutput.Text.Length;
-            if (_oldCaret >= _consoleLength)
-            {
-                ConsoleScrollViewer.ScrollToEnd();
-                ConsoleOutput.CaretIndex = newTextLength;
-            }
-            else
-            {
-                ConsoleOutput.CaretIndex = _oldCaret;
-            }
-            _consoleLength = newTextLength;
-        }
-
-        private static Window GetWindow(DependencyObject current)
-        {
-            while (current != null && !(current is Window))
-            {
-                current = VisualTreeHelper.GetParent(current);
-            }
-            return current as Window;
-        }
-
-        public Action<List<ErrorWithPath>> ValidationError;
-
-        public Action<List<ErrorWithPath>> RuntimeValidationError;
-
-        public Action<ErrorWithPath> RuntimeError;
 
         public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             InitializeComponent();
             Session = session;
             session.SessionClosed += Session_SessionClosed;
-            _run = run;
+            Run = run;
             MainWindow.Us.Closing += MainWindowClosing;
             OpenDirectoryButton.IsEnabled = true;
             Dispatcher.BeginInvoke(new Action(() =>
             {
-
                 RunNameLabel.Text = runName;
                 IsRunClearable = false;
             }));
-            _progressReports = _run.Configuration.ProgressReports;
+            _progressReports = Run.Configuration.ProgressReports;
             _progressReports.ListChanged += ProgressReports_ListChanged;
             _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
             _subProgressBars.ListChanged += SubProgressBars_ListChanged;
             _subProgressBars.BeforeRemove += SubProgressBars_BeforeRemove;
-            _run.RunCompleted += Run_RunComplete;
-            _run.RunStarted += Run_RunStarted;
-            _run.RuntimeError += Run_RuntimeError;
-            _run.RuntimeValidationError += Run_RuntimeValidationError;
-            _run.ValidationStarting += Run_ValidationStarting;
-            _run.ValidationError += Run_ValidationError;
-            _runDirectory = _run.RunDirectory;
-            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(value: 33) };
+            Run.RunCompleted += Run_RunComplete;
+            Run.RunStarted += Run_RunStarted;
+            Run.RuntimeError += Run_RuntimeError;
+            Run.RuntimeValidationError += Run_RuntimeValidationError;
+            Run.ValidationStarting += Run_ValidationStarting;
+            Run.ValidationError += Run_ValidationError;
+            _runDirectory = Run.RunDirectory;
+            _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(33)};
             _isFinished = false;
             _wasCanceled = false;
             _timer.Tick += Timer_Tick;
@@ -218,14 +126,77 @@ namespace XTMF.Gui.UserControls
                     _taskbarInformation.ProgressValue = 0;
                 }
             }
-            ConsoleOutput.DataContext = new ConsoleOutputController(this, _run);
+
+            ConsoleOutput.DataContext = new ConsoleOutputController(this, Run);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             StartRunAsync();
             _timer.Start();
         }
 
+
+        public Action<string> UpdateRunStatus { get; set; }
+        public Action<float> UpdateRunProgress { get; set; }
+        public Action<string> UpdateElapsedTime { get; set; }
+        public Action<string> UpdateStartTime { get; set; }
+
+
+        public XTMFRun Run { get; }
+
+        public bool IsRunClearable
+        {
+            get => !_isActive && (bool) GetValue(IsRunClearableDependencyProperty);
+            set => SetValue(IsRunClearableDependencyProperty, value);
+        }
+
+        public bool IsRunCancellable
+        {
+            get => (bool) GetValue(IsRunCancellableDependencyProperty);
+            set => SetValue(IsRunCancellableDependencyProperty, Run != null);
+        }
+
+        public DateTime StartTime { get; private set; }
+
+        public ModelSystemEditingSession Session { get; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void MainWindowClosing(object sender, CancelEventArgs e)
+        {
+            if (_isActive)
+            {
+                var result = MessageBox.Show("A run is currently active. Are you sure you wish to close XTMF?",
+                    "Run Currently Active", MessageBoxButton.YesNoCancel);
+                e.Cancel = result != MessageBoxResult.Yes;
+            }
+        }
+
+        private void ConsoleOutput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var newTextLength = ConsoleOutput.Text.Length;
+            if (_oldCaret >= _consoleLength)
+            {
+                ConsoleScrollViewer.ScrollToEnd();
+                ConsoleOutput.CaretIndex = newTextLength;
+            }
+            else
+            {
+                ConsoleOutput.CaretIndex = _oldCaret;
+            }
+
+            _consoleLength = newTextLength;
+        }
+
+        private static Window GetWindow(DependencyObject current)
+        {
+            while (current != null && !(current is Window))
+            {
+                current = VisualTreeHelper.GetParent(current);
+            }
+
+            return current as Window;
+        }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -239,35 +210,40 @@ namespace XTMF.Gui.UserControls
                     {
                         return;
                     }
-                    if (_run != null)
+
+                    if (Run != null)
                     {
                         if (_isFinished)
                         {
                             return;
                         }
+
                         float progress = 1;
                         var colour = ErrorColour;
                         try
                         {
-                            var status = _run.PollStatusMessage();
+                            var status = Run.PollStatusMessage();
                             ;
                             if (status != null)
                             {
                                 StatusLabel.Text = status;
                                 UpdateRunStatus?.Invoke(status);
                             }
-                            progress = _run.PollProgress();
-                            colour = _run.PollColour();
+
+                            progress = Run.PollProgress();
+                            colour = Run.PollColour();
                         }
                         catch
                         {
                             // ignored
                         }
+
                         progress = Math.Max(Math.Min(progress * 10000, 10000), 0);
                         if (colour != null)
                         {
                             ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
                         }
+
                         ProgressBar.Value = progress;
                         UpdateRunProgress.Invoke(progress);
                         if (_windows7OrAbove)
@@ -285,6 +261,7 @@ namespace XTMF.Gui.UserControls
                         {
                             BaseGrid.ColumnDefinitions[0].Width = new GridLength(0);
                         }
+
                         for (var i = 0; i < _subProgressBars.Count; i++)
                         {
                             try
@@ -295,10 +272,12 @@ namespace XTMF.Gui.UserControls
                                 {
                                     progress = 10000;
                                 }
+
                                 if (progress < 0)
                                 {
                                     progress = 0;
                                 }
+
                                 _subProgressBars[i].ProgressBar.Value = progress;
                             }
                             catch
@@ -306,13 +285,14 @@ namespace XTMF.Gui.UserControls
                                 // ignored
                             }
                         }
-                        var elapsedTime = DateTime.Now - _startTime;
+
+                        var elapsedTime = DateTime.Now - StartTime;
                         var days = elapsedTime.Days;
                         elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
-                        ElapsedTimeLabel.Content = days < 1 ?
-                            $"Elapsed Time: {elapsedTime:g}" : $"Elapsed Time: {elapsedTime} Day(s), {days:g}";
-                        UpdateElapsedTime?.Invoke(days < 1 ?
-                            $"{elapsedTime:g}" : $"{elapsedTime} Day(s), {days:g}");
+                        ElapsedTimeLabel.Content = days < 1
+                            ? $"Elapsed Time: {elapsedTime:g}"
+                            : $"Elapsed Time: {elapsedTime} Day(s), {days:g}";
+                        UpdateElapsedTime?.Invoke(days < 1 ? $"{elapsedTime:g}" : $"{elapsedTime} Day(s), {days:g}");
                     }
                     else
                     {
@@ -342,7 +322,7 @@ namespace XTMF.Gui.UserControls
             new ErrorWindow
             {
                 Owner = GetWindow(this),
-                Title = String.IsNullOrEmpty(title) ? "Error" : title,
+                Title = string.IsNullOrEmpty(title) ? "Error" : title,
                 ErrorMessage = error.Message,
                 ErrorStackTrace = error.StackTrace
             }.ShowDialog();
@@ -386,39 +366,39 @@ namespace XTMF.Gui.UserControls
                         new Action(() => { _taskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
                 });
             }
+
             _isFinished = true;
             MainWindow.Us.Closing -= MainWindowClosing;
-            Dispatcher.BeginInvoke((Action)(() =>
-           {
-               IsRunClearable = true;
-               ProgressBar.Finished = true;
-              
-               ProgressBar.Value = ProgressBar.Maximum;
-               UpdateRunProgress(ProgressBar.Maximum);
+            Dispatcher.BeginInvoke((Action) (() =>
+            {
+                IsRunClearable = true;
+                ProgressBar.Finished = true;
 
-               CancelButton.IsEnabled = false;
-               ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
-               ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
-               StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
+                ProgressBar.Value = ProgressBar.Maximum;
+                UpdateRunProgress(ProgressBar.Maximum);
 
- 
-               UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
-               ProgressBar.Finished = true;
-               MainWindow.Us.UpdateStatusDisplay("Ready");
-               MainWindow.Us.HideStatusLink();
+                CancelButton.IsEnabled = false;
+                ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
+                ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
+                StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
 
-           }));
+
+                UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
+                ProgressBar.Finished = true;
+                MainWindow.Us.UpdateStatusDisplay("Ready");
+                MainWindow.Us.HideStatusLink();
+            }));
         }
 
         private void Run_RunStarted()
         {
             _isActive = true;
 
-            Dispatcher.BeginInvoke((Action)(() =>
+            Dispatcher.BeginInvoke((Action) (() =>
             {
                 CancelButton.IsEnabled = true;
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, true);
-                ButtonProgressAssist.SetIsIndeterminate(CancelButton,true);
+                ButtonProgressAssist.SetIsIndeterminate(CancelButton, true);
                 //ButtonProgressAssist.
                 IsRunClearable = false;
             }));
@@ -435,27 +415,20 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public DateTime StartTime
-        {
-            get => _startTime;
-        }
-
         /// <summary>
-        /// Starts the run asynchronously
+        ///     Starts the run asynchronously
         /// </summary>
         private void StartRunAsync()
         {
-            _startTime = DateTime.Now;
-            StartTimeLabel.Content = $"Start Time: {_startTime:g}";
-            UpdateStartTime?.Invoke($"{_startTime:g}");
+            StartTime = DateTime.Now;
+            StartTimeLabel.Content = $"Start Time: {StartTime:g}";
+            UpdateStartTime?.Invoke($"{StartTime:g}");
         }
 
         private void Session_SessionClosed(object sender, EventArgs e)
         {
             MainWindow.Us.CloseWindow(this);
         }
-
-        public ModelSystemEditingSession Session { get; private set; }
 
         private void OpenDirectoryButton_Clicked(object sender, RoutedEventArgs e)
         {
@@ -475,10 +448,10 @@ namespace XTMF.Gui.UserControls
             if (MessageBox.Show(MainWindow.Us, "Are you sure you want to cancel this run?", "Cancel run?",
                     MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
-                if (_run != null)
+                if (Run != null)
                 {
-                    _run.DeepExitRequest();
-                    _wasCanceled = _run.ExitRequest();
+                    Run.DeepExitRequest();
+                    _wasCanceled = Run.ExitRequest();
                     _wasCanceled = true;
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
@@ -519,10 +492,10 @@ namespace XTMF.Gui.UserControls
                         progressBar.SetForgroundColor(Color.FromRgb(toAdd.Colour.Item1, toAdd.Colour.Item2,
                             toAdd.Colour.Item3));
                     }
+
                     _subProgressBars.Add(new SubProgress
                     {
-
-                        Name = new Label { Content = toAdd.Name, Foreground = Brushes.White },
+                        Name = new Label {Content = toAdd.Name, Foreground = Brushes.White},
                         ProgressBar = progressBar
                     });
 
@@ -572,10 +545,11 @@ namespace XTMF.Gui.UserControls
             {
                 return true;
             }
+
             Dispatcher.Invoke(() => { MainWindow.ShowPageContaining(this); });
             //Are you sure?
             var window = GetWindow(this);
-            var message = "Are you sure you want to cancel the run '" + _run.RunName + "'?";
+            var message = "Are you sure you want to cancel the run '" + Run.RunName + "'?";
             if (window == null
                 ? MessageBox.Show(message, "Cancel run?",
                       MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes
@@ -586,17 +560,18 @@ namespace XTMF.Gui.UserControls
                 {
                     _wasCanceled = true;
                     _isActive = false;
-                    Dispatcher.BeginInvoke((Action)(() =>
+                    Dispatcher.BeginInvoke((Action) (() =>
                     {
-                        ButtonProgressAssist.SetIsIndicatorVisible(CancelButton,false);
+                        ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                         ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                         CancelButton.IsEnabled = false;
                     }));
                     _timer.Stop();
-                    _run.TerminateRun();
+                    Run.TerminateRun();
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -618,7 +593,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Removes the RunWindow / control from the scheduler window
+        ///     Removes the RunWindow / control from the scheduler window
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -626,14 +601,41 @@ namespace XTMF.Gui.UserControls
         {
             MainWindow.Us.SchedulerWindow.CloseRun(this);
         }
+
+        private struct SubProgress
+        {
+            internal Label Name;
+            internal TMGProgressBar ProgressBar;
+        }
+
+        public class ConsoleOutputController : INotifyPropertyChanged, IDisposable
+        {
+            public ConsoleOutputController(RunWindow runWindow, XTMFRun run)
+            {
+                run.RunMessage += Run_RunMessage;
+            }
+
+            public string ConsoleOutput { get; set; }
+
+            public void Dispose()
+            {
+                ConsoleOutput = string.Empty;
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void Run_RunMessage(string message)
+            {
+                ConsoleOutput = ConsoleOutput + message + "\r\n";
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
+            }
+        }
     }
 
     public class RunButtonTemplateSelecctor : DataTemplateSelector
     {
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-           
-
             return null;
         }
     }
