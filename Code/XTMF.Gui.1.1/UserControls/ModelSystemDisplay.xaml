@@ -208,7 +208,7 @@
                         <RowDefinition Height="26"/>
                     </Grid.RowDefinitions>
 
-                        <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" >
+                        <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" Margin="0 0 100 0" >
                             <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                                 <Button ToolTip="Save Model System" Click="ButtonBase_OnClick" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanSaveModelSystem}" Name="SaveModelSystemButton"
@@ -522,29 +522,7 @@
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0"  KeyboardNavigation.TabNavigation="Cycle" 
                                   ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged">
-                           <!-- <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListViewItem }">
-                                    <Setter Property="KeyboardNavigation.IsTabStop" Value="False"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="Margin" Value="0,0,0,0"/>
-                                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="Padding" Value="5,5,5,5"/> 
-                                   <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}"/> 
-                                   <Style.Resources>
-                                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
-                                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Black"/>
-                                    </Style.Resources> 
-                                    <Style.Triggers>
-                                        <Trigger Property="IsKeyboardFocusWithin" Value="true">
-                                            <Setter Property="IsSelected" Value="true"/>
-                                        </Trigger>
-                                       <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource ControlHighlightColourBrush}"/>
-                                        </Trigger> 
-                                    </Style.Triggers>
-                                </Style>
-                            </ListView.ItemContainerStyle> -->
+
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
@@ -638,7 +616,7 @@
                             <Border Grid.Row="1"/>
                             <Border Grid.Row="2">
                                 <StackPanel Orientation="Vertical">
-                                    <TextBlock Style="{StaticResource MaterialDesignHeadlineTextBlock}" Grid.Row="0" HorizontalAlignment="Center" Text="Disabled Modules"  Margin="0,15,0,5"/>
+                                        <TextBlock Style="{DynamicResource MaterialDesignHeadlineTextBlock}" Grid.Row="0" HorizontalAlignment="Center" Text="Disabled Modules"  Margin="0,15,0,5"/>
                                     <Grid HorizontalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1*"/>
@@ -655,7 +633,7 @@
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                                            <Border Background="Transparent" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource WindowBackgroundBrush4}">
+                                                            <Border Background="Transparent" BorderThickness="0,1,0,0" >
                                                                 <ContentPresenter/>
                                                             </Border>
                                                         </ControlTemplate>
@@ -679,7 +657,7 @@
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Validation Errors" Style="{DynamicResource MaterialDesignHeadlineTextBlock}" Margin="0,15,0,5"/>
                                     <Grid Height="Auto">
-                                        <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}"
+                                        <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged"
                                                   ItemTemplate="{StaticResource ModuleValidationErrorTemplate}" Name="ModuleValidationErrorListView" LostFocus="ModuleValidationErrorListView_LostFocus"/>
                                     </Grid>
                                 </StackPanel>
@@ -687,14 +665,14 @@
                             <Border Grid.Row="4">
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Validation Errors" Style="{DynamicResource MaterialDesignHeadlineTextBlock}" Margin="0,15,0,5"/>
-                                    <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}"
+                                    <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged"  ItemTemplate="{StaticResource ModuleValidationErrorTemplate}"
                                               Name="ModuleRuntimeValidationErrorListView" LostFocus="ModuleRuntimeValidationErrorListView_LostFocus"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Row="5">
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Style="{DynamicResource MaterialDesignHeadlineTextBlock}" Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Errors"  Margin="0,15,0,5"/>
-                                    <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}"
+                                    <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged"  ItemTemplate="{StaticResource ModuleValidationErrorTemplate}"
                                               Name="ModuleRuntimeErrorListView" LostFocus="ModuleRuntimeValidationErrorListView_LostFocus"/>
                                 </StackPanel>
                             </Border>
@@ -702,7 +680,7 @@
                     </ScrollViewer>
                 </TabItem>
             </TabControl>
-            <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Height="3" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True"/>
+            <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Height="3" ShowsPreview="True"/>
         </Grid>
         </materialDesign:DialogHost>
         <materialDesign:Snackbar x:Name="StatusSnackBar" MessageQueue="{materialDesign:MessageQueue}" />

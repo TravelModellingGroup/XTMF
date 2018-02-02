@@ -489,22 +489,36 @@
         <!--<Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"></Setter>-->
         <Setter Property="HeaderTemplate">
             <Setter.Value>
+                
                 <DataTemplate>
                     <DataTemplate.Triggers>
                     </DataTemplate.Triggers>
-                    <ContentPresenter Margin="0" Content="{TemplateBinding Content}" x:Name="HeaderContent">
-                      
-                        <ContentPresenter.LayoutTransform>
+                    <Border >
+                  <ContentPresenter Margin="0" Content="{TemplateBinding Content}" x:Name="HeaderContent" >
+                      <ContentPresenter.ContentTemplate>
+                          <DataTemplate>
+                                <StackPanel>
+                                        <TextBlock Text="{TemplateBinding Content}">
+                                     
+                                        </TextBlock>
+                                    </StackPanel>
+                              </DataTemplate>
+
+                            </ContentPresenter.ContentTemplate>
+                    
+
+                            <ContentPresenter.LayoutTransform>
                             <RotateTransform Angle="90" />
                         </ContentPresenter.LayoutTransform>
                     </ContentPresenter>
+                    </Border>
                 </DataTemplate>
             </Setter.Value>
         </Setter>
        <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
-                    <Border  BorderThickness="0,0,0,0" CornerRadius="0,0,0,0" Margin="0,0" Padding="5,10" Name="ContentBorder">
+                    <Border Background="{DynamicResource PrimaryHueMidBrush}"  BorderThickness="0,0,0,0" CornerRadius="0,0,0,0" Margin="0,0" Padding="5,10" Name="ContentBorder">
                         <ContentPresenter x:Name="ContentSite" 
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
@@ -513,6 +527,8 @@
                         
                     </Border>
                     <ControlTemplate.Triggers>
+
+                      
                         <MultiTrigger >
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSelected" Value="False" ></Condition>
@@ -520,10 +536,11 @@
                             </MultiTrigger.Conditions>
                             <MultiTrigger.Setters>
                                 <Setter TargetName="ContentBorder" Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"></Setter>
-                                <Setter Property="Opacity" Value="0.7"></Setter>
+                              
                                 <Setter  Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"></Setter>
                             </MultiTrigger.Setters>
                         </MultiTrigger>
+                      
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSelected" Value="True"></Condition>
@@ -531,7 +548,7 @@
                             </MultiTrigger.Conditions>
                             <MultiTrigger.Setters>
                                 <Setter TargetName="ContentBorder" Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
-                                <Setter Property="Opacity" Value="0.7"></Setter>
+                              
                                 <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"></Setter>
                             </MultiTrigger.Setters>
                         </MultiTrigger>
@@ -542,10 +559,10 @@
                             </MultiTrigger.Conditions>
                             <MultiTrigger.Setters>
                                 <Setter TargetName="ContentBorder" Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"></Setter>
-                                <Setter Property="Opacity" Value="0.7"></Setter>
+                              
                                 <Setter Property="Foreground" Value="{DynamicResource PrimaryHueLightForegroundBrush}"></Setter>
                             </MultiTrigger.Setters>
-                        </MultiTrigger>
+                        </MultiTrigger> 
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
