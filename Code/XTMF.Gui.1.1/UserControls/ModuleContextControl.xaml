@@ -5,16 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d"
-             d:DesignHeight="50" d:DesignWidth="300">
+             d:DesignHeight="25" d:DesignWidth="300" VerticalAlignment="Top">
 
 
     <Grid SnapsToDevicePixels="True" Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Left"
-          VerticalAlignment="Center">
+          VerticalAlignment="Center" >
 
 
-        <ListView SnapsToDevicePixels="True" SelectionMode="Single"
+        <ListView SnapsToDevicePixels="True" SelectionMode="Single"  ScrollViewer.VerticalScrollBarVisibility="Disabled"
                   SelectionChanged="ModulePathList_OnSelectionChanged" BorderThickness="0"
-                  Background="{DynamicResource MaterialDesignPaper}" x:Name="ModulePathList">
+                  Background="{DynamicResource MaterialDesignPaper}" x:Name="ModulePathList" VerticalAlignment="Top">
 
             <ListView.ItemContainerStyle>
 
@@ -55,10 +55,10 @@
                 <DataTemplate>
                     <StackPanel ToolTip="{Binding Name}" SnapsToDevicePixels="True" Margin="-8,0,0,0"
                                 PreviewMouseRightButtonDown="ModulePathList_OnPreviewMouseRightButtonDown"
-                                Tag="{Binding Path=.}" Orientation="Horizontal">
+                                Tag="{Binding Path=.}" Orientation="Horizontal" VerticalAlignment="Top">
 
                         <Grid SnapsToDevicePixels="True">
-                            <Polyline SnapsToDevicePixels="True" StrokeThickness="1.5" Points="0,0 6,12 0,21"
+                            <Polyline SnapsToDevicePixels="True" StrokeThickness="1.5" Points="0,0 6,13 0,26"
                                     >
                                 <Polyline.Style>
                                     <Style TargetType="{x:Type Polyline}">
@@ -79,7 +79,7 @@
                                     </Style>
                                 </Polyline.Style>
                             </Polyline>
-                            <Polyline SnapsToDevicePixels="True" StrokeThickness="0" Points="1,0 7,12 1,21 8,21 8,0">
+                            <Polyline SnapsToDevicePixels="True" StrokeThickness="0" Points="1,0 7,13 1,26 8,26 8,0">
                                 <Polyline.Style>
                                     <Style TargetType="{x:Type Polyline}">
                                         <Style.Triggers>
@@ -107,6 +107,7 @@
                                                         Value="True" />
                                                 </MultiDataTrigger.Conditions>
                                                 <Setter Property="Fill" Value="{DynamicResource PrimaryHueLightBrush}" />
+
                                             </MultiDataTrigger>
 
                                             <MultiDataTrigger>
@@ -117,20 +118,20 @@
                                                     <Condition
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="False" />
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                            </MultiDataTrigger>
-
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition
-                                                        Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"
-                                                        Value="False" />
-                                                    <Condition
-                                                        Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
-                                                        Value="True" />
                                                 </MultiDataTrigger.Conditions>
                                                 <Setter Property="Fill" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                            </MultiDataTrigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition
+                                                        Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"
+                                                        Value="False" />
+                                                    <Condition
+                                                        Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
+                                                        Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueMidBrush}" />
                                             </MultiDataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -139,8 +140,8 @@
                         </Grid>
 
 
-                        <Border SnapsToDevicePixels="True" BorderThickness="0,0,0,0"
-                                BorderBrush="{DynamicResource MaterialDesignDivider}">
+                        <Border SnapsToDevicePixels="True" BorderThickness="0,0,0,0" 
+                                BorderBrush="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Top">
                             <Border.Style>
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
@@ -168,6 +169,7 @@
                                                     Value="True" />
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
+                                          
                                         </MultiDataTrigger>
 
                                         <MultiDataTrigger>
@@ -178,20 +180,20 @@
                                                 <Condition
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                     Value="False" />
-                                            </MultiDataTrigger.Conditions>
-                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                        </MultiDataTrigger>
-
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition
-                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"
-                                                    Value="False" />
-                                                <Condition
-                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
-                                                    Value="True" />
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                        </MultiDataTrigger>
+
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition
+                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"
+                                                    Value="False" />
+                                                <Condition
+                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
+                                                    Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}" />
                                         </MultiDataTrigger>
 
 
@@ -200,33 +202,54 @@
 
                                 </Style>
                             </Border.Style>
-                            <StackPanel SnapsToDevicePixels="True" Orientation="Horizontal"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Label MaxWidth="200" Margin="0,-5,0,0" SnapsToDevicePixels="True"
+                            <Grid SnapsToDevicePixels="True"
+                                        HorizontalAlignment="Center" VerticalAlignment="Stretch">
+                                <Label MaxWidth="200" Margin="8,0,8,0" SnapsToDevicePixels="True" Padding="0" VerticalContentAlignment="Center"
                                        Tag="{Binding Path=.}" MouseDoubleClick="Control_OnMouseDoubleClick"
-                                       HorizontalAlignment="Center">
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Height="26">
 
                                     <Label.Style>
                                         <Style TargetType="{x:Type Label}">
 
 
                                             <Style.Triggers>
+                                                
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition
+                                                            Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
+                                                            Value="True" />
+
+                                                        <Condition
+                                                            Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsMouseOver}"
+                                                            Value="True" />
+
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryHueLightForegroundBrush}" />
+                                                </MultiDataTrigger>
+
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition
+                                                            Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
+                                                            Value="True" />
+
+                                                        <Condition
+                                                            Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsMouseOver}"
+                                                            Value="False" />
+
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}" />
+                                                </MultiDataTrigger>
+
                                                 <DataTrigger
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                     Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}" />
+                                                    <Setter Property="FontWeight" Value="Bold" />
 
 
                                                 </DataTrigger>
 
-                                                <DataTrigger
-                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
-                                                    Value="False">
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource MaterialDesignBody}" />
-
-
-                                                </DataTrigger>
                                             </Style.Triggers>
 
                                         </Style>
@@ -236,11 +259,11 @@
                                 </Label>
 
 
-                            </StackPanel>
+                            </Grid>
                         </Border>
-                        <Grid SnapsToDevicePixels="True">
+                        <Grid SnapsToDevicePixels="True" VerticalAlignment="Top">
 
-                            <Polyline SnapsToDevicePixels="True" StrokeThickness="2" Points="0,0 5,12, 0,21">
+                            <Polyline SnapsToDevicePixels="True" StrokeThickness="2" Points="0,0 5,13 0,26">
                                 <Polyline.Style>
                                     <Style TargetType="{x:Type Polyline}">
                                         <Style.Triggers>
@@ -280,7 +303,7 @@
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="False" />
                                                 </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                             </MultiDataTrigger>
 
                                             <MultiDataTrigger>
@@ -292,7 +315,7 @@
                                                         Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                         Value="True" />
                                                 </MultiDataTrigger.Conditions>
-                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryHueMidBrush}" />
                                             </MultiDataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -305,8 +328,8 @@
         </ListView>
 
         <Label FontStyle="Italic" Content="No module currently selected."
-               Foreground="{DynamicResource MaterialDesignBodyLight}" HorizontalAlignment="Left" Margin="0,-4,0,0"
-               FontFamily="Segoe UI Semibold">
+               Foreground="{DynamicResource MaterialDesignBodyLight}" HorizontalAlignment="Left" Margin="0,0,0,0"
+               FontFamily="Segoe UI Semibold" VerticalAlignment="Center">
             <Label.Style>
                 <Style TargetType="{x:Type Label}">
 

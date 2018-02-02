@@ -197,74 +197,58 @@
                 <ColumnDefinition MinWidth="330px" Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="78"/>
+                <RowDefinition Height="82"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="3"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" Grid.ColumnSpan="4">
-                <Grid>
+                <Grid VerticalAlignment="Top">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="54"/>
-                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="26"/>
                     </Grid.RowDefinitions>
 
-                    <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" >
-                        <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
+                        <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" >
+                            <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                                 <Button ToolTip="Save Model System" Click="ButtonBase_OnClick" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanSaveModelSystem}" Name="SaveModelSystemButton"
                                         Width="36" Height="36" Margin="10 2 5 0" BorderBrush="Transparent"
                                         Background="Transparent" Foreground="{DynamicResource MaterialDesignBody}"
                                         Style="{DynamicResource MaterialDesignFloatingActionMiniButton}" VerticalAlignment="Center"
                                        >
-                                <materialDesign:PackIcon Kind="ContentSave" />
-                            </Button>
-                            <Button ToolTip="Linked Parameters" Click="LinkedParameter_Click" Name="LinkedParameterDisplayButton">
-                                <materialDesign:PackIcon Kind="LinkVariant" />
-                            </Button>
-                            <Button ToolTip="Run Model System" Click="RunModelSystem_Click" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
+                                    <materialDesign:PackIcon Kind="ContentSave" />
+                                </Button>
+                                <Button ToolTip="Linked Parameters" Click="LinkedParameter_Click" Name="LinkedParameterDisplayButton">
+                                    <materialDesign:PackIcon Kind="LinkVariant" />
+                                </Button>
+                                <Button ToolTip="Run Model System" Click="RunModelSystem_Click" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}">
-                                <materialDesign:PackIcon Kind="Run" />
-                            </Button>
-                            
+                                    <materialDesign:PackIcon Kind="Run" />
+                                </Button>
+
                                 <materialDesign:ColorZone  Width="300"  Mode="Standard" Padding="2 2 2 2" CornerRadius="2" Panel.ZIndex="1"
                                                       Margin="12 4 12 12"
                                                       >
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                   
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
-                                        <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                                    </Button>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
 
-                                    <my:FilterBox Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
-                                    <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                            <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                        </Button>
+
+                                        <my:FilterBox Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
+                                        <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
                          materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
                          MinWidth="200" VerticalAlignment="Center" />-->
-                                    
-                                </Grid>
-                            </materialDesign:ColorZone>
-                        </ToolBar>
-                    </ToolBarTray>
-                    <!--
-                        <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <this:FlatToolButton ToolText="Linked Parameters" Height="24" Click="LinkedParameter_Click">
-                            <this:FlatToolButton.IconPath>
-                                <Path Data="{DynamicResource LinkIconPath}" Stretch="Uniform"/>
-                            </this:FlatToolButton.IconPath>
-                        </this:FlatToolButton>
-                        <Rectangle VerticalAlignment="Stretch" Fill="{DynamicResource MaterialDesignPaper}" Width="1" Height="20"/>
-                        <this:FlatToolButton IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
-                                             AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
-                                             x:Name="RunModelSystemButton" ToolText="Run Model System" Height="24" Click="RunModelSystem_Click">
-                            <this:FlatToolButton.IconPath>
-                                <Path  Data="{DynamicResource RunIconPathGeometry}" Stretch="Uniform"/>
-                            </this:FlatToolButton.IconPath>
-                        </this:FlatToolButton>
-                    </StackPanel> -->
-                    <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl"/>
+
+                                    </Grid>
+                                </materialDesign:ColorZone>
+                            </ToolBar>
+                        </ToolBarTray>
+                        <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl" VerticalAlignment="Top" />
                 </Grid>
             </Grid>
             <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
