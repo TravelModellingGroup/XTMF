@@ -24,9 +24,11 @@ using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using System.Collections.Specialized;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using System.Windows;
 using System.Windows.Input;
+using XTMF.Annotations;
 using XTMF.Gui.UserControls;
 using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
 
@@ -204,9 +206,22 @@ namespace XTMF.Gui.Models
             get => _isSelected;
             set
             {
-                _isSelected = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+
+                    OnPropertyChanged(nameof(IsSelected));
+                }
+
+                //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
+                //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
             }
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private ObservableCollection<ParameterModel> GetMetaModuleParamters()
