@@ -116,6 +116,28 @@ namespace XTMF.Gui.UserControls
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            SchedulerRunItem item = (sender as  Button).Tag as SchedulerRunItem;
+            Dispatcher.Invoke((new Action(() =>
+            {
+                if (item.RunWindow.IsRunClearable)
+                {
+                    if (ActiveContent == item.RunWindow)
+                    {
+                        //ActiveContent = new RunWindow();
+                        
+                    }
+                    ScheduledRuns.Items.Remove(item);
+                }
+            })));
+        }
     }
 
     /// <summary>

@@ -53,8 +53,10 @@
                             <DataTemplate>
                                 <Grid HorizontalAlignment="Stretch" >
 
-                                    <materialDesign:PackIcon Kind="Cancel" />
-                                </Grid>
+                                        <Button  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}">
+                                        <materialDesign:PackIcon   Kind="Cancel" ></materialDesign:PackIcon>
+                                        </Button>
+                                    </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

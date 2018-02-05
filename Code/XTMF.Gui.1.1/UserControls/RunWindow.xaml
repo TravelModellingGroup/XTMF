@@ -36,7 +36,7 @@
             <RowDefinition Height="54"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" ColumnSpan="3" Background="{DynamicResource WindowBackgroundBrush1}">
+        <Grid Grid.Row="0" ColumnSpan="3" Background="{DynamicResource MaterialDesignPaper}">
 
             <ToolBarTray Grid.Row="0" Height="54" >
                 <ToolBar VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
