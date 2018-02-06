@@ -231,7 +231,8 @@ namespace XTMF.Gui.UserControls
 
             if (value)
             {
-                Session.SaveRelease();
+                
+                //Session.SaveRelease();
             }
 
             return value;
