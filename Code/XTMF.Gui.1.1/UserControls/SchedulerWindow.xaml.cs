@@ -27,9 +27,9 @@ namespace XTMF.Gui.UserControls
 
         private List<RunWindow> _runWindows;
 
-        private RunWindow _activeContent;
+        private FrameworkElement _activeContent;
 
-        public RunWindow ActiveContent
+        public FrameworkElement ActiveContent
         {
             get => _activeContent;
             set
@@ -132,7 +132,8 @@ namespace XTMF.Gui.UserControls
                     if (ActiveContent == item.RunWindow)
                     {
                         //ActiveContent = new RunWindow();
-                        
+                        ActiveContent = new StackPanel();
+
                     }
                     ScheduledRuns.Items.Remove(item);
                 }
