@@ -154,8 +154,10 @@
                     <DockPanel Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" >
 
                         <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
-                        <xtmf:ModelSystemListView MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" Background="{DynamicResource MaterialDesignPaper}"  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay"
-                                 BorderBrush="{x:Null}"  >
+                        <xtmf:ModelSystemListView BorderBrush="{x:Null}" MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick"  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay">
+                            <xtmf:ModelSystemListView.Style>
+                                <Style TargetType="{x:Type ListView}" BasedOn="{StaticResource MaterialDesignListView}"></Style>
+                            </xtmf:ModelSystemListView.Style>
                             <ListView.ContextMenu>
                                 <ContextMenu Name="ContextMenu" >
                                     <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
@@ -224,7 +226,7 @@
                         </xtmf:ModelSystemListView>
                     </DockPanel>
                 </Grid>
-                <GridSplitter  Width="3" Background="{DynamicResource MaterialDesignDarkBackground}"></GridSplitter>
+                <GridSplitter  Width="3" Background="{DynamicResource MaterialDesignBackground}"></GridSplitter>
                 <Grid  Grid.Column="1" Background="{DynamicResource MaterialDesignPaper}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
@@ -257,7 +259,7 @@
                         </Grid>
                     </materialDesign:ColorZone>
 
-                    <ListView Grid.Row="2" x:Name="PastRunDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
+                    <ListView Grid.Row="2" x:Name="PastRunDisplay"
                                  
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
 
