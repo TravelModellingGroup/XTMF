@@ -43,13 +43,14 @@ namespace XTMF.Gui
             InitializeComponent();
         }
 
+      
+
         public static readonly DependencyProperty FilterWatermarkProperty = DependencyProperty.Register("FilterWatermark", typeof(string), typeof(FilterBox),
     new FrameworkPropertyMetadata("Search...", FrameworkPropertyMetadataOptions.AffectsRender, OnFilterWatermarkChanged));
 
         private static void OnFilterWatermarkChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            Console.WriteLine(source);
-            //((FilterBox)source).Box. = e.NewValue as string;
+           
         }
 
         public string FilterWatermark

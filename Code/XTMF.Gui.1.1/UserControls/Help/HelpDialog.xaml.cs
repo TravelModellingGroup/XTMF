@@ -47,9 +47,20 @@ namespace XTMF.Gui.UserControls.Help
             Config = xtmfConfiguration;
             SearchedItems = new BindingList<ContentReference>();
             InitializeComponent();
-            SearchBox.TextChanged += SearchBox_TextChanged;
+            //SearchBox += SearchBox_TextChanged;
             SearchBox.PreviewKeyDown += SearchBox_PreviewKeyDown;
+            SearchBox.Filter = Filter;
+            SearchBox.RefreshFilter();
+
+            SearchBox.Box.TextChanged += SearchBox_TextChanged;
+            
             UpdateSearch(true);
+        }
+
+        private bool Filter(object o, string s)
+        {
+            UpdateSearch(true);
+            return true;
         }
 
         private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -57,13 +68,14 @@ namespace XTMF.Gui.UserControls.Help
             if (e.Key == Key.Escape)
             {
                 e.Handled = true;
-                SearchBox.Text = String.Empty;
+                SearchBox.Box.Text = String.Empty;
             }
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateSearch(true);
+
         }
 
         private void UpdateSearch(bool async)
@@ -74,7 +86,7 @@ namespace XTMF.Gui.UserControls.Help
                 string text = null;
                 Dispatcher.Invoke(() =>
                 {
-                    text = SearchBox.Text;
+                    text = SearchBox.Box.Text;
                 });
                 Regex searchFor = new Regex(text, RegexOptions.IgnoreCase);
                 var loadTask = Task.Run(() =>
@@ -178,6 +190,11 @@ namespace XTMF.Gui.UserControls.Help
                    }));
                }
            });
+        }
+
+        private void FilterModelSystemsBox_OnEnterPressed(object sender, EventArgs e)
+        {
+            //throw new NotImplementedException();
         }
     }
 }
