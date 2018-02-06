@@ -223,11 +223,18 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public bool HandleTabClose()
         {
-            return !Session.CloseWillTerminate || !CanSaveModelSystem
+            bool value= !Session.CloseWillTerminate || !CanSaveModelSystem
                                                || MessageBox.Show(
                                                    "The model system has not been saved, closing this window will discard the changes!",
                                                    "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question,
                                                    MessageBoxResult.Cancel) == MessageBoxResult.OK;
+
+            if (value)
+            {
+                Session.SaveRelease();
+            }
+
+            return value;
         }
 
         /// <summary>
