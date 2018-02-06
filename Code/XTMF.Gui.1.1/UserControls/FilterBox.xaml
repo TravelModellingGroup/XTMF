@@ -26,7 +26,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="40" d:DesignWidth="200">
-    <Grid Height="30">
+    <Grid MinHeight="30">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="AUTO" />

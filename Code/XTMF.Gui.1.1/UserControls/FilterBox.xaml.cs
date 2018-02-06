@@ -22,35 +22,34 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui
 {
     /// <summary>
-    /// Interaction logic for FilterBox.xaml
+    ///     Interaction logic for FilterBox.xaml
     /// </summary>
     public partial class FilterBox : UserControl
     {
+        public static readonly DependencyProperty FilterWatermarkProperty = DependencyProperty.Register(
+            "FilterWatermark", typeof(string), typeof(FilterBox),
+            new FrameworkPropertyMetadata("Search...", FrameworkPropertyMetadataOptions.AffectsRender,
+                OnFilterWatermarkChanged));
+
+        private string _currentBoxText = string.Empty;
+
+        private ItemsControl _display;
+
+        private Func<object, string, bool> _filter;
         private ICollectionView _itemsSource;
+
+        private Action Refresh;
 
         public FilterBox()
         {
             UseItemSourceFilter = true;
             InitializeComponent();
-        }
-
-      
-
-        public static readonly DependencyProperty FilterWatermarkProperty = DependencyProperty.Register("FilterWatermark", typeof(string), typeof(FilterBox),
-    new FrameworkPropertyMetadata("Search...", FrameworkPropertyMetadataOptions.AffectsRender, OnFilterWatermarkChanged));
-
-        private static void OnFilterWatermarkChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-           
         }
 
         public string FilterWatermark
@@ -60,12 +59,6 @@ namespace XTMF.Gui
         }
 
         public bool UseItemSourceFilter { get; set; }
-
-        private Action Refresh;
-
-        private Func<object, string, bool> _filter;
-
-        public event EventHandler EnterPressed;
 
         public Func<object, string, bool> Filter
         {
@@ -79,15 +72,16 @@ namespace XTMF.Gui
                     {
                         if (!_itemsSource.CanFilter)
                         {
-                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " + _itemsSource.SourceCollection.GetType().FullName);
+                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " +
+                                                            _itemsSource.SourceCollection.GetType().FullName);
                         }
+
                         _itemsSource.Filter = o => _filter(o, _currentBoxText);
                     }
                 }
             }
         }
 
-        private ItemsControl _display;
         public ItemsControl Display
         {
             get => _display;
@@ -99,6 +93,7 @@ namespace XTMF.Gui
                 {
                     Filter = _filter;
                 }
+
                 Refresh = () =>
                 {
                     if (UseItemSourceFilter)
@@ -120,6 +115,12 @@ namespace XTMF.Gui
             }
         }
 
+        private static void OnFilterWatermarkChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        public event EventHandler EnterPressed;
+
         protected override void OnGotFocus(RoutedEventArgs e)
         {
             base.OnGotFocus(e);
@@ -140,8 +141,8 @@ namespace XTMF.Gui
                         e.Handled = HandleEnterPress();
                         break;
                 }
-
             }
+
             OnKeyDown(e);
         }
 
@@ -153,6 +154,7 @@ namespace XTMF.Gui
                 ev(this, new EventArgs());
                 return true;
             }
+
             return false;
         }
 
@@ -163,18 +165,21 @@ namespace XTMF.Gui
                 Box.Text = string.Empty;
                 return true;
             }
+
             return false;
         }
 
-        private void ClearFilter_Click(object sender, RoutedEventArgs e) => ClearFilter();
-
-        private string _currentBoxText = String.Empty;
+        private void ClearFilter_Click(object sender, RoutedEventArgs e)
+        {
+            ClearFilter();
+        }
 
         private void Box_TextChanged(object sender, TextChangedEventArgs e)
         {
             _currentBoxText = Box.Text;
             RefreshFilter();
-            ClearFilterButton.Visibility = !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
+            ClearFilterButton.Visibility =
+                !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         internal void RefreshFilter()
@@ -189,8 +194,8 @@ namespace XTMF.Gui
         {
             if (e.Key == Key.Down)
             {
-                TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
-                UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
+                var tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                var keyboardFocus = Keyboard.FocusedElement as UIElement;
                 keyboardFocus?.MoveFocus(tRequest);
                 e.Handled = true;
             }

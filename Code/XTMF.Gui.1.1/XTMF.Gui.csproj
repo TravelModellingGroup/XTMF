@@ -182,6 +182,7 @@
     <Compile Include="Models\RunControllerDisplayModel.cs" />
     <Compile Include="Models\ValidationErrorDisplayModel.cs" />
     <Compile Include="Models\ViewModelBase.cs" />
+    <Compile Include="UserControls\DialogHostEx.cs" />
     <Compile Include="UserControls\FlatButton.xaml.cs">
       <DependentUpon>FlatButton.xaml</DependentUpon>
     </Compile>

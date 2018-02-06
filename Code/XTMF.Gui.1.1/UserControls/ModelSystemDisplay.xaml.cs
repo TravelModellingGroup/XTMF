@@ -150,8 +150,10 @@ namespace XTMF.Gui.UserControls
                     _selectedParameterDisplayModel = null;
                 });
             };
+
         }
 
+  
         public bool CanRunModelSystem
         {
             get => (bool)GetValue(CanRunModelSystemDependencyProperty);
@@ -2871,6 +2873,33 @@ namespace XTMF.Gui.UserControls
         {
             var path = Path.Combine(Session.Configuration.ProjectDirectory, Session.ProjectEditingSession.Project.Name);
             Process.Start(@path);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleParameterDialogHost_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                ModuleParameterDialogHost.IsOpen = false;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterDialogHost_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                QuickParameterDialogHost.IsOpen = false;
+            }
         }
     }
 }
