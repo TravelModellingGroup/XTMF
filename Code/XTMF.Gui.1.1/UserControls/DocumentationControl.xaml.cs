@@ -20,13 +20,17 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using XTMF.Gui.Annotations;
+using Brush = System.Drawing.Brush;
+using ColorConverter = System.Windows.Media.ColorConverter;
 
 namespace XTMF.Gui.UserControls
 {
@@ -137,9 +141,13 @@ namespace XTMF.Gui.UserControls
         {
             StringBuilder builder = new StringBuilder();
             window.Browser.Visibility = Visibility.Collapsed;
+
+            SolidColorBrush background = (SolidColorBrush)window.FindResource("MaterialDesignPaper");
+ 
             builder.Append(@"<!DOCTYPE html>
 <html>
-<head><meta http-equiv='X-UA-Compatible' content='IE=edge' /> </head><body style='background-color: #091832; color:#fff;'>");
+<head><meta http-equiv='X-UA-Compatible' content='IE=edge' /> </head><body style='background-color: "+
+                ColorTranslator.ToHtml(System.Drawing.Color.FromArgb(background.Color.A, background.Color.R,background.Color.G,background.Color.B))+"; color:#fff;'>");
             builder.Append(description);
             builder.Append("</body></html>");
             window.ModuleDescription = builder.ToString();

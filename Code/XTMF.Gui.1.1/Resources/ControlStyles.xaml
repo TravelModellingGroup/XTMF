@@ -225,7 +225,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="FlatButton" TargetType="{x:Type Button}">
+   <!-- <Style x:Key="FlatButton" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="#444444"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -245,7 +245,7 @@
                 <Setter Property="Background" Value="#555555"/>
             </Trigger>
         </Style.Triggers>
-    </Style>
+    </Style> -->
 
     <!--<Style x:Key="FlatScrollThumbs" TargetType="{x:Type Thumb}">
         <Setter Property="Template">
@@ -992,7 +992,7 @@
         <Setter Property="Padding"
           Value="1,0,0,0" />
         <Setter Property="Foreground"
-          Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+          Value="{DynamicResource MaterialDesignBody}" />
     
         <Setter Property="Template">
             <Setter.Value>
