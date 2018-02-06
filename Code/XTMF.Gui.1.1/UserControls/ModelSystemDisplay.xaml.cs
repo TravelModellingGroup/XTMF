@@ -2860,5 +2860,16 @@ namespace XTMF.Gui.UserControls
         {
             CanSaveModelSystem = true;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenProjectFolderToolbarButton_Click(object sender, RoutedEventArgs e)
+        {
+            var path = Path.Combine(Session.Configuration.ProjectDirectory, Session.ProjectEditingSession.Project.Name);
+            Process.Start(@path);
+        }
     }
 }

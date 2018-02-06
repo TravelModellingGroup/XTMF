@@ -226,6 +226,10 @@
                                     <materialDesign:PackIcon Kind="Run" />
                                 </Button>
 
+                                <Button ToolTip="Open Project FOlder" Click="OpenProjectFolderToolbarButton_Click" Name="OpenProjectFolderToolbarButton">
+                                    <materialDesign:PackIcon Kind="FolderOpen" />
+                                </Button>
+
                                 <materialDesign:ColorZone  Width="300"  Mode="Standard" Padding="2 2 2 2" CornerRadius="2" Panel.ZIndex="1"
                                                       Margin="12 4 12 12"
                                                       >
