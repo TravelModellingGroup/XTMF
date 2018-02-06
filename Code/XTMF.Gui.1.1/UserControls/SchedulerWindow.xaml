@@ -36,7 +36,7 @@
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
-                            <GridViewColumn Header="Status"  Width="200" DisplayMemberBinding="{Binding StatusText}"/>
+                            <GridViewColumn Header="Status"  Width="150" DisplayMemberBinding="{Binding StatusText}"/>
                             <GridViewColumn Header="Progress"  >
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
@@ -62,7 +62,7 @@
                 <ListView Name="FinishedRuns"  Grid.Row="1">
                 <ListView.View>
                     <GridView>
-                            <GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
+                         <GridViewColumn Header="Name" Width="100"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
                         <GridViewColumn Header="Actions"  Width="200">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
