@@ -38,7 +38,7 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" ColumnSpan="3" Background="{DynamicResource MaterialDesignPaper}">
 
-            <ToolBarTray Grid.Row="0" Height="54" >
+            <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" >
                 <ToolBar VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                     <Button  x:Name="OpenDirectoryButton" Click="OpenDirectoryButton_Clicked" ToolTip="Open run output folder" >
                         <materialDesign:PackIcon Kind="FolderOutline" />

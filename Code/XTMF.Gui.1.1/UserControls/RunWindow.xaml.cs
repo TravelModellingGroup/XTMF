@@ -76,6 +76,10 @@ namespace XTMF.Gui.UserControls
 
         public Action<List<ErrorWithPath>> ValidationError;
 
+        public Action<List<ErrorWithPath>> OnRuntimeError;
+
+        public Action OnRunFinished;
+
         static RunWindow()
         {
             var findResource = Application.Current.FindResource("WarningRed");
@@ -387,6 +391,9 @@ namespace XTMF.Gui.UserControls
                 ProgressBar.Finished = true;
                 MainWindow.Us.UpdateStatusDisplay("Ready");
                 MainWindow.Us.HideStatusLink();
+
+                //call sceduler window callback
+                OnRunFinished();
             }));
         }
 

@@ -26,52 +26,59 @@
             
         </ContentControl>
         <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"></ColumnDefinition>
-                <ColumnDefinition Width="1*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-        <ListView Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" Grid.Column="0">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
-                    <GridViewColumn Header="Status"  Width="200" DisplayMemberBinding="{Binding StatusText}"/>
-                    <GridViewColumn Header="Progress"  >
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid HorizontalAlignment="Stretch" >
-                                    
-                                    <ProgressBar Width="150" HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="20" />
-                                    
-                                    </Grid>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Start Time"  Width="200" DisplayMemberBinding="{Binding StartTime}"/>
-                    <GridViewColumn Header="Elapsed Time"  Width="200" DisplayMemberBinding="{Binding ElapsedTime}"/>
-                    <GridViewColumn Header="Actions"  Width="200">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid HorizontalAlignment="Stretch" >
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition ></RowDefinition>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Vertical" Grid.Row="0">
+                <TextBlock Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}">Scheduled and Active Runs</TextBlock>
+                <ListView Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" Grid.Row="0">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="Status"  Width="200" DisplayMemberBinding="{Binding StatusText}"/>
+                            <GridViewColumn Header="Progress"  >
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid HorizontalAlignment="Stretch" >
 
-                                        <Button  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}">
-                                        <materialDesign:PackIcon   Kind="Cancel" ></materialDesign:PackIcon>
-                                        </Button>
-                                    </Grid>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        
-        </ListView>
+                                            <ProgressBar Width="150" HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="20" />
 
-            <ListView Name="FinishedRuns"  Grid.Column="1">
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Start Time"  Width="200" DisplayMemberBinding="{Binding StartTime}"/>
+                            <GridViewColumn Header="Elapsed Time"  Width="200" DisplayMemberBinding="{Binding ElapsedTime}"/>
+                          
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </StackPanel>
+
+
+            <StackPanel Orientation="Vertical" Grid.Row="1">
+                <TextBlock Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}">Finished Runs</TextBlock>
+                <ListView Name="FinishedRuns"  Grid.Row="1">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Run Name"></GridViewColumn>
+                            <GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
+                        <GridViewColumn Header="Actions"  Width="200">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid HorizontalAlignment="Stretch" >
+
+                                        <Button  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}">
+                                            <materialDesign:PackIcon   Kind="Cancel" ></materialDesign:PackIcon>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                         </GridView>
                     </ListView.View>
             </ListView>
+                </StackPanel>
         </Grid>
     </Grid>
 </UserControl>
