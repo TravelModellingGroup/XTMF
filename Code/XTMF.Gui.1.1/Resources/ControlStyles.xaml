@@ -947,20 +947,16 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Margin="1,1,1,1"
-                Data="M 4 0 L 8 4 L 4 8 Z">
-                            <Path.Fill>
-                                <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
-                            </Path.Fill>
+                Data="M 4 0 L 8 4 L 4 8 Z" Fill="{DynamicResource MaterialDesignBody}">
+                         
                         </Path>
                         <Path x:Name="Expanded"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Margin="1,1,1,1"
                 Data="M 0 4 L 8 4 L 4 8 Z"
-                Visibility="Hidden">
-                            <Path.Fill>
-                                <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
-                            </Path.Fill>
+                Visibility="Hidden" Fill="{DynamicResource MaterialDesignBody}">
+                          
                         </Path>
                     </Grid>
                 </ControlTemplate>
