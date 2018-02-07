@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -58,6 +58,16 @@ namespace TMG.Estimation.AI
         public float Progress { get; set; }
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+        public enum BounceStrategy
+        {
+            Absorb,
+            Reflect,
+            RandomReallocation
+        }
+
+        [RunParameter("Bounce Strategy", "Reflect", typeof(BounceStrategy), "The strategy to deal with hitting minimum or maximum values.")]
+        public BounceStrategy Bounce;
 
         /// <summary>
         /// This represents a unique element in the estimation that keeps a local history as it moves
@@ -145,7 +155,7 @@ namespace TMG.Estimation.AI
                     var localBestV = us.OptimalWeight * optimalRandom * RelativeDistance(parameters[i], current, globalBest[i]);
                     var generationBestV = us.GenerationOptimalWeight * RelativeDistance(parameters[i], current, bestInGeneration[i]);
                     // we step our velocity by apply a momentum to the old velocity and then applying the new with the rest of the fraction
-                    Velocity[i] = (us.Momentum * Velocity[i]) + (float)(globalBestV + localBestV + generationBestV);
+                    Velocity[i] = ((float)r.NextDouble() * us.Momentum * Velocity[i]) + (float)(globalBestV + localBestV + generationBestV);
                 }
             }
 
@@ -162,13 +172,28 @@ namespace TMG.Estimation.AI
                 var parameters = job.Parameters = new ParameterSetting[temp.Length];
                 for(int i = 0; i < temp.Length; i++)
                 {
-                    parameters[i] = new ParameterSetting();
-                    // we need to move in real parameter space instead of relative parameter space
-                    parameters[i].Current = temp[i].Current + Velocity[i] * (temp[i].Size);
-                    // clamp the value inside of parameter space
-                    if(parameters[i].Current < (parameters[i].Minimum = temp[i].Minimum))
+                    parameters[i] = new ParameterSetting
                     {
-                        parameters[i].Current = temp[i].Minimum;
+                        // we need to move in real parameter space instead of relative parameter space
+                        Current = temp[i].Current + Velocity[i] * (temp[i].Size)
+                    };
+                    // clamp the value inside of parameter space
+                    if (parameters[i].Current < (parameters[i].Minimum = temp[i].Minimum))
+                    {
+                        // reflect off the boundary instead of being absorbed
+                        switch(us.Bounce)
+                        {
+                            case BounceStrategy.Reflect:
+                                parameters[i].Current = Math.Min(temp[i].Minimum + (temp[i].Minimum - parameters[i].Current), temp[i].Maximum);
+                                break;
+                            case BounceStrategy.RandomReallocation:
+                                parameters[i].Current = (float)(new Random((int)(parameters[i].Current * int.MaxValue)).NextDouble() * (temp[i].Maximum - temp[i].Minimum) + temp[i].Minimum);
+                                break;
+                            case BounceStrategy.Absorb:
+                                parameters[i].Current = parameters[i].Minimum;
+                                break;
+                        }
+                        
                         if (us.Momentum > 0)
                         {
                             Velocity[i] = -Velocity[i];
@@ -176,7 +201,19 @@ namespace TMG.Estimation.AI
                     }
                     if(parameters[i].Current > (parameters[i].Maximum = temp[i].Maximum))
                     {
-                        parameters[i].Current = temp[i].Maximum;
+                        // reflect off the boundary instead of being absorbed
+                        switch (us.Bounce)
+                        {
+                            case BounceStrategy.Reflect:
+                                parameters[i].Current = Math.Max(temp[i].Maximum - (parameters[i].Current - temp[i].Maximum), temp[i].Minimum);
+                                break;
+                            case BounceStrategy.RandomReallocation:
+                                parameters[i].Current = (float)(new Random((int)(parameters[i].Current * int.MaxValue)).NextDouble() * (temp[i].Maximum - temp[i].Minimum) + temp[i].Minimum);
+                                break;
+                            case BounceStrategy.Absorb:
+                                parameters[i].Current = parameters[i].Maximum;
+                                break;
+                        }
                         if (us.Momentum > 0)
                         {
                             Velocity[i] = -Velocity[i];
@@ -257,13 +294,15 @@ namespace TMG.Estimation.AI
 
         private Job CleanJob(List<ParameterSetting> parameters)
         {
-            var ret = new Job();
-            ret.Processed = false;
-            ret.ProcessedBy = null;
-            ret.Value = float.NaN;
-            ret.Processing = false;
-            ret.Parameters = new ParameterSetting[parameters.Count];
-            for(int i = 0; i < ret.Parameters.Length; i++)
+            var ret = new Job
+            {
+                Processed = false,
+                ProcessedBy = null,
+                Value = float.NaN,
+                Processing = false,
+                Parameters = new ParameterSetting[parameters.Count]
+            };
+            for (int i = 0; i < ret.Parameters.Length; i++)
             {
                 ret.Parameters[i] = new ParameterSetting()
                 {
