@@ -25,14 +25,16 @@
         <ContentControl Content="{Binding }"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="0" Name="ActiveRunContent">
             
         </ContentControl>
+        <ScrollViewer Grid.Row="1">
         <Grid Grid.Row="1">
+        
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition ></RowDefinition>
+                <RowDefinition Height="2*"></RowDefinition>
+                <RowDefinition  Height="2*"></RowDefinition>
             </Grid.RowDefinitions>
-            <StackPanel Orientation="Vertical" Grid.Row="0">
+            <StackPanel Orientation="Vertical" Grid.Row="0" CanVerticallyScroll="True">
                 <TextBlock Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}">Scheduled and Active Runs</TextBlock>
-                <ListView Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" Grid.Row="0">
+                <ListView Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" Grid.Row="0" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
@@ -59,7 +61,7 @@
 
             <StackPanel Orientation="Vertical" Grid.Row="1">
                 <TextBlock Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}">Finished Runs</TextBlock>
-                <ListView Name="FinishedRuns"  Grid.Row="1">
+                <ListView Name="FinishedRuns"  Grid.Row="1" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" >
                 <ListView.View>
                     <GridView>
                          <GridViewColumn Header="Name" Width="100"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
@@ -80,5 +82,6 @@
             </ListView>
                 </StackPanel>
         </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>
