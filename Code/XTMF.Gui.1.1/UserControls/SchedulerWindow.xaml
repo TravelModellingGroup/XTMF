@@ -70,14 +70,23 @@
                                 <DataTemplate>
                                     <Grid HorizontalAlignment="Stretch" >
 
-                                        <Button  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}">
+                                                <Button  Style="{DynamicResource MaterialDesignFlatButton}"  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}">
                                             <materialDesign:PackIcon   Kind="Cancel" ></materialDesign:PackIcon>
                                         </Button>
                                     </Grid>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        </GridView>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Style="{DynamicResource MaterialDesignFlatButton}"  Name="OpenOutput" Click="OpenOutput_OnClick" Tag="{Binding .}">
+                                        <materialDesign:PackIcon   Kind="FolderOpen" ></materialDesign:PackIcon>
+                                    </Button>
+                                        </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
                     </ListView.View>
             </ListView>
                 </StackPanel>
