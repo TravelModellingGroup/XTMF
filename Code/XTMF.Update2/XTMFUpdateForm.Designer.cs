@@ -198,6 +198,7 @@ namespace XTMF.Update
             this.ConsoleTextBox.Location = new System.Drawing.Point(3, 178);
             this.ConsoleTextBox.Multiline = true;
             this.ConsoleTextBox.Name = "ConsoleTextBox";
+            this.ConsoleTextBox.ReadOnly = true;
             this.ConsoleTextBox.Size = new System.Drawing.Size(502, 87);
             this.ConsoleTextBox.TabIndex = 4;
             // 
