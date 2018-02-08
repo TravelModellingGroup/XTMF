@@ -62,6 +62,10 @@ namespace TMG.Estimation.AI
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
+        /// <summary>
+        /// Bounce strategies from the paper:
+        /// "Handling boundary constraints for particle swarm optimization in high-dimensional search space." by Wei Chu et. al
+        /// </summary>
         public enum BounceStrategy
         {
             Absorb,
