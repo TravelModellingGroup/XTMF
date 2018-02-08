@@ -51,7 +51,7 @@ namespace XTMF.Gui.UserControls
 
         private IInputElement PreviousFocus;
 
-        static TextboxAdorner() => Background = (Brush)Application.Current.TryFindResource("ControlBackgroundBrush");
+        static TextboxAdorner() => Background = (Brush)Application.Current.TryFindResource("SecondaryAccentBrush");
 
         public TextboxAdorner(UIElement adornedElement) :
             base(adornedElement)
@@ -61,7 +61,7 @@ namespace XTMF.Gui.UserControls
         public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo, string initialValue = "")
             : base(attachedTo)
         {
-            Opacity = 0.9;
+            Opacity = 0.97;
             Border.BorderBrush = Brushes.White;
             Border.Background = Background;
             Border.BorderThickness = new Thickness(2.0);
@@ -72,7 +72,7 @@ namespace XTMF.Gui.UserControls
             Grid.Margin = new Thickness(2.0);
             Border.Child = Grid;
             TextBlock.Text = question;
-            TextBlock.Foreground = Brushes.White;
+            TextBlock.Foreground = (Brush)Application.Current.TryFindResource("SecondaryAccentForegroundBrush");
             TextBlock.FontSize = 14.0;
             if (initialValue == null)
             {
@@ -80,6 +80,7 @@ namespace XTMF.Gui.UserControls
             }
             _textbox.Text = initialValue;
             _textbox.CaretIndex = initialValue.Length;
+            _textbox.Foreground = (Brush)Application.Current.TryFindResource("SecondaryAccentForegroundBrush");
             Grid.Children.Add(TextBlock);
             Grid.Children.Add(_textbox);
             Grid.SetRow(TextBlock, 0);
