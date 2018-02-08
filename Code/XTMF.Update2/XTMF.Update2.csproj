@@ -98,7 +98,7 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|x86'">
-    <OutputPath>bin\x86\Development Debug\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>

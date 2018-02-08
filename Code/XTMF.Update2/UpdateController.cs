@@ -115,7 +115,7 @@ namespace XTMF.Update
                 foreach (var errorPath in errors)
                 {
 
-                    this.XtmfUpdate.ConsoleTextBoxControl.Text += "Unable to write to file \"" + errorPath + "\"!\n";
+                    this.XtmfUpdate.ConsoleTextBoxControl.Text += "Unable to write to file \"" + errorPath + "\"!\r\n";
                     
                 }
             }
