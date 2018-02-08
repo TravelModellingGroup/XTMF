@@ -25,7 +25,7 @@
         <ContentControl Content="{Binding }"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="0" Name="ActiveRunContent">
             
         </ContentControl>
-        <ScrollViewer Grid.Row="1">
+        <ScrollViewer Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
         <Grid Grid.Row="1">
         
             <Grid.RowDefinitions>
