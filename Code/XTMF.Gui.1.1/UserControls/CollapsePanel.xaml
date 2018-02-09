@@ -21,7 +21,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" ExpandDirection="Down">
+             mc:Ignorable="d" ExpandDirection="Down" Foreground="{DynamicResource MaterialDesignBody}" Header="Test">
     <Expander.Content>
 
         <ScrollViewer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" x:Name="InnerContentContainer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
