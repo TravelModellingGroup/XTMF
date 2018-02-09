@@ -108,13 +108,14 @@ namespace XTMF.Update
         /// <param name="errors"></param>
         private void DisplayErrors(List<string> errors)
         {
-            MessageBox.Show("At least one or more errors occured during the update process.");
+           
             if (errors != null)
             {
+                MessageBox.Show("At least one or more errors occured during the update process.");
                 foreach (var errorPath in errors)
                 {
 
-                    this.XtmfUpdate.ConsoleTextBoxControl.Text += "Unable to write to file \"" + errorPath + "\"!";
+                    this.XtmfUpdate.ConsoleTextBoxControl.Text += "Unable to write to file \"" + errorPath + "\"!\r\n";
                     
                 }
             }

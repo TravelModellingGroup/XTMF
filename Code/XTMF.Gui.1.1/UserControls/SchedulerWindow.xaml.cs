@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -149,7 +151,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke((new Action(() =>
             {
                 ScheduledRuns.Items.Remove(runItem);
-                FinishedRuns.Items.Add(runItem);
+                FinishedRuns.Items.Insert(0,runItem);
             })));
         }
 
@@ -241,6 +243,26 @@ namespace XTMF.Gui.UserControls
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenOutput_OnClick(object sender, RoutedEventArgs e)
+        {
+            Button b = sender as Button;
+            SchedulerRunItem item = b.Tag as SchedulerRunItem;
+            ;
+            if (Directory.Exists(item?.RunWindow.Run.RunDirectory))
+            {
+                Process.Start(item.RunWindow.Run.RunDirectory);
+            }
+            else
+            {
+                MessageBox.Show(item.RunWindow.Run.RunDirectory + " does not exist!");
             }
         }
     }

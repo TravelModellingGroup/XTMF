@@ -242,6 +242,21 @@
                                                     <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}" />
                                                 </MultiDataTrigger>
 
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition
+                                                            Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
+                                                            Value="False" />
+
+                                                        <Condition
+                                                            Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsMouseOver}"
+                                                            Value="False" />
+
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                                </MultiDataTrigger>
+
+
                                                 <DataTrigger
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}"
                                                     Value="True">
