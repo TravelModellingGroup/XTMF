@@ -48,7 +48,7 @@ namespace TMG.Estimation
             var root = doc["Root"];
             if (root == null)
             {
-                return;
+                throw new XTMFRuntimeException(this, $"In {Name} the parameter file {ParameterFileLocation.GetFilePath()} contained an invalid parameter file!");
             }
             foreach ( XmlNode child in root.ChildNodes )
             {

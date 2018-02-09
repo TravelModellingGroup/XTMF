@@ -44,6 +44,7 @@ namespace TMG.Estimation.AI
         [RunParameter("Best Parameter Weight", "-0.9135571", typeof(float), "The weight of the particle's best parameter.")]
         public float BestParameterWeight;
 
+
         [RunParameter("Globally Optimal Weight", "1.215541", typeof(float), "The weight of the globally optimal parameter.")]
         public float OptimalWeight;
 
@@ -55,6 +56,9 @@ namespace TMG.Estimation.AI
 
         [RunParameter("Movement Reduction", 0f, "Momentum *=  (1 - (MovementReduction * iteration/totalIterations))")]
         public float MovementReduction;
+
+        [RunParameter("Max Initial Velocity", 0.25f, "The maximum initial velocity for the first generation of the optimization.")]
+        public float MaxInitialVelocity;
 
         public string Name { get; set; }
 
@@ -92,23 +96,23 @@ namespace TMG.Estimation.AI
 
             internal float[] Velocity;
 
-            public Particle(Job job, bool maximize) : this()
+            public Particle(ParticleSwarmOptimization us, Random r, Job job, bool maximize) : this()
             {
                 Maximize = maximize;
                 BestValue = maximize ? float.MinValue : float.MaxValue;
-                Velocity = InitializeVelocity(job);
+                Velocity = InitializeVelocity(us, r, job);
                 BestParameters = InitializeBestParameters(job);
                 Job = job;
             }
 
-            private static float[] InitializeVelocity(Job job)
+            private static float[] InitializeVelocity(ParticleSwarmOptimization us, Random r, Job job)
             {
                 var parameters = job.Parameters;
                 float[] velocity = new float[parameters.Length];
                 // initialize all of the velocities to [-1,1] since we work in relative parameter space
                 for (int i = 0; i < velocity.Length; i++)
                 {
-                    velocity[i] = 0.0f; // (float)((random.NextDouble() * 2.0) - 1.0);
+                    velocity[i] = us.MaxInitialVelocity * (float)((r.NextDouble() * 2.0) - 1.0);
                 }
                 return velocity;
             }
@@ -253,7 +257,6 @@ namespace TMG.Estimation.AI
 
         Random Random;
 
-
         /// <summary>
         /// Setup all of the members of the ParticleSwarm and initialize their positions.
         /// </summary>
@@ -272,7 +275,7 @@ namespace TMG.Estimation.AI
             var population = new Particle[SwarmSize];
             for (int i = 0; i < population.Length; i++)
             {
-                population[i] = new Particle(Jobs[i], Maximize);
+                population[i] = new Particle(this, Random, Jobs[i], Maximize);
             }
             Population = population;
         }
