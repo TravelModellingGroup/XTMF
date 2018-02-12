@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -43,7 +43,12 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Expansion Factor Scale", 1.0f, "Setting this to 2 would double the number of people sampled per zone (at half the expansion factor).")]
         public float HouseholdExpansionFactor;
 
-        private float InvHouseholdExpansion;
+        [RunParameter("External Zone Ranges", "6000-6999", typeof(RangeSet), "The ranges that represent external zones.")]
+        public RangeSet ExternalZones;
+
+        private float _invHouseholdExpansion;
+
+        private SparseArray<PDData> _householdsByPD;
 
         public string Name { get; set; }
 
@@ -51,16 +56,16 @@ namespace Tasha.PopulationSynthesis
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        internal class ExpandedHousehold
+        private class ExpandedHousehold
         {
             internal ITashaHousehold Household;
             internal float ExpansionFactor;
-            private float OriginalExpansionFactor;
+            private float _originalExpansionFactor;
 
             public ExpandedHousehold(ITashaHousehold household)
             {
                 Household = household;
-                OriginalExpansionFactor = ExpansionFactor = household.ExpansionFactor;
+                _originalExpansionFactor = ExpansionFactor = household.ExpansionFactor;
                 // Normalize person expansion factors
                 var inv = 1.0f / ExpansionFactor;
                 foreach (var person in household.Persons)
@@ -71,17 +76,14 @@ namespace Tasha.PopulationSynthesis
 
             internal void ReAdjustOriginalExpansion(float scale)
             {
-                OriginalExpansionFactor *= scale;
-                ExpansionFactor = OriginalExpansionFactor;
+                _originalExpansionFactor *= scale;
+                ExpansionFactor = _originalExpansionFactor;
             }
 
-            internal void ResetExpansion()
-            {
-                ExpansionFactor = OriginalExpansionFactor;
-            }
+            internal void ResetExpansion() => ExpansionFactor = _originalExpansionFactor;
         }
 
-        internal class PDData
+        private class PDData
         {
             private int PD;
             internal List<ExpandedHousehold> Households = new List<ExpandedHousehold>(10);
@@ -96,10 +98,11 @@ namespace Tasha.PopulationSynthesis
             internal void Add(ITashaHousehold household)
             {
                 var expansionFactor = household.ExpansionFactor;
+                var newHhld = new ExpandedHousehold(household);
                 bool taken = false;
                 Lock.Enter(ref taken);
                 TotalExpansionFactor += expansionFactor;
-                Households.Add(new ExpandedHousehold(household));
+                Households.Add(newHhld);
                 if (taken) Lock.Exit(true);
             }
 
@@ -131,33 +134,56 @@ namespace Tasha.PopulationSynthesis
                 return ret;
             }
 
+            int _previouslyPicked = 0;
+            int _previouslyPickedTimes = 0;
+
             private KeyValuePair<int, int> Pick(Random random, int zone, ref int remaining)
             {
-                for (int unused = 0; unused < 2; unused++)
+                for (int unused = 0; unused < 3; unused++)
                 {
                     var place = (float)random.NextDouble() * TotalExpansionFactor;
                     float current = 0.0f;
-                    for (int i = 0; i < Households.Count; i++)
+                    if (TotalExpansionFactor > 0)
                     {
-                        current += Households[i].ExpansionFactor;
-                        if (current > place)
+                        for (int i = 0; i < Households.Count; i++)
                         {
-                            var numberOfPersons = Households[i].Household.Persons.Length;
-                            // skip adding this particular household if it has too many persons
-                            if (remaining < numberOfPersons)
+                            current += Households[i].ExpansionFactor;
+                            if (current > place)
                             {
-                                continue;
+                                var numberOfPersons = Households[i].Household.Persons.Length;
+                                // skip adding this particular household if it has too many persons
+                                if (remaining < numberOfPersons)
+                                {
+                                    continue;
+                                }
+                                Households[i].ExpansionFactor -= 1;
+                                var remainder = 0.0f;
+                                if (Households[i].ExpansionFactor <= 0)
+                                {
+                                    remainder = -Households[i].ExpansionFactor;
+                                    Households[i].ExpansionFactor = 0;
+                                }
+                                TotalExpansionFactor -= 1 - remainder;
+                                remaining -= numberOfPersons;
+                                if (_previouslyPicked == i)
+                                {
+                                    if (++_previouslyPickedTimes > 10)
+                                    {
+                                        Console.WriteLine("The same household is being picked too often, rebuilding expansion factors!");
+                                        TotalExpansionFactor = Households.Sum(h =>
+                                        {
+                                            h.ResetExpansion();
+                                            return h.ExpansionFactor;
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    _previouslyPicked = i;
+                                    _previouslyPickedTimes = 1;
+                                }
+                                return new KeyValuePair<int, int>(zone, i);
                             }
-                            Households[i].ExpansionFactor -= 1;
-                            var remainder = 0.0f;
-                            if (Households[i].ExpansionFactor <= 0)
-                            {
-                                remainder = -Households[i].ExpansionFactor;
-                                Households[i].ExpansionFactor = 0;
-                            }
-                            TotalExpansionFactor -= 1 - remainder;
-                            remaining -= numberOfPersons;
-                            return new KeyValuePair<int, int>(zone, i);
                         }
                     }
                     // if we get here then it failed, we need to reset the probabilities again
@@ -171,16 +197,14 @@ namespace Tasha.PopulationSynthesis
             }
         }
 
-        SparseArray<PDData> HouseholdsByPD;
-
         public void IterationStarting(int iteration)
         {
             // initialize data structures
-            HouseholdsByPD = ZoneSystemHelper.CreatePdArray<PDData>(Root.ZoneSystem.ZoneArray);
-            var flat = HouseholdsByPD.GetFlatData();
+            _householdsByPD = ZoneSystemHelper.CreatePdArray<PDData>(Root.ZoneSystem.ZoneArray);
+            var flat = _householdsByPD.GetFlatData();
             for (int i = 0; i < flat.Length; i++)
             {
-                flat[i] = new PDData(HouseholdsByPD.GetSparseIndex(i));
+                flat[i] = new PDData(_householdsByPD.GetSparseIndex(i));
             }
         }
 
@@ -190,7 +214,7 @@ namespace Tasha.PopulationSynthesis
             if (zone != null)
             {
                 var pd = zone.PlanningDistrict;
-                var record = HouseholdsByPD[pd];
+                var record = _householdsByPD[pd];
                 if (record == null)
                 {
                     throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a HouseholdByPD for PD#" + pd);
@@ -201,18 +225,18 @@ namespace Tasha.PopulationSynthesis
 
         public void IterationFinished(int iteration)
         {
-            var flatPD = HouseholdsByPD.GetFlatData();
+            var flatPD = _householdsByPD.GetFlatData();
             var zoneArray = Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
             List<KeyValuePair<int, int>>[] results = new List<KeyValuePair<int, int>>[flatPD.Length];
             Parallel.For(0, flatPD.Length, i =>
             {
-                var pd = HouseholdsByPD.GetSparseIndex(i);
+                var pd = _householdsByPD.GetSparseIndex(i);
                 var zoneIndexes = (from zone in zones
                                    where zone.PlanningDistrict == pd
                                    select zoneArray.GetFlatIndex(zone.ZoneNumber)).ToArray();
                 // make sure we don't generate persons for the external zones
-                results[i] = HouseholdsByPD.GetSparseIndex(i) == 0 ? new List<KeyValuePair<int, int>>() : flatPD[i].ProcessPD(RandomSeed, zones, HouseholdExpansionFactor, zoneIndexes);
+                results[i] = _householdsByPD.GetSparseIndex(i) == 0 ? new List<KeyValuePair<int, int>>() : flatPD[i].ProcessPD(RandomSeed, zones, HouseholdExpansionFactor, zoneIndexes);
             });
             Save(results, flatPD);
         }
@@ -342,12 +366,12 @@ namespace Tasha.PopulationSynthesis
 
         private static int ClassifyHousehold(ITashaHousehold household)
         {
-            var lics = 0;
             var numberOfVehicles = household.Vehicles.Length;
             if (numberOfVehicles == 0)
             {
                 return 0;
             }
+            var lics = 0;
             var persons = household.Persons;
             for (int i = 0; i < persons.Length; i++)
             {
@@ -463,7 +487,7 @@ namespace Tasha.PopulationSynthesis
                             }
                             var workZone = persons[j].EmploymentZone;
                             var schoolZone = persons[j].SchoolZone;
-                            var personExpanded = persons[j].ExpansionFactor * InvHouseholdExpansion;
+                            var personExpanded = persons[j].ExpansionFactor * _invHouseholdExpansion;
                             if (!IsExternal(workZone))
                             {
                                 switch (persons[j].EmploymentStatus)
@@ -551,30 +575,27 @@ namespace Tasha.PopulationSynthesis
                     }
                 }
             }
-            SaveWorkerData(zones, Occupation.Professional, TTSEmploymentStatus.FullTime, workersPF);
-            SaveWorkerData(zones, Occupation.Office, TTSEmploymentStatus.FullTime, workersGF);
-            SaveWorkerData(zones, Occupation.Retail, TTSEmploymentStatus.FullTime, workersSF);
-            SaveWorkerData(zones, Occupation.Manufacturing, TTSEmploymentStatus.FullTime, workersMF);
-            SaveWorkerData(zones, Occupation.Professional, TTSEmploymentStatus.PartTime, workersPP);
-            SaveWorkerData(zones, Occupation.Office, TTSEmploymentStatus.PartTime, workersGP);
-            SaveWorkerData(zones, Occupation.Retail, TTSEmploymentStatus.PartTime, workersSP);
-            SaveWorkerData(zones, Occupation.Manufacturing, TTSEmploymentStatus.PartTime, workersMP);
+            Parallel.Invoke(
+                () => SaveWorkerData(zones, Occupation.Professional, TTSEmploymentStatus.FullTime, workersPF),
+                () => SaveWorkerData(zones, Occupation.Office, TTSEmploymentStatus.FullTime, workersGF),
+                () => SaveWorkerData(zones, Occupation.Retail, TTSEmploymentStatus.FullTime, workersSF),
+                () => SaveWorkerData(zones, Occupation.Manufacturing, TTSEmploymentStatus.FullTime, workersMF),
+                () => SaveWorkerData(zones, Occupation.Professional, TTSEmploymentStatus.PartTime, workersPP),
+                () => SaveWorkerData(zones, Occupation.Office, TTSEmploymentStatus.PartTime, workersGP),
+                () => SaveWorkerData(zones, Occupation.Retail, TTSEmploymentStatus.PartTime, workersSP),
+                () => SaveWorkerData(zones, Occupation.Manufacturing, TTSEmploymentStatus.PartTime, workersMP),
 
-            SaveWorkerCategoryData(zones, Occupation.Professional, TTSEmploymentStatus.FullTime, workersCatPF);
-            SaveWorkerCategoryData(zones, Occupation.Office, TTSEmploymentStatus.FullTime, workersCatGF);
-            SaveWorkerCategoryData(zones, Occupation.Retail, TTSEmploymentStatus.FullTime, workersCatSF);
-            SaveWorkerCategoryData(zones, Occupation.Manufacturing, TTSEmploymentStatus.FullTime, workersCatMF);
-            SaveWorkerCategoryData(zones, Occupation.Professional, TTSEmploymentStatus.PartTime, workersCatPP);
-            SaveWorkerCategoryData(zones, Occupation.Office, TTSEmploymentStatus.PartTime, workersCatGP);
-            SaveWorkerCategoryData(zones, Occupation.Retail, TTSEmploymentStatus.PartTime, workersCatSP);
-            SaveWorkerCategoryData(zones, Occupation.Manufacturing, TTSEmploymentStatus.PartTime, workersCatMP);
-
+                () => SaveWorkerCategoryData(zones, Occupation.Professional, TTSEmploymentStatus.FullTime, workersCatPF),
+                () => SaveWorkerCategoryData(zones, Occupation.Office, TTSEmploymentStatus.FullTime, workersCatGF),
+                () => SaveWorkerCategoryData(zones, Occupation.Retail, TTSEmploymentStatus.FullTime, workersCatSF),
+                () => SaveWorkerCategoryData(zones, Occupation.Manufacturing, TTSEmploymentStatus.FullTime, workersCatMF),
+                () => SaveWorkerCategoryData(zones, Occupation.Professional, TTSEmploymentStatus.PartTime, workersCatPP),
+                () => SaveWorkerCategoryData(zones, Occupation.Office, TTSEmploymentStatus.PartTime, workersCatGP),
+                () => SaveWorkerCategoryData(zones, Occupation.Retail, TTSEmploymentStatus.PartTime, workersCatSP),
+                () => SaveWorkerCategoryData(zones, Occupation.Manufacturing, TTSEmploymentStatus.PartTime, workersCatMP)
+            );
             return householdID;
         }
-
-
-        [RunParameter("External Zone Ranges", "6000-6999", typeof(RangeSet), "The ranges that represent external zones.")]
-        public RangeSet ExternalZones;
 
         private bool IsExternal(IZone employmentZone)
         {
@@ -598,7 +619,7 @@ namespace Tasha.PopulationSynthesis
                         writer.Write(',');
                         writer.Write(zones[zone]);
                         writer.Write(",");
-                        writer.Write(InvHouseholdExpansion);
+                        writer.Write(_invHouseholdExpansion);
                         writer.Write(",");
                         writer.Write((int)household.DwellingType);
                         writer.Write(',');
@@ -618,11 +639,8 @@ namespace Tasha.PopulationSynthesis
 
         public bool RuntimeValidation(ref string error)
         {
-            InvHouseholdExpansion = 1.0f / HouseholdExpansionFactor;
+            _invHouseholdExpansion = 1.0f / HouseholdExpansionFactor;
             return true;
         }
-
-
     }
-
 }
