@@ -60,8 +60,17 @@
 
 
             <StackPanel Orientation="Vertical" Grid.Row="1">
-                <TextBlock Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}">Finished Runs</TextBlock>
-                <ListView Name="FinishedRuns"  Grid.Row="1" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" >
+                    <StackPanel Orientation="Horizontal">
+                <TextBlock DockPanel.Dock="Left" Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}" HorizontalAlignment="Right">Finished Runs</TextBlock>
+                        <Button Name="ClearAllRunsButton"  Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="ClearAllRunsButton_OnClick">
+                            <StackPanel Orientation="Horizontal">
+                            <TextBlock>Clear Runs</TextBlock>
+                            <materialDesign:PackIcon   Kind="NotificationClearAll" ></materialDesign:PackIcon>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <ListView Name="FinishedRuns"  Grid.Row="1" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" >
                 <ListView.View>
                     <GridView>
                          <GridViewColumn Header="Name" Width="100"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
