@@ -255,22 +255,22 @@
                         <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl" VerticalAlignment="Top" />
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
+                <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}" SnapsToDevicePixels="True">
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="30*"/>
                             <ColumnDefinition Width="269*"/>
                         </Grid.ColumnDefinitions>
-                        <Grid.Effect>
-                            <DropShadowEffect RenderingBias="Performance" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3"/>
-                        </Grid.Effect>
+                       <!-- <Grid.Effect>
+                            <DropShadowEffect RenderingBias="Quality" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3"/>
+                        </Grid.Effect> -->
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
 
-                        <TreeView Grid.Row="1"  BorderThickness="0" 
+                        <TreeView Grid.Row="1"  BorderThickness="0"  SnapsToDevicePixels="True"
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                               PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown" 
