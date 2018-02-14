@@ -74,7 +74,8 @@
                 <ListView.View>
                     <GridView>
                          <GridViewColumn Header="Name" Width="100"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
-                        <GridViewColumn Header="Actions"  Width="200">
+                                <GridViewColumn Header="Status" Width="100"  DisplayMemberBinding="{Binding StatusText}"></GridViewColumn>
+                                <GridViewColumn Header="Actions"  Width="200">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid HorizontalAlignment="Stretch" >

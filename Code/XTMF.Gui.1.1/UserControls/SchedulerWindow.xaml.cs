@@ -236,6 +236,7 @@ namespace XTMF.Gui.UserControls
 
                 runWindow.OnRuntimeError = OnRuntimeError;
                 runWindow.OnValidationError = OnValidationError;
+                runWindow.RuntimeError = RuntimeError;
 
                 StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
@@ -245,10 +246,21 @@ namespace XTMF.Gui.UserControls
             /// <summary>
             /// 
             /// </summary>
+            /// <param name="errorWithPath"></param>
+            private void RuntimeError(ErrorWithPath errorWithPath)
+            {
+
+                StatusText = errorWithPath.Message;
+                //Console.WriteLine(errorWithPath);
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
             /// <param name="errorWithPaths"></param>
             private void OnValidationError(List<ErrorWithPath> errorWithPaths)
             {
-                throw new NotImplementedException();
+                Console.WriteLine("Validation error");
             }
 
             /// <summary>
@@ -257,7 +269,7 @@ namespace XTMF.Gui.UserControls
             /// <param name="errorWithPaths"></param>
             private void OnRuntimeError(List<ErrorWithPath> errorWithPaths)
             {
-                throw new NotImplementedException();
+               Console.WriteLine("Runtime Error");
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
