@@ -830,6 +830,27 @@ namespace TMG.Functions
                 baseValues, alternateValues
                 );
         }
+
+        /// <summary>
+        /// Assign to an array replacing values if the base is NaN
+        /// </summary>
+        /// <param name="dest">The place to store the results</param>
+        /// <param name="baseValue">The original values</param>
+        /// <param name="replacementValue">The values to replace them with if the base is NaN</param>
+        public static void ReplaceIfNaN(float[] dest, float[] baseValue, float[] replacementValue)
+        {
+            int i = 0;
+            for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            {
+                var b = new Vector<float>(baseValue, i);
+                var r = new Vector<float>(replacementValue, i);
+                Vector.ConditionalSelect(Vector.GreaterThanOrEqual(b, b), b, r).CopyTo(dest, i);
+            }
+            for(;i < dest.Length; i++)
+            {
+                dest[i] = !float.IsNaN(baseValue[i]) ? baseValue[i] : replacementValue[i];
+            }
+        }
         /// <summary>
         /// 
         /// </summary>

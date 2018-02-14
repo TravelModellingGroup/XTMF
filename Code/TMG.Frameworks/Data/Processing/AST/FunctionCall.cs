@@ -48,7 +48,8 @@ namespace TMG.Frameworks.Data.Processing.AST
             Matrix,
             IdentityMatrix,
             Log,
-            If
+            If,
+            IfNaN
         }
 
         private FunctionType Type;
@@ -65,7 +66,7 @@ namespace TMG.Frameworks.Data.Processing.AST
         {
             for (int i = 0; i < Parameters.Length; i++)
             {
-                if(!Parameters[i].OptimizeAst(ref Parameters[i], ref error))
+                if (!Parameters[i].OptimizeAst(ref Parameters[i], ref error))
                 {
                     return false;
                 }
@@ -150,6 +151,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "if":
                     type = FunctionType.If;
+                    return true;
+                case "ifnan":
+                    type = FunctionType.IfNaN;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -357,14 +361,50 @@ namespace TMG.Frameworks.Data.Processing.AST
                     }
                     return Log(values);
                 case FunctionType.If:
-                    if(values.Length != 3)
+                    if (values.Length != 3)
                     {
-                        return new ComputationResult("If requires at 3 parameters (condition, valueIfTrue, valueIfFalse)!");
+                        return new ComputationResult("If requires 3 parameters (condition, valueIfTrue, valueIfFalse)!");
                     }
                     return ComputeIf(values);
+                case FunctionType.IfNaN:
+                    if (values.Length != 2)
+                    {
+                        return new ComputationResult("IfNaN requires 2 parameters (original,replacement)!");
+                    }
+                    return ComputeIfNaN(values);
 
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult ComputeIfNaN(ComputationResult[] values)
+        {
+            var condition = values[0];
+            var replacement = values[1];
+            // both must be the same size
+            if (condition.IsValue && replacement.IsValue)
+            {
+                return new ComputationResult(!float.IsNaN(condition.LiteralValue) ? condition.LiteralValue : replacement.LiteralValue);
+            }
+            else if (condition.IsVectorResult && replacement.IsVectorResult)
+            {
+                var saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
+                VectorHelper.ReplaceIfNaN(saveTo.GetFlatData(), condition.VectorData.GetFlatData(), replacement.VectorData.GetFlatData());
+                return new ComputationResult(saveTo, true, condition.Direction);
+            }
+            else if (condition.IsOdResult && replacement.IsOdResult)
+            {
+                var saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
+                var flatSave = saveTo.GetFlatData();
+                var flatCond = condition.OdData.GetFlatData();
+                var flatRep = replacement.OdData.GetFlatData();
+                for (int i = 0; i < flatCond.Length; i++)
+                {
+                    VectorHelper.ReplaceIfNaN(flatSave[i], flatCond[i], flatRep[i]);
+                }
+                return new ComputationResult(saveTo, true);
+            }
+            return new ComputationResult($"{Start + 1}:The Condition and Replacement case of an IfNaN expression must be of the same dimensionality.");
         }
 
         private ComputationResult ComputeIf(ComputationResult[] values)
@@ -372,7 +412,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             var condition = values[0];
             var ifTrue = values[1];
             var ifFalse = values[2];
-            if((ifTrue.IsValue & !ifFalse.IsValue)
+            if ((ifTrue.IsValue & !ifFalse.IsValue)
                 || (ifTrue.IsVectorResult & !ifFalse.IsVectorResult)
                 || (ifTrue.IsOdResult & !ifFalse.IsOdResult))
             {
@@ -457,9 +497,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     }
                 }
             }
-            if(condition.IsOdResult)
+            if (condition.IsOdResult)
             {
-                if(!ifTrue.IsOdResult)
+                if (!ifTrue.IsOdResult)
                 {
                     return new ComputationResult($"{Start + 1}:The True and False cases must be a Matrix when the condition is a matrix.");
                 }
@@ -486,11 +526,11 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         private ComputationResult Log(ComputationResult[] values)
         {
-            if(values[0].IsValue)
+            if (values[0].IsValue)
             {
                 return new ComputationResult((float)Math.Log(values[0].LiteralValue));
             }
-            else if(values[0].IsVectorResult)
+            else if (values[0].IsVectorResult)
             {
                 SparseArray<float> saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
                 var source = values[0].VectorData.GetFlatData();

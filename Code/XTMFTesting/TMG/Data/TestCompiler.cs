@@ -1153,6 +1153,16 @@ namespace XTMF.Testing.TMG.Data
             }, (float)Math.Log(1), (float)Math.Log(0.5f), (float)Math.Log(0.25f), (float)Math.Log(0.125f));
         }
 
+        [TestMethod]
+        public void TestIfNaN()
+        {
+            CompareMatrix("IfNaN(B, C)", new IDataSource[]
+            {
+                CreateData("B", 1, float.NaN, float.NaN, 0.125f),
+                CreateData("C", 1, 2, 3, 4)
+            }, 1, 2, 3, 0.125f);
+        }
+
         /// <summary>
         /// Assert results
         /// </summary>
