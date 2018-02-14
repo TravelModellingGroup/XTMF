@@ -547,21 +547,6 @@
     <Resource Include="Resources\FolderOpen_32x32_72.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\GreenArrowUp.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Help.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Links.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\OpenFile.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Plus.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\XTMF_corner_splash.png" />
   </ItemGroup>
   <ItemGroup>
