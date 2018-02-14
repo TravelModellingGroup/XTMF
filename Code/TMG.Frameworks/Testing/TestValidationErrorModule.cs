@@ -7,6 +7,8 @@ using XTMF;
 
 namespace TMG.Frameworks.Testing
 {
+    [ModuleInformation(Description =
+        @"A dummy module that can be used as a root module in model systems used for testing the GUI.")]
     public class TestValidationErrorModule : ISelfContainedModule
     {
         public string Name { get; set; } = "TestValidationErrorModule";

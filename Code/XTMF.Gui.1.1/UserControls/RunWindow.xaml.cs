@@ -317,7 +317,7 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished();
                 ShowErrorMessage("Validation Error", errors[0]);
-                ValidationError?.Invoke(errors);
+                OnValidationError?.Invoke(errors);
             });
         }
 
