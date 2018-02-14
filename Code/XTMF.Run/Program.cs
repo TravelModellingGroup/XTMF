@@ -374,7 +374,6 @@ namespace XTMF.Run
                     return;
                 }
                 run.RunCompleted += Run_RunComplete;
-                run.Start();
                 run.Wait();
             }
         }
