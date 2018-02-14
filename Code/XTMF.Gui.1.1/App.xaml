@@ -59,7 +59,6 @@
                 <!-- Include the Dragablz Material Design style -->
                 <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/materialdesign.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
-                <ResourceDictionary Source="Resources/LightTheme.xaml"/>
                 <ResourceDictionary Source="Resources/ControlStyles.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>

@@ -74,7 +74,7 @@ namespace XTMF.Gui.UserControls
 
         public Action<List<ErrorWithPath>> RuntimeValidationError;
 
-        public Action<List<ErrorWithPath>> ValidationError;
+        public Action<List<ErrorWithPath>> OnValidationError;
 
         public Action<List<ErrorWithPath>> OnRuntimeError;
 
@@ -317,7 +317,7 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished();
                 ShowErrorMessage("Validation Error", errors[0]);
-                ValidationError?.Invoke(errors);
+                OnValidationError?.Invoke(errors);
             });
         }
 

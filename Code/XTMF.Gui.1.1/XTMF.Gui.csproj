@@ -327,14 +327,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Resources\ComboBoxStyle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\ForestTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="UserControls\FlatButton.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -368,10 +360,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\ModuleTreeViewItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\LightTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -545,39 +533,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\XTMF_icon_2.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\010_LowPriority_16x16_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\075b_UpFolder_24x24_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\FolderOpen_24x24_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\FolderOpen_32x32_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\GreenArrowUp.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Help.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Links.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\OpenFile.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Run.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\saveHS.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\XTMF_corner_splash.png" />

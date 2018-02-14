@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -154,34 +154,37 @@ namespace Tasha.PopulationSynthesis
                 {
                     var place = (float)random.NextDouble() * TotalExpansionFactor[densityCat];
                     float current = 0.0f;
-                    for (int i = 0; i < households.Count; i++)
+                    if (TotalExpansionFactor[densityCat] > 0)
                     {
-                        current += households[i].ExpansionFactor;
-                        if (current > place)
+                        for (int i = 0; i < households.Count; i++)
                         {
-                            selectedIndex = i;
-                            break;
+                            current += households[i].ExpansionFactor;
+                            if (current > place)
+                            {
+                                selectedIndex = i;
+                                break;
+                            }
                         }
-                    }
-                    for (int i = 0; i < households.Count; i++)
-                    {
-                        var index = (selectedIndex + i) % households.Count;
-                        var numberOfPersons = households[index].Household.Persons.Length;
-                        // skip adding this particular household if it has too many persons
-                        if (remaining < numberOfPersons)
+                        for (int i = 0; i < households.Count; i++)
                         {
-                            continue;
+                            var index = (selectedIndex + i) % households.Count;
+                            var numberOfPersons = households[index].Household.Persons.Length;
+                            // skip adding this particular household if it has too many persons
+                            if (remaining < numberOfPersons)
+                            {
+                                continue;
+                            }
+                            households[index].ExpansionFactor -= 1;
+                            var remainder = 0.0f;
+                            if (households[index].ExpansionFactor <= 0)
+                            {
+                                remainder = -households[i].ExpansionFactor;
+                                households[index].ExpansionFactor = 0;
+                            }
+                            TotalExpansionFactor[densityCat] -= 1 - remainder;
+                            remaining -= numberOfPersons;
+                            return new KeyValuePair<int, int>(zone, hhldGlobalIndex[index]);
                         }
-                        households[index].ExpansionFactor -= 1;
-                        var remainder = 0.0f;
-                        if (households[index].ExpansionFactor <= 0)
-                        {
-                            remainder = -households[i].ExpansionFactor;
-                            households[index].ExpansionFactor = 0;
-                        }
-                        TotalExpansionFactor[densityCat] -= 1 - remainder;
-                        remaining -= numberOfPersons;
-                        return new KeyValuePair<int, int>(zone, hhldGlobalIndex[index]);
                     }
                     // if we get here then it failed, we need to reset the probabilities again
                     TotalExpansionFactor[densityCat] = households.Sum(h =>

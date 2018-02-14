@@ -64,13 +64,14 @@ namespace XTMF.Gui.UserControls
             {
                 FinishedRuns.Items.Remove(toRemove);
             }
+
             if (Equals(ActiveRunContent.DataContext, run))
             {
                 ActiveRunContent.DataContext = Resources["DefaultDisplay"];
             }
 
             FinishedRuns.Items.Refresh();
-       
+
         }
 
         public SchedulerWindow()
@@ -78,7 +79,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
 
             _runWindows = new List<RunWindow>();
-    
+
             ActiveRunContent.DataContext = Resources["DefaultDisplay"];
 
         }
@@ -89,13 +90,13 @@ namespace XTMF.Gui.UserControls
         /// <param name="run"></param>
         public void AddRun(RunWindow run)
         {
-            Dispatcher.Invoke(new Action(()=>
+            Dispatcher.Invoke(new Action(() =>
             {
                 ActiveContent = run;
-                ScheduledRuns.Items.Add(new SchedulerRunItem(run,this));
+                ScheduledRuns.Items.Add(new SchedulerRunItem(run, this));
                 ActiveRunContent.DataContext = run;
             }));
-        
+
 
         }
 
@@ -126,7 +127,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            SchedulerRunItem item = (sender as  Button).Tag as SchedulerRunItem;
+            SchedulerRunItem item = (sender as Button).Tag as SchedulerRunItem;
             Dispatcher.Invoke((new Action(() =>
             {
                 if (item.RunWindow.IsRunClearable)
@@ -137,6 +138,7 @@ namespace XTMF.Gui.UserControls
                         ActiveContent = new StackPanel();
 
                     }
+
                     FinishedRuns.Items.Remove(item);
                 }
             })));
@@ -151,7 +153,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke((new Action(() =>
             {
                 ScheduledRuns.Items.Remove(runItem);
-                FinishedRuns.Items.Insert(0,runItem);
+                FinishedRuns.Items.Insert(0, runItem);
             })));
         }
 
@@ -232,9 +234,42 @@ namespace XTMF.Gui.UserControls
                 runWindow.UpdateRunProgress = (val) => { Progress = val; };
                 runWindow.OnRunFinished = () => { _schedulerWindow.RemoveFromActiveRuns(this); };
 
+                runWindow.OnRuntimeError = OnRuntimeError;
+                runWindow.OnValidationError = OnValidationError;
+                runWindow.RuntimeError = RuntimeError;
+
                 StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
 
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="errorWithPath"></param>
+            private void RuntimeError(ErrorWithPath errorWithPath)
+            {
+
+                StatusText = errorWithPath.Message;
+                //Console.WriteLine(errorWithPath);
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="errorWithPaths"></param>
+            private void OnValidationError(List<ErrorWithPath> errorWithPaths)
+            {
+                StatusText = "Validation error occured";
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="errorWithPaths"></param>
+            private void OnRuntimeError(List<ErrorWithPath> errorWithPaths)
+            {
+                StatusText = "Runtime error occured";
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
@@ -265,7 +300,21 @@ namespace XTMF.Gui.UserControls
                 MessageBox.Show(item.RunWindow.Run.RunDirectory + " does not exist!");
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ClearAllRunsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke((new Action(() =>
+            {
+                FinishedRuns.Items.Clear();
+                ;
+            })));
+        }
     }
 
-    
+
 }

@@ -227,10 +227,10 @@
                     </DockPanel>
 
 
-                    <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0">
-                    <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager" ConsolidateOrphanedItems="True" Background="{DynamicResource MaterialDesignBackground}" >
+                    <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" SnapsToDevicePixels="True">
+                    <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager" ConsolidateOrphanedItems="True" Background="{DynamicResource MaterialDesignBackground}" SnapsToDevicePixels="True" >
                         <dragablz:TabablzControl.InterTabController   >
-                                    <dragablz:InterTabController  />
+                                    <dragablz:InterTabController SnapsToDevicePixels="True"  />
                             </dragablz:TabablzControl.InterTabController>
                     </dragablz:TabablzControl>
                     </dockablz:Layout>
