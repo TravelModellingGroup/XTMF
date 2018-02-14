@@ -274,7 +274,28 @@ namespace TMG.Frameworks.Data.Processing.AST
                     case '-':
                         {
                             BinaryExpression toReturn = buffer[i] == '+' ? new Add(i) : (BinaryExpression)new Subtract(i);
-                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error))
+                            {
+                                // check to see if it is negate
+                                if (buffer[i] == '-')
+                                {
+                                    bool anythingAfter = false;
+                                    for (int k = i + 1; k < endPlusOne; k++)
+                                    {
+                                        if (!char.IsWhiteSpace(buffer[k]))
+                                        {
+                                            anythingAfter = true;
+                                            break;
+                                        }
+                                    }
+                                    if(anythingAfter)
+                                    {
+                                        error = null;
+                                        continue;
+                                    }
+                                }
+                                return false;
+                            }
                             if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                             ex = toReturn;
                             return true;
@@ -351,6 +372,28 @@ namespace TMG.Frameworks.Data.Processing.AST
                             BinaryExpression toReturn = new Exponent(i);
                             if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
                             if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
+                            ex = toReturn;
+                            return true;
+                        }
+                }
+            }
+            // support negate
+            for (int i = start; i < endPlusOne; i++)
+            {
+                switch (buffer[i])
+                {
+                    case '(':
+                        int endIndex = FindEndOfBracket(buffer, i + 1, endPlusOne - (i + 1), ref error);
+                        if (endPlusOne < 0)
+                        {
+                            return false;
+                        }
+                        i = endIndex;
+                        break;
+                    case '-':
+                        {
+                            MonoExpression toReturn = new Negate(start);
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.InnerExpression, ref error)) return false;
                             ex = toReturn;
                             return true;
                         }

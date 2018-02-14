@@ -81,6 +81,7 @@
     <Compile Include="Data\Processing\AST\CompareOr.cs" />
     <Compile Include="Data\Processing\AST\CompareAnd.cs" />
     <Compile Include="Data\Processing\AST\FusedMultiplyAdd.cs" />
+    <Compile Include="Data\Processing\AST\Negate.cs" />
     <Compile Include="Data\Processing\GravityModel2D.cs" />
     <Compile Include="Data\Processing\AggregateLabeledDataToShape.cs" />
     <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />

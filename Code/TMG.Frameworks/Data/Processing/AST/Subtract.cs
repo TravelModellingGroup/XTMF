@@ -18,6 +18,7 @@
 */
 
 using TMG.Functions;
+using XTMF;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
