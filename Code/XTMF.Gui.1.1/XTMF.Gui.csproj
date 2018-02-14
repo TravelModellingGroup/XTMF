@@ -327,14 +327,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Resources\ComboBoxStyle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\ForestTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="UserControls\FlatButton.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -368,10 +360,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\ModuleTreeViewItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\LightTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -572,12 +560,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Run.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\saveHS.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\XTMF_corner_splash.png" />
