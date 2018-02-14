@@ -260,7 +260,7 @@ namespace XTMF.Gui.UserControls
             /// <param name="errorWithPaths"></param>
             private void OnValidationError(List<ErrorWithPath> errorWithPaths)
             {
-                Console.WriteLine("Validation error");
+                StatusText = "Validation error occured";
             }
 
             /// <summary>
@@ -269,7 +269,7 @@ namespace XTMF.Gui.UserControls
             /// <param name="errorWithPaths"></param>
             private void OnRuntimeError(List<ErrorWithPath> errorWithPaths)
             {
-               Console.WriteLine("Runtime Error");
+                StatusText = "Runtime error occured";
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
