@@ -493,17 +493,19 @@ namespace TMG.Frameworks.Data.Processing.AST
             else if(values[0].IsVectorResult)
             {
                 SparseArray<float> saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
+                var source = values[0].VectorData.GetFlatData();
                 var flat = saveTo.GetFlatData();
-                VectorHelper.Log(flat, 0, flat, 0, flat.Length);
+                VectorHelper.Log(flat, 0, source, 0, source.Length);
                 return new ComputationResult(saveTo, true);
             }
             else
             {
                 SparseTwinIndex<float> saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
+                var source = values[0].OdData.GetFlatData();
                 var flat = saveTo.GetFlatData();
                 for (int i = 0; i < flat.Length; i++)
                 {
-                    VectorHelper.Log(flat[i], 0, flat[i], 0, flat.Length);
+                    VectorHelper.Log(flat[i], 0, source[i], 0, source[i].Length);
                 }
                 return new ComputationResult(saveTo, true);
             }

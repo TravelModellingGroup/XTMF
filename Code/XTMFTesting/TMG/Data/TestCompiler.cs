@@ -1144,6 +1144,15 @@ namespace XTMF.Testing.TMG.Data
             }, 2.0f, -2.0f, 2.0f, 2.0f);
         }
 
+        [TestMethod]
+        public void TestLog()
+        {
+            CompareMatrix("Log(B)", new IDataSource[]
+            {
+                CreateData("B", 1, 0.5f, 0.25f, 0.125f)
+            }, (float)Math.Log(1), (float)Math.Log(0.5f), (float)Math.Log(0.25f), (float)Math.Log(0.125f));
+        }
+
         /// <summary>
         /// Assert results
         /// </summary>
