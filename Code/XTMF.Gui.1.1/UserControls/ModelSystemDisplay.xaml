@@ -53,7 +53,7 @@
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
                 <Label Foreground="{DynamicResource MaterialDesignBody}" Grid.Column="0" Content="{Binding Name}"/>
-                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"/>
+                <Label  Name="EnableDisableLabel" Grid.Column="1" Foreground="{DynamicResource PrimaryHueMidBrush}"  Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"/>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="ModuleEnabledTemplate" DataType="{x:Type models:ModelSystemStructureDisplayModel}">
@@ -64,7 +64,7 @@
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
                 <Label Foreground="{DynamicResource MaterialDesignBody}" Grid.Column="0" Content="{Binding Name}"></Label>
-                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Disable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"/>
+                <Label  Name="EnableDisableLabel" Grid.Column="1" Foreground="{DynamicResource PrimaryHueMidBrush}" Tag="{Binding Path=.}" Content="Disable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"/>
                 <Border ToolTip="Remove module from list" Cursor="Hand" Tag="{Binding Path=.}" Grid.Column="2" Background="{DynamicResource MaterialDesignCardBackground}" MouseDown="Path_MouseDown">
                     <Path IsHitTestVisible="False" Tag="{Binding Path=.}" Data="{DynamicResource CancelIconPath}" Fill="{DynamicResource MaterialDesignBody}" Opacity="0.5"/>
                 </Border>
