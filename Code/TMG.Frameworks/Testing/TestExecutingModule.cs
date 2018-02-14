@@ -54,6 +54,11 @@ namespace TMG.Frameworks.Testing
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             _ticks++;
@@ -61,9 +66,6 @@ namespace TMG.Frameworks.Testing
             Console.WriteLine("Timer tick from " + this.Name + " at " + e.SignalTime);
            
         }
-
-        
-
 
 
 
