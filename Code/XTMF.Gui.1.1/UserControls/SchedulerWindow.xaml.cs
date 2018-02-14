@@ -234,9 +234,30 @@ namespace XTMF.Gui.UserControls
                 runWindow.UpdateRunProgress = (val) => { Progress = val; };
                 runWindow.OnRunFinished = () => { _schedulerWindow.RemoveFromActiveRuns(this); };
 
+                runWindow.OnRuntimeError = OnRuntimeError;
+                runWindow.OnValidationError = OnValidationError;
+
                 StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
 
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="errorWithPaths"></param>
+            private void OnValidationError(List<ErrorWithPath> errorWithPaths)
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="errorWithPaths"></param>
+            private void OnRuntimeError(List<ErrorWithPath> errorWithPaths)
+            {
+                throw new NotImplementedException();
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
