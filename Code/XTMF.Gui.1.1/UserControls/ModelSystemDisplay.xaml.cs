@@ -921,7 +921,7 @@ namespace XTMF.Gui.UserControls
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
                     var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false,
-                        dialog.IsQueueRun);
+                        !dialog.IsQueueRun);
                     if (run != null)
                     {
                         ModuleValidationErrorListView.Items.Clear();
