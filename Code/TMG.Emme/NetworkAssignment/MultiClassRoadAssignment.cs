@@ -25,7 +25,7 @@ using XTMF;
 namespace TMG.Emme.NetworkAssignment
 {
 
-    public class MultiClassRoadAssignment : IEmmeTool
+    public class MultiClassRoadAssignmentTool : IEmmeTool
     {
 
         public string Name { get; set; }
@@ -80,7 +80,7 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("Toll Matrix", 0, "The matrix to save the toll costs into.")]
             public int TollMatrix;
 
-            [RunParameter("VolumeAttribute", "@classVolume", "The name of the attribute to save the volumes into (or none for no saving).")]
+            [RunParameter("VolumeAttribute", "@auto_volume1", "The name of the attribute to save the volumes into (or None for no saving).")]
             public string VolumeAttribute;
 
             [RunParameter("TollAttributeID", "@toll", "The attribute containing the road tolls for this class of vehicle.")]
@@ -108,9 +108,9 @@ namespace TMG.Emme.NetworkAssignment
                 return false;
             }
 
-            public Aggregation[] AdditionalAttributesToAggregate;
+            public Analysis[] PathAnalyses;
 
-            public class Aggregation : IModule
+            public class Analysis : IModule
             {
                 public string Name { get; set; }
 
@@ -118,11 +118,28 @@ namespace TMG.Emme.NetworkAssignment
 
                 public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
-                [RunParameter("Attribute ID", "", "The attribute to aggregate.")]
+                [RunParameter("Attribute ID", "", "The attribute to use for analysis.")]
                 public string AttributeId;
 
-                [RunParameter("Aggregation Matrix", 0, "The matrix number to store the aggregated results into.")]
+                [RunParameter("Aggregation Matrix", 0, "The matrix number to store the results into.")]
                 public int AggregationMatrix;
+
+                [RunParameter("Operator", "+", "The operator to use to aggregate the matrix. Example:'+' for emissions, 'max' for select link analysis")]
+                public string AggregationOperator;
+
+                [RunParameter("Lower Bound for Path Selector", "None", "The number to use for the lower bound in path selection, or None if using all paths")]
+                public string LowerBound;
+
+                [RunParameter("Upper Bound for Path Selector", "None", "The number to use for the upper bound in path selection, or None if using all paths")]
+                public string UpperBound;
+
+                public enum Selection
+                {
+                    ALL,
+                    SELECTED
+                }
+                [RunParameter("Paths to Select", "ALL", typeof(Selection), "The paths that will be used for analysis")]
+                public Selection PathSelection;
 
                 public bool RuntimeValidation(ref string error)
                 {
@@ -136,6 +153,7 @@ namespace TMG.Emme.NetworkAssignment
                         error = $"In {Name} the aggregation matrix number was invalid!";
                         return false;
                     }
+
                     return true;
                 }
             }
@@ -185,23 +203,55 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("LinkTollAttributeId", string.Join(",", Classes.Select(c => c.LinkTollAttributeID))),
                 new ModellerControllerParameter("xtmf_NameString", string.Join(",", Classes.Select(c => c.Name))),
                 new ModellerControllerParameter("ResultAttributes", string.Join(",", Classes.Select(c => c.VolumeAttribute))),
-                new ModellerControllerParameter("xtmf_AggAttributes", GetAttributesFromClass()),
-                new ModellerControllerParameter("xtmf_aggAttributesMatrixId", GetAttributeMatrixIds())
+                new ModellerControllerParameter("xtmf_AnalysisAttributes", GetAttributesFromClass()),
+                new ModellerControllerParameter("xtmf_AnalysisAttributesMatrixId", GetAttributeMatrixIds()),
+                new ModellerControllerParameter("xtmf_AggregationOperator", GetAggregationOperator()),
+                new ModellerControllerParameter("xtmf_LowerBound", GetLowerBound()),
+                new ModellerControllerParameter("xtmf_UpperBound", GetUpperBound()),
+                new ModellerControllerParameter("xtmf_PathSelection", GetPathSelection())
             };
         }
 
         private string GetAttributesFromClass()
         {
             return string.Join("|", from c in Classes
-                                    select string.Join(",", from at in c.AdditionalAttributesToAggregate
+                                    select string.Join(",", from at in c.PathAnalyses
                                                             select at.AttributeId));
         }
 
         private string GetAttributeMatrixIds()
         {
             return string.Join("|", from c in Classes
-                                    select string.Join(",", from at in c.AdditionalAttributesToAggregate
+                                    select string.Join(",", from at in c.PathAnalyses
                                                             select "mf" + at.AggregationMatrix));
+        }
+
+        private string GetAggregationOperator()
+        {
+            return string.Join("|", from c in Classes
+                                    select string.Join(",", from at in c.PathAnalyses
+                                                            select at.AggregationOperator));
+        }
+
+        private string GetLowerBound()
+        {
+            return string.Join("|", from c in Classes
+                                    select string.Join(",", from at in c.PathAnalyses
+                                                            select at.LowerBound));
+        }
+
+        private string GetUpperBound()
+        {
+            return string.Join("|", from c in Classes
+                                    select string.Join(",", from at in c.PathAnalyses
+                                                            select at.UpperBound));
+        }
+
+        private string GetPathSelection()
+        {
+            return string.Join("|", from c in Classes
+                                    select string.Join(",", from at in c.PathAnalyses
+                                                            select at.PathSelection));
         }
 
         private string GetTimes()
@@ -233,7 +283,7 @@ namespace TMG.Emme.NetworkAssignment
         {
             foreach (var c in Classes)
             {
-                foreach (var at in c.AdditionalAttributesToAggregate)
+                foreach (var at in c.PathAnalyses)
                 {
 
                     if (!at.RuntimeValidation(ref error))
