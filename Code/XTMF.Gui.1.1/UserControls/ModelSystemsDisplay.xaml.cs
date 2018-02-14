@@ -295,5 +295,15 @@ namespace XTMF.Gui.UserControls
         private void ImportModelSystemButton_OnClicked(object obj) => MainWindow.Us.ImportModelSystem();
 
         private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e) => LoadCurrentModelSystem();
+
+        private void NewModelSystemButton_OnClick(object sender, RoutedEventArgs e)
+        {
+           NewModelSystem_Click(sender,e);
+        }
+
+        private void ImportModelSystemButton_OnClick(object sender, RoutedEventArgs e)
+        {
+           ImportModelSystemButton_OnClick(sender,e);
+        }
     }
 }
