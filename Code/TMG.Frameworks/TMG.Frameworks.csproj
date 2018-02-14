@@ -127,6 +127,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Testing\TestExecutingModule.cs" />
     <Compile Include="Testing\TestRootModule.cs" />
+    <Compile Include="Testing\TestRuntimeErrorModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
