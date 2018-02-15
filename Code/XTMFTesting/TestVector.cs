@@ -21,6 +21,8 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TMG.Functions;
 using System.Numerics;
+using System;
+
 namespace XTMF.Testing
 {
     [TestClass]
@@ -221,6 +223,23 @@ namespace XTMF.Testing
             for (int i = 0; i < dest.Length; i++)
             {
                 Assert.AreEqual(i == 5 ? 1.0f : 0.0f, dest[i]);
+            }
+        }
+
+        [TestMethod]
+        public void TestLog()
+        {
+            var temp = new float[0x100];
+            var dest = new float[temp.Length];
+            const float incrementFactor = 0.001f;
+            for (int i = 0; i < temp.Length; i++)
+            {
+                temp[i] = i * incrementFactor;
+            }
+            VectorHelper.Log(dest, 0, temp, 0, dest.Length);
+            for (int i = 0; i < dest.Length; i++)
+            {
+                Assert.AreEqual(Math.Log(temp[i]), dest[i], 0.0001f);
             }
         }
     }
