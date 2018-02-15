@@ -1195,5 +1195,18 @@ namespace TMG.Functions
             }
         }
 
+        public static void Negate(float[] dest, float[] source)
+        {
+            int i = 0;
+            for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            {
+                Vector.Negate(new Vector<float>(source, i)).CopyTo(dest, i);
+            }
+            for (; i < dest.Length; i++)
+            {
+                dest[i] = -source[i];
+            }
+        }
+
     }
 }
