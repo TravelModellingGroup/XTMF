@@ -18,6 +18,7 @@
 */
 using Datastructure;
 using System;
+using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
 
@@ -398,10 +399,10 @@ namespace TMG.Frameworks.Data.Processing.AST
                 var flatSave = saveTo.GetFlatData();
                 var flatCond = condition.OdData.GetFlatData();
                 var flatRep = replacement.OdData.GetFlatData();
-                for (int i = 0; i < flatCond.Length; i++)
+                System.Threading.Tasks.Parallel.For(0, flatCond.Length, (int i) =>
                 {
                     VectorHelper.ReplaceIfNaN(flatSave[i], flatCond[i], flatRep[i]);
-                }
+                });
                 return new ComputationResult(saveTo, true);
             }
             return new ComputationResult($"{Start + 1}:The Condition and Replacement case of an IfNaN expression must be of the same dimensionality.");
@@ -508,7 +509,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                 var tr = ifTrue.OdData.GetFlatData();
                 var fa = ifFalse.OdData.GetFlatData();
                 var sa = saveTo.GetFlatData();
-                for (int row = 0; row < cond.Length; row++)
+                System.Threading.Tasks.Parallel.For(0, cond.Length, (int row) =>
                 {
                     var condRow = cond[row];
                     var trRow = tr[row];
@@ -518,7 +519,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         saveRow[j] = condRow[j] > 0 ? trRow[j] : faRow[j];
                     }
-                }
+                });
                 return new ComputationResult(saveTo, true);
             }
             return new ComputationResult($"{Start + 1}:This combination of parameter types has not been implemented for if!");
@@ -543,10 +544,10 @@ namespace TMG.Frameworks.Data.Processing.AST
                 SparseTwinIndex<float> saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
                 var source = values[0].OdData.GetFlatData();
                 var flat = saveTo.GetFlatData();
-                for (int i = 0; i < flat.Length; i++)
+                System.Threading.Tasks.Parallel.For(0, flat.Length, (int i) =>
                 {
                     VectorHelper.Log(flat[i], 0, source[i], 0, source[i].Length);
-                }
+                });
                 return new ComputationResult(saveTo, true);
             }
         }
@@ -665,10 +666,21 @@ namespace TMG.Frameworks.Data.Processing.AST
             {
                 float total = 0.0f;
                 var data = computationResult.OdData.GetFlatData();
-                for (int i = 0; i < data.Length; i++)
-                {
-                    total += VectorHelper.Sum(data[i], 0, data[i].Length);
-                }
+                var syncTarget = new object();
+
+                System.Threading.Tasks.Parallel.For(0, data.Length,
+                    () => 0.0f,
+                    (int i, ParallelLoopState _, float localSum) =>
+                    {
+                        return VectorHelper.Sum(data[i], 0, data[i].Length) + localSum;
+                    },
+                    (float localTotal) =>
+                    {
+                        lock (syncTarget)
+                        {
+                            total += localTotal;
+                        }
+                    });
                 return new ComputationResult(total);
             }
             return new ComputationResult("Unknown data type to sum!");
@@ -705,10 +717,10 @@ namespace TMG.Frameworks.Data.Processing.AST
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
-            for (int i = 0; i < flatData.Length; i++)
+            System.Threading.Tasks.Parallel.For(0, flatData.Length, (int i) =>
             {
                 VectorHelper.Add(flatRet, 0, flatRet, 0, flatData[i], 0, flatData[i].Length);
-            }
+            });
             return new ComputationResult(ret, true, ComputationResult.VectorDirection.Horizontal);
         }
 
@@ -718,10 +730,10 @@ namespace TMG.Frameworks.Data.Processing.AST
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
-            for (int i = 0; i < flatData.Length; i++)
+            System.Threading.Tasks.Parallel.For(0, flatData.Length, (int i) =>
             {
                 flatRet[i] = VectorHelper.Sum(flatData[i], 0, flatData[i].Length);
-            }
+            });
             return new ComputationResult(ret, true, ComputationResult.VectorDirection.Vertical);
         }
 
@@ -731,10 +743,10 @@ namespace TMG.Frameworks.Data.Processing.AST
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
-            for (int i = 0; i < flatData.Length; i++)
+            System.Threading.Tasks.Parallel.For(0, flatData.Length, (int i) =>
             {
                 VectorHelper.Add(flatRet, 0, flatRet, 0, flatData[i], 0, flatData[i].Length);
-            }
+            });
             VectorHelper.Divide(flatRet, flatRet, flatData.Length);
             return new ComputationResult(ret, true, ComputationResult.VectorDirection.Horizontal);
         }
@@ -745,10 +757,11 @@ namespace TMG.Frameworks.Data.Processing.AST
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
-            for (int i = 0; i < flatData.Length; i++)
+            System.Threading.Tasks.Parallel.For(0, flatData.Length, (int i) =>
+
             {
                 flatRet[i] = VectorHelper.Sum(flatData[i], 0, flatData[i].Length) / flatData[i].Length;
-            }
+            });
             return new ComputationResult(ret, true, ComputationResult.VectorDirection.Vertical);
         }
 
@@ -790,7 +803,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                 var ret = new SparseArray<float>(data.Indexes);
                 var flatRet = ret.GetFlatData();
                 var flatData = data.GetFlatData();
-                for (int i = 0; i < flatData.Length; i++)
+                System.Threading.Tasks.Parallel.For(0, flatData.Length, (int i) =>
                 {
                     int temp = 0;
                     for (int j = 0; j < flatData.Length; j++)
@@ -801,7 +814,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         }
                     }
                     flatRet[i] = temp;
-                }
+                });
                 return new ComputationResult(ret, true, ComputationResult.VectorDirection.Horizontal);
             }
             return new ComputationResult("An unknown data type was processed through LengthColumns!");
