@@ -795,24 +795,26 @@ namespace XTMF
         private List<TempLinkedParameter> GetLinkedParametersFromXML(XmlNode linkedParameterNode)
         {
             List<TempLinkedParameter> ret = new List<TempLinkedParameter>();
-            foreach (XmlNode child in linkedParameterNode.ChildNodes)
+            if (linkedParameterNode != null)
             {
-                if (child.Name == "LinkedParameter")
+                foreach (XmlNode child in linkedParameterNode.ChildNodes)
                 {
-                    var nextLp = new TempLinkedParameter()
+                    if (child.Name == "LinkedParameter")
                     {
-                        Name = child.Attributes["Name"].InnerText,
-                        Value = child.Attributes["Value"].InnerText
-                    };
-                    foreach (XmlNode link in child.ChildNodes)
-                    {
-                        nextLp.Paths.Add(link.Attributes["Path"].InnerText);
-                    }
+                        var nextLp = new TempLinkedParameter()
+                        {
+                            Name = child.Attributes["Name"].InnerText,
+                            Value = child.Attributes["Value"].InnerText
+                        };
+                        foreach (XmlNode link in child.ChildNodes)
+                        {
+                            nextLp.Paths.Add(link.Attributes["Path"].InnerText);
+                        }
 
-                    ret.Add(nextLp);
+                        ret.Add(nextLp);
+                    }
                 }
             }
-
             return ret;
         }
 
