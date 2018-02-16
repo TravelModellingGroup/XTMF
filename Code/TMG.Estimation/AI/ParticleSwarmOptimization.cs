@@ -161,7 +161,6 @@ namespace TMG.Estimation.AI
                 for (int i = 0; i < Velocity.Length; i++)
                 {
                     var bestParameterRandom = r.NextDouble();
-
                     var optimalRandom = r.NextDouble();
                     var current = Job.Parameters[i].Current;
                     var globalBestV = us.BestParameterWeight * bestParameterRandom * RelativeDistance(parameters[i], current, BestParameters[i]);
@@ -235,7 +234,6 @@ namespace TMG.Estimation.AI
                 }
                 return (Job = job);
             }
-
         }
 
         private Particle[] Population;
