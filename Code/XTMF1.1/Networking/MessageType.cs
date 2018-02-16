@@ -34,7 +34,8 @@ namespace XTMF.Networking
         SendModelSystem = 9,
         SendCustomMessage = 10,
         ReceiveCustomMessage = 11,
-        Length = 12
+        WriteToHostConsole = 12,
+        Length = 13
     }
 
     internal class ReceiveCustomMessageMessage

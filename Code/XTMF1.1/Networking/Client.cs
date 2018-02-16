@@ -343,6 +343,9 @@ namespace XTMF.Networking
                 crashed = true;
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
+                _Messages.Add(new Message(MessageType.WriteToHostConsole, $"Client has encountered an exception {e.Message}\r\n{e.StackTrace}"));
+                // wait 1 second before closing to ensure the pipes have been flushed
+                Thread.Sleep(1000);
             }
             CleanUp(mss);
             _CurrentRunningModelSystem = null;
@@ -472,6 +475,10 @@ namespace XTMF.Networking
                         Console.WriteLine(e.ToString());
                         return true;
                     }
+                    break;
+                case MessageType.WriteToHostConsole:
+                    writer.Write((int)MessageType.WriteToHostConsole);
+                    writer.Write(message.Data as string);
                     break;
                 case MessageType.SendCustomMessage:
                     {
