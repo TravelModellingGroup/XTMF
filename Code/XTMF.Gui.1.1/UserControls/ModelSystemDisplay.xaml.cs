@@ -153,7 +153,7 @@ namespace XTMF.Gui.UserControls
 
         }
 
-  
+
         public bool CanRunModelSystem
         {
             get => (bool)GetValue(CanRunModelSystemDependencyProperty);
@@ -225,7 +225,7 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public bool HandleTabClose()
         {
-            bool value= !Session.CloseWillTerminate || !CanSaveModelSystem
+            bool value = !Session.CloseWillTerminate || !CanSaveModelSystem
                                                || MessageBox.Show(
                                                    "The model system has not been saved, closing this window will discard the changes!",
                                                    "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question,
@@ -233,7 +233,7 @@ namespace XTMF.Gui.UserControls
 
             if (value)
             {
-                
+
                 //Session.SaveRelease();
             }
 
@@ -2229,6 +2229,8 @@ namespace XTMF.Gui.UserControls
             MoveCurrentModule(1);
         }
 
+        private bool _disableMultipleSelectOnce = false;
+
         /// <summary>
         /// </summary>
         /// <param name="treeView"></param>
@@ -2260,11 +2262,12 @@ namespace XTMF.Gui.UserControls
                 {
                     return;
                 }
-
+                var disableMultiple = _disableMultipleSelectOnce;
+                _disableMultipleSelectOnce = false;
                 var currentItem = treeView.SelectedItem as ModelSystemStructureDisplayModel;
                 // allow multiple selection
                 // when control key is pressed
-                if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                if (!disableMultiple && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
                 {
                     // suppress selection change notification
                     // select all selected items
@@ -2684,7 +2687,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        ///     Click handlre for save button / icon
+        ///     Click handler for save button / icon
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -2708,18 +2711,106 @@ namespace XTMF.Gui.UserControls
             ExecuteRun(false);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void B_OnGotFocus(object sender, RoutedEventArgs e)
+        private int GetNewIndex(ListView view, KeyEventArgs e)
         {
-            var element = sender as StackPanel;
-            var textbox = element.FindChild<TextBox>("TextBox");
-            if (!textbox.IsFocused)
+            var shift = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift);
+            switch (e.Key)
             {
-                //textbox.Focus();
-                //Keyboard.Focus(textbox);
+                case Key.Down:
+                    return Math.Min(view.SelectedIndex + 1, view.Items.Count - 1);
+                case Key.Enter:
+                case Key.Tab:
+                    return shift ? Math.Max(view.SelectedIndex - 1, 0) :
+                        Math.Min(view.SelectedIndex + 1, view.Items.Count - 1);
+                case Key.Up:
+                    return Math.Max(view.SelectedIndex - 1, 0);
+                default:
+                    return view.SelectedIndex;
+            }
+        }
+
+        private void SelectParameterChildControl(UIElement selected)
+        {
+            var textbox = selected.FindChild<TextBox>("TextBox");
+            if (textbox != null)
+            {
+                textbox.Focus();
+                Keyboard.Focus(textbox);
+            }
+            else
+            {
+                var comboBox = selected.FindChild<ComboBox>("ComboBox");
+                comboBox.Focus();
+                Keyboard.Focus(comboBox);
+            }
+        }
+
+        public void B_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+            SelectParameterChildControl(sender as UIElement);
+        }
+
+        private void Parameter_GotFocus(object sender, RoutedEventArgs e)
+        {
+            UIElement current = sender as UIElement;
+            while(current != null)
+            {
+                current = VisualTreeHelper.GetParent(current) as UIElement;
+                if(current is ListViewItem lvi)
+                {
+                    SelectParameterChildControl(current);
+                    return;
+                }
+            }
+        }
+
+        private void ProcessParameterDisplayKeyDown(ListView display, KeyEventArgs e)
+        {
+            var oldIndex = display.SelectedIndex;
+            var newIndex = GetNewIndex(display, e);
+            if (newIndex == oldIndex) return;
+            if (Keyboard.FocusedElement is UIElement current)
+            {
+                current.MoveFocus(new TraversalRequest(oldIndex > newIndex ? FocusNavigationDirection.Up : FocusNavigationDirection.Down));
+                if (Keyboard.FocusedElement is UIElement selected)
+                {
+                    SelectParameterChildControl(selected);
+                }
+            }
+        }
+
+        private void ProcessOnPreviewKeyboardForParameter(ListView view, KeyEventArgs e)
+        {
+            if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+            {
+                var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+                if (e.Key == Key.Up)
+                {
+                    _disableMultipleSelectOnce = true;
+                    ModuleDisplayNavigateUp(item);
+                    Dispatcher.BeginInvoke(new Action(() =>
+                  {
+                      view.SelectedIndex = 0;
+                      SelectParameterChildControl((UIElement)view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
+                  }), DispatcherPriority.Input);
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Down)
+                {
+                    _disableMultipleSelectOnce = true;
+                    ModuleDisplayNavigateDown(item);
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        view.SelectedIndex = 0;
+                        SelectParameterChildControl((UIElement)view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
+                    }));
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up || e.Key == Key.Enter)
+            {
+                ProcessParameterDisplayKeyDown(view, e);
+                e.Handled = true;
             }
         }
 
@@ -2729,43 +2820,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void B_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up)
-            {
-                var newIndex =
-                    (e.Key == Key.Tab || e.Key == Key.Down) &&
-                    ParameterDisplay.SelectedIndex < ParameterDisplay.Items.Count - 1
-                        ? ParameterDisplay.SelectedIndex + 1
-                        : 0;
-
-                newIndex = e.Key == Key.Up &&
-                           ParameterDisplay.SelectedIndex > 0
-                    ? ParameterDisplay.SelectedIndex - 1
-                    : newIndex;
-
-                if (newIndex >= 0)
-                {
-                    ParameterDisplay.SelectedIndex = newIndex;
-                    var selected =
-                        ParameterDisplay.ItemContainerGenerator.ContainerFromIndex(ParameterDisplay.SelectedIndex) as
-                            ListViewItem;
-                    ;
-                    var textbox = selected.FindChild<TextBox>("TextBox");
-                    if (textbox != null)
-                    {
-                        textbox.Focus();
-                        Keyboard.Focus(textbox);
-                        e.Handled = true;
-                    }
-                    else
-                    {
-                        var comboBox = selected.FindChild<ComboBox>("ComboBox");
-                        comboBox.Focus();
-                        Keyboard.Focus(comboBox);
-
-                        e.Handled = true;
-                    }
-                }
-            }
+            ProcessOnPreviewKeyboardForParameter(ParameterDisplay, e);
         }
 
         /// <summary>
@@ -2774,43 +2829,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QuickParameterDisplay_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up)
-            {
-                var newIndex =
-                    (e.Key == Key.Tab || e.Key == Key.Down) &&
-                    QuickParameterDisplay.SelectedIndex < QuickParameterDisplay.Items.Count - 1
-                        ? QuickParameterDisplay.SelectedIndex + 1
-                        : 0;
-
-                newIndex = e.Key == Key.Up &&
-                           QuickParameterDisplay.SelectedIndex > 0
-                    ? QuickParameterDisplay.SelectedIndex - 1
-                    : newIndex;
-
-                if (newIndex >= 0)
-                {
-                    QuickParameterDisplay.SelectedIndex = newIndex;
-                    var selected =
-                        QuickParameterDisplay.ItemContainerGenerator.ContainerFromIndex(QuickParameterDisplay
-                            .SelectedIndex) as ListViewItem;
-                    ;
-                    var textbox = selected.FindChild<TextBox>("TextBox");
-                    if (textbox != null)
-                    {
-                        textbox.Focus();
-                        Keyboard.Focus(textbox);
-                        e.Handled = true;
-                    }
-                    else
-                    {
-                        var comboBox = selected.FindChild<ComboBox>("ComboBox");
-                        comboBox.Focus();
-                        Keyboard.Focus(comboBox);
-
-                        e.Handled = true;
-                    }
-                }
-            }
+            ProcessOnPreviewKeyboardForParameter(QuickParameterDisplay, e);
         }
 
         /// <summary>
@@ -2820,22 +2839,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ParameterValueTextBox_OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            var textInput = sender as TextBox;
-            var pdm = textInput.Tag as ParameterDisplayModel;
-            if (ParameterTabControl.SelectedItem == ModuleParameterTab)
-            {
-                if (ParameterDisplay.ItemContainerGenerator.ContainerFromItem(pdm) is ListViewItem item)
-                {
-                    item.IsSelected = true;
-                }
-            }
-            else
-            {
-                if (QuickParameterDisplay.ItemContainerGenerator.ContainerFromItem(pdm) is ListViewItem item)
-                {
-                    item.IsSelected = true;
-                }
-            }
+
         }
 
         [NotifyPropertyChangedInvocator]
