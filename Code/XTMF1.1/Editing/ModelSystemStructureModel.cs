@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -591,7 +591,7 @@ namespace XTMF
         {
             if (current.Type == null && !current.IsCollection)
             {
-                //throw an exception - model system referenecs a module with a missing assembly
+                //throw an exception - model system references a module with a missing assembly
                throw new MissingModuleTypeException(current);
             }
 
@@ -712,7 +712,7 @@ namespace XTMF
         private bool IsAssignable(ModelSystemStructure rootStructure, ModelSystemStructure parentStructure,
             ModelSystemStructure copyBuffer)
         {
-            // This will update what module we are using for the root as per the Re-rootable extension for XTMF
+            // This will update what module we are using for the root as per the Re-root-able extension for XTMF
             try
             {
                 var parent = parentStructure == null ? typeof(IModelSystemTemplate) : parentStructure.Type;
