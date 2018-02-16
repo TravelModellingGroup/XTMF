@@ -81,6 +81,7 @@ namespace XTMF.Gui.UserControls
             _textbox.Text = initialValue;
             _textbox.CaretIndex = initialValue.Length;
             _textbox.Foreground = (Brush)Application.Current.TryFindResource("SecondaryAccentForegroundBrush");
+            _textbox.SelectAll();
             Grid.Children.Add(TextBlock);
             Grid.Children.Add(_textbox);
             Grid.SetRow(TextBlock, 0);
