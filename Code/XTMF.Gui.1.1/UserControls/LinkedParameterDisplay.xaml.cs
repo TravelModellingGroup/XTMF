@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2017-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -111,8 +111,6 @@ namespace XTMF.Gui.UserControls
                 AssignCurrentlySelected();
                 ChangesMade = true;
                 CleanupSelectedParameters();
-                //((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
-                //Visibility = Visibility.Collapsed;
                 DialogOpenedEventArgs.Session.Close();
                 OnCloseDisplay.BeginInvoke(null, null);
             }
@@ -266,14 +264,12 @@ namespace XTMF.Gui.UserControls
                         MessageBoxImage.Error);
                     return;
                 }
-
                 if (!_linkedParametersModel.NewLinkedParameter(name, ref error))
                 {
                     MessageBox.Show(MainWindow.Us, error, "Failed to create new Linked Parameter", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                     return;
                 }
-
                 SetupLinkedParameters(_linkedParametersModel);
                 ChangesMade = true;
                 StringRequestOverlay.Reset();
@@ -293,7 +289,6 @@ namespace XTMF.Gui.UserControls
                         MessageBoxImage.Error);
                     return;
                 }
-
                 var items = Display.ItemsSource as ObservableCollection<LinkedParameterDisplayModel>;
                 items?.Remove(selectedLinkedParameter);
                 ChangesMade = true;
@@ -315,12 +310,7 @@ namespace XTMF.Gui.UserControls
 
         private LinkedParameterDisplayModel GetFirstItem()
         {
-            if (Display.ItemContainerGenerator.Items.Count > 0)
-            {
-                return Display.ItemContainerGenerator.Items[0] as LinkedParameterDisplayModel;
-            }
-
-            return null;
+            return Display.ItemContainerGenerator.Items.Count > 0 ? Display.ItemContainerGenerator.Items[0] as LinkedParameterDisplayModel : null;
         }
 
         private void LinkedParameterFilterBox_KeyDown(object sender, KeyEventArgs e)
@@ -350,7 +340,6 @@ namespace XTMF.Gui.UserControls
                     {
                         return;
                     }
-
                     if (!_currentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error))
                     {
                         MessageBox.Show(
@@ -358,7 +347,6 @@ namespace XTMF.Gui.UserControls
                             "Error removing parameter", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-
                     ChangesMade = true;
                     var containedParameters =
                         _currentParameters = (from parameter2 in _currentlySelected.LinkedParameter.GetParameters()
@@ -369,7 +357,6 @@ namespace XTMF.Gui.UserControls
                                 Parameter = parameter2,
                                 KeepAttached = true
                             }).ToList();
-
                     ContainedParameterDisplay.ItemsSource =
                         new ObservableCollection<ParameterDisplay>(containedParameters);
                     break;
@@ -436,7 +423,6 @@ namespace XTMF.Gui.UserControls
                 {
                     DialogOpenedEventArgs.Session.Close();
                 }
-
                 OnCloseDisplay.BeginInvoke(null, null);
             }
         }

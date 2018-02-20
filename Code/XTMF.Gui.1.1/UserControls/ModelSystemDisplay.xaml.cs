@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -135,17 +135,14 @@ namespace XTMF.Gui.UserControls
                         {
                             RecentLinkedParameters.Remove(matched);
                         }
-
                         RecentLinkedParameters.Insert(0, new LinkedParameterDisplayModel(newLP));
                         if (RecentLinkedParameters.Count > 5)
                         {
                             RecentLinkedParameters.RemoveAt(5);
                         }
-
                         ParameterRecentLinkedParameters.IsEnabled = true;
                         QuickParameterRecentLinkedParameters.IsEnabled = true;
                     }
-
                     RefreshParameters();
                     _selectedParameterDisplayModel = null;
                 });
@@ -179,13 +176,11 @@ namespace XTMF.Gui.UserControls
                     _Session.CommandExecuted += SessionOnCommandExecuted;
                     _Session.Saved += _Session_Saved;
                 }
-
                 _Session = value;
                 if (value != null)
                 {
                     value.ProjectWasExternallySaved += ProjectWasExternalSaved;
                 }
-
                 CanRunModelSystem = _Session.ProjectEditingSession != null;
             }
         }
@@ -230,13 +225,14 @@ namespace XTMF.Gui.UserControls
                                                    "The model system has not been saved, closing this window will discard the changes!",
                                                    "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question,
                                                    MessageBoxResult.Cancel) == MessageBoxResult.OK;
-
             if (value)
             {
-
-                //Session.SaveRelease();
+                string error = null;
+                if (!Session.Close(ref error))
+                {
+                    MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
-
             return value;
         }
 
@@ -287,13 +283,11 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-
             var show = thisParentPassed | childrenPassed | parentVisible;
             if (!string.IsNullOrWhiteSpace(filterText))
             {
                 module.IsExpanded = childrenPassed;
             }
-
             module.ModuleVisibility = thisParentPassed | childrenPassed | parentPassed
                 ? Visibility.Visible
                 : Visibility.Collapsed;
@@ -329,7 +323,6 @@ namespace XTMF.Gui.UserControls
                     ModuleRuntimeValidationErrorListView.Items.Add(
                         new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
                 }
-
                 ParameterTabControl.SelectedIndex = 2;
                 ModuleRuntimeValidationErrorListView.UpdateLayout();
             });
@@ -345,7 +338,6 @@ namespace XTMF.Gui.UserControls
                     ModuleValidationErrorListView.Items.Add(
                         new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
                 }
-
                 ParameterTabControl.SelectedIndex = 2;
                 ModuleValidationErrorListView.UpdateLayout();
             });
@@ -362,7 +354,6 @@ namespace XTMF.Gui.UserControls
             {
                 return container;
             }
-
             if (children != null)
             {
                 foreach (var child in children)
@@ -374,22 +365,15 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-
             return null;
         }
 
         private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
         {
-            if (keyEventArgs.Key == Key.F5)
+            if (keyEventArgs.Key == Key.F5 && IsKeyboardFocusWithin && !LinkedParameterDisplayOverlay.IsVisible)
             {
-                if (IsKeyboardFocusWithin)
-                {
-                    if (!LinkedParameterDisplayOverlay.IsVisible)
-                    {
-                        SaveCurrentlySelectedParameters();
-                        ExecuteRun();
-                    }
-                }
+                SaveCurrentlySelectedParameters();
+                ExecuteRun();
             }
         }
 
@@ -412,7 +396,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        ///     Callback for when the Module Context control changes the active "selected module
+        /// Callback for when the Module Context control changes the active "selected module
         /// </summary>
         /// <param name="sender1"></param>
         /// <param name="eventArgs"></param>
@@ -426,7 +410,6 @@ namespace XTMF.Gui.UserControls
                     eventArgs.Module.IsSelected = true;
                 }
             }));
-
         }
 
         private void EnumerateDisabled(ModelSystemStructureDisplayModel model)
@@ -435,7 +418,6 @@ namespace XTMF.Gui.UserControls
             {
                 DisabledModules.Add(model);
             }
-
             if (model.Children != null)
             {
                 foreach (var child in model.Children)
@@ -477,7 +459,6 @@ namespace XTMF.Gui.UserControls
             {
                 current = VisualTreeHelper.GetParent(current);
             }
-
             return current as Window;
         }
 
@@ -572,7 +553,6 @@ namespace XTMF.Gui.UserControls
             {
                 throw new InvalidOperationException("Session has not been set before operating.");
             }
-
             if (CurrentlySelected.Count > 0)
             {
                 if (CurrentlySelected.Any(c => c.BaseModel.ParentFieldType !=
@@ -582,7 +562,6 @@ namespace XTMF.Gui.UserControls
                         "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
                 var findReplacement = new ModuleTypeSelect(Session, CurrentlySelected[0].BaseModel)
                 {
                     Owner = GetWindow()
@@ -663,7 +642,6 @@ namespace XTMF.Gui.UserControls
                         us.ModelSystemName = newModelSystem.Name;
                         us.ModuleDisplay.Items.MoveCurrentToFirst();
                         us.FilterBox.Display = us.ModuleDisplay;
-
                         us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                         us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                     });
@@ -689,7 +667,6 @@ namespace XTMF.Gui.UserControls
                     {
                         RecentLinkedParameters.Remove(item);
                     }
-
                     if (RecentLinkedParameters.Count <= 0)
                     {
                         ParameterRecentLinkedParameters.IsEnabled = false;
@@ -753,8 +730,6 @@ namespace XTMF.Gui.UserControls
                             {
                                 ModuleParameterDialogHost.IsOpen = true;
                             }
-
-
                             break;
                     }
                 }
@@ -776,7 +751,6 @@ namespace XTMF.Gui.UserControls
                             {
                                 SelectReplacement();
                             }
-
                             e.Handled = true;
                             break;
                         case Key.R:
@@ -820,15 +794,12 @@ namespace XTMF.Gui.UserControls
                             {
                                 SelectDirectoryForCurrentParameter();
                             }
-
                             if (ModuleDisplay.IsKeyboardFocusWithin)
                             {
                                 ToggleDisableModule();
                             }
-
                             e.Handled = true;
                             break;
-
                         case Key.Z:
                             Undo();
                             e.Handled = true;
@@ -868,7 +839,6 @@ namespace XTMF.Gui.UserControls
                             {
                                 RenameParameter();
                             }
-
                             break;
                         case Key.F1:
                             ShowDocumentation();
@@ -880,7 +850,6 @@ namespace XTMF.Gui.UserControls
                                 RemoveSelectedModules();
                                 e.Handled = true;
                             }
-
                             break;
                         case Key.F5:
                             e.Handled = true;
@@ -902,10 +871,8 @@ namespace XTMF.Gui.UserControls
         {
             var runName = string.Empty;
             string error = null;
-
             var dialog = new SelectRunDateTimeDialog();
             var result = await dialog.ShowAsync();
-
             if (dialog.DidComplete)
             {
                 runName = (dialog.DataContext as RunConfigurationDisplayModel)?.UserInput;
@@ -917,7 +884,6 @@ namespace XTMF.Gui.UserControls
                         "Run Name Already Exists", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning,
                         MessageBoxResult.No);
                 }
-
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
                     var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false,
@@ -930,8 +896,6 @@ namespace XTMF.Gui.UserControls
                         MainWindow.Us.UpdateStatusDisplay("Running Model System ");
                         var runWindow = MainWindow.Us.CreateRunWindow(Session, run, runName);
                         MainWindow.Us.AddRunToSchedulerWindow(runWindow);
-                        //MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " + Session.Name,
-                        //    () => { MainWindow.Us.LoadPageId(ContentGuid); });
                     }
                     else
                     {
@@ -939,12 +903,8 @@ namespace XTMF.Gui.UserControls
                             "Unable to start run.\r\n" + error,
                             "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
-
-                    //StringRequestOverlay.Reset();
                 }
             }
-
-            ;
         }
 
         /// <summary>
@@ -978,11 +938,7 @@ namespace XTMF.Gui.UserControls
 
         public void Close()
         {
-            var e = RequestClose;
-            if (e != null)
-            {
-                Dispatcher.BeginInvoke(new Action(() => { e(this); }));
-            }
+            Dispatcher.BeginInvoke(new Action(() => { RequestClose?.Invoke(this); }));
         }
 
         /// <summary>
@@ -1015,8 +971,7 @@ namespace XTMF.Gui.UserControls
         {
             if (sender is TextBox box)
             {
-                var be = box.GetBindingExpression(TextBox.TextProperty);
-                be.UpdateSource();
+                box.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             }
         }
 
@@ -1057,18 +1012,15 @@ namespace XTMF.Gui.UserControls
             {
                 return null;
             }
-
             for (var i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
             {
                 var child = VisualTreeHelper.GetChild(depObj, i);
-
                 var result = child as T ?? GetChildOfType<T>(child);
                 if (result != null)
                 {
                     return result;
                 }
             }
-
             return null;
         }
 
@@ -1093,7 +1045,6 @@ namespace XTMF.Gui.UserControls
                             box.Text = string.Empty;
                             e.Handled = true;
                         }
-
                         break;
                     case Key.E:
                         if (ctrlDown)
@@ -1101,7 +1052,6 @@ namespace XTMF.Gui.UserControls
                             ExpandParameterDocumentation(sender);
                             e.Handled = true;
                         }
-
                         break;
                     case Key.F2:
                         RenameParameter();
@@ -1113,7 +1063,6 @@ namespace XTMF.Gui.UserControls
                             SetCurrentParameterHidden(!shiftDown);
                             e.Handled = true;
                         }
-
                         break;
                     case Key.Enter:
                         MoveFocusNext(shiftDown);
@@ -1130,7 +1079,6 @@ namespace XTMF.Gui.UserControls
                             {
                                 MoveFocusNextModule(true);
                             }
-
                             e.Handled = true;
                         }
                         else
@@ -1156,7 +1104,6 @@ namespace XTMF.Gui.UserControls
                         {
                             MoveFocusNext(false);
                         }
-
                         e.Handled = true;
                         break;
                     case Key.L:
@@ -1169,7 +1116,6 @@ namespace XTMF.Gui.UserControls
                         {
                             e.Handled = false;
                         }
-
                         break;
                     case Key.T:
                         {
@@ -1199,12 +1145,10 @@ namespace XTMF.Gui.UserControls
 
         private void MoveFocusNext(bool up)
         {
-            var request =
-                new TraversalRequest(up ? FocusNavigationDirection.Up : FocusNavigationDirection.Down);
             // Change keyboard focus.
             if (Keyboard.FocusedElement is UIElement elementWithFocus)
             {
-                elementWithFocus.MoveFocus(request);
+                elementWithFocus.MoveFocus(new TraversalRequest(up ? FocusNavigationDirection.Up : FocusNavigationDirection.Down));
             }
         }
 
@@ -1238,7 +1182,6 @@ namespace XTMF.Gui.UserControls
                     SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
                 });
                 MainWindow.SetStatusText("Saving...");
-
                 Task.Run(async () =>
                 {
                     if (Session.SaveWait())
@@ -1302,7 +1245,6 @@ namespace XTMF.Gui.UserControls
                 {
                     return true;
                 }
-
                 foreach (var c in current.Children)
                 {
                     if (IsContainedWithin(c, toFind))
@@ -1310,7 +1252,6 @@ namespace XTMF.Gui.UserControls
                         return true;
                     }
                 }
-
                 return false;
             }
 
@@ -1321,12 +1262,10 @@ namespace XTMF.Gui.UserControls
                 {
                     return current;
                 }
-
                 if (current.IsMetaModule)
                 {
                     return IsContainedWithin(current.BaseModel, toFind) ? current : null;
                 }
-
                 foreach (var c in current.Children)
                 {
                     var ret = find(c, toFind);
@@ -1335,7 +1274,6 @@ namespace XTMF.Gui.UserControls
                         return ret;
                     }
                 }
-
                 return null;
             }
 
@@ -1349,14 +1287,12 @@ namespace XTMF.Gui.UserControls
         private void GoToModule(ModelSystemStructure mss)
         {
             var displayModel = GetModelFor(ModelSystem.GetModelFor(mss));
-
             Dispatcher.Invoke(new Action(() =>
             {
                 CurrentlySelected.Clear();
                 ExpandToRoot(displayModel);
                 displayModel.IsSelected = true;
             }));
-
         }
 
         private void GotoSelectedParameterModule()
@@ -1381,7 +1317,6 @@ namespace XTMF.Gui.UserControls
                         return;
                     }
                 }
-
                 current = VisualTreeHelper.GetParent(current);
             }
         }
@@ -1417,7 +1352,6 @@ namespace XTMF.Gui.UserControls
                             MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-
                     any = true;
                 }
             }
@@ -1458,7 +1392,6 @@ namespace XTMF.Gui.UserControls
                             }
                         }
                     }
-
                     Dispatcher.InvokeAsync(() =>
                     {
                         CleanUpParameters();
@@ -1544,7 +1477,6 @@ namespace XTMF.Gui.UserControls
                 {
                     ParameterTabControl.SelectedIndex = 1;
                 }
-
                 //update the module context control
                 ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
             }
@@ -1593,7 +1525,6 @@ namespace XTMF.Gui.UserControls
                         {
                             return;
                         }
-
                         if (sel.IsDisabled)
                         {
                             if (!DisabledModules.Contains(sel))
@@ -1776,7 +1707,6 @@ namespace XTMF.Gui.UserControls
                                     }
                                 }
                             });
-
                             /* Re order the children from parent node */
                             /* Remove the module from selected items */
                             //CurrentlySelected.Remove(selected);
@@ -1930,17 +1860,14 @@ namespace XTMF.Gui.UserControls
                 {
                     break;
                 }
-
                 // detect a loop
                 if (previousRoot == currentRoot)
                 {
                     // just terminate
                     return null;
                 }
-
                 previousRoot = currentRoot;
             } while (true);
-
             directory = GetInputDirectory(currentRoot, out var inputParameter);
             return inputParameter;
         }
@@ -1963,7 +1890,6 @@ namespace XTMF.Gui.UserControls
                     {
                         pathToFile = Path.GetDirectoryName(pathToFile);
                     }
-
                     try
                     {
                         var toRun = new Process();
@@ -2064,7 +1990,6 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-
             parameter = null;
             return null;
         }
@@ -2077,12 +2002,10 @@ namespace XTMF.Gui.UserControls
             {
                 return RemoveRelativeDirectories(parameterValue);
             }
-
             if (inputDirectoryRooted)
             {
                 return RemoveRelativeDirectories(Path.Combine(inputDirectory, parameterValue));
             }
-
             return RemoveRelativeDirectories(Path.Combine(Session.Configuration.ProjectDirectory,
                 Session.ProjectEditingSession.Name,
                 "RunDirectory", inputDirectory, isInputParameter ? "" : parameterValue));
@@ -2102,7 +2025,6 @@ namespace XTMF.Gui.UserControls
                     {
                         return null;
                     }
-
                     var previousString = currentlyOn.Pop();
                     var removeLength = previousString.Length + 1;
                     finalPath.Remove(finalPath.Length - removeLength, removeLength);
@@ -2118,7 +2040,6 @@ namespace XTMF.Gui.UserControls
                     currentlyOn.Push(parts[i]);
                 }
             }
-
             return finalPath.ToString(0, finalPath.Length - 1);
         }
 
@@ -2202,7 +2123,6 @@ namespace XTMF.Gui.UserControls
             {
                 source = VisualTreeHelper.GetParent(source);
             }
-
             return source as TreeViewItem;
         }
 
@@ -2241,7 +2161,6 @@ namespace XTMF.Gui.UserControls
             {
                 return;
             }
-
             var selectedItems = new List<TreeViewItem>();
             treeView.SelectedItemChanged += (a, b) =>
             {
@@ -2256,7 +2175,6 @@ namespace XTMF.Gui.UserControls
                     IsSelectionChangeActiveProperty.SetValue(treeView, isSelectionChangeActive, null);
                     return;
                 }
-
                 var treeViewItem = VisualUpwardSearch(module);
                 if (treeViewItem == null)
                 {
@@ -2303,12 +2221,10 @@ namespace XTMF.Gui.UserControls
                             {
                                 CurrentlySelected.Remove(innerModule);
                             }
-
                             CurrentlySelected.Add(innerModule);
                             selectedItems.Add(innerTreeViewItem);
                         }
                     }
-
                     // select all of the modules that should be selected
                     selectedItems.ForEach(item => item.IsSelected = true);
                     IsSelectionChangeActiveProperty.SetValue(treeView, isSelectionChangeActive, null);
@@ -2321,7 +2237,6 @@ namespace XTMF.Gui.UserControls
                     selectedItems.ForEach(item => item.IsSelected = item == treeViewItem);
                     selectedItems.Clear();
                 }
-
                 if (!selectedItems.Contains(treeViewItem))
                 {
                     selectedItems.Add(treeViewItem);
@@ -2416,7 +2331,6 @@ namespace XTMF.Gui.UserControls
             {
                 return item.Parent.Children[item.Index + 1];
             }
-
             return FindNextAncestor(item.Parent);
         }
 
@@ -2753,10 +2667,10 @@ namespace XTMF.Gui.UserControls
         private void Parameter_GotFocus(object sender, RoutedEventArgs e)
         {
             UIElement current = sender as UIElement;
-            while(current != null)
+            while (current != null)
             {
                 current = VisualTreeHelper.GetParent(current) as UIElement;
-                if(current is ListViewItem lvi)
+                if (current is ListViewItem lvi)
                 {
                     SelectParameterChildControl(current);
                     return;
@@ -2839,7 +2753,16 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ParameterValueTextBox_OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-
+            UIElement current = sender as UIElement;
+            while(current != null)
+            {
+                if(current is ListViewItem lvi)
+                {
+                    lvi.IsSelected = true;
+                    return;
+                }
+                current = VisualTreeHelper.GetParent(current) as UIElement;
+            }
         }
 
         [NotifyPropertyChangedInvocator]
