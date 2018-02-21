@@ -330,8 +330,7 @@
                                             <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                                 <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                             </Button>
-                                            <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2"/>
-                                            <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2" />
+                                            <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="0.2cm,4,0.2cm,2"/>
                                         </Grid>
                                     </ToolBar>
                                 </ToolBarTray>
