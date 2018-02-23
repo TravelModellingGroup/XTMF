@@ -233,8 +233,8 @@ namespace XTMF.Gui.UserControls
                 runWindow.UpdateRunStatus = (val) => { StatusText = val; };
                 runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
                 runWindow.UpdateRunProgress = (val) => { Progress = val; };
-                runWindow.OnRunFinished = () => { _schedulerWindow.RemoveFromActiveRuns(this); };
 
+                runWindow.OnRunFinished = OnRunFinished;
                 runWindow.OnRuntimeError = OnRuntimeError;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
@@ -242,6 +242,17 @@ namespace XTMF.Gui.UserControls
                 StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
 
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            private void OnRunFinished()
+            {
+                _schedulerWindow.RemoveFromActiveRuns(this);
+                MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name +")", "SCHEDULER",
+                    () => MainWindow.Us.ShowSchedulerWindow());
+               
             }
 
             /// <summary>

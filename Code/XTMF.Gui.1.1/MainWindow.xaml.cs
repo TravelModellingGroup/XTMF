@@ -959,6 +959,14 @@ namespace XTMF.Gui
         }
 
         /// <summary>
+        /// Shows the scheduler window
+        /// </summary>
+        public void ShowSchedulerWindow()
+        {
+            SetDisplayActive(SchedulerWindow, "Scheduler", false);
+        }
+
+        /// <summary>
         /// </summary>
         /// <param name="session"></param>
         /// <param name="run"></param>
@@ -1281,6 +1289,7 @@ namespace XTMF.Gui
             if (DrawerHost.IsLeftDrawerOpen)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
+               
                 e.Handled = true;
             }
         }
@@ -1334,6 +1343,7 @@ namespace XTMF.Gui
             if (e.Key == Key.Escape && DrawerHost.IsLeftDrawerOpen)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
+            
             }
         }
 
