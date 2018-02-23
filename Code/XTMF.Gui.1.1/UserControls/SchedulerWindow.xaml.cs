@@ -17,6 +17,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml;
+using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 
 namespace XTMF.Gui.UserControls
@@ -232,14 +234,26 @@ namespace XTMF.Gui.UserControls
                 runWindow.UpdateRunStatus = (val) => { StatusText = val; };
                 runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
                 runWindow.UpdateRunProgress = (val) => { Progress = val; };
-                runWindow.OnRunFinished = () => { _schedulerWindow.RemoveFromActiveRuns(this); };
 
+                runWindow.OnRunFinished = OnRunFinished;
                 runWindow.OnRuntimeError = OnRuntimeError;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
 
                 StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
+
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            private void OnRunFinished()
+            {
+                _schedulerWindow.RemoveFromActiveRuns(this);
+                MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name +")", "SCHEDULER",
+                    () => MainWindow.Us.ShowSchedulerWindow());
+
 
             }
 
@@ -313,6 +327,71 @@ namespace XTMF.Gui.UserControls
                 FinishedRuns.Items.Clear();
                 ;
             })));
+        }
+
+
+   
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FinishedRuns_SizeChanged_1(object sender, SizeChangedEventArgs e)
+        {
+            ListView listView = sender as ListView;
+            GridView gridView = listView.View as GridView;
+            var actualWidth = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+            for (var i = 1; i < gridView.Columns.Count; i++)
+            {
+                gridView.Columns[i].Width = actualWidth / gridView.Columns.Count;
+                //gridView.ColumnHeaderContainerStyle.
+
+            }
+
+            return;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FinishedRuns_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            ListView listView = sender as ListView;
+            ContextMenu menu = listView?.ContextMenu;
+            if (listView.SelectedItem != null)
+            {
+                MenuItem menuItem = new MenuItem();
+                menuItem.Header = "Remove run from list";
+
+                Dispatcher.Invoke(() =>
+                {
+                    menu.Items.Clear();
+                });
+                var item = listView.SelectedItem as SchedulerRunItem;
+                menuItem.Click += (o, args) =>
+                {
+                    Dispatcher.Invoke((new Action(() =>
+                    {
+                        if (item.RunWindow.IsRunClearable)
+                        {
+                            if (ActiveContent == item.RunWindow)
+                            {
+                                ActiveContent = new StackPanel();
+
+                            }
+
+                            FinishedRuns.Items.Remove(item);
+                        }
+                    })));
+                };
+                menu?.Items.Add(menuItem);
+            }
+
+
+
+            return;
         }
     }
 

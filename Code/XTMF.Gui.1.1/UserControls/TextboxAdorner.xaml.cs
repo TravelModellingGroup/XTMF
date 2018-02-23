@@ -51,20 +51,20 @@ namespace XTMF.Gui.UserControls
 
         private IInputElement PreviousFocus;
 
-        static TextboxAdorner() => Background = (Brush)Application.Current.TryFindResource("SecondaryAccentBrush");
+        static TextboxAdorner() => Background = (Brush)Application.Current.TryFindResource("PrimaryHueDarkBrush");
 
         public TextboxAdorner(UIElement adornedElement) :
             base(adornedElement)
         {
         }
 
-        public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo, string initialValue = "")
+        public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo, string initialValue = "", bool selectText = false)
             : base(attachedTo)
         {
             Opacity = 0.97;
-            Border.BorderBrush = Brushes.White;
+            Border.BorderBrush = (Brush)Application.Current.TryFindResource("PrimaryHueLightBrush");
             Border.Background = Background;
-            Border.BorderThickness = new Thickness(2.0);
+            Border.BorderThickness = new Thickness(1.0);
             Border.Width = 400;
             Border.Height = 52;
             Grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
@@ -72,7 +72,8 @@ namespace XTMF.Gui.UserControls
             Grid.Margin = new Thickness(2.0);
             Border.Child = Grid;
             TextBlock.Text = question;
-            TextBlock.Foreground = (Brush)Application.Current.TryFindResource("SecondaryAccentForegroundBrush");
+            TextBlock.Foreground = (Brush)Application.Current.TryFindResource("PrimaryHueDarkForegroundBrush");
+            TextBlock.Background = (Brush)Application.Current.TryFindResource("PrimaryHueDarkBrush");
             TextBlock.FontSize = 14.0;
             if (initialValue == null)
             {
@@ -80,7 +81,8 @@ namespace XTMF.Gui.UserControls
             }
             _textbox.Text = initialValue;
             _textbox.CaretIndex = initialValue.Length;
-            _textbox.Foreground = (Brush)Application.Current.TryFindResource("SecondaryAccentForegroundBrush");
+            _textbox.Foreground = (Brush)Application.Current.TryFindResource("PrimaryHueMidForegroundBrush");
+            _textbox.Background = (Brush)Application.Current.TryFindResource("PrimaryHueMidBrush");
             _textbox.SelectAll();
             Grid.Children.Add(TextBlock);
             Grid.Children.Add(_textbox);
@@ -90,6 +92,12 @@ namespace XTMF.Gui.UserControls
             _giveResult = giveResult;
             _textbox.LostFocus += Textbox_LostFocus;
             Loaded += MainLoaded;
+
+            if (selectText)
+            {
+                _textbox.SelectionStart = 0;
+                _textbox.SelectionLength = _textbox.Text.Length;
+            }
         }
 
         bool _canceled = false;

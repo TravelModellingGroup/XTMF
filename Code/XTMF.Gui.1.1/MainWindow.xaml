@@ -75,8 +75,9 @@
     </metro:MetroWindow.LeftWindowCommands>
     <Border  Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource PrimaryHueMidBrush}"
         BorderThickness="0">
+        <Grid>
 
-        <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" Name="RootDialogHost"   >
+            <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" Name="RootDialogHost"   >
         <materialDesign:DrawerHost Name="DrawerHost"  materialDesign:ShadowAssist.ShadowDepth="Depth4" 
                                    IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}" 
                                    PreviewKeyDown="DrawerHost_PreviewKeyDown"
@@ -234,55 +235,9 @@
                             </dragablz:TabablzControl.InterTabController>
                     </dragablz:TabablzControl>
                     </dockablz:Layout>
-                    <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-                    <!--
-                    <xcad:DockingManager BorderThickness="0" IsHitTestVisible="True" x:Name="DockManager"
-                                 Grid.Row="1" ScrollViewer.CanContentScroll="True"
-                                 ScrollViewer.PanningMode="HorizontalOnly" DataContext="self"                                    
-                                 ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
-                                 Margin="0,7,0,0" Grid.ColumnSpan="2" Grid.Column="0"
-                                 Background="{DynamicResource MaterialDesignPaper}" ActiveContentChanged="DockManager_ActiveContentChanged">
-                        <xcad:DockingManager.DocumentTitleTemplate>
-                            <DataTemplate>
-                                <Grid HorizontalAlignment="Stretch">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0" />
-                                    <TextBlock Grid.Column="2" Text="{Binding Title}"  Margin="1"
-                                        />
-                                </Grid>
-                            </DataTemplate>
-                        </xcad:DockingManager.DocumentTitleTemplate>
-                        <xcad:DockingManager.DocumentHeaderTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding IconSource}" Margin="0,0,4,0" />
-                                    <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" >
-                                        <TextBlock.Style>
-                                            <Style TargetType="{x:Type TextBlock}">
-
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </DataTemplate>
-                        </xcad:DockingManager.DocumentHeaderTemplate>
-                        <xcad:DockingManager.Theme>
-                            <xcad:Vs2013LightTheme />
-                        </xcad:DockingManager.Theme>
-                        <xcad:LayoutRoot x:Name="LayoutRoot">
-                            <xcad:LayoutPanel Orientation="Vertical">
-                                <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
-                                    <xcad:LayoutDocumentPane x:Name="DocumentPane"/>
-                                </xcad:LayoutDocumentPaneGroup>
-                            </xcad:LayoutPanel>
-                        </xcad:LayoutRoot>
-                    </xcad:DockingManager> -->
-                    <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
+                   
+                       
+                        <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
                        Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
                         <StatusBarItem HorizontalAlignment="Left">
                             <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource MaterialDesignBody}" />
@@ -391,6 +346,8 @@
             </materialDesign:DrawerHost.LeftDrawerContent>
         </materialDesign:DrawerHost>
         </materialDesign:DialogHost>
+            <materialDesign:Snackbar x:Name="GlobalStatusSnackBar" MessageQueue="{materialDesign:MessageQueue}" />
+        </Grid>
     </Border>
 
 </metro:MetroWindow>

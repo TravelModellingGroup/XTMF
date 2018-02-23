@@ -22,7 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
-             mc:Ignorable="d" Name="ValidationErrorListControlControlName" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource HighlightBrush1}"
+             mc:Ignorable="d" Name="ValidationErrorListControlControlName" BorderThickness="0 0 0 1"
              d:DesignHeight="80" d:DesignWidth="300" >
    
     
