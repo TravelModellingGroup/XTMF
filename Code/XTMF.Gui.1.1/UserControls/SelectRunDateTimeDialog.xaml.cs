@@ -48,6 +48,8 @@ namespace XTMF.Gui.UserControls
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
         {
             this._dialogSession = eventargs.Session;
+
+
         }
 
         /// <summary>
@@ -104,9 +106,9 @@ namespace XTMF.Gui.UserControls
 
         }
 
-        public bool IsQueueRun { get; set; }
+        public bool IsQueueRun => RadioQueue.IsChecked != null && (bool)RadioQueue.IsChecked;
 
-        public bool IsImmediateRun { get; set; }
+        public bool IsImmediateRun => RadioImmediate.IsChecked != null && (bool) RadioImmediate.IsChecked;
 
         /// <summary>
         /// 
@@ -117,8 +119,8 @@ namespace XTMF.Gui.UserControls
         {
             DidComplete = true;
             e.Handled = true;
-            if (RadioQueue.IsChecked != null) IsQueueRun = (bool) RadioQueue.IsChecked;
-            if (RadioImmediate.IsChecked != null) IsImmediateRun = (bool) RadioImmediate.IsChecked;
+            //if (RadioQueue.IsChecked != null) IsQueueRun = (bool) RadioQueue.IsChecked;
+           // if (RadioImmediate.IsChecked != null) IsImmediateRun = (bool) RadioImmediate.IsChecked;
 
             this._dialogSession.Close(false);
         }
