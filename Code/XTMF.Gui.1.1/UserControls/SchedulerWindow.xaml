@@ -38,7 +38,13 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="Status"  Width="150" DisplayMemberBinding="{Binding StatusText}"/>
+                                <GridViewColumn Header="Status" >
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock ToolTip="{Binding StatusText}" Text="{Binding StatusText}"></TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn Header="Progress"  >
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
@@ -77,7 +83,9 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
-                                <GridViewColumn Header="Status"  DisplayMemberBinding="{Binding StatusText}"></GridViewColumn>
+                                <GridViewColumn Header="Status"  DisplayMemberBinding="{Binding StatusText}">
+                                   
+                                </GridViewColumn>
                                 <GridViewColumn Header="Start Time"   DisplayMemberBinding="{Binding StartTime}"></GridViewColumn>
                                 <GridViewColumn Header="Elapsed Time" DisplayMemberBinding="{Binding ElapsedTime}"></GridViewColumn>
                                 <GridViewColumn Header="Actions" >
