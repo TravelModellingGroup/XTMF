@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 
@@ -252,7 +253,8 @@ namespace XTMF.Gui.UserControls
                 _schedulerWindow.RemoveFromActiveRuns(this);
                 MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name +")", "SCHEDULER",
                     () => MainWindow.Us.ShowSchedulerWindow());
-               
+
+
             }
 
             /// <summary>

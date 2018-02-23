@@ -100,6 +100,8 @@ namespace XTMF.Gui
         {
             ViewModelBase = new ViewModelBase();
 
+        
+
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ParseCommandLineArgs();
             if (!IsNonDefaultConfig)
@@ -1286,6 +1288,8 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void MainWindow_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
+          
+
             if (DrawerHost.IsLeftDrawerOpen)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
@@ -1340,6 +1344,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void DrawerHost_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+
             if (e.Key == Key.Escape && DrawerHost.IsLeftDrawerOpen)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
