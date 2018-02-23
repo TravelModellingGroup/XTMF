@@ -1562,7 +1562,7 @@ namespace XTMF.Gui.UserControls
                                 throw new Exception(error);
                             }
                         });
-                }, selectedModuleControl, selected.Name);
+                }, selectedModuleControl, selected.Name,true);
                 layer.Add(adorn);
                 adorn.Focus();
             }
