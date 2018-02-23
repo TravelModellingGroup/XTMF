@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -34,10 +34,7 @@
              mc:Ignorable="d" Name="MDisplay"
              d:DesignHeight="500" d:DesignWidth="1200" Background="{DynamicResource MaterialDesignPaper}" Unloaded="MDisplay_Unloaded">
     <UserControl.Resources>
-
-        <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20"
-          Viewbox="0,0,14,14" ViewportUnits="Absolute" 
-          ViewboxUnits="Absolute">
+        <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20" Viewbox="0,0,14,14" ViewportUnits="Absolute" ViewboxUnits="Absolute">
             <VisualBrush.Visual>
                 <Rectangle SnapsToDevicePixels="True" Opacity="0.2" Stroke="{DynamicResource PrimaryHueLightForegroundBrush}" StrokeThickness="0.8" Width="20" Height="20"/>
             </VisualBrush.Visual>
@@ -53,7 +50,7 @@
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
                 <Label Foreground="{DynamicResource MaterialDesignBody}" Grid.Column="0" Content="{Binding Name}"/>
-                <Label  Name="EnableDisableLabel" Grid.Column="1" Foreground="{DynamicResource PrimaryHueMidBrush}"  Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"/>
+                <Label Name="EnableDisableLabel" Grid.Column="1" Foreground="{DynamicResource PrimaryHueMidBrush}"  Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"/>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="ModuleEnabledTemplate" DataType="{x:Type models:ModelSystemStructureDisplayModel}">
@@ -78,9 +75,8 @@
                     Name="b" HorizontalAlignment="Stretch" Margin="0 0 0 0">
                 <StackPanel  Focusable="False"  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder" Background="{DynamicResource MaterialDesignCardBackground}">
-
                     <Expander IsTabStop="False" Focusable="False" Padding="0 0 0 0"  Margin="0,0,0.0,0" Foreground="{DynamicResource MaterialDesignBody}"
-                                  HorizontalAlignment="Stretch" >
+                                  HorizontalAlignment="Stretch">
                         <Expander.Header>
                             <Grid  Focusable="False" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
@@ -89,32 +85,19 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="AUTO"/>
                                     <ColumnDefinition Width="AUTO"/>
-
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                           IsTabStop="False"/>
-                                <!--<TextBlock Grid.Column="1" Margin="5,4,2,2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource MaterialDesignBody}" TextTrimming="CharacterEllipsis" Cursor="Hand"/> -->
-
-
-
-
                                 <TextBox Tag="{Binding .}" Grid.Column="2" Name="TextBox"  Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                              AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
                                           Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}"
                                           PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}" TextChanged="TextBox_OnTextChanged"
-                                          SelectionOpacity="0.6" MinHeight="15" Padding="5"></TextBox>
-
-
+                                          SelectionOpacity="0.6" MinHeight="15" Padding="5"/>
                                 <StackPanel  Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
-
                                     <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                                     <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
                                 </StackPanel>
-
-                                <!-- <Path MaxHeight="16" VerticalAlignment="Center" Stretch="Uniform" Grid.Column="2" Margin="4,4,6,0" Data="{DynamicResource LinkIconPath}" Fill="DarkGoldenrod" />
-                                <Path MaxHeight="16" VerticalAlignment="Center" Stretch="Uniform" Grid.Column="3" Data="{DynamicResource SettingsIconPathGeometry}" Fill="SlateGray" 
-                                     /> -->
                             </Grid>
                         </Expander.Header>
                         <StackPanel Focusable="False" Orientation="Vertical"
@@ -122,11 +105,8 @@
                                     Margin="48,0,24,4">
                             <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}"/>
-
                         </StackPanel>
-
                     </Expander>
-
                 </StackPanel>
                 <Border Background="{DynamicResource MaterialDesignDivider}" Height="1" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" />
             </StackPanel>
@@ -152,7 +132,7 @@
                                 <ComboBox Name="ComboBox"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                         AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="True"
-                                          IsReadOnly="False" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14" 
+                                          IsReadOnly="False" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
                                           BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True" SelectionChanged="ComboBox_SelectionChanged"/>
                                 <!--<TextBlock Grid.Column="1" Margin="5,4,2,2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource MaterialDesignBody}" TextTrimming="CharacterEllipsis" Cursor="Hand"/> -->
                                 <StackPanel  Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
@@ -170,7 +150,6 @@
 
                         </StackPanel>
                     </Expander>
-
                 </StackPanel>
                 <Border Background="{DynamicResource MaterialDesignDivider}" Height="1" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" />
             </StackPanel>
@@ -181,15 +160,12 @@
         <materialDesign:DialogHost Name="LinkedParametersDialogHost" DialogOpened="LinkedParametersDialogHost_OnDialogOpened">
             <materialDesign:DialogHost.DialogContent >
                 <Grid x:Name="Overlay" Panel.ZIndex="1000">
-
                     <!-- Add controls as needed -->
-
                     <this:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay"/>
                     <this:LinkedParameterDisplay  x:Name="LinkedParameterDisplayOverlay"/>
                 </Grid>
 
             </materialDesign:DialogHost.DialogContent>
-
             <!-- Use whatever layout you need -->
             <Grid Background="{DynamicResource MaterialDesignPaper}">
                 <Grid.ColumnDefinitions>
@@ -208,7 +184,6 @@
                             <RowDefinition Height="54"/>
                             <RowDefinition Height="26"/>
                         </Grid.RowDefinitions>
-
                         <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" Margin="0 0 0 0" >
                             <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                                 <Button ToolTip="Save Model System" Click="ButtonBase_OnClick" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
@@ -226,30 +201,19 @@
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}">
                                     <materialDesign:PackIcon Kind="Run" />
                                 </Button>
-
                                 <Button ToolTip="Open Project Folder" Click="OpenProjectFolderToolbarButton_Click" Name="OpenProjectFolderToolbarButton">
                                     <materialDesign:PackIcon Kind="FolderOpen" />
                                 </Button>
-
-
                                 <Grid Width="250" HorizontalAlignment="Right"   Margin="12 2 12 0" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
-
                                     </Grid.ColumnDefinitions>
-
                                     <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                         <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                     </Button>
-
                                     <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
-                                    <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
-                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                         MinWidth="200" VerticalAlignment="Center" />-->
-
                                 </Grid>
-
                             </ToolBar>
                         </ToolBarTray>
                         <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl" VerticalAlignment="Top" />
@@ -261,15 +225,10 @@
                             <ColumnDefinition Width="30*"/>
                             <ColumnDefinition Width="269*"/>
                         </Grid.ColumnDefinitions>
-                       <!-- <Grid.Effect>
-                            <DropShadowEffect RenderingBias="Quality" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3"/>
-                        </Grid.Effect> -->
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-
-
                         <TreeView Grid.Row="1"  BorderThickness="0"  SnapsToDevicePixels="True"
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
@@ -281,9 +240,7 @@
                                                         Orientation="Vertical" CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
                                 </ItemsPanelTemplate>
                             </TreeView.ItemsPanel>
-
                             <TreeView.ContextMenu>
-
                                 <ContextMenu>
                                     <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
                                         <MenuItem.Icon>
@@ -298,7 +255,6 @@
                                     <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
                                         <MenuItem.Icon>
                                             <materialDesign:PackIcon Kind="Refresh" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="Edit Description (Shift + F2)" Click="Description_Clicked">
@@ -354,10 +310,7 @@
                     <TabItem IsSelected="True" Style="{DynamicResource XtmfTabItem}" Header="Quick Parameters" x:Name="QuickParameterTab" FontSize="14" VerticalAlignment="Top">
                         <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
                             <materialDesign:DialogHost.DialogContent >
-                                <Grid Width="200">
-                                
-                                  
-                                </Grid>
+                                <Grid Width="200" />
                             </materialDesign:DialogHost.DialogContent>
                             <Grid  HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                                 <Grid.RowDefinitions>
@@ -366,51 +319,26 @@
                                 </Grid.RowDefinitions>
                                 <ToolBarTray  IsLocked="True" Grid.Row="0" Height="52" Margin="0 0 0 0" VerticalAlignment="Top" >
                                     <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" >
-
-
                                         <StackPanel   MinWidth="180" Orientation="Vertical" VerticalAlignment="Center">
                                             <TextBlock Padding="5 5 5 0" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}"  HorizontalAlignment="Left"  Text="Quick Parameters" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" VerticalAlignment="Center"/>
-                                           
                                         </StackPanel>
                                         <Grid  Width="250" VerticalAlignment="Center" HorizontalAlignment="Right"   Margin="12 6 12 6">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
-
                                             </Grid.ColumnDefinitions>
                                             <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                                 <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                             </Button>
-
-                                            <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2"/>
-                                            <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
-                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                         MinWidth="200" VerticalAlignment="Center" />-->
-                                            <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
-
-                                            </Button>
-
+                                            <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="0.2cm,4,0.2cm,2"/>
                                         </Grid>
-
                                     </ToolBar>
                                 </ToolBarTray>
-
-                                <!--<Border Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Style="{DynamicResource MaterialDesignHeadlineTextBlock}"/>
-                                    </Grid>
-                                </Border> -->
-
-
                                 <ListView PreviewKeyDown="QuickParameterDisplay_OnPreviewKeyDown"  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterDisplay"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
-                                  VerticalAlignment="Stretch" Padding="0" BorderThickness="0"
+                                  VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                   Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">
-
                                     <ListView.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <VirtualizingStackPanel/>
@@ -479,12 +407,8 @@
                         <materialDesign:DialogHost
                         materialDesign:ShadowAssist.ShadowDepth="Depth5"
                         x:Name="ModuleParameterDialogHost" CloseOnClickAway="True" PreviewKeyDown="ModuleParameterDialogHost_OnPreviewKeyDown">
-
-
                             <materialDesign:DialogHost.DialogContent  >
-                                <Grid Width="250" VerticalAlignment="Top" >
-
-                                </Grid>
+                                <Grid Width="250" VerticalAlignment="Top" />
                             </materialDesign:DialogHost.DialogContent>
                             <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                                 <Grid.RowDefinitions>
@@ -501,8 +425,6 @@
                                         </Grid.RowDefinitions>
                                         <ToolBarTray  IsLocked="True" Grid.Row="0" Height="52" Margin="0 0 0 0" VerticalAlignment="Center" >
                                             <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" >
-                                       
-                                                
                                                 <StackPanel   MinWidth="240" Orientation="Vertical">
                                                     <TextBlock Padding="5 5 5 0" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}"  HorizontalAlignment="Left" x:Name="SelectedName" Text="None Selected" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" VerticalAlignment="Center"/>
                                                     <TextBlock Padding="5 0 5 0"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" HorizontalAlignment="Left" x:Name="SelectedNamespace" Text="SUB" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
@@ -511,23 +433,14 @@
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="*" />
-
                                                     </Grid.ColumnDefinitions>
                                                     <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                                         <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                                     </Button>
-
                                                     <my:FilterBox Opacity="0.5"   Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="0.2cm,4,0.2cm,2"/>
-                                                    <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
-                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                         MinWidth="200" VerticalAlignment="Center" />-->
-
                                                 </Grid>
-                                               
                                             </ToolBar>
                                         </ToolBarTray>
-
-
                                         <Expander Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
                                           Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
@@ -548,9 +461,8 @@
 
                                 <ListView  materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                  Margin="0"  KeyboardNavigation.TabNavigation="Cycle" 
+                                  Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single"
                                   ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged">
-
                                     <ListView.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <VirtualizingStackPanel/>

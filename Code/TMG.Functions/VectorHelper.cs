@@ -830,6 +830,27 @@ namespace TMG.Functions
                 baseValues, alternateValues
                 );
         }
+
+        /// <summary>
+        /// Assign to an array replacing values if the base is NaN
+        /// </summary>
+        /// <param name="dest">The place to store the results</param>
+        /// <param name="baseValue">The original values</param>
+        /// <param name="replacementValue">The values to replace them with if the base is NaN</param>
+        public static void ReplaceIfNaN(float[] dest, float[] baseValue, float[] replacementValue)
+        {
+            int i = 0;
+            for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            {
+                var b = new Vector<float>(baseValue, i);
+                var r = new Vector<float>(replacementValue, i);
+                Vector.ConditionalSelect(Vector.GreaterThanOrEqual(b, b), b, r).CopyTo(dest, i);
+            }
+            for (; i < dest.Length; i++)
+            {
+                dest[i] = !float.IsNaN(baseValue[i]) ? baseValue[i] : replacementValue[i];
+            }
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -1137,40 +1158,22 @@ namespace TMG.Functions
         /// <param name="length">The number of elements to convert.</param>
         public static void Log(float[] destination, int destIndex, float[] x, int xIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            for (int i = 0; i < length; i++)
             {
-                if ((destIndex | xIndex) == 0)
-                {
-                    int i = 0;
-                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        Log(new Vector<float>(x, i)).CopyTo(destination, i);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        destination[i] = (float)Math.Log(x[i]);
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        Log(new Vector<float>(x, i + xIndex)).CopyTo(destination, i + destIndex);
-                    }
-                    // copy the remainder
-                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                    {
-                        destination[i + destIndex] = (float)Math.Log(x[i + xIndex]);
-                    }
-                }
+                destination[i + destIndex] = (float)Math.Log(x[i + xIndex]);
             }
-            else
+        }
+
+        public static void Negate(float[] dest, float[] source)
+        {
+            int i = 0;
+            for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
-                for (int i = 0; i < length; i++)
-                {
-                    destination[i + destIndex] = (float)Math.Log(x[i + xIndex]);
-                }
+                Vector.Negate(new Vector<float>(source, i)).CopyTo(dest, i);
+            }
+            for (; i < dest.Length; i++)
+            {
+                dest[i] = -source[i];
             }
         }
 

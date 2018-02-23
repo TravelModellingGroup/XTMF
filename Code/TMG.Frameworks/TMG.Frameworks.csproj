@@ -40,6 +40,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
@@ -81,6 +82,7 @@
     <Compile Include="Data\Processing\AST\CompareOr.cs" />
     <Compile Include="Data\Processing\AST\CompareAnd.cs" />
     <Compile Include="Data\Processing\AST\FusedMultiplyAdd.cs" />
+    <Compile Include="Data\Processing\AST\Negate.cs" />
     <Compile Include="Data\Processing\GravityModel2D.cs" />
     <Compile Include="Data\Processing\AggregateLabeledDataToShape.cs" />
     <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />

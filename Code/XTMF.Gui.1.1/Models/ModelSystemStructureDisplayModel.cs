@@ -212,9 +212,6 @@ namespace XTMF.Gui.Models
 
                     OnPropertyChanged(nameof(IsSelected));
                 }
-
-                //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
-                //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
             }
         }
 

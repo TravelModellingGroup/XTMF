@@ -9,7 +9,7 @@ using XTMF;
 using TMG.Input;
 
 
-namespace InternalTools.TansitAssignment
+namespace TMG.Emme.NetworkAssignment
 {
     public class TransitAssignmentTool : IEmmeTool
     {

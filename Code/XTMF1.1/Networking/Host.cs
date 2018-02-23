@@ -25,6 +25,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using System.Threading.Tasks;
 
 // Used for the windows firewall
 using NetFwTypeLib;
@@ -339,6 +340,10 @@ namespace XTMF.Networking
                                                        Stream = buffer
                                                    }));
                                            }
+                                           break;
+                                       case MessageType.WriteToHostConsole:
+                                           var str = reader.ReadString();
+                                           Console.WriteLine($"{ourRemoteClient.UniqueID}\r\n{str}");
                                            break;
                                        default:
                                            {

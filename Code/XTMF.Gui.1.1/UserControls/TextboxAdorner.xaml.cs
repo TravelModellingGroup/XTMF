@@ -81,6 +81,7 @@ namespace XTMF.Gui.UserControls
             _textbox.Text = initialValue;
             _textbox.CaretIndex = initialValue.Length;
             _textbox.Foreground = (Brush)Application.Current.TryFindResource("SecondaryAccentForegroundBrush");
+            _textbox.SelectAll();
             Grid.Children.Add(TextBlock);
             Grid.Children.Add(_textbox);
             Grid.SetRow(TextBlock, 0);
@@ -91,6 +92,8 @@ namespace XTMF.Gui.UserControls
             Loaded += MainLoaded;
         }
 
+        bool _canceled = false;
+
         protected override int VisualChildrenCount => 1;
 
         private void MainLoaded(object sender, RoutedEventArgs e)
@@ -99,16 +102,16 @@ namespace XTMF.Gui.UserControls
             Keyboard.Focus(_textbox);
         }
 
-        private void Textbox_LostFocus(object sender, RoutedEventArgs e) => ExitAdorner(true);
+        private void Textbox_LostFocus(object sender, RoutedEventArgs e) => ExitAdorner();
 
-        private void ExitAdorner(bool save = false)
+        private void ExitAdorner()
         {
             if (VisualParent != null)
             {
                 AdornerLayer.GetAdornerLayer(VisualParent as UIElement).Remove(this);
             }
             Keyboard.Focus(PreviousFocus);
-            if (save && !AlreadySaved)
+            if (!_canceled && !AlreadySaved)
             {
                 _giveResult?.Invoke(_textbox.Text);
                 AlreadySaved = true;
@@ -149,12 +152,14 @@ namespace XTMF.Gui.UserControls
             {
                 if (e.Key == Key.Escape)
                 {
+                    _canceled = true;
                     ExitAdorner();
                     e.Handled = true;
                 }
                 else if (e.Key == Key.Enter)
                 {
-                    ExitAdorner(true);
+                    _canceled = false;
+                    ExitAdorner();
                     e.Handled = true;
                 }
             }
