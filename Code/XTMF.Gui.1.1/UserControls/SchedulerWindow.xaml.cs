@@ -132,17 +132,10 @@ namespace XTMF.Gui.UserControls
             SchedulerRunItem item = (sender as Button).Tag as SchedulerRunItem;
             Dispatcher.Invoke((new Action(() =>
             {
-                if (item.RunWindow.IsRunClearable)
-                {
-                    if (ActiveContent == item.RunWindow)
-                    {
-                        //ActiveContent = new RunWindow();
-                        ActiveContent = new StackPanel();
-
-                    }
+               
 
                     FinishedRuns.Items.Remove(item);
-                }
+                
             })));
         }
 
@@ -369,21 +362,15 @@ namespace XTMF.Gui.UserControls
                 {
                     menu.Items.Clear();
                 });
-                var item = listView.SelectedItem as SchedulerRunItem;
+
                 menuItem.Click += (o, args) =>
                 {
                     Dispatcher.Invoke((new Action(() =>
                     {
-                        if (item.RunWindow.IsRunClearable)
-                        {
-                            if (ActiveContent == item.RunWindow)
-                            {
-                                ActiveContent = new StackPanel();
 
-                            }
-
-                            FinishedRuns.Items.Remove(item);
-                        }
+                            FinishedRuns.Items.RemoveAt(FinishedRuns.SelectedIndex);
+                            //FinishedRuns.Items.Remove(item);
+                        
                     })));
                 };
                 menu?.Items.Add(menuItem);
