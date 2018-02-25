@@ -20,6 +20,7 @@ using System.Windows.Shapes;
 using System.Xml;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
+using XTMF.Gui.Util;
 
 namespace XTMF.Gui.UserControls
 {
@@ -247,6 +248,9 @@ namespace XTMF.Gui.UserControls
                 MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name +")", "SCHEDULER",
                     () => MainWindow.Us.ShowSchedulerWindow());
 
+
+                XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
+                    () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
 
             }
 

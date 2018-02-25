@@ -16,6 +16,8 @@ namespace XTMF.Gui
     {
         private MainWindow xtmfMainWindow;
 
+        public const String APP_ID = "TMG.Xtmf";
+
         private void RegisterEditorController()
         {
             EditorController.Register(xtmfMainWindow, () =>

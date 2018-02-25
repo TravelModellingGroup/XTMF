@@ -33,6 +33,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Xml;
 using Dragablz;
 using MahApps.Metro.Controls;
 using Xceed.Wpf.AvalonDock.Layout;
@@ -41,6 +42,7 @@ using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
 using XTMF.Gui.UserControls.Help;
 using XTMF.Gui.UserControls.Interfaces;
+using XTMF.Gui.Util;
 using Application = System.Windows.Application;
 using FileDialog = Microsoft.Win32.FileDialog;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
@@ -100,9 +102,8 @@ namespace XTMF.Gui
         {
             ViewModelBase = new ViewModelBase();
 
-        
 
-            EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
+                EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ParseCommandLineArgs();
             if (!IsNonDefaultConfig)
             {
@@ -134,8 +135,12 @@ namespace XTMF.Gui
 
             WorkspaceProjects = new Dictionary<Project, UserControl>();
 
-           
+           XtmfNotificationIcon.InitializeNotificationIcon();
+
+
         }
+
+     
 
         public string ConfigurationFilePath { get; private set; }
 
@@ -1335,6 +1340,8 @@ namespace XTMF.Gui
                     break;
                 }
             }
+
+            XtmfNotificationIcon.ClearNotificationIcon();
         }
 
         /// <summary>
