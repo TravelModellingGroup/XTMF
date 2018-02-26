@@ -68,10 +68,9 @@ namespace XTMF.Gui.UserControls
                 FinishedRuns.Items.Remove(toRemove);
             }
 
-            if (Equals(ActiveRunContent.DataContext, run))
-            {
-            //    ActiveRunContent.DataContext = Resources["DefaultDisplay"];
-            }
+            var defaultd = Resources["DefaultDisplay"];
+            Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
+
 
             FinishedRuns.Items.Refresh();
 
@@ -133,10 +132,10 @@ namespace XTMF.Gui.UserControls
             SchedulerRunItem item = (sender as Button).Tag as SchedulerRunItem;
             Dispatcher.Invoke((new Action(() =>
             {
-               
 
-                    FinishedRuns.Items.Remove(item);
-                
+
+                FinishedRuns.Items.Remove(item);
+
             })));
         }
 
@@ -150,6 +149,9 @@ namespace XTMF.Gui.UserControls
             {
                 ScheduledRuns.Items.Remove(runItem);
                 FinishedRuns.Items.Insert(0, runItem);
+
+                var defaultd = Resources["DefaultDisplay"];
+                Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
             })));
         }
 
@@ -228,16 +230,32 @@ namespace XTMF.Gui.UserControls
                 runWindow.UpdateRunStatus = (val) => { StatusText = val; };
                 runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
                 runWindow.UpdateRunProgress = (val) => { Progress = val; };
+                runWindow.UpdateStartTime = UpdateStartTime;
 
                 runWindow.OnRunFinished = OnRunFinished;
                 runWindow.OnRuntimeError = OnRuntimeError;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
+                runWindow.OnRunStarted = OnRunStarted;
 
                 StatusText = "Queud";
 
-                StartTime = (string) $"{RunWindow.StartTime:g}";
+                //StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
+
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="s"></param>
+            private void UpdateStartTime(string s)
+            {
+                StartTime = (string)$"{s:g}";
+            }
+
+            private void OnRunStarted()
+            {
 
             }
 
@@ -247,7 +265,7 @@ namespace XTMF.Gui.UserControls
             private void OnRunFinished()
             {
                 _schedulerWindow.RemoveFromActiveRuns(this);
-                MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name +")", "SCHEDULER",
+                MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name + ")", "SCHEDULER",
                     () => MainWindow.Us.ShowSchedulerWindow());
 
 
@@ -329,7 +347,7 @@ namespace XTMF.Gui.UserControls
         }
 
 
-   
+
         /// <summary>
         /// 
         /// </summary>
@@ -374,9 +392,9 @@ namespace XTMF.Gui.UserControls
                     Dispatcher.Invoke((new Action(() =>
                     {
 
-                            FinishedRuns.Items.RemoveAt(FinishedRuns.SelectedIndex);
-                            //FinishedRuns.Items.Remove(item);
-                        
+                        FinishedRuns.Items.RemoveAt(FinishedRuns.SelectedIndex);
+                        //FinishedRuns.Items.Remove(item);
+
                     })));
                 };
                 menu?.Items.Add(menuItem);

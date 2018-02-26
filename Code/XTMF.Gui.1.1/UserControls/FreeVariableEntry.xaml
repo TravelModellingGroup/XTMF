@@ -23,25 +23,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XTMF.Gui.UserControls"
         xmlns:my="clr-namespace:XTMF.Gui"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
             WindowStyle="SingleBorderWindow"
             WindowStartupLocation="CenterOwner"
-        Title="Select Generic Type" Height="500" Width="400">
+        Title="Select Generic Type" Height="500" Width="400" Background="{DynamicResource MaterialDesignBackground}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)"/>
-        <ListView Grid.Row="1" 
-                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                  ScrollViewer.CanContentScroll="True"
-                  VirtualizingPanel.IsVirtualizing="True"
-                  VirtualizingPanel.VirtualizationMode="Recycling"
-                  x:Name="Display" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}" Background="{DynamicResource MaterialDesignPaper}">
+        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                  Margin="12 12 12 12"
+                                  materialDesign:ShadowAssist.ShadowDepth="Depth4">
+            <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Filter Modules... (Ctrl+E)" />
+        </materialDesign:ColorZone>
+        <!-- <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" Foreground="{DynamicResource MaterialDesignBody}"/> -->
+
+        <ListView x:Name="Display" MouseDoubleClick="Display_OnMouseDoubleClick"
+                  Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel></VirtualizingStackPanel>
+
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>

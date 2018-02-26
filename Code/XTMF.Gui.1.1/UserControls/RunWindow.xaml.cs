@@ -78,6 +78,8 @@ namespace XTMF.Gui.UserControls
 
         public Action<List<ErrorWithPath>> OnRuntimeError;
 
+        public Action OnRunStarted;
+
         public Action OnRunFinished;
 
         static RunWindow()
@@ -406,6 +408,10 @@ namespace XTMF.Gui.UserControls
                 CancelButton.IsEnabled = true;
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, true);
                 ButtonProgressAssist.SetIsIndeterminate(CancelButton, true);
+                OnRunStarted?.Invoke();
+                StartTime = DateTime.Now;
+                StartTimeLabel.Content = $"Start Time: {StartTime:g}";
+                UpdateStartTime?.Invoke($"{StartTime:g}");
                 //ButtonProgressAssist.
                 IsRunClearable = false;
             }));
@@ -416,6 +422,7 @@ namespace XTMF.Gui.UserControls
             try
             {
                 Dispatcher.Invoke(SetRunFinished);
+               
             }
             catch
             {

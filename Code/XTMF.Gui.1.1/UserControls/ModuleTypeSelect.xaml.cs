@@ -219,5 +219,20 @@ namespace XTMF.Gui.UserControls
             }
             SelectModel(selected);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Display_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selected = Display.SelectedItem as Model;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+            SelectModel(selected);
+        }
     }
 }

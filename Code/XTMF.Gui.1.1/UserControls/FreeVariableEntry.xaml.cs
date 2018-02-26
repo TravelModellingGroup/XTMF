@@ -192,5 +192,8 @@ namespace XTMF.Gui.UserControls
         private bool ContainsFreeVariables(Type selectedType) => selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
 
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
+
+        private void Display_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
+
     }
 }

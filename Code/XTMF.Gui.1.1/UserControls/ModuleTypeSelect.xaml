@@ -25,7 +25,7 @@
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterOwner"
         Title="Select Module" Height="500" Width="400">
-    <Grid Background="{DynamicResource MaterialDesignPaper}">
+    <Grid Background="{DynamicResource MaterialDesignBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
@@ -36,7 +36,7 @@
             <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Filter Modules... (Ctrl+E)" />
         </materialDesign:ColorZone>
       
-        <ListView x:Name="Display"  
+        <ListView x:Name="Display" MouseDoubleClick="Display_OnMouseDoubleClick"
                       Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -47,7 +47,7 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
 
-                    <userControls:ListViewControl TitleText="{Binding Name}" MouseDoubleClick="Control_OnMouseDoubleClick"
+                    <userControls:ListViewControl TitleText="{Binding Name}" 
                                              SubText="{Binding Text}">
                         
                         
