@@ -404,6 +404,18 @@ namespace XTMF.Gui.UserControls
 
             return;
         }
+
+        /// <summary>
+        /// Finished runs ListView selection changed event handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FinishedRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            ActiveRunContent.DataContext = runWindow;
+            ActiveContent = runWindow;
+        }
     }
 
 

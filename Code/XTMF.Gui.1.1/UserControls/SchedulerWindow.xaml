@@ -87,7 +87,7 @@
                     </Button>
                 </StackPanel>
 
-                <ListView Name="FinishedRuns"  Grid.Row="1" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SizeChanged="FinishedRuns_SizeChanged_1" ContextMenuOpening="FinishedRuns_ContextMenuOpening" >
+                <ListView Name="FinishedRuns"  Grid.Row="1" SelectionChanged="FinishedRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SizeChanged="FinishedRuns_SizeChanged_1" ContextMenuOpening="FinishedRuns_ContextMenuOpening" >
                     <ListView.ContextMenu>
                         <ContextMenu></ContextMenu>
                     </ListView.ContextMenu>
