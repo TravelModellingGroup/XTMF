@@ -1557,7 +1557,7 @@ namespace XTMF.Gui.UserControls
                         "Rename ModelSystem",
                         () =>
                         {
-                            if (CurrentlySelected.Any(sel => !sel.BaseModel.SetName(result, ref error)))
+                            if (CurrentlySelected.Any(sel => !sel.BaseModel.SetName(result.Trim(), ref error)))
                             {
                                 throw new Exception(error);
                             }
@@ -1821,7 +1821,7 @@ namespace XTMF.Gui.UserControls
                     var adorn = new TextboxAdorner("Rename", result =>
                     {
                         string error = null;
-                        if (!currentParameter.SetName(result, ref error))
+                        if (!currentParameter.SetName(result.Trim(), ref error))
                         {
                             MessageBox.Show(GetWindow(), error, "Unable to Set Parameter Name", MessageBoxButton.OK,
                                 MessageBoxImage.Error);
@@ -1830,7 +1830,7 @@ namespace XTMF.Gui.UserControls
                         {
                             RefreshParameters();
                         }
-                    }, selectedContainer, currentParameter.GetBaseName());
+                    }, selectedContainer, currentParameter.GetBaseName(),true);
                     layer.Add(adorn);
                     adorn.Focus();
                 }
