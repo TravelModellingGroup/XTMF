@@ -408,6 +408,8 @@ namespace XTMF.Gui.UserControls
                 {
                     ExpandToRoot(eventArgs.Module);
                     eventArgs.Module.IsSelected = true;
+                    ModuleDisplay.Focus();
+                    Keyboard.Focus(ModuleDisplay);
                 }
             }));
         }
