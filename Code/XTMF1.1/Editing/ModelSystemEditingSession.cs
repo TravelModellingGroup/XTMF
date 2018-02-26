@@ -224,7 +224,7 @@ namespace XTMF
                     {
                         run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel.Root, _Runtime.Configuration, runName, overwrite);
                     }
-                    _Runtime.RunController.ExecuteRun(run, true);
+                    _Runtime.RunController.ExecuteRun(run, executeNow);
                     return run;
                 }
             }

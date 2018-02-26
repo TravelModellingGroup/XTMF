@@ -70,7 +70,7 @@ namespace XTMF.Gui.UserControls
 
             if (Equals(ActiveRunContent.DataContext, run))
             {
-                ActiveRunContent.DataContext = Resources["DefaultDisplay"];
+            //    ActiveRunContent.DataContext = Resources["DefaultDisplay"];
             }
 
             FinishedRuns.Items.Refresh();
@@ -233,6 +233,8 @@ namespace XTMF.Gui.UserControls
                 runWindow.OnRuntimeError = OnRuntimeError;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
+
+                StatusText = "Queud";
 
                 StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;

@@ -134,7 +134,7 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" x:Name="StatusLabel" Foreground="{DynamicResource MaterialDesignBody}"  Text="Status" TextTrimming="WordEllipsis" HorizontalAlignment="Left"
                                        TextAlignment="Center" TextWrapping="Wrap" />
-                                <my:TMGProgressBar Grid.Row="1" x:Name="ProgressBar" Background="{DynamicResource ControlColourUnselectedBrush}" HorizontalAlignment="Stretch" Height="20" Minimum="0"  Maximum="10000" Value="0"  FontSize="14" IsIndeterminate="False" Margin="5,5,5,5" Foreground="{DynamicResource ControlColourBrush}"  />
+                                <my:TMGProgressBar Grid.Row="1" x:Name="ProgressBar" Background="{DynamicResource MaterialDesignBackground}" HorizontalAlignment="Stretch" Height="20" Minimum="0"  Maximum="10000" Value="0"  FontSize="14" IsIndeterminate="False" Margin="5,5,5,5" Foreground="{DynamicResource SecondaryAccentBrush}"  />
                                 <Label Grid.Row="2" x:Name="StartTimeLabel" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Content="Start Time" HorizontalAlignment="Left" Margin="5,0,0,0" />
                                 <Label Grid.Row="3" x:Name="ElapsedTimeLabel" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Content="Elapsed Time" HorizontalAlignment="Left" Margin="5,0,0,0" />
                             </Grid>

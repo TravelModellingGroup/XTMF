@@ -93,7 +93,7 @@
                                         <DataTemplate>
                                             <Grid HorizontalAlignment="Stretch" >
 
-                                                <Button  Style="{DynamicResource MaterialDesignFlatButton}"  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}">
+                                                <Button  Style="{DynamicResource MaterialDesignFlatButton}"  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}" Height="32">
                                                     <materialDesign:PackIcon   Kind="Cancel" ></materialDesign:PackIcon>
                                                 </Button>
                                             </Grid>
@@ -103,7 +103,7 @@
                                 <GridViewColumn>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Style="{DynamicResource MaterialDesignFlatButton}"  Name="OpenOutput" Click="OpenOutput_OnClick" Tag="{Binding .}">
+                                            <Button Style="{DynamicResource MaterialDesignFlatButton}"  Name="OpenOutput" Click="OpenOutput_OnClick" Tag="{Binding .}" Height="32">
                                                 <materialDesign:PackIcon   Kind="FolderOpen" ></materialDesign:PackIcon>
                                             </Button>
                                         </DataTemplate>

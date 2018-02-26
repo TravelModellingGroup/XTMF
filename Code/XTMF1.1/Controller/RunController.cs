@@ -110,6 +110,10 @@ namespace XTMF.Controller
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="run"></param>
         private void TerminateRun(XTMFRun run)
         {
             lock (_Lock)
@@ -119,8 +123,10 @@ namespace XTMF.Controller
                 {
                     if (_Backlog.Count > 0)
                     {
-                        _CurrentlyExecuting.Add(run);
-                        run.Start();
+                        var _backlogRun = _Backlog[0];
+                        _Backlog.RemoveAt(0);
+                        _CurrentlyExecuting.Add(_backlogRun);
+                        _backlogRun.Start();
                     }
                 }
             }
