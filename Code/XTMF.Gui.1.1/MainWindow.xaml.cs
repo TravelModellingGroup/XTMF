@@ -133,14 +133,28 @@ namespace XTMF.Gui
 
             DockManager.ClosingItemCallback = ClosingItemCallback;
 
+            DockManager.SelectionChanged += DockManagerOnSelectionChanged;
+
             WorkspaceProjects = new Dictionary<Project, UserControl>();
 
+       
            XtmfNotificationIcon.InitializeNotificationIcon();
 
 
         }
 
-     
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender1"></param>
+        /// <param name="selectionChangedEventArgs"></param>
+        private void DockManagerOnSelectionChanged(object sender1, SelectionChangedEventArgs selectionChangedEventArgs)
+        {
+            (DockManager.SelectedContent as UserControl)?.Focus();
+            Keyboard.Focus(DockManager.SelectedContent as UserControl);
+
+        }
+
 
         public string ConfigurationFilePath { get; private set; }
 
@@ -1154,6 +1168,7 @@ namespace XTMF.Gui
                         exists = true;
                         tab.IsSelected = true;
                     }
+
                 }
 
                 if (!exists)
@@ -1168,6 +1183,9 @@ namespace XTMF.Gui
                     DockManager.Items.Add(tabItem);
                     tabItem.IsSelected = true;
                 }
+
+                display.Focus();
+                Keyboard.Focus(display);
             });
         }
 

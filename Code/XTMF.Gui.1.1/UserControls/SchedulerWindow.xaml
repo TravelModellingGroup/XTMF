@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-             d:DesignHeight="300" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
 
         <Border x:Key="DefaultDisplay" Background="{DynamicResource MaterialDesignPaper}">
@@ -17,24 +17,31 @@
 
         <Grid.RowDefinitions>
 
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="300"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="2"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
         </Grid.RowDefinitions>
 
 
         <ContentControl Content="{Binding }"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="0" Name="ActiveRunContent">
 
         </ContentControl>
-        <ScrollViewer Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
-            <Grid Grid.Row="1">
+
+        <GridSplitter Grid.Row="1" Height="2" ResizeDirection="Auto" HorizontalAlignment="Stretch" ></GridSplitter>
+
+<Grid Grid.Row="2" Background="{DynamicResource MaterialDesignPaper}">
 
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="2*"></RowDefinition>
-                    <RowDefinition  Height="2*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition  Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
-                <StackPanel Orientation="Vertical" Grid.Row="0" CanVerticallyScroll="True">
-                    <TextBlock Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}">Scheduled and Active Runs</TextBlock>
-                    <ListView Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" Grid.Row="0" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <Grid >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}">Scheduled and Active Runs</TextBlock>
+                    <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Name"  Width="100" DisplayMemberBinding="{Binding Name}"/>
@@ -62,58 +69,62 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
+                </Grid>
+
+          
+            <Grid Grid.Row="1" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock DockPanel.Dock="Left" Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}" HorizontalAlignment="Right">Finished Runs</TextBlock>
+                    <Button Name="ClearAllRunsButton"  Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="ClearAllRunsButton_OnClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>Clear Runs</TextBlock>
+                            <materialDesign:PackIcon   Kind="NotificationClearAll" ></materialDesign:PackIcon>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
 
+                <ListView Name="FinishedRuns"  Grid.Row="1" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SizeChanged="FinishedRuns_SizeChanged_1" ContextMenuOpening="FinishedRuns_ContextMenuOpening" >
+                    <ListView.ContextMenu>
+                        <ContextMenu></ContextMenu>
+                    </ListView.ContextMenu>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
+                            <GridViewColumn Header="Status"  DisplayMemberBinding="{Binding StatusText}">
 
-                <StackPanel Orientation="Vertical" Grid.Row="1">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock DockPanel.Dock="Left" Margin="10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}" HorizontalAlignment="Right">Finished Runs</TextBlock>
-                        <Button Name="ClearAllRunsButton"  Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="ClearAllRunsButton_OnClick">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock>Clear Runs</TextBlock>
-                                <materialDesign:PackIcon   Kind="NotificationClearAll" ></materialDesign:PackIcon>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Start Time"   DisplayMemberBinding="{Binding StartTime}"></GridViewColumn>
+                            <GridViewColumn Header="Elapsed Time" DisplayMemberBinding="{Binding ElapsedTime}"></GridViewColumn>
+                            <GridViewColumn Header="Actions" >
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid HorizontalAlignment="Stretch" >
 
-                    <ListView Name="FinishedRuns"  Grid.Row="1" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SizeChanged="FinishedRuns_SizeChanged_1" ContextMenuOpening="FinishedRuns_ContextMenuOpening" >
-                        <ListView.ContextMenu>
-                            <ContextMenu></ContextMenu>
-                        </ListView.ContextMenu>
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
-                                <GridViewColumn Header="Status"  DisplayMemberBinding="{Binding StatusText}">
-                                   
-                                </GridViewColumn>
-                                <GridViewColumn Header="Start Time"   DisplayMemberBinding="{Binding StartTime}"></GridViewColumn>
-                                <GridViewColumn Header="Elapsed Time" DisplayMemberBinding="{Binding ElapsedTime}"></GridViewColumn>
-                                <GridViewColumn Header="Actions" >
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Grid HorizontalAlignment="Stretch" >
-
-                                                <Button  Style="{DynamicResource MaterialDesignFlatButton}"  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}" Height="32">
-                                                    <materialDesign:PackIcon   Kind="Cancel" ></materialDesign:PackIcon>
-                                                </Button>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn>
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Style="{DynamicResource MaterialDesignFlatButton}"  Name="OpenOutput" Click="OpenOutput_OnClick" Tag="{Binding .}" Height="32">
-                                                <materialDesign:PackIcon   Kind="FolderOpen" ></materialDesign:PackIcon>
+                                            <Button  Style="{DynamicResource MaterialDesignFlatButton}"  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}" Height="32">
+                                                <materialDesign:PackIcon   Kind="Cancel" ></materialDesign:PackIcon>
                                             </Button>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn>
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{DynamicResource MaterialDesignFlatButton}"  Name="OpenOutput" Click="OpenOutput_OnClick" Tag="{Binding .}" Height="32">
+                                            <materialDesign:PackIcon   Kind="FolderOpen" ></materialDesign:PackIcon>
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
             </Grid>
-        </ScrollViewer>
+        </Grid>
+
     </Grid>
 </UserControl>
