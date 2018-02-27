@@ -40,7 +40,7 @@
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
                 <TextBlock Margin="10 10 5 10" Style="{StaticResource MaterialDesignSubheadingTextBlock}" Grid.Row="0" Text="Active Runs"></TextBlock>
-               
+
 
                 <ListView  Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ListView.ItemContainerStyle>
@@ -75,7 +75,7 @@
                                                    Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" Margin="0 4 0 0" HorizontalAlignment="Stretch"></TextBlock>
                                     </Grid>
                                     <Grid Grid.Column="1">
-                                      
+
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="140"></ColumnDefinition>
@@ -83,18 +83,18 @@
                                             </Grid.ColumnDefinitions>
                                             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="0">
                                                 <StackPanel Orientation="Vertical" Margin="15 5 5 5" >
-                                                <TextBlock Text="Start Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
-                                                <TextBlock Text="{Binding StartTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
-                                            </StackPanel>
-                                                </Border>
+                                                    <TextBlock Text="Start Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
+                                                    <TextBlock Text="{Binding StartTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
+                                                </StackPanel>
+                                            </Border>
                                             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="1">
-                                            <StackPanel Orientation="Vertical" Margin="10 5 5 5">
-                                                <TextBlock Text="Elapsed Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
-                                                <TextBlock Text="{Binding ElapsedTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
-                                            </StackPanel>
-                                                </Border>
+                                                <StackPanel Orientation="Vertical" Margin="10 5 5 5">
+                                                    <TextBlock Text="Elapsed Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
+                                                    <TextBlock Text="{Binding ElapsedTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
+                                                </StackPanel>
+                                            </Border>
                                         </Grid>
-                                
+
 
                                     </Grid>
 
@@ -195,75 +195,82 @@
                         <ContextMenu></ContextMenu>
                     </ListView.ContextMenu>
 
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" >
-                                    <materialDesign:PackIcon Kind="{Binding Icon}" Height="24" Width="24" Margin="0 0 10 0" VerticalAlignment="Center" DockPanel.Dock="Left"/>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" >
+                                <materialDesign:PackIcon Kind="{Binding Icon}" Height="24" Width="24" Margin="0 0 10 0" VerticalAlignment="Center" DockPanel.Dock="Left"/>
 
-                                    <Grid DockPanel.Dock="Right" HorizontalAlignment="Stretch">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"></ColumnDefinition>
-                                            <ColumnDefinition Width="AUTO"></ColumnDefinition>
-                                        </Grid.ColumnDefinitions>
+                                <Grid DockPanel.Dock="Right" HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="AUTO"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
 
-                                        <Grid Grid.Column="0">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="25"></RowDefinition>
-                                                <RowDefinition Height="4"></RowDefinition>
-                                                <RowDefinition Height="25"></RowDefinition>
-                                            </Grid.RowDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="25"></RowDefinition>
+                                            <RowDefinition Height="4"></RowDefinition>
+                                            <RowDefinition Height="25"></RowDefinition>
+                                        </Grid.RowDefinitions>
 
 
 
-                                            <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"  Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4"></TextBlock>
-                                            <ProgressBar Grid.Row="1"  HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="4"  />
-                                            <TextBlock TextWrapping="Wrap" Style="{StaticResource MaterialDesignCaptionTextBlock}" Grid.Row="2"
+                                        <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"  Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4"></TextBlock>
+                                        <ProgressBar Grid.Row="1"  HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="4"  />
+                                        <TextBlock TextWrapping="Wrap" Style="{StaticResource MaterialDesignCaptionTextBlock}" Grid.Row="2"
                                                    ToolTip="{Binding StatusText}"
                                                    Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" Margin="0 4 0 0" HorizontalAlignment="Stretch"></TextBlock>
-                                        </Grid>
-                                        <Grid Grid.Column="1">
+                                    </Grid>
+                                    <Grid Grid.Column="1">
 
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                                    <ColumnDefinition Width="AUTO"></ColumnDefinition>
-                                                    <ColumnDefinition Width="AUTO"></ColumnDefinition>
-                                                    <ColumnDefinition Width="AUTO"></ColumnDefinition>
-                                                </Grid.ColumnDefinitions>
-                                                <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="0">
-                                                    <StackPanel Orientation="Vertical" Margin="15 5 5 5" >
-                                                        <TextBlock Text="Start Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
-                                                        <TextBlock Text="{Binding StartTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
-                                                    </StackPanel>
-                                                </Border>
-                                                <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="1">
-                                                    <StackPanel Orientation="Vertical" Margin="10 5 5 5">
-                                                        <TextBlock Text="Run output" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
-                                                        <Button Style="{DynamicResource MaterialDesignFlatButton}"  Name="OpenOutput" Click="OpenOutput_OnClick" Tag="{Binding .}" Height="32">
-                                                            <materialDesign:PackIcon  Kind="FolderOpen"></materialDesign:PackIcon>
-                                                        </Button>
-                                                    </StackPanel>
-                                                </Border>
-                                                <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="2">
-                                                    <StackPanel Orientation="Vertical" Margin="10 5 5 5">
-                                                        <TextBlock Text="Clear run" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition Width="AUTO"></ColumnDefinition>
+                                                <ColumnDefinition Width="AUTO"></ColumnDefinition>
+                                                <ColumnDefinition Width="AUTO"></ColumnDefinition>
+                                                <ColumnDefinition Width="AUTO"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="0">
+                                                <StackPanel Orientation="Vertical" Margin="15 5 5 5" >
+                                                    <TextBlock Text="Start Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
+                                                    <TextBlock Text="{Binding StartTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="1">
+                                                <StackPanel Orientation="Vertical" Margin="10 5 5 5">
+                                                    <TextBlock Text="Elapsed Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
+                                                    <TextBlock Text="{Binding ElapsedTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="2">
+                                                <StackPanel Orientation="Vertical" Margin="10 5 5 5">
+                                                    <TextBlock Text="Run output" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
+                                                    <Button Style="{DynamicResource MaterialDesignFlatButton}"  Name="OpenOutput" Click="OpenOutput_OnClick" Tag="{Binding .}" Height="32">
+                                                        <materialDesign:PackIcon  Kind="FolderOpen"></materialDesign:PackIcon>
+                                                    </Button>
+                                                </StackPanel>
+                                            </Border>
+                                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="3">
+                                                <StackPanel Orientation="Vertical" Margin="10 5 5 5">
+                                                    <TextBlock Text="Clear run" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
                                                     <Button  Style="{DynamicResource MaterialDesignFlatButton}"  Name="CloseRunButton" Click="ButtonBase_OnClick" Tag="{Binding .}" Height="32">
                                                         <materialDesign:PackIcon   Kind="Cancel" ></materialDesign:PackIcon>
                                                     </Button>
                                                 </StackPanel>
-                                                </Border> 
-                                            </Grid>
-
-
+                                            </Border>
                                         </Grid>
 
+
                                     </Grid>
-                                </DockPanel>
-                            </DataTemplate>
 
-                        </ListView.ItemTemplate>
+                                </Grid>
+                            </DockPanel>
+                        </DataTemplate>
 
-                        <!--
+                    </ListView.ItemTemplate>
+
+                    <!--
                         <GridView>
                             <GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}"></GridViewColumn>
                             <GridViewColumn Header="Status"  DisplayMemberBinding="{Binding StatusText}">
