@@ -69,7 +69,7 @@
 
 
                                         <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"  Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4"></TextBlock>
-                                        <ProgressBar Grid.Row="1"  HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="4"  />
+                                        <ProgressBar Foreground="{DynamicResource SecondaryAccentBrush}" Grid.Row="1"  HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="4"  />
                                         <TextBlock TextWrapping="Wrap" Style="{StaticResource MaterialDesignCaptionTextBlock}" Grid.Row="2"
                                                    ToolTip="{Binding StatusText}"
                                                    Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" Margin="0 4 0 0" HorizontalAlignment="Stretch"></TextBlock>
@@ -82,13 +82,13 @@
                                                 <ColumnDefinition Width="110"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="0" IsEnabled="{Binding IsRunStarted}">
-                                                <StackPanel Orientation="Vertical" Margin="15 5 5 5" >
+                                                <StackPanel Orientation="Vertical" Margin="8 5 5 5" >
                                                     <TextBlock Text="Start Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
                                                     <TextBlock Text="{Binding StartTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
                                                 </StackPanel>
                                             </Border>
                                             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="1" IsEnabled="{Binding IsRunStarted}">
-                                                <StackPanel Orientation="Vertical" Margin="10 5 5 5">
+                                                <StackPanel Orientation="Vertical" Margin="8 5 5 5">
                                                     <TextBlock Text="Elapsed Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
                                                     <TextBlock Text="{Binding ElapsedTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
                                                 </StackPanel>
@@ -216,7 +216,7 @@
 
 
                                         <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"  Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4"></TextBlock>
-                                        <ProgressBar Grid.Row="1"  HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="4"  />
+                                        <ProgressBar  Foreground="{DynamicResource SecondaryAccentBrush}" Grid.Row="1"  HorizontalAlignment="Stretch" Minimum="0" Maximum="10000" Value="{Binding Progress}" Height="4"  />
                                         <TextBlock TextWrapping="Wrap" Style="{StaticResource MaterialDesignCaptionTextBlock}" Grid.Row="2"
                                                    ToolTip="{Binding StatusText}"
                                                    Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" Margin="0 4 0 0" HorizontalAlignment="Stretch"></TextBlock>
