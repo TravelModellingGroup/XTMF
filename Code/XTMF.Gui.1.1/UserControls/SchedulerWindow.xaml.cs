@@ -250,7 +250,7 @@ namespace XTMF.Gui.UserControls
                 RunWindow = runWindow;
                 _schedulerWindow = schedulerWindow;
 
-                runWindow.UpdateRunStatus = (val) => { StatusText = val; };
+                runWindow.UpdateRunStatus = UpdateRunStatus;
                 runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
                 runWindow.UpdateRunProgress = (val) => { Progress = val; };
                 runWindow.UpdateStartTime = UpdateStartTime;
@@ -272,6 +272,20 @@ namespace XTMF.Gui.UserControls
             /// 
             /// </summary>
             /// <param name="s"></param>
+            /// <param name="b1"></param>
+            private void UpdateRunStatus(string s, bool error)
+            {
+                StatusText = s;
+                if (error)
+                {
+                    Icon = PackIconKind.AlertCircle;
+                }
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="s"></param>
             private void UpdateStartTime(string s)
             {
                 StartTime = (string)$"{s:g}";
@@ -286,7 +300,7 @@ namespace XTMF.Gui.UserControls
             /// <summary>
             /// 
             /// </summary>
-            private void OnRunFinished()
+            private void OnRunFinished(bool error)
             {
                 _schedulerWindow.RemoveFromActiveRuns(this);
                 MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name + ")", "SCHEDULER",
@@ -295,7 +309,15 @@ namespace XTMF.Gui.UserControls
 
                 XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
                     () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
-                Icon = PackIconKind.CheckCircleOutline;
+
+                if (!error)
+                {
+                    Icon = PackIconKind.CheckCircleOutline;
+                }
+                else
+                {
+                    Icon = PackIconKind.AlertCircle;
+                }
             }
 
             /// <summary>

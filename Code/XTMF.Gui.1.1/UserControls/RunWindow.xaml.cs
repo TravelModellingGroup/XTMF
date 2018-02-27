@@ -80,7 +80,7 @@ namespace XTMF.Gui.UserControls
 
         public Action OnRunStarted;
 
-        public Action OnRunFinished;
+        public Action<bool> OnRunFinished;
 
         static RunWindow()
         {
@@ -140,7 +140,7 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        public Action<string> UpdateRunStatus { get; set; }
+        public Action<string,bool> UpdateRunStatus { get; set; }
         public Action<float> UpdateRunProgress { get; set; }
         public Action<string> UpdateElapsedTime { get; set; }
         public Action<string> UpdateStartTime { get; set; }
@@ -233,7 +233,7 @@ namespace XTMF.Gui.UserControls
                             if (status != null)
                             {
                                 StatusLabel.Text = status;
-                                UpdateRunStatus?.Invoke(status);
+                                UpdateRunStatus?.Invoke(status,false);
                             }
 
                             progress = Run.PollProgress();
@@ -358,7 +358,7 @@ namespace XTMF.Gui.UserControls
             });
         }
 
-        private void SetRunFinished()
+        private void SetRunFinished(bool error = false)
         {
             if (_taskbarInformation != null)
             {
@@ -389,13 +389,15 @@ namespace XTMF.Gui.UserControls
                 StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
 
 
-                UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
+                
                 ProgressBar.Finished = true;
                 MainWindow.Us.UpdateStatusDisplay("Ready");
                 MainWindow.Us.HideStatusLink();
 
                 //call sceduler window callback
-                OnRunFinished();
+                OnRunFinished(!error);
+
+                UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete", error);
             }));
         }
 
@@ -421,7 +423,9 @@ namespace XTMF.Gui.UserControls
         {
             try
             {
-                Dispatcher.Invoke(SetRunFinished);
+                //Dispatcher.Invoke(SetRunFinished);
+
+                SetRunFinished(false);
                
             }
             catch
