@@ -164,10 +164,21 @@ namespace XTMF.Gui.UserControls
             private string _statusText = String.Empty;
             private string _elapsedTime = String.Empty;
             private string _startTime = String.Empty;
+            private PackIconKind _icon = PackIconKind.TimerSand;
             public RunWindow RunWindow { get; set; }
             private SchedulerWindow _schedulerWindow;
 
             private float _progress;
+
+            public PackIconKind Icon
+            {
+                get => _icon;
+                set
+                {
+                    _icon = value;
+                    OnPropertyChanged(nameof(Icon));
+                }
+            }
 
             public string StartTime
             {
@@ -256,7 +267,7 @@ namespace XTMF.Gui.UserControls
 
             private void OnRunStarted()
             {
-
+                Icon = PackIconKind.Run;
             }
 
             /// <summary>
