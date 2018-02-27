@@ -162,13 +162,25 @@ namespace XTMF.Gui.UserControls
         {
 
             private string _statusText = String.Empty;
-            private string _elapsedTime = String.Empty;
-            private string _startTime = String.Empty;
+            private string _elapsedTime = "--";
+            private string _startTime = "--";
             private PackIconKind _icon = PackIconKind.TimerSand;
             public RunWindow RunWindow { get; set; }
             private SchedulerWindow _schedulerWindow;
 
             private float _progress;
+
+            private bool _isRunStarted = false;
+
+            public bool IsRunStarted
+            {
+                get => _isRunStarted;
+                set
+                {
+                    _isRunStarted = value;
+                    OnPropertyChanged(nameof(IsRunStarted));
+                }
+            }
 
             public PackIconKind Icon
             {
@@ -268,6 +280,7 @@ namespace XTMF.Gui.UserControls
             private void OnRunStarted()
             {
                 Icon = PackIconKind.Run;
+                IsRunStarted = true;
             }
 
             /// <summary>
@@ -359,25 +372,7 @@ namespace XTMF.Gui.UserControls
 
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FinishedRuns_SizeChanged_1(object sender, SizeChangedEventArgs e)
-        {
-            ListView listView = sender as ListView;
-            GridView gridView = listView.View as GridView;
-            var actualWidth = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-            for (var i = 1; i < gridView.Columns.Count; i++)
-            {
-                gridView.Columns[i].Width = actualWidth / gridView.Columns.Count;
-                //gridView.ColumnHeaderContainerStyle.
-
-            }
-
-            return;
-        }
+      
 
         /// <summary>
         /// 

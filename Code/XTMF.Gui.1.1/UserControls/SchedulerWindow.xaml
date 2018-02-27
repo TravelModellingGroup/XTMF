@@ -81,13 +81,13 @@
                                                 <ColumnDefinition Width="140"></ColumnDefinition>
                                                 <ColumnDefinition Width="110"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
-                                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="0">
+                                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="0" IsEnabled="{Binding IsRunStarted}">
                                                 <StackPanel Orientation="Vertical" Margin="15 5 5 5" >
                                                     <TextBlock Text="Start Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
                                                     <TextBlock Text="{Binding StartTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
                                                 </StackPanel>
                                             </Border>
-                                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="1">
+                                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="1" IsEnabled="{Binding IsRunStarted}">
                                                 <StackPanel Orientation="Vertical" Margin="10 5 5 5">
                                                     <TextBlock Text="Elapsed Time" Style="{DynamicResource MaterialDesignCaptionTextBlock}"></TextBlock>
                                                     <TextBlock Text="{Binding ElapsedTime}"  Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
@@ -184,7 +184,7 @@
                     </Button>
                 </DockPanel>
 
-                <ListView Name="FinishedRuns"  Grid.Row="1" SelectionChanged="FinishedRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SizeChanged="FinishedRuns_SizeChanged_1" ContextMenuOpening="FinishedRuns_ContextMenuOpening" >
+                <ListView Name="FinishedRuns"  Grid.Row="1" SelectionChanged="FinishedRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ContextMenuOpening="FinishedRuns_ContextMenuOpening" >
 
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
