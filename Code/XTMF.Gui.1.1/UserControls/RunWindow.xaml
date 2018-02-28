@@ -172,7 +172,7 @@
                         <GridViewColumn Header=" " DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, 
                                          AncestorType={x:Type ListViewItem}}, 
                                          Converter={StaticResource IndexConverter}}"></GridViewColumn>
-                        <GridViewColumn Header="Module" DisplayMemberBinding="{Binding ModuleName}"></GridViewColumn>
+                        <GridViewColumn Header="Module" DisplayMemberBinding="{Binding ModelSystemName}"></GridViewColumn>
                         <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}"></GridViewColumn>
                     </GridView>
                 </ListView.View>

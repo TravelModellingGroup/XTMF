@@ -321,6 +321,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="errors"></param>
         private void Run_ValidationError(List<ErrorWithPath> errors)
         {
+            Console.WriteLine("Validation error");
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished(false);
@@ -360,7 +361,7 @@ namespace XTMF.Gui.UserControls
             {
                 foreach (var error in errors)
                 {
-                    ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.StackTrace));
+                    ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName));
                 }
             });
         }
@@ -369,12 +370,18 @@ namespace XTMF.Gui.UserControls
         {
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="errors"></param>
         private void Run_RuntimeValidationError(List<ErrorWithPath> errors)
         {
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished(false);
+                ShowErrorMessages(errors.ToArray());
                 ShowErrorMessage(string.Empty, errors[0]);
+
                 RuntimeValidationError?.Invoke(errors);
             });
         }
@@ -448,6 +455,8 @@ namespace XTMF.Gui.UserControls
                 UpdateStartTime?.Invoke($"{StartTime:g}");
                 //ButtonProgressAssist.
                 IsRunClearable = false;
+
+                
             }));
         }
 
@@ -458,12 +467,12 @@ namespace XTMF.Gui.UserControls
         {
             try
             {
-
                 Dispatcher.Invoke(() => { SetRunFinished(true); });
-
+                Console.WriteLine("Run completed");
             }
-            catch (Exception)
+            catch (Exception e)
             {
+               Console.WriteLine(e.Message);
             }
         }
 

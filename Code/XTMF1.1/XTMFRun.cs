@@ -294,7 +294,10 @@ namespace XTMF
                 string error = null;
                 if (!currentPoint.Module.RuntimeValidation(ref error))
                 {
-                    errors.Add(new ErrorWithPath(path, $"Runtime Validation Error in {currentPoint.Name}\r\n{error}"));
+                    errors.Add(new ErrorWithPath(path, 
+                        $"Runtime Validation Error in {currentPoint.Name}\r\n{error}",
+                        null,
+                        currentPoint.Module.Name));
                     ret = false;
                 }
             }

@@ -39,7 +39,7 @@
                     <RowDefinition Height="40"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
-                <TextBlock Margin="10 10 5 10" Style="{StaticResource MaterialDesignSubheadingTextBlock}" Grid.Row="0" Text="Active Runs"></TextBlock>
+                <TextBlock Margin="10 10 5 10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}" Grid.Row="0" Text="Active Runs"></TextBlock>
 
 
                 <ListView  Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
