@@ -23,6 +23,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
              xmlns:wpf="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:XTMF.Gui.Converters"
              Startup="App_OnStartup"
 
              ShutdownMode="OnExplicitShutdown"
@@ -84,10 +85,10 @@
             <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchMouseOverBrush.Win10" Color="{DynamicResource Primary400}" />
             <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorCheckedBrush.Win10" Color="{DynamicResource Primary500Foreground}" />
 
+            <converters:IndexConverter x:Key="IndexConverter"></converters:IndexConverter>
 
 
 
-         
 
         </ResourceDictionary>
 

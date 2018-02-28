@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,6 +30,7 @@ using System.Windows.Media;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using MaterialDesignThemes.Wpf;
+using XTMF.Gui.Annotations;
 
 namespace XTMF.Gui.UserControls
 {
@@ -313,16 +315,26 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="errors"></param>
         private void Run_ValidationError(List<ErrorWithPath> errors)
         {
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished(false);
                 ShowErrorMessage("Validation Error", errors[0]);
+                ShowErrorMessages(errors.ToArray());
                 OnValidationError?.Invoke(errors);
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="error"></param>
         private void ShowErrorMessage(string title, ErrorWithPath error)
         {
             new ErrorWindow
@@ -332,6 +344,25 @@ namespace XTMF.Gui.UserControls
                 ErrorMessage = error.Message,
                 ErrorStackTrace = error.StackTrace
             }.ShowDialog();
+
+            ErrorGroupBox.Visibility = Visibility.Visible;
+
+            
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="errors"></param>
+        private void ShowErrorMessages(ErrorWithPath[] errors)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                foreach (var error in errors)
+                {
+                    ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.StackTrace));
+                }
+            });
         }
 
         private static void Run_ValidationStarting()
@@ -650,6 +681,55 @@ namespace XTMF.Gui.UserControls
                 ConsoleOutput = ConsoleOutput + message + "\r\n";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
             }
+        }
+
+    }
+
+    public class ModelSystemErrorDisplayModel : INotifyPropertyChanged
+    {
+        private string _description;
+
+        private string _modelSystemName;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                _description = value;
+                OnPropertyChanged(nameof(Description));
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ModelSystemName
+        {
+            get => _modelSystemName;
+            set
+            {
+                _modelSystemName = value;
+                OnPropertyChanged(nameof(ModelSystemName));
+            }
+        }
+
+        public ModelSystemErrorDisplayModel(string description, string modelSystemName)
+        {
+            Description = description;
+            ModelSystemName = modelSystemName;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
         }
     }
 
