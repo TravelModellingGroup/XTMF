@@ -317,7 +317,7 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(() =>
             {
-                SetRunFinished();
+                SetRunFinished(false);
                 ShowErrorMessage("Validation Error", errors[0]);
                 OnValidationError?.Invoke(errors);
             });
@@ -342,7 +342,7 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(() =>
             {
-                SetRunFinished();
+                SetRunFinished(false);
                 ShowErrorMessage(string.Empty, errors[0]);
                 RuntimeValidationError?.Invoke(errors);
             });
@@ -352,13 +352,13 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(() =>
             {
-                SetRunFinished();
+                SetRunFinished(false);
                 ShowErrorMessage("Runtime Error", error);
                 RuntimeError?.Invoke(error);
             });
         }
 
-        private void SetRunFinished()
+        private void SetRunFinished(bool callback = true)
         {
             if (_taskbarInformation != null)
             {
@@ -395,7 +395,10 @@ namespace XTMF.Gui.UserControls
                 MainWindow.Us.HideStatusLink();
 
                 //call sceduler window callback
-                OnRunFinished();
+                if (callback)
+                {
+                    OnRunFinished();
+                }
             }));
         }
 
@@ -417,14 +420,18 @@ namespace XTMF.Gui.UserControls
             }));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void Run_RunComplete()
         {
             try
             {
-                Dispatcher.Invoke(SetRunFinished);
-               
+
+                Dispatcher.Invoke(() => { SetRunFinished(true); });
+
             }
-            catch
+            catch (Exception)
             {
             }
         }

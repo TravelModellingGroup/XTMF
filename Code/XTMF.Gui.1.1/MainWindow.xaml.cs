@@ -974,7 +974,7 @@ namespace XTMF.Gui
         {
             //create a new scheduler window if one does not exist
             SchedulerWindow.AddRun(runWindow);
-            SetDisplayActive(SchedulerWindow, "Scheduler", false);
+            SetDisplayActive(SchedulerWindow, "Model System Runs", false);
 
             // DockManager.Items.Add((OpenPages.Find((doc) => doc.Content == this._schedulerWindow).Content as SchedulerWindow))
         }

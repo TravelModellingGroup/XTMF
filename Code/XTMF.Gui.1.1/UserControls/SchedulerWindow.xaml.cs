@@ -133,7 +133,6 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke((new Action(() =>
             {
 
-
                 FinishedRuns.Items.Remove(item);
 
             })));
