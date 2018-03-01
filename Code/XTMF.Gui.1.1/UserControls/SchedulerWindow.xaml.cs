@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using System.Xml;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
@@ -253,6 +254,8 @@ namespace XTMF.Gui.UserControls
                 runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
                 runWindow.UpdateRunProgress = (val) => { Progress = val; };
                 runWindow.UpdateStartTime = UpdateStartTime;
+                runWindow.OnRuntimeValidationError = OnRuntimeValidationError;
+      
 
                 runWindow.OnRunFinished = OnRunFinished;
                 runWindow.OnRuntimeError = OnRuntimeError;
@@ -265,6 +268,17 @@ namespace XTMF.Gui.UserControls
                 //StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
 
+            }
+
+            /// <summary>
+            /// This method is called when a runtime validation error occurs in the model system run.
+            /// </summary>
+            private void OnRuntimeValidationError()
+            {
+                XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
+                    () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
+
+                Icon = PackIconKind.AlertBox;
             }
 
             /// <summary>
@@ -291,19 +305,25 @@ namespace XTMF.Gui.UserControls
                 IsRunStarted = true;
             }
 
+
             /// <summary>
             /// 
             /// </summary>
-            private void OnRunFinished()
+            /// <param name="runSuccess"></param>
+            private void OnRunFinished(bool runSuccess)
             {
                 _schedulerWindow.RemoveFromActiveRuns(this);
-                MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name + ")", "SCHEDULER",
-                    () => MainWindow.Us.ShowSchedulerWindow());
 
+                if (runSuccess)
+                {
+                    MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name + ")",
+                        "SCHEDULER",
+                        () => MainWindow.Us.ShowSchedulerWindow());
 
-                XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
-                    () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
-                Icon = PackIconKind.CheckCircleOutline;
+                    XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
+                        () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
+                    Icon = PackIconKind.CheckCircleOutline;
+                }
             }
 
             /// <summary>
