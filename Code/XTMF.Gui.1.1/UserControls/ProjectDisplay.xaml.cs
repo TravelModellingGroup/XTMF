@@ -477,15 +477,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RefreshPreviousRuns_Clicked(object obj)
-        {
-            Model.RefreshPastRuns(Session);
-        }
-
-        private void OpenProjectFolder_Clicked(object obj)
-        {
-            OpenProjectFolder();
-        }
 
         private void OpenPreviousRun_Click(object sender, RoutedEventArgs e)
         {
@@ -882,6 +873,61 @@ namespace XTMF.Gui.UserControls
         private void ListViewControl_ContextMenuOpening_1(object sender, ContextMenuEventArgs e)
         {
           
+        }
+
+        private void StackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            OpenProjectFolder();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImportModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ImportButton_OnClick(sender,e);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImportModelSystemFileStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ImportFromFileButton_OnClick(sender, e);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CreateNewModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            NewModelSystem_Click(sender, e);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RefreshRunsStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Model.RefreshPastRuns(Session);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RefreshPastRunsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Model.RefreshPastRuns(Session);
         }
     }
 }

@@ -42,7 +42,7 @@
                 ToolTipService.Placement="Left"
                 >
                 <StackPanel>
-                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
 
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Open Project Directory" Opacity="1.0"></Label>
@@ -53,7 +53,7 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+                    <StackPanel Name="ImportModelSystemStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemStackPanel_MouseLeftButtonUp">
 
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System" Opacity="1.0"></Label>
@@ -63,7 +63,7 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+                    <StackPanel Name="ImportModelSystemFileStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemFileStackPanel_MouseLeftButtonUp">
 
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System From File" Opacity="1.0"></Label>
@@ -74,7 +74,7 @@
 
                     </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+                    <StackPanel Name="CreateNewModelSystemStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="CreateNewModelSystemStackPanel_MouseLeftButtonUp">
 
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" Opacity="1.0"></Label>
@@ -84,12 +84,12 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+                    <StackPanel Name="RefreshRunsStackPanel"  HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="RefreshRunsStackPanel_MouseLeftButtonUp" >
 
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Refresh previous runs" Opacity="1.0"></Label>
                         </Border>
-                        <Button  >
+                        <Button Name="RefreshPastRunsButton" Click="RefreshPastRunsButton_OnClick"  >
                             <materialDesign:PackIcon Kind="Refresh" />
                         </Button>
                     </StackPanel>
