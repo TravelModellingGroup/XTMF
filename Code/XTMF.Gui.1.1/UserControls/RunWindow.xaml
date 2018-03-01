@@ -165,7 +165,7 @@
                 </Grid>
             </Border>
         </GroupBox>
-        <GroupBox Name="ErrorGroupBox"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" Visibility="Collapsed">
+        <GroupBox Name="ErrorGroupBox"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" Visibility="{Binding ErrorVisibility}">
             <ListView Name="ErrorListView" >
                 <ListView.View>
                     <GridView>

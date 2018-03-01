@@ -249,7 +249,7 @@ namespace XTMF.Gui.UserControls
                 RunWindow = runWindow;
                 _schedulerWindow = schedulerWindow;
 
-                runWindow.UpdateRunStatus = (val) => { StatusText = val; };
+                runWindow.UpdateRunStatus = UpdateRunStatus;
                 runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
                 runWindow.UpdateRunProgress = (val) => { Progress = val; };
                 runWindow.UpdateStartTime = UpdateStartTime;
@@ -265,6 +265,15 @@ namespace XTMF.Gui.UserControls
                 //StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
 
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="s"></param>
+            private void UpdateRunStatus(string s)
+            {
+                StatusText = s;
             }
 
             /// <summary>

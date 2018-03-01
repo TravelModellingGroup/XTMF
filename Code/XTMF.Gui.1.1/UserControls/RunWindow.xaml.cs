@@ -84,6 +84,20 @@ namespace XTMF.Gui.UserControls
 
         public Action OnRunFinished;
 
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        }
+
+
+        public Visibility ErrorVisibility
+        {
+            get => ErrorListView.Items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            set => OnPropertyChanged(nameof(ErrorVisibility));
+        }
+
         static RunWindow()
         {
             var findResource = Application.Current.FindResource("WarningRed");
@@ -347,6 +361,7 @@ namespace XTMF.Gui.UserControls
             }.ShowDialog();
 
             ErrorGroupBox.Visibility = Visibility.Visible;
+            this.UpdateLayout();
 
             
         }
@@ -357,15 +372,23 @@ namespace XTMF.Gui.UserControls
         /// <param name="errors"></param>
         private void ShowErrorMessages(ErrorWithPath[] errors)
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 foreach (var error in errors)
                 {
                     ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName));
                 }
-            });
+
+                ErrorListView.Visibility = Visibility.Visible;
+                Console.WriteLine(ErrorListView.Visibility);
+            }));
+
+          
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private static void Run_ValidationStarting()
         {
         }
@@ -378,11 +401,13 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(() =>
             {
-                SetRunFinished(false);
+                //SetRunFinished(false);
                 ShowErrorMessages(errors.ToArray());
-                ShowErrorMessage(string.Empty, errors[0]);
+                //ShowErrorMessage(string.Empty, errors[0]);
 
                 RuntimeValidationError?.Invoke(errors);
+
+                UpdateRunStatus?.Invoke("Runtime validation error");
             });
         }
 
@@ -413,7 +438,7 @@ namespace XTMF.Gui.UserControls
 
             _isFinished = true;
             MainWindow.Us.Closing -= MainWindowClosing;
-            Dispatcher.BeginInvoke((Action) (() =>
+            Dispatcher.Invoke((Action) (() =>
             {
                 IsRunClearable = true;
                 ProgressBar.Finished = true;
@@ -427,9 +452,9 @@ namespace XTMF.Gui.UserControls
                 StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
 
 
-                UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
+                //UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
                 ProgressBar.Finished = true;
-                MainWindow.Us.UpdateStatusDisplay("Ready");
+                //MainWindow.Us.UpdateStatusDisplay("Ready");
                 MainWindow.Us.HideStatusLink();
 
                 //call sceduler window callback
@@ -570,7 +595,7 @@ namespace XTMF.Gui.UserControls
                 {
                     Dispatcher.Invoke(delegate
                     {
-                        AdditionDetailsPanelBorder.Visibility = Visibility.Collapsed;
+                        //AdditionDetailsPanelBorder.Visibility = Visibility.Collapsed;
                         AdditionDetailsPanelBorder.Height = 0;
                     });
                 }
