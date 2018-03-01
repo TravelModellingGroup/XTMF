@@ -22,8 +22,8 @@
                 </Binding>
             </TextBox.Text>
         </TextBox>
-        <Button Margin="3 0 0 0"  Grid.Column="1" Style="{DynamicResource MaterialDesignRaisedAccentButton}" Width="50"
-                ToolTip="Resource name: MaterialDesignRaisedAccentButton">
+        <Button Margin="3 0 0 0"  Grid.Column="1" Style="{DynamicResource MaterialDesignRaisedAccentButton}" Width="50" Name="ConfirmButton"
+                ToolTip="Resource name: MaterialDesignRaisedAccentButton" Click="ConfirmButton_Click">
             OK
         </Button>
     </Grid>

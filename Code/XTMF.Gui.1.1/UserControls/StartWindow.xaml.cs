@@ -66,21 +66,38 @@ namespace XTMF.Gui
             MainWindow.Us.NewProject();
         }
 
-        private void OpenProject_MouseUp(object sender, MouseButtonEventArgs e) => MainWindow.Us.OpenProject();
-
-        private void NewModelSystem_MouseUp(object sender, MouseButtonEventArgs e) => MainWindow.Us.NewModelSystem();
 
         private void OpenModelSystem_MouseUp(object sender, MouseButtonEventArgs e) => MainWindow.Us.OpenModelSystem();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
           
             MainWindow.Us.NewProject();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenProjectButton_OnClick(object sender, RoutedEventArgs e)
         {
             MainWindow.Us.OpenProject();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CreateNewModelSystemButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Us.NewModelSystem();
         }
     }
 }

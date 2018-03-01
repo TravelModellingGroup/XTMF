@@ -99,7 +99,17 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-      
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ConfirmButton_Click(object sender, RoutedEventArgs e)
+        {
+            DidComplete = true;
+            e.Handled = true;
+            this._dialogSession.Close(false);
+        }
     }
     public class NotEmptyValidationRule : ValidationRule
     {
