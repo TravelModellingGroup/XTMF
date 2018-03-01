@@ -158,6 +158,7 @@
                             <xtmf:ModelSystemListView.Style>
                                 <Style TargetType="{x:Type ListView}" BasedOn="{StaticResource MaterialDesignListView}"></Style>
                             </xtmf:ModelSystemListView.Style>
+                            <!--
                             <ListView.ContextMenu>
                                 <ContextMenu Name="ContextMenu" >
                                     <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
@@ -184,7 +185,7 @@
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource NewIcon}" />
                                         </MenuItem.Icon>
-                                    </MenuItem>
+                                    </MenuItem> 
                                     <MenuItem Header="Copy Model System (Ctrl+C)" Click="CopyModelSystem_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource CopyIcon}" />
@@ -199,7 +200,7 @@
                                         </MenuItem.Icon>
                                     </MenuItem>
                                 </ContextMenu>
-                            </ListView.ContextMenu>
+                            </ListView.ContextMenu>-->
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
@@ -210,7 +211,51 @@
                                 <DataTemplate>
 
                                     <xtmf:ListViewControl  TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch"
-                                                          SubText="{Binding Description, Mode=OneWay}" StatusText="{Binding StatusText, Mode=OneWay}"   >
+                                                          SubText="{Binding Description, Mode=OneWay}" StatusText="{Binding StatusText, Mode=OneWay}" ContextMenuClosing="ListViewControl_ContextMenuClosing" ContextMenuOpening="ListViewControl_ContextMenuOpening_1"   >
+
+                                        <xtmf:ListViewControl.ContextMenu>
+                                            <ContextMenu Tag="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}"  >
+                                                <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource CancelIcon}" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource SaveIcon}" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Export Model System As (Ctrl+S)" Click="ExportModelSystemAs_Click">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource SaveIcon}" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <!--<MenuItem Header="_New Model System (Ctrl+N)" Click="NewModelSystem_Click">
+                                        <MenuItem.Icon>
+                                            <ContentControl Template="{DynamicResource NewIcon}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem> -->
+                                                <MenuItem Header="Copy Model System (Ctrl+C)" Click="CopyModelSystem_Click">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource CopyIcon}" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem 
+                                             
+                                                   
+                                              Header="Paste Model System (Ctrl+V)" Click="PasteModelSystem_OnClick"
+                                                    IsEnabled="{Binding DataContext.IsCanPasteModelSystem, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource PasteIcon}" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </xtmf:ListViewControl.ContextMenu>
 
 
                                         <xtmf:ListViewControl.IconPath>

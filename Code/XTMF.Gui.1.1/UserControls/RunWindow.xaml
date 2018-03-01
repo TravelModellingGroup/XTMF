@@ -165,8 +165,8 @@
                 </Grid>
             </Border>
         </GroupBox>
-        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}"  Name="ErrorGroupBox"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" Visibility="{Binding (ErrorVisibility),
-    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type userControls:RunWindow}}}" Margin="12"> 
+        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}"  Name="ErrorGroupBox"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
+                   Visibility="{Binding (ErrorVisibility),RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type userControls:RunWindow}}}" Margin="12"> 
             <ListView Name="ErrorListView" DataContext="{Binding }" >
                 <ListView.View>
                     <GridView>
