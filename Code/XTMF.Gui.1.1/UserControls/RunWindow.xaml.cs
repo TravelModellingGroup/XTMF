@@ -101,6 +101,7 @@ namespace XTMF.Gui.UserControls
         public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             InitializeComponent();
+            ErrorVisibility = Visibility.Collapsed;
             Session = session;
             session.SessionClosed += Session_SessionClosed;
             Run = run;
@@ -150,7 +151,7 @@ namespace XTMF.Gui.UserControls
         {
             get => ErrorListView.Items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             set => OnPropertyChanged(nameof(ErrorVisibility));
-        }
+        } 
 
 
         public Action<string> UpdateRunStatus { get; set; }
