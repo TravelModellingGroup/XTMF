@@ -77,9 +77,21 @@ namespace XTMF.Gui.UserControls
 
                 public int RealIndex { get; }
 
+                public bool IsCanPasteModelSystem
+                {
+                    get => MainWindow.Us.ClipboardModel != null; 
+                    set => OnPropertyChanged(nameof(IsCanPasteModelSystem));
+                }
+
                 private IProject _project;
 
                 private bool _IsSelected;
+
+                [NotifyPropertyChangedInvocator]
+                protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                }
 
                 public bool IsSelected
                 {
@@ -282,7 +294,7 @@ namespace XTMF.Gui.UserControls
         {
             InitializeComponent();
             Loaded += ProjectDisplay_Loaded;
-            ContextMenu.PlacementTarget = ModelSystemDisplay;
+           // ContextMenu.PlacementTarget = ModelSystemDisplay;
         }
 
         private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
@@ -465,15 +477,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RefreshPreviousRuns_Clicked(object obj)
-        {
-            Model.RefreshPastRuns(Session);
-        }
-
-        private void OpenProjectFolder_Clicked(object obj)
-        {
-            OpenProjectFolder();
-        }
 
         private void OpenPreviousRun_Click(object sender, RoutedEventArgs e)
         {
@@ -629,6 +632,12 @@ namespace XTMF.Gui.UserControls
             // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
             ModelSystemDisplay.IsCanPasteModelSystem = true;
             CloneCurrentModelSystem();
+           
+            foreach (var m in this.Model.ContainedModelSystems)
+            {
+                m.IsCanPasteModelSystem = true;
+            }
+           // ((ProjectModel) this.DataContext)IsCanPasteModelSystem = true;
         }
 
         private void CloneCurrentModelSystem()
@@ -851,6 +860,74 @@ namespace XTMF.Gui.UserControls
                 default:
                     break;
             }
+        }
+
+
+
+        private void ListViewControl_ContextMenuClosing(object sender, ContextMenuEventArgs e)
+        {
+       
+     
+        }
+
+        private void ListViewControl_ContextMenuOpening_1(object sender, ContextMenuEventArgs e)
+        {
+          
+        }
+
+        private void StackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            OpenProjectFolder();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImportModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ImportButton_OnClick(sender,e);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImportModelSystemFileStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ImportFromFileButton_OnClick(sender, e);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CreateNewModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            NewModelSystem_Click(sender, e);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RefreshRunsStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Model.RefreshPastRuns(Session);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RefreshPastRunsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Model.RefreshPastRuns(Session);
         }
     }
 }

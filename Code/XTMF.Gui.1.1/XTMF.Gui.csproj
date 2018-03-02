@@ -40,7 +40,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\XTMF-Dev\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -92,7 +92,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -168,6 +168,7 @@
     <Compile Include="Controllers\ModelSystemEditingController.cs" />
     <Compile Include="Controllers\SingleAccess.cs" />
     <Compile Include="Controllers\ThemeController.cs" />
+    <Compile Include="Converters\IndexConverter.cs" />
     <Compile Include="Models\ActiveEditingSessionDisplayModel.cs" />
     <Compile Include="Models\CommandDisplayModel.cs" />
     <Compile Include="Models\LinkedParameterDisplayModel.cs" />
@@ -541,9 +542,6 @@
     <Resource Include="Resources\XTMF_refresh.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\XTMFIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
@@ -554,39 +552,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_folder_open_white_18dp.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_cloud_download_white_18dp.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_create_new_folder_white_18dp.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_refresh_white_18dp.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_developer_board_24px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_cancel_white_18pt_2x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_arrow_forward_white_36dp.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_content_copy_white_2x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_note_add_white_18pt_2x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_content_paste_white_2x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\ic_create_white_48dp.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XTMF1.1\XTMF.csproj">

@@ -47,11 +47,7 @@ namespace TMG.Frameworks.Data.Saving
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!ModuleHelper.EnsureExactlyOneAndOfSameType(this, RawDataSourceToSave, ResourceToSave, ref error))
-            {
-                return false;
-            }
-            return true;
+            return ModuleHelper.EnsureExactlyOneAndOfSameType(this, RawDataSourceToSave, ResourceToSave, ref error);
         }
 
         public void Start()
@@ -59,5 +55,4 @@ namespace TMG.Frameworks.Data.Saving
             SaveData.SaveMatrixThirdNormalized(ModuleHelper.GetDataFromDatasourceOrResource(RawDataSourceToSave, ResourceToSave, RawDataSourceToSave != null), SaveTo);
         }
     }
-
 }

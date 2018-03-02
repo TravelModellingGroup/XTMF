@@ -305,5 +305,15 @@ namespace XTMF.Gui.UserControls
         {
            ImportModelSystemButton_OnClick(sender,e);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExportModelSystemButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ExportCurrentModelSystem();
+        }
     }
 }

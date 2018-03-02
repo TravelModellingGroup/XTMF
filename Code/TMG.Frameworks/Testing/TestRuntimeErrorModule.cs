@@ -16,14 +16,24 @@ namespace TMG.Frameworks.Testing
         public float Progress { get => _progress; }
         public Tuple<byte, byte, byte> ProgressColour { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public bool RuntimeValidation(ref string error)
         {
-            return true;
+            Console.WriteLine("In runtime validation");
+            error = "Runtime Validation Error";
+            return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Start()
         {
-            throw new GenericRuntimeError();
+            Console.WriteLine("Module started");
         }
     }
 
