@@ -159,7 +159,7 @@
                             <TextBox  HorizontalAlignment="Stretch" Padding="0" Margin="0" x:Name="ConsoleOutput" 
                                       Foreground="{DynamicResource MaterialDesignBody}"
                                       TextWrapping="Wrap" Text="{Binding ConsoleOutput}" UndoLimit="0" IsUndoEnabled="False"
-                                      TextChanged="ConsoleOutput_TextChanged" IsReadOnly="True" IsReadOnlyCaretVisible="True" BorderBrush="{x:Null}"/>
+                                      TextChanged="ConsoleOutput_TextChanged" IsReadOnly="True" IsReadOnlyCaretVisible="True" BorderBrush="{x:Null}" FontFamily="Lucida Console"/>
                         </ScrollViewer>
                     </Border>
                 </Grid>
