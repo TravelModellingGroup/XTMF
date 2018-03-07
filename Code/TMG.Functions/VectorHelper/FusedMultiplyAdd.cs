@@ -33,7 +33,7 @@ namespace TMG.Functions
             {
                 int i;
                 var vAdd = new Vector<float>(add);
-                for (i = 0; i < dest.Length - Vector<float>.Count; i++)
+                for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var l = new Vector<float>(lhs, i);
                     var r = new Vector<float>(rhs, i);
@@ -63,7 +63,7 @@ namespace TMG.Functions
                 int i;
                 var vAdd = new Vector<float>(add);
                 var r = new Vector<float>(rhs);
-                for (i = 0; i < dest.Length - Vector<float>.Count; i++)
+                for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var l = new Vector<float>(lhs, i);
 
@@ -92,7 +92,7 @@ namespace TMG.Functions
             {
                 int i;
                 var r = new Vector<float>(rhs);
-                for (i = 0; i < dest.Length - Vector<float>.Count; i++)
+                for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var l = new Vector<float>(lhs, i);
                     var vAdd = new Vector<float>(add, i);
@@ -120,7 +120,7 @@ namespace TMG.Functions
             if (Vector.IsHardwareAccelerated)
             {
                 int i;
-                for (i = 0; i < dest.Length - Vector<float>.Count; i++)
+                for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var l = new Vector<float>(lhs, i);
                     var r = new Vector<float>(rhs, i);
