@@ -39,7 +39,7 @@
                     <RowDefinition Height="40"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
-                <TextBlock Margin="10 10 5 10" Style="{StaticResource MaterialDesignSubheadingTextBlock}" Grid.Row="0" Text="Active Runs"></TextBlock>
+                <TextBlock Margin="10 10 5 10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}" Grid.Row="0" Text="Active Runs"></TextBlock>
 
 
                 <ListView  Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -174,6 +174,7 @@
                 </Grid.RowDefinitions>
 
 
+
                 <DockPanel Grid.Row="0">
                     <TextBlock DockPanel.Dock="Left" Margin="10 10 5 10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}" HorizontalAlignment="Right">Finished Runs</TextBlock>
                     <Button Name="ClearAllRunsButton"  Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="ClearAllRunsButton_OnClick">
@@ -184,7 +185,7 @@
                     </Button>
                 </DockPanel>
 
-                <ListView Name="FinishedRuns"  Grid.Row="1" SelectionChanged="FinishedRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ContextMenuOpening="FinishedRuns_ContextMenuOpening" >
+                <ListView Name="FinishedRuns"  Grid.Row="1" SelectionChanged="FinishedRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ContextMenuOpening="FinishedRuns_ContextMenuOpening" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
 
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
@@ -206,7 +207,7 @@
                                         <ColumnDefinition Width="AUTO"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
 
-                                    <Grid Grid.Column="0">
+                                    <Grid Grid.Column="0" >
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="25"></RowDefinition>
                                             <RowDefinition Height="4"></RowDefinition>
@@ -225,11 +226,10 @@
 
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                                <ColumnDefinition Width="AUTO"></ColumnDefinition>
-                                                <ColumnDefinition Width="AUTO"></ColumnDefinition>
-                                                <ColumnDefinition Width="AUTO"></ColumnDefinition>
-                                                <ColumnDefinition Width="AUTO"></ColumnDefinition>
+                                                <ColumnDefinition Width="140"></ColumnDefinition>
+                                                <ColumnDefinition Width="110"></ColumnDefinition>
+                                                <ColumnDefinition Width="80"></ColumnDefinition>
+                                                <ColumnDefinition Width="80"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1 0 0 0" Margin="2 0 2 0" Grid.Column="0">
                                                 <StackPanel Orientation="Vertical" Margin="15 5 5 5" >

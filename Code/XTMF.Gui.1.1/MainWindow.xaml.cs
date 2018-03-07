@@ -33,7 +33,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Xml;
 using Dragablz;
 using MahApps.Metro.Controls;
 using Xceed.Wpf.AvalonDock.Layout;
@@ -103,7 +102,7 @@ namespace XTMF.Gui
             ViewModelBase = new ViewModelBase();
 
 
-                EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
+            EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ParseCommandLineArgs();
             if (!IsNonDefaultConfig)
             {
@@ -137,22 +136,8 @@ namespace XTMF.Gui
 
             WorkspaceProjects = new Dictionary<Project, UserControl>();
 
-       
-           XtmfNotificationIcon.InitializeNotificationIcon();
 
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender1"></param>
-        /// <param name="selectionChangedEventArgs"></param>
-        private void DockManagerOnSelectionChanged(object sender1, SelectionChangedEventArgs selectionChangedEventArgs)
-        {
-            (DockManager.SelectedContent as UserControl)?.Focus();
-            Keyboard.Focus(DockManager.SelectedContent as UserControl);
-
+            XtmfNotificationIcon.InitializeNotificationIcon();
         }
 
 
@@ -182,6 +167,16 @@ namespace XTMF.Gui
 
 
         public UserControl CurrentViewModel { get; set; }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender1"></param>
+        /// <param name="selectionChangedEventArgs"></param>
+        private void DockManagerOnSelectionChanged(object sender1, SelectionChangedEventArgs selectionChangedEventArgs)
+        {
+            (DockManager.SelectedContent as UserControl)?.Focus();
+            Keyboard.Focus(DockManager.SelectedContent as UserControl);
+        }
 
         public event EventHandler RecentProjectsUpdated;
 
@@ -387,7 +382,6 @@ namespace XTMF.Gui
         }
 
         /// <summary>
-        ///     
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -397,8 +391,7 @@ namespace XTMF.Gui
             StatusDisplay.Text = "Loading XTMF";
             ShowStart_Click(this, null);
 
-            Dispatcher.Invoke(new Action(() => { ExternalGrid.Focus(); }));
-
+            Dispatcher.Invoke(() => { ExternalGrid.Focus(); });
         }
 
         public void ApplyTheme(ThemeController.Theme theme)
@@ -738,6 +731,7 @@ namespace XTMF.Gui
                 }
             }
         }
+
         private void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
         {
             NewModelSystem();
@@ -980,7 +974,7 @@ namespace XTMF.Gui
         }
 
         /// <summary>
-        /// Shows the scheduler window
+        ///     Shows the scheduler window
         /// </summary>
         public void ShowSchedulerWindow()
         {
@@ -1168,7 +1162,6 @@ namespace XTMF.Gui
                         exists = true;
                         tab.IsSelected = true;
                     }
-
                 }
 
                 if (!exists)
@@ -1311,12 +1304,10 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void MainWindow_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-          
-
             if (DrawerHost.IsLeftDrawerOpen)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
-               
+
                 e.Handled = true;
             }
         }
@@ -1369,27 +1360,23 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void DrawerHost_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-
             if (e.Key == Key.Escape && DrawerHost.IsLeftDrawerOpen)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
-            
             }
         }
 
         private void ExternalGrid_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-          
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void XtmfWindow_Initialized(object sender, EventArgs e)
         {
-            this.Focus();
+            Focus();
             Keyboard.Focus(this);
         }
     }

@@ -1,23 +1,31 @@
-﻿using System;
+﻿/*
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 using XTMF.Gui.Util;
@@ -25,14 +33,22 @@ using XTMF.Gui.Util;
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for SchedulerWindow.xaml
+    ///     Interaction logic for SchedulerWindow.xaml
     /// </summary>
     public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
     {
+        private FrameworkElement _activeContent;
 
         private List<RunWindow> _runWindows;
 
-        private FrameworkElement _activeContent;
+        public SchedulerWindow()
+        {
+            InitializeComponent();
+
+            _runWindows = new List<RunWindow>();
+
+            ActiveRunContent.DataContext = Resources["DefaultDisplay"];
+        }
 
         public FrameworkElement ActiveContent
         {
@@ -46,9 +62,11 @@ namespace XTMF.Gui.UserControls
 
         public ObservableCollection<RunWindow> RunCollection { get; } = new ObservableCollection<RunWindow>();
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
 
         /// <summary>
-        /// Removes a RunWindow from the SchedulerWindow
+        ///     Removes a RunWindow from the SchedulerWindow
         /// </summary>
         /// <param name="run"></param>
         public void CloseRun(RunWindow run)
@@ -73,37 +91,23 @@ namespace XTMF.Gui.UserControls
 
 
             FinishedRuns.Items.Refresh();
-
-        }
-
-        public SchedulerWindow()
-        {
-            InitializeComponent();
-
-            _runWindows = new List<RunWindow>();
-
-            ActiveRunContent.DataContext = Resources["DefaultDisplay"];
-
         }
 
         /// <summary>
-        /// Adds a new run to the scheduler window
+        ///     Adds a new run to the scheduler window
         /// </summary>
         /// <param name="run"></param>
         public void AddRun(RunWindow run)
         {
-            Dispatcher.Invoke(new Action(() =>
+            Dispatcher.Invoke(() =>
             {
                 ActiveContent = run;
                 ScheduledRuns.Items.Add(new SchedulerRunItem(run, this));
                 ActiveRunContent.DataContext = run;
-            }));
-
-
+            });
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -114,8 +118,6 @@ namespace XTMF.Gui.UserControls
             ActiveContent = runWindow;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -123,53 +125,150 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            SchedulerRunItem item = (sender as Button).Tag as SchedulerRunItem;
-            Dispatcher.Invoke((new Action(() =>
-            {
-
-                FinishedRuns.Items.Remove(item);
-
-            })));
+            var item = (sender as Button).Tag as SchedulerRunItem;
+            Dispatcher.Invoke(() => { FinishedRuns.Items.Remove(item); });
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="runItem"></param>
         public void RemoveFromActiveRuns(SchedulerRunItem runItem)
         {
-            Dispatcher.Invoke((new Action(() =>
+            Dispatcher.Invoke(() =>
             {
                 ScheduledRuns.Items.Remove(runItem);
                 FinishedRuns.Items.Insert(0, runItem);
 
                 var defaultd = Resources["DefaultDisplay"];
                 Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
-            })));
+            });
         }
 
         /// <summary>
-        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenOutput_OnClick(object sender, RoutedEventArgs e)
+        {
+            var b = sender as Button;
+            var item = b.Tag as SchedulerRunItem;
+            ;
+            if (Directory.Exists(item?.RunWindow.Run.RunDirectory))
+            {
+                Process.Start(item.RunWindow.Run.RunDirectory);
+            }
+            else
+            {
+                MessageBox.Show(item.RunWindow.Run.RunDirectory + " does not exist!");
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ClearAllRunsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                FinishedRuns.Items.Clear();
+                ;
+            });
+        }
+
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FinishedRuns_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            var listView = sender as ListView;
+            var menu = listView?.ContextMenu;
+            if (listView.SelectedItem != null)
+            {
+                var menuItem = new MenuItem();
+                menuItem.Header = "Remove run from list";
+
+                Dispatcher.Invoke(() => { menu.Items.Clear(); });
+
+                menuItem.Click += (o, args) =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        FinishedRuns.Items.RemoveAt(FinishedRuns.SelectedIndex);
+                        //FinishedRuns.Items.Remove(item);
+                    });
+                };
+                menu?.Items.Add(menuItem);
+            }
+        }
+
+        /// <summary>
+        ///     Finished runs ListView selection changed event handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FinishedRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            ActiveRunContent.DataContext = runWindow;
+            ActiveContent = runWindow;
+        }
+
+        /// <summary>
         /// </summary>
         public class SchedulerRunItem : INotifyPropertyChanged
         {
-
-            private string _statusText = String.Empty;
             private string _elapsedTime = "--";
-            private string _startTime = "--";
             private PackIconKind _icon = PackIconKind.TimerSand;
-            public RunWindow RunWindow { get; set; }
-            private SchedulerWindow _schedulerWindow;
+
+            private bool _isRunStarted;
 
             private float _progress;
+            private readonly SchedulerWindow _schedulerWindow;
+            private string _startTime = "--";
 
-            private bool _isRunStarted = false;
+            private string _statusText = string.Empty;
+
+            public Action RunFinished;
+
+
+            /// <summary>
+            ///     Constructor of the ScheduleRunItem, takes in the RunWindow (run control) in the constructor.
+            /// </summary>
+            /// <param name="runWindow"></param>
+            public SchedulerRunItem(RunWindow runWindow, SchedulerWindow schedulerWindow)
+            {
+                Name = runWindow.Run.RunName;
+                RunWindow = runWindow;
+                _schedulerWindow = schedulerWindow;
+
+                runWindow.UpdateRunStatus = UpdateRunStatus;
+                runWindow.UpdateElapsedTime = val => { ElapsedTime = val; };
+                runWindow.UpdateRunProgress = val => { Progress = val; };
+                runWindow.UpdateStartTime = UpdateStartTime;
+                runWindow.OnRuntimeValidationError = OnRuntimeValidationError;
+
+
+                runWindow.OnRunFinished = OnRunFinished;
+                runWindow.OnRuntimeError = OnRuntimeError;
+                runWindow.OnValidationError = OnValidationError;
+                runWindow.RuntimeError = RuntimeError;
+                runWindow.OnRunStarted = OnRunStarted;
+
+                StatusText = "Queud";
+
+                //StartTime = (string) $"{RunWindow.StartTime:g}";
+                Progress = 0;
+            }
+
+            public RunWindow RunWindow { get; set; }
 
             public bool IsRunStarted
             {
@@ -221,12 +320,10 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
-            public Action RunFinished;
-
             public string Name { get; set; }
 
             /// <summary>
-            /// StatusText property
+            ///     StatusText property
             /// </summary>
             public string StatusText
             {
@@ -238,42 +335,33 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
+            public event PropertyChangedEventHandler PropertyChanged;
 
             /// <summary>
-            /// Constructor of the ScheduleRunItem, takes in the RunWindow (run control) in the constructor.
+            ///     This method is called when a runtime validation error occurs in the model system run.
             /// </summary>
-            /// <param name="runWindow"></param>
-            public SchedulerRunItem(RunWindow runWindow, SchedulerWindow schedulerWindow)
+            private void OnRuntimeValidationError()
             {
-                Name = runWindow.Run.RunName;
-                RunWindow = runWindow;
-                _schedulerWindow = schedulerWindow;
+                XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
+                    () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
 
-                runWindow.UpdateRunStatus = (val) => { StatusText = val; };
-                runWindow.UpdateElapsedTime = (val) => { ElapsedTime = val; };
-                runWindow.UpdateRunProgress = (val) => { Progress = val; };
-                runWindow.UpdateStartTime = UpdateStartTime;
-
-                runWindow.OnRunFinished = OnRunFinished;
-                runWindow.OnRuntimeError = OnRuntimeError;
-                runWindow.OnValidationError = OnValidationError;
-                runWindow.RuntimeError = RuntimeError;
-                runWindow.OnRunStarted = OnRunStarted;
-
-                StatusText = "Queud";
-
-                //StartTime = (string) $"{RunWindow.StartTime:g}";
-                Progress = 0;
-
+                Icon = PackIconKind.AlertBox;
             }
 
             /// <summary>
-            /// 
+            /// </summary>
+            /// <param name="s"></param>
+            private void UpdateRunStatus(string s)
+            {
+                StatusText = s;
+            }
+
+            /// <summary>
             /// </summary>
             /// <param name="s"></param>
             private void UpdateStartTime(string s)
             {
-                StartTime = (string)$"{s:g}";
+                StartTime = $"{s:g}";
             }
 
             private void OnRunStarted()
@@ -282,34 +370,36 @@ namespace XTMF.Gui.UserControls
                 IsRunStarted = true;
             }
 
+
             /// <summary>
-            /// 
             /// </summary>
-            private void OnRunFinished()
+            /// <param name="runSuccess"></param>
+            private void OnRunFinished(bool runSuccess)
             {
                 _schedulerWindow.RemoveFromActiveRuns(this);
-                MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name + ")", "SCHEDULER",
-                    () => MainWindow.Us.ShowSchedulerWindow());
 
+                if (runSuccess)
+                {
+                    MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name + ")",
+                        "SCHEDULER",
+                        () => MainWindow.Us.ShowSchedulerWindow());
 
-                XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
-                    () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
-                Icon = PackIconKind.CheckCircleOutline;
+                    XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
+                        () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
+                    Icon = PackIconKind.CheckCircleOutline;
+                }
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="errorWithPath"></param>
             private void RuntimeError(ErrorWithPath errorWithPath)
             {
-
                 StatusText = errorWithPath.Message;
                 //Console.WriteLine(errorWithPath);
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="errorWithPaths"></param>
             private void OnValidationError(List<ErrorWithPath> errorWithPaths)
@@ -318,7 +408,6 @@ namespace XTMF.Gui.UserControls
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="errorWithPaths"></param>
             private void OnRuntimeError(List<ErrorWithPath> errorWithPaths)
@@ -326,102 +415,11 @@ namespace XTMF.Gui.UserControls
                 StatusText = "Runtime error occured";
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
-
             [NotifyPropertyChangedInvocator]
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OpenOutput_OnClick(object sender, RoutedEventArgs e)
-        {
-            Button b = sender as Button;
-            SchedulerRunItem item = b.Tag as SchedulerRunItem;
-            ;
-            if (Directory.Exists(item?.RunWindow.Run.RunDirectory))
-            {
-                Process.Start(item.RunWindow.Run.RunDirectory);
-            }
-            else
-            {
-                MessageBox.Show(item.RunWindow.Run.RunDirectory + " does not exist!");
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ClearAllRunsButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            Dispatcher.Invoke((new Action(() =>
-            {
-                FinishedRuns.Items.Clear();
-                ;
-            })));
-        }
-
-
-
-      
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FinishedRuns_ContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            ListView listView = sender as ListView;
-            ContextMenu menu = listView?.ContextMenu;
-            if (listView.SelectedItem != null)
-            {
-                MenuItem menuItem = new MenuItem();
-                menuItem.Header = "Remove run from list";
-
-                Dispatcher.Invoke(() =>
-                {
-                    menu.Items.Clear();
-                });
-
-                menuItem.Click += (o, args) =>
-                {
-                    Dispatcher.Invoke((new Action(() =>
-                    {
-
-                        FinishedRuns.Items.RemoveAt(FinishedRuns.SelectedIndex);
-                        //FinishedRuns.Items.Remove(item);
-
-                    })));
-                };
-                menu?.Items.Add(menuItem);
-            }
-
-
-
-            return;
-        }
-
-        /// <summary>
-        /// Finished runs ListView selection changed event handler.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FinishedRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
-            ActiveRunContent.DataContext = runWindow;
-            ActiveContent = runWindow;
-        }
     }
-
-
 }

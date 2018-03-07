@@ -103,7 +103,7 @@ namespace XTMF.Run
                                 skipRead = true;
                                 while (reader.Read())
                                 {
-                                    if (reader.Depth <= startingDepth && reader.NodeType != XmlNodeType.Element)
+                                    if (reader.Depth <= startingDepth)
                                     {
                                         break;
                                     }

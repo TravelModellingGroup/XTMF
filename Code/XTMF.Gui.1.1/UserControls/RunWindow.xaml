@@ -23,7 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" DataContext="{Binding .}"
              mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}">
    
     <Grid Name="BaseGrid">
@@ -145,7 +145,7 @@
                 </Grid>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}" Margin="3" Grid.Row="1" Grid.Column="0" Header="Console Output" BorderThickness="0.5">
+        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="12"  Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}"  Grid.Row="1" Grid.Column="0" Header="Console Output" BorderThickness="0.5">
             <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch"
                 Visibility="Visible" >
                 <Grid VerticalAlignment="Stretch">
@@ -159,21 +159,36 @@
                             <TextBox  HorizontalAlignment="Stretch" Padding="0" Margin="0" x:Name="ConsoleOutput" 
                                       Foreground="{DynamicResource MaterialDesignBody}"
                                       TextWrapping="Wrap" Text="{Binding ConsoleOutput}" UndoLimit="0" IsUndoEnabled="False"
-                                      TextChanged="ConsoleOutput_TextChanged" IsReadOnly="True" IsReadOnlyCaretVisible="True" BorderBrush="{x:Null}"/>
+                                      TextChanged="ConsoleOutput_TextChanged" IsReadOnly="True" IsReadOnlyCaretVisible="True" BorderBrush="{x:Null}" FontFamily="Lucida Console"/>
                         </ScrollViewer>
                     </Border>
                 </Grid>
             </Border>
         </GroupBox>
-        <GroupBox Name="ErrorGroupBox"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" Visibility="Collapsed">
-            <ListView Name="ErrorListView" >
+        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}"  Name="ErrorGroupBox"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
+                   Visibility="{Binding ErrorVisibility,RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type userControls:RunWindow}}}" Margin="12"> 
+            <ListView Name="ErrorListView" DataContext="{Binding }" >
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header=" " DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, 
                                          AncestorType={x:Type ListViewItem}}, 
                                          Converter={StaticResource IndexConverter}}"></GridViewColumn>
-                        <GridViewColumn Header="Module" DisplayMemberBinding="{Binding ModuleName}"></GridViewColumn>
+                        <GridViewColumn Header="Module" DisplayMemberBinding="{Binding ModelSystemName}"></GridViewColumn>
                         <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}"></GridViewColumn>
+                        <GridViewColumn Header="Stack Trace">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                <materialDesign:PopupBox Margin="16,0,16,0" StaysOpen="True" >
+                                    
+                                        <materialDesign:PopupBox.ToggleContent>
+
+                                            <TextBlock Foreground="{DynamicResource SecondaryAccentBrush}" Style="{DynamicResource MaterialDesignBody1TextBlock}"  Text="Test"></TextBlock>
+                                        </materialDesign:PopupBox.ToggleContent>
+                                    <TextBlock Text="{Binding StackTrace}"></TextBlock>
+                                    </materialDesign:PopupBox>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>

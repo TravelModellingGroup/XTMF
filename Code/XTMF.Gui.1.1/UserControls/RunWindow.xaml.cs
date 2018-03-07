@@ -49,19 +49,10 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty IsRunClearableDependencyProperty =
             DependencyProperty.Register("IsRunClearable", typeof(bool), typeof(RunWindow), new PropertyMetadata(false));
 
-        private readonly BindingListWithRemoving<SubProgress> _subProgressBars =
-            new BindingListWithRemoving<SubProgress>();
-
-        private int _consoleLength;
-        private volatile bool _isActive;
-        private volatile bool _isFinished;
-
-        private int _oldCaret;
-
         private readonly BindingListWithRemoving<IProgressReport> _progressReports;
 
-
-        private string _runDirectory;
+        private readonly BindingListWithRemoving<SubProgress> _subProgressBars =
+            new BindingListWithRemoving<SubProgress>();
 
         /// <summary>
         ///     Requires Windows 7
@@ -69,20 +60,33 @@ namespace XTMF.Gui.UserControls
         private readonly TaskbarItemInfo _taskbarInformation;
 
         private readonly DispatcherTimer _timer;
-        private volatile bool _wasCanceled;
         private readonly bool _windows7OrAbove;
+
+        private int _consoleLength;
+        private volatile bool _isActive;
+        private volatile bool _isFinished;
+
+        private int _oldCaret;
+
+
+        private string _runDirectory;
+        private volatile bool _wasCanceled;
+
+        public Action<bool> OnRunFinished;
+
+        public Action OnRunStarted;
+
+        public Action OnRuntimeValidationError { get; set; }
+
+        public Action<List<ErrorWithPath>> OnRuntimeError;
+
+        public Action<List<ErrorWithPath>> OnValidationError;
 
         public Action<ErrorWithPath> RuntimeError;
 
         public Action<List<ErrorWithPath>> RuntimeValidationError;
 
-        public Action<List<ErrorWithPath>> OnValidationError;
-
-        public Action<List<ErrorWithPath>> OnRuntimeError;
-
-        public Action OnRunStarted;
-
-        public Action OnRunFinished;
+        private bool _runtimeValidationErrorOccured = false;
 
         static RunWindow()
         {
@@ -97,6 +101,7 @@ namespace XTMF.Gui.UserControls
         public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             InitializeComponent();
+            ErrorVisibility = Visibility.Collapsed;
             Session = session;
             session.SessionClosed += Session_SessionClosed;
             Run = run;
@@ -142,6 +147,13 @@ namespace XTMF.Gui.UserControls
         }
 
 
+        public Visibility ErrorVisibility
+        {
+            get => ErrorListView.Items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            set => OnPropertyChanged(nameof(ErrorVisibility));
+        } 
+
+
         public Action<string> UpdateRunStatus { get; set; }
         public Action<float> UpdateRunProgress { get; set; }
         public Action<string> UpdateElapsedTime { get; set; }
@@ -168,6 +180,17 @@ namespace XTMF.Gui.UserControls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindowClosing(object sender, CancelEventArgs e)
         {
             if (_isActive)
@@ -178,6 +201,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ConsoleOutput_TextChanged(object sender, TextChangedEventArgs e)
         {
             var newTextLength = ConsoleOutput.Text.Length;
@@ -316,11 +344,11 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="errors"></param>
         private void Run_ValidationError(List<ErrorWithPath> errors)
         {
+            Console.WriteLine("Validation error");
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished(false);
@@ -331,7 +359,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="title"></param>
         /// <param name="error"></param>
@@ -346,36 +373,49 @@ namespace XTMF.Gui.UserControls
             }.ShowDialog();
 
             ErrorGroupBox.Visibility = Visibility.Visible;
-
-            
+            UpdateLayout();
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="errors"></param>
         private void ShowErrorMessages(ErrorWithPath[] errors)
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 foreach (var error in errors)
                 {
-                    ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.StackTrace));
+                    ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName, error.StackTrace));
                 }
-            });
+
+                ErrorListView.Visibility = Visibility.Visible;
+                Console.WriteLine(ErrorListView.Visibility);
+            }));
         }
 
+        /// <summary>
+        /// </summary>
         private static void Run_ValidationStarting()
         {
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="errors"></param>
         private void Run_RuntimeValidationError(List<ErrorWithPath> errors)
         {
+            _runtimeValidationErrorOccured = true;
             Dispatcher.Invoke(() =>
             {
-                SetRunFinished(false);
-                ShowErrorMessage(string.Empty, errors[0]);
+                //SetRunFinished(false);
+                ShowErrorMessages(errors.ToArray());
+                //ShowErrorMessage(string.Empty, errors[0]);
+
                 RuntimeValidationError?.Invoke(errors);
+
+                UpdateRunStatus?.Invoke("Runtime validation error");
+
+                OnRuntimeValidationError?.Invoke();
             });
         }
 
@@ -406,7 +446,7 @@ namespace XTMF.Gui.UserControls
 
             _isFinished = true;
             MainWindow.Us.Closing -= MainWindowClosing;
-            Dispatcher.BeginInvoke((Action) (() =>
+            Dispatcher.Invoke(() =>
             {
                 IsRunClearable = true;
                 ProgressBar.Finished = true;
@@ -420,17 +460,17 @@ namespace XTMF.Gui.UserControls
                 StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
 
 
-                UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
+                //UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
                 ProgressBar.Finished = true;
-                MainWindow.Us.UpdateStatusDisplay("Ready");
+                //MainWindow.Us.UpdateStatusDisplay("Ready");
                 MainWindow.Us.HideStatusLink();
 
                 //call sceduler window callback
                 if (callback)
                 {
-                    OnRunFinished();
+                    OnRunFinished(!_wasCanceled && !_runtimeValidationErrorOccured);
                 }
-            }));
+            });
         }
 
         private void Run_RunStarted()
@@ -452,18 +492,17 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         private void Run_RunComplete()
         {
             try
             {
-
                 Dispatcher.Invoke(() => { SetRunFinished(true); });
-
+                Console.WriteLine("Run completed");
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
             }
         }
 
@@ -561,7 +600,7 @@ namespace XTMF.Gui.UserControls
                 {
                     Dispatcher.Invoke(delegate
                     {
-                        AdditionDetailsPanelBorder.Visibility = Visibility.Collapsed;
+                        //AdditionDetailsPanelBorder.Visibility = Visibility.Collapsed;
                         AdditionDetailsPanelBorder.Height = 0;
                     });
                 }
@@ -682,7 +721,6 @@ namespace XTMF.Gui.UserControls
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
             }
         }
-
     }
 
     public class ModelSystemErrorDisplayModel : INotifyPropertyChanged
@@ -691,8 +729,36 @@ namespace XTMF.Gui.UserControls
 
         private string _modelSystemName;
 
+        private string _stackTrace;
+
         /// <summary>
         /// 
+        /// </summary>
+        public string StackTrace
+        {
+            get => _stackTrace;
+            set
+            {
+                _stackTrace = value;
+                OnPropertyChanged(nameof(StackTrace));
+           
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="description"></param>
+        /// <param name="modelSystemName"></param>
+        /// <param name="stackTrace"></param>
+        public ModelSystemErrorDisplayModel(string description, string modelSystemName, string stackTrace)
+        {
+            Description = description;
+            ModelSystemName = modelSystemName;
+            StackTrace = StackTrace;
+        }
+
+        /// <summary>
         /// </summary>
         public string Description
         {
@@ -705,7 +771,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public string ModelSystemName
         {
@@ -717,19 +782,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public ModelSystemErrorDisplayModel(string description, string modelSystemName)
-        {
-            Description = description;
-            ModelSystemName = modelSystemName;
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
         }
     }
 

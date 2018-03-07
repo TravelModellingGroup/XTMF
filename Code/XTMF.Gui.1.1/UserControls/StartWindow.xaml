@@ -99,7 +99,7 @@
                     <materialDesign:Card  Grid.Row="0" Grid.Column="1" Padding="15" Margin="5">
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
                         <Label Content="Model Systems" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
-                        <Button  HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
+                        <Button Name="CreateNewModelSystemButton"  HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" Click="CreateNewModelSystemButton_Click" />
                         <Button   HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
                     </StackPanel>
                         </materialDesign:Card>
