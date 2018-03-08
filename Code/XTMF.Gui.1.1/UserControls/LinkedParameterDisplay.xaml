@@ -146,7 +146,7 @@
                             <Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignBackground}"/>
                             <DockPanel FlowDirection="LeftToRight" >
                                 <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
-                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}"/>
+                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" IsReadOnly="True"/>
                             </DockPanel>
                             <DockPanel FlowDirection="LeftToRight" >
                                 <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
