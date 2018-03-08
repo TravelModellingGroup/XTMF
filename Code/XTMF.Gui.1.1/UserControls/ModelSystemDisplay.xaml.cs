@@ -89,6 +89,8 @@ namespace XTMF.Gui.UserControls
 
         private object SaveLock = new object();
 
+        private LinkedParameterDisplay LinkedParameterDisplayOverlay;
+
         public ModelSystemDisplay()
         {
             _saveSemaphor = new Semaphore(1, 1);
@@ -115,7 +117,12 @@ namespace XTMF.Gui.UserControls
                 });
                 return true;
             };
-            LinkedParameterDisplayOverlay.GoToModule += module =>
+
+
+
+            LinkedParameterDisplayOverlay = new LinkedParameterDisplay();
+            //LinkedParameterDisplayOverlay item =
+                LinkedParameterDisplayOverlay.GoToModule += module =>
             {
                 if (module != null)
                 {
@@ -497,10 +504,32 @@ namespace XTMF.Gui.UserControls
         /// <param name="assign"></param>
         private void ShowLinkedParameterDialog(bool assign = false)
         {
+            var s = new LinkedParameterDisplay();
+            //s.LinkedParametersModel = ModelSystem.LinkedParameters;
+            //s.ShowLinkedParameterDisplay(assign);
+            //LinkedParametersDialogHost.DialogContent = s;
+            //LinkedParametersDialogHost.IsOpen = true;
+            //LinkedParameterDisplayOverlay.Show();
+
+
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
-            LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
-            LinkedParametersDialogHost.IsOpen = true;
-            LinkedParameterDisplayOverlay.Show();
+            RunHost.DialogContent = LinkedParameterDisplayOverlay;
+
+
+            object x = RunHost.ShowDialog(LinkedParameterDisplayOverlay,OpenedEventHandler);
+
+            //RunHost.IsOpen = true;
+            //LinkedParameterDisplayOverlay.Show();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventArgs)
+        {
+            LinkedParameterDisplayOverlay.DialogOpenedEventArgs = eventArgs;
         }
 
         private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
@@ -855,6 +884,9 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.F5:
                             e.Handled = true;
+                            SaveCurrentlySelectedParameters();
+                            ExecuteRun();
+                            
                             break;
                         case Key.Escape:
                             FilterBox.Box.Text = string.Empty;
@@ -869,12 +901,18 @@ namespace XTMF.Gui.UserControls
             return Project.ValidateProjectName(name);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="executeNow"></param>
         public async void ExecuteRun(bool executeNow = true)
         {
             var runName = string.Empty;
             string error = null;
             var dialog = new SelectRunDateTimeDialog();
-            var result = await dialog.ShowAsync();
+           var result = await dialog.ShowAsync(RunHost);
+
+            //LinkedParametersDialogHost.DialogContent = dialog;
             if (dialog.DidComplete)
             {
                 runName = (dialog.DataContext as RunConfigurationDisplayModel)?.UserInput;

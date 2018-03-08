@@ -34,6 +34,13 @@
              mc:Ignorable="d" Name="MDisplay"
              d:DesignHeight="500" d:DesignWidth="1200" Background="{DynamicResource MaterialDesignPaper}" Unloaded="MDisplay_Unloaded">
     <UserControl.Resources>
+
+        <Grid x:Name="Overlay" Panel.ZIndex="1000" x:Key="LinkedParameterContent">
+
+            <this:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay"/>
+            <this:LinkedParameterDisplay  x:Name="LinkedParameterDisplayOverlay"/>
+        </Grid>
+
         <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20" Viewbox="0,0,14,14" ViewportUnits="Absolute" ViewboxUnits="Absolute">
             <VisualBrush.Visual>
                 <Rectangle SnapsToDevicePixels="True" Opacity="0.2" Stroke="{DynamicResource PrimaryHueLightForegroundBrush}" StrokeThickness="0.8" Width="20" Height="20"/>
@@ -156,17 +163,27 @@
         </DataTemplate>
         <models:ParameterTypeSelector x:Key="ParameterSelecter" Standard="{StaticResource StandardParameterTemplate}" Enumeration="{StaticResource EnumerationParameterTemplate}"/>
     </UserControl.Resources>
+
     <Grid x:Name="LayoutRoot" Background="{DynamicResource MaterialDesignPaper}">
-        <materialDesign:DialogHost Name="LinkedParametersDialogHost" DialogOpened="LinkedParametersDialogHost_OnDialogOpened">
+
+        <materialDesign:DialogHost Name="RunHost" CloseOnClickAway="True">
             <materialDesign:DialogHost.DialogContent >
-                <Grid x:Name="Overlay" Panel.ZIndex="1000">
-                    <!-- Add controls as needed -->
+                <Label></Label>
+            </materialDesign:DialogHost.DialogContent>
+
+        </materialDesign:DialogHost>
+
+
+        <materialDesign:DialogHost Name="LinkedParametersDialogHost" DialogOpened="LinkedParametersDialogHost_OnDialogOpened">
+            <!--  <materialDesign:DialogHost.DialogContent >
+                
+               <Grid x:Name="Overlay" Panel.ZIndex="1000">
+                    
                     <this:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay"/>
                     <this:LinkedParameterDisplay  x:Name="LinkedParameterDisplayOverlay"/>
-                </Grid>
-
-            </materialDesign:DialogHost.DialogContent>
-            <!-- Use whatever layout you need -->
+                </Grid> 
+            </materialDesign:DialogHost.DialogContent> -->
+       
             <Grid Background="{DynamicResource MaterialDesignPaper}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition MinWidth="100px" Width="*"/>
@@ -623,6 +640,7 @@
                 <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Height="3" ShowsPreview="True"/>
             </Grid>
         </materialDesign:DialogHost>
+
         <materialDesign:Snackbar x:Name="StatusSnackBar" MessageQueue="{materialDesign:MessageQueue}" />
     </Grid>
 </UserControl>

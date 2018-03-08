@@ -50,18 +50,29 @@ namespace XTMF.Gui.UserControls
 
         public bool DidComplete { get; set; }
 
+    
         public SelectRunDateTimeDialog()
         {
             InitializeComponent();
+
+           
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task<object> ShowAsync()
+        public async Task<object> ShowAsync(DialogHost host = null)
         {
-            return await DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler);
+
+            if (host == null)
+            {
+                return await DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler);
+            }
+            else
+            {
+                return await host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler);
+            }
         }
 
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
