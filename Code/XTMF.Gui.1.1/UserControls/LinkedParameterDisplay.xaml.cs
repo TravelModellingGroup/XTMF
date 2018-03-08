@@ -528,6 +528,20 @@ namespace XTMF.Gui.UserControls
         private class BlankParameterDisplay : ParameterDisplay
         {
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (DialogOpenedEventArgs != null)
+            {
+                DialogOpenedEventArgs.Session.Close();
+                e.Handled = true;
+            }
+        }
     }
 
     public class ParameterDatatemplateSelector : DataTemplateSelector

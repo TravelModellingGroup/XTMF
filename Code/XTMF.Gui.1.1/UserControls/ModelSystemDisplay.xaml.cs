@@ -910,7 +910,14 @@ namespace XTMF.Gui.UserControls
             var runName = string.Empty;
             string error = null;
             var dialog = new SelectRunDateTimeDialog();
-           var result = await dialog.ShowAsync(RunHost);
+            try
+            {
+                var result = await dialog.ShowAsync(RunHost);
+            }
+            catch (Exception e)
+            {
+
+            }
 
             //LinkedParametersDialogHost.DialogContent = dialog;
             if (dialog.DidComplete)

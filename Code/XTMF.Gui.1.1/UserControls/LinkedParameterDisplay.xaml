@@ -45,16 +45,20 @@
                         <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal"/>
                     </Border>
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
-                        <Border HorizontalAlignment="Right" Width="20" Margin="0,0,0,0">
+                        <Border Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Right" Width="20" Margin="0,0,0,0" MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown">
                             <Border.Style>
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                            <Setter Property="Background" Value="{DynamicResource MaterialDesignBackground}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
+            
+                                <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"></materialDesign:PackIcon>
+
+                          
                
                         </Border>
                     </StackPanel>
