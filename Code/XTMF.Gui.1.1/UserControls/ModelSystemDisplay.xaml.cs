@@ -505,21 +505,9 @@ namespace XTMF.Gui.UserControls
         private void ShowLinkedParameterDialog(bool assign = false)
         {
             var s = new LinkedParameterDisplay();
-            //s.LinkedParametersModel = ModelSystem.LinkedParameters;
-            //s.ShowLinkedParameterDisplay(assign);
-            //LinkedParametersDialogHost.DialogContent = s;
-            //LinkedParametersDialogHost.IsOpen = true;
-            //LinkedParameterDisplayOverlay.Show();
-
-
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
             RunHost.DialogContent = LinkedParameterDisplayOverlay;
-
-
-            object x = RunHost.ShowDialog(LinkedParameterDisplayOverlay,OpenedEventHandler);
-
-            //RunHost.IsOpen = true;
-            //LinkedParameterDisplayOverlay.Show();
+            object x = RunHost.ShowDialog(LinkedParameterDisplayOverlay, OpenedEventHandler);
         }
 
         /// <summary>
@@ -1924,13 +1912,11 @@ namespace XTMF.Gui.UserControls
 
         private void OpenParameterFileLocation(bool openWith, bool openDirectory)
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (currentParameter != null && currentModule != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter && ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel != null)
             {
-                var inputParameter = GetInputParameter(currentModule.BaseModel, out var inputDirectory);
+                var inputParameter = GetInputParameter((ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel, out var inputDirectory);
                 if (inputParameter != null)
                 {
                     // Check to see if the parameter that contains the input directory IS this parameter

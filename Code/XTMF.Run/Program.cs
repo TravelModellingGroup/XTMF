@@ -368,7 +368,7 @@ namespace XTMF.Run
             {
                 XTMFRun run;
                 string error = null;
-                if ((run = modelSystemSession.Run(runName, ref error)) == null)
+                if ((run = modelSystemSession.Run(runName, ref error, true, true, true)) == null)
                 {
                     Console.WriteLine("Unable to run \r\n" + error);
                     return;

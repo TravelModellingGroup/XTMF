@@ -171,7 +171,7 @@ namespace XTMF
                             return true;
                         }, apply), ref error);
 
-           
+
 
                 }
             }
@@ -186,8 +186,8 @@ namespace XTMF
                 {
                     var name = realParmameter.Name;
                     realParmameter.Value = (from p in Parameters.Parameters
-                        where p.Name == name
-                        select p.Value).First();
+                                            where p.Name == name
+                                            select p.Value).First();
                 }
             }
         }
@@ -419,20 +419,23 @@ namespace XTMF
                     var linkedParameterModel = _Session.ModelSystemModel.LinkedParameters;
                     var realLinkedParameters = linkedParameterModel.GetLinkedParameters();
                     var missing = from lp in linkedParameters
-                        where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
-                        select lp;
+                                  where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
+                                  select lp;
                     var matching = linkedParameters.Join(realLinkedParameters, (p) => p.Name, (p) => p.Name,
-                        (t, r) => new {Real = r, Temp = t});
+                        (t, r) => new { Real = r, Temp = t });
                     // add links for the ones we've matched
                     foreach (var lp in matching)
                     {
                         foreach (var containedParameters in GetParametersFromTemp(lp.Temp, beingAdded, indexOffset))
                         {
+                            if (containedParameters == null)
+                            {
+                                continue;
+                            }
                             if (!lp.Real.AddParameterWithoutCommand(containedParameters, ref e))
                             {
                                 return false;
                             }
-
                             containedParameters.SignalIsLinkedChanged();
                             additions.Add(
                                 new Tuple<ParameterModel, LinkedParameterModel>(containedParameters, lp.Real));
@@ -570,7 +573,7 @@ namespace XTMF
             int indexOffset)
         {
             return (from path in temp.Paths
-                select GetParametersFromTemp(path, root, indexOffset)).ToList();
+                    select GetParametersFromTemp(path, root, indexOffset)).ToList();
         }
 
         private ParameterModel GetParametersFromTemp(string path, ModelSystemStructureModel root, int indexOffset)
@@ -592,7 +595,7 @@ namespace XTMF
             if (current.Type == null && !current.IsCollection)
             {
                 //throw an exception - model system references a module with a missing assembly
-               throw new MissingModuleTypeException(current);
+                throw new MissingModuleTypeException(current);
             }
 
             if (index == variableLink.Length - 1)
@@ -899,9 +902,13 @@ namespace XTMF
                         m.RealModelSystemStructure == link.RealParameter.BelongsTo);
                     if (match != null)
                     {
-                        writer.WriteStartElement("Parameter");
-                        writer.WriteAttributeString("Path", LookupName(link, this));
-                        writer.WriteEndElement();
+                        var lname = LookupName(link, this);
+                        if (lname != null)
+                        {
+                            writer.WriteStartElement("Parameter");
+                            writer.WriteAttributeString("Path", lname);
+                            writer.WriteEndElement();
+                        }
                     }
                 }
 
@@ -949,8 +956,8 @@ namespace XTMF
         /// <returns>A list of the linked parameters referenced by any of the modules in this subtree</returns>
         private List<LinkedParameterModel> GetLinkedParameters(List<ModelSystemStructureModel> children) =>
         (from lp in _Session.ModelSystemModel.LinkedParameters.LinkedParameters
-            where children.Any(child => lp.HasContainedModule(child))
-            select lp).ToList();
+         where children.Any(child => lp.HasContainedModule(child))
+         select lp).ToList();
 
 
         private List<ModelSystemStructureModel> GetAllChildren()
@@ -1165,16 +1172,16 @@ namespace XTMF
                 else
                 {
                     var previousChildren = (from child in Children
-                        where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
-                        select child).ToList();
+                                            where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
+                                            select child).ToList();
                     foreach (var child in previousChildren)
                     {
                         ret.Remove(child);
                     }
 
                     foreach (var child in from child in realModelSystemStructure.Children
-                        where !Children.Any(c => c.RealModelSystemStructure == child)
-                        select child)
+                                          where !Children.Any(c => c.RealModelSystemStructure == child)
+                                          select child)
                     {
                         ret.Add(new ModelSystemStructureModel(session, child as ModelSystemStructure));
                     }
@@ -1184,7 +1191,7 @@ namespace XTMF
                     {
                         // now search for children that have moved indexes after adds and deleted have been performed
                         var indexes = (from child in Children
-                            select realModelSystemStructure.Children.IndexOf(child.RealModelSystemStructure)).ToArray();
+                                       select realModelSystemStructure.Children.IndexOf(child.RealModelSystemStructure)).ToArray();
                         for (int i = 0; i < indexes.Length; i++)
                         {
                             // if a child has moved
@@ -1468,7 +1475,7 @@ namespace Exceptions
         /// 
         /// </summary>
         /// <param name="modelSystemStructure"></param>
-        public MissingModuleTypeException(ModelSystemStructureModel modelSystemStructure) : 
+        public MissingModuleTypeException(ModelSystemStructureModel modelSystemStructure) :
             base("Missing Module: " + modelSystemStructure)
         {
 
