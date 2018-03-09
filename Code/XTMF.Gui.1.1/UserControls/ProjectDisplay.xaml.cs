@@ -724,19 +724,31 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        private void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
         {
             string error = null;
             if (MainWindow.Us.ClipboardModel != null)
             {
                 var cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
-                var sr = new StringRequest("Paste: Model System's Name?",
+               /* var sr = new StringRequest("Paste: Model System's Name?",
                     newName => { return Session.ValidateModelSystemName(newName); })
                 {
                     Owner = GetWindow()
-                };
-                if (sr.ShowDialog() == true)
-                    if (!Session.AddExternalModelSystem(cloned, sr.Answer, ref error))
+                }; */
+ 
+
+                var dialog = new StringRequestDialog("Paste: Model System's Name?",
+                    newName => Session.ValidateModelSystemName(newName));
+
+                var aresult = await dialog.ShowAsync(false);
+
+                if (dialog.DidComplete)
+                    if (!Session.AddExternalModelSystem(cloned, dialog.UserInput, ref error))
                         MessageBox.Show(error, "Unable to Paste Model System", MessageBoxButton.OK,
                             MessageBoxImage.Error);
                     else
