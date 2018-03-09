@@ -581,7 +581,7 @@ namespace XTMF
                 error = new ErrorWithPath(path.ToList(), String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", Type, ParentFieldType, Name));
                 return false;
             }
-            if (Children != null)
+            if (Children != null && !IsDisabled)
             {
                 path.Add(0);
                 foreach (var child in Children)
