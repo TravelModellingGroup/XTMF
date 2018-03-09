@@ -280,6 +280,19 @@ namespace XTMF.Gui.UserControls
 
             e.Handled = true;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModulePathList_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (ModulePathList.Items.Count > 0)
+            {
+                ModulePathList.ScrollIntoView(ModulePathList.Items[ModulePathList.Items.Count - 1]);
+            }
+        }
     }
 
 

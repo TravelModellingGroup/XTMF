@@ -31,9 +31,9 @@
           VerticalAlignment="Center" >
 
 
-        <ListView SnapsToDevicePixels="True" SelectionMode="Single"  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+        <ListView SnapsToDevicePixels="True" SelectionMode="Single"  ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                   SelectionChanged="ModulePathList_OnSelectionChanged" BorderThickness="0"
-                  Background="{DynamicResource MaterialDesignPaper}" x:Name="ModulePathList" VerticalAlignment="Top">
+                  Background="{DynamicResource MaterialDesignPaper}" x:Name="ModulePathList" VerticalAlignment="Top" SizeChanged="ModulePathList_SizeChanged">
 
             <ListView.ItemContainerStyle>
 
