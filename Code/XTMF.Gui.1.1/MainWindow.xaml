@@ -205,7 +205,7 @@
 
                     <DockPanel Name="ViewDockPanel"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                        
-                                <ContentControl DockPanel.Dock="Bottom" Content="{Binding ViewModelControl}" Name="ContentControl"  Grid.Row="1"   Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
+                                <ContentControl DockPanel.Dock="Bottom"  Name="ContentControl"  Grid.Row="1"   Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
                     </DockPanel>
 
 
