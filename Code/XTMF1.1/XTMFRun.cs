@@ -227,6 +227,7 @@ namespace XTMF
 
         protected void InvokeValidationError(List<ErrorWithPath> errorMessage)
         {
+
             ValidationError?.Invoke(errorMessage);
         }
 
@@ -239,6 +240,7 @@ namespace XTMF
 
         protected virtual void Dispose(bool disposing)
         {
+           
             if (!_disposedValue)
             {
                 if (disposing)
@@ -255,7 +257,7 @@ namespace XTMF
 
         ~XTMFRun()
         {
-            Dispose(false);
+           Dispose(false);
         }
 
         public void Dispose()

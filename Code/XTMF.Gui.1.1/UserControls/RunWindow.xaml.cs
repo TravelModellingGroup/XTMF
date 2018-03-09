@@ -124,6 +124,8 @@ namespace XTMF.Gui.UserControls
             Run.RuntimeValidationError += Run_RuntimeValidationError;
             Run.ValidationStarting += Run_ValidationStarting;
             Run.ValidationError += Run_ValidationError;
+
+
             _runDirectory = Run.RunDirectory;
             _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(33)};
             _isFinished = false;
@@ -145,8 +147,10 @@ namespace XTMF.Gui.UserControls
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             StartRunAsync();
             _timer.Start();
+       
         }
 
+  
 
         public Visibility ErrorVisibility
         {
@@ -349,14 +353,15 @@ namespace XTMF.Gui.UserControls
         /// <param name="errors"></param>
         private void Run_ValidationError(List<ErrorWithPath> errors)
         {
+            MessageBox.Show("Here");
             Console.WriteLine("Validation error");
-            Dispatcher.Invoke(() =>
+            /*Dispatcher.Invoke(() =>
             {
                 SetRunFinished(false);
                 ShowErrorMessage("Validation Error", errors[0]);
                 ShowErrorMessages(errors.ToArray());
                 OnValidationError?.Invoke(errors);
-            });
+            }); */
         }
 
         /// <summary>
@@ -398,6 +403,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private static void Run_ValidationStarting()
         {
+            Console.WriteLine("Validation starting");
         }
 
         /// <summary>
@@ -481,6 +487,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke((Action) (() =>
             {
                 CancelButton.IsEnabled = true;
+        
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, true);
                 ButtonProgressAssist.SetIsIndeterminate(CancelButton, true);
                 OnRunStarted?.Invoke();

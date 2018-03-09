@@ -178,6 +178,8 @@ namespace XTMF.Gui.UserControls
             {
                 FinishedRuns.Items.Clear();
                 ;
+
+                ActiveRunContent.DataContext = FindResource("DefaultDisplay");
             });
         }
 

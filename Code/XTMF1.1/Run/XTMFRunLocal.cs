@@ -95,6 +95,7 @@ namespace XTMF.Run
             // create an empty error
             ErrorWithPath error = new ErrorWithPath();
             IModelSystemStructure mstStructure;
+            bool validationError = false;
             try
             {
                 mstStructure = CreateModelSystem(ref error);
@@ -106,24 +107,31 @@ namespace XTMF.Run
             }
             if (_MST == null)
             {
+                validationError = true;
+               
                 InvokeValidationError(CreateFromSingleError(error));
-                return;
+                
+               
+                //return;
             }
-            Exception caughtError = null;
-            try
+            if (!validationError)
             {
-                RunModelSystem(out List<ErrorWithPath> errors, mstStructure);
-            }
-            catch (Exception e)
-            {
-                if (!(e is ThreadAbortException))
+                Exception caughtError = null;
+                try
                 {
-                    caughtError = e;
+                    RunModelSystem(out List<ErrorWithPath> errors, mstStructure);
                 }
-            }
-            finally
-            {
-                mstStructure = CleanupModelSystem(originalWorkingDirectory, mstStructure, caughtError);
+                catch (Exception e)
+                {
+                    if (!(e is ThreadAbortException))
+                    {
+                        caughtError = e;
+                    }
+                }
+                finally
+                {
+                    mstStructure = CleanupModelSystem(originalWorkingDirectory, mstStructure, caughtError);
+                }
             }
         }
 
