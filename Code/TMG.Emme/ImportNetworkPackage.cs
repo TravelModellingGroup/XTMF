@@ -36,6 +36,9 @@ namespace TMG.Emme
         [RunParameter("Scenario Id", 0, "The number of the new Emme scenario to create.")]
         public int ScenarioId;
 
+        [RunParameter("Scenario Name", " ", "The name of the Emme scenario to create.")]
+        public string ScenarioName;
+
         [RunParameter("Function Conflict Option", FunctionConflictOption.RAISE, "Option to deal with function definition conflicts. For example, if "
             + "FT1 is defined as 'length / speed * 60' in the current Emmebank, but defined as 'length / us1 * 60' in the NWP's functions file."
             + "One of RAISE, PRESERVE or OVERWRITE. RAISE (default) raises an error if "
@@ -60,7 +63,7 @@ namespace TMG.Emme
                 throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
             var args = string.Join(" ", "\"" + Path.GetFullPath(NetworkPackage.GetFilePath()) + "\"",
-                                    ScenarioId, ConflictOption.ToString(), AddFunctions.ToString());
+                                    ScenarioId, ConflictOption.ToString(), AddFunctions.ToString(), ScenarioName.ToString());
 
             Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
 
@@ -87,6 +90,8 @@ namespace TMG.Emme
 
         public bool RuntimeValidation(ref string error)
         {
+            if (ScenarioName == "")
+                ScenarioName = " ";
             return true;
         }
     }
