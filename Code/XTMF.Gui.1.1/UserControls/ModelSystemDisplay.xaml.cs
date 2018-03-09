@@ -530,6 +530,7 @@ namespace XTMF.Gui.UserControls
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventArgs)
         {
             LinkedParameterDisplayOverlay.DialogOpenedEventArgs = eventArgs;
+            LinkedParameterDisplayOverlay.InitNewDisplay();
         }
 
         private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
@@ -918,6 +919,8 @@ namespace XTMF.Gui.UserControls
             {
 
             }
+
+       
 
             //LinkedParametersDialogHost.DialogContent = dialog;
             if (dialog.DidComplete)
@@ -2657,9 +2660,15 @@ namespace XTMF.Gui.UserControls
             SaveRequested(false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventargs"></param>
         private void LinkedParametersDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs eventargs)
         {
             LinkedParameterDisplayOverlay.DialogOpenedEventArgs = eventargs;
+            LinkedParameterDisplayOverlay.InitNewDisplay();
         }
 
         /// <summary>

@@ -25,7 +25,7 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              MouseDown="UserControl_MouseDown" 
-              KeyDown="Window_KeyDown" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown">
+              KeyDown="Window_KeyDown" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown" GotFocus="UserControl_GotFocus" IsVisibleChanged="UserControl_IsVisibleChanged">
     <Grid x:Name="LayoutRoot">
         <Grid x:Name="Overlay" Panel.ZIndex="1000" Visibility="Collapsed">
             <Grid.Background>

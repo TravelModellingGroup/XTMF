@@ -88,6 +88,15 @@ namespace XTMF.Gui.UserControls
             _assignMode = assignLinkedParameter;
         }
 
+        public void InitNewDisplay()
+        {
+
+            LinkedParameterFilterBox.RetriveFocus();
+
+            FocusManager.SetFocusedElement(this,LinkedParameterFilterBox);
+
+        }
+
         private void LinkedParameterValue_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled && e.Key == Key.Delete)
@@ -116,12 +125,24 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LinkedParameterDisplay_Loaded(object sender, RoutedEventArgs e)
         {
             LinkedParameterFilterBox.Focus();
             Keyboard.Focus(LinkedParameterFilterBox);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Display_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CleanupSelectedParameters();
@@ -131,20 +152,20 @@ namespace XTMF.Gui.UserControls
                 LinkedParameterValue.Text = selectedLinkedParameter.LinkedParameter.GetValue();
                 var containedParameters =
                     _currentParameters = (from parameter in selectedLinkedParameter.LinkedParameter.GetParameters()
-                        select new ParameterDisplay
-                        {
-                            ParameterName = parameter.Name,
-                            ModuleName = parameter.BelongsTo.Name,
-                            Parameter = parameter,
-                            KeepAttached = true
-                        }).ToList();
+                                          select new ParameterDisplay
+                                          {
+                                              ParameterName = parameter.Name,
+                                              ModuleName = parameter.BelongsTo.Name,
+                                              Parameter = parameter,
+                                              KeepAttached = true
+                                          }).ToList();
                 ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>(containedParameters);
                 LinkedParameterName.Text = selectedLinkedParameter.LinkedParameter.Name;
             }
         }
 
         /// <summary>
-        ///     Call this function to make sure that parameters that have been requested to be removed are.
+        ///  Call this function to make sure that parameters that have been requested to be removed are.
         /// </summary>
         private void CleanupSelectedParameters()
         {
@@ -171,6 +192,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
         private void AssignLinkedParameterValue(string text)
         {
             if (_currentlySelected != null)
@@ -350,13 +375,13 @@ namespace XTMF.Gui.UserControls
                     ChangesMade = true;
                     var containedParameters =
                         _currentParameters = (from parameter2 in _currentlySelected.LinkedParameter.GetParameters()
-                            select new ParameterDisplay
-                            {
-                                ParameterName = parameter2.Name,
-                                ModuleName = parameter2.BelongsTo.Name,
-                                Parameter = parameter2,
-                                KeepAttached = true
-                            }).ToList();
+                                              select new ParameterDisplay
+                                              {
+                                                  ParameterName = parameter2.Name,
+                                                  ModuleName = parameter2.BelongsTo.Name,
+                                                  Parameter = parameter2,
+                                                  KeepAttached = true
+                                              }).ToList();
                     ContainedParameterDisplay.ItemsSource =
                         new ObservableCollection<ParameterDisplay>(containedParameters);
                     break;
@@ -408,7 +433,7 @@ namespace XTMF.Gui.UserControls
         {
             //((FrameworkElement)Parent).Visibility = Visibility.Visible;
             //Visibility = Visibility.Visible;
-            Dispatcher.BeginInvoke((Action) delegate { Keyboard.Focus(LinkedParameterFilterBox); },
+            Dispatcher.BeginInvoke((Action)delegate { Keyboard.Focus(LinkedParameterFilterBox); },
                 DispatcherPriority.Render);
         }
 
@@ -452,9 +477,9 @@ namespace XTMF.Gui.UserControls
                 switch (e.Key)
                 {
                     case Key.F2:
-                    {
-                        Rename();
-                    }
+                        {
+                            Rename();
+                        }
                         e.Handled = true;
                         break;
                 }
@@ -541,6 +566,16 @@ namespace XTMF.Gui.UserControls
                 DialogOpenedEventArgs.Session.Close();
                 e.Handled = true;
             }
+        }
+
+        private void UserControl_GotFocus(object sender, RoutedEventArgs e)
+        {
+           
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            InitNewDisplay();
         }
     }
 

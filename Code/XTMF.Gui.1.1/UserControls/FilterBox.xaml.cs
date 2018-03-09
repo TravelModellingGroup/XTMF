@@ -58,6 +58,16 @@ namespace XTMF.Gui
             set => SetValue(FilterWatermarkProperty, value);
         }
 
+        public void RetriveFocus()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Box.Focus();
+                Keyboard.Focus(Box);
+
+            });
+        }
+
         public bool UseItemSourceFilter { get; set; }
 
         public Func<object, string, bool> Filter
