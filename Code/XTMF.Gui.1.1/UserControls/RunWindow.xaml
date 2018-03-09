@@ -53,9 +53,11 @@
                             x:Name="CancelButton" Click="CancelButton_Clicked"  ToolTip="Stop Run" >
                         <materialDesign:PackIcon Kind="Stop" />
                     </Button>
-                    <Button x:Name="ClearRunButton"  Click="ClearRunButton_Click" ToolTip="Clear Run Display" >
+                    <Button x:Name="ClearRunButton"  Click="ClearRunButton_Click" ToolTip="Clear Run Display" Visibility="Collapsed">
                         <materialDesign:PackIcon Kind="NotificationClearAll" />
                     </Button>
+
+                    <TextBlock x:Name="RunNameText" Text="Run Name" Style="{DynamicResource MaterialDesignHeadlineTextBlock}" VerticalAlignment="Center" Margin="18 0 0 0"></TextBlock>
                   
 
 

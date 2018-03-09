@@ -110,6 +110,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 RunNameLabel.Text = runName;
+                RunNameText.Text = runName;
                 IsRunClearable = false;
             }));
             _progressReports = Run.Configuration.ProgressReports;
