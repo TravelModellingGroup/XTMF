@@ -2796,7 +2796,8 @@ namespace XTMF.Gui.UserControls
         private void ParameterValueTextBox_OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             UIElement current = sender as UIElement;
-            while(current != null)
+            (current as TextBox).SelectionStart = (current as TextBox).Text.Length ;
+            while (current != null)
             {
                 if(current is ListViewItem lvi)
                 {
