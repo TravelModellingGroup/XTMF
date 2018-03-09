@@ -1259,7 +1259,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void XTMFWorkspaceListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // XTMFWorkspaceListBox.UnselectAll();
+            XTMFWorkspaceListBox.UnselectAll();
         }
 
         /// <summary>
@@ -1318,7 +1318,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void XtmfWorkspacesListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            XTMFWorkspaceListBox.UnselectAll();
+            XtmfWorkspacesListBox.UnselectAll();
         }
 
         /// <summary>
@@ -1378,6 +1378,11 @@ namespace XTMF.Gui
         {
             Focus();
             Keyboard.Focus(this);
+        }
+
+        private void NewProjectButton_Click(object sender, MouseButtonEventArgs e)
+        {
+            NewProject();
         }
     }
 }
