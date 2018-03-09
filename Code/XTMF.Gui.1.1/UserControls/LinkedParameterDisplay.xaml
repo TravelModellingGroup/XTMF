@@ -50,7 +50,12 @@
                                 <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource MaterialDesignBackground}"/>
+                                           
+                                            <Setter Property="Cursor" Value="Hand"/>
+                                            <Setter Property="Opacity" Value="1.0"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="False">
+                                            <Setter Property="Opacity" Value="0.5"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -75,6 +80,7 @@
                 </Button>
                 <DockPanel Grid.Column="1"/>
             </Grid>
+            
             <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MinWidth="325" />
