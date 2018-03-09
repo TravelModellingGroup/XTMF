@@ -65,6 +65,14 @@ namespace XTMF.Gui.UserControls
                 SetValue(DisplayModelDependencyProperty, value);
                 UpdateModulePathToRoot(value);
                 ModulePathList.SelectedItem = value;
+
+                Dispatcher.Invoke(() =>
+                {
+                    if (ModulePathList.Items.Count > 0)
+                    {
+                        ModulePathList.ScrollIntoView(ModulePathList.Items[ModulePathList.Items.Count - 1]);
+                    }
+                });
             }
         }
 
