@@ -125,8 +125,8 @@ namespace XTMF.Gui
 
             ViewDockPanel.DataContext = ViewModelBase;
             ContentControl.DataContext = ViewModelBase;
-            FilterBox.DataContext = ContentControl.DataContext;
-            ViewTitleBlock.DataContext = ContentControl.DataContext;
+            //FilterBox.DataContext = ContentControl.DataContext;
+            //ViewTitleBlock.DataContext = ContentControl.DataContext;
 
             DockManager.InterTabController.InterTabClient = new InterTabClient();
 
@@ -1166,9 +1166,12 @@ namespace XTMF.Gui
 
                 if (!exists)
                 {
-                    ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
-                    ((ViewModelBase) ContentControl.DataContext).ViewTitle = title;
-                    ((ViewModelBase) ContentControl.DataContext).IsSearchBoxVisible = searchable;
+                    if (ContentControl.DataContext is ViewModelBase)
+                    {
+                        ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
+                    }
+                    //((ViewModelBase) ContentControl.DataContext).ViewTitle = title;
+                    //((ViewModelBase) ContentControl.DataContext).IsSearchBoxVisible = searchable;
 
                     var tabItem = new TabItem();
                     tabItem.Content = display;
