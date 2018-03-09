@@ -505,21 +505,9 @@ namespace XTMF.Gui.UserControls
         private void ShowLinkedParameterDialog(bool assign = false)
         {
             var s = new LinkedParameterDisplay();
-            //s.LinkedParametersModel = ModelSystem.LinkedParameters;
-            //s.ShowLinkedParameterDisplay(assign);
-            //LinkedParametersDialogHost.DialogContent = s;
-            //LinkedParametersDialogHost.IsOpen = true;
-            //LinkedParameterDisplayOverlay.Show();
-
-
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
             RunHost.DialogContent = LinkedParameterDisplayOverlay;
-
-
-            object x = RunHost.ShowDialog(LinkedParameterDisplayOverlay,OpenedEventHandler);
-
-            //RunHost.IsOpen = true;
-            //LinkedParameterDisplayOverlay.Show();
+            object x = RunHost.ShowDialog(LinkedParameterDisplayOverlay, OpenedEventHandler);
         }
 
         /// <summary>

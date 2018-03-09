@@ -31,7 +31,7 @@
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity=".6"/>
             </Grid.Background>
-            <xtmfgui:StringRequestOverlay  Visibility="Collapsed" x:Name="StringRequestOverlay" />
+            <xtmfgui:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay" />
         </Grid>
         <Grid MinWidth="800" MinHeight="500" MaxHeight="500" VerticalAlignment="Center" HorizontalAlignment="Center" >
             <Grid.RowDefinitions>
@@ -55,11 +55,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-            
-                                <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"></materialDesign:PackIcon>
-
-                          
-               
+                            <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"/>
                         </Border>
                     </StackPanel>
                 </DockPanel>
@@ -69,17 +65,14 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-
-                <Button Margin="8" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
+                <Button Margin="8" TabIndex="3" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Pencil" />
                         <StackPanel Orientation="Vertical">
                             <TextBlock>New Linked Parameter</TextBlock>
-                           
                         </StackPanel>
                     </StackPanel>
                 </Button>
-               
                 <DockPanel Grid.Column="1"/>
             </Grid>
             <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
@@ -93,13 +86,11 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-
                     <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1" Grid.Row="0"
                                               Margin="0 0 0 15"
                                               materialDesign:ShadowAssist.ShadowDepth="Depth4">
-                        <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="0"   materialDesign:ShadowAssist.ShadowDepth="Depth4" />
-                        </materialDesign:ColorZone>
-                        
+                        <my:FilterBox Grid.Row="0" TabIndex="1" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="0" materialDesign:ShadowAssist.ShadowDepth="Depth4" />
+                    </materialDesign:ColorZone>
                     <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
                           Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0" MouseDoubleClick="Display_OnMouseDoubleClick">
                         <ListView.ItemsPanel>
@@ -112,17 +103,6 @@
                                 <TextBlock Text="{Binding Name}"></TextBlock>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
-
-                        <!--<ListView.ItemTemplate>
-                            <DataTemplate>
-                                <xtmfgui:ListViewControl PreviewKeyDown="LinkedParameterValue_PreviewKeyDown" IsTabStop="True" Margin="0" TitleText="{Binding Name}" 
-                                           VerticalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
-                                    <xtmfgui:ListViewControl.IconPath>
-                                        <Path Data="{DynamicResource LinkIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
-                                    </xtmfgui:ListViewControl.IconPath>
-                                </xtmfgui:ListViewControl>
-                            </DataTemplate>
-                        </ListView.ItemTemplate> -->
                         <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Rename (F2)" Click="Rename_Click">

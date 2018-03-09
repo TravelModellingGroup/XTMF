@@ -116,12 +116,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void LinkedParameterDisplay_Loaded(object sender, RoutedEventArgs e)
-        {
-            LinkedParameterFilterBox.Focus();
-            Keyboard.Focus(LinkedParameterFilterBox);
-        }
-
         private void Display_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CleanupSelectedParameters();
@@ -402,14 +396,6 @@ namespace XTMF.Gui.UserControls
                     DialogOpenedEventArgs.Session.Close();
                 }
             }
-        }
-
-        public void Show()
-        {
-            //((FrameworkElement)Parent).Visibility = Visibility.Visible;
-            //Visibility = Visibility.Visible;
-            Dispatcher.BeginInvoke((Action) delegate { Keyboard.Focus(LinkedParameterFilterBox); },
-                DispatcherPriority.Render);
         }
 
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
