@@ -1921,13 +1921,11 @@ namespace XTMF.Gui.UserControls
 
         private void OpenParameterFileLocation(bool openWith, bool openDirectory)
         {
-            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab
+            if ((ParameterTabControl.SelectedItem == QuickParameterTab
                 ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (currentParameter != null && currentModule != null)
+                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter && ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel != null)
             {
-                var inputParameter = GetInputParameter(currentModule.BaseModel, out var inputDirectory);
+                var inputParameter = GetInputParameter((ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel, out var inputDirectory);
                 if (inputParameter != null)
                 {
                     // Check to see if the parameter that contains the input directory IS this parameter
