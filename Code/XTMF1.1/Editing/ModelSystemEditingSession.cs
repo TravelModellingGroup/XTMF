@@ -187,8 +187,9 @@ namespace XTMF
         /// <param name="runName"></param>
         /// <param name="error">A message in case of error</param>
         /// <param name="executeNow">Should the run start executing now or wait for all other runs to finish first?</param>
+        /// <param name="forceLocal">Execute in the local process, overriding default behaviour.</param>
         /// <returns>A reference to the run.</returns>
-        public XTMFRun Run(string runName, ref string error, bool overwrite = false, bool executeNow = true)
+        public XTMFRun Run(string runName, ref string error, bool overwrite = false, bool executeNow = true, bool forceLocal = false)
         {
             // this needs to block as if a command is running
             lock (_SessionLock)
@@ -208,7 +209,7 @@ namespace XTMF
                         cloneProject.ModelSystemDescriptions[_ModelSystemIndex] = ModelSystemModel.Description;
                         cloneProject.LinkedParameters[_ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
                         //run = XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite);
-                        run = System.Diagnostics.Debugger.IsAttached || !((Configuration)Configuration).RunInSeperateProcess ?
+                        run = System.Diagnostics.Debugger.IsAttached || forceLocal || !((Configuration)Configuration).RunInSeperateProcess ?
                                 XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite) :
                                 XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel, _Runtime.Configuration, runName, overwrite);
                         run.ProjectSavedByRun += (theRun, newMSS) =>
