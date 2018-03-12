@@ -1438,6 +1438,8 @@ namespace XTMF.Gui.UserControls
                         ParameterFilterBox.Display = ParameterDisplay;
                         ParameterFilterBox.Filter = FilterParameters;
                         ParameterFilterBox.RefreshFilter();
+
+                
                         var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
                         if (type != null)
                         {
@@ -2875,6 +2877,11 @@ namespace XTMF.Gui.UserControls
             {
                 QuickParameterDialogHost.IsOpen = false;
             }
+        }
+
+        private void ParameterDisplay_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
+        {
+         
         }
     }
 }
