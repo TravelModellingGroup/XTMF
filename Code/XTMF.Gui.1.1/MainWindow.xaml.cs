@@ -987,9 +987,9 @@ namespace XTMF.Gui
         /// <param name="run"></param>
         /// <param name="runName"></param>
         /// <returns></returns>
-        internal RunWindow CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
+        internal RunWindow CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false)
         {
-            var runWindow = new RunWindow(session, run, runName);
+            var runWindow = new RunWindow(session, run, runName,immediateRun);
 
             return runWindow;
         }

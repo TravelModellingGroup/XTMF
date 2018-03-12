@@ -47,6 +47,7 @@ namespace XTMF.Run
 
         public override bool RunsRemotely => false;
 
+
         public XTMFRunLocal(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
             : base(runName, Path.Combine(config.ProjectDirectory, project.Name, runName), new ConfigurationProxy(config, project))
         {
@@ -61,7 +62,6 @@ namespace XTMF.Run
                 ClearFolder(RunDirectory);
             }
 
-            this.ValidationError += delegate(List<ErrorWithPath> list) { Console.WriteLine("Here");  };
         }
 
         public XTMFRunLocal(Project project, ModelSystemStructureModel root, Configuration configuration, string runName, bool overwrite)
@@ -110,11 +110,9 @@ namespace XTMF.Run
             }
             if (_MST == null)
             {
-                //validationError = true;
-               // InvokeValidationError(CreateFromSingleError(error));
-                
-               
-                //return;
+
+                InvokeValidationError(CreateFromSingleError(error));
+                return;
             }
             if (!validationError)
             {
@@ -181,7 +179,7 @@ namespace XTMF.Run
                 if (caughtError is XTMFRuntimeException runError)
                 {
                     InvokeValidationError(null);
-                    InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, runError.StackTrace,runError.Module.Name));
+                    InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, runError.StackTrace, runError.Module.Name));
                 }
                 else
                 {
@@ -196,23 +194,28 @@ namespace XTMF.Run
             return mstStructure;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="module"></param>
+        /// <returns></returns>
         private List<int> GetModulePath(IModule module)
         {
             if (module == null) return null;
             List<int> ret = new List<int>();
             bool Explore(ModelSystemStructureModel current, List<int> path, IModule lookingFor)
             {
-                if(current.RealModelSystemStructure.Module == lookingFor)
+                if (current.RealModelSystemStructure.Module == lookingFor)
                 {
                     return true;
                 }
                 var children = current.Children;
-                if(children != null)
+                if (children != null)
                 {
                     path.Add(0);
-                    foreach(var child in children)
+                    foreach (var child in children)
                     {
-                        if(Explore(child, path, lookingFor))
+                        if (Explore(child, path, lookingFor))
                         {
                             return true;
                         }
@@ -285,12 +288,12 @@ namespace XTMF.Run
         {
             bool Exit(IModelSystemStructure current)
             {
-                if(current.Children != null)
-                { 
-                return current.Children.Aggregate(false, (acc, m) => acc | Exit(m))
-                    | (current.Module is IModelSystemTemplate mst && mst.ExitRequest());
+                if (current.Children != null)
+                {
+                    return current.Children.Aggregate(false, (acc, m) => acc | Exit(m))
+                        | (current.Module is IModelSystemTemplate mst && mst.ExitRequest());
 
-                     }
+                }
                 else
                 {
                     return true;

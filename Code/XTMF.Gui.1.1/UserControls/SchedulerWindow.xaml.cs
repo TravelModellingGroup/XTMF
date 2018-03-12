@@ -414,7 +414,8 @@ namespace XTMF.Gui.UserControls
             private void RuntimeError(ErrorWithPath errorWithPath)
             {
                 StatusText = errorWithPath.Message;
-                //Console.WriteLine(errorWithPath);
+         
+
             }
 
             /// <summary>
@@ -423,6 +424,8 @@ namespace XTMF.Gui.UserControls
             private void OnValidationError(List<ErrorWithPath> errorWithPaths)
             {
                 StatusText = "Validation error occured";
+                _schedulerWindow.RemoveFromActiveRuns(this);
+                Icon = PackIconKind.Alert;
             }
 
 

@@ -925,14 +925,14 @@ namespace XTMF.Gui.UserControls
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
                     var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false,
-                        !dialog.IsQueueRun);
+                        !dialog.IsQueueRun,false,false);
                     if (run != null)
                     {
                         ModuleValidationErrorListView.Items.Clear();
                         ModuleRuntimeValidationErrorListView.Items.Clear();
                         ModuleRuntimeErrorListView.Items.Clear();
                         MainWindow.Us.UpdateStatusDisplay("Running Model System");
-                        var runWindow = MainWindow.Us.CreateRunWindow(Session, run, runName);
+                        var runWindow = MainWindow.Us.CreateRunWindow(Session, run, runName, !dialog.IsQueueRun);
                         MainWindow.Us.AddRunToSchedulerWindow(runWindow);
                     }
                     else

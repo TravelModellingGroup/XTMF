@@ -101,7 +101,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
+        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false)
         {
             InitializeComponent();
             ErrorVisibility = Visibility.Collapsed;
@@ -116,6 +116,9 @@ namespace XTMF.Gui.UserControls
                 RunNameText.Text = runName;
                 IsRunClearable = false;
             }));
+
+         
+
             _progressReports = Run.Configuration.ProgressReports;
             _progressReports.ListChanged += ProgressReports_ListChanged;
             _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
@@ -126,7 +129,7 @@ namespace XTMF.Gui.UserControls
             Run.RuntimeError += Run_RuntimeError;
             Run.RuntimeValidationError += Run_RuntimeValidationError;
             Run.ValidationStarting += Run_ValidationStarting;
-
+            Run.ValidationError += RunOnValidationError;
 
 
             _runDirectory = Run.RunDirectory;
@@ -148,19 +151,30 @@ namespace XTMF.Gui.UserControls
 
             ConsoleOutput.DataContext = new ConsoleOutputController(this, Run);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
+
+            session.ExecuteRun(run, immediateRun);
+
             StartRunAsync();
             _timer.Start();
 
 
 
-            Run.Test += Run_Test;
-
         }
 
-        private void Run_Test(object sender, EventArgs e)
+        /// <summary>
+        /// Callback method invokved by XTMF to notify of a validation error in the model system.
+        /// </summary>
+        /// <param name="errorWithPaths"></param>
+        private void RunOnValidationError(List<ErrorWithPath> errorWithPaths)
         {
-            throw new NotImplementedException();
+            Dispatcher.Invoke(() =>
+            {
+                SetRunFinished(false);
+                ShowErrorMessages(errorWithPaths.ToArray());
+                OnValidationError?.Invoke(errorWithPaths);
+            }); 
         }
+
 
         public Visibility ErrorVisibility
         {
@@ -358,21 +372,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="errors"></param>
-        private void Run_ValidationError(List<ErrorWithPath> errors)
-        {
-            MessageBox.Show("Here");
-            Console.WriteLine("Validation error");
-            /*Dispatcher.Invoke(() =>
-            {
-                SetRunFinished(false);
-                ShowErrorMessage("Validation Error", errors[0]);
-                ShowErrorMessages(errors.ToArray());
-                OnValidationError?.Invoke(errors);
-            }); */
-        }
 
         /// <summary>
         /// </summary>
@@ -464,6 +463,10 @@ namespace XTMF.Gui.UserControls
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="callback"></param>
         private void SetRunFinished(bool callback = true)
         {
             if (_taskbarInformation != null)
@@ -508,6 +511,9 @@ namespace XTMF.Gui.UserControls
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void Run_RunStarted()
         {
             _isActive = true;
@@ -534,7 +540,6 @@ namespace XTMF.Gui.UserControls
             try
             {
                 Dispatcher.Invoke(() => { SetRunFinished(true); });
-                Console.WriteLine("Run completed");
             }
             catch (Exception e)
             {
