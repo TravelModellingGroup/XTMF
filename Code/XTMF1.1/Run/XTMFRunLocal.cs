@@ -60,6 +60,8 @@ namespace XTMF.Run
             {
                 ClearFolder(RunDirectory);
             }
+
+            this.ValidationError += delegate(List<ErrorWithPath> list) { Console.WriteLine("Here");  };
         }
 
         public XTMFRunLocal(Project project, ModelSystemStructureModel root, Configuration configuration, string runName, bool overwrite)
@@ -89,6 +91,7 @@ namespace XTMF.Run
             _RunThread.Start();
         }
 
+
         private void Run()
         {
             string originalWorkingDirectory = Directory.GetCurrentDirectory();
@@ -107,9 +110,8 @@ namespace XTMF.Run
             }
             if (_MST == null)
             {
-                validationError = true;
-               
-                InvokeValidationError(CreateFromSingleError(error));
+                //validationError = true;
+               // InvokeValidationError(CreateFromSingleError(error));
                 
                
                 //return;
@@ -178,6 +180,7 @@ namespace XTMF.Run
             {
                 if (caughtError is XTMFRuntimeException runError)
                 {
+                    InvokeValidationError(null);
                     InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, runError.StackTrace,runError.Module.Name));
                 }
                 else
@@ -234,6 +237,7 @@ namespace XTMF.Run
             }
             Directory.SetCurrentDirectory(RunDirectory);
             mstStructure.Save(Path.GetFullPath("RunParameters.xml"));
+            InvokeValidationError(new List<ErrorWithPath>());
             if (!RunTimeValidation(new List<int>(), errors, mstStructure))
             {
                 InvokeRuntimeValidationError(errors);

@@ -259,15 +259,31 @@ namespace XTMF.Gui.UserControls
 
 
                 runWindow.OnRunFinished = OnRunFinished;
-                runWindow.OnRuntimeError = OnRuntimeError;
+                //runWindow.OnRuntimeError = OnRuntimeError;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
                 runWindow.OnRunStarted = OnRunStarted;
+                runWindow.OnRuntimeError = OnRuntimeError;
 
                 StatusText = "Queud";
 
                 //StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            private void OnRuntimeError()
+            {
+                XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
+                    () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
+
+                _schedulerWindow.RemoveFromActiveRuns(this);
+
+
+                    Icon = PackIconKind.Exclamation;
+                
             }
 
             public RunWindow RunWindow { get; set; }
@@ -409,13 +425,6 @@ namespace XTMF.Gui.UserControls
                 StatusText = "Validation error occured";
             }
 
-            /// <summary>
-            /// </summary>
-            /// <param name="errorWithPaths"></param>
-            private void OnRuntimeError(List<ErrorWithPath> errorWithPaths)
-            {
-                StatusText = "Runtime error occured";
-            }
 
             [NotifyPropertyChangedInvocator]
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

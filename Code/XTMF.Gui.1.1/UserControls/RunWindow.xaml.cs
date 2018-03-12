@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -78,7 +79,9 @@ namespace XTMF.Gui.UserControls
 
         public Action OnRuntimeValidationError { get; set; }
 
-        public Action<List<ErrorWithPath>> OnRuntimeError;
+        public Action OnRuntimeError { get; set; }
+
+        //public Action<List<ErrorWithPath>> OnRuntimeError;
 
         public Action<List<ErrorWithPath>> OnValidationError;
 
@@ -123,7 +126,7 @@ namespace XTMF.Gui.UserControls
             Run.RuntimeError += Run_RuntimeError;
             Run.RuntimeValidationError += Run_RuntimeValidationError;
             Run.ValidationStarting += Run_ValidationStarting;
-            Run.ValidationError += Run_ValidationError;
+
 
 
             _runDirectory = Run.RunDirectory;
@@ -147,10 +150,17 @@ namespace XTMF.Gui.UserControls
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             StartRunAsync();
             _timer.Start();
-       
+
+
+
+            Run.Test += Run_Test;
+
         }
 
-  
+        private void Run_Test(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
 
         public Visibility ErrorVisibility
         {
@@ -426,13 +436,28 @@ namespace XTMF.Gui.UserControls
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
         private void Run_RuntimeError(ErrorWithPath error)
         {
+
+
             Dispatcher.Invoke(() =>
             {
-                SetRunFinished(false);
-                ShowErrorMessage("Runtime Error", error);
+                //SetRunFinished(false);
+                ShowErrorMessages(new ErrorWithPath[] { error });
+                //ShowErrorMessage(string.Empty, errors[0]);
+
+                //SetRunFinished(false);
+                UpdateRunStatus?.Invoke("Runtime Error");
+                _runtimeValidationErrorOccured = true;
                 RuntimeError?.Invoke(error);
+                OnRuntimeError?.Invoke();
+               // OnRunFinished(!_wasCanceled && !_runtimeValidationErrorOccured);
+
+                //RuntimeError?.Invoke();
             });
         }
 

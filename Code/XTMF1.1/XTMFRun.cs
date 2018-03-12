@@ -129,6 +129,8 @@ namespace XTMF
         /// </summary>
         public event Action<List<ErrorWithPath>> ValidationError;
 
+        public event EventHandler<EventArgs> Test;
+
         /// <summary>
         /// An event that fires when Model Validation starts
         /// </summary>
@@ -229,6 +231,8 @@ namespace XTMF
         {
 
             ValidationError?.Invoke(errorMessage);
+            Test?.Invoke(this,EventArgs.Empty);
+
         }
 
         protected void SetStatusToRunning()
