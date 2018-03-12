@@ -925,7 +925,7 @@ namespace XTMF.Gui.UserControls
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
                     var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false,
-                        !dialog.IsQueueRun,false,false);
+                        !dialog.IsQueueRun,false);
 
                     if (run != null)
                     {
