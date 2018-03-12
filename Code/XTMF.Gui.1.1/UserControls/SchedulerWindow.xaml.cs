@@ -279,7 +279,7 @@ namespace XTMF.Gui.UserControls
                 XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
                     () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
 
-                _schedulerWindow.RemoveFromActiveRuns(this);
+                //_schedulerWindow.RemoveFromActiveRuns(this);
 
 
                 Icon = PackIconKind.Exclamation;

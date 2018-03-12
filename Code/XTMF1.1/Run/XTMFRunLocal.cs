@@ -240,7 +240,7 @@ namespace XTMF.Run
             }
             Directory.SetCurrentDirectory(RunDirectory);
             mstStructure.Save(Path.GetFullPath("RunParameters.xml"));
-            InvokeValidationError(new List<ErrorWithPath>());
+
             if (!RunTimeValidation(new List<int>(), errors, mstStructure))
             {
                 InvokeRuntimeValidationError(errors);
