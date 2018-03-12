@@ -926,6 +926,7 @@ namespace XTMF.Gui.UserControls
                 {
                     var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false,
                         !dialog.IsQueueRun,false,false);
+
                     if (run != null)
                     {
                         ModuleValidationErrorListView.Items.Clear();
@@ -2796,7 +2797,11 @@ namespace XTMF.Gui.UserControls
         private void ParameterValueTextBox_OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             UIElement current = sender as UIElement;
-            (current as TextBox).SelectionStart = (current as TextBox).Text.Length ;
+            if ((current as TextBox) != null)
+            {
+                (current as TextBox).SelectionStart = (current as TextBox).Text.Length;
+            }
+
             while (current != null)
             {
                 if(current is ListViewItem lvi)

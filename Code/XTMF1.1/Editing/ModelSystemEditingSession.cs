@@ -236,11 +236,7 @@ namespace XTMF
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="run"></param>
-        /// <param name="executeNow"></param>
+        ///
         public void ExecuteRun(XTMFRun run, bool executeNow)
         {
             _Runtime.RunController.ExecuteRun(run, executeNow);
