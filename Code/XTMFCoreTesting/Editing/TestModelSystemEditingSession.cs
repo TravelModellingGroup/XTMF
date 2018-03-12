@@ -361,6 +361,7 @@ namespace XTMF.Testing.Editing
                     Assert.IsNotNull(collection);
                     XTMFRun run;
                     Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
+                    modelSystemSession.ExecuteRun(run,true);
                     bool finished = false;
                     List<ErrorWithPath> errors = null;
                     Action<List<ErrorWithPath>> catchErrors = (errorPath) =>

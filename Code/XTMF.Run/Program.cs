@@ -373,6 +373,7 @@ namespace XTMF.Run
                     Console.WriteLine("Unable to run \r\n" + error);
                     return;
                 }
+                modelSystemSession.ExecuteRun(run,true);
                 run.RunCompleted += Run_RunComplete;
                 run.Wait();
             }

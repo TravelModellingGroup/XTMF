@@ -84,6 +84,7 @@ namespace XTMF.Testing.Editing
                     Assert.IsNotNull(collection);
                     XTMFRun run;
                     Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
+                    modelSystemSession.ExecuteRun(run,true);
                     bool finished = false;
                     run.RunCompleted += () =>
                     {

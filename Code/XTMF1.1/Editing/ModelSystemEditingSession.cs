@@ -189,7 +189,7 @@ namespace XTMF
         /// <param name="executeNow">Should the run start executing now or wait for all other runs to finish first?</param>
         /// <param name="forceLocal">Execute in the local process, overriding default behaviour.</param>
         /// <returns>A reference to the run.</returns>
-        public XTMFRun Run(string runName, ref string error, bool overwrite = false, bool executeNow = true, bool forceLocal = false, bool immediateValidation = true)
+        public XTMFRun Run(string runName, ref string error, bool overwrite = false, bool executeNow = true, bool forceLocal = false)
         {
             // this needs to block as if a command is running
             lock (_SessionLock)
@@ -226,10 +226,10 @@ namespace XTMF
                         run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel.Root, _Runtime.Configuration, runName, overwrite);
                     }
 
-                    if (immediateValidation)
+                    /*if (immediateValidation)
                     {
                         _Runtime.RunController.ExecuteRun(run, executeNow);
-                    }
+                    } */
 
                     return run;
                 }
