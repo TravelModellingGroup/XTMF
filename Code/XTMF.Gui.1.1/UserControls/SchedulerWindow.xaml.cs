@@ -282,8 +282,8 @@ namespace XTMF.Gui.UserControls
                 _schedulerWindow.RemoveFromActiveRuns(this);
 
 
-                    Icon = PackIconKind.Exclamation;
-                
+                Icon = PackIconKind.Exclamation;
+
             }
 
             public RunWindow RunWindow { get; set; }

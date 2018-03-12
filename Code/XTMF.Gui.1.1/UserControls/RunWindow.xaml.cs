@@ -446,6 +446,9 @@ namespace XTMF.Gui.UserControls
 
             Dispatcher.Invoke(() =>
             {
+                CancelButton.IsEnabled = false;
+                ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
+                ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                 //SetRunFinished(false);
                 ShowErrorMessages(new ErrorWithPath[] { error });
                 //ShowErrorMessage(string.Empty, errors[0]);
