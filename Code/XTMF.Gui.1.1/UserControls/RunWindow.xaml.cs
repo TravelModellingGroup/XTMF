@@ -132,6 +132,9 @@ namespace XTMF.Gui.UserControls
             Run.ValidationError += RunOnValidationError;
 
 
+            ErrorGroupBox.Visibility = Visibility.Collapsed;
+
+
             _runDirectory = Run.RunDirectory;
             _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(33)};
             _isFinished = false;
@@ -403,6 +406,8 @@ namespace XTMF.Gui.UserControls
                     ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName, error.StackTrace));
                 }
 
+
+                ErrorGroupBox.Visibility = Visibility.Visible;
                 ErrorListView.Visibility = Visibility.Visible;
                 Console.WriteLine(ErrorListView.Visibility);
             }));
