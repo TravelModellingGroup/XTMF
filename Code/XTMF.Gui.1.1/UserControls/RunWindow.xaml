@@ -175,7 +175,19 @@
                         <GridViewColumn Header=" " DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, 
                                          AncestorType={x:Type ListViewItem}}, 
                                          Converter={StaticResource IndexConverter}}"></GridViewColumn>
-                        <GridViewColumn Header="Module" DisplayMemberBinding="{Binding ModelSystemName}"></GridViewColumn>
+                        <GridViewColumn Header="Module">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock> <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" >
+                                        <Hyperlink.Inlines>
+                                            <TextBlock Text="{Binding ModelSystemName}"></TextBlock>
+
+                                        </Hyperlink.Inlines>
+                                       
+                                    </Hyperlink></TextBlock>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                         <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}"></GridViewColumn>
                         <GridViewColumn Header="Stack Trace">
                             <GridViewColumn.CellTemplate>

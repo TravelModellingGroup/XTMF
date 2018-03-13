@@ -1401,6 +1401,9 @@ namespace XTMF.Gui.UserControls
             UpdateParameters();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void UpdateParameters()
         {
             var parameters = GetActiveParameters();

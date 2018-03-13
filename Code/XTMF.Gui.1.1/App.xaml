@@ -175,6 +175,18 @@
                 </Setter>
             </Style>
 
+            <Style TargetType="{x:Type TextBlock}" x:Key="MaterialDesignBody1Custom" >
+                <Setter Property="Cursor" Value="Hand"></Setter>
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
+
+            </Style>
+
+
+            <Style TargetType="{x:Type Hyperlink}" x:Key="MaterialDesignBody1HyperlinkCustom" BasedOn="{StaticResource MaterialDesignBody1Hyperlink}">
+                <Setter Property="Cursor" Value="Hand"></Setter>
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
+
+            </Style>
 
 
 

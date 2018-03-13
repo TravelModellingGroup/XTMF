@@ -26,7 +26,9 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using MaterialDesignThemes.Wpf;
@@ -744,6 +746,31 @@ namespace XTMF.Gui.UserControls
                 ConsoleOutput = ConsoleOutput + message + "\r\n";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
+        {
+           Console.WriteLine("In hyperlink");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Hyperlink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Console.WriteLine("In hyperlink navigate");
+        }
+
+        private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Console.WriteLine("mouse down");
         }
     }
 
