@@ -145,9 +145,13 @@
                         </StackPanel>
                     </Border>
                     <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignPaper}">
-                        <StackPanel Background="{DynamicResource MaterialDesignPaper}" >
-                            <Label Content="Linked Parameters" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignPaper}"/>
-                            <ListView PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"
+                        <Grid Background="{DynamicResource MaterialDesignPaper}" >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="38"></RowDefinition>
+                                <RowDefinition Height="257"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Row="0"  Content="Linked Parameters" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignPaper}"/>
+                            <ListView Grid.Row="1" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"
                                       ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                       x:Name="ContainedParameterDisplay" Focusable="False" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}"
                                       MouseDoubleClick="ContainedParameterDisplay_MouseDoubleClick">
@@ -196,7 +200,7 @@
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
-                        </StackPanel>
+                        </Grid>
                     </Border>
                 </Grid>
             </Grid>
