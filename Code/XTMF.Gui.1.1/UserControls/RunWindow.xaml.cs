@@ -18,7 +18,6 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -71,15 +70,13 @@ namespace XTMF.Gui.UserControls
 
 
         private string _runDirectory;
+
+        private bool _runtimeValidationErrorOccured;
         private volatile bool _wasCanceled;
 
         public Action<bool> OnRunFinished;
 
         public Action OnRunStarted;
-
-        public Action OnRuntimeValidationError { get; set; }
-
-        public Action OnRuntimeError { get; set; }
 
         //public Action<List<ErrorWithPath>> OnRuntimeError;
 
@@ -88,8 +85,6 @@ namespace XTMF.Gui.UserControls
         public Action<ErrorWithPath> RuntimeError;
 
         public Action<List<ErrorWithPath>> RuntimeValidationError;
-
-        private bool _runtimeValidationErrorOccured = false;
 
         static RunWindow()
         {
@@ -117,7 +112,6 @@ namespace XTMF.Gui.UserControls
                 IsRunClearable = false;
             }));
 
-         
 
             _progressReports = Run.Configuration.ProgressReports;
             _progressReports.ListChanged += ProgressReports_ListChanged;
@@ -128,7 +122,7 @@ namespace XTMF.Gui.UserControls
             Run.RunStarted += Run_RunStarted;
             Run.RuntimeError += Run_RuntimeError;
             Run.RuntimeValidationError += Run_RuntimeValidationError;
-            Run.ValidationStarting += Run_ValidationStarting;
+            Run.ValidationStarting += RunOnValidationStarting;
             Run.ValidationError += RunOnValidationError;
 
 
@@ -159,31 +153,23 @@ namespace XTMF.Gui.UserControls
 
             StartRunAsync();
             _timer.Start();
-
-
-
         }
 
-        /// <summary>
-        /// Callback method invokved by XTMF to notify of a validation error in the model system.
-        /// </summary>
-        /// <param name="errorWithPaths"></param>
-        private void RunOnValidationError(List<ErrorWithPath> errorWithPaths)
+        private void RunOnValidationStarting()
         {
-            Dispatcher.Invoke(() =>
-            {
-                SetRunFinished(false);
-                ShowErrorMessages(errorWithPaths.ToArray());
-                OnValidationError?.Invoke(errorWithPaths);
-            }); 
+            UpdateRunStatus?.Invoke("Validation starting");
         }
+
+        public Action OnRuntimeValidationError { get; set; }
+
+        public Action OnRuntimeError { get; set; }
 
 
         public Visibility ErrorVisibility
         {
             get => ErrorListView.Items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             set => OnPropertyChanged(nameof(ErrorVisibility));
-        } 
+        }
 
 
         public Action<string> UpdateRunStatus { get; set; }
@@ -212,6 +198,20 @@ namespace XTMF.Gui.UserControls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        ///     Callback method invokved by XTMF to notify of a validation error in the model system.
+        /// </summary>
+        /// <param name="errorWithPaths"></param>
+        private void RunOnValidationError(List<ErrorWithPath> errorWithPaths)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                SetRunFinished(false);
+                ShowErrorMessages(errorWithPaths.ToArray());
+                OnValidationError?.Invoke(errorWithPaths);
+            });
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -219,7 +219,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -234,7 +233,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -320,15 +318,7 @@ namespace XTMF.Gui.UserControls
                             _taskbarInformation.ProgressValue = progress / 10000;
                         }
 
-                        if (_subProgressBars.Count > 0)
-                        {
-                            /* Resize the column */
-                            BaseGrid.ColumnDefinitions[0].Width = new GridLength(2, GridUnitType.Star);
-                        }
-                        else
-                        {
-                            BaseGrid.ColumnDefinitions[0].Width = new GridLength(0);
-                        }
+                        BaseGrid.ColumnDefinitions[0].Width = _subProgressBars.Count > 0 ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
 
                         for (var i = 0; i < _subProgressBars.Count; i++)
                         {
@@ -377,6 +367,7 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
+        /// Deprecated - no longer used currentlly. See ShowErrorMessages.
         /// </summary>
         /// <param name="title"></param>
         /// <param name="error"></param>
@@ -395,6 +386,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
+        ///     Appends the ErrorWithPath array to the ErrorListView that becomes visible underneath the console output.
         /// </summary>
         /// <param name="errors"></param>
         private void ShowErrorMessages(ErrorWithPath[] errors)
@@ -403,22 +395,16 @@ namespace XTMF.Gui.UserControls
             {
                 foreach (var error in errors)
                 {
-                    ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName, error.StackTrace));
+                    ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName,
+                        error.StackTrace));
                 }
 
 
                 ErrorGroupBox.Visibility = Visibility.Visible;
                 ErrorListView.Visibility = Visibility.Visible;
-                Console.WriteLine(ErrorListView.Visibility);
             }));
         }
 
-        /// <summary>
-        /// </summary>
-        private static void Run_ValidationStarting()
-        {
-            Console.WriteLine("Validation starting");
-        }
 
         /// <summary>
         /// </summary>
@@ -441,20 +427,17 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="error"></param>
         private void Run_RuntimeError(ErrorWithPath error)
         {
-
-
             Dispatcher.Invoke(() =>
             {
                 CancelButton.IsEnabled = false;
                 ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                 //SetRunFinished(false);
-                ShowErrorMessages(new ErrorWithPath[] { error });
+                ShowErrorMessages(new[] {error});
                 //ShowErrorMessage(string.Empty, errors[0]);
 
                 //SetRunFinished(false);
@@ -462,14 +445,13 @@ namespace XTMF.Gui.UserControls
                 _runtimeValidationErrorOccured = true;
                 RuntimeError?.Invoke(error);
                 OnRuntimeError?.Invoke();
-               // OnRunFinished(!_wasCanceled && !_runtimeValidationErrorOccured);
+                // OnRunFinished(!_wasCanceled && !_runtimeValidationErrorOccured);
 
                 //RuntimeError?.Invoke();
             });
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="callback"></param>
         private void SetRunFinished(bool callback = true)
@@ -517,7 +499,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         private void Run_RunStarted()
         {
@@ -526,7 +507,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke((Action) (() =>
             {
                 CancelButton.IsEnabled = true;
-        
+
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, true);
                 ButtonProgressAssist.SetIsIndeterminate(CancelButton, true);
                 OnRunStarted?.Invoke();
@@ -778,21 +759,6 @@ namespace XTMF.Gui.UserControls
         private string _stackTrace;
 
         /// <summary>
-        /// 
-        /// </summary>
-        public string StackTrace
-        {
-            get => _stackTrace;
-            set
-            {
-                _stackTrace = value;
-                OnPropertyChanged(nameof(StackTrace));
-           
-            }
-        }
-
-        /// <summary>
-        /// 
         /// </summary>
         /// <param name="description"></param>
         /// <param name="modelSystemName"></param>
@@ -802,6 +768,18 @@ namespace XTMF.Gui.UserControls
             Description = description;
             ModelSystemName = modelSystemName;
             StackTrace = StackTrace;
+        }
+
+        /// <summary>
+        /// </summary>
+        public string StackTrace
+        {
+            get => _stackTrace;
+            set
+            {
+                _stackTrace = value;
+                OnPropertyChanged(nameof(StackTrace));
+            }
         }
 
         /// <summary>
