@@ -198,7 +198,7 @@
 
                                             <Hyperlink Tag="{Binding ElementName=StackTracePopupBox}" Click="StackTraceLinkOnClick"   x:Name="StackTraceLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" >
                                                 <Hyperlink.Inlines>
-                                                    <TextBlock>Show Stacktrace</TextBlock>
+                                                    <TextBlock  VerticalAlignment="Top"> <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Bottom" />Show Stacktrace</TextBlock>
 
                                                 </Hyperlink.Inlines>
 
