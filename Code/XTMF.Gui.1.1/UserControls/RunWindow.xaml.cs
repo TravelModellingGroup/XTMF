@@ -88,6 +88,8 @@ namespace XTMF.Gui.UserControls
 
         public Action<List<ErrorWithPath>> RuntimeValidationError;
 
+        private ModelSystemDisplay _launchedFromModelSystemDisplay;
+
         static RunWindow()
         {
             var findResource = Application.Current.FindResource("WarningRed");
@@ -98,7 +100,15 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="run"></param>
+        /// <param name="runName"></param>
+        /// <param name="immediateRun"></param>
+        /// <param name="launchedFrom"></param>
+        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false, ModelSystemDisplay launchedFrom = null)
         {
             InitializeComponent();
             ErrorVisibility = Visibility.Collapsed;
@@ -113,6 +123,11 @@ namespace XTMF.Gui.UserControls
                 RunNameText.Text = runName;
                 IsRunClearable = false;
             }));
+
+            if (launchedFrom != null)
+            {
+                _launchedFromModelSystemDisplay = launchedFrom;
+            }
 
 
             _progressReports = Run.Configuration.ProgressReports;
