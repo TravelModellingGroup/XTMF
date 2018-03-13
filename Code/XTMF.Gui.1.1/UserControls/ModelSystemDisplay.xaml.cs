@@ -1006,13 +1006,7 @@ namespace XTMF.Gui.UserControls
 
         public event Action<object> RequestClose;
 
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBox box)
-            {
-                box.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-            }
-        }
+
 
         private void SaveCurrentlySelectedParameters()
         {
@@ -1475,7 +1469,7 @@ namespace XTMF.Gui.UserControls
                         }
 
                         ParameterDisplay.Opacity = 1.0;
-                    });
+                    },DispatcherPriority.Render);
                 });
             }
             else
@@ -1794,7 +1788,7 @@ namespace XTMF.Gui.UserControls
 
         private void CleanUpParameters()
         {
-            ParameterDisplay.BeginAnimation(OpacityProperty, null);
+           // ParameterDisplay.BeginAnimation(OpacityProperty, null);
         }
 
         private void LinkedParameters_Click(object sender, RoutedEventArgs e)

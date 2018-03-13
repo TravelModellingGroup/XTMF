@@ -416,9 +416,6 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished(false);
                 ShowErrorMessages(errors.ToArray());
-                //ShowErrorMessage(string.Empty, errors[0]);
-
-                //RuntimeValidationError?.Invoke(errors);
 
                 UpdateRunStatus?.Invoke("Runtime validation error");
 

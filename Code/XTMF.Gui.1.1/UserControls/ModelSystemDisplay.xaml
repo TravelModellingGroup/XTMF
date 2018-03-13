@@ -77,15 +77,15 @@
         <models:ModelSystemInfoTemplateSelector  x:Key="ModelSystemInfoTemplateSelector" ModuleDisabled="{StaticResource ModuleDisabledTemplate}"
                                                 ModuleEnabled="{StaticResource ModuleEnabledTemplate}"/>
         <DataTemplate  x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}" >
-            <StackPanel PreviewKeyDown="B_OnPreviewKeyDown" Focusable="False" GotFocus="B_OnGotFocus" MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+            <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"  PreviewKeyDown="B_OnPreviewKeyDown" Focusable="False" GotFocus="B_OnGotFocus" MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                     Name="b" HorizontalAlignment="Stretch" Margin="0 0 0 0">
-                <StackPanel  Focusable="False"  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
+                <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Focusable="False"  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder" Background="{DynamicResource MaterialDesignCardBackground}">
-                    <Expander IsTabStop="False" Focusable="False" Padding="0 0 0 0"  Margin="0,0,0.0,0" Foreground="{DynamicResource MaterialDesignBody}"
+                    <Expander materialDesign:TransitionAssist.DisableTransitions="True"  IsTabStop="False" Focusable="False" Padding="0 0 0 0"  Margin="0,0,0.0,0" Foreground="{DynamicResource MaterialDesignBody}"
                                   HorizontalAlignment="Stretch">
                         <Expander.Header>
-                            <Grid  Focusable="False" HorizontalAlignment="Stretch">
+                            <Grid materialDesign:TransitionAssist.DisableTransitions="True"   Focusable="False" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="16"/>
                                     <ColumnDefinition Width="AUTO"/>
@@ -93,24 +93,24 @@
                                     <ColumnDefinition Width="AUTO"/>
                                     <ColumnDefinition Width="AUTO"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
+                                <CheckBox materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                           IsTabStop="False"/>
-                                <TextBox HorizontalContentAlignment="Left" Tag="{Binding .}" Grid.Column="2" Name="TextBox"  Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                                <TextBox materialDesign:TransitionAssist.DisableTransitions="True"  HorizontalContentAlignment="Left" Tag="{Binding .}" Grid.Column="2" Name="TextBox"  Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                              AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
                                           Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}"
                                           PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}" TextChanged="TextBox_OnTextChanged"
                                           SelectionOpacity="0.6" MinHeight="15" Padding="5"/>
-                                <StackPanel  Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                                <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
                                     <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                                     <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
                                 </StackPanel>
                             </Grid>
                         </Expander.Header>
-                        <StackPanel Focusable="False" Orientation="Vertical"
+                        <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"  Focusable="False" Orientation="Vertical"
                                     TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                                     Margin="48,0,24,4">
-                            <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"
+                            <TextBlock materialDesign:TransitionAssist.DisableTransitions="True"  HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}"/>
                         </StackPanel>
                     </Expander>
@@ -120,13 +120,13 @@
         </DataTemplate>
         <DataTemplate x:Key="EnumerationParameterTemplate">
             <StackPanel PreviewKeyDown="B_OnPreviewKeyDown"  MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" HorizontalAlignment="Stretch">
-                <StackPanel  Orientation="Vertical" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignCardBackground}"
+                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" HorizontalAlignment="Stretch" materialDesign:TransitionAssist.DisableTransitions="True" >
+                <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Orientation="Vertical" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignCardBackground}"
                                     x:Name="ParameterBorder">
-                    <Expander Margin="0,0,0,0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14"
+                    <Expander materialDesign:TransitionAssist.DisableTransitions="True"  Margin="0,0,0,0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14"
                                   HorizontalAlignment="Stretch">
                         <Expander.Header>
-                            <Grid>
+                            <Grid materialDesign:TransitionAssist.DisableTransitions="True" >
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="16"></ColumnDefinition>
                                     <ColumnDefinition Width="AUTO"/>
@@ -134,25 +134,25 @@
                                     <ColumnDefinition Width="AUTO"/>
                                     <ColumnDefinition Width="AUTO"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
+                                <CheckBox materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                                   IsTabStop="False"/>
-                                <ComboBox Name="ComboBox"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                                <ComboBox  materialDesign:TransitionAssist.DisableTransitions="True"  Name="ComboBox"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                         AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="True"
                                           IsReadOnly="False" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
                                           BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True" SelectionChanged="ComboBox_SelectionChanged"/>
                                 <!--<TextBlock Grid.Column="1" Margin="5,4,2,2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource MaterialDesignBody}" TextTrimming="CharacterEllipsis" Cursor="Hand"/> -->
-                                <StackPanel  Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                                <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
 
                                     <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                                     <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
                                 </StackPanel>
                             </Grid>
                         </Expander.Header>
-                        <StackPanel Orientation="Vertical"
+                        <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"  Orientation="Vertical"
                                     TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                                     Margin="48,0,24,4">
-                            <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"
+                            <TextBlock materialDesign:TransitionAssist.DisableTransitions="True"  HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}"/>
 
                         </StackPanel>
@@ -463,7 +463,7 @@
                                                 </Grid>
                                             </ToolBar>
                                         </ToolBarTray>
-                                        <Expander Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
+                                        <Expander materialDesign:TransitionAssist.DisableTransitions="True"  Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
                                           Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
@@ -481,7 +481,7 @@
                                 </Border>
 
 
-                                <ListView  materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                <ListView   materialDesign:TransitionAssist.DisableTransitions="True"   materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" 
                                   ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged" SourceUpdated="ParameterDisplay_SourceUpdated">
@@ -493,7 +493,7 @@
                                     </ListView.ItemContainerStyle>
                                     <ListView.ItemsPanel>
                                         <ItemsPanelTemplate >
-                                            <VirtualizingStackPanel  materialDesign:RippleAssist.IsDisabled="True" />
+                                            <VirtualizingStackPanel    materialDesign:RippleAssist.IsDisabled="True" />
                                         </ItemsPanelTemplate>
                                     </ListView.ItemsPanel>
                                     <ListView.ContextMenu>
