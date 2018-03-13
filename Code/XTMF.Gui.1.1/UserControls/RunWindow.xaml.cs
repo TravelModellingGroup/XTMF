@@ -763,14 +763,13 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Hyperlink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
+        private void StackTraceLinkOnClick(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("In hyperlink navigate");
-        }
-
-        private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Console.WriteLine("mouse down");
+            PopupBox stackTraceBox = (PopupBox) (sender as FrameworkContentElement)?.Tag;
+            if (stackTraceBox != null)
+            {
+                stackTraceBox.IsPopupOpen = true;
+            }
         }
     }
 
@@ -791,7 +790,15 @@ namespace XTMF.Gui.UserControls
         {
             Description = description;
             ModelSystemName = modelSystemName;
-            StackTrace = StackTrace;
+            if (stackTrace != null)
+            {
+                StackTrace = StackTrace;
+            }
+            else
+            {
+                StackTrace = "Unavailable";
+            }
+
         }
 
         /// <summary>

@@ -24,7 +24,7 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" DataContext="{Binding .}"
-             mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}">
+             mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}"  d:DesignWidth="600">
    
     <Grid Name="BaseGrid">
         <Grid.ColumnDefinitions>
@@ -178,7 +178,7 @@
                         <GridViewColumn Header="Module">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock> <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" >
+                                    <TextBlock VerticalAlignment="Center"> <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" >
                                         <Hyperlink.Inlines>
                                             <TextBlock Text="{Binding ModelSystemName}"></TextBlock>
 
@@ -192,13 +192,27 @@
                         <GridViewColumn Header="Stack Trace">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                <materialDesign:PopupBox Margin="16,0,16,0" StaysOpen="True" >
+                                    <materialDesign:PopupBox Margin="16,0,16,0" StaysOpen="True" Name="StackTracePopupBox"  PlacementMode="TopAndAlignLeftEdges" >
                                     
                                         <materialDesign:PopupBox.ToggleContent>
 
-                                            <TextBlock Foreground="{DynamicResource SecondaryAccentBrush}" Style="{DynamicResource MaterialDesignBody1TextBlock}"  Text="Test"></TextBlock>
+                                            <Hyperlink Tag="{Binding ElementName=StackTracePopupBox}" Click="StackTraceLinkOnClick"   x:Name="StackTraceLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" >
+                                                <Hyperlink.Inlines>
+                                                    <TextBlock>Show Stacktrace</TextBlock>
+
+                                                </Hyperlink.Inlines>
+
+                                            </Hyperlink>
                                         </materialDesign:PopupBox.ToggleContent>
-                                    <TextBlock Text="{Binding StackTrace}"></TextBlock>
+                                    
+                                    
+                                    <materialDesign:PopupBox.PopupContent>
+                                        <StackPanel Margin="5">
+                                                <TextBlock Style="{DynamicResource MaterialDesignBody1}" Text="{Binding StackTrace}"></TextBlock>
+                                            </StackPanel>
+                                     
+                                        </materialDesign:PopupBox.PopupContent>
+
                                     </materialDesign:PopupBox>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
