@@ -933,7 +933,9 @@ namespace XTMF.Gui.UserControls
                         ModuleRuntimeValidationErrorListView.Items.Clear();
                         ModuleRuntimeErrorListView.Items.Clear();
                         MainWindow.Us.UpdateStatusDisplay("Running Model System");
-                        var runWindow = MainWindow.Us.CreateRunWindow(Session, run, runName, !dialog.IsQueueRun);
+                        
+                        //pass this as launchedFrom display in case model system run encounters an error
+                        var runWindow = MainWindow.Us.CreateRunWindow(Session, run, runName, !dialog.IsQueueRun,this);
                         MainWindow.Us.AddRunToSchedulerWindow(runWindow);
                     }
                     else

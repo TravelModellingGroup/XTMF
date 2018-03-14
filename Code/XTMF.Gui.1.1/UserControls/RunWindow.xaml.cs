@@ -26,9 +26,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Navigation;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using MaterialDesignThemes.Wpf;
@@ -68,6 +66,8 @@ namespace XTMF.Gui.UserControls
         private volatile bool _isActive;
         private volatile bool _isFinished;
 
+        private ModelSystemDisplay _launchedFromModelSystemDisplay;
+
         private int _oldCaret;
 
 
@@ -88,8 +88,6 @@ namespace XTMF.Gui.UserControls
 
         public Action<List<ErrorWithPath>> RuntimeValidationError;
 
-        private ModelSystemDisplay _launchedFromModelSystemDisplay;
-
         static RunWindow()
         {
             var findResource = Application.Current.FindResource("WarningRed");
@@ -101,14 +99,14 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="session"></param>
         /// <param name="run"></param>
         /// <param name="runName"></param>
         /// <param name="immediateRun"></param>
         /// <param name="launchedFrom"></param>
-        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false, ModelSystemDisplay launchedFrom = null)
+        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false,
+            ModelSystemDisplay launchedFrom = null)
         {
             InitializeComponent();
             ErrorVisibility = Visibility.Collapsed;
@@ -142,9 +140,7 @@ namespace XTMF.Gui.UserControls
             Run.ValidationStarting += RunOnValidationStarting;
             Run.ValidationError += RunOnValidationError;
 
-
             ErrorGroupBox.Visibility = Visibility.Collapsed;
-
 
             _runDirectory = Run.RunDirectory;
             _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(33)};
@@ -170,11 +166,6 @@ namespace XTMF.Gui.UserControls
 
             StartRunAsync();
             _timer.Start();
-        }
-
-        private void RunOnValidationStarting()
-        {
-            UpdateRunStatus?.Invoke("Validation starting");
         }
 
         public Action OnRuntimeValidationError { get; set; }
@@ -214,6 +205,11 @@ namespace XTMF.Gui.UserControls
         public ModelSystemEditingSession Session { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private void RunOnValidationStarting()
+        {
+            UpdateRunStatus?.Invoke("Validation starting");
+        }
 
         /// <summary>
         ///     Callback method invokved by XTMF to notify of a validation error in the model system.
@@ -335,7 +331,9 @@ namespace XTMF.Gui.UserControls
                             _taskbarInformation.ProgressValue = progress / 10000;
                         }
 
-                        BaseGrid.ColumnDefinitions[0].Width = _subProgressBars.Count > 0 ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
+                        BaseGrid.ColumnDefinitions[0].Width = _subProgressBars.Count > 0
+                            ? new GridLength(2, GridUnitType.Star)
+                            : new GridLength(0);
 
                         for (var i = 0; i < _subProgressBars.Count; i++)
                         {
@@ -384,7 +382,7 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// Deprecated - no longer used currentlly. See ShowErrorMessages.
+        ///     Deprecated - no longer used currentlly. See ShowErrorMessages.
         /// </summary>
         /// <param name="title"></param>
         /// <param name="error"></param>
@@ -734,6 +732,32 @@ namespace XTMF.Gui.UserControls
             MainWindow.Us.SchedulerWindow.CloseRun(this);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(async () =>
+            {
+                await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay);
+            });
+
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StackTraceLinkOnClick(object sender, RoutedEventArgs e)
+        {
+            var stackTraceBox = (PopupBox) (sender as FrameworkContentElement)?.Tag;
+            if (stackTraceBox != null)
+            {
+                stackTraceBox.IsPopupOpen = true;
+            }
+        }
+
         private struct SubProgress
         {
             internal Label Name;
@@ -760,30 +784,6 @@ namespace XTMF.Gui.UserControls
             {
                 ConsoleOutput = ConsoleOutput + message + "\r\n";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
-        {
-           Console.WriteLine("In hyperlink");
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void StackTraceLinkOnClick(object sender, RoutedEventArgs e)
-        {
-            PopupBox stackTraceBox = (PopupBox) (sender as FrameworkContentElement)?.Tag;
-            if (stackTraceBox != null)
-            {
-                stackTraceBox.IsPopupOpen = true;
             }
         }
     }
@@ -813,7 +813,6 @@ namespace XTMF.Gui.UserControls
             {
                 StackTrace = "Unavailable";
             }
-
         }
 
         /// <summary>
