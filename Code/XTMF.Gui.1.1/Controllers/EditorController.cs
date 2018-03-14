@@ -33,6 +33,8 @@ namespace XTMF.Gui.Controllers
 
         public static XTMFRuntime Runtime { get; private set; }
 
+        public static bool UseRemoteHost { get; set; } = false;
+
         internal static void Register(MainWindow window, Action OnComplete, bool loadModules = true)
         {
             Task.Factory.StartNew(

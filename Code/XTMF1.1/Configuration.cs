@@ -207,6 +207,8 @@ namespace XTMF
             }
         }
 
+        public bool RemoteHost { get; set; } = false;
+
         public bool RunInSeperateProcess { get; set; } = true;
 
         public bool DivertSaveRequests { get; set; } = false;

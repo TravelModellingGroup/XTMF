@@ -97,6 +97,8 @@ namespace XTMF.Gui
 
         private OperationProgressing operationProgressing;
 
+        
+
         public MainWindow()
         {
             ViewModelBase = new ViewModelBase();

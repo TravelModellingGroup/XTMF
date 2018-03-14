@@ -18,7 +18,11 @@ namespace XTMF.Gui
 
         public const String APP_ID = "TMG.Xtmf";
 
-        private void RegisterEditorController()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
+        private void RegisterEditorController(StartupEventArgs args)
         {
             EditorController.Register(xtmfMainWindow, () =>
             {
@@ -63,6 +67,12 @@ namespace XTMF.Gui
 
                     if (EditorController.Runtime.Configuration.IsDarkTheme) new PaletteHelper().SetLightDark(true);
                     xtmfMainWindow.Show();
+                    if (args.Args.Contains("--remote-host"))
+                    {
+                        //use remote host even though a debugger may be attached. 
+                        EditorController.Runtime.Configuration.RemoteHost = true;
+
+                    }
 
                     EditorController.Runtime.Configuration.LoadModules(() =>
                     {
@@ -71,17 +81,28 @@ namespace XTMF.Gui
                     });
                 }));
             }, false);
+           
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             DispatcherUnhandledException += AppGlobalDispatcherUnhandledException;
 
             xtmfMainWindow = new MainWindow();
-            RegisterEditorController();
+            RegisterEditorController(e);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AppGlobalDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             e.Handled = true;
