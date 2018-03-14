@@ -2890,9 +2890,8 @@ namespace XTMF.Gui.UserControls
         /// <param name="data"></param>
         public void RestoreWithData(object data)
         {
-            if (data is ErrorWithPath)
+            if (data is ErrorWithPath error)
             {
-                ErrorWithPath error = (ErrorWithPath)data;
                 var current = DisplayRoot;
 
                 bool fail = false;

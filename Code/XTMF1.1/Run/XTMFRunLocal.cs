@@ -178,7 +178,6 @@ namespace XTMF.Run
             {
                 if (caughtError is XTMFRuntimeException runError)
                 {
-                    InvokeValidationError(null);
                     InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, runError.StackTrace, runError.Module.Name));
                 }
                 else
