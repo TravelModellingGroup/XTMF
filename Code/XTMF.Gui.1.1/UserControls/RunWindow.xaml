@@ -192,7 +192,7 @@
                         <GridViewColumn Header="Stack Trace">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <materialDesign:PopupBox Margin="16,0,16,0" StaysOpen="True" Name="StackTracePopupBox"  PlacementMode="TopAndAlignLeftEdges" >
+                                    <materialDesign:PopupBox UnfurlOrientation="Vertical"  Margin="16,0,16,0" StaysOpen="True" Name="StackTracePopupBox"  PlacementMode="TopAndAlignLeftEdges" >
                                     
                                         <materialDesign:PopupBox.ToggleContent>
 
@@ -208,7 +208,7 @@
                                     
                                     <materialDesign:PopupBox.PopupContent>
                                         <StackPanel Margin="5">
-                                                <TextBlock Style="{DynamicResource MaterialDesignBody1}" Text="{Binding StackTrace}"></TextBlock>
+                                                <TextBox FontSize="11" Width="400" MinHeight="100" IsReadOnly="True" Foreground="{DynamicResource MaterialDesignBody1}" Text="{Binding StackTrace}"></TextBox>
                                             </StackPanel>
                                      
                                         </materialDesign:PopupBox.PopupContent>

@@ -811,7 +811,7 @@ namespace XTMF.Gui.UserControls
             ModelSystemName = modelSystemName;
             if (stackTrace != null)
             {
-                StackTrace = StackTrace;
+                StackTrace = stackTrace;
             }
             else
             {

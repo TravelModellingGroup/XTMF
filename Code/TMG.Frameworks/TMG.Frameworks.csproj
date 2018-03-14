@@ -139,6 +139,7 @@
     <Compile Include="Testing\TestExecutingModule.cs" />
     <Compile Include="Testing\TestRootModule.cs" />
     <Compile Include="Testing\TestRuntimeErrorModule.cs" />
+    <Compile Include="Testing\TestRuntimeValidationErrorModule.cs" />
     <Compile Include="Testing\TestValidationErrorModule.cs" />
   </ItemGroup>
   <ItemGroup>

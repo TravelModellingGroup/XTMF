@@ -23,9 +23,8 @@ namespace TMG.Frameworks.Testing
         /// <returns></returns>
         public bool RuntimeValidation(ref string error)
         {
-            Console.WriteLine("In runtime validation");
-            error = "Runtime Validation Error";
-            return false;
+            //nothing to validate
+            return true;
         }
 
         /// <summary>
@@ -33,12 +32,20 @@ namespace TMG.Frameworks.Testing
         /// </summary>
         public void Start()
         {
-            Console.WriteLine("Module started");
+            //throw new dummy exception
+            throw new GenericRuntimeError("Test Runtime Error!");
         }
     }
 
     public class GenericRuntimeError : Exception
     {
+        /// <summary>
+        /// Creates a generic runtime error with message s.
+        /// </summary>
+        /// <param name="s"></param>
+        public GenericRuntimeError(string s) : base(s)
+        {
 
+        }
     }
 }

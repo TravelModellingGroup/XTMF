@@ -263,7 +263,7 @@ namespace XTMF.Run
             }
             writer.Write(error.Message);
             writer.Write(error.StackTrace ?? String.Empty);
-            writer.Write(error.ModuleName);
+            writer.Write(error.ModuleName ?? String.Empty);
         }
 
         private static void WriteMessageToStream(BlockingCollection<byte[]> messagesToSend, Action<BinaryWriter> action)
