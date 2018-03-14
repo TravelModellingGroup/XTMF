@@ -411,7 +411,7 @@ namespace XTMF.Gui.UserControls
                 foreach (var error in errors)
                 {
                     ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName,
-                        error.StackTrace));
+                        error.StackTrace,error));
                 }
 
 
@@ -723,16 +723,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        ///     Removes the RunWindow / control from the scheduler window
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ContinueButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            MainWindow.Us.SchedulerWindow.CloseRun(this);
-        }
-
-        /// <summary>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -740,7 +730,7 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(async () =>
             {
-                await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay);
+                await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay, (sender as FrameworkContentElement)?.Tag);
             });
 
         }
@@ -796,12 +786,14 @@ namespace XTMF.Gui.UserControls
 
         private string _stackTrace;
 
+        private ErrorWithPath _errorWithPath;
+
         /// <summary>
         /// </summary>
         /// <param name="description"></param>
         /// <param name="modelSystemName"></param>
         /// <param name="stackTrace"></param>
-        public ModelSystemErrorDisplayModel(string description, string modelSystemName, string stackTrace)
+        public ModelSystemErrorDisplayModel(string description, string modelSystemName, string stackTrace, ErrorWithPath errorWithPath)
         {
             Description = description;
             ModelSystemName = modelSystemName;
@@ -813,6 +805,8 @@ namespace XTMF.Gui.UserControls
             {
                 StackTrace = "Unavailable";
             }
+
+            _errorWithPath = errorWithPath;
         }
 
         /// <summary>
@@ -848,6 +842,19 @@ namespace XTMF.Gui.UserControls
             {
                 _modelSystemName = value;
                 OnPropertyChanged(nameof(ModelSystemName));
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ErrorWithPath ErrorWithPath
+        {
+            get => _errorWithPath;
+            set
+            {
+                _errorWithPath = value;
+                OnPropertyChanged(nameof(ErrorWithPath));
             }
         }
 

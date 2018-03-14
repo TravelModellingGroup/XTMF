@@ -48,7 +48,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for ModelSystemDisplay.xaml
     /// </summary>
-    public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotifyPropertyChanged
+    public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotifyPropertyChanged, IResumableControl
     {
         public static readonly DependencyProperty ModelSystemProperty = DependencyProperty.Register("ModelSystem",
             typeof(ModelSystemModel), typeof(ModelSystemDisplay),
@@ -2881,6 +2881,46 @@ namespace XTMF.Gui.UserControls
         private void ParameterDisplay_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
         {
          
+        }
+
+        /// <summary>
+        /// Restores this view with the passed data. If ErrorWithPath is passed as the data, the selected
+        /// module is attempted to be brought into view by the path data.
+        /// </summary>
+        /// <param name="data"></param>
+        public void RestoreWithData(object data)
+        {
+            if (data is ErrorWithPath)
+            {
+                ErrorWithPath error = (ErrorWithPath)data;
+                var current = DisplayRoot;
+
+                bool fail = false;
+                for (int i = 0; i < error.Path.Count; i++)
+                {
+                    if (current.Children.Count > error.Path[i])
+                    {
+                        current = current.Children[error.Path[i]];
+                    }
+                    else
+                    {
+                        fail = true;
+                        break;
+                    }
+                }
+
+                if (!fail)
+                {
+                   
+                    BringSelectedIntoView(current);
+                    current.IsSelected = true;
+                }
+                else
+                {
+                    MessageBox.Show("Referenced module is unable to be found in the current state of the model system.",
+                        "Error Displaying Module", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }

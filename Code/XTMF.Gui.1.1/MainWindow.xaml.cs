@@ -151,7 +151,7 @@ namespace XTMF.Gui
 
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
-            get => (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty);
+            get => (ActiveEditingSessionDisplayModel) GetValue(EditingDisplayModelProperty);
             set => SetValue(EditingDisplayModelProperty, value);
         }
 
@@ -660,7 +660,7 @@ namespace XTMF.Gui
                 select element.Key + "|*." + element.Value
             );
             var dialog = alreadyExists
-                ? (FileDialog)new OpenFileDialog
+                ? (FileDialog) new OpenFileDialog
                 {
                     Title = title,
                     Filter = filter
@@ -712,20 +712,20 @@ namespace XTMF.Gui
                         "Unable to import", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No))
                     {
                         case MessageBoxResult.Yes:
+                        {
+                            if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true,
+                                ref error))
                             {
-                                if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true,
-                                    ref error))
-                                {
-                                    MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK,
-                                        MessageBoxImage.Error);
-                                }
-                                else
-                                {
-                                    MessageBox.Show(this,
-                                        "The model system has been successfully imported from '" + fileName + "'.",
-                                        "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
-                                }
+                                MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK,
+                                    MessageBoxImage.Error);
                             }
+                            else
+                            {
+                                MessageBox.Show(this,
+                                    "The model system has been successfully imported from '" + fileName + "'.",
+                                    "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                        }
                             break;
                     }
                 }
@@ -987,7 +987,8 @@ namespace XTMF.Gui
         /// <param name="run"></param>
         /// <param name="runName"></param>
         /// <returns></returns>
-        internal RunWindow CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false, ModelSystemDisplay launchDisplay = null)
+        internal RunWindow CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName,
+            bool immediateRun = false, ModelSystemDisplay launchDisplay = null)
         {
             var runWindow = new RunWindow(session, run, runName, immediateRun, launchDisplay);
 
@@ -1098,14 +1099,14 @@ namespace XTMF.Gui
 
         public void LoadPageId(string id)
         {
-            Dispatcher.BeginInvoke((MethodInvoker)delegate
-           {
-               var item = OpenPages.Find(doc => doc.ContentId == id);
-               if (item != null)
-               {
-                   item.IsSelected = true;
-               }
-           });
+            Dispatcher.BeginInvoke((MethodInvoker) delegate
+            {
+                var item = OpenPages.Find(doc => doc.ContentId == id);
+                if (item != null)
+                {
+                    item.IsSelected = true;
+                }
+            });
         }
 
         private void LaunchSettingsPage()
@@ -1168,7 +1169,7 @@ namespace XTMF.Gui
                 {
                     if (ContentControl.DataContext is ViewModelBase)
                     {
-                        ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
+                        ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
                     }
                     //((ViewModelBase) ContentControl.DataContext).ViewTitle = title;
                     //((ViewModelBase) ContentControl.DataContext).IsSearchBoxVisible = searchable;
@@ -1389,15 +1390,16 @@ namespace XTMF.Gui
         }
 
         /// <summary>
-        /// Attempts to bring a display into view. Nothing occurs when the display is not already 
-        /// created. 
+        ///     Attempts to bring a display into view. Nothing occurs when the display is not already
+        ///     created.
         /// </summary>
         /// <param name="display"></param>
+        /// <param name="extraData"></param>
         /// <returns></returns>
-        public async Task<bool>  BringDisplayIntoView(UserControl display)
+        public async Task<bool> BringDisplayIntoView(UserControl display, object extraData)
         {
-            bool isFound = false;
-            await Dispatcher.InvokeAsync(new Action(() =>
+            var isFound = false;
+            await Dispatcher.InvokeAsync(() =>
             {
                 foreach (TabItem tab in DockManager.Items)
                 {
@@ -1405,10 +1407,11 @@ namespace XTMF.Gui
                     {
                         tab.IsSelected = true;
                         isFound = true;
-
+                        (display as IResumableControl)?.RestoreWithData(extraData);
+                        break;
                     }
                 }
-            }));
+            });
 
 
             return isFound;

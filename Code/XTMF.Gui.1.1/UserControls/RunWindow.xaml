@@ -178,7 +178,7 @@
                         <GridViewColumn Header="Module">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock VerticalAlignment="Center"> <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" >
+                                    <TextBlock VerticalAlignment="Center"> <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" Tag="{Binding ErrorWithPath}" >
                                         <Hyperlink.Inlines>
                                             <TextBlock Text="{Binding ModelSystemName}"></TextBlock>
 
