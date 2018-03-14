@@ -222,8 +222,13 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="errorMessage"></param>
         protected void InvokeRuntimeValidationError(List<ErrorWithPath> errorMessage)
         {
+            
             RuntimeValidationError?.Invoke(errorMessage);
         }
 

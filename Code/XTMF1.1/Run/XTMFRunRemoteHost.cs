@@ -172,6 +172,9 @@ namespace XTMF.Run
                             case ToHost.ProjectSaved:
                                 LoadAndSignalModelSystem(reader);
                                 break;
+                            case ToHost.ClientErrorRuntimeValidation:
+                                InvokeRuntimeValidationError(ReadErrors(reader));
+                                return;
                         }
                     }
                 }
@@ -300,11 +303,12 @@ namespace XTMF.Run
             }
             var message = reader.ReadString();
             var stackTrace = reader.ReadString();
+            var moduleName = reader.ReadString();
             if (String.IsNullOrWhiteSpace(stackTrace))
             {
                 stackTrace = null;
             }
-            return new ErrorWithPath(path, message, stackTrace);
+            return new ErrorWithPath(path, message, stackTrace,moduleName);
         }
 
         private static string LookupName(IModuleParameter reference, IModelSystemStructure current)

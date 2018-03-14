@@ -196,9 +196,10 @@ namespace XTMF.Run
                 };
                 run.RuntimeValidationError += (message) =>
                 {
+              
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
-                        writer.Write((Int32)ToHost.ClientErrorValidatingModelSystem);
+                        writer.Write((Int32)ToHost.ClientErrorRuntimeValidation);
                         WriteErrors(writer, message);
                     });
                     messageQueue.CompleteAdding();
@@ -262,6 +263,7 @@ namespace XTMF.Run
             }
             writer.Write(error.Message);
             writer.Write(error.StackTrace ?? String.Empty);
+            writer.Write(error.ModuleName);
         }
 
         private static void WriteMessageToStream(BlockingCollection<byte[]> messagesToSend, Action<BinaryWriter> action)

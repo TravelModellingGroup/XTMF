@@ -38,7 +38,8 @@ namespace XTMF.Run
         ProjectSaved = 9,
         ClientCreatedProgressReport = 10,
         ClientRemovedProgressReport = 11,
-        ClientClearedProgressReports = 12
+        ClientClearedProgressReports = 12,
+        ClientErrorRuntimeValidation = 13
     }
 
     public enum ToClient
