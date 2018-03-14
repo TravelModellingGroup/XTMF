@@ -294,11 +294,13 @@ namespace XTMF.Run
                 {
                     GetInnermostError(ref e);
                     List<int> path = null;
+                    string moduleName = null;
                     if (e is XTMFRuntimeException runtimeError)
                     {
                         path = GetModulePath(runtimeError.Module);
+                        moduleName = runtimeError.Module.Name;
                     }
-                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, e.StackTrace));
+                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, e.StackTrace, moduleName));
                 }
             }
         }

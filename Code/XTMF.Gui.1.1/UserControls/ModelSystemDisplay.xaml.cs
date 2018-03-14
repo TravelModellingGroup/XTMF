@@ -2912,8 +2912,11 @@ namespace XTMF.Gui.UserControls
                 if (!fail)
                 {
 
-                  BringSelectedIntoView(current);
-                  current.IsSelected = true;
+                    if (current != null) //should not happen...
+                    {
+                        BringSelectedIntoView(current);
+                        current.IsSelected = true;
+                    }
 
                 }
                 else

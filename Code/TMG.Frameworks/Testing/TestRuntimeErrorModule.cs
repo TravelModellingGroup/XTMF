@@ -33,7 +33,7 @@ namespace TMG.Frameworks.Testing
         public void Start()
         {
             //throw new dummy exception
-            throw new GenericRuntimeError("Test Runtime Error!");
+            throw new XTMFRuntimeException(this,"Test Runtime Error!");
         }
     }
 
