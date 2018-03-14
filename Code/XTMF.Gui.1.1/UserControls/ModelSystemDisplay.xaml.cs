@@ -2897,6 +2897,7 @@ namespace XTMF.Gui.UserControls
                 bool fail = false;
                 for (int i = 0; i < error.Path.Count; i++)
                 {
+                    current.IsExpanded = true;
                     if (current.Children.Count > error.Path[i])
                     {
                         current = current.Children[error.Path[i]];
@@ -2910,9 +2911,10 @@ namespace XTMF.Gui.UserControls
 
                 if (!fail)
                 {
-                   
-                    BringSelectedIntoView(current);
-                    current.IsSelected = true;
+
+                  BringSelectedIntoView(current);
+                  current.IsSelected = true;
+
                 }
                 else
                 {
