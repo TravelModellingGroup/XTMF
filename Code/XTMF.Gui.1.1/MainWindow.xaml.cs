@@ -778,7 +778,7 @@ namespace XTMF.Gui
             return Project.ValidateProjectName(name);
         }
 
-        internal void EditModelSystem(ModelSystemEditingSession modelSystemSession, string titleBar = null)
+        internal ModelSystemDisplay EditModelSystem(ModelSystemEditingSession modelSystemSession, string titleBar = null)
         {
             if (modelSystemSession != null)
             {
@@ -824,7 +824,10 @@ namespace XTMF.Gui
                 doc.IsSelected = true; */
                 Keyboard.Focus(display);
                 display.Focus();
+                return display;
             }
+
+            return null;
         }
 
         internal static void MakeWindowActive(UIElement switchTo)

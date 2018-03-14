@@ -730,7 +730,19 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(async () =>
             {
-                await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay, (sender as FrameworkContentElement)?.Tag);
+                var result = await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay, (sender as FrameworkContentElement)?.Tag);
+
+                //if the display failed to open, relaunch and edit the model system
+                if (!result)
+                {
+                    var display = MainWindow.Us.EditModelSystem(this._launchedFromModelSystemDisplay.Session);
+                    if (display != null)
+                    {
+                        this._launchedFromModelSystemDisplay = display;
+                        await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay, (sender as FrameworkContentElement)?.Tag);
+                    }
+
+                }
             });
 
         }
