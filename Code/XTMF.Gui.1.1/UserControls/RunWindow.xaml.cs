@@ -788,6 +788,19 @@ namespace XTMF.Gui.UserControls
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
             }
         }
+
+        /// <summary>
+        /// copy to clipboard (stack trace)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
+        {
+            var error = (sender as FrameworkContentElement)?.Tag as ModelSystemErrorDisplayModel;
+            Clipboard.SetText(error.StackTrace == "Unavailable" ?
+                error.Description :
+                error.Description + "\r\n" + error.StackTrace);
+        }
     }
 
     public class ModelSystemErrorDisplayModel : INotifyPropertyChanged

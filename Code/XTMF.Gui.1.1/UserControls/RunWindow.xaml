@@ -209,6 +209,7 @@
                                     <materialDesign:PopupBox.PopupContent>
                                         <StackPanel Margin="5">
                                                 <TextBox FontSize="11" Width="400" MinHeight="100" IsReadOnly="True" Foreground="{DynamicResource MaterialDesignBody1}" Text="{Binding StackTrace}"></TextBox>
+                                                <TextBlock HorizontalAlignment="Center" Margin="0,5"><Hyperlink Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .}" Click="Hyperlink_OnClick">  <materialDesign:PackIcon Kind="ContentCopy"></materialDesign:PackIcon>Copy to Clipboard</Hyperlink></TextBlock>
                                             </StackPanel>
                                      
                                         </materialDesign:PopupBox.PopupContent>
