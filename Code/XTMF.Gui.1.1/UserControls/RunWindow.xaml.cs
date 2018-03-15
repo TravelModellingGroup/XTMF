@@ -672,6 +672,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SubProgressBars_ListChanged(object sender, ListChangedEventArgs e)
         {
             if (e.ListChangedType == ListChangedType.ItemAdded)
@@ -728,6 +733,11 @@ namespace XTMF.Gui.UserControls
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ClearRunButton_Click(object sender, RoutedEventArgs e)
         {
             Dispatcher.BeginInvoke(new Action(() =>
@@ -826,6 +836,9 @@ namespace XTMF.Gui.UserControls
         }
     }
 
+    /// <summary>
+    /// Error Display Model for the error list in the run window.
+    /// </summary>
     public class ModelSystemErrorDisplayModel : INotifyPropertyChanged
     {
         private string _description;
