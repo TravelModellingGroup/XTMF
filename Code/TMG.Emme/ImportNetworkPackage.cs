@@ -36,7 +36,7 @@ namespace TMG.Emme
         [RunParameter("Scenario Id", 0, "The number of the new Emme scenario to create.")]
         public int ScenarioId;
 
-        [RunParameter("Scenario Name", " ", "The name of the Emme scenario to create.")]
+        [RunParameter("Scenario Name", "", "The name of the Emme scenario to create.")]
         public string ScenarioName;
 
         [RunParameter("Function Conflict Option", FunctionConflictOption.RAISE, "Option to deal with function definition conflicts. For example, if "
@@ -60,15 +60,22 @@ namespace TMG.Emme
         {
             var mc = controller as ModellerController;
             if (mc == null)
+            {
                 throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-
-            var args = string.Join(" ", "\"" + Path.GetFullPath(NetworkPackage.GetFilePath()) + "\"",
-                                    ScenarioId, ConflictOption.ToString(), AddFunctions.ToString(), ScenarioName.ToString());
+            }
 
             Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
 
-            var result = "";
-            return mc.Run(this, _ToolName, args, (p => Progress = p), ref result);
+
+            return mc.Run(this, _ToolName,
+                new[]
+                {
+                    new ModellerControllerParameter("NetworkPackageFile", Path.GetFullPath(NetworkPackage.GetFilePath())),
+                    new ModellerControllerParameter("ScenarioId", ScenarioId.ToString()),
+                    new ModellerControllerParameter("ConflictOption", ConflictOption.ToString()),
+                    new ModellerControllerParameter("AddFunction", AddFunctions.ToString()),
+                    new ModellerControllerParameter("ScenarioName", ScenarioName.ToString())
+                });
         }
 
         public string Name
