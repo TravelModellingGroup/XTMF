@@ -1700,7 +1700,11 @@ namespace XTMF.Gui.UserControls
                         {
                             currentContainer =
                                 currentContainer.ItemContainerGenerator.ContainerFromItem(ansestry[i]) as TreeViewItem;
-                            currentContainer.BringIntoView();
+                            if (currentContainer != null)
+                            {
+                                currentContainer.BringIntoView();
+                            }
+
                             return;
                         }
                     }

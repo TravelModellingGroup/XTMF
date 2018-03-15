@@ -439,17 +439,14 @@ namespace XTMF.Gui.UserControls
 
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (_assignMode)
-            {
+            
+                e.Handled = true;
                 AssignCurrentlySelected();
                 ChangesMade = true;
                 CleanupSelectedParameters();
-                if (DialogOpenedEventArgs != null)
-                {
-                    DialogOpenedEventArgs.Session.Close();
-                }
+                DialogOpenedEventArgs.Session.Close();
                 OnCloseDisplay.BeginInvoke(null, null);
-            }
+           
         }
 
         private void UserControl_MouseDown(object sender, MouseButtonEventArgs e)
