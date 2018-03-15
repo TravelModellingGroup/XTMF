@@ -17,11 +17,11 @@ namespace TMG.Frameworks.Testing
     {
         public string Name { get; set; }
         public float Progress { get =>  _progress; }
-        public Tuple<byte, byte, byte> ProgressColour { get; }
+        public Tuple<byte, byte, byte> ProgressColour { get; } = new Tuple<byte, byte, byte>(100, 120, 200);
     
 
-        [RunParameter("Execution Time (s)", 60, "Specficy the simulated length of execution for this module, in seconds..")]
-        public int ExecutionTime { get; set; }
+        [RunParameter("Execution Time", 60, "Specficy the simulated length of execution for this module, in seconds..")]
+        public float ExecutionTime { get; set; }
 
         private Timer _timer;
 

@@ -36,11 +36,21 @@ namespace XTMF.Gui
                             s.Name == EditorController.Runtime.Configuration.PrimaryColour);
                         new PaletteHelper().ReplacePrimaryColor(swatch);
                     }
+                    else
+                    {
+                        var swatch = new SwatchesProvider().Swatches.First(s => s.Name.ToLower() == "blue");
+                        new PaletteHelper().ReplacePrimaryColor(swatch);
+                    }
 
 
                     if (EditorController.Runtime.Configuration.AccentColour != null)
                     {
                         var swatch = swatches.First(s => s.Name == EditorController.Runtime.Configuration.AccentColour);
+                        new PaletteHelper().ReplaceAccentColor(swatch);
+                    }
+                    else
+                    {
+                        var swatch = swatches.First(s => s.Name.ToLower() == "amber");
                         new PaletteHelper().ReplaceAccentColor(swatch);
                     }
 
@@ -50,18 +60,6 @@ namespace XTMF.Gui
                         TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, false);
 
 
-                    if (EditorController.Runtime.Configuration.Theme == null)
-                    {
-                        //xtmfMainWindow.ThemeController.SetThemeActive(xtmfMainWindow.ThemeController.GetDefaultTheme());
-                    }
-                    else
-                    {
-                        var theme =
-                            xtmfMainWindow.ThemeController.FindThemeByName(EditorController.Runtime.Configuration
-                                .Theme);
-
-                        //xtmfMainWindow.ThemeController.SetThemeActive(theme ?? xtmfMainWindow.ThemeController.GetDefaultTheme());
-                    }
 
                     xtmfMainWindow.UpdateRecentProjectsMenu();
 
