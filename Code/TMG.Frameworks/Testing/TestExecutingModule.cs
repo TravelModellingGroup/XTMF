@@ -20,7 +20,8 @@ namespace TMG.Frameworks.Testing
         public float ExecutionTime { get; set; }
 
         public string Name { get; set; }
-        public float Progress { get; private set; } = 50.0f;
+
+        public float Progress => _progress;
 
         public Tuple<byte, byte, byte> ProgressColour { get; } = new Tuple<byte, byte, byte>(100, 120, 200);
 
@@ -29,9 +30,11 @@ namespace TMG.Frameworks.Testing
             return true;
         }
 
+        private float _progress = 0.0f;
+
         public void Start()
         {
-            Progress = 50.0f;
+            _progress = 0.0f;
             _timer = new Timer();
             _timer.Interval = 1000;
             _timer.Elapsed += _timer_Elapsed;
@@ -54,7 +57,7 @@ namespace TMG.Frameworks.Testing
         private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             _ticks++;
-            //_progress = (_ticks / (float)ExecutionTime) * 100.0f;
+            _progress = (_ticks / (float) ExecutionTime);
             Console.WriteLine("Timer tick from " + Name + " at " + e.SignalTime);
         }
     }

@@ -15,7 +15,8 @@ namespace TMG.Frameworks.Testing
     public class TestRootModule : IModelSystemTemplate
     {
         public string Name { get; set; }
-        public float Progress { get; }
+
+        public float Progress => calculateProgress();
         public Tuple<byte, byte, byte> ProgressColour { get; }
 
         [SubModelInformation(Description = "Child Modules",Required = false)]
@@ -28,6 +29,13 @@ namespace TMG.Frameworks.Testing
         {
 
             return true;
+        }
+
+        private float calculateProgress()
+        {
+            float total = 0;
+            ChildModules.ForEach((module) => total += module.Progress);
+            return total / 3.0f;
         }
 
         public void Start()

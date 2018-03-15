@@ -688,7 +688,7 @@ namespace XTMF.Gui.UserControls
             }
             else
             {
-                BaseGrid.RowDefinitions[1].Height = new GridLength(200);
+                BaseGrid.RowDefinitions[1].Height = new GridLength(250);
             }
         }
 
