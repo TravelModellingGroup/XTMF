@@ -34,6 +34,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="54"/>
+            <RowDefinition Height="150"></RowDefinition>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"></RowDefinition>
            <!-- <RowDefinition Height="*"/> -->
@@ -89,12 +90,13 @@
                 </userControls:FlatToolButton>
             </StackPanel> -->
         </Grid>
-        <GroupBox Visibility="Collapsed"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" Grid.ColumnSpan="3"  Grid.Column="0" Margin="3" Header="Module Execution Status" BorderThickness="0.5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center">
-            <Border Grid.Row="2" x:Name="AdditionDetailsPanelBorder" Height="0" BorderThickness="0" CornerRadius="5" Margin="5" Visibility="Collapsed">
-                <my:CollapsePanel x:Name="AdditionDetailsPanel" IsExpanded="False" InternalHeight="150" Header="Additional Information"  />
-            </Border>
+        <GroupBox    Style="{DynamicResource MaterialDesignCardGroupBox}"  Visibility="{Binding ProgressReportsVisibility}"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" Grid.ColumnSpan="3"  Grid.Column="0" Margin="12"  Header="Additional Information" BorderThickness="0.5" HorizontalContentAlignment="Center">
+          
+
+                <my:CollapsePanel x:Name="AdditionDetailsPanel" InternalHeight="150"  IsEnabled="True"   />
+            
         </GroupBox>
-        <GroupBox Foreground="{DynamicResource MaterialDesignBody}" Margin="3" Grid.Row="1" Grid.Column="2" Header="Run Status" BorderThickness="0.5" Visibility="Collapsed">
+        <GroupBox Foreground="{DynamicResource MaterialDesignBody}" Margin="3" Grid.Row="2" Grid.Column="0" Header="Run Status" BorderThickness="0.5" Visibility="Collapsed">
             <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -138,6 +140,7 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" x:Name="StatusLabel" Foreground="{DynamicResource MaterialDesignBody}"  Text="Status" TextTrimming="WordEllipsis" HorizontalAlignment="Left"
                                        TextAlignment="Center" TextWrapping="Wrap" />
+
                                 <my:TMGProgressBar Grid.Row="1" x:Name="ProgressBar" Background="{DynamicResource MaterialDesignBackground}" HorizontalAlignment="Stretch" Height="20" Minimum="0"  Maximum="10000" Value="0"  FontSize="14" IsIndeterminate="False" Margin="5,5,5,5" Foreground="{DynamicResource SecondaryAccentBrush}"  />
                                 <Label Grid.Row="2" x:Name="StartTimeLabel" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Content="Start Time" HorizontalAlignment="Left" Margin="5,0,0,0" />
                                 <Label Grid.Row="3" x:Name="ElapsedTimeLabel" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Content="Elapsed Time" HorizontalAlignment="Left" Margin="5,0,0,0" />
@@ -147,7 +150,7 @@
                 </Grid>
             </Grid>
         </GroupBox>
-        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="12"  Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}"  Grid.Row="1" Grid.Column="0" Header="Console Output" BorderThickness="0.5">
+        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="12"  Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}"  Grid.Row="2" Grid.Column="0" Header="Console Output" BorderThickness="0.5" Opacity="1">
             <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch"
                 Visibility="Visible" >
                 <Grid VerticalAlignment="Stretch">
@@ -167,7 +170,7 @@
                 </Grid>
             </Border>
         </GroupBox>
-        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}"  Name="ErrorGroupBox"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
+        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}"  Name="ErrorGroupBox"  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
                    Visibility="Visible" Margin="12"> 
             <ListView Name="ErrorListView" DataContext="{Binding }" >
                 <ListView.View>

@@ -27,7 +27,7 @@ namespace XTMF.Gui
     /// <summary>
     /// Interaction logic for CollapsePanel.xaml
     /// </summary>
-    public partial class CollapsePanel : Expander
+    public partial class CollapsePanel : UserControl
     {
         private double _internalHeight;
 
@@ -50,6 +50,7 @@ namespace XTMF.Gui
             {
                 InnerContents.Children.Add( element );
             }
+
         }
 
         public void Remove(UIElement element)
@@ -60,6 +61,7 @@ namespace XTMF.Gui
             }
         }
 
+        /*
         protected override void OnCollapsed()
         {
             if ( !_collapsing )
@@ -78,8 +80,9 @@ namespace XTMF.Gui
                 hide.RemoveRequested += AnimationStopped;
                 InnerContentContainer.BeginAnimation( OpacityProperty, hide );
             }
-        }
+        } */
 
+        /*
         protected override void OnExpanded()
         {
             if ( !_collapsing )
@@ -94,14 +97,8 @@ namespace XTMF.Gui
                 InnerContentContainer.BeginAnimation( HeightProperty, expand );
                 base.OnExpanded();
             }
-        }
+        } */
 
-        private void AnimationStopped(object sending, EventArgs e)
-        {
-            IsExpanded = false;
-            _collapsing = false;
-            InnerContentContainer.Opacity = 1;
-            base.OnCollapsed();
-        }
+      
     }
 }
