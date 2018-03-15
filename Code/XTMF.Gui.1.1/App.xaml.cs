@@ -63,7 +63,7 @@ namespace XTMF.Gui
                     }
                     else
                     {
-                       new PaletteHelper().SetLightDark(true);
+                       new PaletteHelper().SetLightDark(false);
                     }
 
                     if (EditorController.Runtime.Configuration.IsDisableTransitionAnimations)
