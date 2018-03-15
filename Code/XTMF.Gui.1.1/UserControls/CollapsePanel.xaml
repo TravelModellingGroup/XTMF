@@ -16,16 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<Expander x:Class="XTMF.Gui.CollapsePanel"
+<UserControl x:Class="XTMF.Gui.CollapsePanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" ExpandDirection="Down" Foreground="{DynamicResource MaterialDesignBody}" Header="Test">
-    <Expander.Content>
+             mc:Ignorable="d"  Foreground="{DynamicResource MaterialDesignBody}" >
 
-        <ScrollViewer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" x:Name="InnerContentContainer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
-            <StackPanel VerticalAlignment="Stretch" x:Name="InnerContents" Margin="2,2,2,2" />
+
+        <ScrollViewer VerticalAlignment="Stretch" VerticalContentAlignment="Top" x:Name="InnerContentContainer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Top" x:Name="InnerContents" Margin="2,2,2,2" />
         </ScrollViewer>
-    </Expander.Content>
-</Expander>
+
+</UserControl>
