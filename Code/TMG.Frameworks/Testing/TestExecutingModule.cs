@@ -42,11 +42,12 @@ namespace TMG.Frameworks.Testing
             _timer.Elapsed += _timer_Elapsed;
             _timer.AutoReset = true;
             _timer.Start();
-
-            while (_ticks < ExecutionTime)
+            float _totalTime = ExecutionTime;
+            while (_ticks < _totalTime)
             {
                 //hold up execution
                 Thread.Sleep(100);
+                
             }
 
             _timer.Stop();

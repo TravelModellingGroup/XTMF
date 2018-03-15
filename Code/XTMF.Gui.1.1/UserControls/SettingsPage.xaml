@@ -163,10 +163,10 @@
             <TextBlock Margin="16 16 12 8" FontSize="14" >Advanced</TextBlock>
             <materialDesign:Card Margin="0 0  0 0"  Padding="5 5 5 5" Width="700">
                 <StackPanel>
-                    <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0"/>
-                    <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>
-                    <Label Content="Delete local configuration?" Cursor="Hand" Name="DeleteConfigLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource FocusBrush}" FontSize="12" Margin="9.4,-3,9.4,6" MouseDown="DeleteConfigLabel_MouseDown"/>
-                    <Button  Name="CreateLocalConfigButton"  Background="{DynamicResource ControlColourBrush}" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>
+                    <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0" Foreground="{DynamicResource MaterialDesignBody}"/>
+                    <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0" Foreground="{DynamicResource MaterialDesignBody}"/>
+                    <Label Content="Delete local configuration?" Cursor="Hand" Name="DeleteConfigLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource MaterialDesignBody}" FontSize="12" Margin="9.4,-3,9.4,6" MouseDown="DeleteConfigLabel_MouseDown"/>
+                    <Button Style="{DynamicResource MaterialDesignFlatAccentButton}"  Name="CreateLocalConfigButton" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>
                 </StackPanel>
             </materialDesign:Card>
 

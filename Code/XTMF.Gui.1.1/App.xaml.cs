@@ -40,6 +40,7 @@ namespace XTMF.Gui
                     {
                         var swatch = new SwatchesProvider().Swatches.First(s => s.Name.ToLower() == "blue");
                         new PaletteHelper().ReplacePrimaryColor(swatch);
+                        EditorController.Runtime.Configuration.PrimaryColour = swatch.Name;
                     }
 
 
@@ -47,6 +48,7 @@ namespace XTMF.Gui
                     {
                         var swatch = swatches.First(s => s.Name == EditorController.Runtime.Configuration.AccentColour);
                         new PaletteHelper().ReplaceAccentColor(swatch);
+                        EditorController.Runtime.Configuration.AccentColour = swatch.Name;
                     }
                     else
                     {
@@ -54,7 +56,15 @@ namespace XTMF.Gui
                         new PaletteHelper().ReplaceAccentColor(swatch);
                     }
 
-                    if (EditorController.Runtime.Configuration.IsDarkTheme) new PaletteHelper().SetLightDark(true);
+                    if (EditorController.Runtime.Configuration.IsDarkTheme)
+                    {
+                        new PaletteHelper().SetLightDark(true);
+
+                    }
+                    else
+                    {
+                       new PaletteHelper().SetLightDark(true);
+                    }
 
                     if (EditorController.Runtime.Configuration.IsDisableTransitionAnimations)
                         TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, false);
