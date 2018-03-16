@@ -763,11 +763,17 @@ namespace XTMF.Gui.UserControls
         private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(
             ModelSystemStructureModel root)
         {
-            return new ObservableCollection<ModelSystemStructureDisplayModel>
+            var s = new ObservableCollection<ModelSystemStructureDisplayModel>
             {
                 (DisplayRoot = new ModelSystemStructureDisplayModel(root, null, 0))
+                
             };
+
+          
+
+            return s;
         }
+
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {

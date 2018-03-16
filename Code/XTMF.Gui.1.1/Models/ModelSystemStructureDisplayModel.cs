@@ -16,48 +16,36 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Windows.Media;
-using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
-using System.Windows.Forms;
 using System.Windows;
-using System.Windows.Input;
 using XTMF.Annotations;
-using XTMF.Gui.UserControls;
-using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
 
 namespace XTMF.Gui.Models
 {
     public class ModelSystemStructureDisplayModel : INotifyPropertyChanged
     {
-        internal ModelSystemStructureModel BaseModel;
-
         private ObservableCollection<ModelSystemStructureModel> _BaseChildren;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private bool _IsExpanded;
 
-        public int Index { get; set; }
+        private bool _isSelected;
 
-        public ModelSystemStructureDisplayModel Parent { get; }
+        private Visibility _ModuleVisibility;
+        internal ModelSystemStructureModel BaseModel;
 
-        public ModelSystemStructureDisplayModel BackingDisplayModel => this;
-
-        static ModelSystemStructureDisplayModel()
-        {
-
-        }
-
-        public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel, ModelSystemStructureDisplayModel parent, int index)
+        public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel,
+            ModelSystemStructureDisplayModel parent, int index)
         {
             //BaseChildren.
-            this.Parent = parent;
-            this.Index = index;
+            Parent = parent;
+            Index = index;
             BaseModel = baseModel;
             _BaseChildren = baseModel.Children;
             UpdateChildren(baseModel);
@@ -68,98 +56,18 @@ namespace XTMF.Gui.Models
             }
         }
 
-        private void UpdateChildren(ModelSystemStructureModel baseModel)
-        {
-            if (baseModel.IsMetaModule || _BaseChildren == null)
-            {
-                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
-            }
-            else
-            {
-                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
-                int i = 0;
-                foreach (var item in baseModel.Children)
-                {
-                    Children.Add(new ModelSystemStructureDisplayModel(item, this, i));
-                    i++;
-                }
-            }
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
-        }
+        public int Index { get; set; }
 
-        private void BaseChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        var insertAt = e.NewStartingIndex;
-                        foreach (var item in e.NewItems)
-                        {
-                            Children.Insert(insertAt, new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel, this, insertAt));
-                            insertAt++;
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    Children.Move(e.OldStartingIndex, e.NewStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    if (Children.Count > 0)
-                    {
-                        Children.RemoveAt(e.OldStartingIndex);
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    Children[e.OldStartingIndex] = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel, this, e.OldStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    Children.Clear();
-                    break;
-                default:
-                    throw new NotImplementedException("An unknown action was performed!");
-            }
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
-        }
+        public ModelSystemStructureDisplayModel Parent { get; }
 
-        private void BaseModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            var ev = PropertyChanged;
-            if (ev != null)
-            {
-                switch (e.PropertyName)
-                {
-                    case "Children":
-                        if (_BaseChildren != null)
-                        {
-                            _BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
-                        }
-                        _BaseChildren = BaseModel.Children;
-                        if (_BaseChildren != null)
-                        {
-                            _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
-                        }
-                        break;
-                    case "IsMetaModule":
-                        UpdateChildren(BaseModel);
-                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
-                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
-                        break;
-                    case "IsDisabled":
-                    case "Type":
-                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
-                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
-                        break;
-                }
-                ModelHelper.PropertyChanged(ev, this, e.PropertyName);
-            }
-        }
+        public ModelSystemStructureDisplayModel BackingDisplayModel => this;
 
         public string Name => BaseModel.Name;
 
         public string Description => BaseModel.Description;
 
         public ObservableCollection<ModelSystemStructureDisplayModel> Children { get; private set; }
+
         public Type Type
         {
             get => BaseModel.Type;
@@ -168,7 +76,6 @@ namespace XTMF.Gui.Models
 
         public bool IsCollection => BaseModel.IsCollection;
 
-        private bool _IsExpanded = false;
         public bool IsExpanded
         {
             get => _IsExpanded;
@@ -179,7 +86,6 @@ namespace XTMF.Gui.Models
             }
         }
 
-        private Visibility _ModuleVisibility;
         public Visibility ModuleVisibility
         {
             get => _ModuleVisibility;
@@ -195,12 +101,6 @@ namespace XTMF.Gui.Models
 
         public ParametersModel ParametersModel => BaseModel.Parameters;
 
-        internal ObservableCollection<ParameterModel> GetParameters()
-        {
-            return !BaseModel.IsMetaModule ? BaseModel.Parameters.GetParameters() : GetMetaModuleParamters();
-        }
-
-        private bool _isSelected;
         public bool IsSelected
         {
             get => _isSelected;
@@ -213,6 +113,121 @@ namespace XTMF.Gui.Models
                     OnPropertyChanged(nameof(IsSelected));
                 }
             }
+        }
+
+        public bool IsDisabled => BaseModel.IsDisabled;
+
+        public bool IsMetaModule => BaseModel.IsMetaModule;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// </summary>
+        /// <param name="baseModel"></param>
+        private void UpdateChildren(ModelSystemStructureModel baseModel)
+        {
+            if (baseModel.IsMetaModule || _BaseChildren == null)
+            {
+                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
+            }
+            else
+            {
+                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
+                var i = 0;
+                foreach (var item in baseModel.Children)
+                {
+                    var s = new ModelSystemStructureDisplayModel(item, this, i);
+                    Children.Add(s);
+                    i++;
+                }
+            }
+
+            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+        }
+
+        private void BaseChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                {
+                    var insertAt = e.NewStartingIndex;
+                    foreach (var item in e.NewItems)
+                    {
+                        var s2 = new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel, this,
+                            insertAt);
+                        //s2.ModelSystemStructureChanged = this.ModelSystemStructureChanged;
+                        Children.Insert(insertAt, s2);
+                        insertAt++;
+                    }
+                }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    Children.Move(e.OldStartingIndex, e.NewStartingIndex);
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    if (Children.Count > 0)
+                    {
+                        Children.RemoveAt(e.OldStartingIndex);
+                    }
+
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    var s = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel, this,
+                        e.OldStartingIndex);
+                    //s.ModelSystemStructureChanged = this.ModelSystemStructureChanged;
+                    Children[e.OldStartingIndex] = s;
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    Children.Clear();
+                    break;
+                default:
+                    throw new NotImplementedException("An unknown action was performed!");
+            }
+
+
+            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+        }
+
+        private void BaseModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var ev = PropertyChanged;
+            if (ev != null)
+            {
+                switch (e.PropertyName)
+                {
+                    case "Children":
+                        if (_BaseChildren != null)
+                        {
+                            _BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
+                        }
+
+                        _BaseChildren = BaseModel.Children;
+                        if (_BaseChildren != null)
+                        {
+                            _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
+                        }
+
+                        break;
+                    case "IsMetaModule":
+                        UpdateChildren(BaseModel);
+                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
+                        break;
+                    case "IsDisabled":
+                    case "Type":
+                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
+                        break;
+                }
+
+                ModelHelper.PropertyChanged(ev, this, e.PropertyName);
+            }
+        }
+
+        internal ObservableCollection<ParameterModel> GetParameters()
+        {
+            return !BaseModel.IsMetaModule ? BaseModel.Parameters.GetParameters() : GetMetaModuleParamters();
         }
 
         [NotifyPropertyChangedInvocator]
@@ -233,6 +248,7 @@ namespace XTMF.Gui.Models
                 {
                     ret.Add(p);
                 }
+
                 if (current.Children != null)
                 {
                     foreach (var c in current.Children)
@@ -241,14 +257,18 @@ namespace XTMF.Gui.Models
                     }
                 }
             }
+
             return ret;
         }
 
-        internal void CopyModule() => System.Windows.Clipboard.SetDataObject(BaseModel.CopyModule());
+        internal void CopyModule()
+        {
+            Clipboard.SetDataObject(BaseModel.CopyModule());
+        }
 
         internal static void CopyModules(List<ModelSystemStructureDisplayModel> toCopy)
         {
-            System.Windows.Clipboard.SetDataObject(ModelSystemStructureModel.CopyModule(toCopy.Select(m => m.BaseModel).ToList()));
+            Clipboard.SetDataObject(ModelSystemStructureModel.CopyModule(toCopy.Select(m => m.BaseModel).ToList()));
         }
 
         internal bool Paste(ModelSystemEditingSession session, string toPaste, ref string error)
@@ -256,14 +276,19 @@ namespace XTMF.Gui.Models
             return BaseModel.Paste(session, toPaste, ref error);
         }
 
-        internal List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected) => BuildChainTo(selected, this);
+        internal List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected)
+        {
+            return BuildChainTo(selected, this);
+        }
 
-        private static List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected, ModelSystemStructureDisplayModel current)
+        private static List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected,
+            ModelSystemStructureDisplayModel current)
         {
             if (selected == current)
             {
-                return new List<ModelSystemStructureDisplayModel>() { current };
+                return new List<ModelSystemStructureDisplayModel> {current};
             }
+
             var children = current.Children;
             if (children != null)
             {
@@ -277,15 +302,18 @@ namespace XTMF.Gui.Models
                     }
                 }
             }
+
             return null;
         }
 
-        public bool IsDisabled => BaseModel.IsDisabled;
+        internal bool SetDisabled(bool disabled, ref string error)
+        {
+            return BaseModel.SetDisabled(disabled, ref error);
+        }
 
-        public bool IsMetaModule => BaseModel.IsMetaModule;
-
-        internal bool SetDisabled(bool disabled, ref string error) => BaseModel.SetDisabled(disabled, ref error);
-
-        internal bool SetMetaModule(bool set, ref string error) => BaseModel.SetMetaModule(set, ref error);
+        internal bool SetMetaModule(bool set, ref string error)
+        {
+            return BaseModel.SetMetaModule(set, ref error);
+        }
     }
 }
