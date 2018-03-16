@@ -2138,6 +2138,7 @@ namespace XTMF.Gui.UserControls
 
         private void UpdateQuickParameters()
         {
+            //DisplayRoot.
             if (QuickParameterDisplay != null)
             {
                 QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel

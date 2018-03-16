@@ -51,7 +51,7 @@ namespace XTMF
             var ret = new List<ParameterModel>(realParameters.Count);
             for(int i = 0; i < realParameters.Count; i++)
             {
-                ret.Add(new ParameterModel(realParameters[i] as ModuleParameter, Session));
+                ret.Add(new ParameterModel(realParameters[i] as ModuleParameter, Session, modelSystemStructure));
             }
             return ret;
         }
@@ -78,7 +78,7 @@ namespace XTMF
             }
             for(int i = 0; i < realParameters.Count; i++)
             {
-                parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, _Session));
+                parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, _Session, modelSystemStructure));
             }
             ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
         }

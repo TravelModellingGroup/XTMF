@@ -36,12 +36,29 @@ namespace XTMF.Gui.Models
 
         private readonly bool _MultipleSelected;
 
+        public Visibility ModuledDisabledIconVisiblity
+        {
+            get => RealParameter.IsDisabled == true ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         public ParameterDisplayModel(ParameterModel realParameter, bool multipleSelected = false)
         {
             RealParameter = realParameter;
             _MultipleSelected = multipleSelected;
             realParameter.PropertyChanged += RealParameter_PropertyChanged;
             FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
+
+            
+        }
+
+        public ParameterDisplayModel(ModelSystemStructureDisplayModel realParameter, bool multipleSelected = false)
+        {
+            //RealParameter = realParameter.BaseModel.;
+            _MultipleSelected = multipleSelected;
+            realParameter.PropertyChanged += RealParameter_PropertyChanged;
+            FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
+
+
         }
 
         private void RealParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -142,7 +159,11 @@ namespace XTMF.Gui.Models
         internal static ObservableCollection<ParameterDisplayModel> CreateParameters(IOrderedEnumerable<ParameterModel> parameterModel, bool multipleSelected = false)
         {
             return new ObservableCollection<ParameterDisplayModel>(parameterModel.Select(p => new ParameterDisplayModel(p, multipleSelected)));
+
         }
+
+
+
 
         internal bool AddToLinkedParameter(LinkedParameterModel newLP, ref string error) => newLP.AddParameter(RealParameter, ref error);
 
