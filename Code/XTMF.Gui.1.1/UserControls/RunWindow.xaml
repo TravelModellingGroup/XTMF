@@ -35,10 +35,12 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="54"/>
             <RowDefinition Height="200"></RowDefinition>
+            <RowDefinition Height="2"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"></RowDefinition>
            <!-- <RowDefinition Height="*"/> -->
         </Grid.RowDefinitions>
+        <GridSplitter Name="GridSplitter" Grid.ColumnSpan="3" Grid.Row="2" ResizeDirection="Auto" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"></GridSplitter>
         <Grid Grid.Row="0" ColumnSpan="3" Background="{DynamicResource MaterialDesignPaper}">
 
             <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" >
@@ -150,7 +152,7 @@
                 </Grid>
             </Grid>
         </GroupBox>
-        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="12"  Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}"  Grid.Row="2" Grid.Column="0" Header="Console Output" BorderThickness="0.5" Opacity="1">
+        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="12"  Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}"  Grid.Row="3" Grid.Column="0" Header="Console Output" BorderThickness="0.5" Opacity="1">
             <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch"
                 Visibility="Visible" >
                 <Grid VerticalAlignment="Stretch">
@@ -170,7 +172,7 @@
                 </Grid>
             </Border>
         </GroupBox>
-        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}"  Name="ErrorGroupBox"  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
+        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}"  Name="ErrorGroupBox"  Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
                    Visibility="Visible" Margin="12"> 
             <ListView Name="ErrorListView" DataContext="{Binding }" >
                 <ListView.View>
