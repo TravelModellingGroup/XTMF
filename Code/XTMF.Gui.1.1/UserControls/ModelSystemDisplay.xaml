@@ -104,7 +104,7 @@
                                 <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
                                     <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                                     <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
-                                    <materialDesign:PackIcon Kind="Cancel"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
+                                    <materialDesign:PackIcon Kind="DoNotDisturb"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
                                 </StackPanel>
                             </Grid>
                         </Expander.Header>
@@ -147,7 +147,7 @@
 
                                     <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                                     <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
-                                    <materialDesign:PackIcon Kind="Cancel"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
+                                    <materialDesign:PackIcon Kind="DoNotDisturb"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
                                 </StackPanel>
                             </Grid>
                         </Expander.Header>

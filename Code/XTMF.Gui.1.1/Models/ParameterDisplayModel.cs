@@ -38,8 +38,29 @@ namespace XTMF.Gui.Models
 
         public Visibility ModuledDisabledIconVisiblity
         {
-            get => RealParameter.IsDisabled == true ? Visibility.Visible : Visibility.Collapsed;
+            get
+            {
+                if(this._linkedParameterModel == null)
+                {
+                    return RealParameter.IsDisabled == true ? Visibility.Visible : Visibility.Collapsed; 
+                }
+                else
+                {
+                    var parameters = this._linkedParameterModel.GetParameters();
+                    foreach (var s in parameters)
+                    {
+                        if(!s.IsDisabled)
+                        {
+                            return Visibility.Collapsed;
+                        }
+                    }
+                    return Visibility.Visible;
+                }
+            }
+  
         }
+
+        private LinkedParameterModel _linkedParameterModel;
 
         public ParameterDisplayModel(ParameterModel realParameter, bool multipleSelected = false)
         {
@@ -47,6 +68,9 @@ namespace XTMF.Gui.Models
             _MultipleSelected = multipleSelected;
             realParameter.PropertyChanged += RealParameter_PropertyChanged;
             FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
+
+
+            this._linkedParameterModel = realParameter.GetLinkedParameter();
 
             
         }
