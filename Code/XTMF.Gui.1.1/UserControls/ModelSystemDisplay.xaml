@@ -137,7 +137,7 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                                   IsTabStop="False"/>
-                                <ComboBox  materialDesign:TransitionAssist.DisableTransitions="True"  Name="ComboBox"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                                <ComboBox Tag="{Binding .}"  materialDesign:TransitionAssist.DisableTransitions="True"  Name="ComboBox"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                         AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="True"
                                           IsReadOnly="False" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"

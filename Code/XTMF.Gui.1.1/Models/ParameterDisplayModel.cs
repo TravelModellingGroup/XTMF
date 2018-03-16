@@ -252,6 +252,8 @@ namespace XTMF.Gui.Models
         public List<string> PossibleEnumerationValues => RealParameter.Type == typeof(bool) ? BoolValueList : RealParameter.Type.GetEnumNames().ToList();
 
         public IModelSystemStructure BelongsTo => RealParameter.BelongsTo;
+
+        public bool SetOnce = false;
     }
 
     public class ParameterTypeSelector : DataTemplateSelector

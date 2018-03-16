@@ -108,7 +108,16 @@ namespace XTMF.Run
             lock (this)
             {
                 BinaryWriter writer = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
-                writer.Write((Int32)signal);
+                try
+                {
+                    writer.Write((Int32)signal);
+                }
+                catch (IOException e)
+                {
+                    Console.WriteLine(e);
+                    return;
+                }
+               
             }
         }
 
@@ -141,40 +150,47 @@ namespace XTMF.Run
                     BinaryReader reader = new BinaryReader(_Pipe, System.Text.Encoding.Unicode, true);
                     while (true)
                     {
-                        switch ((ToHost)reader.ReadInt32())
+                        try
                         {
-                            case ToHost.Heartbeat:
-                                break;
-                            case ToHost.ClientReportedProgress:
-                                ReadProgress(reader);
-                                break;
-                            case ToHost.ClientReportedStatus:
-                                _RemoteStatus = reader.ReadString();
-                                break;
-                            case ToHost.ClientErrorValidatingModelSystem:
-                                InvokeValidationError(ReadErrors(reader));
-                                return;
-                            case ToHost.ClientErrorWhenRunningModelSystem:
-                                InvokeRuntimeError(ReadError(reader));
-                                return;
-                            case ToHost.ClientCreatedProgressReport:
-                                AddProgressReport(reader);
-                                break;
-                            case ToHost.ClientRemovedProgressReport:
-                                RemoveProgressRport(reader);
-                                break;
-                            case ToHost.ClientClearedProgressReports:
-                                ClearProgressReports();
-                                break;
-                            case ToHost.ClientFinishedModelSystem:
-                            case ToHost.ClientExiting:
-                                return;
-                            case ToHost.ProjectSaved:
-                                LoadAndSignalModelSystem(reader);
-                                break;
-                            case ToHost.ClientErrorRuntimeValidation:
-                                InvokeRuntimeValidationError(ReadErrors(reader));
-                                return;
+                            switch ((ToHost) reader.ReadInt32())
+                            {
+                                case ToHost.Heartbeat:
+                                    break;
+                                case ToHost.ClientReportedProgress:
+                                    ReadProgress(reader);
+                                    break;
+                                case ToHost.ClientReportedStatus:
+                                    _RemoteStatus = reader.ReadString();
+                                    break;
+                                case ToHost.ClientErrorValidatingModelSystem:
+                                    InvokeValidationError(ReadErrors(reader));
+                                    return;
+                                case ToHost.ClientErrorWhenRunningModelSystem:
+                                    InvokeRuntimeError(ReadError(reader));
+                                    return;
+                                case ToHost.ClientCreatedProgressReport:
+                                    AddProgressReport(reader);
+                                    break;
+                                case ToHost.ClientRemovedProgressReport:
+                                    RemoveProgressRport(reader);
+                                    break;
+                                case ToHost.ClientClearedProgressReports:
+                                    ClearProgressReports();
+                                    break;
+                                case ToHost.ClientFinishedModelSystem:
+                                case ToHost.ClientExiting:
+                                    return;
+                                case ToHost.ProjectSaved:
+                                    LoadAndSignalModelSystem(reader);
+                                    break;
+                                case ToHost.ClientErrorRuntimeValidation:
+                                    InvokeRuntimeValidationError(ReadErrors(reader));
+                                    return;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
                         }
                     }
                 }

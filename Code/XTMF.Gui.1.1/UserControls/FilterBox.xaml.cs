@@ -92,6 +92,8 @@ namespace XTMF.Gui
             }
         }
 
+       // private bool _
+
         public ItemsControl Display
         {
             get => _display;
@@ -108,7 +110,7 @@ namespace XTMF.Gui
                 {
                     if (UseItemSourceFilter)
                     {
-                        _itemsSource.Refresh();
+                    //    _itemsSource.Refresh();
                     }
                     else
                     {
