@@ -42,14 +42,16 @@ namespace XTMF.Gui.Models
             {
                 if (this._linkedParameterModel == null)
                 {
-                    return IsDisabledByDesdencence(this.RealParameter) == true ? Visibility.Visible : Visibility.Collapsed;
+                    var s = IsDisabledByDesdencence(RealParameter);
+                    var c = (s) ? Visibility.Visible : Visibility.Collapsed;
+                    return c;
                 }
                 else
                 {
                     var parameters = this._linkedParameterModel.GetParameters();
                     foreach (var s in parameters)
                     {
-                        if (IsDisabledByDesdencence(s))
+                        if (!IsDisabledByDesdencence(s))
                         {
                             return Visibility.Collapsed;
                         }
@@ -94,7 +96,7 @@ namespace XTMF.Gui.Models
 
             } while (m != null);
 
-            return !hasDisabledParent;
+            return hasDisabledParent;
         }
 
         private LinkedParameterModel _linkedParameterModel;
