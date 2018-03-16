@@ -38,6 +38,8 @@ namespace XTMF
 
         internal ModelSystemStructure RealModelSystemStructure;
 
+        private ModelSystemStructureModel _parent;
+
         public ModelSystemStructureModel(ModelSystemEditingSession session,
             ModelSystemStructure realModelSystemStructure)
         {
@@ -46,6 +48,19 @@ namespace XTMF
             Parameters = new ParametersModel(this, session);
             Children = CreateChildren(_Session, RealModelSystemStructure);
         }
+
+        public ModelSystemStructureModel(ModelSystemEditingSession session,
+     ModelSystemStructure realModelSystemStructure, ModelSystemStructureModel parent)
+        {
+            _Session = session;
+            RealModelSystemStructure = realModelSystemStructure;
+            Parameters = new ParametersModel(this, session);
+            Children = CreateChildren(_Session, RealModelSystemStructure);
+            _parent = parent;
+        }
+
+        public ModelSystemStructureModel Parent => _parent;
+
 
         public string Name => RealModelSystemStructure.Name;
 
@@ -242,7 +257,7 @@ namespace XTMF
                         }
 
                         Children.Add(data.ModelInQuestion =
-                            new ModelSystemStructureModel(_Session, data.StructureInQuestion));
+                            new ModelSystemStructureModel(_Session, data.StructureInQuestion,this));
                         return true;
                     },
                     (ref string e) =>
@@ -1159,7 +1174,7 @@ namespace XTMF
                 for (int i = 0; i < realModelSystemStructure.Children.Count; i++)
                 {
                     ret.Add(new ModelSystemStructureModel(session,
-                        realModelSystemStructure.Children[i] as ModelSystemStructure));
+                        realModelSystemStructure.Children[i] as ModelSystemStructure, this));
                 }
             }
             else
@@ -1183,7 +1198,7 @@ namespace XTMF
                                           where !Children.Any(c => c.RealModelSystemStructure == child)
                                           select child)
                     {
-                        ret.Add(new ModelSystemStructureModel(session, child as ModelSystemStructure));
+                        ret.Add(new ModelSystemStructureModel(session, child as ModelSystemStructure, this));
                     }
 
                     bool repeat = false;

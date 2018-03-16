@@ -40,16 +40,16 @@ namespace XTMF.Gui.Models
         {
             get
             {
-                if(this._linkedParameterModel == null)
+                if (this._linkedParameterModel == null)
                 {
-                    return RealParameter.IsDisabled == true ? Visibility.Visible : Visibility.Collapsed; 
+                    return IsDisabledByDesdencence(this.RealParameter) == true ? Visibility.Visible : Visibility.Collapsed;
                 }
                 else
                 {
                     var parameters = this._linkedParameterModel.GetParameters();
                     foreach (var s in parameters)
                     {
-                        if(!s.IsDisabled)
+                        if (IsDisabledByDesdencence(s))
                         {
                             return Visibility.Collapsed;
                         }
@@ -57,7 +57,44 @@ namespace XTMF.Gui.Models
                     return Visibility.Visible;
                 }
             }
-  
+
+        }
+
+        /// <summary>
+        /// Determines if this parameter is associated with a disabled module by descendence, that is, this method returns true
+        /// if the associated module or any of its ancestors are disabled.
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        public static bool IsDisabledByDesdencence(ParameterModel parameter)
+        {
+            //in the case of the root module
+            if(parameter.BelongsToModel.Parent == null && parameter.IsDisabled)
+            {
+                return true;
+            }
+            else if(parameter.BelongsToModel.Parent == null && !parameter.IsDisabled)
+            {
+                return false;
+            }
+            bool hasDisabledParent = false;
+            ModelSystemStructureModel m = parameter.BelongsToModel;
+            do
+            {
+                if(m.IsDisabled)
+                {
+                    hasDisabledParent = true;
+                    break;
+                }
+                else
+                {
+                    //move up until null
+                    m = m.Parent;
+                }
+
+            } while (m != null);
+
+            return !hasDisabledParent;
         }
 
         private LinkedParameterModel _linkedParameterModel;
@@ -72,7 +109,7 @@ namespace XTMF.Gui.Models
 
             this._linkedParameterModel = realParameter.GetLinkedParameter();
 
-            
+
         }
 
         public ParameterDisplayModel(ModelSystemStructureDisplayModel realParameter, bool multipleSelected = false)
@@ -92,7 +129,7 @@ namespace XTMF.Gui.Models
             {
                 property = nameof(LinkedParameterVisibility);
             }
-            else if(e.PropertyName == "IsHidden")
+            else if (e.PropertyName == "IsHidden")
             {
                 FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
                 property = nameof(FontColour);

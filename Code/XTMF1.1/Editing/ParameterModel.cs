@@ -43,6 +43,14 @@ namespace XTMF
                 return _belongsTo.IsDisabled;
             }
         }
+
+        public  ModelSystemStructureModel BelongsToModel
+        {
+            get
+            {
+                return _belongsTo;
+            }
+        }
  
 
         public ParameterModel(ModuleParameter realParameter, ModelSystemEditingSession session)
