@@ -42,7 +42,7 @@
                 <TextBlock Margin="10 10 5 10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" Foreground="{DynamicResource MaterialDesignColumnHeader}" Grid.Row="0" Text="Active Runs"></TextBlock>
 
 
-                <ListView  Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView  Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" PreviewMouseDown="ScheduledRuns_PreviewMouseDown">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -185,7 +185,8 @@
                     </Button>
                 </DockPanel>
 
-                <ListView Name="FinishedRuns"  Grid.Row="1" SelectionChanged="FinishedRuns_OnSelectionChanged" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ContextMenuOpening="FinishedRuns_ContextMenuOpening" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+                <ListView Name="FinishedRuns"  Grid.Row="1" SelectionChanged="FinishedRuns_OnSelectionChanged" 
+                          ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ContextMenuOpening="FinishedRuns_ContextMenuOpening" ScrollViewer.HorizontalScrollBarVisibility="Disabled" PreviewMouseDown="FinishedRuns_PreviewMouseDown" >
 
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">

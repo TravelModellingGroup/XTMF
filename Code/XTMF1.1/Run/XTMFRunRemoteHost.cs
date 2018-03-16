@@ -112,7 +112,7 @@ namespace XTMF.Run
                 {
                     writer.Write((Int32)signal);
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                     return;
