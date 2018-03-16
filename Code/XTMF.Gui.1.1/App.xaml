@@ -24,6 +24,7 @@
              xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
              xmlns:wpf="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:XTMF.Gui.Converters"
+              xmlns:local2="clr-namespace:Dragablz.Themes"
              Startup="App_OnStartup"
 
              ShutdownMode="OnExplicitShutdown"
@@ -64,7 +65,42 @@
 
             </ResourceDictionary.MergedDictionaries>
 
-            <Style TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource MaterialDesignTabablzControlStyle}" />
+
+
+            <Style x:Key="MaterialDesignXtmfDragableTabItemStyle" TargetType="{x:Type dragablz:DragablzItem}" BasedOn="{StaticResource MaterialDesignDragableTabItemStyle}">
+              
+                <Style.Triggers>
+
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="IsMouseOver" Value="True" />
+                        </MultiTrigger.Conditions>
+                        <Setter  Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
+                     
+                    </MultiTrigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style TargetType="{x:Type dragablz:TabablzControl}" x:Key="MaterialDesignXtmfTabablzControlStyle" BasedOn="{StaticResource MaterialDesignTabablzControlStyle}">
+               <!-- <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignPaper}" /> -->
+                <Setter Property="ItemContainerStyle" Value="{StaticResource MaterialDesignXtmfDragableTabItemStyle}" />
+                <Style.Triggers>
+                    <Trigger Property="TabStripPlacement" Value="Left">
+                        <Setter Property="ItemContainerStyle" Value="{StaticResource MaterialDesignAlternateDragableTabItemVerticalStyle}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+
+
+
+
+
+
+
+
+
+            <Style TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource MaterialDesignXtmfTabablzControlStyle}" />
             <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource Primary700}"/>
             <SolidColorBrush x:Key="AccentBaseColorBrush" Color="{DynamicResource Primary600}" />
             <SolidColorBrush x:Key="AccentColorBrush" Color="{DynamicResource Primary500}"/>
