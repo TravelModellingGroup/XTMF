@@ -43,10 +43,14 @@ class ProgressTimer(Thread):
         self.run = self._run
     
     def _run(self):
-        while not self._stopped:
-            progressTuple = self.delegateFunction()
-            self.bridge.ReportProgress((float(progressTuple[2]) - progressTuple[0]) / (progressTuple[1] - progressTuple[0]))
-            time.sleep(0.01667)
+        try:
+            while not self._stopped:
+                progressTuple = self.delegateFunction()
+                self.bridge.ReportProgress(float(progressTuple[2] - progressTuple[0]) / float(progressTuple[1] - progressTuple[0]))
+                time.sleep(0.01667)
+        except:
+            # silently fail if we are unable to understand what the progress tuple is doing.
+            pass
     
     def stop(self):
         self._stopped = True

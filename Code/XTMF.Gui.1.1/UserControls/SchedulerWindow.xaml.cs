@@ -221,6 +221,7 @@ namespace XTMF.Gui.UserControls
             var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
+            
         }
 
         /// <summary>
@@ -434,6 +435,20 @@ namespace XTMF.Gui.UserControls
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void FinishedRuns_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            ActiveRunContent.DataContext = runWindow;
+            ActiveContent = runWindow;
+        }
+
+        private void ScheduledRuns_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            ActiveRunContent.DataContext = runWindow;
+            ActiveContent = runWindow;
         }
     }
 }

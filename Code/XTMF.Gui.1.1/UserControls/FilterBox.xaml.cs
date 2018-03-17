@@ -110,7 +110,7 @@ namespace XTMF.Gui
                 {
                     if (UseItemSourceFilter)
                     {
-                    //    _itemsSource.Refresh();
+                        _itemsSource.Refresh();
                     }
                     else
                     {
