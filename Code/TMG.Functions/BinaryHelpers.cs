@@ -18,6 +18,8 @@
 */
 using System;
 using System.IO;
+using XTMF;
+
 namespace TMG.Functions
 {
     public static class BinaryHelpers
@@ -40,7 +42,7 @@ namespace TMG.Functions
             }
         }
 
-        public static void ExecuteReader(Action<BinaryReader> toRun, string fileName)
+        public static void ExecuteReader(IModule module, Action<BinaryReader> toRun, string fileName)
         {
             Stream file = null;
             try
@@ -51,6 +53,14 @@ namespace TMG.Functions
                     file = null;
                     toRun(reader);
                 }
+            }
+            catch (IOException e)
+            {
+                if (!File.Exists(fileName))
+                {
+                    throw new XTMFRuntimeException(module, e, $"File not found at '{fileName}'!");
+                }
+                throw new XTMFRuntimeException(module, e, $"Unable to read the file located at '{fileName}'!");
             }
             finally
             {

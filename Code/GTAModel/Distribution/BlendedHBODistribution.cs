@@ -317,7 +317,7 @@ namespace TMG.GTAModel
         {
             try
             {
-                BinaryHelpers.ExecuteReader(reader =>
+                BinaryHelpers.ExecuteReader(this, reader =>
                    {
                        for (int i = 0; i < ret.Length; i++)
                        {

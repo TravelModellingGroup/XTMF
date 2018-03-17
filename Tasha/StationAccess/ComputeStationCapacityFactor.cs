@@ -78,7 +78,7 @@ blended average between iteration to help converge.")]
 
             internal void Execute(int iteration)
             {
-                BinaryHelpers.ExecuteReader((reader) =>
+                BinaryHelpers.ExecuteReader(this, (reader) =>
                 {
                     EmmeMatrix matrix = new EmmeMatrix(reader);
                     switch (matrix.Type)

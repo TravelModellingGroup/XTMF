@@ -28,7 +28,7 @@ namespace TMG.GTAModel.Input
 {
     public class Read311File : IReadODData<float>
     {
-        [SubModelInformation( Required = true, Description = "The location of the .311 file to read in." )]
+        [SubModelInformation(Required = true, Description = "The location of the .311 file to read in.")]
         public FileLocation EmmeFile;
 
         public string Name
@@ -51,23 +51,28 @@ namespace TMG.GTAModel.Input
         {
             string line;
             int pos;
+            var path = EmmeFile.GetFilePath();
+            if (!File.Exists(path))
+            {
+                throw new XTMFRuntimeException(this, $"File not found at '{path}'!");
+            }
             ODData<float> data = new ODData<float>();
             // do this because highest zone isn't high enough for array indexes
-            using ( StreamReader reader = new StreamReader( new
-                FileStream( EmmeFile.GetFilePath(), FileMode.Open, FileAccess.Read, FileShare.Read,
-                0x1000, FileOptions.SequentialScan ) ) )
+            using (StreamReader reader = new StreamReader(new
+                FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read,
+                0x1000, FileOptions.SequentialScan)))
             {
-                BurnHeader( reader );
-                while ( ( line = reader.ReadLine() ) != null )
+                BurnHeader(reader);
+                while ((line = reader.ReadLine()) != null)
                 {
                     pos = 0;
                     int length = line.Length;
                     // don't read blank lines
-                    if ( ReadNextInt( line, length, ref pos, out data.O ) )
+                    if (ReadNextInt(line, length, ref pos, out data.O))
                     {
-                        while ( ReadNextInt( line, length, ref pos, out data.D ) )
+                        while (ReadNextInt(line, length, ref pos, out data.D))
                         {
-                            if ( ReadNextFloat( line, length, ref pos, out data.Data ) )
+                            if (ReadNextFloat(line, length, ref pos, out data.Data))
                             {
                                 yield return data;
                             }
@@ -81,25 +86,25 @@ namespace TMG.GTAModel.Input
         {
             int start = -1;
             bool any = false;
-            for ( ; position < lineLength; position++ )
+            for (; position < lineLength; position++)
             {
                 var c = line[position];
-                if ( Char.IsDigit( c ) | ( c == '.' ) )
+                if (Char.IsDigit(c) | (c == '.'))
                 {
-                    if ( start < 0 )
+                    if (start < 0)
                     {
                         start = position;
                         any = true;
                     }
                 }
-                else if ( any )
+                else if (any)
                 {
                     break;
                 }
             }
-            if ( any )
+            if (any)
             {
-                result = FastParse.ParseFixedFloat( line, start, position - start );
+                result = FastParse.ParseFixedFloat(line, start, position - start);
                 return true;
             }
             result = -1;
@@ -110,25 +115,25 @@ namespace TMG.GTAModel.Input
         {
             int start = -1;
             bool any = false;
-            for ( ; position < lineLength; position++ )
+            for (; position < lineLength; position++)
             {
                 var c = line[position];
-                if ( Char.IsDigit( c ) )
+                if (Char.IsDigit(c))
                 {
-                    if ( start < 0 )
+                    if (start < 0)
                     {
                         start = position;
                         any = true;
                     }
                 }
-                else if ( any )
+                else if (any)
                 {
                     break;
                 }
             }
-            if ( any )
+            if (any)
             {
-                result = FastParse.ParseFixedInt( line, start, position - start );
+                result = FastParse.ParseFixedInt(line, start, position - start);
                 return true;
             }
             result = -1;
@@ -138,18 +143,18 @@ namespace TMG.GTAModel.Input
         private static void BurnHeader(StreamReader reader)
         {
             string line;
-            while ( ( line = reader.ReadLine() ) != null )
+            while ((line = reader.ReadLine()) != null)
             {
-                if ( line.Length > 0 && line[0] == 't' )
+                if (line.Length > 0 && line[0] == 't')
                 {
                     //Requires a correct t-record
-                    if ( !line.StartsWith( "t matrices" ) ) throw new IOException( "Invalid matrix file" );
+                    if (!line.StartsWith("t matrices")) throw new IOException("Invalid matrix file");
                     break;
                 }
             }
-            while ( ( line = reader.ReadLine() ) != null )
+            while ((line = reader.ReadLine()) != null)
             {
-                if ( line.Length > 0 && line[0] == 'a' ) break;
+                if (line.Length > 0 && line[0] == 'a') break;
             }
         }
 

@@ -55,6 +55,10 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
+            if (!File.Exists(InputFile))
+            {
+                throw new XTMFRuntimeException(this, $"Unable to read an EMME Binary Matrix located at ${InputFile.GetFilePath()}");
+            }
             using (BinaryReader reader = new BinaryReader(new FileStream(InputFile, FileMode.Open, FileAccess.Read)))
             {
                 EmmeMatrix matrix = new EmmeMatrix(reader);
