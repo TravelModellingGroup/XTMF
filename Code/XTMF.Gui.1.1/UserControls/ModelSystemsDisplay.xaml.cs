@@ -282,6 +282,11 @@ namespace XTMF.Gui.UserControls
                 Display.ItemContainerGenerator.Items[0] as ModelSystem : null;
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FilterBox_EnterPressed(object sender, EventArgs e)
         {
             var selected = Display.SelectedItem as ModelSystem;
@@ -292,18 +297,115 @@ namespace XTMF.Gui.UserControls
             LoadModelSystem(selected);
         }
 
-        private void ImportModelSystemButton_OnClicked(object obj) => MainWindow.Us.ImportModelSystem();
 
         private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e) => LoadCurrentModelSystem();
 
-        private void NewModelSystemButton_OnClick(object sender, RoutedEventArgs e)
+
+        /// <summary>
+        /// Mouse button listener for the new model system button in the floating action bar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NewModelSystemStackPanel_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-           NewModelSystem_Click(sender,e);
+            MainWindow.Us.NewModelSystem();
+            RefreshModelSystems();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImportModelSystemStackPanel_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            MainWindow.Us.ImportModelSystem();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ImportModelSystemButton_OnClick(object sender, RoutedEventArgs e)
         {
-           ImportModelSystemButton_OnClick(sender,e);
+            MainWindow.Us.ImportModelSystem();
+        }
+
+        private void NewModelSystemButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Us.NewModelSystem();
+            RefreshModelSystems();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RenameModelSystemStackPanel_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this.RenameCurrentModelSystem();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RenameModelSystemButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            this.RenameCurrentModelSystem();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CloneModelSystemButton_OnClick(object sender, RoutedEventArgs e)
+        {
+           this.CloneCurrentModelSystem();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CloneModelSystemStackPanel_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this.CloneCurrentModelSystem();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DeleteModelSystemStackPanel_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this.DeleteCurrentModelSystem();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DeleteModelSystemButon_OnClick(object sender, RoutedEventArgs e)
+        {
+            this.DeleteCurrentModelSystem();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExportModelSystemStackPanel_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this.ExportCurrentModelSystem();
         }
 
         /// <summary>
@@ -313,7 +415,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ExportModelSystemButton_OnClick(object sender, RoutedEventArgs e)
         {
-            ExportCurrentModelSystem();
+            this.ExportCurrentModelSystem();
         }
     }
 }
