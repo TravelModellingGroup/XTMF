@@ -123,7 +123,7 @@ namespace TMG.GTAModel
             var tree = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
             try
             {
-                BinaryHelpers.ExecuteReader( reader =>
+                BinaryHelpers.ExecuteReader(this, reader =>
                     {
                         // ReSharper disable once UnusedVariable
                         foreach ( var t in tree )

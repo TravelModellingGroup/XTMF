@@ -50,7 +50,7 @@ namespace TMG.Emme.Utilities
 
         public void LoadData()
         {
-            BinaryHelpers.ExecuteReader((reader) =>
+            BinaryHelpers.ExecuteReader(this, (reader) =>
             {
                 var matrix = new EmmeMatrix(reader);
                 if (matrix.Dimensions != 2)

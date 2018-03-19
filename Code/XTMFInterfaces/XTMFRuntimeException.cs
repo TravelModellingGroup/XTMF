@@ -29,6 +29,11 @@ namespace XTMF
         /// </summary>
         public IModule Module { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public Exception InnerException { get; private set; }
+
         public XTMFRuntimeException()
         {
         }
@@ -43,6 +48,13 @@ namespace XTMF
             : base(message)
         {
             Module = module;
+        }
+
+        public XTMFRuntimeException(IModule module, Exception wrapedException, string message = null)
+            : base(String.IsNullOrWhiteSpace(message) ? wrapedException?.Message ?? "No Message" : message)
+        {
+            Module = module;
+            InnerException = wrapedException;
         }
     }
 }
