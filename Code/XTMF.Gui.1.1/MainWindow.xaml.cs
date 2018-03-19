@@ -573,10 +573,7 @@ namespace XTMF.Gui
             }
         }
 
-        private void OpenModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            OpenModelSystem();
-        }
+
 
         public void OpenModelSystem()
         {
@@ -1420,6 +1417,11 @@ namespace XTMF.Gui
 
 
             return isFound;
+        }
+
+        private void OpenModelSystemGlobalMenuItem_Selected(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
