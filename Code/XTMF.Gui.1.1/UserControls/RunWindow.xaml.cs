@@ -267,12 +267,21 @@ namespace XTMF.Gui.UserControls
             var newTextLength = ConsoleOutput.Text.Length;
             if (_oldCaret >= _consoleLength)
             {
-                ConsoleScrollViewer.ScrollToEnd();
-                ConsoleOutput.CaretIndex = newTextLength;
+                //ConsoleScrollViewer.ScrollToEnd();
+                ConsoleOutput.Select(ConsoleOutput.Text.Length - 1, 0);
+                //ConsoleOutput.S
+                //ConsoleOutput.ScrollToLine(ConsoleOutput.LineCount-1);
+                //ConsoleScrollViewer.ScrollToBottom();
             }
             else
             {
-                ConsoleOutput.CaretIndex = _oldCaret;
+                //will scroll to bottom if caret is close to end of text
+               // if (ConsoleOutput.CaretIndex > ConsoleOutput.Text.Length - 20)
+                //{
+                    ConsoleOutput.Select(ConsoleOutput.Text.Length - 1, 0);
+                //}
+
+                // ConsoleOutput.CaretIndex = _oldCaret;
             }
 
             _consoleLength = newTextLength;
@@ -817,6 +826,7 @@ namespace XTMF.Gui.UserControls
 
             private void Run_RunMessage(string message)
             {
+            
                 ConsoleOutput = ConsoleOutput + message + "\r\n";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
             }
