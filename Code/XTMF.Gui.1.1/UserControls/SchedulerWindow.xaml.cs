@@ -269,7 +269,7 @@ namespace XTMF.Gui.UserControls
                 runWindow.OnRunStarted = OnRunStarted;
                 runWindow.OnRuntimeError = OnRuntimeError;
 
-                StatusText = "Queud";
+                StatusText = "Queued";
 
                 //StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
