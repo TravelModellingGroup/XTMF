@@ -1310,7 +1310,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void MainWindow_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (DrawerHost.IsLeftDrawerOpen && e.Key != Key.LeftAlt || e.Key != Key.RightAlt)
+            if (DrawerHost.IsLeftDrawerOpen && e.Key != Key.LeftAlt && e.Key != Key.RightAlt)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
 
