@@ -33,6 +33,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 using Dragablz;
 using MahApps.Metro.Controls;
 using Xceed.Wpf.AvalonDock.Layout;
@@ -140,6 +141,8 @@ namespace XTMF.Gui
 
 
             XtmfNotificationIcon.InitializeNotificationIcon();
+
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
         }
 
 

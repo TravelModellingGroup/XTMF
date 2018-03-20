@@ -177,11 +177,15 @@ namespace XTMF.Gui.UserControls
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
 
             session.ExecuteRun(run, immediateRun);
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
+
+
+ 
 
             StartRunAsync();
             _timer.Start();
         }
+
+
 
         public Action OnRuntimeValidationError { get; set; }
 
@@ -218,6 +222,20 @@ namespace XTMF.Gui.UserControls
         public DateTime StartTime { get; private set; }
 
         public ModelSystemEditingSession Session { get; }
+
+        /// <summary>
+        /// Scrolls the console output and caret to the bottom of the containing textbox.
+        /// </summary>
+        public void ScrollToBottomOfConsole()
+        {
+            if (ConsoleOutput.Text.Length > 0)
+            {
+                ConsoleOutput.CaretIndex = ConsoleOutput.Text.Length - 1;
+                ConsoleOutput.ScrollToEnd();
+                ConsoleScrollViewer.ScrollToBottom();
+                ConsoleScrollViewer.ScrollToEnd();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
