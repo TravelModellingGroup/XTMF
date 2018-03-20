@@ -157,7 +157,7 @@ namespace XTMF.Gui.UserControls
             ErrorGroupBox.Visibility = Visibility.Collapsed;
             BaseGrid.RowDefinitions[1].Height = new GridLength(0);
             _runDirectory = Run.RunDirectory;
-            _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(33)};
+            _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(100)};
             _isFinished = false;
             _wasCanceled = false;
             _timer.Tick += Timer_Tick;
