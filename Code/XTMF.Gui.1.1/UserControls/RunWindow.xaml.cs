@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using MaterialDesignThemes.Wpf;
@@ -176,6 +177,7 @@ namespace XTMF.Gui.UserControls
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
 
             session.ExecuteRun(run, immediateRun);
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
 
             StartRunAsync();
             _timer.Start();
