@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -107,7 +107,7 @@ namespace XTMF
             {
                 var assemblyLocation = Assembly.GetEntryAssembly().Location;
                 var versionFile = Path.Combine(Path.GetDirectoryName(assemblyLocation), "version.txt");
-               
+
                 if (File.Exists(versionFile))
                 {
                     using (StreamReader reader = new StreamReader(versionFile))
@@ -630,7 +630,7 @@ namespace XTMF
         /// <param name="type">The type to process</param>
         /// <param name="error">A message describing the error.</param>
         /// <returns>True if there is an error.</returns>
-        private bool CheckTypeForErrors(Type type, ref string error) => 
+        private bool CheckTypeForErrors(Type type, ref string error) =>
             CheckForParameterDelcarationErrors(type, ref error) ||
             CheckForNonPublicRootAndParentTags(type, ref error);
 
@@ -729,58 +729,58 @@ namespace XTMF
                 switch (child.Name)
                 {
                     case "PrimaryColour":
-                    {
-                        var attribute = child.Attributes["Value"];
-                        if (attribute != null)
                         {
-                            PrimaryColour = attribute.InnerText;
+                            var attribute = child.Attributes["Value"];
+                            if (attribute != null)
+                            {
+                                PrimaryColour = attribute.InnerText;
+                            }
+                            break;
                         }
-                        break;
-                    }
                     case "AccentColour":
-                    {
-                        var attribute = child.Attributes["Value"];
-                        if (attribute != null)
                         {
-                            AccentColour = attribute.InnerText;
+                            var attribute = child.Attributes["Value"];
+                            if (attribute != null)
+                            {
+                                AccentColour = attribute.InnerText;
+                            }
+                            break;
                         }
-                        break;
-                    }
 
                     case "IsDarkTheme":
-                    {
-                        var attribute = child.Attributes["Value"];
-                        if (attribute != null)
                         {
-                            bool isDarkTheme = false;
-                            if (bool.TryParse(attribute.InnerText, out isDarkTheme))
+                            var attribute = child.Attributes["Value"];
+                            if (attribute != null)
                             {
-                                IsDarkTheme = isDarkTheme;
+                                bool isDarkTheme = false;
+                                if (bool.TryParse(attribute.InnerText, out isDarkTheme))
+                                {
+                                    IsDarkTheme = isDarkTheme;
+                                }
+                                else
+                                {
+                                    IsDarkTheme = false;
+                                }
                             }
-                            else
-                            {
-                                IsDarkTheme = false;
-                            }
+                            break;
                         }
-                        break;
-                    }
                     case "IsDisableTransitionAnimations":
-                    {
-                        var attribute = child.Attributes["Value"];
-                        if (attribute != null)
                         {
-                            bool isDisableTransitionAnimations = false;
-                            if (bool.TryParse(attribute.InnerText, out isDisableTransitionAnimations))
+                            var attribute = child.Attributes["Value"];
+                            if (attribute != null)
                             {
-                                this.IsDisableTransitionAnimations = isDisableTransitionAnimations;
+                                bool isDisableTransitionAnimations = false;
+                                if (bool.TryParse(attribute.InnerText, out isDisableTransitionAnimations))
+                                {
+                                    this.IsDisableTransitionAnimations = isDisableTransitionAnimations;
+                                }
+                                else
+                                {
+                                    this.IsDisableTransitionAnimations = false;
+                                }
                             }
-                            else
-                            {
-                                this.IsDisableTransitionAnimations = false;
-                            }
+                            break;
                         }
-                        break;
-                    }
 
                     case "RecentProjects":
 
@@ -927,12 +927,17 @@ namespace XTMF
             if (Directory.Exists(_ModuleDirectory))
             {
                 var files = Directory.GetFiles(_ModuleDirectory, "*.dll");
+                var excludedDlls = LoadExcludeList();
                 Parallel.For(0, files.Length,
                     (int i) =>
                     {
                         try
                         {
-                            LoadAssembly((Assembly.Load(Path.GetFileNameWithoutExtension(files[i]))));
+                            var fileName = files[i];
+                            if (!excludedDlls.Contains(Path.GetFileName(fileName.ToLower())))
+                            {
+                                LoadAssembly((Assembly.Load(Path.GetFileNameWithoutExtension(fileName))));
+                            }
                         }
                         catch (Exception e)
                         {
@@ -941,6 +946,13 @@ namespace XTMF
                         }
                     });
             }
+        }
+
+        private List<string> LoadExcludeList()
+        {
+            var path = Path.Combine(_ModuleDirectory, "Exclude.txt");
+            return File.Exists(path) ?
+                 File.ReadLines(path).Select(s => s.ToLower()).ToList() : new List<string>();
         }
 
         private void LoadUserConfiguration(string configFile)
