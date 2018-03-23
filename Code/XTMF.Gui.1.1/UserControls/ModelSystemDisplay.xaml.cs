@@ -3021,8 +3021,23 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void TextBox_OnLostFocus(object sender, RoutedEventArgs e)
         {
-            ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
-            //throw new NotImplementedException();
+            if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
+            {
+                ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TextBox_OnLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
+            {
+                ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+            }
         }
     }
 }
