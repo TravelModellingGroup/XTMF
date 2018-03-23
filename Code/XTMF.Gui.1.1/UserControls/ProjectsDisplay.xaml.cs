@@ -88,7 +88,6 @@ namespace XTMF.Gui.UserControls
             return prev.GetType();
         }
 
-        private void Project_DoubleClicked(object obj) => LoadCurrentProject();
 
         private void LoadCurrentProject() => LoadProject(Display.SelectedItem as Project);
 
@@ -102,13 +101,6 @@ namespace XTMF.Gui.UserControls
 
         private void Delete_Click(object sender, RoutedEventArgs e) => DeleteCurrentProject();
 
-        private void DeleteProject_Clicked(object obj) => DeleteCurrentProject();
-
-        private void CloneProject_Clicked(object obj) => CloneCurrentProject();
-
-        private void RenameProject_Clicked(object obj) => RenameCurrentProject();
-
-        private void NewProject_Clicked(object sender) => CreateNewProject();
 
         private void ChangeDescription_Click(object sender, RoutedEventArgs e) => ChangeCurrentDescription();
 
