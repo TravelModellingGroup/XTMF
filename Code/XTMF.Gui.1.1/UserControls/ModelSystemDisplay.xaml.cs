@@ -2951,7 +2951,10 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
+            ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
             CanSaveModelSystem = true;
+
+
         }
 
         /// <summary>
