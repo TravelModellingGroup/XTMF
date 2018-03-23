@@ -2951,16 +2951,8 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            if ((sender as TextBox).Text.Trim() != string.Empty)
-            {
-                //((sender as TextBox).DataContext as ParameterDisplayModel).RealParameter.
-                Type type = ((sender as TextBox).DataContext as ParameterDisplayModel).ParameterType;
-                if (type != typeof(float) && type != typeof(double))
-                {
-                    ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
-                    CanSaveModelSystem = true;
-                }
-            }
+
+            CanSaveModelSystem = true;
 
 
         }
@@ -3020,6 +3012,17 @@ namespace XTMF.Gui.UserControls
 
         private void ParameterDisplay_SourceUpdated(object sender, DataTransferEventArgs e)
         {
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TextBox_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+            //throw new NotImplementedException();
         }
     }
 }

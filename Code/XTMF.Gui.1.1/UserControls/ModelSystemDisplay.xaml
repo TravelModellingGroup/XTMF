@@ -95,7 +95,7 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                           IsTabStop="False"/>
-                                <TextBox TextChanged="TextBox_OnTextChanged" materialDesign:TransitionAssist.DisableTransitions="True"  HorizontalContentAlignment="Left" Tag="{Binding .}" Grid.Column="2" Name="TextBox"  Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                                <TextBox LostFocus="TextBox_OnLostFocus" TextChanged="TextBox_OnTextChanged" materialDesign:TransitionAssist.DisableTransitions="True"  HorizontalContentAlignment="Left" Tag="{Binding .}" Grid.Column="2" Name="TextBox"  Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                              AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
                                           Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}"
