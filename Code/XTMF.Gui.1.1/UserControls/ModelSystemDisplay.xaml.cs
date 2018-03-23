@@ -2951,8 +2951,16 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
-            CanSaveModelSystem = true;
+            if ((sender as TextBox).Text.Trim() != string.Empty)
+            {
+                //((sender as TextBox).DataContext as ParameterDisplayModel).RealParameter.
+                Type type = ((sender as TextBox).DataContext as ParameterDisplayModel).ParameterType;
+                if (type != typeof(float) && type != typeof(double))
+                {
+                    ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+                    CanSaveModelSystem = true;
+                }
+            }
 
 
         }

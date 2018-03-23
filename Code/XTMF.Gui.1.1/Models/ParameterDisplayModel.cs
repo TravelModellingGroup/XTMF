@@ -36,6 +36,8 @@ namespace XTMF.Gui.Models
 
         private readonly bool _MultipleSelected;
 
+        public Type ParameterType => RealParameter.Type;
+
         public Visibility ModuledDisabledIconVisiblity
         {
             get
