@@ -1264,6 +1264,25 @@ namespace XTMF.Gui
 
                 e.Handled = true;
             }
+
+            if (e.KeyboardDevice.IsKeyDown(Key.W) &&
+                (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl)))
+            {
+                //before closing, attempt to save / interrupt if control supports
+                var tabItem = DockManager.SelectedItem as TabItem;
+                if (tabItem.Content is ITabCloseListener closeListener && !closeListener.HandleTabClose())
+                {
+
+                    return;
+                }
+                else
+                {
+                    Dispatcher.InvokeAsync(new Action(() => { DockManager.Items.Remove(DockManager.SelectedItem); }));
+
+                }
+
+               
+            }
         }
 
         /// <summary>
