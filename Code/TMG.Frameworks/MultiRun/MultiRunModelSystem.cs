@@ -240,8 +240,8 @@ For specification about the language, and extensibility please consult the TMG F
             TryAddBatchCommand("import", ImportMultiRunFile, true);
             TryAddBatchCommand("define", DefineVariable, true);
             TryAddBatchCommand("if", IfStatement, true);
+            TryAddBatchCommand("fail", Fail, true);
         }
-
 
         /// <summary>
         /// Tries to add a batch command, this will fail if there is already a command with the same name
@@ -423,6 +423,12 @@ For specification about the language, and extensibility please consult the TMG F
             {
                 throw new XTMFRuntimeException(this, "In '" + Name + "' a linked parameter '" + name + "' was not found in order to assign it the value of '" + value + "'.");
             }
+        }
+
+        private void Fail(XmlNode command)
+        {
+            string message = GetAttributeOrError(command, "Message", "The attribute 'Message' was not found!");
+            throw new XTMFRuntimeException(this, message);
         }
 
         private sealed class MultirunTemplate
