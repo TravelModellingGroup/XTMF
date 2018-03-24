@@ -418,6 +418,10 @@ namespace XTMF.Gui
             LoadProject(project);
         }
 
+        /// <summary>
+        /// Loads a project.
+        /// </summary>
+        /// <param name="project"></param>
         public void LoadProject(Project project)
         {
             var progressing = new OperationProgressing
@@ -488,7 +492,7 @@ namespace XTMF.Gui
                 var visible = false;
                 foreach (TabItem tabItem in DockManager.Items)
                 {
-                    if (tabItem.Content == projectContorl)
+                    if (tabItem.Content == projectContorl && tabItem.IsSelected)
                     {
                         visible = true;
                         break;
@@ -531,15 +535,7 @@ namespace XTMF.Gui
             Us.Dispatcher.BeginInvoke(new Action(() => { Us.StatusDisplay.Text = text; }));
         }
 
-        private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void OpenProject_Click(object sender, RoutedEventArgs e)
-        {
-            OpenProject();
-        }
+  
 
         public void OpenProject()
         {
@@ -1263,6 +1259,25 @@ namespace XTMF.Gui
                 DrawerHost.IsLeftDrawerOpen = false;
 
                 e.Handled = true;
+            }
+
+            if (e.KeyboardDevice.IsKeyDown(Key.W) &&
+                (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl)))
+            {
+                //before closing, attempt to save / interrupt if control supports
+                var tabItem = DockManager.SelectedItem as TabItem;
+                if (tabItem.Content is ITabCloseListener closeListener && !closeListener.HandleTabClose())
+                {
+
+                    return;
+                }
+                else
+                {
+                    Dispatcher.InvokeAsync(new Action(() => { DockManager.Items.Remove(DockManager.SelectedItem); }));
+
+                }
+
+               
             }
         }
 

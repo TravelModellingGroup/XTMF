@@ -2951,7 +2951,10 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void TextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
+
             CanSaveModelSystem = true;
+
+
         }
 
         /// <summary>
@@ -3009,6 +3012,32 @@ namespace XTMF.Gui.UserControls
 
         private void ParameterDisplay_SourceUpdated(object sender, DataTransferEventArgs e)
         {
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TextBox_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
+            {
+                ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TextBox_OnLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
+            {
+                ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+            }
         }
     }
 }

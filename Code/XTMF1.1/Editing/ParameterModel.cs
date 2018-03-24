@@ -29,6 +29,9 @@ namespace XTMF
     {
         internal readonly ModuleParameter RealParameter;
 
+
+        public Type ParamterType => RealParameter.Type;
+
         private readonly ModelSystemEditingSession _Session;
 
         internal readonly ModelSystemStructureModel _belongsTo;
