@@ -144,8 +144,11 @@ namespace XTMF.Gui
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
 
             SetDisplayActive(new StartWindow(),"Start" );
+
+            
         }
 
+    
 
         public string ConfigurationFilePath { get; private set; }
 
@@ -182,6 +185,11 @@ namespace XTMF.Gui
         {
             (DockManager.SelectedContent as UserControl)?.Focus();
             Keyboard.Focus(DockManager.SelectedContent as UserControl);
+
+            if (DockManager.Items.Count == 0)
+            {
+                SetDisplayActive(new StartWindow(),"Start");
+            }
         }
 
         public event EventHandler RecentProjectsUpdated;
