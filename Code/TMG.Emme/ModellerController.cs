@@ -434,9 +434,9 @@ namespace TMG.Emme
                         ToEmme.Close();
                         ToEmme = null;
                     }
-                    catch (IOException)
-                    {
-                    }
+                    // Argument exception occurs if the stream is not writable
+                    catch (ArgumentException) { }
+                    catch (IOException) { }
                 }
             }
         }
