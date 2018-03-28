@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -49,11 +49,12 @@ namespace XTMF.Gui
                 RecentProjectsStackPanel.Children.Clear();
                 foreach (var recentProject in MainWindow.Us.RecentProjects)
                 {
-
-                    Button b = new Button();
-                    b.Content = recentProject;
-                    b.HorizontalContentAlignment = HorizontalAlignment.Left;
-                    b.Style = (Style)FindResource("MaterialDesignFlatButton");
+                    Button b = new Button
+                    {
+                        Content = recentProject,
+                        HorizontalContentAlignment = HorizontalAlignment.Left,
+                        Style = (Style)FindResource("MaterialDesignFlatButton")
+                    };
                     b.Click += (senderx, EventArgs) => MainWindow.Us.LoadProjectByName(recentProject);
                     RecentProjectsStackPanel.Children.Add(b);
                 }
@@ -67,7 +68,6 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-          
             MainWindow.Us.NewProject();
         }
 

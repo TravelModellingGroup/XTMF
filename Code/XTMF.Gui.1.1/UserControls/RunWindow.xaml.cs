@@ -125,9 +125,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             ErrorVisibility = Visibility.Collapsed;
             Session = session;
-            session.SessionClosed += Session_SessionClosed;
             Run = run;
-            MainWindow.Us.Closing += MainWindowClosing;
             OpenDirectoryButton.IsEnabled = true;
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -597,11 +595,6 @@ namespace XTMF.Gui.UserControls
             UpdateStartTime?.Invoke($"{StartTime:g}");
         }
 
-        private void Session_SessionClosed(object sender, EventArgs e)
-        {
-            MainWindow.Us.CloseWindow(this);
-        }
-
         private void OpenDirectoryButton_Clicked(object sender, RoutedEventArgs e)
         {
             if (Directory.Exists(_runDirectory))
@@ -732,8 +725,6 @@ namespace XTMF.Gui.UserControls
             {
                 return true;
             }
-
-            Dispatcher.Invoke(() => { MainWindow.ShowPageContaining(this); });
             //Are you sure?
             var window = GetWindow(this);
             var message = "Are you sure you want to cancel the run '" + Run.RunName + "'?";
