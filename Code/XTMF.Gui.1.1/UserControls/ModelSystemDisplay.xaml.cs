@@ -1063,7 +1063,6 @@ namespace XTMF.Gui.UserControls
         internal bool CloseRequested()
         {
             SaveCurrentlySelectedParameters();
-            Dispatcher.Invoke(() => { MainWindow.ShowPageContaining(this); });
             var result = false;
             Dispatcher.Invoke(() =>
             {

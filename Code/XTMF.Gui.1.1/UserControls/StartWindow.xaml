@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -24,36 +24,30 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"  BorderThickness="0"
              d:DesignHeight="600" d:DesignWidth="800" Background="{DynamicResource MaterialDesignPaper}" >
-    
+
     <UserControl.Resources>
         <ResourceDictionary>
-            
             <Style x:Key="StartWindowLabelStyle"  TargetType="{x:Type Label}">
-                
                 <Style.Triggers>
                     <MultiDataTrigger>
                         <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"></Condition>
+                            <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True" />
                         </MultiDataTrigger.Conditions>
-                        <Setter Property="Foreground" Value="White"></Setter>
-                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover}"></Setter>
+                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover}" />
                     </MultiDataTrigger>
                 </Style.Triggers>
-                
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-        
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-   
         <Grid Grid.Column="0" MinWidth="760" MinHeight="460">
             <Grid.Background>
                 <ImageBrush/>
             </Grid.Background>
-            
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MinHeight="100"/>
                 <RowDefinition Height="*" />
@@ -82,27 +76,25 @@
                         <ColumnDefinition Width="300"/>
                     </Grid.ColumnDefinitions>
                     <materialDesign:Card Grid.Row="0" Grid.Column="0" Padding="15" Margin="5">
-                    <StackPanel  Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
-                        <Label Content="Projects" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
-                        <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14" Click="ButtonBase_OnClick"   />
-                        <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}"  Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" Name="OpenProjectButton" Click="OpenProjectButton_OnClick" />
-                    </StackPanel>
+                        <StackPanel  Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
+                            <Label Content="Projects" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
+                            <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14" Click="ButtonBase_OnClick"   />
+                            <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}"  Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" Name="OpenProjectButton" Click="OpenProjectButton_OnClick" />
+                        </StackPanel>
                     </materialDesign:Card>
                     <materialDesign:Card Grid.Row="1" Grid.Column="0" Padding="15" Margin="5">
                         <StackPanel  Orientation="Vertical" HorizontalAlignment="Left">
-                        <Label Content="Recent" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" Margin="1,15,0,0" />
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Name="RecentProjectsStackPanel">
+                            <Label Content="Recent" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" Margin="1,15,0,0" />
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Name="RecentProjectsStackPanel" />
                         </StackPanel>
-                          
-                    </StackPanel>
                     </materialDesign:Card>
                     <materialDesign:Card  Grid.Row="0" Grid.Column="1" Padding="15" Margin="5">
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                        <Label Content="Model Systems" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
-                        <Button Name="CreateNewModelSystemButton"  HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" Click="CreateNewModelSystemButton_Click" />
-                        <Button   HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" Name="OpenModelSystem" Click="OpenModelSystem_OnClick" />
-                    </StackPanel>
-                        </materialDesign:Card>
+                            <Label Content="Model Systems" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
+                            <Button Name="CreateNewModelSystemButton"  HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" Click="CreateNewModelSystemButton_Click" />
+                            <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" Name="OpenModelSystem" Click="OpenModelSystem_OnClick" />
+                        </StackPanel>
+                    </materialDesign:Card>
                 </Grid>
             </Grid>
         </Grid>

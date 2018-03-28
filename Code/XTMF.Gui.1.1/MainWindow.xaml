@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,11 +32,8 @@
 
         Title="XTMF Version 1.4" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="500"
-
-        
-  Name="XtmfWindow"
-       
-                   PreviewKeyDown="MainWindow_OnPreviewKeyDown"
+        Name="XtmfWindow"
+        PreviewKeyDown="MainWindow_OnPreviewKeyDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" 
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -45,7 +42,7 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         FontFamily="{DynamicResource MaterialDesignFont}" Closing="XtmfWindow_Closing" Initialized="XtmfWindow_Initialized">
-    
+
     <metro:MetroWindow.RightWindowCommands>
         <metro:WindowCommands BorderThickness="0">
             <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right">
@@ -67,272 +64,142 @@
                     <materialDesign:PackIcon Kind="KeyboardBackspace" />
                 </materialDesign:ToggleButtonAssist.OnContent>
             </ToggleButton>
-
-
-
         </metro:WindowCommands>
-
     </metro:MetroWindow.LeftWindowCommands>
     <Border  Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource PrimaryHueMidBrush}"
         BorderThickness="0">
         <Grid>
 
             <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" Name="RootDialogHost"   >
-        <materialDesign:DrawerHost Name="DrawerHost"  materialDesign:ShadowAssist.ShadowDepth="Depth4" 
+                <materialDesign:DrawerHost Name="DrawerHost"  materialDesign:ShadowAssist.ShadowDepth="Depth4" 
                                    IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}" 
                                    PreviewKeyDown="DrawerHost_PreviewKeyDown"
                                    >
-            <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent" PreviewKeyDown="ExternalGrid_OnPreviewKeyDown" >
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-
-                <Grid Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="837*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="AUTO" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="1" />
-                        <RowDefinition Height="AUTO" />
-                    </Grid.RowDefinitions>
-                    <!-- The main menu -->
-                    <!--
-                    <Menu IsMainMenu="True" Style="{DynamicResource MaterialDesignMenu}" Grid.Row="0" 
-                  Margin="0,0,0,0" Grid.ColumnSpan="1">
-                        <MenuItem Header="_File">
-
-                            <MenuItem Header="_New">
-                                <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
-                                <MenuItem x:Name="NewModelSystemButton" Header="_Model System"
-                                  Click="NewModelSystemButton_Click" />
-                            </MenuItem>
-                            <MenuItem Style="{DynamicResource MaterialDesignMenuItem}"  x:Name="OpenMenuItem" Header="_Open">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Folder" />
-                                </MenuItem.Icon>
-                                <MenuItem Header="_Project" Click="OpenProject_Click" />
-                                <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
-                            </MenuItem>
-                            <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="RecentProjectsMenuItem" Header="_RecentProjects" />
-                            <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click"
-                              IsEnabled="{Binding CanClose, Mode=OneWay}" />
-                            <Separator Style="{DynamicResource MaterialDesignSeparator}" />
-                            <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click"
-                              IsEnabled="{Binding CanSave, Mode=OneWay}">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="ContentSave" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem  Style="{DynamicResource MaterialDesignMenuItem}" x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
-                              IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
-                           
-                    <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
-                        <MenuItem.Icon>
-                            <ContentControl Template="{DynamicResource ImportIcon}" />
-                        </MenuItem.Icon>
-                    </MenuItem> 
-                            <Separator Style="{DynamicResource MaterialDesignSeparator}" />
-                            <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Download" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <Separator Style="{StaticResource MaterialDesignSeparator}" />
-                            <MenuItem Header="E_xit" Click="Exit_Click" />
-                        </MenuItem>
-                        <MenuItem Header="_Edit">
-
-                            <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click"
-                              IsEnabled="{Binding CanUndo, Mode=OneWay}">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Undo" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click"
-                              IsEnabled="{Binding CanRedo, Mode=OneWay}">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Redo" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuItem>
-                        <MenuItem Header="_Run">
-
-                            <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click"
-                              IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Run" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client" Click="RunRemoteMenu_Click">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Run" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuItem>
-                        <MenuItem Header="_View">
-
-                            <MenuItem Header="_Start Window" Click="ShowStart_Click" />
-                            <MenuItem Header="_Interface Settings">
-                                <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True"
-                                  Click="MetaModuleHiddenParametersToggle_Click" />
-                            </MenuItem>
-                            <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="BookOpen" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="_Settings" Click="Settings_Click">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Settings" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuItem>
-                        <MenuItem Header="_Help">
-
-                            <MenuItem Header="Search _Help" Click="LaunchHelpWindow_Click">
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Help" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
-                            <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
-                        </MenuItem>
-                    </Menu> -->
-
-                    <DockPanel Name="ViewDockPanel"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                       
+                    <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="837*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="AUTO" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="1" />
+                                <RowDefinition Height="AUTO" />
+                            </Grid.RowDefinitions>
+                            <DockPanel Name="ViewDockPanel"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                                 <ContentControl DockPanel.Dock="Bottom"  Name="ContentControl"  Grid.Row="1"   Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
-                    </DockPanel>
-
-
-                    <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" SnapsToDevicePixels="True">
-                    <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager" ConsolidateOrphanedItems="True" Background="{DynamicResource MaterialDesignBackground}" SnapsToDevicePixels="True"
-                                             >
-              
-                        <dragablz:TabablzControl.InterTabController   >
+                            </DockPanel>
+                            <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" SnapsToDevicePixels="True">
+                                <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager" ConsolidateOrphanedItems="True" Background="{DynamicResource MaterialDesignBackground}" SnapsToDevicePixels="True">
+                                    <dragablz:TabablzControl.InterTabController>
                                     <dragablz:InterTabController SnapsToDevicePixels="True"  />
-                            </dragablz:TabablzControl.InterTabController>
-                    </dragablz:TabablzControl>
-                    </dockablz:Layout>
-                   
-                       
-                        <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
+                                    </dragablz:TabablzControl.InterTabController>
+                                </dragablz:TabablzControl>
+                            </dockablz:Layout>
+                            <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
                        Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
-                        <StatusBarItem HorizontalAlignment="Left">
-                            <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource MaterialDesignBody}" />
-                        </StatusBarItem>
-                        <StatusBarItem HorizontalAlignment="Left" Margin="-5,0,0,0" >
-                            <Label FontSize="12" Visibility="Hidden" Name="StatusLinkLabel" Foreground="{DynamicResource MaterialDesignBody}" Content="Click here"  ></Label>
-                        </StatusBarItem>
-                        <StatusBarItem HorizontalAlignment="Right">
-                            <StackPanel Orientation="Horizontal">
-                                <Label  x:Name="RunLabel" Content="Run Model (F5)" Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                <StatusBarItem HorizontalAlignment="Left">
+                                    <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource MaterialDesignBody}" />
+                                </StatusBarItem>
+                                <StatusBarItem HorizontalAlignment="Left" Margin="-5,0,0,0" >
+                                    <Label FontSize="12" Visibility="Hidden" Name="StatusLinkLabel" Foreground="{DynamicResource MaterialDesignBody}" Content="Click here"  ></Label>
+                                </StatusBarItem>
+                                <StatusBarItem HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label  x:Name="RunLabel" Content="Run Model (F5)" Foreground="{DynamicResource PrimaryHueMidBrush}"
                                ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0"
-                               FontSize="14" MouseUp="RunModel_MouseUp">
-                                </Label>
-                            </StackPanel>
-                        </StatusBarItem>
-                    </StatusBar>
-                    <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1"
+                               FontSize="14">
+                                        </Label>
+                                    </StackPanel>
+                                </StatusBarItem>
+                            </StatusBar>
+                            <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1"
                           VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" Grid.Column="0" />
-                </Grid>
-            </Grid>
-            <materialDesign:DrawerHost.LeftDrawerContent >
-                <StackPanel   MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
-                    <ListBox Name="XTMFWorkspaceListBox" SelectionChanged="XTMFWorkspaceListBox_OnSelectionChanged" >
-                        <ListBoxItem Padding="15 8 5 8" MouseUp="NewProjectButton_Click">New Project</ListBoxItem>
-                            <ListBoxItem Name="OpenProjectGlobalMenuItem" MouseUp="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
-                            <ListBoxItem Padding="15 8 5 8" MouseUp="NewModelSystemButton_Click">New Model System</ListBoxItem>
-                            <ListBoxItem Padding="15 8 5 8" Name="OpenModelSystemGlobalMenuItem" MouseUp="OpenModelSystemGlobalMenuItem_Selected">Open Model System</ListBoxItem>
-
-                    </ListBox>
-
-                    <Separator />
-                    <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">Workspace</TextBlock>
-                    <ListBox Name="XtmfWorkspacesListBox" SelectionChanged="XtmfWorkspacesListBox_OnSelectionChanged">
-                        <ListBoxItem Selected="SchedulerMenuItem_OnSelected"  Name="SchedulerMenuItem" Padding="15 8 5 8">
-                            <StackPanel Orientation="Horizontal">
-
-                                <materialDesign:PackIcon Kind="Calendar" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0"                                                 
-                                />
-                                <TextBlock>Scheduler</TextBlock>
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Selected="LaunchRemoteMenuItem_OnSelected"  Name="LaunchRemoteMenuItem" Padding="15 8 5 8">
-                            <StackPanel Orientation="Horizontal">
-
-                                <materialDesign:PackIcon Kind="RouterWireless" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0"                                                 
-                                />
-                                <TextBlock>Launch Remote</TextBlock>
-                            </StackPanel>
-                        </ListBoxItem>
-                        </ListBox>
+                        </Grid>
+                    </Grid>
+                    <materialDesign:DrawerHost.LeftDrawerContent >
+                        <StackPanel   MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
+                            <ListBox Name="XTMFWorkspaceListBox" SelectionChanged="XTMFWorkspaceListBox_OnSelectionChanged" >
+                                <ListBoxItem Padding="15 8 5 8" MouseUp="NewProjectButton_Click">New Project</ListBoxItem>
+                                <ListBoxItem Name="OpenProjectGlobalMenuItem" MouseUp="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
+                                <ListBoxItem Padding="15 8 5 8" MouseUp="NewModelSystemButton_Click">New Model System</ListBoxItem>
+                                <ListBoxItem Padding="15 8 5 8" Name="OpenModelSystemGlobalMenuItem" MouseUp="OpenModelSystemGlobalMenuItem_Selected">Open Model System</ListBoxItem>
+                            </ListBox>
                             <Separator />
-                    <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">XTMF</TextBlock>
-                    <ListBox SelectionChanged="XTMFSideMenuListBox_OnSelectionChanged"  Name="XTMFSideMenuListBox" >
+                            <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">Workspace</TextBlock>
+                            <ListBox Name="XtmfWorkspacesListBox" SelectionChanged="XtmfWorkspacesListBox_OnSelectionChanged">
+                                <ListBoxItem Selected="SchedulerMenuItem_OnSelected"  Name="SchedulerMenuItem" Padding="15 8 5 8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Calendar" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock>Scheduler</TextBlock>
+                                    </StackPanel>
+                                </ListBoxItem>
+                                <ListBoxItem Selected="LaunchRemoteMenuItem_OnSelected"  Name="LaunchRemoteMenuItem" Padding="15 8 5 8">
+                                    <StackPanel Orientation="Horizontal">
 
+                                        <materialDesign:PackIcon Kind="RouterWireless" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock>Launch Remote</TextBlock>
+                                    </StackPanel>
+                                </ListBoxItem>
+                            </ListBox>
+                            <Separator />
+                            <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">XTMF</TextBlock>
+                            <ListBox SelectionChanged="XTMFSideMenuListBox_OnSelectionChanged"  Name="XTMFSideMenuListBox" >
+                                <ListBoxItem Selected="SettingsMenuItem_OnSelected" Name="SettingsMenuItem" Padding="15 8 5 8">
+                                    <StackPanel Orientation="Horizontal">
 
+                                        <materialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock>Settings</TextBlock>
+                                    </StackPanel>
+                                </ListBoxItem>
+                                <ListBoxItem Selected="UpdateXtmfMenuItem_OnSelected" Name="UpdateXtmfMenuItem" Padding="15 8 5 8">
+                                    <StackPanel Orientation="Horizontal">
 
-                        <ListBoxItem Selected="SettingsMenuItem_OnSelected" Name="SettingsMenuItem" Padding="15 8 5 8">
-                            <StackPanel Orientation="Horizontal">
-                              
-                                <materialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0"                                                 
-                                />
-                                <TextBlock>Settings</TextBlock>
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Selected="UpdateXtmfMenuItem_OnSelected" Name="UpdateXtmfMenuItem" Padding="15 8 5 8">
-                            <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Download" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0" />
+                                
+                                        <TextBlock>Update XTMF</TextBlock>
+                                    </StackPanel>
+                                </ListBoxItem>
+                                <ListBoxItem Selected="DocumentationMenuItem_OnSelected"  Padding="15 8 5 8" Name="HelpMenuItem" >
+                                    <StackPanel Orientation="Horizontal">
 
-                                <materialDesign:PackIcon Kind="Download" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0"                                                 
-                                />
-                                <TextBlock>Update XTMF</TextBlock>
-                            </StackPanel>
-                        </ListBoxItem>
-                            <ListBoxItem Selected="DocumentationMenuItem_OnSelected"  Padding="15 8 5 8" Name="HelpMenuItem" >
-                            <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16"   Margin="0 0 8 0" />                                                    
+                                        <TextBlock>Help</TextBlock>
+                                    </StackPanel>
+                                </ListBoxItem>
+                                <ListBoxItem Selected="DocumentationMenuItem_OnSelected" Name="DocumentationMenuItem"  Padding="15 8 5 8">
+                                    <StackPanel Orientation="Horizontal">
 
-                                <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16"   Margin="0 0 8 0"                                                    
-                                />
-                                <TextBlock>Help</TextBlock>
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Selected="DocumentationMenuItem_OnSelected" Name="DocumentationMenuItem"  Padding="15 8 5 8">
-                            <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="BookOpen" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock>Documentation</TextBlock>
+                                    </StackPanel>
+                                </ListBoxItem>
+                                <ListBoxItem Selected="AboutMenuItem_OnSelected" Name="AboutMenuItem"  Padding="15 8 5 8">
+                                    <StackPanel Orientation="Horizontal">
 
-                                <materialDesign:PackIcon Kind="BookOpen" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0"                                                      
-                                />
-                                <TextBlock>Documentation</TextBlock>
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Selected="AboutMenuItem_OnSelected" Name="AboutMenuItem"  Padding="15 8 5 8">
-                            <StackPanel Orientation="Horizontal">
-
-                                <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0"                                                      
-                                />
-                                <TextBlock>About XTMF</TextBlock>
-                            </StackPanel>
-                        </ListBoxItem>
-                        </ListBox>
-                </StackPanel>
-            </materialDesign:DrawerHost.LeftDrawerContent>
-        </materialDesign:DrawerHost>
-        </materialDesign:DialogHost>
+                                        <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                         Width="16" Height="16" Margin="0 0 8 0" />                                                     
+                                        <TextBlock>About XTMF</TextBlock>
+                                    </StackPanel>
+                                </ListBoxItem>
+                            </ListBox>
+                        </StackPanel>
+                    </materialDesign:DrawerHost.LeftDrawerContent>
+                </materialDesign:DrawerHost>
+            </materialDesign:DialogHost>
             <materialDesign:Snackbar x:Name="GlobalStatusSnackBar" MessageQueue="{materialDesign:MessageQueue}" />
         </Grid>
     </Border>
-
 </metro:MetroWindow>
 
 
