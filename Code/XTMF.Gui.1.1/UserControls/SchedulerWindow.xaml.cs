@@ -44,9 +44,7 @@ namespace XTMF.Gui.UserControls
         public SchedulerWindow()
         {
             InitializeComponent();
-
             _runWindows = new List<RunWindow>();
-
             ActiveRunContent.DataContext = Resources["DefaultDisplay"];
         }
 
@@ -64,7 +62,6 @@ namespace XTMF.Gui.UserControls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-
         /// <summary>
         ///     Removes a RunWindow from the SchedulerWindow
         /// </summary>
@@ -80,16 +77,12 @@ namespace XTMF.Gui.UserControls
                     break;
                 }
             }
-
             if (toRemove != null)
             {
                 FinishedRuns.Items.Remove(toRemove);
             }
-
             var defaultd = Resources["DefaultDisplay"];
             Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
-
-
             FinishedRuns.Items.Refresh();
         }
 
@@ -98,6 +91,16 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="run"></param>
         public void AddRun(RunWindow run)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ActiveContent = run;
+                ScheduledRuns.Items.Add(new SchedulerRunItem(run, this));
+                ActiveRunContent.DataContext = run;
+            });
+        }
+
+        public void AddDelayedRun(RunWindow run, DateTime delayedStartTime)
         {
             Dispatcher.Invoke(() =>
             {
@@ -178,8 +181,6 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 FinishedRuns.Items.Clear();
-                ;
-
                 ActiveRunContent.DataContext = FindResource("DefaultDisplay");
             });
         }
@@ -197,15 +198,12 @@ namespace XTMF.Gui.UserControls
             {
                 var menuItem = new MenuItem();
                 menuItem.Header = "Remove run from list";
-
                 Dispatcher.Invoke(() => { menu.Items.Clear(); });
-
                 menuItem.Click += (o, args) =>
                 {
                     Dispatcher.Invoke(() =>
                     {
                         FinishedRuns.Items.RemoveAt(FinishedRuns.SelectedIndex);
-                        //FinishedRuns.Items.Remove(item);
                     });
                 };
                 menu?.Items.Add(menuItem);
@@ -418,8 +416,6 @@ namespace XTMF.Gui.UserControls
             private void RuntimeError(ErrorWithPath errorWithPath)
             {
                 StatusText = errorWithPath.Message;
-         
-
             }
 
             /// <summary>
@@ -431,7 +427,6 @@ namespace XTMF.Gui.UserControls
                 _schedulerWindow.RemoveFromActiveRuns(this);
                 Icon = PackIconKind.Alert;
             }
-
 
             [NotifyPropertyChangedInvocator]
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

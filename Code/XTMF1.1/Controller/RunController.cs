@@ -133,7 +133,7 @@ namespace XTMF.Controller
         {
             while (true)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(5000);
                 XTMFRun run = null;
                 lock (_Lock)
                 {
@@ -159,7 +159,7 @@ namespace XTMF.Controller
         /// </summary>
         /// <param name="startTime"></param>
         /// <param name="run"></param>
-        public void ExecuteDelayedRun(DateTime startTime, XTMFRun run)
+        public void ExecuteDelayedRun(XTMFRun run, DateTime startTime)
         {
             lock (_Lock)
             {

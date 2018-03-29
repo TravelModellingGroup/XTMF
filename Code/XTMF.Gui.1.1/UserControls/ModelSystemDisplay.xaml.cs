@@ -130,7 +130,7 @@ namespace XTMF.Gui.UserControls
             {
                 if (module != null)
                 {
-                    GoToModule((ModelSystemStructure) module);
+                    GoToModule((ModelSystemStructure)module);
                 }
             };
             LinkedParameterDisplayOverlay.OnCloseDisplay += () =>
@@ -166,7 +166,7 @@ namespace XTMF.Gui.UserControls
 
         public bool CanRunModelSystem
         {
-            get => (bool) GetValue(CanRunModelSystemDependencyProperty);
+            get => (bool)GetValue(CanRunModelSystemDependencyProperty);
             set => SetValue(CanRunModelSystemDependencyProperty, value);
         }
 
@@ -174,7 +174,7 @@ namespace XTMF.Gui.UserControls
 
         public double ParameterWidth
         {
-            get => (double) GetValue(ParameterWidthDependencyProperty);
+            get => (double)GetValue(ParameterWidthDependencyProperty);
             set => SetValue(ParameterWidthDependencyProperty, value);
         }
 
@@ -215,13 +215,13 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public ModelSystemModel ModelSystem
         {
-            get => (ModelSystemModel) GetValue(ModelSystemProperty);
+            get => (ModelSystemModel)GetValue(ModelSystemProperty);
             set => SetValue(ModelSystemProperty, value);
         }
 
         public string ModelSystemName
         {
-            get => (string) GetValue(ModelSystemNameProperty);
+            get => (string)GetValue(ModelSystemNameProperty);
             private set => SetValue(ModelSystemNameProperty, value);
         }
 
@@ -510,7 +510,7 @@ namespace XTMF.Gui.UserControls
 
         private void OnTreeExpanded(object sender, RoutedEventArgs e)
         {
-            var tvi = (TreeViewItem) sender;
+            var tvi = (TreeViewItem)sender;
             e.Handled = true;
             FilterBox.RefreshFilter();
         }
@@ -766,10 +766,10 @@ namespace XTMF.Gui.UserControls
             var s = new ObservableCollection<ModelSystemStructureDisplayModel>
             {
                 (DisplayRoot = new ModelSystemStructureDisplayModel(root, null, 0))
-                
+
             };
 
-          
+
 
             return s;
         }
@@ -987,6 +987,7 @@ namespace XTMF.Gui.UserControls
             if (dialog.DidComplete)
             {
                 runName = (dialog.DataContext as RunConfigurationDisplayModel)?.UserInput;
+                var delayedStartTime = (dialog.DataContext as RunConfigurationDisplayModel).ScheduleTime;
                 var runQuestion = MessageBoxResult.Yes;
                 if (Session.RunNameExists(runName))
                 {
@@ -998,19 +999,23 @@ namespace XTMF.Gui.UserControls
 
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
-                    var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false,
-                        !dialog.IsQueueRun, false);
-
+                    var isDelayed = (dialog.DataContext as RunConfigurationDisplayModel).SelectScheduleEnabled;
+                    var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes, !dialog.IsQueueRun, false);
                     if (run != null)
                     {
                         ModuleValidationErrorListView.Items.Clear();
                         ModuleRuntimeValidationErrorListView.Items.Clear();
                         ModuleRuntimeErrorListView.Items.Clear();
-                        MainWindow.Us.UpdateStatusDisplay("Running Model System");
-
                         //pass this as launchedFrom display in case model system run encounters an error
-                        var runWindow = MainWindow.Us.CreateRunWindow(Session, run, runName, !dialog.IsQueueRun, this);
-                        MainWindow.Us.AddRunToSchedulerWindow(runWindow);
+                        if (isDelayed)
+                        {
+                            MainWindow.Us.AddDelayedRunToSchedulerWindow(MainWindow.Us.CreateDelayedRunWindow(Session, run, runName, delayedStartTime, this)
+                                 , delayedStartTime);
+                        }
+                        else
+                        {
+                            MainWindow.Us.AddRunToSchedulerWindow(MainWindow.Us.CreateRunWindow(Session, run, runName, !dialog.IsQueueRun, this));
+                        }
                     }
                     else
                     {
@@ -1233,17 +1238,17 @@ namespace XTMF.Gui.UserControls
 
                         break;
                     case Key.T:
-                    {
-                        if (ctrlDown)
                         {
-                            ToggleQuickParameter();
-                            e.Handled = true;
+                            if (ctrlDown)
+                            {
+                                ToggleQuickParameter();
+                                e.Handled = true;
+                            }
+                            else
+                            {
+                                e.Handled = false;
+                            }
                         }
-                        else
-                        {
-                            e.Handled = false;
-                        }
-                    }
                         break;
                     default:
                         e.Handled = false;
@@ -1292,10 +1297,10 @@ namespace XTMF.Gui.UserControls
                     ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, true);
                     ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, true);
                     ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton,
-                        (Brush) FindResource("MaterialDesignPaper"));
+                        (Brush)FindResource("MaterialDesignPaper"));
                     ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton,
-                        (Brush) FindResource("SecondaryAccentBrush"));
-                    SaveModelSystemButton.Style = (Style) FindResource("MaterialDesignFloatingActionMiniDarkButton");
+                        (Brush)FindResource("SecondaryAccentBrush"));
+                    SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
                 });
                 MainWindow.SetStatusText("Saving...");
                 Task.Run(async () =>
@@ -1315,7 +1320,7 @@ namespace XTMF.Gui.UserControls
                             }
 
                             watch.Stop();
-                            var displayTimeRemaining = 1000 - (int) watch.ElapsedMilliseconds;
+                            var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
                             if (displayTimeRemaining > 0)
                             {
                                 MainWindow.SetStatusText("Saved");
@@ -1420,7 +1425,7 @@ namespace XTMF.Gui.UserControls
             if (ParameterTabControl.SelectedItem == QuickParameterTab &&
                 QuickParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
             {
-                GoToModule((ModelSystemStructure) currentParameter.BelongsTo);
+                GoToModule((ModelSystemStructure)currentParameter.BelongsTo);
             }
         }
 
@@ -1606,7 +1611,7 @@ namespace XTMF.Gui.UserControls
                 }
 
                 //update the module context control
-                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel) e.NewValue;
+                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
             }
         }
 
@@ -1748,7 +1753,7 @@ namespace XTMF.Gui.UserControls
 
                 var mul = deltaPosition < 0 ? 1 : -1;
                 var moveOrder = CurrentlySelected
-                    .Select((c, i) => new {Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel)})
+                    .Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) })
                     .OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
                 Session.ExecuteCombinedCommands(
@@ -1949,7 +1954,7 @@ namespace XTMF.Gui.UserControls
                 : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
             {
                 var selectedContainer =
-                    (UIElement) ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
+                    (UIElement)ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
                 if (selectedContainer != null)
                 {
                     var layer = AdornerLayer.GetAdornerLayer(selectedContainer);
@@ -2089,7 +2094,7 @@ namespace XTMF.Gui.UserControls
                 if (inputDirectory != null)
                 {
                     var fileName = MainWindow.OpenFile("Select File",
-                        new[] {new KeyValuePair<string, string>("All Files", "*")}, true);
+                        new[] { new KeyValuePair<string, string>("All Files", "*") }, true);
                     if (fileName == null)
                     {
                         return;
@@ -2119,7 +2124,7 @@ namespace XTMF.Gui.UserControls
             var attributes = inputDir.GetCustomAttributes(typeof(ParameterAttribute), true);
             if (attributes != null && attributes.Length > 0)
             {
-                var parameterName = ((ParameterAttribute) attributes[0]).Name;
+                var parameterName = ((ParameterAttribute)attributes[0]).Name;
                 var parameters = root.Parameters.GetParameters();
                 for (var i = 0; i < parameters.Count; i++)
                 {
@@ -2583,7 +2588,7 @@ namespace XTMF.Gui.UserControls
 
         private void ParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (((ListView) sender).SelectedItem is ParameterDisplayModel s)
+            if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
             }
@@ -2591,7 +2596,7 @@ namespace XTMF.Gui.UserControls
 
         private void QuickParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (((ListView) sender).SelectedItem is ParameterDisplayModel s)
+            if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
             }
@@ -2655,7 +2660,7 @@ namespace XTMF.Gui.UserControls
             {
                 if (ModuleDisplay.Items.Count > 0)
                 {
-                    ExpandModule((ModelSystemStructureDisplayModel) ModuleDisplay.SelectedItem);
+                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem);
                 }
             }
         }
@@ -2666,14 +2671,14 @@ namespace XTMF.Gui.UserControls
             {
                 if (ModuleDisplay.Items.Count > 0)
                 {
-                    ExpandModule((ModelSystemStructureDisplayModel) ModuleDisplay.SelectedItem, false);
+                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem, false);
                 }
             }
         }
 
         private void ModelSystemInformation_EnableModuleMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (((Label) sender).Tag is ModelSystemStructureDisplayModel module)
+            if (((Label)sender).Tag is ModelSystemStructureDisplayModel module)
             {
                 var error = string.Empty;
                 module.SetDisabled(!module.IsDisabled, ref error);
@@ -2683,7 +2688,7 @@ namespace XTMF.Gui.UserControls
 
         private void Path_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (((Border) sender).Tag is ModelSystemStructureDisplayModel module)
+            if (((Border)sender).Tag is ModelSystemStructureDisplayModel module)
             {
                 DisabledModules.Remove(module);
             }
@@ -2870,7 +2875,7 @@ namespace XTMF.Gui.UserControls
                     {
                         view.SelectedIndex = 0;
                         SelectParameterChildControl(
-                            (UIElement) view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
+                            (UIElement)view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
                     }), DispatcherPriority.Input);
                     e.Handled = true;
                 }
@@ -2882,7 +2887,7 @@ namespace XTMF.Gui.UserControls
                     {
                         view.SelectedIndex = 0;
                         SelectParameterChildControl(
-                            (UIElement) view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
+                            (UIElement)view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
                     }));
                     e.Handled = true;
                 }

@@ -660,6 +660,12 @@ namespace XTMF.Gui
             SetDisplayActive(SchedulerWindow, "Model System Runs", false);
         }
 
+        internal void AddDelayedRunToSchedulerWindow(RunWindow runWindow, DateTime delayedStartTime)
+        {
+            //create a new scheduler window if one does not exist
+            SchedulerWindow.AddDelayedRun(runWindow, delayedStartTime);
+        }
+
         /// <summary>
         ///     Shows the scheduler window
         /// </summary>
@@ -678,6 +684,18 @@ namespace XTMF.Gui
             bool immediateRun = false, ModelSystemDisplay launchDisplay = null)
         {
             return new RunWindow(session, run, runName, immediateRun, launchDisplay);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="run"></param>
+        /// <param name="runName"></param>
+        /// <returns></returns>
+        internal RunWindow CreateDelayedRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName,
+            DateTime delayedStartTime, ModelSystemDisplay launchDisplay = null)
+        {
+            return new RunWindow(session, run, runName, delayedStartTime, launchDisplay);
         }
 
         /// <summary>
