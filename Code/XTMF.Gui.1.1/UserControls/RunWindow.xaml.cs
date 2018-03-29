@@ -229,6 +229,9 @@ namespace XTMF.Gui.UserControls
             ConsoleOutput.DataContext = new ConsoleOutputController(this, Run);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             session.ExecuteDelayedRun(run, delayedStartTime);
+
+            //UpdateRunStatus("Delayed");
+            //UpdateStartTime($"{delayedStartTime: g}");
             StartRunAsync();
             _timer.Start();
         }

@@ -105,7 +105,10 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 ActiveContent = run;
-                ScheduledRuns.Items.Add(new SchedulerRunItem(run, this));
+                SchedulerRunItem item = new SchedulerRunItem(run, this);
+                item.StatusText = "Delayed Run";
+                item.StartTime = delayedStartTime.ToString("MM/dd/yyyy H:mm");
+                ScheduledRuns.Items.Add(item);
                 ActiveRunContent.DataContext = run;
             });
         }
@@ -267,7 +270,7 @@ namespace XTMF.Gui.UserControls
                 runWindow.OnRunStarted = OnRunStarted;
                 runWindow.OnRuntimeError = OnRuntimeError;
 
-                StatusText = "Queued";
+                //StatusText = "Queued";
 
                 //StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
