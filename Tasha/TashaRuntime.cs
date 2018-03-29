@@ -366,6 +366,10 @@ namespace Tasha
                 {
                     if (currentStructure.Children[i].Name == parts[currentIndex])
                     {
+                        if (currentStructure.Children[i] is IModelSystemStructure2 cs2 && cs2.IsDisabled)
+                        {
+                            continue;
+                        }
                         AssignValue(parts, currentIndex + 1, currentStructure.Children[i], value);
                         return;
                     }
@@ -394,6 +398,10 @@ namespace Tasha
                 {
                     if (parameters[i].Name == variableName)
                     {
+                        if(currentStructure?.Module == null)
+                        {
+                            Console.WriteLine();
+                        }
                         var type = currentStructure.Module.GetType();
                         if (parameters[i].OnField)
                         {

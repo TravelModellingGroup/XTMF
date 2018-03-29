@@ -874,19 +874,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
-
-        private void ListViewControl_ContextMenuClosing(object sender, ContextMenuEventArgs e)
-        {
-       
-     
-        }
-
-        private void ListViewControl_ContextMenuOpening_1(object sender, ContextMenuEventArgs e)
-        {
-          
-        }
-
         private void StackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             OpenProjectFolder();

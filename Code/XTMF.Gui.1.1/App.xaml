@@ -27,9 +27,7 @@
               xmlns:local2="clr-namespace:Dragablz.Themes"
              Startup="App_OnStartup"
 
-             ShutdownMode="OnExplicitShutdown"
-             
-             >
+             ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
 
         <ResourceDictionary>
@@ -121,7 +119,7 @@
             <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchMouseOverBrush.Win10" Color="{DynamicResource Primary400}" />
             <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorCheckedBrush.Win10" Color="{DynamicResource Primary500Foreground}" />
 
-            <converters:IndexConverter x:Key="IndexConverter"></converters:IndexConverter>
+            <converters:IndexConverter x:Key="IndexConverter" />
 
             <Style x:Key="MaterialDesignListBoxItemNoTransition" TargetType="{x:Type ListBoxItem}">
                 <Setter Property="Background" Value="Transparent"/>
