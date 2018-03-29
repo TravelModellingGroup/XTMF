@@ -33,6 +33,8 @@ namespace TMG.Input
 
         public abstract string GetFilePath();
 
+        public abstract bool IsPathEmpty();
+
         public bool RuntimeValidation(ref string error)
         {
             return true;
@@ -71,6 +73,11 @@ namespace TMG.Input
             }
             return Path.Combine(directoryName, FileName);
         }
+
+        public override bool IsPathEmpty()
+        {
+            return !DirectoryName.ContainsFileName() && String.IsNullOrWhiteSpace(FileName);
+        }
     }
 
     [ModuleInformation(
@@ -87,6 +94,11 @@ namespace TMG.Input
         public override string GetFilePath()
         {
             return FileName.GetFileName(Root.InputBaseDirectory);
+        }
+
+        public override bool IsPathEmpty()
+        {
+            return !FileName.ContainsFileName();
         }
     }
 
@@ -117,6 +129,11 @@ namespace TMG.Input
             }
             return FileName;
         }
+
+        public override bool IsPathEmpty()
+        {
+            return !DirectoryName.ContainsFileName() && String.IsNullOrWhiteSpace(FileName);
+        }
     }
 
     [ModuleInformation(
@@ -131,6 +148,11 @@ Description = "This module provides the ability to specify a file path relative 
         public override string GetFilePath()
         {
             return FileName.GetFileName();
+        }
+
+        public override bool IsPathEmpty()
+        {
+            return !FileName.ContainsFileName();
         }
     }
 
@@ -152,6 +174,11 @@ Description = "This module provides the ability to specify a file path relative 
                 return relativePath;
             }
             return Path.Combine(GetXTMFDirectory(), relativePath);
+        }
+
+        public override bool IsPathEmpty()
+        {
+            return !PathFromXTMFInstall.ContainsFileName();
         }
 
         private string GetXTMFDirectory()
