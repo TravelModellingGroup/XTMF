@@ -72,12 +72,11 @@ namespace TMG.Emme.Tools
 
         public bool RuntimeValidation(ref string error)
         {
-            if (string.IsNullOrEmpty(Filepath.GetFilePath()))
+            if (Filepath.IsPathEmpty())
             {
                 error = "Export path cannot be null or empty.";
                 return false;
             }
-
             return true;
         }
 
