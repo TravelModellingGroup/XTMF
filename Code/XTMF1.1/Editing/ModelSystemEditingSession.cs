@@ -328,12 +328,6 @@ namespace XTMF
                         run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel.Root,
                             _Runtime.Configuration, runName, overwrite);
                     }
-
-                    /*if (immediateValidation)
-                    {
-                        _Runtime.RunController.ExecuteRun(run, executeNow);
-                    } */
-
                     return run;
                 }
             }
@@ -343,6 +337,11 @@ namespace XTMF
         public void ExecuteRun(XTMFRun run, bool executeNow)
         {
             _Runtime.RunController.ExecuteRun(run, executeNow);
+        }
+
+        public void ExecuteDelayedRun(XTMFRun run, DateTime delayedStartTime)
+        {
+            _Runtime.RunController.ExecuteDelayedRun(run, delayedStartTime);
         }
 
         internal bool SaveAsModelSystem(string name, ref string error)
