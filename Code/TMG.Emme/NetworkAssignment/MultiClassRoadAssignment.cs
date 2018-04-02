@@ -102,10 +102,18 @@ namespace TMG.Emme.NetworkAssignment
             {
                 if (Mode >= 'a' && Mode <= 'z' || Mode >= 'A' && Mode <= 'Z')
                 {
+                    error = "In '" + Name + "' the Mode '" + Mode + "' is not a feasible mode for multi class assignment!";
                     return true;
                 }
-                error = "In '" + Name + "' the Mode '" + Mode + "' is not a feasible mode for multi class assignment!";
+                if (TollWeight <= 0.0000001)
+                {
+                    error = "In '" + Name + "' the Toll Weight cannot be less than or equal to 0!";
+                    return true;
+                }
+
                 return false;
+
+
             }
 
             public Analysis[] PathAnalyses;
