@@ -21,6 +21,7 @@ using System.IO;
 using Datastructure;
 using XTMF;
 using TMG.Functions;
+using System.Linq;
 
 namespace TMG.Emme
 {
@@ -72,8 +73,12 @@ namespace TMG.Emme
         }
 
         public EmmeMatrix(SparseArray<IZone> zoneSystem, float[][] data)
+            : this(zoneSystem.GetFlatData().Select(z => z.ZoneNumber).ToArray(), data)
         {
-            var zones = zoneSystem.GetFlatData();
+        }
+
+        public EmmeMatrix(int[] zones, float[][] data)
+        {
             MagicNumber = EmmeMagicNumber;
             Version = 1;
             Type = DataType.Float;
@@ -85,7 +90,7 @@ namespace TMG.Emme
                 var row = Indexes[i] = new int[zones.Length];
                 for (int j = 0; j < row.Length; j++)
                 {
-                    row[j] = zones[j].ZoneNumber;
+                    row[j] = zones[j];
                 }
             }
             for (int i = 0; i < data.Length; i++)
