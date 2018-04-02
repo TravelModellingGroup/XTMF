@@ -95,3 +95,6 @@ bin/
 /Code/Packages
 /Code/TMG.Estimation/CalcFitness.cs
 /Projects/fgds
+/Code/ViewCacheData/obj/xdoc/cache/obj
+/Code/XTMF.RemoteClient/obj/xdoc/cache/obj
+/Code/XTMF.Update2/obj/xdoc/cache/obj

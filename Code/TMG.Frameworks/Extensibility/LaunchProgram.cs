@@ -16,45 +16,48 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using TMG.Frameworks.MultiRun;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
-using System.ComponentModel;
-using System.IO;
-using TMG.Functions;
 
 namespace TMG.Frameworks.Extensibility
 {
     [ModuleInformation(
-        Description = "This module is designed to execute an external program.  It can optionally wait for the process to complete." +
-        " When using the multi-run framework, assign to the ShutdownProgram parameter in order to force the process to exit."
-        )]
+        Description =
+            "This module is designed to execute an external program.  It can optionally wait for the process to complete." +
+            " When using the multi-run framework, assign to the ShutdownProgram parameter in order to force the process to exit."
+    )]
     public class LaunchProgram : ISelfContainedModule
     {
+        [RunParameter("Arguments", "", "Optional: The arguments to send to the program at launch.")]
+        public string Arguments;
 
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+        private readonly IConfiguration Config;
 
         [SubModelInformation(Required = true, Description = "The program to execute.")]
         public FileLocation Program;
 
+        private Process RunningProcess;
+
         [RunParameter("Wait For Exit", false, "Should we wait for the program to exit before continuing?")]
         public bool WaitForExit;
 
-        [RunParameter("Arguments", "", "Optional: The arguments to send to the program at launch.")]
-        public string Arguments;
-
-        IConfiguration Config;
         public LaunchProgram(IConfiguration config)
         {
             Config = config;
         }
 
-        private Process RunningProcess;
+        public string Name { get; set; }
+
+        public float Progress { get; set; }
+
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         public void Start()
         {
@@ -68,12 +71,27 @@ namespace TMG.Frameworks.Extensibility
             }
             catch (Win32Exception)
             {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to execute the program '" + Program.GetFilePath() + "'!");
+                throw new XTMFRuntimeException(this,
+                    "In '" + Name + "' we were unable to execute the program '" + Program.GetFilePath() + "'!");
             }
             catch (FileNotFoundException)
             {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were to find the program '" + Program.GetFilePath() + "'!");
+                throw new XTMFRuntimeException(this,
+                    "In '" + Name + "' we were to find the program '" + Program.GetFilePath() + "'!");
             }
+        }
+
+        public bool RuntimeValidation(ref string error)
+        {
+            IModelSystemStructure us = null;
+            if (!ModelSystemReflection.FindModuleStructure(Config.ProjectRepository.ActiveProject, this, ref us))
+            {
+                error = "In '" + Name + "' we were unable to find ourselves!";
+                return false;
+            }
+
+            AddMultiRunCommand();
+            return true;
         }
 
         public void ShutdownProgram()
@@ -89,31 +107,43 @@ namespace TMG.Frameworks.Extensibility
             }
         }
 
+        #region AddMultiRunCommand
+
         private void AddMultiRunCommand()
         {
             var listToUs = ModelSystemReflection.BuildModelStructureChain(Config, this);
-            for (int i = listToUs.Count - 1; i >= 0; i--)
+            for (var i = listToUs.Count - 1; i >= 0; i--)
             {
-                if (listToUs[i].Module is MultiRun.MultiRunModelSystem multiRunFramework)
+                if (listToUs[i].Module is MultiRunModelSystem multiRunFramework)
                 {
-                    multiRunFramework.TryAddBatchCommand("LaunchProgram.ShutdownExternalProgram", (node) =>
+                    multiRunFramework.TryAddBatchCommand("LaunchProgram.ShutdownExternalProgram", node =>
                     {
-                        var path = multiRunFramework.GetAttributeOrError(node, "Path", "In 'LaunchProgram.ShutdownExternalProgram' we were unable to find an xml attribute called 'Path'!\r\nPlease add this to your batch script.");
+                        var path = multiRunFramework.GetAttributeOrError(node, "Path",
+                            "In 'LaunchProgram.ShutdownExternalProgram' we were unable to find an xml attribute called 'Path'!\r\nPlease add this to your batch script.");
                         IModelSystemStructure selectedModule = null;
                         IModelSystemStructure multiRunFrameworkChild = null;
-                        if (!ModelSystemReflection.FindModuleStructure(Config, multiRunFramework.Child, ref multiRunFrameworkChild))
+                        if (!ModelSystemReflection.FindModuleStructure(Config, multiRunFramework.Child,
+                            ref multiRunFrameworkChild))
                         {
-                            throw new XTMFRuntimeException(this, "We were unable to find the multi-run frameworks child module's model system structure!");
+                            throw new XTMFRuntimeException(this,
+                                "We were unable to find the multi-run frameworks child module's model system structure!");
                         }
-                        if (!ModelSystemReflection.GetModelSystemStructureFromPath(multiRunFrameworkChild, path, ref selectedModule))
+
+                        if (!ModelSystemReflection.GetModelSystemStructureFromPath(multiRunFrameworkChild, path,
+                            ref selectedModule))
                         {
-                            throw new XTMFRuntimeException(this, "We were unable to find a module with the path '" + path + "'!");
+                            throw new XTMFRuntimeException(this,
+                                "We were unable to find a module with the path '" + path + "'!");
                         }
+
                         var toShutdown = selectedModule.Module as LaunchProgram;
                         if (toShutdown == null)
                         {
-                            throw new XTMFRuntimeException(this, "The module with the path '" + path + "' was not of type 'TMG.Frameworks.Extensibility.LaunchProgram'!");
+                            throw new XTMFRuntimeException(this,
+                                "The module with the path '" + path +
+                                "' was not of type 'TMG.Frameworks.Extensibility.LaunchProgram'!");
                         }
+
                         toShutdown.ShutdownProgram();
                     }, true);
                     break;
@@ -121,17 +151,6 @@ namespace TMG.Frameworks.Extensibility
             }
         }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            IModelSystemStructure us = null;
-            if (!ModelSystemReflection.FindModuleStructure(Config.ProjectRepository.ActiveProject, this, ref us))
-            {
-                error = "In '" + Name + "' we were unable to find ourselves!";
-                return false;
-            }
-            AddMultiRunCommand();
-            return true;
-        }
+        #endregion
     }
-
 }

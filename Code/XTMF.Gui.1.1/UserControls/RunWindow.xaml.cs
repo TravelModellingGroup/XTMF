@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -102,13 +102,6 @@ namespace XTMF.Gui.UserControls
 
         static RunWindow()
         {
-            //var findResource = Application.Current.FindResource("WarningRed");
-           // if (findResource != null)
-            //{
-                //var errorColour = (Color) findResource;
-              //  ErrorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
-            //}
-
             ErrorColour = new Tuple<byte, byte, byte>(200,20,30);
         }
 
@@ -125,9 +118,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             ErrorVisibility = Visibility.Collapsed;
             Session = session;
-            session.SessionClosed += Session_SessionClosed;
             Run = run;
-            MainWindow.Us.Closing += MainWindowClosing;
             OpenDirectoryButton.IsEnabled = true;
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -140,7 +131,6 @@ namespace XTMF.Gui.UserControls
             {
                 _launchedFromModelSystemDisplay = launchedFrom;
             }
-
 
             _progressReports = Run.Configuration.ProgressReports;
             _progressReports.ListChanged += ProgressReports_ListChanged;
@@ -172,15 +162,76 @@ namespace XTMF.Gui.UserControls
                     _taskbarInformation.ProgressValue = 0;
                 }
             }
-
             ConsoleOutput.DataContext = new ConsoleOutputController(this, Run);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
-
             session.ExecuteRun(run, immediateRun);
+            StartRunAsync();
+            _timer.Start();
+        }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="run"></param>
+        /// <param name="runName"></param>
+        /// <param name="immediateRun"></param>
+        /// <param name="launchedFrom"></param>
+        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, DateTime delayedStartTime,
+            ModelSystemDisplay launchedFrom = null)
+        {
+            InitializeComponent();
+            ErrorVisibility = Visibility.Collapsed;
+            Session = session;
+            Run = run;
+            OpenDirectoryButton.IsEnabled = true;
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                RunNameLabel.Text = runName;
+                RunNameText.Text = runName;
+                IsRunClearable = false;
+            }));
 
- 
+            if (launchedFrom != null)
+            {
+                _launchedFromModelSystemDisplay = launchedFrom;
+            }
 
+            _progressReports = Run.Configuration.ProgressReports;
+            _progressReports.ListChanged += ProgressReports_ListChanged;
+            _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
+            _subProgressBars.ListChanged += SubProgressBars_ListChanged;
+            _subProgressBars.BeforeRemove += SubProgressBars_BeforeRemove;
+            Run.RunCompleted += Run_RunComplete;
+            Run.RunStarted += Run_RunStarted;
+            Run.RuntimeError += Run_RuntimeError;
+            Run.RuntimeValidationError += Run_RuntimeValidationError;
+            Run.ValidationStarting += RunOnValidationStarting;
+            Run.ValidationError += RunOnValidationError;
+
+            ErrorGroupBox.Visibility = Visibility.Collapsed;
+            BaseGrid.RowDefinitions[1].Height = new GridLength(0);
+            _runDirectory = Run.RunDirectory;
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            _isFinished = false;
+            _wasCanceled = false;
+            _timer.Tick += Timer_Tick;
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                var major = Environment.OSVersion.Version.Major;
+                if (major > 6 || major >= 6 && Environment.OSVersion.Version.Minor >= 1)
+                {
+                    _windows7OrAbove = true;
+                    MainWindow.Us.TaskbarItemInfo = _taskbarInformation = new TaskbarItemInfo();
+                    _taskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
+                    _taskbarInformation.ProgressValue = 0;
+                }
+            }
+            ConsoleOutput.DataContext = new ConsoleOutputController(this, Run);
+            ConsoleBorder.DataContext = ConsoleOutput.DataContext;
+            session.ExecuteDelayedRun(run, delayedStartTime);
+
+            //UpdateRunStatus("Delayed");
+            //UpdateStartTime($"{delayedStartTime: g}");
             StartRunAsync();
             _timer.Start();
         }
@@ -597,11 +648,6 @@ namespace XTMF.Gui.UserControls
             UpdateStartTime?.Invoke($"{StartTime:g}");
         }
 
-        private void Session_SessionClosed(object sender, EventArgs e)
-        {
-            MainWindow.Us.CloseWindow(this);
-        }
-
         private void OpenDirectoryButton_Clicked(object sender, RoutedEventArgs e)
         {
             if (Directory.Exists(_runDirectory))
@@ -732,8 +778,6 @@ namespace XTMF.Gui.UserControls
             {
                 return true;
             }
-
-            Dispatcher.Invoke(() => { MainWindow.ShowPageContaining(this); });
             //Are you sure?
             var window = GetWindow(this);
             var message = "Are you sure you want to cancel the run '" + Run.RunName + "'?";

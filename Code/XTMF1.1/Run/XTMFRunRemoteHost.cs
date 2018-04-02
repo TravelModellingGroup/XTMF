@@ -47,12 +47,18 @@ namespace XTMF.Run
         public override bool RunsRemotely => true;
 
         private List<ILinkedParameter> _LinkedParameters;
+        private readonly string _modelSystemAsString;
 
         public XTMFRunRemoteHost(IConfiguration configuration, ModelSystemStructureModel root, List<ILinkedParameter> linkedParameters, string runName, string runDirectory)
             : base(runName, runDirectory, configuration)
         {
             ModelSystemStructureModelRoot = root;
             _LinkedParameters = linkedParameters;
+            using (MemoryStream memStream = new MemoryStream())
+            {
+                WriteModelSystemToStream(memStream);
+                _modelSystemAsString = Encoding.Unicode.GetString(memStream.ToArray());
+            }
         }
 
         private string GetXTMFRunFileName() => Path.Combine(Path.GetDirectoryName(
@@ -117,7 +123,7 @@ namespace XTMF.Run
                     Console.WriteLine(e);
                     return;
                 }
-               
+
             }
         }
 
@@ -138,7 +144,7 @@ namespace XTMF.Run
                 BinaryWriter writer = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
                 writer.Write((Configuration as Configuration)?.ConfigurationFileName ?? "");
             }
-            WriteModelSystemToStream();
+            WriteModelSystemStringToPipe();
         }
 
         private void StartClientListener()
@@ -152,7 +158,7 @@ namespace XTMF.Run
                     {
                         try
                         {
-                            switch ((ToHost) reader.ReadInt32())
+                            switch ((ToHost)reader.ReadInt32())
                             {
                                 case ToHost.Heartbeat:
                                     break;
@@ -253,15 +259,15 @@ namespace XTMF.Run
                     {
                         givenReports.Add((reader.ReadString(), reader.ReadSingle(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
                     }
-                    foreach(var (name, progress, r, g, b) in givenReports)
+                    foreach (var (name, progress, r, g, b) in givenReports)
                     {
-                        foreach(var holdRep in reports)
+                        foreach (var holdRep in reports)
                         {
-                            if(name == holdRep.Name)
+                            if (name == holdRep.Name)
                             {
                                 if (holdRep is ProgressReport remoteProgress)
                                 {
-                                   remoteProgress. Progress = progress;
+                                    remoteProgress.Progress = progress;
                                 }
                                 break;
                             }
@@ -324,7 +330,7 @@ namespace XTMF.Run
             {
                 stackTrace = null;
             }
-            return new ErrorWithPath(path, message, stackTrace,moduleName);
+            return new ErrorWithPath(path, message, stackTrace, moduleName);
         }
 
         private static string LookupName(IModuleParameter reference, IModelSystemStructure current)
@@ -355,43 +361,49 @@ namespace XTMF.Run
             return null;
         }
 
-        private void WriteModelSystemToStream()
+        private void WriteModelSystemStringToPipe()
         {
             lock (this)
             {
                 using (var memStream = new MemoryStream())
                 {
                     BinaryWriter pipeWriter = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
-                    using (XmlWriter xml = XmlTextWriter.Create(memStream, new XmlWriterSettings() { Encoding = Encoding.Unicode }))
-                    {
-                        xml.WriteStartDocument();
-                        xml.WriteStartElement("Root");
-                        var root = ModelSystemStructureModelRoot.RealModelSystemStructure;
-                        root.Save(xml);
-                        xml.WriteStartElement("LinkedParameters");
-                        foreach(var lp in _LinkedParameters)
-                        {
-                            xml.WriteStartElement("LinkedParameter");
-                            xml.WriteAttributeString("Name", lp.Name);
-                            xml.WriteAttributeString("Value", lp.Value ?? String.Empty);
-                            foreach(var reference in lp.Parameters)
-                            {
-                                xml.WriteStartElement("Reference");
-                                xml.WriteAttributeString("Name", LookupName(reference, root));
-                                xml.WriteEndElement();
-                            }
-                            xml.WriteEndElement();
-                        }
-                        xml.WriteEndElement();
-                        xml.WriteEndElement();
-                        xml.WriteEndDocument();
-                        xml.Flush();
-                        pipeWriter.Write((UInt32)ToClient.RunModelSystem);
-                        pipeWriter.Write(RunName);
-                        pipeWriter.Write(RunDirectory);
-                        pipeWriter.Write(Encoding.Unicode.GetString(memStream.ToArray()));
-                    }
+                    WriteModelSystemToStream(memStream);
+                    pipeWriter.Write((UInt32)ToClient.RunModelSystem);
+                    pipeWriter.Write(RunName);
+                    pipeWriter.Write(RunDirectory);
+                    pipeWriter.Write(_modelSystemAsString);
+
                 }
+            }
+        }
+
+        private void WriteModelSystemToStream(MemoryStream memStream)
+        {
+            using (XmlWriter xml = XmlTextWriter.Create(memStream, new XmlWriterSettings() { Encoding = Encoding.Unicode }))
+            {
+                xml.WriteStartDocument();
+                xml.WriteStartElement("Root");
+                var root = ModelSystemStructureModelRoot.RealModelSystemStructure;
+                root.Save(xml);
+                xml.WriteStartElement("LinkedParameters");
+                foreach (var lp in _LinkedParameters)
+                {
+                    xml.WriteStartElement("LinkedParameter");
+                    xml.WriteAttributeString("Name", lp.Name);
+                    xml.WriteAttributeString("Value", lp.Value ?? String.Empty);
+                    foreach (var reference in lp.Parameters)
+                    {
+                        xml.WriteStartElement("Reference");
+                        xml.WriteAttributeString("Name", LookupName(reference, root));
+                        xml.WriteEndElement();
+                    }
+                    xml.WriteEndElement();
+                }
+                xml.WriteEndElement();
+                xml.WriteEndElement();
+                xml.WriteEndDocument();
+                xml.Flush();
             }
         }
 
