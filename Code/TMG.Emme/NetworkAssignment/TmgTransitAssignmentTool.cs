@@ -64,6 +64,9 @@ namespace TMG.Emme.NetworkAssignment
         [Parameter("Add Congestion to IVTT", true, "Set to TRUE to extract the congestion matrix and add its weighted value to the in vehicle time (IVTT) matrix.")]
         public bool ExtractCongestedInVehicleTimeFlag;
 
+        [Parameter("Allow Walk all Way", false, "Set to TRUE to allow walk all way in the assignment")]
+        public bool WalkAllWayFlag;
+
         [Parameter("Connector Logit Scale", 0.2f, "Scale parameter for logit model at origin connectors.")]
         public float ConnectorLogitScale;
 
@@ -111,25 +114,25 @@ namespace TMG.Emme.NetworkAssignment
                 {
                 new ModellerControllerParameter("xtmf_ScenarioNumber",ScenarioNumber.ToString()),
                 new ModellerControllerParameter("xtmf_DemandMatrixString",ProduceMatrixString(c => c.DemandMatrixNumber)),
-                new ModellerControllerParameter("xtmf_NameString","\"" + (string.Join(",", from c in Classes
-                                                                select c.Name)).Replace('"', '\'') + "\""),
+                new ModellerControllerParameter("xtmf_NameString", (string.Join(",", from c in Classes
+                                                                select c.Name))),
                 new ModellerControllerParameter("WalkSpeed",WalkSpeed.ToString()),
                 new ModellerControllerParameter("xtmf_WalkPerceptionString",walkPerception),
-                new ModellerControllerParameter("xtmf_WalkPerceptionAttributeIdString", "\"" + (string.Join(",", from c in Classes
-                                                                select c.WalkPerceptionAttribute)).Replace('"', '\'') + "\""),
-                new ModellerControllerParameter("xtmf_ClassWaitPerceptionString", "\"" + string.Join(",", from c in Classes
-                                                                select Controller.ToEmmeFloat(c.WaitTimePerception)) + "\""),
-                new ModellerControllerParameter("xtmf_ClassBoardPerceptionString", "\"" + string.Join(",", from c in Classes
-                                                                select Controller.ToEmmeFloat(c.BoardingPerception)) + "\""),
-                new ModellerControllerParameter("xtmf_ClassFarePerceptionString", "\"" + string.Join(",", from c in Classes
-                                                                select Controller.ToEmmeFloat(c.FarePerception)) + "\""),
-                new ModellerControllerParameter("xtmf_ClassModeList", "\"" + string.Join(",", from c in Classes
-                                                                select c.ModeList) + "\""),
+                new ModellerControllerParameter("xtmf_WalkPerceptionAttributeIdString", string.Join(",", from c in Classes
+                                                                select c.WalkPerceptionAttribute)),
+                new ModellerControllerParameter("xtmf_ClassWaitPerceptionString", string.Join(",", from c in Classes
+                                                                select Controller.ToEmmeFloat(c.WaitTimePerception))),
+                new ModellerControllerParameter("xtmf_ClassBoardPerceptionString", string.Join(",", from c in Classes
+                                                                select Controller.ToEmmeFloat(c.BoardingPerception))),
+                new ModellerControllerParameter("xtmf_ClassFarePerceptionString", string.Join(",", from c in Classes
+                                                                select Controller.ToEmmeFloat(c.FarePerception))),
+                new ModellerControllerParameter("xtmf_ClassModeList", string.Join(",", from c in Classes
+                                                                select c.ModeList)),
                 new ModellerControllerParameter("HeadwayFractionAttributeId",HeadwayFractionAttribute),
-                new ModellerControllerParameter("xtmf_LinkFareAttributeIdString", "\"" + (string.Join(",", from c in Classes
-                                                                 select c.LinkFareAttribute)).Replace('"', '\'') + "\""),
-                new ModellerControllerParameter("xtmf_SegmentFareAttributeIdString", "\"" + (string.Join(",", from c in Classes
-                                                                 select c.SegmentFareAttribute)).Replace('"', '\'') + "\""),
+                new ModellerControllerParameter("xtmf_LinkFareAttributeIdString", string.Join(",", from c in Classes
+                                                                 select c.LinkFareAttribute)),
+                new ModellerControllerParameter("xtmf_SegmentFareAttributeIdString", string.Join(",", from c in Classes
+                                                                 select c.SegmentFareAttribute)),
                 new ModellerControllerParameter("EffectiveHeadwayAttributeId",EffectiveHeadwayAttributeId.ToString()),
                 new ModellerControllerParameter("EffectiveHeadwaySlope",Controller.ToEmmeFloat(EffectiveHeadwaySlope)),
                 new ModellerControllerParameter("AssignmentPeriod",Controller.ToEmmeFloat(RepresentativeHourFactor)),
@@ -149,7 +152,11 @@ namespace TMG.Emme.NetworkAssignment
                                                             select ttf.TTFNumber.ToString() + ":"
                                                             + Controller.ToEmmeFloat(ttf.CongestionPerception) + ":"
                                                             + Controller.ToEmmeFloat(ttf.CongestionExponent))),
-                new ModellerControllerParameter("xtmf_congestedAssignment",ApplyCongestion.ToString())
+                new ModellerControllerParameter("xtmf_congestedAssignment", ApplyCongestion.ToString()),
+                new ModellerControllerParameter("xtmf_CSVFile", GetFileLocationOrNone(IterationCSVFile)),
+                new ModellerControllerParameter("xtmf_SurfaceTransitSpeed", GetSurfaceSpeedModel()),
+                new ModellerControllerParameter("xtmf_WalkAllWayFlag", WalkAllWayFlag.ToString())
+
                 };
             }
 
@@ -208,6 +215,7 @@ namespace TMG.Emme.NetworkAssignment
                                         GetFileLocationOrNone(IterationCSVFile)
                                         );
             if (SurfaceTransitSpeedModel != null)
+            {
                 args = string.Join(" ", args, "\"" + string.Join(",", from model in SurfaceTransitSpeedModel
                                                                       select model.AutoScenarioNumber.ToString() + ":"
                                                                       + Controller.ToEmmeFloat(model.BoardingDuration) + ":"
@@ -218,26 +226,50 @@ namespace TMG.Emme.NetworkAssignment
                                                                       + model.LineFilterExpression + ":"
                                                                       + Controller.ToEmmeFloat(model.ErowSpeed)
                                                                ) + "\"");
+            }
             else
+            {
                 args = string.Join(" ", args, false.ToString());
-
+            }
 
             var result = "";
 
 
             //return mc.Run(this, ToolName, GetParameters(), (p => Progress = p), ref result);
-            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(this, ToolName, GetParameters(), (p => Progress = p), ref result);
+        }
+
+        private string GetSurfaceSpeedModel()
+        {
+            string surfaceSpeedModel;
+            if (SurfaceTransitSpeedModel != null)
+            {
+                surfaceSpeedModel = string.Join(",", from model in SurfaceTransitSpeedModel
+                                                     select model.AutoScenarioNumber.ToString() + ":"
+                                         + Controller.ToEmmeFloat(model.BoardingDuration) + ":"
+                                         + Controller.ToEmmeFloat(model.AlightingDuration) + ":"
+                                         + Controller.ToEmmeFloat(model.DefaultDuration) + ":"
+                                         + Controller.ToEmmeFloat(model.Correlation) + ":"
+                                         + model.ModeFilterExpression + ":"
+                                         + model.LineFilterExpression + ":"
+                                         + Controller.ToEmmeFloat(model.ErowSpeed));
+            }
+            else
+            {
+                surfaceSpeedModel = false.ToString();
+            }
+            return surfaceSpeedModel;
         }
 
         private static string GetFileLocationOrNone(FileLocation location)
         {
-            return location == null ? "None" : "\"" + Path.GetFullPath(location.GetFilePath()) + "\"";
+            return location == null ? "None" : Path.GetFullPath(location.GetFilePath());
         }
 
         private string ProduceMatrixString(Func<Class, int> matrixNumber)
         {
 
-            return "\"" + string.Join(",", Classes.Select(c => "mf" + matrixNumber(c).ToString())) + "\"";
+            return string.Join(",", Classes.Select(c => "mf" + matrixNumber(c).ToString()));
         }
 
 
