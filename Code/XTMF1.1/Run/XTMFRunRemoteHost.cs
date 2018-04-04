@@ -154,7 +154,7 @@ namespace XTMF.Run
                 try
                 {
                     BinaryReader reader = new BinaryReader(_Pipe, System.Text.Encoding.Unicode, true);
-                    while (true)
+                    while (_Pipe?.IsConnected == true)
                     {
                         try
                         {
