@@ -213,6 +213,8 @@ namespace Tasha.Common
             }
             TripChains.Clear();
             AuxTripChains.Clear();
+            EmploymentZone = null;
+            SchoolZone = null;
             if (People.Count < 100)
             {
                 People.Add(this);
