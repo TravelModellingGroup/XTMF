@@ -36,7 +36,7 @@
         
     </Grid>
 
-        <Expander>
+        <Expander IsExpanded="True">
             <Expander.Header>
                 <TextBlock FontSize="14" Text="Advanced run options"></TextBlock>
          
