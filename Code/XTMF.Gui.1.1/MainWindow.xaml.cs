@@ -107,7 +107,7 @@ namespace XTMF.Gui
             DockManager.SelectionChanged += DockManagerOnSelectionChanged;
             WorkspaceProjects = new Dictionary<Project, UserControl>();
             XtmfNotificationIcon.InitializeNotificationIcon();
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
             SetDisplayActive(new StartWindow(), "Start");
         }
 

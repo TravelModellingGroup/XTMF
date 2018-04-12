@@ -234,6 +234,8 @@ namespace XTMF.Gui.UserControls
             //UpdateStartTime($"{delayedStartTime: g}");
             StartRunAsync();
             _timer.Start();
+
+           
         }
 
 
@@ -609,6 +611,7 @@ namespace XTMF.Gui.UserControls
         {
             _isActive = true;
 
+    
             Dispatcher.BeginInvoke((Action) (() =>
             {
                 CancelButton.IsEnabled = true;
