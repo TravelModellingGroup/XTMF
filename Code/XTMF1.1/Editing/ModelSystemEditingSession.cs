@@ -665,5 +665,10 @@ namespace XTMF
         {
             return ((Configuration) Configuration).GetValidGenericVariableTypes(conditions);
         }
+
+        public void CancelRun(XTMFRun run)
+        {
+            _Runtime.RunController.CancelRun(run);
+        }
     }
 }

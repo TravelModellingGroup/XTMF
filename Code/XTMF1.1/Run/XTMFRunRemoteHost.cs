@@ -409,7 +409,14 @@ namespace XTMF.Run
 
         public override bool ExitRequest()
         {
-            RequestSignal(ToClient.KillModelRun);
+            if (_runStarted)
+            {
+                RequestSignal(ToClient.KillModelRun);
+            }
+            else
+            {
+                InvokeRunCompleted();
+            }
             return true;
         }
 
@@ -433,12 +440,15 @@ namespace XTMF.Run
             return true;
         }
 
+        private volatile bool _runStarted = false;
+
         public override void Start()
         {
             Task.Run(() =>
             {
                 StartupHost();
                 StartClientListener();
+                _runStarted = true;
                 // Send the instructions to run the model system
                 InitializeClientAndSendModelSystem();
                 SetStatusToRunning();
@@ -447,7 +457,18 @@ namespace XTMF.Run
 
         public override void Wait() => ClientExiting.Wait();
 
-        public override void TerminateRun() => RequestSignal(ToClient.KillModelRun);
+        public override void TerminateRun()
+        {
+            if (_runStarted)
+            {
+                RequestSignal(ToClient.KillModelRun);
+            }
+            else
+            {
+                InvokeRunCompleted();
+                ClientExiting.Release();
+            }
+        }
 
         protected override void Dispose(bool disposing)
         {

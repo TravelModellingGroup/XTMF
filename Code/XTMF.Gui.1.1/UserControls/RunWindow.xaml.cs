@@ -595,7 +595,7 @@ namespace XTMF.Gui.UserControls
                 //MainWindow.Us.UpdateStatusDisplay("Ready");
                 MainWindow.Us.HideStatusLink();
 
-                //call sceduler window callback
+                //call scheduler window callback
                 if (callback)
                 {
                     OnRunFinished(!_wasCanceled && !_runtimeValidationErrorOccured);
@@ -665,11 +665,10 @@ namespace XTMF.Gui.UserControls
             //Are you sure?
             if (MessageBox.Show(MainWindow.Us, "Are you sure you want to cancel this run?", "Cancel run?",
                     MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
-            {
+            {                
                 if (Run != null)
                 {
-                    Run.DeepExitRequest();
-                    _wasCanceled = Run.ExitRequest();
+                    Session.CancelRun(Run);
                     _wasCanceled = true;
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
@@ -770,40 +769,6 @@ namespace XTMF.Gui.UserControls
             {
                 BaseGrid.RowDefinitions[1].Height = new GridLength(250);
             }
-        }
-
-        internal bool CloseRequested()
-        {
-            if (_isFinished)
-            {
-                return true;
-            }
-            //Are you sure?
-            var window = GetWindow(this);
-            var message = "Are you sure you want to cancel the run '" + Run.RunName + "'?";
-            if (window == null
-                ? MessageBox.Show(message, "Cancel run?",
-                      MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes
-                : MessageBox.Show(window, message, "Cancel run?",
-                      MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
-            {
-                lock (this)
-                {
-                    _wasCanceled = true;
-                    _isActive = false;
-                    Dispatcher.BeginInvoke((Action) (() =>
-                    {
-                        ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
-                        ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
-                        CancelButton.IsEnabled = false;
-                    }));
-                    _timer.Stop();
-                    Run.TerminateRun();
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         /// <summary>

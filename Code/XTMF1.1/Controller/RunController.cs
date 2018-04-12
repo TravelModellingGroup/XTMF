@@ -114,12 +114,23 @@ namespace XTMF.Controller
                 int index = _CurrentlyExecuting.IndexOf(run);
                 if (index >= 0)
                 {
-                    _CurrentlyExecuting[0].ExitRequest();
+                    _CurrentlyExecuting[index].ExitRequest();
                 }
                 else
                 {
                     // if it is not running already, just remove it from the queue
                     _Backlog.Remove(run);
+                    if (_DelayedRuns.Count > 0)
+                    {
+                        for (int i = 0; i < _DelayedRuns.Count; i++)
+                        {
+                            if (_DelayedRuns[i].run == run)
+                            {
+                                _DelayedRuns.RemoveAt(i);
+                            }
+                        }
+                    }
+                    run.TerminateRun();
                 }
             }
         }
@@ -200,7 +211,20 @@ namespace XTMF.Controller
         {
             lock (_Lock)
             {
-                _CurrentlyExecuting.Remove(run);
+                if(!_CurrentlyExecuting.Remove(run))
+                {
+                    if(!_Backlog.Remove(run))
+                    {
+                        for (int i = 0; i < _DelayedRuns.Count; i++)
+                        {
+                            if(_DelayedRuns[i].run == run)
+                            {
+                                _DelayedRuns.RemoveAt(i);
+                                break;
+                            }
+                        }
+                    }
+                }
                 if (_CurrentlyExecuting.Count == 0)
                 {
                     if (_Backlog.Count > 0)
