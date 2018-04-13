@@ -77,7 +77,10 @@ namespace XTMF.Run
                 ClearFolder(RunDirectory);
             }
         }
-        public override bool ExitRequest() => _MST?.ExitRequest() ?? false;
+        public override bool ExitRequest()
+        {
+            return DeepExitRequest();
+        }
 
         override public void Start()
         {
@@ -303,6 +306,7 @@ namespace XTMF.Run
             {
                 return Exit(root.RealModelSystemStructure);
             }
+            InvokeRunCompleted();
             return false;
         }
 

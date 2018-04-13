@@ -49,7 +49,7 @@
                         <materialDesign:PackIcon Kind="FolderOutline" />
                     </Button>
 
-                    <Button Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButton}"  Width="24" Height="24"
+                    <Button Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButtonXtmf}"  Width="24" Height="24"
                             materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
                             materialDesign:ButtonProgressAssist.Value="-1" 
                             materialDesign:ButtonProgressAssist.IsIndeterminate="True"
