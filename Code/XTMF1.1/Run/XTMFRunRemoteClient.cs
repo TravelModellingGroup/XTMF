@@ -297,8 +297,16 @@ namespace XTMF.Run
                     string moduleName = null;
                     if (e is XTMFRuntimeException runtimeError)
                     {
-                        path = GetModulePath(runtimeError.Module);
-                        moduleName = runtimeError.Module.Name;
+                        if (runtimeError.Module != null)
+                        {
+                            path = GetModulePath(runtimeError.Module);
+                            moduleName = runtimeError.Module.Name;
+                        }
+                        else
+                        {
+                            path = null;
+                            moduleName = "Null Module";
+                        }
                     }
                     InvokeRuntimeError(new ErrorWithPath(path, e.Message, e.StackTrace, moduleName));
                 }
