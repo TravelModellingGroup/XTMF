@@ -205,8 +205,11 @@ namespace XTMF.Gui.UserControls
             get => _canSaveModelSystem;
             set
             {
-                _canSaveModelSystem = value;
-                OnPropertyChanged(nameof(CanSaveModelSystem));
+                if (_canSaveModelSystem != value)
+                {
+                    _canSaveModelSystem = value;
+                    OnPropertyChanged(nameof(CanSaveModelSystem));
+                }
             }
         }
 
@@ -277,23 +280,25 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public bool HandleTabClose()
         {
-            var value = !Session.CloseWillTerminate || !CanSaveModelSystem
-                                                    || MessageBox.Show(
-                                                        "The model system has not been saved, closing this window will discard the changes!",
-                                                        "Are you sure?", MessageBoxButton.OKCancel,
-                                                        MessageBoxImage.Question,
-                                                        MessageBoxResult.Cancel) == MessageBoxResult.OK;
-            if (value)
+            var value = Session.CloseWillTerminate && CanSaveModelSystem;
+            if (value) 
             {
-                string error = null;
-                if (!Session.Close(ref error))
+                if(MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
+                                         "Are you sure?", MessageBoxButton.OKCancel,
+                                         MessageBoxImage.Question,
+                                         MessageBoxResult.Cancel) == MessageBoxResult.OK)
                 {
-                    MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                    string error = null;
+                    if (!Session.Close(ref error))
+                    {
+                        MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                    }
+                    return true;
                 }
+                return false;
             }
-
-            return value;
+            return true;
         }
 
         /// <summary>
@@ -2963,7 +2968,7 @@ namespace XTMF.Gui.UserControls
             var parameterSource = (e.OriginalSource as ComboBox)?.Tag as ParameterDisplayModel;
             if (ParameterDisplay.Items.Contains(parameterSource) && _loadedOnce)
             {
-                CanSaveModelSystem = true;
+                CanSaveModelSystem = _Session.HasChanged;
             }
             else
             {
