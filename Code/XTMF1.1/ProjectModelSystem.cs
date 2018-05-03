@@ -30,5 +30,6 @@ namespace XTMF
         public IModelSystemStructure Root { get; internal set; }
         public List<ILinkedParameter> LinkedParameters { get; internal set; }
         public string Description { get; internal set; }
+        public string GUID { get; internal set; }
     }
 }

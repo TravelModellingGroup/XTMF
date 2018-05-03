@@ -116,7 +116,7 @@ namespace XTMF
 
             for (int i = 0; i < _ProjectModelSystems.Count; i++)
             {
-                if(_ProjectModelSystems[i]?.Root == realModelSystemStructure)
+                if (_ProjectModelSystems[i]?.Root == realModelSystemStructure)
                 {
                     return i;
                 }
@@ -356,7 +356,7 @@ namespace XTMF
         /// <param name="newMSS"></param>
         public void UpdateModelSystemStructure(int modelSystemIndex, ModelSystemStructure newMSS)
         {
-            if(modelSystemIndex < 0 || modelSystemIndex >= _ProjectModelSystems.Count)
+            if (modelSystemIndex < 0 || modelSystemIndex >= _ProjectModelSystems.Count)
             {
                 throw new ArgumentOutOfRangeException(nameof(modelSystemIndex));
             }
@@ -491,8 +491,19 @@ namespace XTMF
         /// </summary>
         public event EventHandler<ProjectExternallySavedEventArgs> ExternallySaved;
 
+        public bool SaveModelSystem(int modelSystemIndex, ref string error)
+        {
+
+            return false;
+        }
+
         public bool Save(string path, ref string error)
         {
+            // We need this in case it is a new project that has no model systems
+            if(_ProjectModelSystems == null)
+            {
+                _ProjectModelSystems = new List<ProjectModelSystem>();
+            }
             var dirName = Path.GetDirectoryName(path);
             if (dirName == null)
             {
@@ -517,10 +528,9 @@ namespace XTMF
                     }
                 }
             }
-            var mss = ModelSystemStructure;
-            var lpll = LinkedParameters;
             try
             {
+                List<Task> writeTasks = new List<Task>(_ProjectModelSystems.Count);
                 using (XmlTextWriter writer = new XmlTextWriter(tempFileName, Encoding.Unicode))
                 {
                     writer.Formatting = Formatting.Indented;
@@ -531,25 +541,39 @@ namespace XTMF
                     {
                         writer.WriteAttributeString("Description", Description);
                     }
-                    for (int i = 0; i < mss.Count; i++)
+                    
+                    foreach(var pms in _ProjectModelSystems)
                     {
-                        var ms = _ProjectModelSystems[i].Root;
-                        var lpl = _ProjectModelSystems[i].LinkedParameters;
-                        if (ms.Type != null)
+                        writer.WriteStartElement("DetachedModelSystem");
+                        writer.WriteAttributeString("Description", pms.Description);
+                        writer.WriteAttributeString("GUID", pms.GUID);
+                        writer.WriteEndElement();
+                        var ms = pms;
+                        writeTasks.Add(Task.Run(()=>
                         {
-                            writer.WriteStartElement("AdvancedModelSystem");
-                            writer.WriteAttributeString("Description", _ProjectModelSystems[i].Description);
-                            writer.WriteStartElement("ModelSystem");
-                            ms.Save(writer);
-                            writer.WriteEndElement();
-                            writer.WriteStartElement("LinkedParameters");
-                            WriteLinkedParameters(writer, lpl, ms);
-                            writer.WriteEndElement();
-                            writer.WriteEndElement();
-                        }
+                            if (ms.Root.Type != null)
+                            {
+                                var tempMSFileName = Path.GetTempFileName();
+                                using (XmlTextWriter msWriter = new XmlTextWriter(tempMSFileName, Encoding.Unicode))
+                                {
+                                    msWriter.WriteStartDocument();
+                                    msWriter.WriteStartElement("AdvancedModelSystem");
+                                    msWriter.WriteStartElement("ModelSystem");
+                                    ms.Root.Save(msWriter);
+                                    msWriter.WriteEndElement();
+                                    msWriter.WriteStartElement("LinkedParameters");
+                                    WriteLinkedParameters(msWriter, ms.LinkedParameters, ms.Root);
+                                    msWriter.WriteEndElement();
+                                    msWriter.WriteEndElement();
+                                }
+                                File.Copy(tempMSFileName, Path.Combine(Path.GetDirectoryName(path), $"Project.ms-{ms.GUID}.xml"), true);
+                                File.Delete(tempMSFileName);
+                            }
+                        }));
                     }
                     writer.WriteEndElement();
                 }
+                Task.WaitAll(writeTasks.ToArray());
             }
             catch (Exception e)
             {
@@ -1258,12 +1282,31 @@ namespace XTMF
                     {
                         XmlNode child = rootChildren[i];
                         // check for the 3.0 file name
-                        if (child.Name == "AdvancedModelSystem")
+                        switch (child.Name)
                         {
-                            if (LoadAdvancedModelSystem(child, i, out ProjectModelSystem pms))
-                            {
-                                toLoad[i] = pms;
-                            }
+                            case "AdvancedModelSystem":
+                                {
+                                    if (LoadAdvancedModelSystem(child, i, Guid.NewGuid().ToString(), out var pms))
+                                    {
+                                        toLoad[i] = pms;
+                                    }
+                                }
+                                break;
+                            case "DetachedModelSystem":
+                                {
+                                    var guid = child.Attributes["GUID"]?.InnerText ?? string.Empty;
+                                    var msFile = new FileInfo(Path.Combine(_DirectoryLocation, $"Project.ms-{guid}.xml"));
+                                    if (msFile.Exists)
+                                    {
+                                        XmlDocument msDoc = new XmlDocument();
+                                        msDoc.Load(msFile.FullName);
+                                        if (LoadAdvancedModelSystem(msDoc["AdvancedModelSystem"], i, guid, out var pms))
+                                        {
+                                            toLoad[i] = pms;
+                                        }
+                                    }
+                                }
+                                break;
                         }
                     });
                     _ProjectModelSystems.AddRange(toLoad);
@@ -1279,9 +1322,12 @@ namespace XTMF
             return false;
         }
 
-        private bool LoadAdvancedModelSystem(XmlNode child, int index, out ProjectModelSystem pms)
+        private bool LoadAdvancedModelSystem(XmlNode child, int index, string guid, out ProjectModelSystem pms)
         {
-            pms = new ProjectModelSystem();
+            pms = new ProjectModelSystem()
+            {
+                GUID = guid
+            };
             bool hasDescription = false;
             var attributes = child.Attributes;
             if (attributes != null)
