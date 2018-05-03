@@ -676,6 +676,7 @@ namespace XTMF.Gui.UserControls
                                         {
                                             var newlyAdded = selectedModule.Children.Last();
                                             newlyAdded.IsExpanded = true;
+                                            GoToModule(newlyAdded.BaseModel);
                                         }
                                     }
                                     else
@@ -1414,13 +1415,23 @@ namespace XTMF.Gui.UserControls
         /// <param name="mss"></param>
         private void GoToModule(ModelSystemStructure mss)
         {
-            var displayModel = GetModelFor(ModelSystem.GetModelFor(mss));
+            GoToModule(ModelSystem.GetModelFor(mss));
+        }
+
+        private void GoToModule(ModelSystemStructureModel mss)
+        {
+            GoToModule(GetModelFor(mss));
+        }
+
+        private void GoToModule(ModelSystemStructureDisplayModel displayModel)
+        {
             Dispatcher.Invoke(() =>
             {
                 CurrentlySelected.Clear();
                 ExpandToRoot(displayModel);
                 displayModel.IsSelected = true;
             });
+
         }
 
         private void GotoSelectedParameterModule()
