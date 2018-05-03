@@ -25,7 +25,8 @@
              xmlns:wpf="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:XTMF.Gui.Converters"
               xmlns:local2="clr-namespace:Dragablz.Themes"
-             Startup="App_OnStartup"
+              xmlns:converters1="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
+              Startup="App_OnStartup"
 
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
@@ -220,6 +221,231 @@
                 <Setter Property="Cursor" Value="Hand"></Setter>
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
 
+            </Style>
+
+            <Style x:Key="MaterialDesignFloatingActionMiniDarkButtonXtmf" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueDarkBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"/>
+                <Setter Property="wpf:ButtonProgressAssist.IndicatorForeground" Value="{DynamicResource PrimaryHueLightBrush}" />
+            </Style>
+
+            <Style x:Key="MaterialDesignFloatingActionMiniButtonXtmf" TargetType="{x:Type Button}">
+                <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+                <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                <Setter Property="wpf:RippleAssist.Feedback" Value="White" />
+                <Setter Property="wpf:ButtonProgressAssist.IndicatorForeground" Value="{DynamicResource SecondaryAccentBrush}" />
+                <Setter Property="wpf:ButtonProgressAssist.IndicatorBackground" Value="{DynamicResource MaterialDesignDivider}" />
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="wpf:ShadowAssist.ShadowDepth" Value="Depth2" />
+                <Setter Property="Padding" Value="1"/>
+                <Setter Property="Width" Value="40" />
+                <Setter Property="Height" Value="40" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Grid>
+                                <AdornerDecorator CacheMode="{Binding RelativeSource={RelativeSource Self}, Path=(wpf:ShadowAssist.CacheMode)}">
+                                    <Ellipse Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="{TemplateBinding BorderThickness}" 
+                                     Effect="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ShadowAssist.ShadowDepth), Converter={x:Static converters1:ShadowConverter.Instance}}"
+                                     x:Name="border">
+                                    </Ellipse>
+                                </AdornerDecorator>
+                                <ProgressBar x:Name="ProgressBar" 
+                                     Style="{DynamicResource MaterialDesignCircularProgressBarXtmf}" 
+                                     Minimum="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ButtonProgressAssist.Minimum)}"
+                                     Maximum="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ButtonProgressAssist.Maximum)}"
+                                     Foreground="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ButtonProgressAssist.IndicatorForeground)}"
+                                     Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ButtonProgressAssist.IndicatorBackground)}"
+                                     Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ButtonProgressAssist.Value)}"
+                                     IsIndeterminate="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ButtonProgressAssist.IsIndeterminate)}" 
+                                     Margin="-8" 
+                                     Width="{TemplateBinding Width, Converter={StaticResource MathAddConverter}, ConverterParameter={StaticResource ProgressRingStrokeWidth}}"
+                                     Height="{TemplateBinding Height, Converter={StaticResource MathAddConverter}, ConverterParameter={StaticResource ProgressRingStrokeWidth}}"
+                                     HorizontalAlignment="Stretch" 
+                                     VerticalAlignment="Stretch"
+                                     RenderTransformOrigin=".5, .5">
+                                    <ProgressBar.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="0" ScaleY="0" />
+                                        </TransformGroup>
+                                    </ProgressBar.RenderTransform>
+                                </ProgressBar>
+                                <Ellipse Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="{TemplateBinding BorderThickness}" />
+                                <wpf:Ripple Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Focusable="False"  
+                                    Clip="{Binding ElementName=GeometryEllipse, Path=RenderedGeometry}" ClipToBounds="True"
+                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    Padding="{TemplateBinding Padding}" 
+                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                <Ellipse x:Name="GeometryEllipse" Fill="Transparent" IsHitTestVisible="False" Focusable="False" />
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsDefaulted" Value="true">
+                                    <Setter Property="Stroke" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="false">
+                                    <Setter Property="Opacity" Value="0.23"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="wpf:ShadowAssist.Darken" Value="True" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="true">
+                                    <Setter TargetName="border" Property="wpf:ShadowAssist.Darken" Value="True" />
+                                </Trigger>
+                                <Trigger Property="wpf:ButtonProgressAssist.IsIndicatorVisible" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Duration="0:0:0.2" From=".9" To="1" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="ProgressBar"/>
+                                                <DoubleAnimation Duration="0:0:0.2" From=".9" To="1" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="ProgressBar"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Duration="0:0:0.2" From="1" To=".9" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="ProgressBar"/>
+                                                <DoubleAnimation Duration="0:0:0.2" From="1" To=".9" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="ProgressBar"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="MaterialDesignFloatingActionMiniAccentButtonXtmf" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignFloatingActionMiniButtonXtmf}">
+                <Setter Property="Background" Value="{DynamicResource SecondaryAccentBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource SecondaryAccentBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource SecondaryAccentForegroundBrush}"/>
+                <Setter Property="wpf:ButtonProgressAssist.IndicatorForeground" Value="{DynamicResource PrimaryHueMidBrush}" />
+            </Style>
+
+            <Style x:Key="MaterialDesignCircularProgressBarXtmf" TargetType="{x:Type ProgressBar}">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Width" Value="20" />
+                <Setter Property="Height" Value="20" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ProgressBar}">
+                            <ControlTemplate.Resources>
+                                <Storyboard Timeline.DesiredFrameRate="24" x:Key="IsIndeterminateStoryboard" TargetName="RotateTransform" TargetProperty="Angle" RepeatBehavior="Forever">
+                                    <DoubleAnimation From="0" To="359" Duration="0:0:2"   />
+                                </Storyboard>
+                                <Storyboard Timeline.DesiredFrameRate="24" x:Key="IsFullyIndeterminateScaleStoryboard">
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="FullyIndeterminateGridScaleTransform"
+                                                           Storyboard.TargetProperty="ScaleX"
+                                                           RepeatBehavior="Forever">
+                                        <SplineDoubleKeyFrame KeyTime="0" Value="0.0" />
+                                        <SplineDoubleKeyFrame KeyTime="0:0:1" Value="1.0" />
+                                        <SplineDoubleKeyFrame KeyTime="0:0:4" Value="0.0" />
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimation Storyboard.TargetName="RotateTransform"
+                                             Storyboard.TargetProperty="Angle" 
+                                             RepeatBehavior="Forever" 
+                                             From="00" To="359" Duration="0:0:1.25" />
+                                </Storyboard>
+                            </ControlTemplate.Resources>
+                            <Grid x:Name="TemplateRoot" ClipToBounds="False">
+                                <Grid x:Name="FullyIndeterminateGrid">
+                                    <Grid.RenderTransform>
+                                        <ScaleTransform x:Name="FullyIndeterminateGridScaleTransform" ScaleX="0" />
+                                    </Grid.RenderTransform>
+                                </Grid>
+                                <Grid x:Name="PathGrid" Margin="2" />
+                                <Canvas>
+                                    <Ellipse Fill="{TemplateBinding Background}" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" />
+                                    <Path x:Name="Path" Stroke="{TemplateBinding Foreground}" StrokeThickness="3" 
+                                  Canvas.Top="2" Canvas.Left="2"
+                                  RenderTransformOrigin="0, 0">
+                                        <Path.Data>
+                                            <PathGeometry>
+                                                <PathFigure StartPoint="{Binding ElementName=PathGrid, Path=ActualWidth, Converter={StaticResource StartPointConverter}, Mode=OneWay}">
+                                                    <ArcSegment Size="{Binding ElementName=PathGrid, Path=ActualWidth, Converter={StaticResource ArcSizeConverter}, Mode=OneWay}"
+                                                        SweepDirection="Clockwise">
+                                                        <ArcSegment.IsLargeArc>
+                                                            <MultiBinding Converter="{StaticResource LargeArcConverter}">
+                                                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value" />
+                                                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Minimum" />
+                                                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Maximum" />
+                                                                <Binding ElementName="FullyIndeterminateGridScaleTransform" Path="ScaleX" />
+                                                            </MultiBinding>
+                                                        </ArcSegment.IsLargeArc>
+                                                        <ArcSegment.Point>
+                                                            <MultiBinding Converter="{StaticResource ArcEndPointConverter}">
+                                                                <Binding ElementName="PathGrid" Path="ActualWidth" />
+                                                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value" />
+                                                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Minimum" />
+                                                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Maximum" />
+                                                                <Binding ElementName="FullyIndeterminateGridScaleTransform" Path="ScaleX" />
+                                                            </MultiBinding>
+                                                        </ArcSegment.Point>
+                                                    </ArcSegment>
+                                                </PathFigure>
+                                            </PathGeometry>
+                                        </Path.Data>
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <RotateTransform x:Name="RotateTransform"
+                                                         CenterX="{Binding ElementName=PathGrid, Path=ActualWidth, Converter={StaticResource RotateTransformCentreConverter}, Mode=OneWay}" 
+                                                         CenterY="{Binding ElementName=PathGrid, Path=ActualWidth, Converter={StaticResource RotateTransformCentreConverter}, Mode=OneWay}">
+                                                    <RotateTransform.Angle>
+                                                        <MultiBinding Converter="{StaticResource RotateTransformConverter}">
+                                                            <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value" />
+                                                            <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Minimum" />
+                                                            <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Maximum" />
+                                                        </MultiBinding>
+                                                    </RotateTransform.Angle>
+                                                </RotateTransform>
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Canvas>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsIndeterminate, RelativeSource={RelativeSource Self}}" Value="True" />
+                                        <Condition Binding="{Binding IsVisible, RelativeSource={RelativeSource Self}}" Value="True" />
+                                        <Condition Binding="{Binding Value, RelativeSource={RelativeSource Self}, Converter={StaticResource NotZeroConverter}}" Value="True" />
+                                    </MultiDataTrigger.Conditions>
+                                    <MultiDataTrigger.EnterActions>
+                                        <RemoveStoryboard BeginStoryboardName="IsFullyIndeterminateStoryboard" />
+                                        <BeginStoryboard Storyboard="{StaticResource IsIndeterminateStoryboard}"
+                                                 Name="IsIndeterminateStoryboard"/>
+                                    </MultiDataTrigger.EnterActions>
+                                    <MultiDataTrigger.ExitActions>
+                                        <RemoveStoryboard BeginStoryboardName="IsIndeterminateStoryboard" />
+                                    </MultiDataTrigger.ExitActions>
+                                </MultiDataTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsIndeterminate" Value="True" />
+                                        <Condition Property="Value" Value="0" />
+                                        <Condition Property="IsVisible" Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <MultiTrigger.EnterActions>
+                                        <RemoveStoryboard BeginStoryboardName="IsIndeterminateStoryboard" />
+                                        <BeginStoryboard Storyboard="{StaticResource IsFullyIndeterminateScaleStoryboard}"
+                                                 Name="IsFullyIndeterminateStoryboard"/>
+                                    </MultiTrigger.EnterActions>
+                                    <MultiTrigger.ExitActions>
+                                        <RemoveStoryboard BeginStoryboardName="IsFullyIndeterminateStoryboard" />
+                                    </MultiTrigger.ExitActions>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
 

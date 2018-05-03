@@ -81,6 +81,8 @@ namespace XTMF.Gui
 
         private OperationProgressing operationProgressing;
 
+        private bool LaunchUpdate = false;
+
         public MainWindow()
         {
             ViewModelBase = new ViewModelBase();
@@ -107,7 +109,7 @@ namespace XTMF.Gui
             DockManager.SelectionChanged += DockManagerOnSelectionChanged;
             WorkspaceProjects = new Dictionary<Project, UserControl>();
             XtmfNotificationIcon.InitializeNotificationIcon();
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
             SetDisplayActive(new StartWindow(), "Start");
         }
 
@@ -631,6 +633,29 @@ namespace XTMF.Gui
             base.OnClosing(e);
             if (!e.Cancel)
             {
+                if (LaunchUpdate)
+                {
+                    Task.Run(() =>
+                        {
+                            var path = Assembly.GetExecutingAssembly().Location;
+                            try
+                            {
+                                Process.Start(
+                                    System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram),
+                                    Process.GetCurrentProcess().Id + " \"" + path + "\"");
+                            }
+                            catch
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                                });
+                            }
+                        })
+                        .Wait();
+                }
+
                 Application.Current.Shutdown(0);
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
@@ -660,6 +685,12 @@ namespace XTMF.Gui
             SetDisplayActive(SchedulerWindow, "Model System Runs", false);
         }
 
+        internal void AddDelayedRunToSchedulerWindow(RunWindow runWindow, DateTime delayedStartTime)
+        {
+            //create a new scheduler window if one does not exist
+            SchedulerWindow.AddDelayedRun(runWindow, delayedStartTime);
+        }
+
         /// <summary>
         ///     Shows the scheduler window
         /// </summary>
@@ -678,6 +709,18 @@ namespace XTMF.Gui
             bool immediateRun = false, ModelSystemDisplay launchDisplay = null)
         {
             return new RunWindow(session, run, runName, immediateRun, launchDisplay);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="run"></param>
+        /// <param name="runName"></param>
+        /// <returns></returns>
+        internal RunWindow CreateDelayedRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName,
+            DateTime delayedStartTime, ModelSystemDisplay launchDisplay = null)
+        {
+            return new RunWindow(session, run, runName, delayedStartTime, launchDisplay);
         }
 
         /// <summary>
@@ -857,6 +900,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void UpdateXtmfMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
+            LaunchUpdate = true;
             Close();
         }
 

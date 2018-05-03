@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2017-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace XTMF.Controller
@@ -36,6 +37,8 @@ namespace XTMF.Controller
         private ObservableCollection<XTMFRun> _Backlog = new ObservableCollection<XTMFRun>();
 
         private ObservableCollection<XTMFRun> _CurrentlyExecuting = new ObservableCollection<XTMFRun>();
+
+        private ObservableCollection<(DateTime startTime, XTMFRun run)> _DelayedRuns = new ObservableCollection<(DateTime, XTMFRun)>();
 
         /// <summary>
         /// Get a reference to all of the runs that are waiting to execute
@@ -56,6 +59,17 @@ namespace XTMF.Controller
             get
             {
                 lock (_Lock) { return new ReadOnlyObservableCollection<XTMFRun>(_CurrentlyExecuting); }
+            }
+        }
+
+        /// <summary>
+        /// Get a reference to all of the runs that are being delayed to start at a given time.
+        /// </summary>
+        public ReadOnlyObservableCollection<(DateTime, XTMFRun)> DelayedRuns
+        {
+            get
+            {
+                lock (_Lock) { return new ReadOnlyObservableCollection<(DateTime, XTMFRun)>(_DelayedRuns); }
             }
         }
 
@@ -100,13 +114,92 @@ namespace XTMF.Controller
                 int index = _CurrentlyExecuting.IndexOf(run);
                 if (index >= 0)
                 {
-                    _CurrentlyExecuting[0].ExitRequest();
+                    _CurrentlyExecuting[index].ExitRequest();
                 }
                 else
                 {
                     // if it is not running already, just remove it from the queue
                     _Backlog.Remove(run);
+                    if (_DelayedRuns.Count > 0)
+                    {
+                        for (int i = 0; i < _DelayedRuns.Count; i++)
+                        {
+                            if (_DelayedRuns[i].run == run)
+                            {
+                                _DelayedRuns.RemoveAt(i);
+                            }
+                        }
+                    }
+                    run.TerminateRun();
                 }
+            }
+        }
+
+        private Thread _timedRunThread;
+
+        /// <summary>
+        /// This method deals with managing the delayed model system runs
+        /// </summary>
+        private void ManageTimedThreads()
+        {
+            while (true)
+            {
+                Thread.Sleep(5000);
+                XTMFRun run = null;
+                lock (_Lock)
+                {
+                    if (_DelayedRuns.Count > 0)
+                    {
+                        if (_DelayedRuns[0].startTime < DateTime.Now)
+                        {
+                            run = _DelayedRuns[0].run;
+                            _DelayedRuns.RemoveAt(0);
+                        }
+                    }
+                }
+                // execute the ready run if one exists
+                if (run != null)
+                {
+                    ExecuteRun(run, false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Setup a run for management by XTMF to start at a given time.
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <param name="run"></param>
+        public void ExecuteDelayedRun(XTMFRun run, DateTime startTime)
+        {
+            lock (_Lock)
+            {
+                if (_timedRunThread == null)
+                {
+                    // make sure that XTMF will not be kept alive by this
+                    _timedRunThread = new Thread(ManageTimedThreads)
+                    {
+                        IsBackground = true,
+                        Priority = ThreadPriority.Lowest
+                    };
+                    _timedRunThread.Start();
+                }
+
+                if (startTime <= DateTime.Now)
+                {
+                    ExecuteRun(run, false);
+                    return;
+                }
+                // Add this in order
+                int index = 0;
+                for (; index < _DelayedRuns.Count; index++)
+                {
+                    if (_DelayedRuns[index].startTime > startTime)
+                    {
+                        break;
+                    }
+                }
+                _DelayedRuns.Insert(index, (startTime, run));
             }
         }
 
@@ -118,7 +211,20 @@ namespace XTMF.Controller
         {
             lock (_Lock)
             {
-                _CurrentlyExecuting.Remove(run);
+                if(!_CurrentlyExecuting.Remove(run))
+                {
+                    if(!_Backlog.Remove(run))
+                    {
+                        for (int i = 0; i < _DelayedRuns.Count; i++)
+                        {
+                            if(_DelayedRuns[i].run == run)
+                            {
+                                _DelayedRuns.RemoveAt(i);
+                                break;
+                            }
+                        }
+                    }
+                }
                 if (_CurrentlyExecuting.Count == 0)
                 {
                     if (_Backlog.Count > 0)
@@ -127,6 +233,18 @@ namespace XTMF.Controller
                         _Backlog.RemoveAt(0);
                         _CurrentlyExecuting.Add(_backlogRun);
                         _backlogRun.Start();
+                    }
+                }
+                // make sure the run was not in the backlog or the delayed runs
+                _Backlog.Remove(run);
+                if(_DelayedRuns.Count > 0)
+                {
+                    for(int i = 0; i < _DelayedRuns.Count; i++)
+                    {
+                        if(_DelayedRuns[i].run == run)
+                        {
+                            _DelayedRuns.RemoveAt(i);
+                        }
                     }
                 }
             }
