@@ -672,10 +672,16 @@ namespace XTMF.Gui.UserControls
                                             MessageBox.Show(GetWindow(), error, "Failed add module to collection",
                                                 MessageBoxButton.OK, MessageBoxImage.Error);
                                         }
+                                        else
+                                        {
+                                            var newlyAdded = selectedModule.Children.Last();
+                                            newlyAdded.IsExpanded = true;
+                                        }
                                     }
                                     else
                                     {
                                         selectedModule.Type = selectedType;
+                                        selectedModule.IsExpanded = true;
                                     }
                                 }
                             });
