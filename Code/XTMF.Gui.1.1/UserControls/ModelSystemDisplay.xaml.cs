@@ -1311,7 +1311,6 @@ namespace XTMF.Gui.UserControls
                     {
                         try
                         {
-                            var watch = Stopwatch.StartNew();
                             if (!Session.Save(ref error))
                             {
                                 Dispatcher.Invoke(() =>
@@ -1319,14 +1318,6 @@ namespace XTMF.Gui.UserControls
                                     MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save",
                                         MessageBoxButton.OK, MessageBoxImage.Error);
                                 });
-                            }
-
-                            watch.Stop();
-                            var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
-                            if (displayTimeRemaining > 0)
-                            {
-                                MainWindow.SetStatusText("Saved");
-                                await Task.Delay(displayTimeRemaining);
                             }
                         }
                         catch (Exception e)
@@ -1339,7 +1330,6 @@ namespace XTMF.Gui.UserControls
                         }
                         finally
                         {
-                            MainWindow.SetStatusText("Ready");
                             CanSaveModelSystem = false;
                             Session.SaveRelease();
 
