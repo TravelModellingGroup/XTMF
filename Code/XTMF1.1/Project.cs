@@ -75,7 +75,8 @@ namespace XTMF
             {
                 Root = root,
                 LinkedParameters = lps,
-                Description = description
+                Description = description,
+                GUID = Guid.NewGuid().ToString()
             });
         }
 
@@ -96,7 +97,8 @@ namespace XTMF
             {
                 Root = clone,
                 LinkedParameters = linkedParameters,
-                Description = modelSystem.Description
+                Description = modelSystem.Description,
+                GUID = Guid.NewGuid().ToString()
             });
             return Save(ref error);
         }
@@ -130,7 +132,8 @@ namespace XTMF
             {
                 Root = system.ModelSystemStructure,
                 LinkedParameters = system.LinkedParameters,
-                Description = system.Description
+                Description = system.Description,
+                GUID = Guid.NewGuid().ToString()
             });
             return Save(ref error);
         }
@@ -152,7 +155,8 @@ namespace XTMF
                     ParentFieldType = typeof(IModelSystemTemplate)
                 },
                 LinkedParameters = new List<ILinkedParameter>(),
-                Description = String.Empty
+                Description = String.Empty,
+                GUID = Guid.NewGuid().ToString()
             });
             return Save(ref error);
         }
@@ -170,7 +174,8 @@ namespace XTMF
             {
                 Root = clone,
                 LinkedParameters = linkedParameters,
-                Description = _ProjectModelSystems[index].Description
+                Description = _ProjectModelSystems[index].Description,
+                GUID = Guid.NewGuid().ToString()
             });
             return Save(ref error);
         }
@@ -194,7 +199,8 @@ namespace XTMF
                 {
                     Root = mss,
                     LinkedParameters = lp,
-                    Description = mss?.Description ?? "No Description"
+                    Description = mss?.Description ?? "No Description",
+                    GUID = Guid.NewGuid().ToString()
                 };
             });
             _ProjectModelSystems = loadTo.ToList();
@@ -318,7 +324,8 @@ namespace XTMF
             {
                 Root = realModelSystemStructure,
                 LinkedParameters = lps,
-                Description = description
+                Description = description,
+                GUID = _ProjectModelSystems[modelSystemIndex]?.GUID ?? Guid.NewGuid().ToString()
             };
         }
 
@@ -500,7 +507,7 @@ namespace XTMF
         public bool Save(string path, ref string error)
         {
             // We need this in case it is a new project that has no model systems
-            if(_ProjectModelSystems == null)
+            if (_ProjectModelSystems == null)
             {
                 _ProjectModelSystems = new List<ProjectModelSystem>();
             }
@@ -541,15 +548,16 @@ namespace XTMF
                     {
                         writer.WriteAttributeString("Description", Description);
                     }
-                    
-                    foreach(var pms in _ProjectModelSystems)
+
+                    foreach (var pms in _ProjectModelSystems)
                     {
                         writer.WriteStartElement("DetachedModelSystem");
+                        writer.WriteAttributeString("Name", pms.Name);
                         writer.WriteAttributeString("Description", pms.Description);
                         writer.WriteAttributeString("GUID", pms.GUID);
                         writer.WriteEndElement();
                         var ms = pms;
-                        writeTasks.Add(Task.Run(()=>
+                        writeTasks.Add(Task.Run(() =>
                         {
                             if (ms.Root.Type != null)
                             {
@@ -557,10 +565,8 @@ namespace XTMF
                                 using (XmlTextWriter msWriter = new XmlTextWriter(tempMSFileName, Encoding.Unicode))
                                 {
                                     msWriter.WriteStartDocument();
-                                    msWriter.WriteStartElement("AdvancedModelSystem");
-                                    msWriter.WriteStartElement("ModelSystem");
+                                    msWriter.WriteStartElement("Root");
                                     ms.Root.Save(msWriter);
-                                    msWriter.WriteEndElement();
                                     msWriter.WriteStartElement("LinkedParameters");
                                     WriteLinkedParameters(msWriter, ms.LinkedParameters, ms.Root);
                                     msWriter.WriteEndElement();
@@ -1295,15 +1301,10 @@ namespace XTMF
                             case "DetachedModelSystem":
                                 {
                                     var guid = child.Attributes["GUID"]?.InnerText ?? string.Empty;
-                                    var msFile = new FileInfo(Path.Combine(_DirectoryLocation, $"Project.ms-{guid}.xml"));
-                                    if (msFile.Exists)
+                                    var msPath = Path.Combine(_DirectoryLocation, $"Project.ms-{guid}.xml");
+                                    if (LoadDetachedModelSystem(msPath, guid, out var pms))
                                     {
-                                        XmlDocument msDoc = new XmlDocument();
-                                        msDoc.Load(msFile.FullName);
-                                        if (LoadAdvancedModelSystem(msDoc["AdvancedModelSystem"], i, guid, out var pms))
-                                        {
-                                            toLoad[i] = pms;
-                                        }
+                                        toLoad[i] = pms;
                                     }
                                 }
                                 break;
@@ -1320,6 +1321,60 @@ namespace XTMF
                 Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
             }
             return false;
+        }
+
+        private bool LoadDetachedModelSystem(string fileName, string guid, out ProjectModelSystem pms)
+        {
+            XmlDocument msDoc = new XmlDocument();
+            msDoc.Load(fileName);
+            pms = new ProjectModelSystem()
+            {
+                GUID = guid
+            };
+            var child = msDoc["Root"] ?? msDoc["AdvancedModelSystem"];
+            bool hasDescription = false;
+            var attributes = child.Attributes;
+            if (attributes != null)
+            {
+                foreach (XmlAttribute attribute in attributes)
+                {
+                    if (attribute.Name == "Description")
+                    {
+                        hasDescription = true;
+                        pms.Description = attribute.InnerText;
+                        break;
+                    }
+                }
+            }
+            if (child.HasChildNodes)
+            {
+                ModelSystemStructure ms = XTMF.ModelSystemStructure.Load(child, _Configuration);
+                if (ms != null)
+                {
+                    pms.Root = ms;
+                }
+            }
+            if (pms.Root == null)
+            {
+                return false;
+            }
+            if (!hasDescription)
+            {
+                pms.Description = pms.Root.Description;
+            }
+            // now do a second pass for Linked parameters, since we need the current model system to actually link things
+            for (int i = 0; i < child.ChildNodes.Count; i++)
+            {
+                switch (child.ChildNodes[i].Name)
+                {
+                    case "LinkedParameters":
+                        {
+                            pms.LinkedParameters = LoadLinkedParameters(child.ChildNodes[i], pms.Root);
+                        }
+                        break;
+                }
+            }
+            return true;
         }
 
         private bool LoadAdvancedModelSystem(XmlNode child, int index, string guid, out ProjectModelSystem pms)
