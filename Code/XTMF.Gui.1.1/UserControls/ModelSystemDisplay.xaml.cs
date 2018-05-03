@@ -676,7 +676,7 @@ namespace XTMF.Gui.UserControls
                                         {
                                             var newlyAdded = selectedModule.Children.Last();
                                             newlyAdded.IsExpanded = true;
-                                            GoToModule(newlyAdded.BaseModel);
+                                            GoToModule(newlyAdded);
                                         }
                                     }
                                     else
