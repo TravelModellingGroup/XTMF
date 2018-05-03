@@ -97,4 +97,7 @@ bin/
 /Projects/fgds
 /Code/ViewCacheData/obj/xdoc/cache/obj
 /Code/XTMF.RemoteClient/obj/xdoc/cache/obj
-/Code/XTMF.Update2/obj/xdoc/cache/obj
+/Code/XTMF.Update2/obj
+/Code/XTMFUpdate/obj
+/Code/XTMFUpdate2/obj
+/Code/XTMFUpdateServer/obj

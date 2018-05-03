@@ -81,6 +81,8 @@ namespace XTMF.Gui
 
         private OperationProgressing operationProgressing;
 
+        private bool LaunchUpdate = false;
+
         public MainWindow()
         {
             ViewModelBase = new ViewModelBase();
@@ -107,7 +109,7 @@ namespace XTMF.Gui
             DockManager.SelectionChanged += DockManagerOnSelectionChanged;
             WorkspaceProjects = new Dictionary<Project, UserControl>();
             XtmfNotificationIcon.InitializeNotificationIcon();
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
             SetDisplayActive(new StartWindow(), "Start");
         }
 
@@ -631,6 +633,29 @@ namespace XTMF.Gui
             base.OnClosing(e);
             if (!e.Cancel)
             {
+                if (LaunchUpdate)
+                {
+                    Task.Run(() =>
+                        {
+                            var path = Assembly.GetExecutingAssembly().Location;
+                            try
+                            {
+                                Process.Start(
+                                    System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram),
+                                    Process.GetCurrentProcess().Id + " \"" + path + "\"");
+                            }
+                            catch
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                                });
+                            }
+                        })
+                        .Wait();
+                }
+
                 Application.Current.Shutdown(0);
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
@@ -875,6 +900,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void UpdateXtmfMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
+            LaunchUpdate = true;
             Close();
         }
 

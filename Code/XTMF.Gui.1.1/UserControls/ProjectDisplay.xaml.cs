@@ -122,7 +122,10 @@ namespace XTMF.Gui.UserControls
                     {
                         try
                         {
-                            if (ms.Type == null && ms.Required && !ms.IsCollection) IsMissingModules = true;
+                            if (ms.Type == null && ms.Required && !ms.IsCollection)
+                            {
+                                IsMissingModules = true;
+                            }
                         }
                         catch (Exception)
                         {
@@ -130,8 +133,19 @@ namespace XTMF.Gui.UserControls
                     });
 
                     if (ms.Children != null)
+                    {
                         foreach (var subModule in ms.Children)
+                        {
+                            if(ms is IModelSystemStructure2 ms2)
+                            {
+                                if(ms2.IsDisabled)
+                                {
+                                    continue;
+                                }
+                            }
                             FindMissingModules(subModule);
+                        }
+                    }
                 }
 
                 internal bool SetName(ProjectEditingSession session, string newName, ref string error)

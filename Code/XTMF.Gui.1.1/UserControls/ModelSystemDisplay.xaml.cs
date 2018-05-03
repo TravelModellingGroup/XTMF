@@ -1301,6 +1301,8 @@ namespace XTMF.Gui.UserControls
                     ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton,
                         (Brush)FindResource("SecondaryAccentBrush"));
                     SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
+
+               
                 });
                 MainWindow.SetStatusText("Saving...");
                 Task.Run(async () =>
