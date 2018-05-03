@@ -3057,5 +3057,18 @@ namespace XTMF.Gui.UserControls
                 ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
             }
         }
+
+        private void ModuleDisplay_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if(CurrentlySelected.Count == 1)
+            {
+                var onlySelected = CurrentlySelected[0];
+                if(!onlySelected.IsCollection && onlySelected.Type == null)
+                {
+                    SelectReplacement();
+                    e.Handled = true;
+                }
+            }
+        }
     }
 }
