@@ -54,9 +54,7 @@ namespace XTMF.Run
                     var mss = ModelSystemStructure.Load(memStream, configuration);
                     memStream.Position = 0;
                     _Root = (ModelSystemStructure)mss;
-                    temp.ModelSystemStructure.Add(_Root);
-                    temp.ModelSystemDescriptions.Add(String.Empty);
-                    temp.LinkedParameters.Add(LoadLinkedParameters(_Root, memStream));
+                    temp.AddModelSystem(_Root, LoadLinkedParameters(_Root, memStream), String.Empty);
                 }
                 catch (Exception e)
                 {

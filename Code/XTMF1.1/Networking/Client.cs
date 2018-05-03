@@ -305,18 +305,18 @@ namespace XTMF.Networking
         {
             string error = null;
             var mss = modelSystemStructure as IModelSystemStructure;
-            var project = _Configuration.ProjectRepository.ActiveProject;
+            var project = (Project)_Configuration.ProjectRepository.ActiveProject;
             if (project == null)
             {
                 project = new Project("Remote", _Configuration, true);
             }
             if (project.ModelSystemStructure.Count == 0)
             {
-                project.ModelSystemStructure.Add(mss);
+                project.AddModelSystem(mss, new List<ILinkedParameter>(), String.Empty);
             }
             else
             {
-                project.ModelSystemStructure[0] = mss;
+                project.SetModelSystem(0, mss, new List<ILinkedParameter>(), String.Empty);
             }
             ((ProjectRepository)_Configuration.ProjectRepository).SetActiveProject(project);
             var modelSystem = project.CreateModelSystem(ref error, 0);

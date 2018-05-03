@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Controller\RunController.cs" />
     <Compile Include="ErrorWithPath.cs" />
+    <Compile Include="ProjectModelSystem.cs" />
     <Compile Include="Run\RemoteRunCommands.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Editing\ProjectExternallySavedEventArgs.cs" />

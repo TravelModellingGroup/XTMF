@@ -314,7 +314,7 @@ namespace XTMF
         {
             lock (_EditingSessionsLock)
             {
-                var index = Project.ModelSystemStructure.IndexOf(root);
+                var index = Project.IndexOf(root);
                 if (index < 0)
                 {
                     error = "The model system was not found within the project!";
@@ -347,7 +347,7 @@ namespace XTMF
         {
             lock (_EditingSessionsLock)
             {
-                var index = Project.ModelSystemStructure.IndexOf(root);
+                var index = Project.IndexOf(root);
                 if (index < 0)
                 {
                     error = "The model system was not found within the project!";
@@ -432,12 +432,11 @@ namespace XTMF
         {
             lock (_EditingSessionsLock)
             {
-                var index = Project.ModelSystemStructure.IndexOf(root);
+                var index = Project.IndexOf(root);
                 if (index < 0)
                 {
                     error = "The model system was not found within the project!";
                     return false;
-                    
                 }
                 if (Project.AddModelSystem(index, name, ref error))
                 {
