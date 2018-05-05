@@ -41,5 +41,10 @@ namespace XTMF
         /// The name of this module
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// A link to the documentation for this module.
+        /// </summary>
+        public string DocURL { get; set; }
     }
 }
