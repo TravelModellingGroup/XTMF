@@ -205,8 +205,11 @@ namespace XTMF.Gui.UserControls
             get => _canSaveModelSystem;
             set
             {
-                _canSaveModelSystem = value;
-                OnPropertyChanged(nameof(CanSaveModelSystem));
+                if (_canSaveModelSystem != value)
+                {
+                    _canSaveModelSystem = value;
+                    OnPropertyChanged(nameof(CanSaveModelSystem));
+                }
             }
         }
 
@@ -277,23 +280,25 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public bool HandleTabClose()
         {
-            var value = !Session.CloseWillTerminate || !CanSaveModelSystem
-                                                    || MessageBox.Show(
-                                                        "The model system has not been saved, closing this window will discard the changes!",
-                                                        "Are you sure?", MessageBoxButton.OKCancel,
-                                                        MessageBoxImage.Question,
-                                                        MessageBoxResult.Cancel) == MessageBoxResult.OK;
-            if (value)
+            var value = Session.CloseWillTerminate && CanSaveModelSystem;
+            if (value) 
             {
-                string error = null;
-                if (!Session.Close(ref error))
+                if(MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
+                                         "Are you sure?", MessageBoxButton.OKCancel,
+                                         MessageBoxImage.Question,
+                                         MessageBoxResult.Cancel) == MessageBoxResult.OK)
                 {
-                    MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                    string error = null;
+                    if (!Session.Close(ref error))
+                    {
+                        MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                    }
+                    return true;
                 }
+                return false;
             }
-
-            return value;
+            return true;
         }
 
         /// <summary>
@@ -667,10 +672,17 @@ namespace XTMF.Gui.UserControls
                                             MessageBox.Show(GetWindow(), error, "Failed add module to collection",
                                                 MessageBoxButton.OK, MessageBoxImage.Error);
                                         }
+                                        else
+                                        {
+                                            var newlyAdded = selectedModule.Children.Last();
+                                            newlyAdded.IsExpanded = true;
+                                            GoToModule(newlyAdded);
+                                        }
                                     }
                                     else
                                     {
                                         selectedModule.Type = selectedType;
+                                        selectedModule.IsExpanded = true;
                                     }
                                 }
                             });
@@ -1311,7 +1323,6 @@ namespace XTMF.Gui.UserControls
                     {
                         try
                         {
-                            var watch = Stopwatch.StartNew();
                             if (!Session.Save(ref error))
                             {
                                 Dispatcher.Invoke(() =>
@@ -1319,14 +1330,6 @@ namespace XTMF.Gui.UserControls
                                     MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save",
                                         MessageBoxButton.OK, MessageBoxImage.Error);
                                 });
-                            }
-
-                            watch.Stop();
-                            var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
-                            if (displayTimeRemaining > 0)
-                            {
-                                MainWindow.SetStatusText("Saved");
-                                await Task.Delay(displayTimeRemaining);
                             }
                         }
                         catch (Exception e)
@@ -1339,7 +1342,6 @@ namespace XTMF.Gui.UserControls
                         }
                         finally
                         {
-                            MainWindow.SetStatusText("Ready");
                             CanSaveModelSystem = false;
                             Session.SaveRelease();
 
@@ -1413,13 +1415,23 @@ namespace XTMF.Gui.UserControls
         /// <param name="mss"></param>
         private void GoToModule(ModelSystemStructure mss)
         {
-            var displayModel = GetModelFor(ModelSystem.GetModelFor(mss));
+            GoToModule(ModelSystem.GetModelFor(mss));
+        }
+
+        private void GoToModule(ModelSystemStructureModel mss)
+        {
+            GoToModule(GetModelFor(mss));
+        }
+
+        private void GoToModule(ModelSystemStructureDisplayModel displayModel)
+        {
             Dispatcher.Invoke(() =>
             {
                 CurrentlySelected.Clear();
                 ExpandToRoot(displayModel);
                 displayModel.IsSelected = true;
             });
+
         }
 
         private void GotoSelectedParameterModule()
@@ -2973,7 +2985,7 @@ namespace XTMF.Gui.UserControls
             var parameterSource = (e.OriginalSource as ComboBox)?.Tag as ParameterDisplayModel;
             if (ParameterDisplay.Items.Contains(parameterSource) && _loadedOnce)
             {
-                CanSaveModelSystem = true;
+                CanSaveModelSystem = _Session.HasChanged;
             }
             else
             {
@@ -3043,6 +3055,19 @@ namespace XTMF.Gui.UserControls
             if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
             {
                 ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+            }
+        }
+
+        private void ModuleDisplay_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if(CurrentlySelected.Count == 1)
+            {
+                var onlySelected = CurrentlySelected[0];
+                if(!onlySelected.IsCollection && onlySelected.Type == null)
+                {
+                    SelectReplacement();
+                    e.Handled = true;
+                }
             }
         }
     }

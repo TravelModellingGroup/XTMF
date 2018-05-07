@@ -31,6 +31,7 @@ using System.Threading;
 namespace TMG.Frameworks.MultiRun
 {
     [ModuleInformation(
+        DocURL = "https://tmg.utoronto.ca/documentation/1_4/articles/frameworks/multirun.html",
         Description =
 @"
 TMG’s Multi-run framework is designed to aid in the automation of running model systems where each iteration would require setup.

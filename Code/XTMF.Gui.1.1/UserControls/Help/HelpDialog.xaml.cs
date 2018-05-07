@@ -53,7 +53,7 @@ namespace XTMF.Gui.UserControls.Help
             SearchBox.RefreshFilter();
 
             SearchBox.Box.TextChanged += SearchBox_TextChanged;
-            
+
             UpdateSearch(true);
         }
 
@@ -95,7 +95,7 @@ namespace XTMF.Gui.UserControls.Help
                     {
                         var results = ((from module in Config.ModelRepository.AsParallel()
                                         where searchFor.IsMatch(module.FullName)
-                                        select new ContentReference(module.FullName, module))).OrderBy(c => c.ToString()).ToArray();
+                                        select CreateContentReference(module))).OrderBy(c => c.ToString()).ToArray();
                         Dispatcher.BeginInvoke(new Action(() =>
                         {
                             SearchedItems.Clear();
@@ -123,6 +123,18 @@ namespace XTMF.Gui.UserControls.Help
             }
         }
 
+        private static ContentReference CreateContentReference(Type module)
+        {
+            foreach (var at in module.GetCustomAttributes(true))
+            {
+                if (at is ModuleInformationAttribute mi)
+                {
+                    return new ContentReference(module.FullName, module, mi.DocURL);
+                }
+            }
+            return new ContentReference(module.FullName, module);
+        }
+
         public BindingList<ContentReference> SearchedItems { get; private set; }
 
 
@@ -141,15 +153,28 @@ namespace XTMF.Gui.UserControls.Help
             var us = d as HelpDialog;
             var newContent = e.NewValue as ContentReference;
             us.ContentPresenter.Children.Clear();
-            if (newContent != null && newContent.Content != null)
+            if (newContent == null) return;
+            if (!String.IsNullOrWhiteSpace(newContent.DocURL))
             {
-                us.ContentPresenter.Children.Add(newContent.Content);
+                var browser = new WebBrowser();
+                browser.Navigate(newContent.DocURL);
+                us.ContentPresenter.Children.Add(browser);
+            }
+            else
+            {
+                if (newContent != null && newContent.Content != null)
+                {
+                    us.ContentPresenter.Children.Add(newContent.Content);
+                }
             }
         }
 
         private void ResultBox_Selected(object sender, RoutedEventArgs e)
         {
-            CurrentContent = ResultBox.SelectedItem as ContentReference;
+            if (ResultBox.SelectedItem is ContentReference cr)
+            {
+                CurrentContent = cr;
+            }
         }
 
         public void SelectModuleContent(ModelSystemStructureModel module)
