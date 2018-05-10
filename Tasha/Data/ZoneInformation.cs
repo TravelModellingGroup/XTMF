@@ -23,13 +23,16 @@ using TMG;
 using TMG.Input;
 namespace Tasha.Data
 {
-    [ModuleInformation(Description=
+    [ModuleInformation(Description =
         @"This module is designed to take in information from the reader
 and store it into a SparseArray<float> that is of the same type as the model system's zone system.
 Data outside of the zones that are defined is trimmed off. Only the Origin from the Reader will be used, destination will be ignored.")]
     public class ZoneInformation : IDataSource<SparseArray<float>>
     {
-        [SubModelInformation( Required = false, Description = "Origin will be will be used to store data." )]
+        [RunParameter("Continue After Invalid ODPair", false, "Should the model system continue after an invalid value has been read in?")]
+        public bool ContinueAfterInvalidODPair;
+
+        [SubModelInformation(Required = false, Description = "Origin will be will be used to store data.")]
         public IReadODData<float> Reader;
 
         [RootModule]
@@ -50,13 +53,17 @@ Data outside of the zones that are defined is trimmed off. Only the Origin from 
         public void LoadData()
         {
             var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            if ( Reader != null )
+            if (Reader != null)
             {
-                foreach ( var point in Reader.Read() )
+                foreach (var point in Reader.Read())
                 {
-                    if ( data.ContainsIndex( point.O ) )
+                    if (data.ContainsIndex(point.O))
                     {
                         data[point.O] = point.Data;
+                    }
+                    else if (!ContinueAfterInvalidODPair)
+                    {
+                        throw new XTMFRuntimeException(this, $"An invalid data point was attempted to be read in for zone {point.O} with the value of {point.Data}!");
                     }
                 }
             }
