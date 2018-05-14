@@ -48,7 +48,7 @@ namespace TMG.Estimation.AI
         [RunParameter("Globally Optimal Weight", "1.215541", typeof(float), "The weight of the globally optimal parameter.")]
         public float OptimalWeight;
 
-        [RunParameter("Generation Optimal Weight", "1.215541", typeof(float), "The weight of the globally optimal parameter.")]
+        [RunParameter("Generation Optimal Weight", "1.215541", typeof(float), "The weight of the generation's optimal parameter.")]
         public float GenerationOptimalWeight;
 
         [RunParameter("Momentum", "0.7995093", typeof(float), "The carried velocity between iterations per particle.")]
