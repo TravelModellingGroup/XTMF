@@ -25,6 +25,7 @@ using Datastructure;
 using TMG.Input;
 using System.Threading;
 using System.Threading.Tasks;
+using TMG.Functions;
 
 namespace Tasha.EMME
 {
@@ -59,8 +60,11 @@ namespace Tasha.EMME
             return ZoneSystem.GetFlatIndex(zone.ZoneNumber);
         }
 
+        private int _householdIterations = 1;
+
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
+            _householdIterations = totalHouseholdIterations;
             var persons = household.Persons;
             for(int i = 0; i < persons.Length; i++)
             {
@@ -308,9 +312,19 @@ namespace Tasha.EMME
             MinZero(Matrix[0]);
             MinZero(Matrix[1]);
             // Apply the special generators
-            for(int i = 0; i < SpecialGenerators.Length; i++)
+            if (SpecialGenerators.Length > 0)
             {
-                SpecialGenerators[i].IncludeTally(Matrix[0]);
+                var specialGenerationResults = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>().GetFlatData();
+                for (int i = 0; i < SpecialGenerators.Length; i++)
+                {
+                    SpecialGenerators[i].IncludeTally(specialGenerationResults);
+                }
+                // Now scale the by household iterations and integrate it back into the result matrix
+                Parallel.For(0, specialGenerationResults.Length, i =>
+                {
+                    VectorHelper.Multiply(specialGenerationResults[i], 0, specialGenerationResults[i], 0, _householdIterations, specialGenerationResults[i].Length);
+                    VectorHelper.Add(Matrix[0][i], 0, Matrix[0][i], 0, specialGenerationResults[i], 0, specialGenerationResults.Length);
+                });
             }
             // write to disk
             new EmmeMatrix(ZoneSystem, Matrix[0]).Save(SOVMatrixSaveLocation, true);
