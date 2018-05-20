@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -37,7 +37,7 @@ namespace XTMF
     /// </summary>
     public sealed class Project : IProject
     {
-        private List<ProjectModelSystem> _ProjectModelSystems;
+        private List<ProjectModelSystem> _ProjectModelSystems = new List<ProjectModelSystem>();
 
         private bool RemoteProject;
 
@@ -457,7 +457,7 @@ namespace XTMF
 
         public void Reload()
         {
-            _ProjectModelSystems = null;
+            _ProjectModelSystems.Clear();
             string error = null;
             if (!Load(ref error))
             {
@@ -1257,7 +1257,6 @@ namespace XTMF
                 error = "Invalid directory path!";
                 return false;
             }
-            _ProjectModelSystems = new List<ProjectModelSystem>();
             _IsLoaded = false;
             string fileLocation = Path.Combine(_DirectoryLocation, "Project.xml");
             if (RemoteProject)
@@ -1265,6 +1264,7 @@ namespace XTMF
                 _IsLoaded = true;
                 return true;
             }
+            _ProjectModelSystems.Clear();
             if (!Directory.Exists(_DirectoryLocation) || !File.Exists(fileLocation))
             {
                 _IsLoaded = true;
