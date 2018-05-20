@@ -126,7 +126,7 @@ namespace TMG.Emme
             string pythonDirectory = Path.Combine(emmePath, FindPython(module, emmePath));
             string pythonPath = AddQuotes(Path.Combine(pythonDirectory, @"python.exe"));
             string pythonLib = Path.Combine(pythonDirectory, "Lib");
-
+            Console.WriteLine("EMME Path for Python =" + pythonPath);
             // Get the path of ModellerBridge
             // Learn where the modules are stored so we can find the python script
             // The Entry assembly will be the XTMF.GUI or XTMF.RemoteClient
