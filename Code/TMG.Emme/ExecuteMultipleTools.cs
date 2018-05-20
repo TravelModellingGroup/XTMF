@@ -42,6 +42,9 @@ For that list you will probably use EmmeTool as the module to fill in for that, 
         [SubModelInformation(Required = false, Description = "The tools to execute")]
         public List<IEmmeTool> Tools;
 
+        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+        public string EmmePath;
+
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
 
         private Func<float> CalculateProgress;
@@ -64,7 +67,7 @@ For that list you will probably use EmmeTool as the module to fill in for that, 
         public void Start()
         {
             if (Tools.Count == 0 | !Execute) return;
-            using (Controller controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank))
+            using (Controller controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath))
             {
                 var length = Tools.Count;
                 int i = 0;

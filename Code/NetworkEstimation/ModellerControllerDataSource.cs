@@ -34,6 +34,9 @@ namespace TMG.NetworkEstimation
         [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
         public string EmmeDatabank;
 
+        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+        public string EmmePath;
+
         private ModellerController Data;
 
         public ModellerController GiveData() => Data;
@@ -49,7 +52,7 @@ namespace TMG.NetworkEstimation
                     if (Data == null)
                     {
                         GC.ReRegisterForFinalize(this);
-                        Data = new ModellerController(this, ProjectFolder, EmmeDatabank);
+                        Data = new ModellerController(this, ProjectFolder, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath);
                     }
                 }
             }

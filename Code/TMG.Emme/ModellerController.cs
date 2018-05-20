@@ -107,7 +107,7 @@ namespace TMG.Emme
         /// <param name="projectFile"></param>
         /// <param name="performanceAnalysis"></param>
         /// <param name="userInitials"></param>
-        public ModellerController(IModule module, string projectFile, string databank = null, bool performanceAnalysis = false, string userInitials = "XTMF")
+        public ModellerController(IModule module, string projectFile, string databank = null, string emmePath = null, bool performanceAnalysis = false, string userInitials = "XTMF")
         {
             if (!projectFile.EndsWith(".emp") | !File.Exists(projectFile))
             {
@@ -118,7 +118,7 @@ namespace TMG.Emme
             //[FullPath...python.exe] -u [FullPath...ModellerBridge.py] [FullPath...EmmeProject.emp] [User initials] [[Performance (optional)]] 
 
             // Get the path of the Python executable
-            string emmePath = Environment.GetEnvironmentVariable("EMMEPATH");
+            emmePath = emmePath ?? Environment.GetEnvironmentVariable("EMMEPATH");
             if (String.IsNullOrWhiteSpace(emmePath))
             {
                 throw new XTMFRuntimeException(module, "Please make sure that EMMEPATH is on the system environment variables!");
