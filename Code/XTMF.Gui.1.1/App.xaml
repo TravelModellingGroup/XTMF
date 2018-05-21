@@ -67,19 +67,15 @@
 
 
             <Style x:Key="MaterialDesignXtmfDragableTabItemStyle" TargetType="{x:Type dragablz:DragablzItem}" BasedOn="{StaticResource MaterialDesignDragableTabItemStyle}">
-              
                 <Style.Triggers>
-
                     <MultiTrigger>
                         <MultiTrigger.Conditions>
                             <Condition Property="IsMouseOver" Value="True" />
                         </MultiTrigger.Conditions>
                         <Setter  Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
-                     
                     </MultiTrigger>
                 </Style.Triggers>
             </Style>
-
             <Style TargetType="{x:Type dragablz:TabablzControl}" x:Key="MaterialDesignXtmfTabablzControlStyle" BasedOn="{StaticResource MaterialDesignTabablzControlStyle}">
                <!-- <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignPaper}" /> -->
                 <Setter Property="ItemContainerStyle" Value="{StaticResource MaterialDesignXtmfDragableTabItemStyle}" />
@@ -89,15 +85,6 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-
-
-
-
-
-
-
-
-
 
             <Style TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource MaterialDesignXtmfTabablzControlStyle}" />
             <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource Primary700}"/>
@@ -215,7 +202,6 @@
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
 
             </Style>
-
 
             <Style TargetType="{x:Type Hyperlink}" x:Key="MaterialDesignBody1HyperlinkCustom" BasedOn="{StaticResource MaterialDesignBody1Hyperlink}">
                 <Setter Property="Cursor" Value="Hand"></Setter>
@@ -447,12 +433,6 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
-
-
         </ResourceDictionary>
-
-
-
     </Application.Resources>
 </Application>

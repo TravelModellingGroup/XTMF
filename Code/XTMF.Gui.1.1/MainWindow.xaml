@@ -29,7 +29,6 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
         xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
-
         Title="XTMF Version 1.5" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="500"
         Name="XtmfWindow"
@@ -37,25 +36,23 @@
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" 
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
+        TextElement.FontSize="12"
  
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         FontFamily="{DynamicResource MaterialDesignFont}" Closing="XtmfWindow_Closing" Initialized="XtmfWindow_Initialized">
-
     <metro:MetroWindow.RightWindowCommands>
         <metro:WindowCommands BorderThickness="0">
             <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right">
                 <StackPanel>
-                    <Button Name="CloseTabButton"  Content="Close Tab" Click="CloseTabButton_OnClick"/>
+                    <Button Name="CloseTabButton" Content="Close Tab" Click="CloseTabButton_OnClick"/>
                 </StackPanel>
             </materialDesign:PopupBox>
         </metro:WindowCommands>
     </metro:MetroWindow.RightWindowCommands>
     <metro:MetroWindow.LeftWindowCommands>
         <metro:WindowCommands BorderThickness="0">
-
-            <ToggleButton IsChecked="True"  Background="Transparent" Name="MenuToggleButton"  Style="{StaticResource MaterialDesignActionToggleButton}"
+            <ToggleButton IsChecked="True" Background="Transparent" Name="MenuToggleButton" Style="{StaticResource MaterialDesignActionToggleButton}"
                           ToolTip="MaterialDesignActionLightToggleButton">
                 <ToggleButton.Content>
                     <materialDesign:PackIcon Kind="Menu" />
@@ -66,15 +63,12 @@
             </ToggleButton>
         </metro:WindowCommands>
     </metro:MetroWindow.LeftWindowCommands>
-    <Border  Name="WindowGrid"  Margin="0,0,0,0"  BorderBrush="{DynamicResource PrimaryHueMidBrush}"
-        BorderThickness="0">
+    <Border Name="WindowGrid" Margin="0,0,0,0" BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="0">
         <Grid>
-
             <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" Name="RootDialogHost"   >
                 <materialDesign:DrawerHost Name="DrawerHost"  materialDesign:ShadowAssist.ShadowDepth="Depth4" 
                                    IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}" 
-                                   PreviewKeyDown="DrawerHost_PreviewKeyDown"
-                                   >
+                                   PreviewKeyDown="DrawerHost_PreviewKeyDown">
                     <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -90,8 +84,8 @@
                                 <RowDefinition Height="1" />
                                 <RowDefinition Height="AUTO" />
                             </Grid.RowDefinitions>
-                            <DockPanel Name="ViewDockPanel"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                                <ContentControl DockPanel.Dock="Bottom"  Name="ContentControl"  Grid.Row="1"   Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
+                            <DockPanel Name="ViewDockPanel" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                                <ContentControl DockPanel.Dock="Bottom"  Name="ContentControl"  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
                             </DockPanel>
                             <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" SnapsToDevicePixels="True">
                                 <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager" ConsolidateOrphanedItems="True" Background="{DynamicResource MaterialDesignBackground}" SnapsToDevicePixels="True">
