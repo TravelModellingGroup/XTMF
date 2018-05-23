@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using XTMF;
 using TMG;
+using System.Threading.Tasks;
 // ReSharper disable AccessToModifiedClosure
 namespace Tasha.Utilities
 {
@@ -79,10 +80,18 @@ namespace Tasha.Utilities
             {
                 return ToExecute[i].ToString();
             };
+            Parallel.For(0, NetworkData.Count, (int n) =>
+            {
+                NetworkData[n].LoadData();
+            });
             for (; i < ToExecute.Length; i++)
             {
                 ToExecute[i].Start();
             }
+            Parallel.For(0, NetworkData.Count, (int n) =>
+            {
+                NetworkData[n].UnloadData();
+            });
             if (ZoneSystem != null)
             {
                 ZoneSystem.UnloadData();
