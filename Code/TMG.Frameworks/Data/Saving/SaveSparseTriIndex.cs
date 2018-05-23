@@ -109,7 +109,32 @@ namespace TMG.Frameworks.Data.Saving
 
         private void SaveSquareMatrixToCSV(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
         {
-            throw new XTMFRuntimeException(this, "Not implemented!");
+            string buildRow(float[] data, int rowNumber)
+            {
+                StringBuilder b = new StringBuilder();
+                b.Append(rowNumber);
+                for (int i = 0; i < data.Length; i++)
+                {
+                    b.Append(',');
+                    b.Append(data[i]);
+                }
+                return b.ToString();
+            }
+            using (var writer = new StreamWriter(BuildFileName(layerIndex)))
+            {
+                writer.Write("origin\\destination");
+                for (int j = 0; j < destinations.Length; j++)
+                {
+                    writer.Write(',');
+                    writer.Write(destinations[j]);
+                }
+                writer.WriteLine();
+                // write the main body
+                foreach (var row in flatData.AsParallel().AsOrdered().Select((r, i) => buildRow(r, origins[i])))
+                {
+                    writer.WriteLine(row);
+                }
+            }
         }
 
         private void SaveThirdNormalizedCSV(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
@@ -150,9 +175,9 @@ namespace TMG.Frameworks.Data.Saving
 
         public bool RuntimeValidation(ref string error)
         {
-            if(FileFormat == FileFormats.CSVSquare || FileFormat == FileFormats.CSVThirdNormalized)
+            if(FileFormat == FileFormats.CSVThirdNormalized)
             {
-                error = $"In {Name}, currently only the MTX file format is supported.";
+                error = $"In {Name}, currently the Third Normalized file format is not supported.";
                 return false;
             }
             return true;
