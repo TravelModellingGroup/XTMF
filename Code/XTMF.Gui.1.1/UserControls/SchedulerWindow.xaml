@@ -17,6 +17,9 @@
     <Grid Name="LayoutRoot">
 
         <materialDesign:DialogHost Name="StackTraceDialogHost" CloseOnClickAway="True">
+            <materialDesign:DialogHost.DataContext>
+                <local:ModelSystemErrorDisplayModel/>
+            </materialDesign:DialogHost.DataContext>
 
             <materialDesign:DialogHost.DialogContent >
                 <StackPanel Margin="5">

@@ -559,7 +559,9 @@ namespace XTMF.Gui.UserControls
 
             Clipboard.SetText(errorDataContext?.StackTrace == "Unavailable"
                 ? $"Description: {errorDataContext.Description}"
-                : $"Description:\r\n {errorDataContext?.Description} \r\nStack Trace:\r\n{errorDataContext?.StackTrace}");
+                : $"Module: {errorDataContext?.ModelSystemName}\r\n" +
+                  $"Description:\r\n {errorDataContext?.Description} " +
+                  $"\r\nStack Trace:\r\n{errorDataContext?.StackTrace}");
 
             MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Error information copied to clipboard",
                 "SCHEDULER",

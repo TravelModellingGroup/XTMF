@@ -92,7 +92,7 @@
                 </userControls:FlatToolButton>
             </StackPanel> -->
         </Grid>
-        <GroupBox    Style="{DynamicResource MaterialDesignCardGroupBox}"  Visibility="{Binding ProgressReportsVisibility}"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" Grid.ColumnSpan="3"  Grid.Column="0" Margin="12"  Header="Additional Information" BorderThickness="0.5" HorizontalContentAlignment="Center">
+        <GroupBox Name="DetailsGroupBox"  Style="{DynamicResource MaterialDesignCardGroupBox}"  Visibility="{Binding ProgressReportsVisibility}"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" Grid.ColumnSpan="3"  Grid.Column="0" Margin="12"  Header="Additional Information" BorderThickness="0.5" HorizontalContentAlignment="Center">
           
 
                 <my:CollapsePanel x:Name="AdditionDetailsPanel" InternalHeight="150"  IsEnabled="True"   />
@@ -203,7 +203,7 @@
 
                                             <Hyperlink Tag="{Binding ElementName=StackTracePopupBox}" Click="StackTraceLinkOnClick"   x:Name="StackTraceLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" >
                                                 <Hyperlink.Inlines>
-                                                    <TextBlock  VerticalAlignment="Top"> <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Bottom" />Show Stacktrace</TextBlock>
+                                                    <TextBlock  VerticalAlignment="Top"> Show Stacktrace</TextBlock>
 
                                                 </Hyperlink.Inlines>
 
@@ -212,9 +212,10 @@
                                     
                                     
                                     <materialDesign:PopupBox.PopupContent>
-                                        <StackPanel Margin="5">
+                                            
+                                            <StackPanel Margin="5">
                                                 <TextBox FontSize="11" Width="400" MinHeight="100" IsReadOnly="True" Foreground="{DynamicResource MaterialDesignBody1}" Text="{Binding StackTrace}"></TextBox>
-                                                <TextBlock HorizontalAlignment="Center" Margin="0,5"><Hyperlink Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .}" Click="Hyperlink_OnClick">  <materialDesign:PackIcon Kind="ContentCopy"></materialDesign:PackIcon>Copy to Clipboard</Hyperlink></TextBlock>
+                                                <TextBlock HorizontalAlignment="Center" Margin="0,5"><Hyperlink Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .}" Click="Hyperlink_OnClick">  Copy to Clipboard</Hyperlink></TextBlock>
                                             </StackPanel>
                                      
                                         </materialDesign:PopupBox.PopupContent>

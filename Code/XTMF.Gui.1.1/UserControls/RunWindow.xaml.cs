@@ -173,6 +173,7 @@ namespace XTMF.Gui.UserControls
             session.ExecuteRun(run, immediateRun);
             StartRunAsync();
             _timer.Start();
+            DetailsGroupBox.DataContext = this;
         }
 
         /// <summary>
@@ -236,6 +237,7 @@ namespace XTMF.Gui.UserControls
             ConsoleOutput.DataContext = new ConsoleOutputController(this, Run);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             session.ExecuteDelayedRun(run, delayedStartTime);
+            DetailsGroupBox.DataContext = this;
 
             //UpdateRunStatus("Delayed");
             //UpdateStartTime($"{delayedStartTime: g}");
@@ -910,6 +912,14 @@ namespace XTMF.Gui.UserControls
         public RunWindow RunWindow { get; set; }
 
         private ErrorWithPath _errorWithPath;
+
+        public ModelSystemErrorDisplayModel()
+        {
+            RunWindow = null;
+            Description = "";
+            StackTrace = "";
+        }
+
 
         /// <summary>
         /// </summary>

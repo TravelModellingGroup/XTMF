@@ -151,6 +151,8 @@ namespace XTMF.Gui
             {
                 SetDisplayActive(new StartWindow(), "Start");
             }
+
+
         }
 
         public event EventHandler RecentProjectsUpdated;
@@ -788,6 +790,7 @@ namespace XTMF.Gui
                 display.Focus();
                 Keyboard.Focus(display);
             });
+
         }
 
         /// <summary>
