@@ -75,6 +75,7 @@ namespace XTMF.Gui.UserControls
             TextBlock.Foreground = (Brush)Application.Current.TryFindResource("PrimaryHueDarkForegroundBrush");
             TextBlock.Background = (Brush)Application.Current.TryFindResource("PrimaryHueDarkBrush");
             TextBlock.FontSize = 14.0;
+            
             if (initialValue == null)
             {
                 initialValue = string.Empty;
@@ -83,6 +84,8 @@ namespace XTMF.Gui.UserControls
             _textbox.CaretIndex = initialValue.Length;
             _textbox.Foreground = (Brush)Application.Current.TryFindResource("PrimaryHueMidForegroundBrush");
             _textbox.Background = (Brush)Application.Current.TryFindResource("PrimaryHueMidBrush");
+            _textbox.CaretBrush = (Brush)Application.Current.TryFindResource("PrimaryHueMidForegroundBrush");
+
             _textbox.SelectAll();
             Grid.Children.Add(TextBlock);
             Grid.Children.Add(_textbox);
