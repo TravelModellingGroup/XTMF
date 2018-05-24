@@ -63,6 +63,10 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Run Title", "Multi-class Run", "The name of the run to appear in the logbook.")]
         public string RunTitle;
 
+        [RunParameter("Background Transit", true, "Set this to false to not assign transit vehicles on the roads")]
+        public bool BackgroundTransit;
+
+
         public sealed class Class : IModule
         {
             [RunParameter("Mode", 'c', "The mode for this class.")]
@@ -216,7 +220,8 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("xtmf_AggregationOperator", GetAggregationOperator()),
                 new ModellerControllerParameter("xtmf_LowerBound", GetLowerBound()),
                 new ModellerControllerParameter("xtmf_UpperBound", GetUpperBound()),
-                new ModellerControllerParameter("xtmf_PathSelection", GetPathSelection())
+                new ModellerControllerParameter("xtmf_PathSelection", GetPathSelection()),
+                new ModellerControllerParameter("xtmf_BackgroundTransit", BackgroundTransit.ToString())
             };
         }
 

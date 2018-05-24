@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -35,18 +35,11 @@ namespace XTMF
     /// Represents a project currently installed in
     /// the XTMF installation
     /// </summary>
-    public class Project : IProject
+    public sealed class Project : IProject
     {
-        protected List<List<ILinkedParameter>> _LinkedParameters;
+        private List<ProjectModelSystem> _ProjectModelSystems = new List<ProjectModelSystem>();
 
-        /// <summary>
-        ///
-        /// </summary>
-        protected List<IModelSystemStructure> _ModelSystemStructure;
-
-        protected List<string> _Descriptions;
-
-        protected bool RemoteProject;
+        private bool RemoteProject;
 
         /// <summary>
         /// The configuration object used for XTMF
@@ -76,7 +69,18 @@ namespace XTMF
             RemoteProject = remoteProject;
         }
 
-        internal bool AddModelSystem(ModelSystem modelSystem, string newName, ref string error)
+        public void AddModelSystem(IModelSystemStructure root, List<ILinkedParameter> lps, string description)
+        {
+            _ProjectModelSystems.Add(new ProjectModelSystem()
+            {
+                Root = root,
+                LinkedParameters = lps,
+                Description = description,
+                GUID = Guid.NewGuid().ToString()
+            });
+        }
+
+        public bool AddModelSystem(ModelSystem modelSystem, string newName, ref string error)
         {
             if (modelSystem == null)
             {
@@ -89,17 +93,48 @@ namespace XTMF
                 return false;
             }
             clone.Name = newName;
-            ModelSystemStructure.Add(clone);
-            ModelSystemDescriptions.Add(modelSystem.Description);
-            LinkedParameters.Add(linkedParameters);
+            _ProjectModelSystems.Add(new ProjectModelSystem()
+            {
+                Root = clone,
+                LinkedParameters = linkedParameters,
+                Description = modelSystem.Description,
+                GUID = Guid.NewGuid().ToString()
+            });
             return Save(ref error);
+        }
+
+        /// <summary>
+        /// Finds the index of the given model system.
+        /// Returns -1 if it is not found.
+        /// </summary>
+        /// <param name="realModelSystemStructure">The model system to find.</param>
+        /// <returns>The index for this model system, -1 if it is not found.</returns>
+        public int IndexOf(IModelSystemStructure realModelSystemStructure)
+        {
+            if (realModelSystemStructure == null)
+            {
+                throw new ArgumentNullException(nameof(realModelSystemStructure));
+            }
+
+            for (int i = 0; i < _ProjectModelSystems.Count; i++)
+            {
+                if (_ProjectModelSystems[i]?.Root == realModelSystemStructure)
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         internal bool AddExternalModelSystem(IModelSystem system, ref string error)
         {
-            ModelSystemStructure.Add(system.ModelSystemStructure);
-            LinkedParameters.Add(system.LinkedParameters);
-            ModelSystemDescriptions.Add(system.Description);
+            _ProjectModelSystems.Add(new ProjectModelSystem()
+            {
+                Root = system.ModelSystemStructure,
+                LinkedParameters = system.LinkedParameters,
+                Description = system.Description,
+                GUID = Guid.NewGuid().ToString()
+            });
             return Save(ref error);
         }
 
@@ -110,15 +145,19 @@ namespace XTMF
                 error = "A model system's name must not be blank or only contain white space!";
                 return false;
             }
-            ModelSystemStructure.Add(new ModelSystemStructure(_Configuration)
+            _ProjectModelSystems.Add(new ProjectModelSystem()
             {
-                Name = modelSystemName,
-                Required = true,
-                Description = "The root of the model system",
-                ParentFieldType = typeof(IModelSystemTemplate)
+                Root = new ModelSystemStructure(_Configuration)
+                {
+                    Name = modelSystemName,
+                    Required = true,
+                    Description = "The root of the model system",
+                    ParentFieldType = typeof(IModelSystemTemplate)
+                },
+                LinkedParameters = new List<ILinkedParameter>(),
+                Description = String.Empty,
+                GUID = Guid.NewGuid().ToString()
             });
-            ModelSystemDescriptions.Add(String.Empty);
-            LinkedParameters.Add(new List<ILinkedParameter>());
             return Save(ref error);
         }
 
@@ -131,9 +170,13 @@ namespace XTMF
                 return false;
             }
             clone.Name = newName;
-            ModelSystemStructure.Add(clone);
-            ModelSystemDescriptions.Add(ModelSystemDescriptions[index]);
-            LinkedParameters.Add(linkedParameters);
+            _ProjectModelSystems.Add(new ProjectModelSystem()
+            {
+                Root = clone,
+                LinkedParameters = linkedParameters,
+                Description = _ProjectModelSystems[index].Description,
+                GUID = Guid.NewGuid().ToString()
+            });
             return Save(ref error);
         }
 
@@ -145,18 +188,22 @@ namespace XTMF
             _IsLoaded = true;
             Name = toClone.Name;
             var numberOfModelSystems = toClone.ModelSystemStructure.Count;
-            ModelSystemStructure = new List<IModelSystemStructure>(numberOfModelSystems);
-            LinkedParameters = new List<List<ILinkedParameter>>(numberOfModelSystems);
             _DirectoryLocation = toClone._DirectoryLocation;
             _Configuration = toClone._Configuration;
             _ClonedFrom = toClone;
-            for (int i = 0; i < numberOfModelSystems; i++)
+            var loadTo = new ProjectModelSystem[numberOfModelSystems];
+            Parallel.For(0, numberOfModelSystems, (int i) =>
             {
                 var mss = toClone.CloneModelSystemStructure(out List<ILinkedParameter> lp, i);
-                ModelSystemStructure.Add(mss);
-                LinkedParameters.Add(lp);
-            }
-            ModelSystemDescriptions = toClone.ModelSystemDescriptions.ToList();
+                loadTo[i] = new ProjectModelSystem()
+                {
+                    Root = mss,
+                    LinkedParameters = lp,
+                    Description = mss?.Description ?? "No Description",
+                    GUID = Guid.NewGuid().ToString()
+                };
+            });
+            _ProjectModelSystems = loadTo.ToList();
         }
 
         internal Project CreateCloneProject(bool attachToParent = true)
@@ -171,23 +218,15 @@ namespace XTMF
 
         internal bool RemoveModelSystem(int index, ref string error)
         {
-            ModelSystemDescriptions.RemoveAt(index);
-            ModelSystemStructure.RemoveAt(index);
-            LinkedParameters.RemoveAt(index);
+            _ProjectModelSystems.RemoveAt(index);
             return Save(ref error);
         }
 
         internal bool MoveModelSystems(int currentIndex, int newIndex, ref string error)
         {
-            var desc = ModelSystemDescriptions[currentIndex];
-            var mss = ModelSystemStructure[currentIndex];
-            var lp = LinkedParameters[currentIndex];
-            ModelSystemDescriptions.RemoveAt(currentIndex);
-            ModelSystemStructure.RemoveAt(currentIndex);
-            LinkedParameters.RemoveAt(currentIndex);
-            ModelSystemDescriptions.Insert(newIndex, desc);
-            ModelSystemStructure.Insert(newIndex, mss);
-            LinkedParameters.Insert(newIndex, lp);
+            var temp = _ProjectModelSystems[currentIndex];
+            _ProjectModelSystems.RemoveAt(currentIndex);
+            _ProjectModelSystems.Insert(newIndex, temp);
             return Save(ref error);
         }
 
@@ -240,44 +279,55 @@ namespace XTMF
         /// <summary>
         ///
         /// </summary>
-        public List<List<ILinkedParameter>> LinkedParameters
+        public IReadOnlyList<List<ILinkedParameter>> LinkedParameters
         {
             get
             {
                 SetActive();
-                return _LinkedParameters;
+                return _ProjectModelSystems.Select(pms => pms.LinkedParameters).ToList();
             }
-            private set => _LinkedParameters = value;
         }
 
-        public List<IModelSystemStructure> ModelSystemStructure
+        public IReadOnlyList<IModelSystemStructure> ModelSystemStructure
         {
             get
             {
                 SetActive();
-                return _ModelSystemStructure;
+                return _ProjectModelSystems.Select(pms => pms.Root).ToList();
             }
-            private set => _ModelSystemStructure = value;
         }
 
-        public List<string> ModelSystemDescriptions
+        public IReadOnlyList<string> ModelSystemDescriptions
         {
             get
             {
                 SetActive();
-                if (_Descriptions == null)
-                {
-                    _Descriptions = new List<string>();
-                }
-                return _Descriptions;
+                return _ProjectModelSystems.Select(pms => pms.Description).ToList();
             }
-            private set => _Descriptions = value;
         }
 
         /// <summary>
         /// The name of the Project
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystemIndex"></param>
+        /// <param name="realModelSystemStructure"></param>
+        /// <param name="lps"></param>
+        /// <param name="description"></param>
+        public void SetModelSystem(int modelSystemIndex, IModelSystemStructure realModelSystemStructure, List<ILinkedParameter> lps, string description)
+        {
+            _ProjectModelSystems[modelSystemIndex] = new ProjectModelSystem()
+            {
+                Root = realModelSystemStructure,
+                LinkedParameters = lps,
+                Description = description,
+                GUID = _ProjectModelSystems[modelSystemIndex]?.GUID ?? Guid.NewGuid().ToString()
+            };
+        }
 
         /// <summary>
         /// Get all of the default properties from the model
@@ -304,6 +354,20 @@ namespace XTMF
                 throw new Exception("Error trying to load parameters for module type " + modelType.FullName + "\r\n" + e.Message);
             }
             return parameters;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystemIndex"></param>
+        /// <param name="newMSS"></param>
+        public void UpdateModelSystemStructure(int modelSystemIndex, ModelSystemStructure newMSS)
+        {
+            if (modelSystemIndex < 0 || modelSystemIndex >= _ProjectModelSystems.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(modelSystemIndex));
+            }
+            _ProjectModelSystems[modelSystemIndex].Root = newMSS;
         }
 
         /// <summary>
@@ -393,7 +457,7 @@ namespace XTMF
 
         public void Reload()
         {
-            ModelSystemStructure = null;
+            _ProjectModelSystems.Clear();
             string error = null;
             if (!Load(ref error))
             {
@@ -434,8 +498,19 @@ namespace XTMF
         /// </summary>
         public event EventHandler<ProjectExternallySavedEventArgs> ExternallySaved;
 
+        public bool SaveModelSystem(int modelSystemIndex, ref string error)
+        {
+
+            return false;
+        }
+
         public bool Save(string path, ref string error)
         {
+            // We need this in case it is a new project that has no model systems
+            if (_ProjectModelSystems == null)
+            {
+                _ProjectModelSystems = new List<ProjectModelSystem>();
+            }
             var dirName = Path.GetDirectoryName(path);
             if (dirName == null)
             {
@@ -460,10 +535,9 @@ namespace XTMF
                     }
                 }
             }
-            var mss = ModelSystemStructure;
-            var lpll = LinkedParameters;
             try
             {
+                List<Task> writeTasks = new List<Task>(_ProjectModelSystems.Count);
                 using (XmlTextWriter writer = new XmlTextWriter(tempFileName, Encoding.Unicode))
                 {
                     writer.Formatting = Formatting.Indented;
@@ -474,25 +548,38 @@ namespace XTMF
                     {
                         writer.WriteAttributeString("Description", Description);
                     }
-                    for (int i = 0; i < mss.Count; i++)
+
+                    foreach (var pms in _ProjectModelSystems)
                     {
-                        var ms = mss[i];
-                        var lpl = lpll[i];
-                        if (ms.Type != null)
+                        writer.WriteStartElement("DetachedModelSystem");
+                        writer.WriteAttributeString("Name", pms.Name);
+                        writer.WriteAttributeString("Description", pms.Description);
+                        writer.WriteAttributeString("GUID", pms.GUID);
+                        writer.WriteEndElement();
+                        var ms = pms;
+                        writeTasks.Add(Task.Run(() =>
                         {
-                            writer.WriteStartElement("AdvancedModelSystem");
-                            writer.WriteAttributeString("Description", _Descriptions[i]);
-                            writer.WriteStartElement("ModelSystem");
-                            ms.Save(writer);
-                            writer.WriteEndElement();
-                            writer.WriteStartElement("LinkedParameters");
-                            WriteLinkedParameters(writer, lpl, ms);
-                            writer.WriteEndElement();
-                            writer.WriteEndElement();
-                        }
+                            if (ms.Root.Type != null)
+                            {
+                                var tempMSFileName = Path.GetTempFileName();
+                                using (XmlTextWriter msWriter = new XmlTextWriter(tempMSFileName, Encoding.Unicode))
+                                {
+                                    msWriter.WriteStartDocument();
+                                    msWriter.WriteStartElement("Root");
+                                    ms.Root.Save(msWriter);
+                                    msWriter.WriteStartElement("LinkedParameters");
+                                    WriteLinkedParameters(msWriter, ms.LinkedParameters, ms.Root);
+                                    msWriter.WriteEndElement();
+                                    msWriter.WriteEndElement();
+                                }
+                                File.Copy(tempMSFileName, Path.Combine(Path.GetDirectoryName(path), $"Project.ms-{ms.GUID}.xml"), true);
+                                File.Delete(tempMSFileName);
+                            }
+                        }));
                     }
                     writer.WriteEndElement();
                 }
+                Task.WaitAll(writeTasks.ToArray());
             }
             catch (Exception e)
             {
@@ -1172,13 +1259,12 @@ namespace XTMF
             }
             _IsLoaded = false;
             string fileLocation = Path.Combine(_DirectoryLocation, "Project.xml");
-            _ModelSystemStructure = new List<IModelSystemStructure>();
-            _LinkedParameters = new List<List<ILinkedParameter>>();
             if (RemoteProject)
             {
                 _IsLoaded = true;
                 return true;
             }
+            _ProjectModelSystems.Clear();
             if (!Directory.Exists(_DirectoryLocation) || !File.Exists(fileLocation))
             {
                 _IsLoaded = true;
@@ -1198,38 +1284,33 @@ namespace XTMF
                     }
                     var rootChildren = rootNode.ChildNodes;
                     var toLoad = new ProjectModelSystem[rootChildren.Count];
-                    _Descriptions = new List<string>(rootChildren.Count);
-                    for (int i = 0; i < rootChildren.Count; i++)
-                    {
-                        _Descriptions.Add(String.Empty);
-                    }
                     Parallel.For(0, rootChildren.Count, i =>
                     {
                         XmlNode child = rootChildren[i];
                         // check for the 3.0 file name
-                        if (child.Name == "AdvancedModelSystem")
+                        switch (child.Name)
                         {
-                            if (LoadAdvancedModelSystem(child, i, out IModelSystemStructure mss, out List<ILinkedParameter> lp))
-                            {
-                                toLoad[i] = new ProjectModelSystem() { LinkedParameters = lp, Root = mss };
-                            }
+                            case "AdvancedModelSystem":
+                                {
+                                    if (LoadAdvancedModelSystem(child, i, Guid.NewGuid().ToString(), out var pms))
+                                    {
+                                        toLoad[i] = pms;
+                                    }
+                                }
+                                break;
+                            case "DetachedModelSystem":
+                                {
+                                    var guid = child.Attributes["GUID"]?.InnerText ?? string.Empty;
+                                    var msPath = Path.Combine(_DirectoryLocation, $"Project.ms-{guid}.xml");
+                                    if (LoadDetachedModelSystem(msPath, guid, out var pms))
+                                    {
+                                        toLoad[i] = pms;
+                                    }
+                                }
+                                break;
                         }
                     });
-                    for (int i = 0; i < toLoad.Length; i++)
-                    {
-                        if (toLoad[i] != null)
-                        {
-                            _ModelSystemStructure.Add(toLoad[i].Root);
-                            if (toLoad[i].LinkedParameters != null)
-                            {
-                                _LinkedParameters.Add(toLoad[i].LinkedParameters);
-                            }
-                            else
-                            {
-                                _LinkedParameters.Add(new List<ILinkedParameter>());
-                            }
-                        }
-                    }
+                    _ProjectModelSystems.AddRange(toLoad);
                     _IsLoaded = true;
                     return true;
                 }
@@ -1242,16 +1323,15 @@ namespace XTMF
             return false;
         }
 
-        private class ProjectModelSystem
+        private bool LoadDetachedModelSystem(string fileName, string guid, out ProjectModelSystem pms)
         {
-            internal IModelSystemStructure Root;
-            internal List<ILinkedParameter> LinkedParameters;
-        }
-
-        private bool LoadAdvancedModelSystem(XmlNode child, int index, out IModelSystemStructure mss, out List<ILinkedParameter> lpl)
-        {
-            mss = null;
-            lpl = null;
+            XmlDocument msDoc = new XmlDocument();
+            msDoc.Load(fileName);
+            pms = new ProjectModelSystem()
+            {
+                GUID = guid
+            };
+            var child = msDoc["Root"] ?? msDoc["AdvancedModelSystem"];
             bool hasDescription = false;
             var attributes = child.Attributes;
             if (attributes != null)
@@ -1261,14 +1341,65 @@ namespace XTMF
                     if (attribute.Name == "Description")
                     {
                         hasDescription = true;
-                        _Descriptions[index] = attribute.InnerText;
+                        pms.Description = attribute.InnerText;
+                        break;
+                    }
+                }
+            }
+            if (child.HasChildNodes)
+            {
+                ModelSystemStructure ms = XTMF.ModelSystemStructure.Load(child, _Configuration);
+                if (ms != null)
+                {
+                    pms.Root = ms;
+                }
+            }
+            if (pms.Root == null)
+            {
+                return false;
+            }
+            if (!hasDescription)
+            {
+                pms.Description = pms.Root.Description;
+            }
+            // now do a second pass for Linked parameters, since we need the current model system to actually link things
+            for (int i = 0; i < child.ChildNodes.Count; i++)
+            {
+                switch (child.ChildNodes[i].Name)
+                {
+                    case "LinkedParameters":
+                        {
+                            pms.LinkedParameters = LoadLinkedParameters(child.ChildNodes[i], pms.Root);
+                        }
+                        break;
+                }
+            }
+            return true;
+        }
+
+        private bool LoadAdvancedModelSystem(XmlNode child, int index, string guid, out ProjectModelSystem pms)
+        {
+            pms = new ProjectModelSystem()
+            {
+                GUID = guid
+            };
+            bool hasDescription = false;
+            var attributes = child.Attributes;
+            if (attributes != null)
+            {
+                foreach (XmlAttribute attribute in attributes)
+                {
+                    if (attribute.Name == "Description")
+                    {
+                        hasDescription = true;
+                        pms.Description = attribute.InnerText;
                         break;
                     }
                 }
             }
             if (!hasDescription)
             {
-                _Descriptions[index] = "No Description";
+                pms.Description = "No Description";
             }
             if (child.HasChildNodes)
             {
@@ -1278,14 +1409,14 @@ namespace XTMF
                     {
                         case "ModelSystem":
                             {
-                                if (mss == null)
+                                if (pms.Root == null)
                                 {
                                     if (child.ChildNodes[i].FirstChild != null)
                                     {
                                         ModelSystemStructure ms = XTMF.ModelSystemStructure.Load(child.ChildNodes[i], _Configuration);
                                         if (ms != null)
                                         {
-                                            mss = ms;
+                                            pms.Root = ms;
                                         }
                                     }
                                 }
@@ -1293,7 +1424,7 @@ namespace XTMF
                             break;
                     }
                 }
-                if (mss == null)
+                if (pms.Root == null)
                 {
                     return false;
                 }
@@ -1304,7 +1435,7 @@ namespace XTMF
                     {
                         case "LinkedParameters":
                             {
-                                lpl = LoadLinkedParameters(child.ChildNodes[i], mss);
+                                pms.LinkedParameters = LoadLinkedParameters(child.ChildNodes[i], pms.Root);
                             }
                             break;
                     }

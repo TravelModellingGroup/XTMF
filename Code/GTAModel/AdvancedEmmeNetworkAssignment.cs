@@ -57,6 +57,9 @@ namespace TMG.GTAModel
         [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
         public string EmmeDatabank;
 
+        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+        public string EmmePath;
+
         private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(255, 173, 28);
         private ModellerController Controller;
 
@@ -97,7 +100,7 @@ namespace TMG.GTAModel
             {
                 if (Controller == null)
                 {
-                    Controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, PerformanceAnalysis);
+                    Controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceAnalysis);
                 }
                 CurrentProgress = 0.0f;
                 ProgressIncrement = 1.0f / tools.Count;

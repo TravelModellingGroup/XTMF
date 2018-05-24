@@ -107,7 +107,7 @@ namespace TMG.Emme
         /// <param name="projectFile"></param>
         /// <param name="performanceAnalysis"></param>
         /// <param name="userInitials"></param>
-        public ModellerController(IModule module, string projectFile, string databank = null, bool performanceAnalysis = false, string userInitials = "XTMF")
+        public ModellerController(IModule module, string projectFile, string databank = null, string emmePath = null, bool performanceAnalysis = false, string userInitials = "XTMF")
         {
             if (!projectFile.EndsWith(".emp") | !File.Exists(projectFile))
             {
@@ -118,7 +118,7 @@ namespace TMG.Emme
             //[FullPath...python.exe] -u [FullPath...ModellerBridge.py] [FullPath...EmmeProject.emp] [User initials] [[Performance (optional)]] 
 
             // Get the path of the Python executable
-            string emmePath = Environment.GetEnvironmentVariable("EMMEPATH");
+            emmePath = emmePath ?? Environment.GetEnvironmentVariable("EMMEPATH");
             if (String.IsNullOrWhiteSpace(emmePath))
             {
                 throw new XTMFRuntimeException(module, "Please make sure that EMMEPATH is on the system environment variables!");
@@ -126,7 +126,6 @@ namespace TMG.Emme
             string pythonDirectory = Path.Combine(emmePath, FindPython(module, emmePath));
             string pythonPath = AddQuotes(Path.Combine(pythonDirectory, @"python.exe"));
             string pythonLib = Path.Combine(pythonDirectory, "Lib");
-
             // Get the path of ModellerBridge
             // Learn where the modules are stored so we can find the python script
             // The Entry assembly will be the XTMF.GUI or XTMF.RemoteClient
@@ -159,7 +158,7 @@ namespace TMG.Emme
             // and windows won't allow us to have a window and take its standard I/O streams at the same time
             Emme = new Process();
             var startInfo = new ProcessStartInfo(pythonPath, "-u " + argumentString);
-            startInfo.EnvironmentVariables["PATH"] += ";" + pythonLib + ";" + Path.Combine(emmePath, "programs");
+            startInfo.EnvironmentVariables["PATH"] = pythonLib + ";" + Path.Combine(emmePath, "programs") + ";" + startInfo.EnvironmentVariables["PATH"];
             Emme.StartInfo = startInfo;
             Emme.StartInfo.CreateNoWindow = true;
             Emme.StartInfo.UseShellExecute = false;

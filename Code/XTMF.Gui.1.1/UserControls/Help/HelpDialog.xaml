@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,14 +32,12 @@
             <ColumnDefinition Width="3" />
             <ColumnDefinition  MinWidth="300"/>
         </Grid.ColumnDefinitions>
-        <Grid  VerticalAlignment="Stretch"  Grid.Column="0" HorizontalAlignment="Stretch"  >
-  
+        <Grid  VerticalAlignment="Stretch"  Grid.Column="0" HorizontalAlignment="Stretch">
             <Grid HorizontalAlignment="Stretch" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
-
                 <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                           Margin="12 12 12 12" Grid.Row="0" 
                                           materialDesign:ShadowAssist.ShadowDepth="Depth4">
@@ -52,25 +50,13 @@
                         <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                             <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                         </Button>
-
-
                         <my:FilterBox UseItemSourceFilter="False" Grid.Column="1" x:Name="SearchBox" EnterPressed="FilterModelSystemsBox_OnEnterPressed" FilterWatermark="Search" />
-                        <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
-                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                         MinWidth="200" VerticalAlignment="Center" />-->
-                        <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
-
-                        </Button>
+                        <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2" />
                     </Grid>
                 </materialDesign:ColorZone>
-
-                <!--<userControls:HintedTextBox MinHeight="10" Grid.Row="0"  x:Name="SearchBox"  Height="20" HintText="Search..." /> -->
-
-
             <ListView HorizontalContentAlignment="Stretch" Grid.Row="1" HorizontalAlignment="Stretch"     x:Name="ResultBox" Background="{DynamicResource MaterialDesignPaper}"
                              Foreground="{DynamicResource MaterialDesignBody}" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" BorderBrush="{x:Null}" />
             </Grid>
-
         </Grid>
         <GridSplitter ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"  Grid.Column="1" Width="3" Background="{DynamicResource MaterialDesignSelection}" />
         <Grid HorizontalAlignment="Stretch" Grid.Column="2" x:Name="ContentPresenter" Background="{DynamicResource MaterialDesignPaper}"/>

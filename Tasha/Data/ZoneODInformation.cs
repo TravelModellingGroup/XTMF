@@ -24,13 +24,17 @@ using TMG;
 using TMG.Input;
 namespace Tasha.Data
 {
-    [ModuleInformation( Description =
+    [ModuleInformation(Description =
         @"This module is designed to take in information from the reader
 and store it into a SparseArray<float> that is of the same type as the model system's zone system.
-Data outside of the zones that are defined is trimmed off. Both the Origin and Destination from the Reader will be used." )]
+Data outside of the zones that are defined is trimmed off. Both the Origin and Destination from the Reader will be used.")]
     public class ZoneODInformation : IDataSource<SparseTwinIndex<float>>
     {
-        [SubModelInformation( Required = false, Description = "Origin, Destination will be used to store data." )]
+
+        [RunParameter("Continue After Invalid ODPair", false, "Should the model system continue after an invalid value has been read in?")]
+        public bool ContinueAfterInvalidODPair;
+
+        [SubModelInformation(Required = false, Description = "Origin, Destination will be used to store data.")]
         public IReadODData<float> Reader;
 
         [RootModule]
@@ -51,13 +55,17 @@ Data outside of the zones that are defined is trimmed off. Both the Origin and D
         public void LoadData()
         {
             var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            if ( Reader != null )
+            if (Reader != null)
             {
-                foreach ( var point in Reader.Read() )
+                foreach (var point in Reader.Read())
                 {
-                    if ( data.ContainsIndex( point.O, point.D ) )
+                    if (data.ContainsIndex(point.O, point.D))
                     {
                         data[point.O, point.D] = point.Data;
+                    }
+                    else if (!ContinueAfterInvalidODPair)
+                    {
+                        throw new XTMFRuntimeException(this, $"An invalid OD pair was attempted to be read in {point.O} - {point.D} with the value of {point.Data}!");
                     }
                 }
             }

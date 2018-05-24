@@ -31,6 +31,7 @@ using System.Threading;
 namespace TMG.Frameworks.MultiRun
 {
     [ModuleInformation(
+        DocURL = "https://tmg.utoronto.ca/documentation/1_4/articles/frameworks/multirun.html",
         Description =
 @"
 TMG’s Multi-run framework is designed to aid in the automation of running model systems where each iteration would require setup.
@@ -405,7 +406,7 @@ For specification about the language, and extensibility please consult the TMG F
             string name = GetAttributeOrError(command, "Name", "The attribute 'Name' was not found!");
             string value = GetAttributeOrError(command, "Value", "The attribute 'Value' was not found!");
             var project = Config.ProjectRepository.ActiveProject;
-            var modelSystemIndex = project.ModelSystemStructure.IndexOf(ModelSystemReflection.BuildModelStructureChain(Config, this)[0]);
+            var modelSystemIndex = project.IndexOf(ModelSystemReflection.BuildModelStructureChain(Config, this)[0]);
             var ourLinkedParameters = project.LinkedParameters[modelSystemIndex];
             bool any = false;
             foreach (var lp in ourLinkedParameters)
@@ -738,9 +739,8 @@ For specification about the language, and extensibility please consult the TMG F
                         else
                         {
                             var mod = child.Module;
-                            var res = mod as IResource;
                             var dataSource = mod as IDataSource;
-                            if (res != null)
+                            if (mod is IResource res)
                             {
                                 res.ReleaseResource();
                             }
@@ -760,9 +760,8 @@ For specification about the language, and extensibility please consult the TMG F
                 }
                 else
                 {
-                    var res = referencedModule.Module as IResource;
                     var dataSource = referencedModule.Module as IDataSource;
-                    if (res != null)
+                    if (referencedModule.Module is IResource res)
                     {
                         res.ReleaseResource();
                     }
@@ -790,9 +789,8 @@ For specification about the language, and extensibility please consult the TMG F
                 }
             }
             var mod = child.Module;
-            var res = mod as IResource;
             var dataSource = mod as IDataSource;
-            if (res != null)
+            if (mod is IResource res)
             {
                 res.ReleaseResource();
             }

@@ -110,7 +110,7 @@ namespace XTMF.Gui.UserControls
                     IProject project)
                 {
                     ModelSystemStructure = ms;
-                    RealIndex = project.ModelSystemStructure.IndexOf(ms);
+                    RealIndex = ((Project)project).IndexOf(ms);
                     _project = project;
                     _session = session;
                     FindMissingModules(ms);

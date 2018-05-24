@@ -36,6 +36,9 @@ namespace TMG.NetworkEstimation
         [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
         public string EmmeDatabank;
 
+        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+        public string EmmePath;
+
         [SubModelInformation(Required = true, Description = "The location to base the temporary copy.")]
         public FileLocation TempBaseDirectory;
 
@@ -76,7 +79,7 @@ namespace TMG.NetworkEstimation
                         DirectoryCopy(originalDir, dir);
                         var actuallyRunning = Path.GetFullPath(Path.Combine(dir, projectFile));
                         Console.WriteLine("Opening EMME at " + actuallyRunning);
-                        Controller = new ModellerController(this, actuallyRunning, EmmeDatabank);
+                        Controller = new ModellerController(this, actuallyRunning, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath);
                     }
                 }
             }

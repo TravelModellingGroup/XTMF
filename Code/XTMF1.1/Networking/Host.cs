@@ -418,8 +418,9 @@ namespace XTMF.Networking
                             ClientDisconnected?.Invoke(ourRemoteClient);
                         }
                     }
-                    catch
+                    catch(Exception e)
                     {
+                        Console.WriteLine(e.Message);
                     }
                 }
             }

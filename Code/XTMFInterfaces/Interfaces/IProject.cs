@@ -35,12 +35,12 @@ namespace XTMF
         /// <summary>
         /// A List for each model of linked parameters
         /// </summary>
-        List<List<ILinkedParameter>> LinkedParameters { get; }
+        IReadOnlyList<List<ILinkedParameter>> LinkedParameters { get; }
 
         /// <summary>
         /// The models that this project contains
         /// </summary>
-        List<IModelSystemStructure> ModelSystemStructure { get; }
+        IReadOnlyList<IModelSystemStructure> ModelSystemStructure { get; }
 
         /// <summary>
         /// The name of the project
@@ -81,5 +81,13 @@ namespace XTMF
         /// <remarks>Names are invalid if the name is a duplicate of another one already in the project,
         /// or if it contains characters now allowed in a file name.</remarks>
         bool ValidateModelName(string possibleNewModelName);
+
+        /// <summary>
+        /// Finds the index of the given model system.
+        /// Returns -1 if it is not found.
+        /// </summary>
+        /// <param name="realModelSystemStructure">The model system to find.</param>
+        /// <returns>The index for this model system, -1 if it is not found.</returns>
+        int IndexOf(IModelSystemStructure modelSystemStructure);
     }
 }

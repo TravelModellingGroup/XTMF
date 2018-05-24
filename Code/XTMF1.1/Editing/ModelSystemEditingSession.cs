@@ -290,13 +290,12 @@ namespace XTMF
                     if (_ModelSystemIndex >= 0)
                     {
                         var cloneProject = ProjectEditingSession.CreateCloneProject(ProjectEditingSession.Project);
-                        cloneProject.ModelSystemStructure[_ModelSystemIndex] =
-                            ModelSystemModel.Root.RealModelSystemStructure;
-                        cloneProject.ModelSystemDescriptions[_ModelSystemIndex] = ModelSystemModel.Description;
-                        cloneProject.LinkedParameters[_ModelSystemIndex] =
-                            ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
-
-
+                        cloneProject.SetModelSystem(
+                            _ModelSystemIndex,
+                            ModelSystemModel.Root.RealModelSystemStructure,
+                            ModelSystemModel.LinkedParameters.GetRealLinkedParameters(),
+                             ModelSystemModel.Description
+                            );
                         if (((Configuration) Configuration).RemoteHost)
                         {
                             run = XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
@@ -312,12 +311,10 @@ namespace XTMF
                                     : XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
                                         _Runtime.Configuration, runName, overwrite);
                         }
-
-
                         run.ProjectSavedByRun += (theRun, newMSS) =>
                         {
                             string e = null;
-                            ProjectEditingSession.Project.ModelSystemStructure[_ModelSystemIndex] = newMSS;
+                            ProjectEditingSession.Project.UpdateModelSystemStructure(_ModelSystemIndex, newMSS);
                             ProjectEditingSession.Project.Save(ref e);
                             Reload();
                             ProjectWasExternallySaved?.Invoke(this, new EventArgs());

@@ -73,7 +73,7 @@ namespace XTMF.Gui.UserControls
             get
             {
                 return _subProgressBars.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-                
+
             }
 
         }
@@ -102,7 +102,7 @@ namespace XTMF.Gui.UserControls
 
         static RunWindow()
         {
-            ErrorColour = new Tuple<byte, byte, byte>(200,20,30);
+            ErrorColour = new Tuple<byte, byte, byte>(200, 20, 30);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace XTMF.Gui.UserControls
             ErrorGroupBox.Visibility = Visibility.Collapsed;
             BaseGrid.RowDefinitions[1].Height = new GridLength(0);
             _runDirectory = Run.RunDirectory;
-            _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(100)};
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
             _isFinished = false;
             _wasCanceled = false;
             _timer.Tick += Timer_Tick;
@@ -235,7 +235,7 @@ namespace XTMF.Gui.UserControls
             StartRunAsync();
             _timer.Start();
 
-           
+
         }
 
 
@@ -262,13 +262,13 @@ namespace XTMF.Gui.UserControls
 
         public bool IsRunClearable
         {
-            get => !_isActive && (bool) GetValue(IsRunClearableDependencyProperty);
+            get => !_isActive && (bool)GetValue(IsRunClearableDependencyProperty);
             set => SetValue(IsRunClearableDependencyProperty, value);
         }
 
         public bool IsRunCancellable
         {
-            get => (bool) GetValue(IsRunCancellableDependencyProperty);
+            get => (bool)GetValue(IsRunCancellableDependencyProperty);
             set => SetValue(IsRunCancellableDependencyProperty, Run != null);
         }
 
@@ -349,9 +349,9 @@ namespace XTMF.Gui.UserControls
             else
             {
                 //will scroll to bottom if caret is close to end of text
-               // if (ConsoleOutput.CaretIndex > ConsoleOutput.Text.Length - 20)
+                // if (ConsoleOutput.CaretIndex > ConsoleOutput.Text.Length - 20)
                 //{
-                    ConsoleOutput.Select(ConsoleOutput.Text.Length - 1, 0);
+                ConsoleOutput.Select(ConsoleOutput.Text.Length - 1, 0);
                 //}
 
                 // ConsoleOutput.CaretIndex = _oldCaret;
@@ -506,7 +506,7 @@ namespace XTMF.Gui.UserControls
                 foreach (var error in errors)
                 {
                     ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName,
-                        error.StackTrace,error));
+                        error.StackTrace, error));
                 }
 
 
@@ -544,7 +544,7 @@ namespace XTMF.Gui.UserControls
                 ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                 //SetRunFinished(false);
-                ShowErrorMessages(new[] {error});
+                ShowErrorMessages(new[] { error });
                 //ShowErrorMessage(string.Empty, errors[0]);
 
                 //SetRunFinished(false);
@@ -611,20 +611,20 @@ namespace XTMF.Gui.UserControls
         {
             _isActive = true;
 
-    
-            Dispatcher.BeginInvoke((Action) (() =>
-            {
-                CancelButton.IsEnabled = true;
 
-                ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, true);
-                ButtonProgressAssist.SetIsIndeterminate(CancelButton, true);
-                OnRunStarted?.Invoke();
-                StartTime = DateTime.Now;
-                StartTimeLabel.Content = $"Start Time: {StartTime:g}";
-                UpdateStartTime?.Invoke($"{StartTime:g}");
+            Dispatcher.BeginInvoke((Action)(() =>
+           {
+               CancelButton.IsEnabled = true;
+
+               ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, true);
+               ButtonProgressAssist.SetIsIndeterminate(CancelButton, true);
+               OnRunStarted?.Invoke();
+               StartTime = DateTime.Now;
+               StartTimeLabel.Content = $"Start Time: {StartTime:g}";
+               UpdateStartTime?.Invoke($"{StartTime:g}");
                 //ButtonProgressAssist.
                 IsRunClearable = false;
-            }));
+           }));
         }
 
         /// <summary>
@@ -668,7 +668,7 @@ namespace XTMF.Gui.UserControls
             //Are you sure?
             if (MessageBox.Show(MainWindow.Us, "Are you sure you want to cancel this run?", "Cancel run?",
                     MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
-            {                
+            {
                 if (Run != null)
                 {
                     Session.CancelRun(Run);
@@ -715,7 +715,7 @@ namespace XTMF.Gui.UserControls
 
                     _subProgressBars.Add(new SubProgress
                     {
-                        Name = new Label {Content = toAdd.Name, Foreground = Brushes.White},
+                        Name = new Label { Content = toAdd.Name, Foreground = Brushes.White },
                         ProgressBar = progressBar
                     });
 
@@ -762,16 +762,18 @@ namespace XTMF.Gui.UserControls
                 AdditionDetailsPanel.Add(toAdd.Name);
                 AdditionDetailsPanel.Add(toAdd.ProgressBar);
             }
-
-            OnPropertyChanged(nameof(ProgressReportsVisibility));
-            if (_subProgressBars.Count == 0)
+            Dispatcher.BeginInvoke(new Action(() =>
             {
-                BaseGrid.RowDefinitions[1].Height = new GridLength(0);
-            }
-            else
-            {
-                BaseGrid.RowDefinitions[1].Height = new GridLength(250);
-            }
+                OnPropertyChanged(nameof(ProgressReportsVisibility));
+                if (_subProgressBars.Count == 0)
+                {
+                    BaseGrid.RowDefinitions[1].Height = new GridLength(0);
+                }
+                else
+                {
+                    BaseGrid.RowDefinitions[1].Height = new GridLength(250);
+                }
+            }));
         }
 
         /// <summary>
@@ -827,7 +829,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void StackTraceLinkOnClick(object sender, RoutedEventArgs e)
         {
-            var stackTraceBox = (PopupBox) (sender as FrameworkContentElement)?.Tag;
+            var stackTraceBox = (PopupBox)(sender as FrameworkContentElement)?.Tag;
             if (stackTraceBox != null)
             {
                 stackTraceBox.IsPopupOpen = true;
@@ -858,7 +860,7 @@ namespace XTMF.Gui.UserControls
 
             private void Run_RunMessage(string message)
             {
-            
+
                 ConsoleOutput = ConsoleOutput + message + "\r\n";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
             }

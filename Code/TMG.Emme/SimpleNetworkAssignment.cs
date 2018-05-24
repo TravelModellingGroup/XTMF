@@ -47,6 +47,9 @@ and another tool for execution. This module requires the root module of the mode
         [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
         public string EmmeDatabank;
 
+        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+        public string EmmePath;
+
         [RunParameter("Modeller Performance Test", false, "Store the execution time in the modeller logbook for how long it takes to run the model system.")]
         public bool ModellerPerformanceAnalysis;
 
@@ -172,7 +175,7 @@ and another tool for execution. This module requires the root module of the mode
         private void InitializeController()
         {
             Controller = UseModeller ?
-                  new ModellerController(this, EmmeProjectFolder, EmmeDatabank, ModellerPerformanceAnalysis)
+                  new ModellerController(this, EmmeProjectFolder, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, ModellerPerformanceAnalysis)
                 : new Controller(EmmeProjectFolder);
         }
 

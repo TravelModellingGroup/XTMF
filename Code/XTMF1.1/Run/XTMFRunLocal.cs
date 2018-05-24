@@ -55,18 +55,19 @@ namespace XTMF.Run
             ModelSystemStructureModelRoot = root.Root;
             RunName = runName;
             _ModelSystemIndex = modelSystemIndex;
-            _Project.ModelSystemStructure[_ModelSystemIndex] = root.ClonedModelSystemRoot;
-            _Project.LinkedParameters[_ModelSystemIndex] = root.LinkedParameters.GetRealLinkedParameters();
+            if(_Project is Project p)
+            {
+                p.SetModelSystem(_ModelSystemIndex, root.ClonedModelSystemRoot, root.LinkedParameters.GetRealLinkedParameters(), root.Description ?? String.Empty);
+            }
             if (overwrite)
             {
                 ClearFolder(RunDirectory);
             }
-
         }
 
         public XTMFRunLocal(Project project, ModelSystemStructureModel root, Configuration configuration, string runName, bool overwrite)
             : base(runName, Path.Combine(configuration.ProjectDirectory, project.Name, runName),
-                  (project.ModelSystemStructure.IndexOf(root.RealModelSystemStructure) >= 0 ? (IConfiguration)new ConfigurationProxy(configuration, project) : configuration))
+                  (project.IndexOf(root.RealModelSystemStructure) >= 0 ? (IConfiguration)new ConfigurationProxy(configuration, project) : configuration))
         {
             // we don't make a clone for this type of run
             _Project = project;

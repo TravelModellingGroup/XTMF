@@ -51,6 +51,11 @@ namespace XTMF.Gui.UserControls.Help
         internal Type Module;
 
         /// <summary>
+        /// A URL to the documentation for this module
+        /// </summary>
+        internal string DocURL;
+
+        /// <summary>
         /// Create a reference to a module
         /// </summary>E
         /// <param name="module">The module to create a reference to.</param>
@@ -58,6 +63,12 @@ namespace XTMF.Gui.UserControls.Help
         {
             Name = name;
             Module = module;
+        }
+
+        public ContentReference(string name, Type module, string docURL)
+            : this(name, module)
+        {
+            DocURL = docURL;
         }
 
         private UIElement GenerateContent()
