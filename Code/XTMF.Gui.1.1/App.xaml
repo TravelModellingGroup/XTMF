@@ -61,6 +61,7 @@
                 <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/materialdesign.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
                 <ResourceDictionary Source="Resources/ControlStyles.xaml"/>
+                <ResourceDictionary Source="Resources/XtmfMaterialStyles.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
 

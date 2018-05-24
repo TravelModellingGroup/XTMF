@@ -281,9 +281,9 @@ namespace XTMF.Gui.UserControls
         public bool HandleTabClose()
         {
             var value = Session.CloseWillTerminate && CanSaveModelSystem;
-            if (value) 
+            if (value)
             {
-                if(MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
+                if (MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
                                          "Are you sure?", MessageBoxButton.OKCancel,
                                          MessageBoxImage.Question,
                                          MessageBoxResult.Cancel) == MessageBoxResult.OK)
@@ -662,7 +662,7 @@ namespace XTMF.Gui.UserControls
                             "Set Module Types",
                             () =>
                             {
-                                foreach (var selectedModule in CurrentlySelected)
+                                foreach (var selectedModule in CurrentlySelected.ToList())
                                 {
                                     if (selectedModule.BaseModel.IsCollection)
                                     {
@@ -1021,12 +1021,12 @@ namespace XTMF.Gui.UserControls
                         //pass this as launchedFrom display in case model system run encounters an error
                         if (isDelayed)
                         {
-                            MainWindow.Us.AddDelayedRunToSchedulerWindow(MainWindow.Us.CreateDelayedRunWindow(Session, run, runName, delayedStartTime, this)
+                            MainWindow.Us.AddDelayedRunToSchedulerWindow(MainWindow.Us.CreateDelayedRunWindow(Session, run, runName, delayedStartTime, this, MainWindow.Us.SchedulerWindow)
                                  , delayedStartTime);
                         }
                         else
                         {
-                            MainWindow.Us.AddRunToSchedulerWindow(MainWindow.Us.CreateRunWindow(Session, run, runName, !dialog.IsQueueRun, this));
+                            MainWindow.Us.AddRunToSchedulerWindow(MainWindow.Us.CreateRunWindow(Session, run, runName, !dialog.IsQueueRun, this, MainWindow.Us.SchedulerWindow));
                         }
                     }
                     else
@@ -1314,7 +1314,7 @@ namespace XTMF.Gui.UserControls
                         (Brush)FindResource("SecondaryAccentBrush"));
                     SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
 
-               
+
                 });
                 MainWindow.SetStatusText("Saving...");
                 Task.Run(async () =>
@@ -3060,10 +3060,10 @@ namespace XTMF.Gui.UserControls
 
         private void ModuleDisplay_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if(CurrentlySelected.Count == 1)
+            if (CurrentlySelected.Count == 1)
             {
                 var onlySelected = CurrentlySelected[0];
-                if(!onlySelected.IsCollection && onlySelected.Type == null)
+                if (!onlySelected.IsCollection && onlySelected.Type == null)
                 {
                     SelectReplacement();
                     e.Handled = true;

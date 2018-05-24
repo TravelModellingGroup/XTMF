@@ -26,6 +26,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 using XTMF.Gui.Util;
@@ -46,6 +47,19 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             _runWindows = new List<RunWindow>();
             ActiveRunContent.DataContext = Resources["DefaultDisplay"];
+           
+        }
+
+        /// <summary>
+        /// OnInitialized
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+            
+            //allow the stack trace text box to only be as large as 80% of the primary screen
+            StackTraceTextBox.MaxWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width * 0.8;
         }
 
         public FrameworkElement ActiveContent
@@ -84,6 +98,19 @@ namespace XTMF.Gui.UserControls
             var defaultd = Resources["DefaultDisplay"];
             Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
             FinishedRuns.Items.Refresh();
+        }
+
+        /// <summary>
+        /// copy to clipboard (stack trace)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
+        {
+            var error = (sender as FrameworkContentElement)?.Tag as ModelSystemErrorDisplayModel;
+            Clipboard.SetText(error.StackTrace == "Unavailable" ?
+                error.Description :
+                error.Description + "\r\n" + error.StackTrace);
         }
 
         /// <summary>
@@ -245,6 +272,15 @@ namespace XTMF.Gui.UserControls
 
             public Action RunFinished;
 
+            public ObservableCollection<ModelSystemErrorDisplayModel> ModelSystemErrors { get; set; }
+
+            public bool HasError { get; set; } = false;
+
+            public Visibility RunErrorInformationVisibility
+            {
+                get => HasError ? Visibility.Visible : Visibility.Collapsed;
+            }
+
 
             /// <summary>
             ///     Constructor of the ScheduleRunItem, takes in the RunWindow (run control) in the constructor.
@@ -261,18 +297,17 @@ namespace XTMF.Gui.UserControls
                 runWindow.UpdateRunProgress = val => { Progress = val; };
                 runWindow.UpdateStartTime = UpdateStartTime;
                 runWindow.OnRuntimeValidationError = OnRuntimeValidationError;
+                runWindow.SchedulerRunItem = this;
 
 
                 runWindow.OnRunFinished = OnRunFinished;
-                //runWindow.OnRuntimeError = OnRuntimeError;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
                 runWindow.OnRunStarted = OnRunStarted;
                 runWindow.OnRuntimeError = OnRuntimeError;
 
-                //StatusText = "Queued";
+                ModelSystemErrors = new ObservableCollection<ModelSystemErrorDisplayModel>();
 
-                //StartTime = (string) $"{RunWindow.StartTime:g}";
                 Progress = 0;
             }
 
@@ -284,10 +319,9 @@ namespace XTMF.Gui.UserControls
                 XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
                     () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
 
-                //_schedulerWindow.RemoveFromActiveRuns(this);
-
-
                 Icon = PackIconKind.Exclamation;
+
+                HasError = true;
 
             }
 
@@ -369,6 +403,7 @@ namespace XTMF.Gui.UserControls
                     () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
 
                 Icon = PackIconKind.AlertBox;
+                HasError = true;
             }
 
             /// <summary>
@@ -429,6 +464,7 @@ namespace XTMF.Gui.UserControls
                 StatusText = "Validation error occured";
                 _schedulerWindow.RemoveFromActiveRuns(this);
                 Icon = PackIconKind.Alert;
+                HasError = true;
             }
 
             [NotifyPropertyChangedInvocator]
@@ -462,6 +498,87 @@ namespace XTMF.Gui.UserControls
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
             runWindow?.ScrollToBottomOfConsole();
+        }
+
+        /// <summary>
+        /// OnClick listener for the stack trace dialog close button / link.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CloseDialogHyperLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(()=> { StackTraceDialogHost.IsOpen = false; }));
+        }
+
+        /// <summary>
+        /// Loads the ModelSystemDisplay editor with the passed module navigated to (and selected).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            var runWindow = ((e.Source as FrameworkContentElement)?.DataContext as ModelSystemErrorDisplayModel)
+                ?.RunWindow;
+                
+             runWindow.NavigateToModelSystemDisplay((sender as FrameworkContentElement)?.Tag);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StackTraceLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkContentElement)?.DataContext;
+            ShowTrackTraceError(errorDataContext);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="errorDataContext"></param>
+        public void ShowTrackTraceError(ModelSystemErrorDisplayModel errorDataContext)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.StackTraceDialogHost.DataContext = errorDataContext;
+                this.StackTraceDialogHost.IsOpen = true;
+            }));
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CopyErrorLink_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
+
+            Clipboard.SetText(errorDataContext?.StackTrace == "Unavailable"
+                ? $"Description: {errorDataContext.Description}"
+                : $"Description:\r\n {errorDataContext?.Description} \r\nStack Trace:\r\n{errorDataContext?.StackTrace}");
+
+            MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Error information copied to clipboard",
+                "SCHEDULER",
+                () => MainWindow.Us.ShowSchedulerWindow());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StackTraceGroup_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.StackTraceDialogHost.DataContext = errorDataContext;
+                this.StackTraceDialogHost.IsOpen = true;
+            }));
         }
     }
 }

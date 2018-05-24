@@ -100,6 +100,11 @@ namespace XTMF.Gui.UserControls
 
         public Action<List<ErrorWithPath>> RuntimeValidationError;
 
+        public SchedulerWindow SchedulerWindow { get; set; }
+
+        //Display model reference in the scheduler window
+        public SchedulerWindow.SchedulerRunItem SchedulerRunItem { get; set; }
+
         static RunWindow()
         {
             ErrorColour = new Tuple<byte, byte, byte>(200, 20, 30);
@@ -113,13 +118,14 @@ namespace XTMF.Gui.UserControls
         /// <param name="immediateRun"></param>
         /// <param name="launchedFrom"></param>
         public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false,
-            ModelSystemDisplay launchedFrom = null)
+            ModelSystemDisplay launchedFrom = null, SchedulerWindow schedulerWindow = null)
         {
             InitializeComponent();
             ErrorVisibility = Visibility.Collapsed;
             Session = session;
             Run = run;
             OpenDirectoryButton.IsEnabled = true;
+            SchedulerWindow = schedulerWindow;
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 RunNameLabel.Text = runName;
@@ -177,12 +183,13 @@ namespace XTMF.Gui.UserControls
         /// <param name="immediateRun"></param>
         /// <param name="launchedFrom"></param>
         public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, DateTime delayedStartTime,
-            ModelSystemDisplay launchedFrom = null)
+            ModelSystemDisplay launchedFrom = null, SchedulerWindow schedulerWindow = null)
         {
             InitializeComponent();
             ErrorVisibility = Visibility.Collapsed;
             Session = session;
             Run = run;
+            SchedulerWindow = schedulerWindow;
             OpenDirectoryButton.IsEnabled = true;
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -503,12 +510,18 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
+                SchedulerRunItem?.ModelSystemErrors.Clear();
                 foreach (var error in errors)
                 {
-                    ErrorListView.Items.Add(new ModelSystemErrorDisplayModel(error.Message, error.ModuleName,
-                        error.StackTrace, error));
+                    var displayError = new ModelSystemErrorDisplayModel(error.Message, error.ModuleName,
+                        error.StackTrace, error,this);
+
+                    ErrorListView.Items.Add(displayError);
+
+                    SchedulerRunItem?.ModelSystemErrors.Add(displayError);
                 }
 
+                
 
                 ErrorGroupBox.Visibility = Visibility.Visible;
                 ErrorListView.Visibility = Visibility.Visible;
@@ -798,15 +811,11 @@ namespace XTMF.Gui.UserControls
             }));
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
+        public void NavigateToModelSystemDisplay(object extraData)
         {
             Dispatcher.Invoke(async () =>
             {
-                var result = await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay, (sender as FrameworkContentElement)?.Tag);
+                var result = await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay,extraData);
 
                 //if the display failed to open, relaunch and edit the model system
                 if (!result)
@@ -815,12 +824,21 @@ namespace XTMF.Gui.UserControls
                     if (display != null)
                     {
                         this._launchedFromModelSystemDisplay = display;
-                        await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay, (sender as FrameworkContentElement)?.Tag);
+                        await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay, extraData);
                     }
 
                 }
             });
+        }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+            this.NavigateToModelSystemDisplay((sender as FrameworkContentElement)?.Tag);
         }
 
         /// <summary>
@@ -829,11 +847,9 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void StackTraceLinkOnClick(object sender, RoutedEventArgs e)
         {
-            var stackTraceBox = (PopupBox)(sender as FrameworkContentElement)?.Tag;
-            if (stackTraceBox != null)
-            {
-                stackTraceBox.IsPopupOpen = true;
-            }
+            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkContentElement)?.DataContext;
+            SchedulerWindow.ShowTrackTraceError(errorDataContext);
+
         }
 
         private struct SubProgress
@@ -891,6 +907,8 @@ namespace XTMF.Gui.UserControls
 
         private string _stackTrace;
 
+        public RunWindow RunWindow { get; set; }
+
         private ErrorWithPath _errorWithPath;
 
         /// <summary>
@@ -898,8 +916,9 @@ namespace XTMF.Gui.UserControls
         /// <param name="description"></param>
         /// <param name="modelSystemName"></param>
         /// <param name="stackTrace"></param>
-        public ModelSystemErrorDisplayModel(string description, string modelSystemName, string stackTrace, ErrorWithPath errorWithPath)
+        public ModelSystemErrorDisplayModel(string description, string modelSystemName, string stackTrace, ErrorWithPath errorWithPath, RunWindow runWindow)
         {
+            RunWindow = runWindow;
             Description = description;
             ModelSystemName = modelSystemName;
             if (stackTrace != null)

@@ -696,6 +696,7 @@ namespace XTMF.Gui
         /// </summary>
         public void ShowSchedulerWindow()
         {
+
             SetDisplayActive(SchedulerWindow, "Scheduler", false);
         }
 
@@ -706,9 +707,9 @@ namespace XTMF.Gui
         /// <param name="runName"></param>
         /// <returns></returns>
         internal RunWindow CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName,
-            bool immediateRun = false, ModelSystemDisplay launchDisplay = null)
+            bool immediateRun = false, ModelSystemDisplay launchDisplay = null, SchedulerWindow schedulerWindow = null)
         {
-            return new RunWindow(session, run, runName, immediateRun, launchDisplay);
+            return new RunWindow(session, run, runName, immediateRun, launchDisplay,schedulerWindow);
         }
 
         /// <summary>
@@ -718,9 +719,9 @@ namespace XTMF.Gui
         /// <param name="runName"></param>
         /// <returns></returns>
         internal RunWindow CreateDelayedRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName,
-            DateTime delayedStartTime, ModelSystemDisplay launchDisplay = null)
+            DateTime delayedStartTime, ModelSystemDisplay launchDisplay = null, SchedulerWindow schedulerWindow = null)
         {
-            return new RunWindow(session, run, runName, delayedStartTime, launchDisplay);
+            return new RunWindow(session, run, runName, delayedStartTime, launchDisplay, schedulerWindow);
         }
 
         /// <summary>
