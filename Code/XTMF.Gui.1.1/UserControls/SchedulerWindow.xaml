@@ -274,7 +274,7 @@
 
 
                                                                     <StackPanel Orientation="Horizontal" Cursor="Hand" Tag="{Binding .}"  Name="StackTraceGroup" MouseUp="StackTraceGroup_OnMouseDown">
-                                                                        <TextBlock Cursor="Hand" Foreground="{DynamicResource PrimaryHueMidBrush}"  HorizontalAlignment="Left"  VerticalAlignment="Center">Show Stacktrace</TextBlock>
+                                                                        <TextBlock Margin="0 0 8 0" Cursor="Hand" Foreground="{DynamicResource PrimaryHueMidBrush}"  HorizontalAlignment="Left"  VerticalAlignment="Center">Show Stacktrace</TextBlock>
                                                                         <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Top" Background="Transparent" />
                                                                     </StackPanel>
 
@@ -287,7 +287,7 @@
                                                                 <DataTemplate>
 
                                                                     <StackPanel Orientation="Horizontal" Cursor="Hand"  Tag="{Binding .}" MouseUp="CopyErrorLink_OnMouseDown" >
-                                                                        <TextBlock Cursor="Hand" Foreground="{DynamicResource PrimaryHueMidBrush}"    x:Name="CopyErrorLink"  >
+                                                                        <TextBlock Margin="0 0 8 0"  Cursor="Hand" Foreground="{DynamicResource PrimaryHueMidBrush}"    x:Name="CopyErrorLink"  >
                                                                             Copy
 
 

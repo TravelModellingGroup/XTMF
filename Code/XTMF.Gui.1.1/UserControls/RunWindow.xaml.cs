@@ -485,24 +485,6 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        /// <summary>
-        ///     Deprecated - no longer used currentlly. See ShowErrorMessages.
-        /// </summary>
-        /// <param name="title"></param>
-        /// <param name="error"></param>
-        private void ShowErrorMessage(string title, ErrorWithPath error)
-        {
-            new ErrorWindow
-            {
-                Owner = GetWindow(this),
-                Title = string.IsNullOrEmpty(title) ? "Error" : title,
-                ErrorMessage = error.Message,
-                ErrorStackTrace = error.StackTrace
-            }.ShowDialog();
-
-            ErrorGroupBox.Visibility = Visibility.Visible;
-            UpdateLayout();
-        }
 
         /// <summary>
         ///     Appends the ErrorWithPath array to the ErrorListView that becomes visible underneath the console output.
@@ -523,10 +505,6 @@ namespace XTMF.Gui.UserControls
                     SchedulerRunItem?.ModelSystemErrors.Add(displayError);
                 }
 
-                
-
-                ErrorGroupBox.Visibility = Visibility.Visible;
-                ErrorListView.Visibility = Visibility.Visible;
             }));
         }
 
