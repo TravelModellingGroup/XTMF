@@ -408,6 +408,11 @@ namespace XTMF
                 }
                 return ret;
             }
+            catch (PlatformNotSupportedException)
+            {
+                // If we can not test for security just accept it.
+                return true;
+            }
             catch
             {
                 return false;
