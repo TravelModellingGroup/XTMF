@@ -465,6 +465,18 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Determins if a run name is valid path name
+        /// </summary>
+        /// <param name="runName"></param>
+        /// <returns></returns>
+        internal bool IsValidRunName(string runName)
+        {
+            return !System.IO.Path.IsPathRooted(runName) && 
+                Path.GetInvalidPathChars().Where(c => runName.Contains(c)).Count() == 0 &&
+                Path.GetInvalidFileNameChars().Where(c => runName.Contains(c)).Count() == 0;
+        }
+
+        /// <summary>
         /// Removes a model system from the project
         /// </summary>
         /// <param name="index">The index to remove</param>

@@ -1001,6 +1001,15 @@ namespace XTMF.Gui.UserControls
                 runName = (dialog.DataContext as RunConfigurationDisplayModel)?.UserInput;
                 var delayedStartTime = (dialog.DataContext as RunConfigurationDisplayModel).ScheduleTime;
                 var runQuestion = MessageBoxResult.Yes;
+
+                if (!Session.IsValidRunName(runName))
+                {
+                    MessageBox.Show("You have entered an invalid run name.",
+                        "Invalid run name entered",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 if (Session.RunNameExists(runName))
                 {
                     runQuestion = MessageBox.Show(
@@ -1008,6 +1017,7 @@ namespace XTMF.Gui.UserControls
                         "Run Name Already Exists", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning,
                         MessageBoxResult.No);
                 }
+
 
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {

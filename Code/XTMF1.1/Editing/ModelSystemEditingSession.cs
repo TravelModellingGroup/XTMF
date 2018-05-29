@@ -484,6 +484,16 @@ namespace XTMF
 
             return ProjectEditingSession.RunNameExists(runName);
         }
+        
+        /// <summary>
+        /// Checks for validitiy of the passed run name
+        /// </summary>
+        /// <param name="runName"></param>
+        /// <returns></returns>
+        public bool IsValidRunName(string runName)
+        {
+            return ProjectEditingSession.IsValidRunName(runName);
+        }
 
         /// <summary>
         ///     This event occurs whenever a command is executed, undone, or redone
