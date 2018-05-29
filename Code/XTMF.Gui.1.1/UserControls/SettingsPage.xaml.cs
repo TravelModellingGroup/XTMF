@@ -275,7 +275,7 @@ namespace XTMF.Gui.UserControls
                 MessageBoxButton.OKCancel, MessageBoxImage.Information) == MessageBoxResult.OK)
             {
                 MainWindow.Us.IsLocalConfig = true;
-                MainWindow.Us.ReloadWithConfiguration(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
+                MainWindow.Us.ReloadWithConfiguration(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalXTMFConfiguration.xml"));
             }
         }
 
