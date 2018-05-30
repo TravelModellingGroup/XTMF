@@ -32,8 +32,17 @@ namespace TMG.Frameworks.Data.Loading
         [SubModelInformation(Required = true, Description = "The location to read the data from.")]
         public FileLocation LoadFrom;
 
-        [RunParameter("Contains Header", true, "Set this to true if there is a header line in the CSV File.")]
+        [RunParameter("Contains Header", true, "Set this to true if there is a header line in the CSV File (Only for ThirdNormalized).")]
         public bool ContainsHeader;
+
+        [RunParameter("Format", FileType.ThirdNormalized, "The format to read the data from.")]
+        public FileType CSVFormat;
+
+        public enum FileType
+        {
+            ThirdNormalized,
+            SquareMatrix
+        }
 
         public string Name { get; set; }
 
@@ -42,6 +51,48 @@ namespace TMG.Frameworks.Data.Loading
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
         public IEnumerable<ODData<float>> Read()
+        {
+            switch(CSVFormat)
+            {
+                case FileType.ThirdNormalized:
+                    return ReadThirdNormalized();
+                case FileType.SquareMatrix:
+                    return ReadSquareMatrix();
+                default:
+                    throw new XTMFRuntimeException(this, $"Unknown file format option {Enum.GetName(typeof(FileType), CSVFormat)}!");
+            }
+            
+        }
+
+        private IEnumerable<ODData<float>> ReadSquareMatrix()
+        {
+            using (var reader = new CsvReader(LoadFrom, true))
+            {
+                // read in the destinations
+                reader.LoadLine(out int columns);
+                int[] destinations = new int[columns - 1];
+                for (int i = 0; i < destinations.Length; i++)
+                {
+                    reader.Get(out destinations[i], i + 1);
+                }
+                while (reader.LoadLine(out columns))
+                {
+                    if (columns >= destinations.Length + 1)
+                    {
+                        ODData<float> data = new ODData<float>();
+                        reader.Get(out data.O, 0);
+                        for(int i = 0; i < destinations.Length; i++)
+                        {
+                            data.D = destinations[i];
+                            reader.Get(out data.Data, i + 1);
+                            yield return data;
+                        }
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<ODData<float>> ReadThirdNormalized()
         {
             using (var reader = new CsvReader(LoadFrom, true))
             {
