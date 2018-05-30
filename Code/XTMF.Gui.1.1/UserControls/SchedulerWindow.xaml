@@ -232,76 +232,77 @@
 
                                             </Grid>
                                         </DockPanel>
-                                        <Expander Header="Error Information" Visibility="{Binding RunErrorInformationVisibility}"
-                                                  Style="{StaticResource XtmfMaterialDesignExpander}">
 
-                                            <Expander.HeaderTemplate>
-                                                <DataTemplate>
-                                                    <Label FontSize="14" FontWeight="Medium">Error Information</Label>
-                                                </DataTemplate>
-                                            </Expander.HeaderTemplate>
-                                            <ListView  Name="ErrorListView" DataContext="{Binding }" ItemsSource="{Binding ModelSystemErrors}" >
-                                                <ListView.ItemContainerStyle>
-                                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignGridViewItem}">
-                                                        <Setter Property="Focusable" Value="false"/>
-                                                        <Setter Property="Margin" Value="-7 0 0 0"></Setter>
-                                                       
-                                                    </Style>
-                                                </ListView.ItemContainerStyle>
-                                                <ListView.View>
-                                                    <GridView GridView.ColumnHeaderContainerStyle="{StaticResource XtmfGridViewColumnHeader}">
-                                                    
-                                                        <!--<GridViewColumn Width="10" Header=" " DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, 
+                                        <ListView   Visibility="{Binding RunErrorInformationVisibility}" Name="ErrorListView" DataContext="{Binding }" ItemsSource="{Binding ModelSystemErrors}" >
+
+
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignGridViewItem}">
+                                                    <Setter Property="Focusable" Value="false"/>
+                                                    <Setter Property="Margin" Value="-7 0 0 0"></Setter>
+
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                            <ListView.View >
+                                                <GridView >
+
+                                                    <GridView.ColumnHeaderContainerStyle>
+                                                        <Style  TargetType="{x:Type GridViewColumnHeader}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </Style>
+                                                    </GridView.ColumnHeaderContainerStyle>
+
+                                                    <!--<GridViewColumn Width="10" Header=" " DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, 
                                          AncestorType={x:Type ListViewItem}}, 
                                          Converter={StaticResource IndexConverter}}"></GridViewColumn>-->
-                                                        <GridViewColumn Header="Module">
-                                                            <GridViewColumn.CellTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock VerticalAlignment="Center"> <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" Tag="{Binding ErrorWithPath}" >
+                                                    <GridViewColumn Header="Module">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock VerticalAlignment="Center"> <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" Tag="{Binding ErrorWithPath}" >
                                         <Hyperlink.Inlines>
                                             <TextBlock Text="{Binding ModelSystemName}"></TextBlock>
 
                                         </Hyperlink.Inlines>
                                        
                                     </Hyperlink></TextBlock>
-                                                                </DataTemplate>
-                                                            </GridViewColumn.CellTemplate>
-                                                        </GridViewColumn>
-                                                        <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}"></GridViewColumn>
-                                                        <GridViewColumn Header="Stack Trace">
-                                                            <GridViewColumn.CellTemplate>
-                                                                <DataTemplate>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}"></GridViewColumn>
+                                                    <GridViewColumn Header="Stack Trace">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
 
 
-                                                                    <StackPanel Orientation="Horizontal" Cursor="Hand" Tag="{Binding .}"  Name="StackTraceGroup" MouseUp="StackTraceGroup_OnMouseDown">
-                                                                        <TextBlock Margin="0 0 8 0" Cursor="Hand" Foreground="{DynamicResource PrimaryHueMidBrush}"  HorizontalAlignment="Left"  VerticalAlignment="Center">Show Stacktrace</TextBlock>
-                                                                        <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Top" Background="Transparent" />
-                                                                    </StackPanel>
+                                                                <StackPanel Orientation="Horizontal" Cursor="Hand" Tag="{Binding .}"  Name="StackTraceGroup" MouseUp="StackTraceGroup_OnMouseDown">
+                                                                    <TextBlock Margin="0 0 8 0" Cursor="Hand" Foreground="{DynamicResource PrimaryHueMidBrush}"  HorizontalAlignment="Left"  VerticalAlignment="Center">Show Stacktrace</TextBlock>
+                                                                    <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Top" Background="Transparent" />
+                                                                </StackPanel>
 
-                                                                </DataTemplate>
-                                                            </GridViewColumn.CellTemplate>
-                                                        </GridViewColumn>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
 
-                                                        <GridViewColumn Header=" ">
-                                                            <GridViewColumn.CellTemplate>
-                                                                <DataTemplate>
+                                                    <GridViewColumn Header=" ">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
 
-                                                                    <StackPanel Orientation="Horizontal" Cursor="Hand"  Tag="{Binding .}" MouseUp="CopyErrorLink_OnMouseDown" >
-                                                                        <TextBlock Margin="0 0 8 0"  Cursor="Hand" Foreground="{DynamicResource PrimaryHueMidBrush}"    x:Name="CopyErrorLink"  >
+                                                                <StackPanel Orientation="Horizontal" Cursor="Hand"  Tag="{Binding .}" MouseUp="CopyErrorLink_OnMouseDown" >
+                                                                    <TextBlock Margin="0 0 8 0"  Cursor="Hand" Foreground="{DynamicResource PrimaryHueMidBrush}"    x:Name="CopyErrorLink"  >
                                                                             Copy
 
 
-                                                                        </TextBlock>
-                                                                        <materialDesign:PackIcon Kind="ContentCopy" VerticalAlignment="Top" Background="Transparent" />
-                                                                    </StackPanel>
-                       
-                                                                </DataTemplate>
-                                                            </GridViewColumn.CellTemplate>
-                                                        </GridViewColumn>
-                                                    </GridView>
-                                                </ListView.View>
-                                            </ListView>
-                                        </Expander>
+                                                                    </TextBlock>
+                                                                    <materialDesign:PackIcon Kind="ContentCopy" VerticalAlignment="Top" Background="Transparent" />
+                                                                </StackPanel>
+
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                </GridView>
+                                            </ListView.View>
+                                        </ListView>
+
                                     </StackPanel>
                                 </DataTemplate>
 
