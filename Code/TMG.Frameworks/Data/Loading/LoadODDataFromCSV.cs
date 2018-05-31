@@ -67,7 +67,8 @@ namespace TMG.Frameworks.Data.Loading
         private IEnumerable<ODData<float>> ReadSquareMatrix()
         {
             var anyLinesRead = false;
-            using (var reader = new CsvReader(LoadFrom, true))
+            // Spaces are not delimiters
+            using (var reader = new CsvReader(LoadFrom, false))
             {
                 // read in the destinations
                 reader.LoadLine(out int columns);
