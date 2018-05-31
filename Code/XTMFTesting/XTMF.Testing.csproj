@@ -167,6 +167,7 @@
     <Compile Include="TestGravityModel.cs" />
     <Compile Include="TestMessageQueue.cs" />
     <Compile Include="TestVector.cs" />
+    <Compile Include="TMG\Data\Loading\TestLoadODDataFromCSV.cs" />
     <Compile Include="TMG\Data\TestCompiler.cs" />
     <Compile Include="TMG\Data\TestLabeledData.cs" />
     <Compile Include="TMG\Data\TestZoneMap.cs" />

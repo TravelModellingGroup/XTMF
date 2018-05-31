@@ -66,6 +66,7 @@ namespace TMG.Frameworks.Data.Loading
 
         private IEnumerable<ODData<float>> ReadSquareMatrix()
         {
+            var anyLinesRead = false;
             using (var reader = new CsvReader(LoadFrom, true))
             {
                 // read in the destinations
@@ -79,6 +80,7 @@ namespace TMG.Frameworks.Data.Loading
                 {
                     if (columns >= destinations.Length + 1)
                     {
+                        anyLinesRead = true;
                         ODData<float> data = new ODData<float>();
                         reader.Get(out data.O, 0);
                         for(int i = 0; i < destinations.Length; i++)
@@ -89,6 +91,10 @@ namespace TMG.Frameworks.Data.Loading
                         }
                     }
                 }
+            }
+            if (!anyLinesRead)
+            {
+                throw new XTMFRuntimeException(this, $"In {Name} when reading the file '{LoadFrom}' we did not load any information!");
             }
         }
 
