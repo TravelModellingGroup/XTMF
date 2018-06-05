@@ -124,6 +124,7 @@ namespace XTMF.Gui.UserControls
                         if (Configuration.SetProjectDirectory(value, ref error))
                         {
                             _projectDirectory = value;
+                            Configuration.ReloadProjects();
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ProjectDirectory");
                             Save();
                         }
@@ -147,7 +148,7 @@ namespace XTMF.Gui.UserControls
                         if (Configuration.SetModelSystemDirectory(value, ref error))
                         {
                             _modelSystemDirectory = value;
-                            Configuration.ModelSystemDirectory = value;
+                            Configuration.ReloadModelSystems();
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ModelSystemDirectory");
                             Save();
                         }

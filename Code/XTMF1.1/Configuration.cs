@@ -300,6 +300,16 @@ namespace XTMF
             return true;
         }
 
+        public void ReloadProjects()
+        {
+            ((ProjectRepository)ProjectRepository).Reload();
+        }
+
+        public void ReloadModelSystems()
+        {
+            ((ModelSystemRepository)ModelSystemRepository).Reload();
+        }
+
         public void DeleteConfiguration()
         {
             try
@@ -307,6 +317,8 @@ namespace XTMF
                 File.Delete(ConfigurationFileName);
                 ConfigurationFileName = GetConfigurationFilePath();
                 LoadConfigurationFile(ConfigurationFileName);
+                ReloadProjects();
+                ReloadModelSystems();
             }
             catch(IOException)
             {
@@ -1071,6 +1083,8 @@ namespace XTMF
             if (setAsConfigDirectory)
             {
                 ConfigurationFileName = configFileName;
+                ReloadProjects();
+                ReloadModelSystems();
             }
         }
 
