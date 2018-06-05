@@ -215,6 +215,7 @@ namespace XTMF
                {
                }
            });
+            ModelSystems.Clear();
             while (temp.TryDequeue(out IModelSystem dequeueMe))
             {
                 ModelSystems.Add(dequeueMe);
@@ -223,6 +224,11 @@ namespace XTMF
          {
              return first.Name.CompareTo(second.Name);
          });
+        }
+
+        internal void Reload()
+        {
+            LoadModelSystemsFromDisk();
         }
     }
 }

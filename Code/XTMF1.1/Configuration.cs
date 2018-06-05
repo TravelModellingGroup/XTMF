@@ -46,9 +46,19 @@ namespace XTMF
         public Version XTMFVersion { get; private set; }
         public string BuildDate { get; private set; }
         public Configuration(Assembly baseAssembly = null)
-            : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF", "Configuration.xml"))
+            : this(GetConfigurationFilePath())
         {
 
+        }
+
+        private static string GetConfigurationFilePath()
+        {
+            var localConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalXTMFConfiguration.xml");
+            if (File.Exists(localConfigPath))
+            {
+                return localConfigPath;
+            }
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF", "Configuration.xml");
         }
 
         public string Theme { get; set; }
@@ -212,6 +222,7 @@ namespace XTMF
         public bool RunInSeperateProcess { get; set; } = true;
 
         public bool DivertSaveRequests { get; set; } = false;
+        public bool IsLocalConfiguration => Path.GetFileName(ConfigurationFileName) == "LocalXTMFConfiguration.xml";
 
         public void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> c = null)
         {
@@ -289,6 +300,32 @@ namespace XTMF
             return true;
         }
 
+        public void ReloadProjects()
+        {
+            ((ProjectRepository)ProjectRepository).Reload();
+        }
+
+        public void ReloadModelSystems()
+        {
+            ((ModelSystemRepository)ModelSystemRepository).Reload();
+        }
+
+        public void DeleteConfiguration()
+        {
+            try
+            {
+                File.Delete(ConfigurationFileName);
+                ConfigurationFileName = GetConfigurationFilePath();
+                LoadConfigurationFile(ConfigurationFileName);
+                ReloadProjects();
+                ReloadModelSystems();
+            }
+            catch(IOException)
+            {
+
+            }
+        }
+
         public void ModelSystemExited()
         {
             if (OnModelSystemExit != null)
@@ -316,7 +353,7 @@ namespace XTMF
 
         public void Save()
         {
-            SaveConfiguration(ConfigurationFileName);
+            Save(ConfigurationFileName);
         }
 
         public bool CheckProjectExists(string name)
@@ -715,13 +752,13 @@ namespace XTMF
             }
             catch (XmlException)
             {
-                SaveConfiguration(configFileName);
+                Save(configFileName);
                 return;
             }
             root = doc["Root"];
             if (root == null || !root.HasChildNodes)
             {
-                SaveConfiguration(configFileName);
+                Save(configFileName);
                 return;
             }
             foreach (XmlNode child in root.ChildNodes)
@@ -962,7 +999,7 @@ namespace XTMF
             AdditionalSettings["EditProjects"] = "false";
             if (!File.Exists(configFile))
             {
-                SaveConfiguration(configFile);
+                Save(configFile);
             }
             else
             {
@@ -970,7 +1007,7 @@ namespace XTMF
             }
         }
 
-        private void SaveConfiguration(string configFileName)
+        public void Save(string configFileName, bool setAsConfigDirectory = false)
         {
             using (XmlWriter writer = XmlWriter.Create(configFileName, new XmlWriterSettings() { Encoding = Encoding.Unicode, Indent = true, NewLineOnAttributes = true }))
             {
@@ -1042,6 +1079,12 @@ namespace XTMF
                 //Finished writing all of the settings so we can finish the document now
                 writer.WriteEndElement();
                 writer.WriteEndDocument();
+            }
+            if (setAsConfigDirectory)
+            {
+                ConfigurationFileName = configFileName;
+                ReloadProjects();
+                ReloadModelSystems();
             }
         }
 

@@ -18,8 +18,8 @@
             </TextBlock>
             <materialDesign:Card Padding="5 5 5 5" Width="700" Background="{DynamicResource MaterialDesignCardBackground}">
                 <StackPanel Orientation="Vertical">
-                    
-                    
+
+
                     <Grid Margin="16 16 12 8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="180"/>
@@ -31,16 +31,16 @@
                             <RowDefinition></RowDefinition>
                             <RowDefinition ></RowDefinition>
                         </Grid.RowDefinitions>
-                        
-                   
-                    <TextBlock Text="Project Directory" Grid.Row="0"  Grid.Column="0" VerticalAlignment="Center"></TextBlock>
-                   
-                    <TextBox Grid.Row="0"   Grid.Column="1" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" materialDesign:HintAssist.Hint="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+
+
+                        <TextBlock Text="Project Directory" Grid.Row="0"  Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+
+                        <TextBox Grid.Row="0"   Grid.Column="1" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" materialDesign:HintAssist.Hint="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
                         <Button Margin="10 0 0 0" Content="..." BorderBrush="Transparent" Grid.Row="0" Grid.Column="2"  Click="Select_ProjectDirectory" />
-                            <TextBlock Margin="0 15 0 0"  Grid.Row="1" Grid.Column="0"  Text="Model System Directory" VerticalAlignment="Center"  />
+                        <TextBlock Margin="0 15 0 0"  Grid.Row="1" Grid.Column="0"  Text="Model System Directory" VerticalAlignment="Center"  />
                         <TextBox Margin="0 15 0 0"  Grid.Row="1" Grid.Column="1" Text="{Binding ModelSystemDirectory}" materialDesign:HintAssist.Hint="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
                         <Button Margin="10 0 0 0" Content="..."  BorderBrush="Transparent" Grid.Row="1" Grid.Column="2"  Click="Select_ModelSystemDirectory">
-                          
+
                         </Button>
                     </Grid>
                 </StackPanel>
@@ -48,7 +48,7 @@
             <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left">Network Settings</TextBlock>
             <materialDesign:Card Padding="5 5 5 5" Width="700">
                 <StackPanel Orientation="Vertical">
-                   
+
 
                     <Grid Margin="16 16 12 8">
                         <Grid.ColumnDefinitions>
@@ -73,7 +73,7 @@
             <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left">Appearance</TextBlock>
             <materialDesign:Card Padding="5 5 5 5" Width="700">
                 <StackPanel Orientation="Vertical">
-                   
+
 
                     <Grid Margin="16 16 12 8">
                         <Grid.ColumnDefinitions>
@@ -143,36 +143,15 @@
                     </Grid>
                 </StackPanel>
             </materialDesign:Card>
-
-            <!-- <Grid  Margin="0.25cm,0,0.25cm,2" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="auto" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Content="Project Directory" FontSize="12" />
-                <TextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" materialDesign:HintAssist.Hint="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
-                <Button BorderBrush="Transparent" Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ProjectDirectory" >
-                    <Path  Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource MaterialDesignBody}"></Path>
-                </Button>
-            </Grid> -->
             <TextBlock Margin="16 16 12 8" FontSize="14" >Advanced</TextBlock>
             <materialDesign:Card Margin="0 0  0 0"  Padding="5 5 5 5" Width="700">
                 <StackPanel>
                     <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0" Foreground="{DynamicResource MaterialDesignBody}"/>
                     <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0" Foreground="{DynamicResource MaterialDesignBody}"/>
-                    <Label Content="Delete local configuration?" Cursor="Hand" Name="DeleteConfigLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource MaterialDesignBody}" FontSize="12" Margin="9.4,-3,9.4,6" MouseDown="DeleteConfigLabel_MouseDown"/>
-                    <Button Style="{DynamicResource MaterialDesignFlatAccentButton}"  Name="CreateLocalConfigButton" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>
+                    <Button Style="{DynamicResource MaterialDesignFlatAccentButton}"  Name="CreateLocalConfigButton" Padding="0"  Content="{Binding LocalHostButtonName, Mode=OneWay}" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="SwitchLocalConfigButton_Click"/>
                 </StackPanel>
             </materialDesign:Card>
-
-
-
-                <Grid Margin="9.44881889763779,2,9.44881889763779,0" >
+            <Grid Margin="9.44881889763779,2,9.44881889763779,0" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
@@ -182,17 +161,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-               
-                
             </Grid>
-
-           
-
-           
-
-
-              
-        
         </StackPanel>
     </Grid>
 </UserControl>
