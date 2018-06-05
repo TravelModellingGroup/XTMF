@@ -223,6 +223,8 @@ namespace XTMF
                 return;
             }
             var subDirectories = Directory.GetDirectories(Configuration.ProjectDirectory);
+            ActiveProject = null;
+            Projects.Clear();
             Parallel.For(0, subDirectories.Length, i =>
             {
                 var files = Directory.GetFiles(subDirectories[i], "Project.xml", SearchOption.TopDirectoryOnly);
@@ -250,6 +252,11 @@ namespace XTMF
                 ((List<IProject>) Projects).Sort(
                     delegate(IProject first, IProject second) { return first.Name.CompareTo(second.Name); });
             }
+        }
+
+        internal void Reload()
+        {
+            FindAndLoadProjects();
         }
 
         /// <summary>
