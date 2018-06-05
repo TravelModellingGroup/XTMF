@@ -81,11 +81,11 @@ namespace XTMF.Gui.UserControls
             private void UpdateAll()
             {
                 _projectDirectory = Configuration.ProjectDirectory;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProjectDirectory)));
                 _modelSystemDirectory = Configuration.ModelSystemDirectory;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_modelSystemDirectory)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModelSystemDirectory)));
                 _hostPort = Configuration.HostPort;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_hostPort)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HostPort)));
                 if (Configuration.PrimaryColour != null)
                 {
                     PrimarySwatch = Swatches.First((s) => s.Name == Configuration.PrimaryColour);
@@ -98,6 +98,7 @@ namespace XTMF.Gui.UserControls
                 }
                 IsDarkTheme = Configuration.IsDarkTheme;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDarkTheme)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
             }
 
             public void Save(string configurationFileName = null)
