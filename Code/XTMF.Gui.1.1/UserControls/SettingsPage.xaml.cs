@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -40,37 +40,13 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class SettingsPage : UserControl
     {
+        private Configuration Configuration => EditorController.Runtime.Configuration;
 
-        private readonly IConfiguration _configuration;
-
-     
-
-        public SettingsPage(Configuration configuration)
+        public SettingsPage()
         {
-
-            _configuration = configuration;
-            DataContext = new SettingsModel(configuration);
+            DataContext = new SettingsModel();
             InitializeComponent();
             Loaded += SettingsPage_Loaded;
-            if (MainWindow.Us.IsNonDefaultConfig)
-            {
-                NonStandardConfigLabel.Visibility = Visibility.Visible;
-                ConfigLocationLabel.Content = MainWindow.Us.ConfigurationFilePath;
-                ConfigLocationLabel.Visibility = Visibility.Visible;
-                CreateLocalConfigButton.Visibility = Visibility.Collapsed;
-                if (MainWindow.Us.IsLocalConfig)
-                {
-                    DeleteConfigLabel.Visibility = Visibility.Visible;
-                }
-            }
-            else
-            {
-                CreateLocalConfigButton.Visibility = Visibility.Visible;
-                DeleteConfigLabel.Visibility = Visibility.Collapsed;
-            }
-            
-
-            
         }
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e) => Keyboard.Focus(ProjectDirectoryBox);
@@ -93,6 +69,50 @@ namespace XTMF.Gui.UserControls
 
             public bool IsDarkTheme { get; set; }
 
+            public string LocalHostButtonName => Configuration.IsLocalConfiguration ?
+                "Delete Local XTMF Configuration" :
+                "Create Local XTMF Configuration";
+
+            public void UpdateButtons()
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
+            }
+
+            private void UpdateAll()
+            {
+                _projectDirectory = Configuration.ProjectDirectory;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
+                _modelSystemDirectory = Configuration.ModelSystemDirectory;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_modelSystemDirectory)));
+                _hostPort = Configuration.HostPort;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_hostPort)));
+                if (Configuration.PrimaryColour != null)
+                {
+                    PrimarySwatch = Swatches.First((s) => s.Name == Configuration.PrimaryColour);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PrimarySwatch)));
+                }
+                if (Configuration.AccentColour != null)
+                {
+                    AccentSwatch = AccentSwatches.First((s) => s.Name == Configuration.AccentColour);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentSwatch)));
+                }
+                IsDarkTheme = Configuration.IsDarkTheme;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDarkTheme)));
+            }
+
+            public void Save(string configurationFileName = null)
+            {
+                if (configurationFileName == null)
+                {
+                    Configuration.Save();
+                }
+                else
+                {
+                    Configuration.Save(configurationFileName, true);
+                }
+                UpdateButtons();
+            }
+
             public string ProjectDirectory
             {
                 get => _projectDirectory;
@@ -105,7 +125,7 @@ namespace XTMF.Gui.UserControls
                         {
                             _projectDirectory = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ProjectDirectory");
-                            Configuration.Save();
+                            Save();
                         }
                         else
                         {
@@ -129,7 +149,7 @@ namespace XTMF.Gui.UserControls
                             _modelSystemDirectory = value;
                             Configuration.ModelSystemDirectory = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ModelSystemDirectory");
-                            Configuration.Save();
+                            Save();
                         }
                         else
                         {
@@ -150,40 +170,30 @@ namespace XTMF.Gui.UserControls
                         _hostPort = value;
                         Configuration.HostPort = _hostPort;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "HostPort");
-                        Configuration.Save();
+                        Save();
                     }
                 }
             }
 
-            private readonly Configuration Configuration;
+            private Configuration Configuration => EditorController.Runtime.Configuration;
 
-            public SettingsModel(Configuration config)
+            public SettingsModel()
             {
                 Swatches = new SwatchesProvider().Swatches;
                 AccentSwatches = new SwatchesProvider().Swatches.Where((swatch) => swatch.IsAccented);
-
-
-                Configuration = config;
-                _projectDirectory = config.ProjectDirectory;
-                _modelSystemDirectory = config.ModelSystemDirectory;
-                _hostPort = config.HostPort;
+                _projectDirectory = Configuration.ProjectDirectory;
+                _modelSystemDirectory = Configuration.ModelSystemDirectory;
+                _hostPort = Configuration.HostPort;
                 Configuration.PropertyChanged += Configuration_PropertyChanged;
-
                 if (Configuration.PrimaryColour != null)
                 {
                     PrimarySwatch = Swatches.First((s) => s.Name == Configuration.PrimaryColour);
-                    Console.WriteLine("Primary swatch");
                 }
-
                 if (Configuration.AccentColour != null)
                 {
                     AccentSwatch = AccentSwatches.First((s) => s.Name == Configuration.AccentColour);
                 }
-
-                if (Configuration.IsDarkTheme)
-                {
-                    IsDarkTheme = true;
-                }
+                IsDarkTheme = Configuration.IsDarkTheme;
             }
 
             private void Configuration_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -194,6 +204,33 @@ namespace XTMF.Gui.UserControls
             }
 
             internal void Unbind() => Configuration.PropertyChanged -= Configuration_PropertyChanged;
+
+            internal void DeleteLocalConfiguration()
+            {
+                var result = MessageBox.Show(MainWindow.Us,
+                    "Are you sure you wish to delete the local configuration?",
+                    "Confirm Deletion",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+                if (result == MessageBoxResult.Yes)
+                {
+                    Configuration.DeleteConfiguration();
+                }
+                UpdateAll();
+            }
+
+            internal void CreateLocalConfiguration()
+            {
+                /* Reload the entire UI overriding the configuration file to be loaded */
+                if (MessageBox.Show(MainWindow.Us,
+                    "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration",
+                    MessageBoxButton.OKCancel, MessageBoxImage.Information) == MessageBoxResult.OK)
+                {
+                    var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalXTMFConfiguration.xml");
+                    Configuration.Save(path, true);
+                }
+                UpdateButtons();
+            }
         }
 
         private void HintedTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -224,18 +261,11 @@ namespace XTMF.Gui.UserControls
             if (dir != null)
             {
                 ((SettingsModel)DataContext).ModelSystemDirectory = dir;
-                _configuration.Save();
+                Configuration.Save();
                 MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                    if (MainWindow.Us.IsNonDefaultConfig)
-                    {
-                        MainWindow.Us.ReloadWithConfiguration(MainWindow.Us.ConfigurationFilePath);
-                    }
-                    else
-                    {
-                        MainWindow.Us.ReloadWithDefaultConfiguration();
-                    }
+                    MainWindow.Us.Reload();
                 }
             }
         }
@@ -246,19 +276,12 @@ namespace XTMF.Gui.UserControls
             if (dir != null)
             {
                 ((SettingsModel)DataContext).ProjectDirectory = dir;
-                _configuration.Save();
+                Configuration.Save();
                 MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    if (MainWindow.Us.IsNonDefaultConfig)
-                    {
-                        MainWindow.Us.ReloadWithConfiguration(MainWindow.Us.ConfigurationFilePath);
-                    }
-                    else
-                    {
-                        MainWindow.Us.ReloadWithDefaultConfiguration();
-                    }
+                    MainWindow.Us.Reload();
                 }
             }
         }
@@ -267,35 +290,21 @@ namespace XTMF.Gui.UserControls
         {
         }
 
-        private void CreateLocalConfigButton_Click(object sender, RoutedEventArgs e)
+        private void SwitchLocalConfigButton_Click(object sender, RoutedEventArgs e)
         {
-            /* Reload the entire UI overriding the the configuration file to be loaded */
-            if (MessageBox.Show(MainWindow.Us,
-                "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration", 
-                MessageBoxButton.OKCancel, MessageBoxImage.Information) == MessageBoxResult.OK)
+            var context = (SettingsModel)DataContext;
+            if (Configuration.IsLocalConfiguration)
             {
-                MainWindow.Us.IsLocalConfig = true;
-                MainWindow.Us.ReloadWithConfiguration(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
+                context.DeleteLocalConfiguration();
             }
+            else
+            {
+                context.CreateLocalConfiguration();
+
+            }
+            context.UpdateButtons();
         }
 
-        private void DeleteConfigLabel_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var result = MessageBox.Show(MainWindow.Us,
-                "Are you sure you wish to delete the local configuration?", 
-                "Confirm Deletion",
-                MessageBoxButton.YesNo, 
-                MessageBoxImage.Information);
-            if (result == MessageBoxResult.Yes)
-            {
-                File.Delete(MainWindow.Us.ConfigurationFilePath);
-                MainWindow.Us.ReloadWithDefaultConfiguration();
-            }
-        }
-
-       
-
-     
 
         /// <summary>
         /// 
@@ -306,11 +315,11 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                new PaletteHelper().SetLightDark((bool) ThemeBaseToggleButton.IsChecked);
-                if (_configuration is Configuration configuration)
+                new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
+                if (Configuration is Configuration configuration)
                 {
-                    configuration.IsDarkTheme = (bool) ThemeBaseToggleButton.IsChecked;
-                    _configuration.Save();
+                    configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
+                    Configuration.Save();
                 }
             }
         }
@@ -324,11 +333,11 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                new PaletteHelper().SetLightDark((bool) ThemeBaseToggleButton.IsChecked);
-                if (_configuration is Configuration configuration)
+                new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
+                if (Configuration is Configuration configuration)
                 {
-                    configuration.IsDarkTheme = (bool) ThemeBaseToggleButton.IsChecked;
-                    _configuration.Save();
+                    configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
+                    Configuration.Save();
                 }
             }
         }
@@ -342,11 +351,11 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                if (_configuration is Configuration configuration)
+                if (Configuration is Configuration configuration)
                 {
-                    new PaletteHelper().ReplacePrimaryColor((Swatch) PrimaryColourComboBox.SelectedItem);
-                    configuration.PrimaryColour = ((Swatch) PrimaryColourComboBox.SelectedItem).Name;
-                    _configuration.Save();
+                    new PaletteHelper().ReplacePrimaryColor((Swatch)PrimaryColourComboBox.SelectedItem);
+                    configuration.PrimaryColour = ((Swatch)PrimaryColourComboBox.SelectedItem).Name;
+                    Configuration.Save();
                 }
             }
         }
@@ -360,11 +369,11 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                if (_configuration is Configuration configuration)
+                if (Configuration is Configuration configuration)
                 {
-                    new PaletteHelper().ReplaceAccentColor((Swatch) AccentColourComboBox.SelectedItem);
-                    configuration.AccentColour = ((Swatch) AccentColourComboBox.SelectedItem).Name;
-                    _configuration.Save();
+                    new PaletteHelper().ReplaceAccentColor((Swatch)AccentColourComboBox.SelectedItem);
+                    configuration.AccentColour = ((Swatch)AccentColourComboBox.SelectedItem).Name;
+                    Configuration.Save();
                 }
             }
         }
@@ -381,10 +390,10 @@ namespace XTMF.Gui.UserControls
                 //MainWindow.Us.SetValue(MaterialDesignAssist.)
                 TransitionAssist.SetDisableTransitions(MainWindow.Us, true);
 
-                if (_configuration is Configuration configuration)
+                if (Configuration is Configuration configuration)
                 {
                     configuration.IsDisableTransitionAnimations = (bool)DisableTransitionsToggleButton.IsChecked;
-                    _configuration.Save();
+                    Configuration.Save();
                 }
             }
         }
@@ -400,12 +409,11 @@ namespace XTMF.Gui.UserControls
             {
 
                 TransitionAssist.SetDisableTransitions(MainWindow.Us, false);
-                if (_configuration is Configuration configuration)
-                    {
-                        configuration.IsDisableTransitionAnimations = (bool)DisableTransitionsToggleButton.IsChecked;
-                        _configuration.Save();
-                    }
-                
+                if (Configuration is Configuration configuration)
+                {
+                    configuration.IsDisableTransitionAnimations = (bool)DisableTransitionsToggleButton.IsChecked;
+                    Configuration.Save();
+                }
             }
         }
     }

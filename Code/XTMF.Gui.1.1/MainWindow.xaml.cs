@@ -75,10 +75,6 @@ namespace XTMF.Gui
 
         private MouseButtonEventHandler _LastAdded;
 
-        public bool IsLocalConfig;
-
-        public bool IsNonDefaultConfig;
-
         private OperationProgressing operationProgressing;
 
         private bool LaunchUpdate = false;
@@ -87,16 +83,7 @@ namespace XTMF.Gui
         {
             ViewModelBase = new ViewModelBase();
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
-            ParseCommandLineArgs();
-            if (!IsNonDefaultConfig)
-            {
-                CheckHasLocalConfiguration();
-            }
-            ThemeController = new ThemeController(ConfigurationFilePath == null
-                ? Path.GetDirectoryName(Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "XTMF", "Configuration.xml"))
-                : Path.GetDirectoryName(ConfigurationFilePath));
+            ThemeController = new ThemeController(GetConfigurationFilePath());
             InitializeComponent();
             Loaded += FrameworkElement_Loaded;
             Us = this;
@@ -113,7 +100,15 @@ namespace XTMF.Gui
             SetDisplayActive(new StartWindow(), "Start");
         }
 
-        public string ConfigurationFilePath { get; private set; }
+        private static string GetConfigurationFilePath()
+        {
+            var localConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalXTMFConfiguration.xml");
+            if (File.Exists(localConfigPath))
+            {
+                return localConfigPath;
+            }
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF", "Configuration.xml");
+        }
 
         public ThemeController ThemeController { get; }
 
@@ -178,52 +173,6 @@ namespace XTMF.Gui
         }
 
         /// <summary>
-        ///     Determines if a local Configuration file exists.
-        /// </summary>
-        /// <returns></returns>
-        private bool CheckHasLocalConfiguration()
-        {
-            if (File.Exists(
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml")))
-            {
-                IsNonDefaultConfig = true;
-                IsLocalConfig = true;
-                ConfigurationFilePath =
-                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml");
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        ///     Parses command line arguments
-        /// </summary>
-        private void ParseCommandLineArgs()
-        {
-            /* Check for existence of configuration command line argument
-            * to override location of Configuration.xml */
-            var arguments = Environment.GetCommandLineArgs();
-            var index = Array.FindIndex(arguments, p => p == "--configuration");
-            if (index >= 0)
-            {
-                if (index + 1 < arguments.Length)
-                {
-                    try
-                    {
-                        ConfigurationFilePath =
-                            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, arguments[index + 1]);
-                        IsNonDefaultConfig = true;
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine(Properties.Resources
-                            .MainWindow_ParseCommandLineArgs_Invalid_path_passed_with_configuration_argument_);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         ///     Updates GUI with recently opened projects.
         /// </summary>
         public void UpdateRecentProjectsMenu()
@@ -269,35 +218,10 @@ namespace XTMF.Gui
         /// <summary>
         /// Reloads XTMF using the default configuration
         /// </summary>
-        public void ReloadWithDefaultConfiguration()
+        public void Reload()
         {
             IsEnabled = false;
             StatusDisplay.Text = "Loading XTMF";
-            ConfigurationFilePath = null;
-            IsNonDefaultConfig = false;
-            EditorController.Register(this, () =>
-            {
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    IsEnabled = true;
-                    StatusDisplay.Text = "Ready";
-                        //RecentProjects.Clear();
-                        UpdateRecentProjectsMenu();
-                }));
-            });
-        }
-
-        /// <summary>
-        ///     Reloads Configuration using the specified names
-        /// </summary>
-        /// <param name="name"></param>
-        public void ReloadWithConfiguration(string name)
-        {
-            IsEnabled = false;
-            StatusDisplay.Text = "Loading XTMF";
-            IsNonDefaultConfig = true;
-            ConfigurationFilePath = name;
-            var configuration = new Configuration(name);
             EditorController.Register(this, () =>
             {
                 Dispatcher.BeginInvoke(new Action(() =>
@@ -795,7 +719,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void SettingsMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            SetDisplayActive(new SettingsPage(EditorController.Runtime.Configuration), "Settings");
+            SetDisplayActive(new SettingsPage(), "Settings");
             MenuToggleButton.IsChecked = false;
         }
 

@@ -44,15 +44,7 @@ namespace XTMF.Gui.Controllers
                {
                    if (Runtime == null)
                    {
-                       if (!window.IsNonDefaultConfig)
-                       {
-                           Runtime = new XTMFRuntime();
-                       }
-                       else
-                       {
-                           Configuration configuration = new Configuration(window.ConfigurationFilePath, loadModules: loadModules);
-                           Runtime = new XTMFRuntime(configuration);
-                       }
+                       Runtime = new XTMFRuntime();
                        var loadError = ((Configuration)Runtime.Configuration).LoadError;
                        window.Dispatcher.BeginInvoke(new Action(() =>
                      {
