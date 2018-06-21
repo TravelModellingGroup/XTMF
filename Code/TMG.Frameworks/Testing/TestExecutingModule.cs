@@ -22,6 +22,8 @@ using System.Threading;
 using System.Timers;
 using XTMF;
 using Timer = System.Timers.Timer;
+using XTMF.Logging;
+
 
 namespace TMG.Frameworks.Testing
 {
@@ -33,6 +35,8 @@ namespace TMG.Frameworks.Testing
         private int _ticks;
 
         private Timer _timer;
+
+        private ILogger _logger;
 
 
         [RunParameter("Execution Time", 60, "Specficy the simulated length of execution for this module, in seconds..")]
@@ -67,6 +71,14 @@ namespace TMG.Frameworks.Testing
             }
 
             _timer.Stop();
+        }
+
+        public TestExecutingModule(IConfiguration configuration,
+            ILogger logger)
+        {
+            this._logger = logger;
+
+            logger.Info(this, "Test from this module");
         }
 
         /// <summary>

@@ -106,8 +106,6 @@ namespace XTMF.Gui.Controllers
             {
                 string themeClass = (string)theme.ThemeResourceDictionary["AvalonDockTheme"];
                 Type themeType = Type.GetType(themeClass);
-               // Xceed.Wpf.AvalonDock.Themes.Theme themeObj = (Xceed.Wpf.AvalonDock.Themes.Theme)Activator.CreateInstance(themeType);
-                //MainWindow.Us.DockManager.Theme = themeObj;
             }
             catch (Exception e)
             {

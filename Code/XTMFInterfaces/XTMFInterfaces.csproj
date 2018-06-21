@@ -126,6 +126,7 @@
     <Compile Include="Interfaces\IDataLoader.cs" />
     <Compile Include="Interfaces\IDataSource.cs" />
     <Compile Include="Interfaces\ILinkedParameter.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Interfaces\IModuleMetaProperty.cs" />
     <Compile Include="Interfaces\IModelSystem.cs" />
     <Compile Include="Interfaces\IModelSystemRepository.cs" />

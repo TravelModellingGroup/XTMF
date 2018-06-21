@@ -908,6 +908,15 @@ namespace XTMF
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="rootMS"></param>
+        /// <param name="ps"></param>
+        /// <param name="path"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public static bool CreateModule(IConfiguration config, IModelSystemStructure rootMS, IModelSystemStructure ps, List<int> path, ref ErrorWithPath error)
         {
             IModule root;
@@ -916,6 +925,40 @@ namespace XTMF
                 error = new ErrorWithPath(path, string.Concat("Attempted to create the ", ps.Name, " module however it's type does not exist!  Please make sure you have all of the required modules installed for your model system!"));
                 return false;
             }
+
+            var constructor = (from c in ps.Type.GetConstructors()
+                               orderby c.GetParameters().Length
+                               select c).FirstOrDefault();
+
+            object[] parameterList = new object[constructor.GetParameters().Length];
+            var parameters = constructor.GetParameters();
+            for(int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].ParameterType == typeof(IConfiguration))
+                {
+                    parameterList[i] = config;
+                }
+                else if (parameters[i].ParameterType == typeof(Logging.ILogger))
+                {
+                    parameterList[i] = new Logging.Logger();
+                }
+                else
+                {
+                    parameterList[i] = null;
+                }
+            }
+            try
+            {
+                root = constructor.Invoke(parameterList) as IModule;
+            }
+            catch
+            {
+                error = new ErrorWithPath(path,
+                        $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!");
+                return false;
+            }
+            
+            /*
             var configConstructor = ps.Type.GetConstructor(new[] { typeof(IConfiguration) });
             if (configConstructor != null)
             {
@@ -926,8 +969,9 @@ namespace XTMF
                 catch
                 {
                     error = new ErrorWithPath(path,
-                        $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!");
+                           $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!");
                     return false;
+
                 }
                 ps.Module = root;
             }
@@ -954,7 +998,7 @@ namespace XTMF
                     return false;
                 }
                 ps.Module = root;
-            }
+            } */
             if (root != null)
             {
                 try
