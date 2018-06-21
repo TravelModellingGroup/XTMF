@@ -36,10 +36,10 @@ namespace TMG.Frameworks.Testing
 
         private Timer _timer;
 
-        [Logger("MuhTestName")]
+        [Logger("Test Name 1")]
         private ILogger _logger;
 
-        [Logger("MuhTestName2")]
+        [Logger("Test Name 2")]
         private ILogger _logger2;
 
         [Logger]
