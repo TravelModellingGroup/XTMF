@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using XTMF.Annotations;
 using XTMF.Editing;
+using XTMF.Logging;
 using XTMF.Networking;
 
 namespace XTMF
@@ -909,6 +910,30 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Loads and set logger fields on the passed module.
+        /// </summary>
+        /// <param name="module">The module to assign and initialize loggers to</param>
+        private static void LoadLogger(IModule module)
+        {
+            var type = module.GetType();
+            foreach(var f in type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                var attribute = f.GetCustomAttribute<XTMF.Attributes.LoggerAttribute>();
+                if (attribute != null)
+                {
+                    try
+                    {
+                        f.SetValue(module, new Logger(log4net.LogManager.GetLogger(attribute.LoggerName == null ? type.ToString() : attribute.LoggerName)));
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="config"></param>
@@ -940,7 +965,7 @@ namespace XTMF
                 }
                 else if (parameters[i].ParameterType == typeof(Logging.ILogger))
                 {
-                    parameterList[i] = new Logging.Logger();
+                    parameterList[i] = new Logging.Logger(ps.Type);
                 }
                 else
                 {
@@ -957,6 +982,7 @@ namespace XTMF
                         $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!");
                 return false;
             }
+
             
             /*
             var configConstructor = ps.Type.GetConstructor(new[] { typeof(IConfiguration) });
@@ -1001,6 +1027,7 @@ namespace XTMF
             } */
             if (root != null)
             {
+                LoadLogger(root);
                 try
                 {
                     root.Name = ps.Name;

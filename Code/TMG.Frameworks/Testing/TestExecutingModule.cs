@@ -23,7 +23,7 @@ using System.Timers;
 using XTMF;
 using Timer = System.Timers.Timer;
 using XTMF.Logging;
-
+using XTMF.Attributes;
 
 namespace TMG.Frameworks.Testing
 {
@@ -36,7 +36,14 @@ namespace TMG.Frameworks.Testing
 
         private Timer _timer;
 
+        [Logger("MuhTestName")]
         private ILogger _logger;
+
+        [Logger("MuhTestName2")]
+        private ILogger _logger2;
+
+        [Logger]
+        private ILogger _logger3;
 
 
         [RunParameter("Execution Time", 60, "Specficy the simulated length of execution for this module, in seconds..")]
@@ -50,6 +57,9 @@ namespace TMG.Frameworks.Testing
 
         public bool RuntimeValidation(ref string error)
         {
+            _logger.Info("test");
+            _logger2.Info("test");
+            _logger3.Info("test");
             return true;
         }
 
@@ -73,12 +83,15 @@ namespace TMG.Frameworks.Testing
             _timer.Stop();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="logger"></param>
         public TestExecutingModule(IConfiguration configuration,
             ILogger logger)
         {
-            this._logger = logger;
-
-            logger.Info(this, "Test from this module");
+           
         }
 
         /// <summary>
@@ -89,7 +102,7 @@ namespace TMG.Frameworks.Testing
         {
             _ticks++;
             _progress = (_ticks / (float) ExecutionTime);
-            Console.WriteLine("Timer tick from " + Name + " at " + e.SignalTime);
+            this._logger.Info("Timer tick from " + Name + " at " + e.SignalTime);
         }
     }
 }

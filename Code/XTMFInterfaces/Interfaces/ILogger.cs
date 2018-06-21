@@ -8,12 +8,38 @@ namespace XTMF.Logging
 {
     public interface ILogger
     {
+
         /// <summary>
-        /// Log Info level messages
+        /// Info message to logger
         /// </summary>
-        /// <param name="context"></param>
         /// <param name="message"></param>
-        void Info(IModule context, string message);
+        void Info(string message);
+
+        /// <summary>
+        /// Debug message to logger
+        /// </summary>
+        /// <param name="message"></param>
+        void Debug(string message);
+        
+        /// <summary>
+        /// Warn message to logger
+        /// </summary>
+        /// <param name="message"></param>
+        void Warn(string message);
+
+        /// <summary>
+        /// Error message to logger
+        /// </summary>
+        /// <param name="message"></param>
+        void Error(string message);
+
+        /// <summary>
+        /// Fatal message to logger
+        /// </summary>
+        /// <param name="message"></param>
+        void Fatal(string message);
+
+
 
 
     }

@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.IO.Pipes;
 using System.Diagnostics;
 using System.Reflection;
+using log4net.Config;
 
 namespace XTMF
 {
@@ -60,6 +61,7 @@ namespace XTMF
             RunName = runName;
             RunDirectory = runDirectory;
             Configuration = config;
+            BasicConfigurator.Configure();
         }
 
         public static XTMFRun CreateLocalRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
