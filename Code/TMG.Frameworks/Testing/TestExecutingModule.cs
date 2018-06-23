@@ -36,16 +36,7 @@ namespace TMG.Frameworks.Testing
 
         private Timer _timer;
 
-        [Logger("Test Name 1")]
-        private ILogger _logger1;
-
-        [Logger("Test Name 2")]
-        private ILogger _logger2;
-
-        [Logger]
-        private ILogger _logger3;
-
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
 
         [RunParameter("Execution Time", 60, "Specficy the simulated length of execution for this module, in seconds..")]
@@ -59,9 +50,7 @@ namespace TMG.Frameworks.Testing
 
         public bool RuntimeValidation(ref string error)
         {
-            _logger1.Info("test");
-            _logger2.Info("test");
-            _logger3.Info("test");
+
             return true;
         }
 
@@ -93,7 +82,7 @@ namespace TMG.Frameworks.Testing
         public TestExecutingModule(IConfiguration configuration,
             ILogger logger)
         {
-           
+            this._logger = logger;
         }
 
         /// <summary>

@@ -1,0 +1,59 @@
+﻿<!-- 
+    Copyright 2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<Window x:Class="XTMF.Gui.UserControls.FreeVariableEntry"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XTMF.Gui.UserControls"
+        xmlns:my="clr-namespace:XTMF.Gui"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+            WindowStyle="SingleBorderWindow"
+            WindowStartupLocation="CenterOwner"
+        Title="Select Generic Type" Height="500" Width="400" Background="{DynamicResource MaterialDesignBackground}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                                  Margin="12 12 12 12"
+                                  materialDesign:ShadowAssist.ShadowDepth="Depth4">
+            <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Filter Modules... (Ctrl+E)" />
+        </materialDesign:ColorZone>
+        <!-- <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" Foreground="{DynamicResource MaterialDesignBody}"/> -->
+
+        <ListView x:Name="Display" MouseDoubleClick="Display_OnMouseDoubleClick"
+                  Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel></VirtualizingStackPanel>
+
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <local:ListViewControl x:Name="ListViewControl" TitleText="{Binding Name}" SubText="{Binding Text}"
+                                           MouseDoubleClick="Control_OnMouseDoubleClick"></local:ListViewControl>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Window>

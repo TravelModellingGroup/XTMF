@@ -1,0 +1,71 @@
+﻿<!-- 
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<Window x:Class="XTMF.Gui.UserControls.AboutXTMF"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About XTMF" ResizeMode="NoResize" SizeToContent="WidthAndHeight" 
+        WindowStartupLocation="CenterOwner" Background="{DynamicResource MaterialDesignPaper}"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico">
+   
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="XTMF.GUI" FontSize="24" Foreground="{DynamicResource MaterialDesignBody}" />
+        <Image Grid.Row="1" Source="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Width="128" Height="128" />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="AUTO" />
+                <ColumnDefinition Width="AUTO" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Version: " Foreground="{DynamicResource MaterialDesignBody}" />
+            <TextBlock Grid.Column="1" x:Name="VersionBlock" Foreground="{DynamicResource MaterialDesignBody}" />
+        </Grid>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="AUTO" />
+                <ColumnDefinition Width="AUTO" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Build Date: " Foreground="{DynamicResource MaterialDesignBody}" />
+            <TextBlock Grid.Column="1" x:Name="BuildBlock" Foreground="{DynamicResource MaterialDesignBody}" />
+        </Grid>
+        <TextBlock Grid.Row="4" Foreground="{DynamicResource MaterialDesignBody}" Text="Created by the Travel Modelling Group" />
+        <TextBlock Grid.Row="5" Foreground="{DynamicResource MaterialDesignBody}" Text="This software is Open-Source, copyrighted under the GPLv3 License." />
+        <TextBlock Grid.Row="6" x:Name="TMGUrl" Cursor="Hand" Text="http://tmg.utoronto.ca" MouseUp="TextBlock_MouseUp" Foreground="{DynamicResource PrimaryHueMidBrush}" />
+        <TextBlock Grid.Row="7" Cursor="Hand" Text="http://github.com/TravelModellingGroup/XTMF" MouseUp="TextBlock_MouseUp" Foreground="{DynamicResource PrimaryHueMidBrush}" />
+        <TextBlock Grid.Row="8" Cursor="Hand" Text="https://www.gnu.org/licenses/gpl-3.0-standalone.html" MouseUp="TextBlock_MouseUp" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+        <Grid Grid.Row="9" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="AUTO" />
+                <ColumnDefinition Width="AUTO" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Grid.Column="0" Text="Number of installed modules:" />
+            <TextBlock Foreground="{DynamicResource MaterialDesignBody}" x:Name="NumberOfModules" Grid.Column="1" Text="" />
+        </Grid>
+    </Grid>
+</Window>

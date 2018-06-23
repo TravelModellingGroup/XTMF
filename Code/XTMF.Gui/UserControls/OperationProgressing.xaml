@@ -1,0 +1,21 @@
+﻿<Window x:Class="XTMF.Gui.UserControls.OperationProgressing"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Operation Progressing" ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" WindowStyle="None" Background="{x:Null}" AllowsTransparency="True">
+
+    <Border Margin="20"  Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="15" ShadowDepth="5" Color="Black" Opacity="0.7"></DropShadowEffect>
+        </Border.Effect>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="AUTO" />
+                <RowDefinition Height="AUTO" />
+            </Grid.RowDefinitions>
+            <Label Content="Please Wait..." Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" />
+            <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" Foreground="{DynamicResource ProgressBrush}" >
+              
+            </ProgressBar>
+        </Grid>
+    </Border>
+</Window>
