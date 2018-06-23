@@ -26,7 +26,9 @@ using System.Collections.Generic;
 using System.IO.Pipes;
 using System.Diagnostics;
 using System.Reflection;
+using log4net.Appender;
 using log4net.Config;
+using log4net.Layout;
 
 namespace XTMF
 {
@@ -56,12 +58,33 @@ namespace XTMF
 
         public abstract bool RunsRemotely { get; }
 
+        private const string Pattern = "%date %-5level %logger - %message%newline";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="runName"></param>
+        /// <param name="runDirectory"></param>
+        /// <param name="config"></param>
         protected XTMFRun(string runName, string runDirectory, IConfiguration config)
         {
             RunName = runName;
             RunDirectory = runDirectory;
             Configuration = config;
-            BasicConfigurator.Configure();
+            ConfigureLog4Net();
+        }
+
+        /// <summary>
+        /// Configures log4net using a basic console appender
+        /// </summary>
+        private void ConfigureLog4Net()
+        {
+            PatternLayout layout = new PatternLayout(
+                        Pattern);
+            ConsoleAppender appender =
+                new ConsoleAppender() {Layout = layout};
+            appender.ActivateOptions();
+            BasicConfigurator.Configure(appender);
         }
 
         public static XTMFRun CreateLocalRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)

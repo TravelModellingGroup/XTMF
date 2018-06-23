@@ -258,7 +258,7 @@ namespace XTMF.Gui
         {
             string error = null;
             var project = EditorController.Runtime.ProjectController.LoadOrCreate(projectName, ref error);
-            if(project != null)
+            if (project != null)
             {
                 LoadProject(project);
                 return;
@@ -635,7 +635,7 @@ namespace XTMF.Gui
         internal RunWindow CreateRunWindow(ModelSystemEditingSession session, XTMFRun run, string runName,
             bool immediateRun = false, ModelSystemDisplay launchDisplay = null, SchedulerWindow schedulerWindow = null)
         {
-            return new RunWindow(session, run, runName, immediateRun, launchDisplay,schedulerWindow);
+            return new RunWindow(session, run, runName, immediateRun, launchDisplay, schedulerWindow);
         }
 
         /// <summary>
@@ -660,7 +660,7 @@ namespace XTMF.Gui
             Keyboard.Focus(documentationControl);
             documentationControl.Focus();
         }
-      
+
         /// <summary>
         /// </summary>
         /// <param name="getHelpFor"></param>
