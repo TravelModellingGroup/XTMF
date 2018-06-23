@@ -109,13 +109,13 @@
     <Compile Include="TestXTMFCore.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XTMF1.1\XTMF.csproj">
-      <Project>{8b983608-b6c7-49eb-a5dd-6cccf55b9c45}</Project>
-      <Name>XTMF</Name>
-    </ProjectReference>
     <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
       <Project>{5a7c8449-be6f-4cbb-ad7f-b38560dae637}</Project>
       <Name>XTMFInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XTMF\XTMF.csproj">
+      <Project>{8b983608-b6c7-49eb-a5dd-6cccf55b9c45}</Project>
+      <Name>XTMF</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
