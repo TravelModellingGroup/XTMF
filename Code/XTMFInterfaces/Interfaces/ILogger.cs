@@ -28,7 +28,14 @@ namespace XTMF.Logging
         void Warn(string message);
 
         /// <summary>
-        /// Error message to logger
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="e"></param>
+        void Error(string message, Exception e);
+
+        /// <summary>
+        /// 
         /// </summary>
         /// <param name="message"></param>
         void Error(string message);

@@ -976,10 +976,10 @@ namespace XTMF
             {
                 root = constructor.Invoke(parameterList) as IModule;
             }
-            catch
+            catch(Exception e)
             {
                 error = new ErrorWithPath(path,
-                        $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!");
+                        $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!",exception:e);
                 return false;
             }
 
@@ -1032,9 +1032,9 @@ namespace XTMF
                 {
                     root.Name = ps.Name;
                 }
-                catch
+                catch(Exception e)
                 {
-                    error = new ErrorWithPath(path, string.Concat("Unable to assign the name of ", ps.Name, " to type ", ps.Type.FullName, "!"));
+                    error = new ErrorWithPath(path, string.Concat("Unable to assign the name of ", ps.Name, " to type ", ps.Type.FullName, "!"),exception:e);
                     return false;
                 }
                 // Allow any module access to the host/client
@@ -1274,10 +1274,10 @@ namespace XTMF
                     {
                         info.SetValue(root, param.Value);
                     }
-                    catch (ArgumentException)
+                    catch (ArgumentException e)
                     {
                         error = new ErrorWithPath(path, string.Format("In module {3} we were unable to assign parameter {0} of type {1} with type {2}, please rebuild your model system.",
-                            param.Name, info.FieldType.FullName, param.Value.GetType().FullName, ps.Name));
+                            param.Name, info.FieldType.FullName, param.Value.GetType().FullName, ps.Name),exception:e);
                         return false;
                     }
                 }
@@ -1293,15 +1293,15 @@ namespace XTMF
                     {
                         info.SetValue(root, param.Value, null);
                     }
-                    catch (ArgumentException)
+                    catch (ArgumentException e)
                     {
                         error = new ErrorWithPath(path, string.Format("In module {3} we were unable to assign parameter {0} of type {1} with type {2}, please rebuild your model system.",
-                            param.Name, info.PropertyType.FullName, param.Value.GetType().FullName, ps.Name));
+                            param.Name, info.PropertyType.FullName, param.Value.GetType().FullName, ps.Name),exception:e);
                         return false;
                     }
                     catch (Exception e)
                     {
-                        error = new ErrorWithPath(path, "An unexpected error occurred while trying to set the parameter '" + param.VariableName + "' in '" + ps.Name + "'\r\n" + e.Message, e.StackTrace);
+                        error = new ErrorWithPath(path, "An unexpected error occurred while trying to set the parameter '" + param.VariableName + "' in '" + ps.Name + "'\r\n" + e.Message, e.StackTrace,exception:e);
                         return false;
                     }
                 }

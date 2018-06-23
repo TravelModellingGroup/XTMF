@@ -109,7 +109,7 @@ namespace XTMF.Run
             }
             catch (Exception e)
             {
-                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message)));
+                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message,exception:e)));
                 return;
             }
             if (_MST == null)
@@ -182,7 +182,7 @@ namespace XTMF.Run
             {
                 if (caughtError is XTMFRuntimeException runError)
                 {
-                    InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, runError.StackTrace, runError.Module.Name));
+                    InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, runError.StackTrace, runError.Module.Name,caughtError));
                 }
                 else
                 {

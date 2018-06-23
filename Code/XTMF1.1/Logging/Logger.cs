@@ -38,6 +38,17 @@ namespace XTMF.Logging
             this._log.Debug(message);
         }
 
+      
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="exc"></param>
+        public void Error(string message, Exception exc)
+        {
+            this._log.Error(message, exc);
+        }
+
         /// <summary>
         /// 
         /// </summary>

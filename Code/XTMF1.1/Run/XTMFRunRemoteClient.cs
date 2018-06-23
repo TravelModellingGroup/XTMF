@@ -306,7 +306,7 @@ namespace XTMF.Run
                             moduleName = "Null Module";
                         }
                     }
-                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, e.StackTrace, moduleName));
+                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, e.StackTrace, moduleName,e));
                 }
             }
         }
@@ -364,7 +364,7 @@ namespace XTMF.Run
             }
             catch (Exception e)
             {
-                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, e.StackTrace)));
+                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, e.StackTrace,exception:e)));
                 return false;
             }
             return true;
@@ -388,7 +388,7 @@ namespace XTMF.Run
             }
             catch (Exception e)
             {
-                errors.Add(new ErrorWithPath(null, e.Message, e.StackTrace));
+                errors.Add(new ErrorWithPath(null, e.Message, e.StackTrace,exception:e));
                 InvokeRuntimeValidationError(errors);
                 return false;
             }

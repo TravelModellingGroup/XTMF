@@ -48,7 +48,15 @@ namespace XTMF
         /// </summary>
         public string StackTrace { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string ModuleName { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Exception Exception { get; }
 
         /// <summary>
         /// Creates a new error with the given path.
@@ -56,13 +64,14 @@ namespace XTMF
         /// <param name="path">The path to use, a copy will be stored.</param>
         /// <param name="message"></param>
         /// <param name="stackTrace"></param>
-        public ErrorWithPath(List<int> path, string message, string stackTrace = null, string moduleName = null)
+        public ErrorWithPath(List<int> path, string message, string stackTrace = null, string moduleName = null, Exception exception = null)
         {
             // Make a copy of the path
             Path = path?.ToList();
             Message = message;
             StackTrace = stackTrace;
             ModuleName = moduleName;
+            Exception = exception;
         }
     }
 }

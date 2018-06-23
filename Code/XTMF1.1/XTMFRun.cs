@@ -26,9 +26,12 @@ using System.Collections.Generic;
 using System.IO.Pipes;
 using System.Diagnostics;
 using System.Reflection;
+using log4net;
 using log4net.Appender;
 using log4net.Config;
+using log4net.Filter;
 using log4net.Layout;
+using XTMF.Logging;
 
 namespace XTMF
 {
@@ -60,6 +63,10 @@ namespace XTMF
 
         private const string Pattern = "%date %-5level %logger - %message%newline";
 
+        private static ILogger _globalLogger;
+
+        public static ILogger GlobalLogger => _globalLogger;
+
         /// <summary>
         /// 
         /// </summary>
@@ -83,8 +90,29 @@ namespace XTMF
                         Pattern);
             ConsoleAppender appender =
                 new ConsoleAppender() {Layout = layout};
+
+            //create logger (console) unrelated to global logging under XTMFRun
+            LoggerMatchFilter filter = new LoggerMatchFilter();
+            filter.AcceptOnMatch = false;
+            filter.LoggerToMatch = "XTMFRun";
+            appender.AddFilter(filter);
             appender.ActivateOptions();
-            BasicConfigurator.Configure(appender);
+
+            //create logger (file) for global logging using name XTMFRun
+            filter = new LoggerMatchFilter();
+            filter.AcceptOnMatch = true;
+            filter.LoggerToMatch = "XTMFRun";
+
+            RollingFileAppender fileAppender = new RollingFileAppender() {Layout = layout};
+            fileAppender.AddFilter(filter);
+            fileAppender.RollingStyle = RollingFileAppender.RollingMode.Date;
+            fileAppender.File = "XTMFLog.log";
+            fileAppender.ActivateOptions();
+            
+            BasicConfigurator.Configure(appender,fileAppender);
+
+            _globalLogger = new Logger(LogManager.GetLogger("XTMFRun"));
+
         }
 
         public static XTMFRun CreateLocalRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
@@ -237,8 +265,23 @@ namespace XTMF
             return value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
         protected static void SaveErrorMessage(ErrorWithPath error)
         {
+
+
+            if (error.Exception != null)
+            {
+                _globalLogger.Error(error.Message,error.Exception);
+            }
+            else
+            {
+                _globalLogger.Error(error.Message);
+            }
+
             using (var writer = new StreamWriter("XTMF.ErrorLog.txt", true))
             {
                 writer.WriteLine(error.Message);
