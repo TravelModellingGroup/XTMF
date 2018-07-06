@@ -982,49 +982,7 @@ namespace XTMF
                         $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!",exception:e);
                 return false;
             }
-
-            
-            /*
-            var configConstructor = ps.Type.GetConstructor(new[] { typeof(IConfiguration) });
-            if (configConstructor != null)
-            {
-                try
-                {
-                    root = configConstructor.Invoke(new object[] { config }) as IModule;
-                }
-                catch
-                {
-                    error = new ErrorWithPath(path,
-                           $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!");
-                    return false;
-
-                }
-                ps.Module = root;
-            }
-            else
-            {
-                var baseConstructor = ps.Type.GetConstructor(new Type[] { });
-                if (baseConstructor == null)
-                {
-                    error = new ErrorWithPath(path,
-                        $"Type {ps.Type.FullName} has no public constructor that takes an IConfiguration nor a default constructor.  Unable to create this type!");
-                    return false;
-                }
-                try
-                {
-                    root = baseConstructor.Invoke(new object[] { }) as IModule;
-                }
-                catch (XTMFRuntimeException e)
-                {
-                    error = new ErrorWithPath(path, string.Concat("Construction Error in ", ps.Name, ":\r\n", e.Message));
-                    return false;
-                }
-                catch
-                {
-                    return false;
-                }
-                ps.Module = root;
-            } */
+            ps.Module = root;
             if (root != null)
             {
                 LoadLogger(root);
@@ -1136,7 +1094,6 @@ namespace XTMF
                     }
                 }
             }
-            ps.Module = root;
             return true;
         }
 
