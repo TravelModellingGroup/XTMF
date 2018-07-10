@@ -942,5 +942,15 @@ namespace XTMF.Gui.UserControls
         {
             Model.RefreshPastRuns(Session);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PopupBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Console.WriteLine("Here");
+        }
     }
 }

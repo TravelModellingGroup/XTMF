@@ -23,6 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui"
+              xmlns:xtmfp="clr-namespace:XTMF.Gui.CustomProperties"
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
@@ -112,6 +113,7 @@
         <Border SnapsToDevicePixels="True" BorderThickness="0" Grid.Row="2" HorizontalAlignment="Right" Margin="10 10 30 30">
 
             <materialDesign:PopupBox
+                xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
                 UnfurlOrientation="Vertical"

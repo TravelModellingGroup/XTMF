@@ -24,6 +24,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:xtmf="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:xtmfp="clr-namespace:XTMF.Gui.CustomProperties"
              mc:Ignorable="d" 
              Focusable="True" SnapsToDevicePixels="True"
              Background="{DynamicResource MaterialDesignPaper}"
@@ -34,11 +35,11 @@
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
         <Border  Margin="10 10 30 30"   Grid.Row="1" HorizontalAlignment="Right">
-            <materialDesign:PopupBox
+            <materialDesign:PopupBox xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
                 UnfurlOrientation="Vertical"
-                ToolTipService.Placement="Left">
+                ToolTipService.Placement="Left" IsVisibleChanged="PopupBox_IsVisibleChanged">
                 <StackPanel>
                     <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
 
