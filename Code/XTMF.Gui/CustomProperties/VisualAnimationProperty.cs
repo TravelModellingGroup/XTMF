@@ -51,9 +51,9 @@ namespace XTMF.Gui.CustomProperties
                 DoubleAnimation animation = new DoubleAnimation();
                 animation.From = 1;
                 animation.To = 1.3;
-                animation.Duration = new Duration(TimeSpan.FromSeconds(0.5));
+                animation.Duration = new Duration(TimeSpan.FromSeconds(0.3));
                 animation.AutoReverse = true;
-                animation.RepeatBehavior = new RepeatBehavior(3);
+                animation.RepeatBehavior = new RepeatBehavior(1);
                 element.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
                 element.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
             }
