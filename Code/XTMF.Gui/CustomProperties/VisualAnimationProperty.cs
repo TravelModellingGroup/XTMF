@@ -49,10 +49,10 @@ namespace XTMF.Gui.CustomProperties
                 ScaleTransform scaleTransform = new ScaleTransform(1.0, 1.0, element.Width / 2, element.Height / 2);
                 element.RenderTransform = scaleTransform;
                 DoubleAnimation animation = new DoubleAnimation();
-                animation.From = 1;
-                animation.To = 1.3;
+                animation.From = 1.4;
+                animation.To = 1.0;
                 animation.Duration = new Duration(TimeSpan.FromSeconds(0.3));
-                animation.AutoReverse = true;
+                animation.AutoReverse = false;
                 animation.RepeatBehavior = new RepeatBehavior(1);
                 element.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
                 element.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
