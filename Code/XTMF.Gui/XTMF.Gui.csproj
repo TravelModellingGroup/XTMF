@@ -226,6 +226,7 @@
     <Compile Include="UserControls\ModuleContextControl.xaml.cs">
       <DependentUpon>ModuleContextControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\PopupBoxEx.cs" />
     <Compile Include="UserControls\SchedulerWindow.xaml.cs">
       <DependentUpon>SchedulerWindow.xaml</DependentUpon>
     </Compile>

@@ -85,6 +85,8 @@ namespace XTMF.Gui
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ThemeController = new ThemeController(GetConfigurationFilePath());
             InitializeComponent();
+			// I am changing the code here with a comment
+            //do you see any console window
             Loaded += FrameworkElement_Loaded;
             Us = this;
             operationProgressing = new OperationProgressing();

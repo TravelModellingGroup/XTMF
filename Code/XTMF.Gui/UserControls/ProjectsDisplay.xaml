@@ -130,7 +130,7 @@
             </ListView.ItemTemplate>
         </ListView>
         <Grid  Margin="10 10 30 30"  Grid.Row="2" HorizontalAlignment="Right">
-            <materialDesign:PopupBox
+            <local:PopupBoxEx 
                 xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
@@ -179,7 +179,7 @@
                     </StackPanel>
 
                 </StackPanel>
-                </materialDesign:PopupBox> 
+                </local:PopupBoxEx> 
             
             <!--
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush3}">

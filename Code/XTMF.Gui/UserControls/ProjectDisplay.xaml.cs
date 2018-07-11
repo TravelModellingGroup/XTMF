@@ -950,7 +950,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void PopupBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            Console.WriteLine("Here");
+           
         }
     }
 }
