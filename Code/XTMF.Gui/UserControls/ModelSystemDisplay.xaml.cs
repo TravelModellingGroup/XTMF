@@ -3080,5 +3080,25 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        /// <summary>
+        /// Selected Listener for the RegionView button in the toolbar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionViewListBoxItem_Selected(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Selected listener for the TreeView button in the toolbar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TreeViewListBoxItem_Selected(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

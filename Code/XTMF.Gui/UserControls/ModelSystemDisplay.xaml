@@ -252,13 +252,13 @@
 
                                     </ListBox.ToolTip>
 
-                                    <ListBoxItem>
+                                    <ListBoxItem Name="TreeViewListBoxItem" Selected="TreeViewListBoxItem_Selected" >
 
                                         <materialDesign:PackIcon Kind="FileTree"/>
 
                                     </ListBoxItem>
 
-                                    <ListBoxItem>
+                                    <ListBoxItem Name="RegionViewListBoxItem" Selected="RegionViewListBoxItem_Selected" >
 
                                         <materialDesign:PackIcon Kind="Group"/>
 
