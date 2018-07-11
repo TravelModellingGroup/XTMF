@@ -206,6 +206,7 @@
     <Compile Include="Models\ModelSystemEditingSessionDisplayModel.cs" />
     <Compile Include="Models\ModelSystemInfoTemplateSelector.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
+    <Compile Include="Models\ModelSytemRegionViewDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
     <Compile Include="Models\RunControllerDisplayModel.cs" />
     <Compile Include="Models\ValidationErrorDisplayModel.cs" />
@@ -222,6 +223,9 @@
     <Compile Include="UserControls\InterTabClient.cs" />
     <Compile Include="UserControls\LoggingControl.xaml.cs">
       <DependentUpon>LoggingControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ModelSystemRegionViewDisplay.xaml.cs">
+      <DependentUpon>ModelSystemRegionViewDisplay.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ModuleContextControl.xaml.cs">
       <DependentUpon>ModuleContextControl.xaml</DependentUpon>
@@ -374,6 +378,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\LoggingControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ModelSystemRegionViewDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
