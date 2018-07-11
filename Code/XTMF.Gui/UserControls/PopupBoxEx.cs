@@ -18,27 +18,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         protected override void OnMouseLeave(MouseEventArgs e)
         {
-            if (PopupMode == PopupBoxPopupMode.MouseOverEager
-                || PopupMode == PopupBoxPopupMode.MouseOver)
-            {
-                var element = e.OriginalSource as UIElement;
+            return;
+        }
 
-                Task.Factory.StartNew(() =>
-                {
-                    Thread.Sleep(2000);
-                    Dispatcher.Invoke(() =>
-                    {
-                        if (!element.IsMouseOver)
-                        {
-                            Close();
-                        }
-                       
-                    });
-                });
-              
-            }
-
-            base.OnMouseEnter(e);
+        protected override void OnMouseEnter(MouseEventArgs e)
+        {
+            return;
         }
     }
 }
