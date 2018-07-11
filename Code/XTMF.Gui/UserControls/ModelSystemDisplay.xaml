@@ -223,15 +223,49 @@
                                 <Button ToolTip="Open Project Folder" Click="OpenProjectFolderToolbarButton_Click" Name="OpenProjectFolderToolbarButton">
                                     <materialDesign:PackIcon Kind="FolderOpen" />
                                 </Button>
-                                <Grid Width="250" HorizontalAlignment="Right"   Margin="12 2 12 0" VerticalAlignment="Center">
+                                <Grid Width="250" HorizontalAlignment="Left"   Margin="12 2 12 0" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
+                                        
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                         <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                     </Button>
                                     <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
+                                    
+                                </Grid>
+                                <Grid>
+                                <ListBox Margin="10 10 0 10"  Style="{StaticResource MaterialDesignToolToggleListBox}" SelectedIndex="0">
+
+                                    <ListBox.ToolTip>
+
+                                        <StackPanel>
+
+                                            <TextBlock Text="MaterialDesignToolToggleListBox" />
+
+                                            <TextBlock Text="Exclusive selection" />
+
+                                            <TextBlock Text="ListBoxAssist.IsToggle allows more natural toggle behaviour" />
+
+                                        </StackPanel>
+
+                                    </ListBox.ToolTip>
+
+                                    <ListBoxItem>
+
+                                        <materialDesign:PackIcon Kind="FileTree"/>
+
+                                    </ListBoxItem>
+
+                                    <ListBoxItem>
+
+                                        <materialDesign:PackIcon Kind="Group"/>
+
+                                    </ListBoxItem>
+
+
+                                </ListBox>
                                 </Grid>
                             </ToolBar>
                         </ToolBarTray>
