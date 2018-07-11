@@ -21,6 +21,10 @@ namespace XTMF.Gui.UserControls
             return;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             return;
