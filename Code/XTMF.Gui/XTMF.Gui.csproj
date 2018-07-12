@@ -200,6 +200,7 @@
     <Compile Include="Controllers\ThemeController.cs" />
     <Compile Include="Converters\IndexConverter.cs" />
     <Compile Include="CustomProperties\VisualAnimationProperty.cs" />
+    <Compile Include="Interfaces\IModelSystemView.cs" />
     <Compile Include="Models\ActiveEditingSessionDisplayModel.cs" />
     <Compile Include="Models\CommandDisplayModel.cs" />
     <Compile Include="Models\LinkedParameterDisplayModel.cs" />

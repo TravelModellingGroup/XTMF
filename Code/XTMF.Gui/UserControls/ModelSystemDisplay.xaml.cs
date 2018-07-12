@@ -41,6 +41,7 @@ using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 using XTMF.Gui.Controllers;
+using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls.Interfaces;
 
@@ -100,6 +101,14 @@ namespace XTMF.Gui.UserControls
 
         private ModelSystemTreeViewDisplay treeViewDisplay;
 
+        public IModelSystemView ActiveModelSystemView
+        {
+            get
+            {
+                return ModelSystemDisplayContent.Content as IModelSystemView;
+            }
+        }
+
         public ModelSystemDisplay()
         {
             _saveSemaphor = new Semaphore(1, 1);
@@ -107,7 +116,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             AllowMultiSelection(ModuleDisplay);
             Loaded += ModelSystemDisplay_Loaded;
-            ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
+            
             DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
             DisabledModulesList.ItemsSource = DisabledModules;
             FilterBox.Filter = (o, text) =>
@@ -168,7 +177,21 @@ namespace XTMF.Gui.UserControls
 
             //initialize sub displays for the model system
             this.regionViewDisplay = new ModelSystemRegionViewDisplay();
-            this.treeViewDisplay = new ModelSystemTreeViewDisplay();
+            this.treeViewDisplay = new ModelSystemTreeViewDisplay(this);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
+        {
+            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
+
+            UpdateQuickParameters();
+            //this.display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
+            //this.display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
         }
 
 
@@ -447,53 +470,18 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
-        private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
-        {
-            if (keyEventArgs.Key == Key.F5 && IsKeyboardFocusWithin && !LinkedParameterDisplayOverlay.IsVisible)
-            {
-                SaveCurrentlySelectedParameters();
-                ExecuteRun();
-            }
-        }
 
-        private void MDisplay_Unloaded(object sender, RoutedEventArgs e)
-        {
-            MainWindow.Us.PreviewKeyDown -= UsOnPreviewKeyDown;
-        }
 
-        private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
-        {
-            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                MainWindow.Us.PreviewKeyDown += UsOnPreviewKeyDown;
-                FilterBox.Focus();
-            }));
-            UpdateQuickParameters();
-            EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
-            ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
-        }
+
+
+
+
 
         /// <summary>
-        ///     Callback for when the Module Context control changes the active "selected module
+        /// 
         /// </summary>
-        /// <param name="sender1"></param>
-        /// <param name="eventArgs"></param>
-        private void ModuleContextControlOnModuleContextChanged(object sender1, ModuleContextChangedEventArgs eventArgs)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                if (eventArgs.Module != null)
-                {
-                    ExpandToRoot(eventArgs.Module);
-                    eventArgs.Module.IsSelected = true;
-                    ModuleDisplay.Focus();
-                    Keyboard.Focus(ModuleDisplay);
-                }
-            });
-        }
-
-        private void EnumerateDisabled(ModelSystemStructureDisplayModel model)
+        /// <param name="model"></param>
+        public void EnumerateDisabled(ModelSystemStructureDisplayModel model)
         {
             if (model.IsDisabled)
             {
@@ -1117,7 +1105,7 @@ namespace XTMF.Gui.UserControls
         public event Action<object> RequestClose;
 
 
-        private void SaveCurrentlySelectedParameters()
+        public void SaveCurrentlySelectedParameters()
         {
             if (ParameterDisplay.IsKeyboardFocusWithin)
             {
@@ -1129,7 +1117,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void SaveCurrentlySelectedParameters(ListView parameterDisplay)
+        public void SaveCurrentlySelectedParameters(ListView parameterDisplay)
         {
             var index = parameterDisplay.SelectedIndex;
             if (index >= 0)
@@ -2276,7 +2264,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void UpdateQuickParameters()
+        public void UpdateQuickParameters()
         {
             //DisplayRoot.
             if (QuickParameterDisplay != null)
@@ -2333,112 +2321,7 @@ namespace XTMF.Gui.UserControls
             MoveCurrentModule(1);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="treeView"></param>
-        /// <see cref="http://stackoverflow.com/questions/1163801/wpf-treeview-with-multiple-selection" />
-        public void AllowMultiSelection(TreeView treeView)
-        {
-            if (IsSelectionChangeActiveProperty == null)
-            {
-                return;
-            }
-
-            var selectedItems = new List<TreeViewItem>();
-            treeView.SelectedItemChanged += (a, b) =>
-            {
-                var module = GetCurrentlySelectedControl();
-                if (module == null)
-                {
-                    // disable the event to avoid recursion
-                    var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
-                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
-                    selectedItems.ForEach(item => item.IsSelected = true);
-                    // enable the event to avoid recursion
-                    IsSelectionChangeActiveProperty.SetValue(treeView, isSelectionChangeActive, null);
-                    return;
-                }
-
-                var treeViewItem = VisualUpwardSearch(module);
-                if (treeViewItem == null)
-                {
-                    return;
-                }
-
-                var disableMultiple = _disableMultipleSelectOnce;
-                _disableMultipleSelectOnce = false;
-                var currentItem = treeView.SelectedItem as ModelSystemStructureDisplayModel;
-                // allow multiple selection
-                // when control key is pressed
-                if (!disableMultiple && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
-                {
-                    // suppress selection change notification
-                    // select all selected items
-                    // then restore selection change notifications
-                    var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
-                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
-                    selectedItems.ForEach(item => item.IsSelected =
-                        item != treeViewItem || !selectedItems.Contains(treeViewItem));
-                    IsSelectionChangeActiveProperty.SetValue(treeView, isSelectionChangeActive, null);
-                }
-                else if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) &&
-                         CurrentlySelected.Count > 0)
-                {
-                    var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
-                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
-                    // select the range
-                    var lastSelected = CurrentlySelected.Last();
-                    var lastTreeItem = selectedItems.Last();
-                    var currentParent = VisualUpwardSearch(VisualTreeHelper.GetParent(treeViewItem));
-                    var lastParent = VisualUpwardSearch(VisualTreeHelper.GetParent(lastTreeItem));
-                    if (currentParent != null && currentParent == lastParent)
-                    {
-                        var itemGenerator = currentParent.ItemContainerGenerator;
-                        var lastSelectedIndex = itemGenerator.IndexFromContainer(lastTreeItem);
-                        var currentSelectedIndex = itemGenerator.IndexFromContainer(treeViewItem);
-                        var minIndex = Math.Min(lastSelectedIndex, currentSelectedIndex);
-                        var maxIndex = Math.Max(lastSelectedIndex, currentSelectedIndex);
-                        for (var i = minIndex; i <= maxIndex; i++)
-                        {
-                            var innerTreeViewItem = itemGenerator.ContainerFromIndex(i) as TreeViewItem;
-                            var innerModule = itemGenerator.Items[i] as ModelSystemStructureDisplayModel;
-                            if (CurrentlySelected.Contains(innerModule))
-                            {
-                                CurrentlySelected.Remove(innerModule);
-                            }
-
-                            CurrentlySelected.Add(innerModule);
-                            selectedItems.Add(innerTreeViewItem);
-                        }
-                    }
-
-                    // select all of the modules that should be selected
-                    selectedItems.ForEach(item => item.IsSelected = true);
-                    IsSelectionChangeActiveProperty.SetValue(treeView, isSelectionChangeActive, null);
-                    return;
-                }
-                else
-                {
-                    // deselect all selected items (current one will be re-added)
-                    CurrentlySelected.Clear();
-                    selectedItems.ForEach(item => item.IsSelected = item == treeViewItem);
-                    selectedItems.Clear();
-                }
-
-                if (!selectedItems.Contains(treeViewItem))
-                {
-                    selectedItems.Add(treeViewItem);
-                    CurrentlySelected.Add(currentItem);
-                }
-                else
-                {
-                    // deselect if already selected
-                    CurrentlySelected.Remove(currentItem);
-                    treeViewItem.IsSelected = false;
-                    selectedItems.Remove(treeViewItem);
-                }
-            };
-        }
+        
 
         private void ConvertToMetaModule_Click(object sender, RoutedEventArgs e)
         {
@@ -2668,45 +2551,9 @@ namespace XTMF.Gui.UserControls
             base.OnPreviewKeyDown(e);
         }
 
-        private void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse = true)
-        {
-            if (module != null)
-            {
-                var toProcess = new Queue<ModelSystemStructureDisplayModel>();
-                toProcess.Enqueue(module);
-                while (toProcess.Count > 0)
-                {
-                    module = toProcess.Dequeue();
-                    module.IsExpanded = collapse;
-                    foreach (var child in module.Children)
-                    {
-                        toProcess.Enqueue(child);
-                    }
-                }
-            }
-        }
+        
 
-        private void ExpandAllMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (ModuleDisplay.SelectedItem != null)
-            {
-                if (ModuleDisplay.Items.Count > 0)
-                {
-                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem);
-                }
-            }
-        }
 
-        private void CollapseAllMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (ModuleDisplay.SelectedItem != null)
-            {
-                if (ModuleDisplay.Items.Count > 0)
-                {
-                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem, false);
-                }
-            }
-        }
 
         private void ModelSystemInformation_EnableModuleMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -2718,6 +2565,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Path_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (((Border)sender).Tag is ModelSystemStructureDisplayModel module)
@@ -2726,26 +2578,36 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// MouseDown Listener for the ValidationList 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ValidationListModuleNameMouseDown(object sender, MouseButtonEventArgs e)
         {
             var label = sender as ValidationErrorListControl;
             if (label?.Tag is ModelSystemStructureDisplayModel model)
             {
-                ExpandToRoot(model);
+                //ExpandToRoot(model);
                 model.IsSelected = true;
             }
         }
 
-        private void ExpandToRoot(ModelSystemStructureDisplayModel module)
+        /// <summary>
+        /// PreviewKeyDown Listener for this control
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="keyEventArgs"></param>
+        private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
         {
-            // don't expand the bottom node
-            module = module?.Parent;
-            while (module != null)
+            if (keyEventArgs.Key == Key.F5 && IsKeyboardFocusWithin && !LinkedParameterDisplayOverlay.IsVisible)
             {
-                module.IsExpanded = true;
-                module = module.Parent;
+                SaveCurrentlySelectedParameters();
+                ExecuteRun();
             }
         }
+
+
 
         private void ParameterTabControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -2894,11 +2756,16 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="view"></param>
+        /// <param name="e"></param>
         private void ProcessOnPreviewKeyboardForParameter(ListView view, KeyEventArgs e)
         {
             if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
             {
-                var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+                var item = ActiveModelSystemView.SelectedModule;
                 if (e.Key == Key.Up)
                 {
                     _disableMultipleSelectOnce = true;

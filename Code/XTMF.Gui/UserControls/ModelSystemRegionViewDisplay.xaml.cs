@@ -12,17 +12,21 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using XTMF.Gui.Interfaces;
+using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
     /// Interaction logic for ModelSystemRegionViewDisplay.xaml
     /// </summary>
-    public partial class ModelSystemRegionViewDisplay : UserControl
+    public partial class ModelSystemRegionViewDisplay : UserControl, IModelSystemView
     {
         public ModelSystemRegionViewDisplay()
         {
             InitializeComponent();
         }
+
+        public ModelSystemStructureDisplayModel SelectedModule => throw new NotImplementedException();
     }
 }
