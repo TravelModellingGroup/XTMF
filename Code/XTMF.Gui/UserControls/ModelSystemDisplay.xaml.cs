@@ -1002,6 +1002,16 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MDisplay_Unloaded(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Us.PreviewKeyDown -= UsOnPreviewKeyDown;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         private bool ValidateName(string name)
@@ -1473,7 +1483,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 CurrentlySelected.Clear();
-                ExpandToRoot(displayModel);
+                this.treeViewDisplay.ExpandToRoot(displayModel);
                 displayModel.IsSelected = true;
             });
 
@@ -1511,7 +1521,7 @@ namespace XTMF.Gui.UserControls
 
         private void CopyCurrentModule()
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            var selected = ActiveModelSystemView.SelectedModule as ModelSystemStructureDisplayModel;
             if (CurrentlySelected.Count == 1)
             {
                 if (selected != null)

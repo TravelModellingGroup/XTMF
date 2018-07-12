@@ -80,7 +80,7 @@ namespace XTMF.Gui.UserControls
         /// Expands a module, tracing backwards until the root module is reached
         /// </summary>
         /// <param name="module"></param>
-        private void ExpandToRoot(ModelSystemStructureDisplayModel module)
+        public void ExpandToRoot(ModelSystemStructureDisplayModel module)
         {
             // don't expand the bottom node
             module = module?.Parent;
