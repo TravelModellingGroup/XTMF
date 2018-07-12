@@ -27,6 +27,8 @@ namespace XTMF.Gui.UserControls
 
         public ModelSystemStructureDisplayModel SelectedModule => ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
 
+        public ItemsControl ViewItemsControl => ModuleDisplay;
+
         public ModelSystemTreeViewDisplay(ModelSystemDisplay display)
         {
             InitializeComponent();
@@ -142,6 +144,86 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="up"></param>
+        private void MoveFocusNextModule(bool up)
+        {
+            Keyboard.Focus(ModuleDisplay);
+            MoveFocusNext(up);
+        }
+
+        private void ToggleDisableModule()
+        {
+            var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel)?.BaseModel;
+            var selectedModuleControl = GetCurrentlySelectedControl();
+            if (selectedModuleControl != null && selected != null)
+            {
+                string error = null;
+                Session.ExecuteCombinedCommands(selected.IsDisabled ? "Enable Module" : "Disable Module", () =>
+                {
+                    foreach (var sel in CurrentlySelected)
+                    {
+                        if (!sel.SetDisabled(!sel.IsDisabled, ref error))
+                        {
+                            return;
+                        }
+
+                        if (sel.IsDisabled)
+                        {
+                            if (!DisabledModules.Contains(sel))
+                            {
+                                DisabledModules.Add(sel);
+                            }
+                        }
+                    }
+                });
+                if (error != null)
+                {
+                    MessageBox.Show(MainWindow.Us, error,
+                        selected.IsDisabled ? "Unable to Enable" : "Unable to Disable", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            e.Handled = false;
+            switch (e.Key)
+            {
+                case Key.F2:
+                    this.display.RenameSelectedModule();
+                    break;
+                case Key.Up:
+                    ModuleDisplayNavigateUp(item);
+                    e.Handled = true;
+                    break;
+                case Key.Down:
+                    ModuleDisplayNavigateDown(item);
+                    e.Handled = true;
+                    break;
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GridCanvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ModuleDisplay.Focus();
         }
 
         /// <summary>

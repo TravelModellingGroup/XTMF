@@ -28,5 +28,7 @@ namespace XTMF.Gui.UserControls
         }
 
         public ModelSystemStructureDisplayModel SelectedModule => throw new NotImplementedException();
+
+        public ItemsControl ViewItemsControl => throw new NotImplementedException();
     }
 }

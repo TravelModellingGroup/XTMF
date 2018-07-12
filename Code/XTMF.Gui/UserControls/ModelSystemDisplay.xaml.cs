@@ -114,7 +114,7 @@ namespace XTMF.Gui.UserControls
             _saveSemaphor = new Semaphore(1, 1);
             DataContext = this;
             InitializeComponent();
-            AllowMultiSelection(ModuleDisplay);
+            //AllowMultiSelection(ModuleDisplay);
             Loaded += ModelSystemDisplay_Loaded;
             
             DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
@@ -392,10 +392,14 @@ namespace XTMF.Gui.UserControls
             return thisParentPassed | childrenPassed;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private UIElement GetCurrentlySelectedControl()
         {
             return GetCurrentlySelectedControl(DisplayRoot,
-                ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel);
+                ActiveModelSystemView.SelectedModule);
         }
 
         private void Run_RuntimeError(ErrorWithPath error)
@@ -410,7 +414,10 @@ namespace XTMF.Gui.UserControls
             });
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="errorList"></param>
         private void Run_RuntimeValidationError(List<ErrorWithPath> errorList)
         {
             Dispatcher.Invoke(() =>
@@ -427,6 +434,10 @@ namespace XTMF.Gui.UserControls
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="errorList"></param>
         private void Run_ValidationError(List<ErrorWithPath> errorList)
         {
             Dispatcher.Invoke(() =>
@@ -443,6 +454,14 @@ namespace XTMF.Gui.UserControls
             });
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="lookingFor"></param>
+        /// <param name="previous"></param>
+        /// <returns></returns>
         private UIElement GetCurrentlySelectedControl(ModelSystemStructureDisplayModel current,
             ModelSystemStructureDisplayModel lookingFor, TreeViewItem previous = null)
         {
@@ -469,12 +488,6 @@ namespace XTMF.Gui.UserControls
 
             return null;
         }
-
-
-
-
-
-
 
 
         /// <summary>
@@ -713,8 +726,14 @@ namespace XTMF.Gui.UserControls
             UpdateParameters();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
         private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
+            
             var us = source as ModelSystemDisplay;
             var newModelSystem = e.NewValue as ModelSystemModel;
             us.RecentLinkedParameters.Clear();
@@ -729,10 +748,15 @@ namespace XTMF.Gui.UserControls
                     {
                         us.ParameterDisplay.ContextMenu.DataContext = us;
                         us.QuickParameterDisplay.ContextMenu.DataContext = us;
-                        us.ModuleDisplay.ItemsSource = displayModel;
+
+                        //TODO ITEMS
+                        //set the treeview to use regular model system items
+                        us.treeViewDisplay.ViewItemsControl.ItemsSource = displayModel;
                         us.ModelSystemName = newModelSystem.Name;
-                        us.ModuleDisplay.Items.MoveCurrentToFirst();
-                        us.FilterBox.Display = us.ModuleDisplay;
+
+                        //TODO MAYBE
+                        //us.ModuleDisplay.Items.MoveCurrentToFirst();
+                        us.FilterBox.Display = us.ActiveModelSystemView.ViewItemsControl;
                         us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                         us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                     });
@@ -740,7 +764,8 @@ namespace XTMF.Gui.UserControls
             }
             else
             {
-                us.ModuleDisplay.DataContext = null;
+                //POSSIBLY TODO
+                //us.ModuleDisplay.DataContext = null;
                 us.ModelSystemName = "No model loaded";
                 us.FilterBox.Display = null;
                 us.ParameterLinkedParameterMenuItem.ItemsSource = null;
@@ -810,6 +835,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -895,10 +924,11 @@ namespace XTMF.Gui.UserControls
                                 SelectDirectoryForCurrentParameter();
                             }
 
-                            if (ModuleDisplay.IsKeyboardFocusWithin)
-                            {
-                                ToggleDisableModule();
-                            }
+                            //TODO
+                            //if (ModuleDisplay.IsKeyboardFocusWithin)
+                            //{
+                            //    ToggleDisableModule();
+                            //}
 
                             e.Handled = true;
                             break;
@@ -948,7 +978,7 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.Delete:
-                            if (ModuleDisplay.IsKeyboardFocusWithin)
+                            if ((ModelSystemDisplayContent.Content as UserControl).IsKeyboardFocusWithin)
                             {
                                 RemoveSelectedModules();
                                 e.Handled = true;
@@ -969,6 +999,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         private bool ValidateName(string name)
         {
             return Project.ValidateProjectName(name);
@@ -1212,7 +1247,7 @@ namespace XTMF.Gui.UserControls
                             }
                             else
                             {
-                                MoveFocusNextModule(true);
+                                //MoveFocusNextModule(true);
                             }
 
                             e.Handled = true;
@@ -1233,7 +1268,7 @@ namespace XTMF.Gui.UserControls
                             }
                             else
                             {
-                                MoveFocusNextModule(false);
+                                //MoveFocusNextModule(false);
                             }
                         }
                         else
@@ -1275,11 +1310,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void MoveFocusNextModule(bool up)
-        {
-            Keyboard.Focus(ModuleDisplay);
-            MoveFocusNext(up);
-        }
+
 
         private void MoveFocusNext(bool up)
         {
@@ -1424,11 +1455,19 @@ namespace XTMF.Gui.UserControls
             GoToModule(ModelSystem.GetModelFor(mss));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mss"></param>
         private void GoToModule(ModelSystemStructureModel mss)
         {
             GoToModule(GetModelFor(mss));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displayModel"></param>
         private void GoToModule(ModelSystemStructureDisplayModel displayModel)
         {
             Dispatcher.Invoke(() =>
@@ -1440,6 +1479,9 @@ namespace XTMF.Gui.UserControls
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void GotoSelectedParameterModule()
         {
             if (ParameterTabControl.SelectedItem == QuickParameterTab &&
@@ -1640,9 +1682,12 @@ namespace XTMF.Gui.UserControls
             ShowDocumentation();
         }
 
+        /// <summary>
+        /// Displays documentation for the currently selected module.
+        /// </summary>
         private void ShowDocumentation()
         {
-            if (ModuleDisplay.SelectedItem is ModelSystemStructureDisplayModel selectedModule)
+            if (ActiveModelSystemView.SelectedModule is ModelSystemStructureDisplayModel selectedModule)
             {
                 MainWindow.Us.LaunchHelpWindow(selectedModule.BaseModel);
             }
@@ -1663,43 +1708,14 @@ namespace XTMF.Gui.UserControls
             RenameDescription();
         }
 
-        private void ToggleDisableModule()
-        {
-            var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel)?.BaseModel;
-            var selectedModuleControl = GetCurrentlySelectedControl();
-            if (selectedModuleControl != null && selected != null)
-            {
-                string error = null;
-                Session.ExecuteCombinedCommands(selected.IsDisabled ? "Enable Module" : "Disable Module", () =>
-                {
-                    foreach (var sel in CurrentlySelected)
-                    {
-                        if (!sel.SetDisabled(!sel.IsDisabled, ref error))
-                        {
-                            return;
-                        }
 
-                        if (sel.IsDisabled)
-                        {
-                            if (!DisabledModules.Contains(sel))
-                            {
-                                DisabledModules.Add(sel);
-                            }
-                        }
-                    }
-                });
-                if (error != null)
-                {
-                    MessageBox.Show(MainWindow.Us, error,
-                        selected.IsDisabled ? "Unable to Enable" : "Unable to Disable", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
-            }
-        }
 
-        private void RenameSelectedModule()
+        /// <summary>
+        /// Renames the selected module
+        /// </summary>
+        public void RenameSelectedModule()
         {
-            var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
+            var selected = ActiveModelSystemView.SelectedModule?.BaseModel;
             var selectedModuleControl = GetCurrentlySelectedControl();
             if (selectedModuleControl != null)
             {
@@ -1726,9 +1742,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RenameDescription()
+        /// <summary>
+        /// Renames the selected module's description
+        /// </summary>
+        public void RenameDescription()
         {
-            var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
+            var selected = ActiveModelSystemView.SelectedModule?.BaseModel;
             var selectedModuleControl = GetCurrentlySelectedControl();
             if (selectedModuleControl != null)
             {
@@ -1795,6 +1814,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// Brings the specified module into view
+        /// </summary>
+        /// <param name="selected"></param>
         private void BringSelectedIntoView(ModelSystemStructureDisplayModel selected)
         {
             var ansestry = DisplayRoot.BuildChainTo(selected);
@@ -1869,7 +1892,7 @@ namespace XTMF.Gui.UserControls
                             /* Remove the module from selected items */
                             //CurrentlySelected.Remove(selected);
                             UpdateParameters();
-                            Keyboard.Focus(ModuleDisplay);
+                            Keyboard.Focus(ModelSystemDisplayContent);
                         }
 
                         string error = null;
@@ -2040,10 +2063,10 @@ namespace XTMF.Gui.UserControls
             if ((ParameterTabControl.SelectedItem == QuickParameterTab
                     ? QuickParameterDisplay.SelectedItem
                     : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter &&
-                ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel != null)
+                ActiveModelSystemView.SelectedModule != null)
             {
                 var inputParameter =
-                    GetInputParameter((ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel,
+                    GetInputParameter(ActiveModelSystemView.SelectedModule.BaseModel,
                         out var inputDirectory);
                 if (inputParameter != null)
                 {
@@ -2355,7 +2378,7 @@ namespace XTMF.Gui.UserControls
 
         private void DisableModuleMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            ToggleDisableModule();
+            //ToggleDisableModule();
         }
 
         private void ModuleTreeViewItem_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
@@ -2450,26 +2473,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            e.Handled = false;
-            switch (e.Key)
-            {
-                case Key.F2:
-                    RenameSelectedModule();
-                    break;
-                case Key.Up:
-                    ModuleDisplayNavigateUp(item);
-                    e.Handled = true;
-                    break;
-                case Key.Down:
-                    ModuleDisplayNavigateDown(item);
-                    e.Handled = true;
-                    break;
-            }
-        }
-
+        
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             ParameterWidth = ParameterDisplay.ActualWidth - 24;
@@ -2485,10 +2489,7 @@ namespace XTMF.Gui.UserControls
             ParameterWidth = ModuleValidationErrorListView.ActualWidth - 24;
         }
 
-        private void GridCanvas_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            ModuleDisplay.Focus();
-        }
+
 
         private void LinkedParameter_Click(object sender, RoutedEventArgs e)
         {
