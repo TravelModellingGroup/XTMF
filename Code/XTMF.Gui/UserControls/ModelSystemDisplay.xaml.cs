@@ -96,6 +96,10 @@ namespace XTMF.Gui.UserControls
 
         private object SaveLock = new object();
 
+        private ModelSystemRegionViewDisplay regionViewDisplay;
+
+        private ModelSystemTreeViewDisplay treeViewDisplay;
+
         public ModelSystemDisplay()
         {
             _saveSemaphor = new Semaphore(1, 1);
@@ -161,6 +165,10 @@ namespace XTMF.Gui.UserControls
                     _selectedParameterDisplayModel = null;
                 });
             };
+
+            //initialize sub displays for the model system
+            this.regionViewDisplay = new ModelSystemRegionViewDisplay();
+            this.treeViewDisplay = new ModelSystemTreeViewDisplay();
         }
 
 
@@ -3088,6 +3096,10 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RegionViewListBoxItem_Selected(object sender, RoutedEventArgs e)
         {
+            Dispatcher.BeginInvoke(new Action(() =>
+           {
+               ModelSystemDisplayContent.Content = this.regionViewDisplay;
+           }));
 
         }
 
@@ -3098,7 +3110,10 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void TreeViewListBoxItem_Selected(object sender, RoutedEventArgs e)
         {
-
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ModelSystemDisplayContent.Content = this.treeViewDisplay;
+            }));
         }
     }
 }

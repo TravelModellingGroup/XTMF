@@ -227,6 +227,9 @@
     <Compile Include="UserControls\ModelSystemRegionViewDisplay.xaml.cs">
       <DependentUpon>ModelSystemRegionViewDisplay.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ModelSystemTreeViewDisplay.xaml.cs">
+      <DependentUpon>ModelSystemTreeViewDisplay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ModuleContextControl.xaml.cs">
       <DependentUpon>ModuleContextControl.xaml</DependentUpon>
     </Compile>
@@ -382,6 +385,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\ModelSystemRegionViewDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ModelSystemTreeViewDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

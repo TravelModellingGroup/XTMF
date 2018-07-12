@@ -185,19 +185,20 @@
                     <this:LinkedParameterDisplay  x:Name="LinkedParameterDisplayOverlay"/>
                 </Grid> 
             </materialDesign:DialogHost.DialogContent> -->
-       
+
             <Grid Background="{DynamicResource MaterialDesignPaper}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition MinWidth="100px" Width="*"/>
+                    <ColumnDefinition MinWidth="650px" Width="*"/>
                     <ColumnDefinition Width="AUTO"/>
                     <ColumnDefinition MinWidth="330px" Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="82"/>
+                    <RowDefinition Height="10.204"/>
+                    <RowDefinition Height="71.796"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="3"/>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Grid.ColumnSpan="2 ">
+                <Grid Grid.Row="0" Grid.ColumnSpan="2 " Grid.RowSpan="2">
                     <Grid VerticalAlignment="Top" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="54"/>
@@ -227,52 +228,52 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
-                                        
+
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                         <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                     </Button>
                                     <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
-                                    
+
                                 </Grid>
                                 <Grid>
-                                <ListBox Margin="10 10 0 10"  Style="{StaticResource MaterialDesignToolToggleListBox}" SelectedIndex="0">
+                                    <ListBox Margin="10 10 0 10"  Style="{StaticResource MaterialDesignToolToggleListBox}" SelectedIndex="0">
 
-                                    <ListBox.ToolTip>
+                                        <ListBox.ToolTip>
 
-                                        <StackPanel>
+                                            <StackPanel>
 
-                                            <TextBlock Text="MaterialDesignToolToggleListBox" />
+                                                <TextBlock Text="MaterialDesignToolToggleListBox" />
 
-                                            <TextBlock Text="Exclusive selection" />
+                                                <TextBlock Text="Exclusive selection" />
 
-                                            <TextBlock Text="ListBoxAssist.IsToggle allows more natural toggle behaviour" />
+                                                <TextBlock Text="ListBoxAssist.IsToggle allows more natural toggle behaviour" />
 
-                                        </StackPanel>
+                                            </StackPanel>
 
-                                    </ListBox.ToolTip>
+                                        </ListBox.ToolTip>
 
-                                    <ListBoxItem Name="TreeViewListBoxItem" Selected="TreeViewListBoxItem_Selected" >
+                                        <ListBoxItem Name="TreeViewListBoxItem" Selected="TreeViewListBoxItem_Selected" >
 
-                                        <materialDesign:PackIcon Kind="FileTree"/>
+                                            <materialDesign:PackIcon Kind="FileTree"/>
 
-                                    </ListBoxItem>
+                                        </ListBoxItem>
 
-                                    <ListBoxItem Name="RegionViewListBoxItem" Selected="RegionViewListBoxItem_Selected" >
+                                        <ListBoxItem Name="RegionViewListBoxItem" Selected="RegionViewListBoxItem_Selected" >
 
-                                        <materialDesign:PackIcon Kind="Group"/>
+                                            <materialDesign:PackIcon Kind="Group"/>
 
-                                    </ListBoxItem>
+                                        </ListBoxItem>
 
 
-                                </ListBox>
+                                    </ListBox>
                                 </Grid>
                             </ToolBar>
                         </ToolBarTray>
                         <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  />
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}" SnapsToDevicePixels="True">
+                <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}" SnapsToDevicePixels="True">
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="30*"/>
@@ -282,7 +283,12 @@
                             <RowDefinition Height="AUTO"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <TreeView Grid.Row="1"  BorderThickness="0"  SnapsToDevicePixels="True"
+
+                        <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="1"
+                                Name="ModelSystemDisplayContent" />
+                        
+                        <TreeView Grid.Row="1"  BorderThickness="0"  SnapsToDevicePixels="True" Visibility="Hidden"
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                               PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown" 
@@ -359,8 +365,8 @@
                         </TreeView>
                     </Grid>
                 </Grid>
-                <GridSplitter Grid.RowSpan="2" Grid.Row="0" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                <TabControl Grid.Row="0" Grid.RowSpan="2" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged" Background="{DynamicResource MaterialDesignPaper}">
+                <GridSplitter Grid.RowSpan="3" Grid.Row="0" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
+                <TabControl Grid.Row="0" Grid.RowSpan="3" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged" Background="{DynamicResource MaterialDesignPaper}">
                     <TabItem IsSelected="True" Style="{DynamicResource XtmfTabItem}" Header="Quick Parameters" x:Name="QuickParameterTab" FontSize="14" VerticalAlignment="Top">
                         <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
                             <materialDesign:DialogHost.DialogContent >
@@ -525,7 +531,7 @@
 
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
-                                            
+
                                         </Style>
                                     </ListView.ItemContainerStyle>
                                     <ListView.ItemsPanel>
@@ -685,7 +691,7 @@
                         </ScrollViewer>
                     </TabItem>
                 </TabControl>
-                <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Height="3" ShowsPreview="True"/>
+                <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="3" Height="3" ShowsPreview="True"/>
             </Grid>
         </materialDesign:DialogHost>
 
