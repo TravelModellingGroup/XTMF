@@ -273,6 +273,10 @@
                         <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  />
                     </Grid>
                 </Grid>
+
+                <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="2" Grid.Column="0"
+                                Name="ModelSystemDisplayContent" />
                 <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}" SnapsToDevicePixels="True">
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
                         <Grid.ColumnDefinitions>
@@ -284,9 +288,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="1"
-                                Name="ModelSystemDisplayContent" />
+                     
                         
                         <TreeView Grid.Row="1"  BorderThickness="0"  SnapsToDevicePixels="True" Visibility="Hidden"
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"

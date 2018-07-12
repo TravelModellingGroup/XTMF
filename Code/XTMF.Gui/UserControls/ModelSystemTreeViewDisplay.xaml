@@ -6,7 +6,25 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+
+    <UserControl.Resources>
+        <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20" Viewbox="0,0,14,14" ViewportUnits="Absolute" ViewboxUnits="Absolute">
+            <VisualBrush.Visual>
+                <Rectangle SnapsToDevicePixels="True" Opacity="0.2" Stroke="{DynamicResource PrimaryHueLightForegroundBrush}" StrokeThickness="0.8" Width="20" Height="20"/>
+            </VisualBrush.Visual>
+        </VisualBrush>
+    </UserControl.Resources>
+    
+    <Grid  Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}" SnapsToDevicePixels="True">
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30*"/>
+                <ColumnDefinition Width="269*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="AUTO"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+        </Grid>
     </Grid>
 </UserControl>
