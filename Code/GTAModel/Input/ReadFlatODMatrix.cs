@@ -62,10 +62,10 @@ namespace TMG.GTAModel.Input
             {
                 s = File.OpenRead(f);
             }
-            catch (IOException)
+            catch (IOException e)
             {
                 s?.Close();
-                throw;
+                throw new XTMFRuntimeException(this, e, $"Unable to read file {f}\r\n{e.Message}");
             }
 
             if (s.Length < (numberOfZones * numberOfZones) * 4)
