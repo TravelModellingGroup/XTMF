@@ -30,6 +30,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shell;
 using System.Windows.Threading;
+using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Annotations;
 
@@ -104,6 +105,8 @@ namespace XTMF.Gui.UserControls
 
         //Display model reference in the scheduler window
         public SchedulerWindow.SchedulerRunItem SchedulerRunItem { get; set; }
+
+        private SwatchesProvider swatchesProvider;
 
         static RunWindow()
         {
@@ -694,7 +697,7 @@ namespace XTMF.Gui.UserControls
                     //AdditionDetailsPanelBorder.Height = 600;
                     var progressBar = new TMGProgressBar
                     {
-                        Background = new SolidColorBrush(Color.FromArgb(0x22, 0x22, 0x22, 0x22)),
+                        //Background = MaterialDesignColors.Swatch.
                         Maximum = 10000,
                         Minimum = 0,
                         HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -708,7 +711,7 @@ namespace XTMF.Gui.UserControls
 
                     _subProgressBars.Add(new SubProgress
                     {
-                        Name = new Label { Content = toAdd.Name, Foreground = Brushes.White },
+                        Name = new Label { Content = toAdd.Name, Foreground = (Brush)FindResource("MaterialDesignBody") },
                         ProgressBar = progressBar
                     });
 
