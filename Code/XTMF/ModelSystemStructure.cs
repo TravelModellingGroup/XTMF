@@ -746,6 +746,7 @@ namespace XTMF
         {
             List<Type> ret = new List<Type>();
             GatherAllTypes(start, ret);
+            ret.Sort((f, s) => f.FullName.CompareTo(s.FullName));
             return ret;
         }
 
