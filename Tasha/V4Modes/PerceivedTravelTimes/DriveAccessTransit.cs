@@ -292,8 +292,40 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [RunParameter("Transit Network", "Transit", "The name of the transit network.")]
         public string TransitNetworkName;
 
+        private void AssignRequiredVehicle()
+        {
+            if (string.IsNullOrWhiteSpace(VehicleTypeName))
+            {
+                RequiresVehicle = Root.AutoType;
+            }
+            else
+            {
+                if (Root.AutoType.VehicleName == VehicleTypeName)
+                {
+                    RequiresVehicle = Root.AutoType;
+                }
+                else if (Root.VehicleTypes != null)
+                {
+                    foreach (var v in Root.VehicleTypes)
+                    {
+                        if (v.VehicleName == VehicleTypeName)
+                        {
+                            RequiresVehicle = v;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         public bool RuntimeValidation(ref string error)
         {
+            AssignRequiredVehicle();
+            if (RequiresVehicle == null)
+            {
+                error = $"In {Name} we were unable to find a vehicle type with the name {VehicleTypeName}!";
+                return false;
+            }
             foreach (var network in Root.NetworkData)
             {
                 if (network.NetworkType == AutoNetworkName)
@@ -629,8 +661,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
 
 
-            ZonalDensityForActivitiesArray = (float[]) ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
-            ZonalDensityForHomeArray = (float[]) ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
+            ZonalDensityForActivitiesArray = (float[])ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
+            ZonalDensityForHomeArray = (float[])ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
             for (int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
             {
                 ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
