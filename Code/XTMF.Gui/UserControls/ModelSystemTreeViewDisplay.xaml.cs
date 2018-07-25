@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,6 +29,19 @@ namespace XTMF.Gui.UserControls
         public ModelSystemStructureDisplayModel SelectedModule => ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
 
         public ItemsControl ViewItemsControl => ModuleDisplay;
+
+        private bool _disableMultipleSelectOnce;
+
+        private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
+    "IsSelectionChangeActive", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        internal List<ModelSystemStructureDisplayModel> CurrentlySelected
+        {
+            get
+            {
+                return display.CurrentlySelected;
+            }
+        }
 
         public ModelSystemTreeViewDisplay(ModelSystemDisplay display)
         {
@@ -215,6 +229,106 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void ModuleDisplayNavigateDown(ModelSystemStructureDisplayModel item)
+        {
+            if (item.IsExpanded && item.Children != null && item.Children.Count > 0)
+            {
+                item.Children[0].IsSelected = true;
+            }
+            else
+            {
+                var toSelect = FindNextAncestor(item);
+                if (item.Parent == toSelect.Parent && item.Index < item.Parent.Children.Count - 1
+                    || item.Parent != toSelect.Parent)
+                {
+                    toSelect.IsSelected = true;
+                }
+            }
+        }
+
+        private void MoveUp_Click(object sender, RoutedEventArgs e)
+        {
+            MoveCurrentModule(-1);
+        }
+
+        private void MoveDown_Click(object sender, RoutedEventArgs e)
+        {
+            MoveCurrentModule(1);
+        }
+
+        private void MoveCurrentModule(int deltaPosition)
+        {
+            if (CurrentlySelected.Count > 0)
+            {
+                var parent = Session.GetParent(CurrentlySelected[0].BaseModel);
+                // make sure they all have the same parent
+                if (CurrentlySelected.Any(m => Session.GetParent(m.BaseModel) != parent))
+                {
+                    // if not ding and exit
+                    SystemSounds.Asterisk.Play();
+                    return;
+                }
+
+                var mul = deltaPosition < 0 ? 1 : -1;
+                var moveOrder = CurrentlySelected
+                    .Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) })
+                    .OrderBy(i => mul * i.ParentIndex);
+                var first = moveOrder.First();
+                Session.ExecuteCombinedCommands(
+                    "Move Selected Modules",
+                    () =>
+                    {
+                        foreach (var el in moveOrder)
+                        {
+                            var selected = CurrentlySelected[el.Index];
+                            string error = null;
+                            if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
+                            {
+                                SystemSounds.Asterisk.Play();
+                                break;
+                            }
+                        }
+                    });
+                BringSelectedIntoView(CurrentlySelected[first.Index]);
+            }
+        }
+
+
+        private void SetMetaModuleStateForSelected(bool set)
+        {
+            Session.ExecuteCombinedCommands(
+                set ? "Compose to Meta-Modules" : "Decompose Meta-Modules",
+                () =>
+                {
+                    foreach (var selected in CurrentlySelected)
+                    {
+                        string error = null;
+                        if (!selected.SetMetaModule(set, ref error))
+                        {
+                            MessageBox.Show(GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        }
+                    }
+                });
+            UpdateParameters();
+        }
+
+
+
+
+        private void ConvertToMetaModule_Click(object sender, RoutedEventArgs e)
+        {
+            SetMetaModuleStateForSelected(true);
+        }
+
+        private void ConvertFromMetaModule_Click(object sender, RoutedEventArgs e)
+        {
+            SetMetaModuleStateForSelected(false);
+        }
+
+
+
+
 
         /// <summary>
         /// 
@@ -332,6 +446,22 @@ namespace XTMF.Gui.UserControls
                 }
             };
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        private static TreeViewItem VisualUpwardSearch(DependencyObject source)
+        {
+            while (source != null && !(source is TreeViewItem))
+            {
+                source = VisualTreeHelper.GetParent(source);
+            }
+
+            return source as TreeViewItem;
+        }
+
 
 
 

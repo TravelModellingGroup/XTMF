@@ -70,10 +70,9 @@ namespace XTMF.Gui.UserControls
 
         private static int FilterNumber;
 
-        private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
-            "IsSelectionChangeActive", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private readonly List<ModelSystemStructureDisplayModel> CurrentlySelected =
+
+        internal readonly List<ModelSystemStructureDisplayModel> CurrentlySelected =
             new List<ModelSystemStructureDisplayModel>();
 
         private readonly BindingList<LinkedParameterDisplayModel> RecentLinkedParameters =
@@ -700,25 +699,6 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-        }
-
-        private void SetMetaModuleStateForSelected(bool set)
-        {
-            Session.ExecuteCombinedCommands(
-                set ? "Compose to Meta-Modules" : "Decompose Meta-Modules",
-                () =>
-                {
-                    foreach (var selected in CurrentlySelected)
-                    {
-                        string error = null;
-                        if (!selected.SetMetaModule(set, ref error))
-                        {
-                            MessageBox.Show(GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-                        }
-                    }
-                });
-            UpdateParameters();
         }
 
         private void RefreshParameters()
@@ -1787,42 +1767,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void MoveCurrentModule(int deltaPosition)
-        {
-            if (CurrentlySelected.Count > 0)
-            {
-                var parent = Session.GetParent(CurrentlySelected[0].BaseModel);
-                // make sure they all have the same parent
-                if (CurrentlySelected.Any(m => Session.GetParent(m.BaseModel) != parent))
-                {
-                    // if not ding and exit
-                    SystemSounds.Asterisk.Play();
-                    return;
-                }
-
-                var mul = deltaPosition < 0 ? 1 : -1;
-                var moveOrder = CurrentlySelected
-                    .Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) })
-                    .OrderBy(i => mul * i.ParentIndex);
-                var first = moveOrder.First();
-                Session.ExecuteCombinedCommands(
-                    "Move Selected Modules",
-                    () =>
-                    {
-                        foreach (var el in moveOrder)
-                        {
-                            var selected = CurrentlySelected[el.Index];
-                            string error = null;
-                            if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
-                            {
-                                SystemSounds.Asterisk.Play();
-                                break;
-                            }
-                        }
-                    });
-                BringSelectedIntoView(CurrentlySelected[first.Index]);
-            }
-        }
+       
 
         /// <summary>
         /// Brings the specified module into view
@@ -2321,15 +2266,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private static TreeViewItem VisualUpwardSearch(DependencyObject source)
-        {
-            while (source != null && !(source is TreeViewItem))
-            {
-                source = VisualTreeHelper.GetParent(source);
-            }
-
-            return source as TreeViewItem;
-        }
 
         private void DisplayButton_RightClicked(object obj)
         {
@@ -2344,27 +2280,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void MoveUp_Click(object sender, RoutedEventArgs e)
-        {
-            MoveCurrentModule(-1);
-        }
-
-        private void MoveDown_Click(object sender, RoutedEventArgs e)
-        {
-            MoveCurrentModule(1);
-        }
-
-        
-
-        private void ConvertToMetaModule_Click(object sender, RoutedEventArgs e)
-        {
-            SetMetaModuleStateForSelected(true);
-        }
-
-        private void ConvertFromMetaModule_Click(object sender, RoutedEventArgs e)
-        {
-            SetMetaModuleStateForSelected(false);
-        }
 
         private void RenameParameter_Click(object sender, RoutedEventArgs e)
         {
@@ -2446,22 +2361,7 @@ namespace XTMF.Gui.UserControls
                 : FindMostExpandedItem(item.Children[item.Children.Count - 1]);
         }
 
-        private void ModuleDisplayNavigateDown(ModelSystemStructureDisplayModel item)
-        {
-            if (item.IsExpanded && item.Children != null && item.Children.Count > 0)
-            {
-                item.Children[0].IsSelected = true;
-            }
-            else
-            {
-                var toSelect = FindNextAncestor(item);
-                if (item.Parent == toSelect.Parent && item.Index < item.Parent.Children.Count - 1
-                    || item.Parent != toSelect.Parent)
-                {
-                    toSelect.IsSelected = true;
-                }
-            }
-        }
+
 
         private void ModuleDisplayNavigateUp(ModelSystemStructureDisplayModel item)
         {
