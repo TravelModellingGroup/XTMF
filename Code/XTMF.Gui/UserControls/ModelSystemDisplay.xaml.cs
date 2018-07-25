@@ -1667,15 +1667,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void Help_Clicked(object sender, RoutedEventArgs e)
-        {
-            ShowDocumentation();
-        }
+
 
         /// <summary>
         /// Displays documentation for the currently selected module.
         /// </summary>
-        private void ShowDocumentation()
+        public void ShowDocumentation()
         {
             if (ActiveModelSystemView.SelectedModule is ModelSystemStructureDisplayModel selectedModule)
             {
@@ -2256,16 +2253,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var treeViewItem = VisualUpwardSearch(e.OriginalSource as DependencyObject);
-            if (treeViewItem != null)
-            {
-                treeViewItem.Focus();
-                e.Handled = true;
-            }
-        }
-
+     
 
         private void DisplayButton_RightClicked(object obj)
         {
@@ -2339,49 +2327,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private ModelSystemStructureDisplayModel FindNextAncestor(ModelSystemStructureDisplayModel item)
-        {
-            if (item.Parent == null)
-            {
-                return item.Children != null && item.Children.Count > 0 ? item.Children[0] : item;
-            }
 
-            if (item.Index < item.Parent.Children.Count - 1)
-            {
-                return item.Parent.Children[item.Index + 1];
-            }
 
-            return FindNextAncestor(item.Parent);
-        }
-
-        private ModelSystemStructureDisplayModel FindMostExpandedItem(ModelSystemStructureDisplayModel item)
-        {
-            return !item.IsExpanded || item.Children == null || item.Children.Count == 0
-                ? item
-                : FindMostExpandedItem(item.Children[item.Children.Count - 1]);
-        }
+        
 
 
 
-        private void ModuleDisplayNavigateUp(ModelSystemStructureDisplayModel item)
-        {
-            // make sure we are not the root module
-            if (item.Parent != null)
-            {
-                // if parent item has a single child
-                if (item.Index == 0 || item.Parent.Children.Count == 1)
-                {
-                    item.Parent.IsSelected = true;
-                }
-                // if parent item has multiple children
-                else if (item.Parent.Children.Count > 1)
-                {
-                    // find the most expanded "deepest" subchild of sibling element
-                    var toSelect = FindMostExpandedItem(item.Parent.Children[item.Index - 1]);
-                    toSelect.IsSelected = true;
-                }
-            }
-        }
 
         
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)

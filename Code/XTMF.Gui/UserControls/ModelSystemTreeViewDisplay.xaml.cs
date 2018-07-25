@@ -229,6 +229,72 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Help_Clicked(object sender, RoutedEventArgs e)
+        {
+            this.display.ShowDocumentation();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var treeViewItem = VisualUpwardSearch(e.OriginalSource as DependencyObject);
+            if (treeViewItem != null)
+            {
+                treeViewItem.Focus();
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        private ModelSystemStructureDisplayModel FindMostExpandedItem(ModelSystemStructureDisplayModel item)
+        {
+            return !item.IsExpanded || item.Children == null || item.Children.Count == 0
+                ? item
+                : FindMostExpandedItem(item.Children[item.Children.Count - 1]);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        private void ModuleDisplayNavigateUp(ModelSystemStructureDisplayModel item)
+        {
+            // make sure we are not the root module
+            if (item.Parent != null)
+            {
+                // if parent item has a single child
+                if (item.Index == 0 || item.Parent.Children.Count == 1)
+                {
+                    item.Parent.IsSelected = true;
+                }
+                // if parent item has multiple children
+                else if (item.Parent.Children.Count > 1)
+                {
+                    // find the most expanded "deepest" subchild of sibling element
+                    var toSelect = FindMostExpandedItem(item.Parent.Children[item.Index - 1]);
+                    toSelect.IsSelected = true;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
         private void ModuleDisplayNavigateDown(ModelSystemStructureDisplayModel item)
         {
             if (item.IsExpanded && item.Children != null && item.Children.Count > 0)
@@ -244,6 +310,26 @@ namespace XTMF.Gui.UserControls
                     toSelect.IsSelected = true;
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        private ModelSystemStructureDisplayModel FindNextAncestor(ModelSystemStructureDisplayModel item)
+        {
+            if (item.Parent == null)
+            {
+                return item.Children != null && item.Children.Count > 0 ? item.Children[0] : item;
+            }
+
+            if (item.Index < item.Parent.Children.Count - 1)
+            {
+                return item.Parent.Children[item.Index + 1];
+            }
+
+            return FindNextAncestor(item.Parent);
         }
 
         private void MoveUp_Click(object sender, RoutedEventArgs e)
@@ -326,8 +412,14 @@ namespace XTMF.Gui.UserControls
             SetMetaModuleStateForSelected(false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
 
-
+        }
 
 
         /// <summary>
