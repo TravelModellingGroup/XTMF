@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using XTMF.Gui.Controllers;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
 
@@ -342,13 +344,13 @@ namespace XTMF.Gui.UserControls
             MoveCurrentModule(1);
         }
 
-        private void MoveCurrentModule(int deltaPosition)
+        public void MoveCurrentModule(int deltaPosition)
         {
             if (CurrentlySelected.Count > 0)
             {
-                var parent = Session.GetParent(CurrentlySelected[0].BaseModel);
+                var parent = this.display.Session.GetParent(CurrentlySelected[0].BaseModel);
                 // make sure they all have the same parent
-                if (CurrentlySelected.Any(m => Session.GetParent(m.BaseModel) != parent))
+                if (CurrentlySelected.Any(m => this.display.Session.GetParent(m.BaseModel) != parent))
                 {
                     // if not ding and exit
                     SystemSounds.Asterisk.Play();
@@ -360,7 +362,7 @@ namespace XTMF.Gui.UserControls
                     .Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) })
                     .OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
-                Session.ExecuteCombinedCommands(
+                this.display.Session.ExecuteCombinedCommands(
                     "Move Selected Modules",
                     () =>
                     {
@@ -375,14 +377,18 @@ namespace XTMF.Gui.UserControls
                             }
                         }
                     });
-                BringSelectedIntoView(CurrentlySelected[first.Index]);
+                this.display.BringSelectedIntoView(CurrentlySelected[first.Index]);
             }
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="set"></param>
         private void SetMetaModuleStateForSelected(bool set)
         {
-            Session.ExecuteCombinedCommands(
+            this.display.Session.ExecuteCombinedCommands(
                 set ? "Compose to Meta-Modules" : "Decompose Meta-Modules",
                 () =>
                 {
@@ -391,17 +397,21 @@ namespace XTMF.Gui.UserControls
                         string error = null;
                         if (!selected.SetMetaModule(set, ref error))
                         {
-                            MessageBox.Show(GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK,
+                            MessageBox.Show(this.display.GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK,
                                 MessageBoxImage.Error);
                         }
                     }
                 });
-            UpdateParameters();
+            this.display.RefreshParameters();
         }
 
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ConvertToMetaModule_Click(object sender, RoutedEventArgs e)
         {
             SetMetaModuleStateForSelected(true);
@@ -412,13 +422,37 @@ namespace XTMF.Gui.UserControls
             SetMetaModuleStateForSelected(false);
         }
 
+
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="e"></param>
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
+            base.OnPreviewKeyDown(e);
+            if (e.Handled == false)
+            {
+                switch (e.Key)
+                {
+                    case Key.Down:
+                        if (EditorController.IsShiftDown() && EditorController.IsControlDown())
+                        {
+                            MoveCurrentModule(1);
+                            e.Handled = true;
+                        }
 
+                        break;
+                    case Key.Up:
+                        if (EditorController.IsShiftDown() && EditorController.IsControlDown())
+                        {
+                            MoveCurrentModule(-1);
+                            e.Handled = true;
+                        }
+
+                        break;
+                }
+            }
         }
 
 
@@ -446,7 +480,7 @@ namespace XTMF.Gui.UserControls
             var selectedItems = new List<TreeViewItem>();
             treeView.SelectedItemChanged += (a, b) =>
             {
-                var module = GetCurrentlySelectedControl();
+                var module = this.display.GetCurrentlySelectedControl();
                 if (module == null)
                 {
                     // disable the event to avoid recursion

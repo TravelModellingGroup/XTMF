@@ -395,7 +395,7 @@ namespace XTMF.Gui.UserControls
         /// 
         /// </summary>
         /// <returns></returns>
-        private UIElement GetCurrentlySelectedControl()
+        public UIElement GetCurrentlySelectedControl()
         {
             return GetCurrentlySelectedControl(DisplayRoot,
                 ActiveModelSystemView.SelectedModule);
@@ -466,7 +466,7 @@ namespace XTMF.Gui.UserControls
         {
             var children = current.Children;
             var container = (previous == null
-                ? ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current)
+                ? this.treeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current)
                 : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
             if (current == lookingFor && container != null)
             {
@@ -534,7 +534,7 @@ namespace XTMF.Gui.UserControls
             FilterBox.Focus();
         }
 
-        private Window GetWindow()
+        public Window GetWindow()
         {
             var current = this as DependencyObject;
             while (current != null && !(current is Window))
@@ -701,7 +701,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RefreshParameters()
+        public void RefreshParameters()
         {
             UpdateParameters();
         }
@@ -788,32 +788,7 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
-        {
-            base.OnPreviewKeyDown(e);
-            if (e.Handled == false)
-            {
-                switch (e.Key)
-                {
-                    case Key.Down:
-                        if (EditorController.IsShiftDown() && EditorController.IsControlDown())
-                        {
-                            MoveCurrentModule(1);
-                            e.Handled = true;
-                        }
-
-                        break;
-                    case Key.Up:
-                        if (EditorController.IsShiftDown() && EditorController.IsControlDown())
-                        {
-                            MoveCurrentModule(-1);
-                            e.Handled = true;
-                        }
-
-                        break;
-                }
-            }
-        }
+        
 
         /// <summary>
         /// 
@@ -1770,12 +1745,12 @@ namespace XTMF.Gui.UserControls
         /// Brings the specified module into view
         /// </summary>
         /// <param name="selected"></param>
-        private void BringSelectedIntoView(ModelSystemStructureDisplayModel selected)
+        internal void BringSelectedIntoView(ModelSystemStructureDisplayModel selected)
         {
             var ansestry = DisplayRoot.BuildChainTo(selected);
             if (ansestry != null)
             {
-                var currentContainer = ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
+                var currentContainer = this.treeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
                 for (var i = 1; i < ansestry.Count; i++)
                 {
                     if (currentContainer != null)

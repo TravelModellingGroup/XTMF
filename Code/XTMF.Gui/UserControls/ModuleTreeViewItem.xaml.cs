@@ -103,6 +103,8 @@ namespace XTMF.Gui.UserControls
             SetupColours();
         }
 
+
+
         private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
             switch (propertyChangedEventArgs.PropertyName)
