@@ -824,11 +824,11 @@ namespace XTMF.Gui.UserControls
                         case Key.M:
                             if (EditorController.IsAltDown())
                             {
-                                SetMetaModuleStateForSelected(false);
+                                //SetMetaModuleStateForSelected(false);
                             }
                             else if (EditorController.IsShiftDown())
                             {
-                                SetMetaModuleStateForSelected(true);
+                                //SetMetaModuleStateForSelected(true);
                             }
                             else
                             {
@@ -1208,7 +1208,7 @@ namespace XTMF.Gui.UserControls
                         {
                             if (ctrlDown)
                             {
-                                MoveCurrentModule(-1);
+                                //MoveCurrentModule(-1);
                             }
                             else
                             {
@@ -1229,7 +1229,7 @@ namespace XTMF.Gui.UserControls
                         {
                             if (ctrlDown)
                             {
-                                MoveCurrentModule(1);
+                                //MoveCurrentModule(1);
                             }
                             else
                             {
@@ -1276,8 +1276,11 @@ namespace XTMF.Gui.UserControls
         }
 
 
-
-        private void MoveFocusNext(bool up)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="up"></param>
+        internal void MoveFocusNext(bool up)
         {
             // Change keyboard focus.
             if (Keyboard.FocusedElement is UIElement elementWithFocus)
@@ -2606,7 +2609,7 @@ namespace XTMF.Gui.UserControls
                 if (e.Key == Key.Up)
                 {
                     _disableMultipleSelectOnce = true;
-                    ModuleDisplayNavigateUp(item);
+                    //ModuleDisplayNavigateUp(item);
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         view.SelectedIndex = 0;
@@ -2618,7 +2621,7 @@ namespace XTMF.Gui.UserControls
                 else if (e.Key == Key.Down)
                 {
                     _disableMultipleSelectOnce = true;
-                    ModuleDisplayNavigateDown(item);
+                   // ModuleDisplayNavigateDown(item);
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         view.SelectedIndex = 0;

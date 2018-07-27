@@ -26,7 +26,12 @@ namespace XTMF.Gui.UserControls
     public partial class ModelSystemTreeViewDisplay : UserControl, IModelSystemView
     {
 
-        private ModelSystemDisplay display;
+        private ModelSystemDisplay _display;
+
+        private ModelSystemEditingSession Session
+        {
+            get { return this._display.Session; }
+        }
 
         public ModelSystemStructureDisplayModel SelectedModule => ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
 
@@ -41,14 +46,15 @@ namespace XTMF.Gui.UserControls
         {
             get
             {
-                return display.CurrentlySelected;
+                return _display.CurrentlySelected;
             }
         }
 
         public ModelSystemTreeViewDisplay(ModelSystemDisplay display)
         {
             InitializeComponent();
-            this.display = display;
+            this._display = display;
+            
             //ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
         }
 
@@ -61,16 +67,16 @@ namespace XTMF.Gui.UserControls
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
 
-            this.display.UpdateQuickParameters();
-            this.display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
-            this.display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
+            this._display.UpdateQuickParameters();
+            this._display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
+            this._display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
         }
 
 
 
         private void MDisplay_Unloaded(object sender, RoutedEventArgs e)
         {
-            MainWindow.Us.PreviewKeyDown -= UsOnPreviewKeyDown;
+            //MainWindow.Us.PreviewKeyDown -= UsOnPreviewKeyDown;
         }
 
         /// <summary>
@@ -169,13 +175,13 @@ namespace XTMF.Gui.UserControls
         private void MoveFocusNextModule(bool up)
         {
             Keyboard.Focus(ModuleDisplay);
-            MoveFocusNext(up);
+            _display.MoveFocusNext(up);
         }
 
         private void ToggleDisableModule()
         {
             var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel)?.BaseModel;
-            var selectedModuleControl = GetCurrentlySelectedControl();
+            var selectedModuleControl = _display.GetCurrentlySelectedControl();
             if (selectedModuleControl != null && selected != null)
             {
                 string error = null;
@@ -190,9 +196,9 @@ namespace XTMF.Gui.UserControls
 
                         if (sel.IsDisabled)
                         {
-                            if (!DisabledModules.Contains(sel))
+                            if (!_display.DisabledModules.Contains(sel))
                             {
-                                DisabledModules.Add(sel);
+                                _display.DisabledModules.Add(sel);
                             }
                         }
                     }
@@ -218,7 +224,7 @@ namespace XTMF.Gui.UserControls
             switch (e.Key)
             {
                 case Key.F2:
-                    this.display.RenameSelectedModule();
+                    this._display.RenameSelectedModule();
                     break;
                 case Key.Up:
                     ModuleDisplayNavigateUp(item);
@@ -238,7 +244,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void Help_Clicked(object sender, RoutedEventArgs e)
         {
-            this.display.ShowDocumentation();
+            this._display.ShowDocumentation();
         }
 
         /// <summary>
@@ -344,13 +350,17 @@ namespace XTMF.Gui.UserControls
             MoveCurrentModule(1);
         }
 
+        /// <summary>
+        /// Moves the currently selected module by position the specified delta (negative is up, positive down)
+        /// </summary>
+        /// <param name="deltaPosition"></param>
         public void MoveCurrentModule(int deltaPosition)
         {
             if (CurrentlySelected.Count > 0)
             {
-                var parent = this.display.Session.GetParent(CurrentlySelected[0].BaseModel);
+                var parent = this._display.Session.GetParent(CurrentlySelected[0].BaseModel);
                 // make sure they all have the same parent
-                if (CurrentlySelected.Any(m => this.display.Session.GetParent(m.BaseModel) != parent))
+                if (CurrentlySelected.Any(m => this._display.Session.GetParent(m.BaseModel) != parent))
                 {
                     // if not ding and exit
                     SystemSounds.Asterisk.Play();
@@ -362,7 +372,7 @@ namespace XTMF.Gui.UserControls
                     .Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) })
                     .OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
-                this.display.Session.ExecuteCombinedCommands(
+                this._display.Session.ExecuteCombinedCommands(
                     "Move Selected Modules",
                     () =>
                     {
@@ -377,7 +387,7 @@ namespace XTMF.Gui.UserControls
                             }
                         }
                     });
-                this.display.BringSelectedIntoView(CurrentlySelected[first.Index]);
+                this._display.BringSelectedIntoView(CurrentlySelected[first.Index]);
             }
         }
 
@@ -388,7 +398,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="set"></param>
         private void SetMetaModuleStateForSelected(bool set)
         {
-            this.display.Session.ExecuteCombinedCommands(
+            this._display.Session.ExecuteCombinedCommands(
                 set ? "Compose to Meta-Modules" : "Decompose Meta-Modules",
                 () =>
                 {
@@ -397,12 +407,12 @@ namespace XTMF.Gui.UserControls
                         string error = null;
                         if (!selected.SetMetaModule(set, ref error))
                         {
-                            MessageBox.Show(this.display.GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK,
+                            MessageBox.Show(this._display.GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK,
                                 MessageBoxImage.Error);
                         }
                     }
                 });
-            this.display.RefreshParameters();
+            this._display.RefreshParameters();
         }
 
 
@@ -480,7 +490,7 @@ namespace XTMF.Gui.UserControls
             var selectedItems = new List<TreeViewItem>();
             treeView.SelectedItemChanged += (a, b) =>
             {
-                var module = this.display.GetCurrentlySelectedControl();
+                var module = this._display.GetCurrentlySelectedControl();
                 if (module == null)
                 {
                     // disable the event to avoid recursion
