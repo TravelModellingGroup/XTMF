@@ -70,19 +70,15 @@ namespace XTMF.Gui.UserControls
 
         public Visibility ProgressReportsVisibility
         {
-
             get
             {
                 return _subProgressBars.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-
             }
-
         }
 
         private ModelSystemDisplay _launchedFromModelSystemDisplay;
 
         private int _oldCaret;
-
 
         private string _runDirectory;
 
@@ -201,12 +197,10 @@ namespace XTMF.Gui.UserControls
                 RunNameText.Text = runName;
                 IsRunClearable = false;
             }));
-
             if (launchedFrom != null)
             {
                 _launchedFromModelSystemDisplay = launchedFrom;
             }
-
             _progressReports = Run.Configuration.ProgressReports;
             _progressReports.ListChanged += ProgressReports_ListChanged;
             _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
@@ -241,21 +235,13 @@ namespace XTMF.Gui.UserControls
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             session.ExecuteDelayedRun(run, delayedStartTime);
             DetailsGroupBox.DataContext = this;
-
-            //UpdateRunStatus("Delayed");
-            //UpdateStartTime($"{delayedStartTime: g}");
             StartRunAsync();
             _timer.Start();
-
-
         }
-
-
 
         public Action OnRuntimeValidationError { get; set; }
 
         public Action OnRuntimeError { get; set; }
-
 
         public Visibility ErrorVisibility
         {
@@ -263,12 +249,10 @@ namespace XTMF.Gui.UserControls
             set => OnPropertyChanged(nameof(ErrorVisibility));
         }
 
-
         public Action<string> UpdateRunStatus { get; set; }
         public Action<float> UpdateRunProgress { get; set; }
         public Action<string> UpdateElapsedTime { get; set; }
         public Action<string> UpdateStartTime { get; set; }
-
 
         public XTMFRun Run { get; }
 
@@ -352,23 +336,12 @@ namespace XTMF.Gui.UserControls
             var newTextLength = ConsoleOutput.Text.Length;
             if (_oldCaret >= _consoleLength)
             {
-                //ConsoleScrollViewer.ScrollToEnd();
                 ConsoleOutput.Select(ConsoleOutput.Text.Length - 1, 0);
-                //ConsoleOutput.S
-                //ConsoleOutput.ScrollToLine(ConsoleOutput.LineCount-1);
-                //ConsoleScrollViewer.ScrollToBottom();
             }
             else
             {
-                //will scroll to bottom if caret is close to end of text
-                // if (ConsoleOutput.CaretIndex > ConsoleOutput.Text.Length - 20)
-                //{
                 ConsoleOutput.Select(ConsoleOutput.Text.Length - 1, 0);
-                //}
-
-                // ConsoleOutput.CaretIndex = _oldCaret;
             }
-
             _consoleLength = newTextLength;
         }
 
@@ -378,7 +351,6 @@ namespace XTMF.Gui.UserControls
             {
                 current = VisualTreeHelper.GetParent(current);
             }
-
             return current as Window;
         }
 
@@ -487,8 +459,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
-
         /// <summary>
         ///     Appends the ErrorWithPath array to the ErrorListView that becomes visible underneath the console output.
         /// </summary>
@@ -501,16 +471,12 @@ namespace XTMF.Gui.UserControls
                 foreach (var error in errors)
                 {
                     var displayError = new ModelSystemErrorDisplayModel(error.Message, error.ModuleName,
-                        error.StackTrace, error,this);
-
+                        error.StackTrace, error, this);
                     ErrorListView.Items.Add(displayError);
-
                     SchedulerRunItem?.ModelSystemErrors.Add(displayError);
                 }
-
             }));
         }
-
 
         /// <summary>
         /// </summary>
@@ -522,9 +488,7 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished(false);
                 ShowErrorMessages(errors.ToArray());
-
                 UpdateRunStatus?.Invoke("Runtime validation error");
-
                 OnRuntimeValidationError?.Invoke();
             });
         }
@@ -541,16 +505,10 @@ namespace XTMF.Gui.UserControls
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                 //SetRunFinished(false);
                 ShowErrorMessages(new[] { error });
-                //ShowErrorMessage(string.Empty, errors[0]);
-
-                //SetRunFinished(false);
                 UpdateRunStatus?.Invoke("Runtime Error");
                 _runtimeValidationErrorOccured = true;
                 RuntimeError?.Invoke(error);
                 OnRuntimeError?.Invoke();
-                // OnRunFinished(!_wasCanceled && !_runtimeValidationErrorOccured);
-
-                //RuntimeError?.Invoke();
             });
         }
 
@@ -578,21 +536,14 @@ namespace XTMF.Gui.UserControls
             {
                 IsRunClearable = true;
                 ProgressBar.Finished = true;
-
                 ProgressBar.Value = ProgressBar.Maximum;
                 UpdateRunProgress(ProgressBar.Maximum);
-
                 CancelButton.IsEnabled = false;
                 ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                 StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
-
-
-                //UpdateRunStatus?.Invoke(_wasCanceled ? "Run Canceled" : "Run Complete");
                 ProgressBar.Finished = true;
-                //MainWindow.Us.UpdateStatusDisplay("Ready");
                 MainWindow.Us.HideStatusLink();
-
                 //call scheduler window callback
                 if (callback)
                 {
@@ -606,8 +557,6 @@ namespace XTMF.Gui.UserControls
         private void Run_RunStarted()
         {
             _isActive = true;
-
-
             Dispatcher.BeginInvoke((Action)(() =>
            {
                CancelButton.IsEnabled = true;
@@ -716,19 +665,7 @@ namespace XTMF.Gui.UserControls
                     });
 
                     BaseGrid.ColumnDefinitions[0].Width = new GridLength(2, GridUnitType.Star);
-                    ;
                 });
-            }
-            else if (e.ListChangedType == ListChangedType.ItemDeleted)
-            {
-                if (_progressReports.Count == 0)
-                {
-                    Dispatcher.Invoke(delegate
-                    {
-                        //AdditionDetailsPanelBorder.Visibility = Visibility.Collapsed;
-                        //AdditionDetailsPanelBorder.Height = 0;
-                    });
-                }
             }
         }
 
@@ -820,7 +757,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
         {
-            
             this.NavigateToModelSystemDisplay((sender as FrameworkContentElement)?.Tag);
         }
 
@@ -832,7 +768,6 @@ namespace XTMF.Gui.UserControls
         {
             var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkContentElement)?.DataContext;
             SchedulerWindow.ShowTrackTraceError(errorDataContext);
-
         }
 
         private struct SubProgress
@@ -920,7 +855,6 @@ namespace XTMF.Gui.UserControls
             {
                 StackTrace = "Unavailable";
             }
-
             _errorWithPath = errorWithPath;
         }
 

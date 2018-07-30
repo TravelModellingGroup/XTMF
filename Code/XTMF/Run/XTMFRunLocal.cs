@@ -114,7 +114,6 @@ namespace XTMF.Run
             }
             if (_MST == null)
             {
-
                 InvokeValidationError(CreateFromSingleError(error));
                 return;
             }

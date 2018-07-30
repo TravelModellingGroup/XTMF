@@ -47,7 +47,6 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             _runWindows = new List<RunWindow>();
             ActiveRunContent.DataContext = Resources["DefaultDisplay"];
-           
         }
 
         /// <summary>
@@ -57,7 +56,6 @@ namespace XTMF.Gui.UserControls
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            
             //allow the stack trace text box to only be as large as 80% of the primary screen
             StackTraceTextBox.MaxWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width * 0.8;
         }
@@ -215,7 +213,6 @@ namespace XTMF.Gui.UserControls
             });
         }
 
-
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
@@ -281,7 +278,6 @@ namespace XTMF.Gui.UserControls
                 get => HasError ? Visibility.Visible : Visibility.Collapsed;
             }
 
-
             /// <summary>
             ///     Constructor of the ScheduleRunItem, takes in the RunWindow (run control) in the constructor.
             /// </summary>
@@ -291,23 +287,18 @@ namespace XTMF.Gui.UserControls
                 Name = runWindow.Run.RunName;
                 RunWindow = runWindow;
                 _schedulerWindow = schedulerWindow;
-
                 runWindow.UpdateRunStatus = UpdateRunStatus;
                 runWindow.UpdateElapsedTime = val => { ElapsedTime = val; };
                 runWindow.UpdateRunProgress = val => { Progress = val; };
                 runWindow.UpdateStartTime = UpdateStartTime;
                 runWindow.OnRuntimeValidationError = OnRuntimeValidationError;
                 runWindow.SchedulerRunItem = this;
-
-
                 runWindow.OnRunFinished = OnRunFinished;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
                 runWindow.OnRunStarted = OnRunStarted;
                 runWindow.OnRuntimeError = OnRuntimeError;
-
                 ModelSystemErrors = new ObservableCollection<ModelSystemErrorDisplayModel>();
-
                 Progress = 0;
             }
 
@@ -441,7 +432,6 @@ namespace XTMF.Gui.UserControls
                     MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name + ")",
                         "SCHEDULER",
                         () => MainWindow.Us.ShowSchedulerWindow());
-
                     XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
                         () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
                     Icon = PackIconKind.CheckCircleOutline;
@@ -461,7 +451,7 @@ namespace XTMF.Gui.UserControls
             /// <param name="errorWithPaths"></param>
             private void OnValidationError(List<ErrorWithPath> errorWithPaths)
             {
-                StatusText = "Validation error occured";
+                StatusText = "Validation error occurred";
                 _schedulerWindow.RemoveFromActiveRuns(this);
                 Icon = PackIconKind.Alert;
                 HasError = true;
@@ -545,7 +535,6 @@ namespace XTMF.Gui.UserControls
                 this.StackTraceDialogHost.DataContext = errorDataContext;
                 this.StackTraceDialogHost.IsOpen = true;
             }));
-
         }
 
         /// <summary>
@@ -556,13 +545,11 @@ namespace XTMF.Gui.UserControls
         private void CopyErrorLink_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
-
             Clipboard.SetText(errorDataContext?.StackTrace == "Unavailable"
                 ? $"Description: {errorDataContext.Description}"
                 : $"Module: {errorDataContext?.ModelSystemName}\r\n" +
                   $"Description:\r\n {errorDataContext?.Description} " +
                   $"\r\nStack Trace:\r\n{errorDataContext?.StackTrace}");
-
             MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Error information copied to clipboard",
                 "SCHEDULER",
                 () => MainWindow.Us.ShowSchedulerWindow());

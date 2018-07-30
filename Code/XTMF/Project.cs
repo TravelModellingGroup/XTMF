@@ -397,7 +397,7 @@ namespace XTMF
             return CreateModelSystem(ref error, _Configuration, ModelSystemStructure[modelSystemIndex]);
         }
 
-        public IModelSystemTemplate CrateModelSystem(ref ErrorWithPath error, int modelSystemIndex)
+        public IModelSystemTemplate CreateModelSystem(ref ErrorWithPath error, int modelSystemIndex)
         {
             // Pre-Validate the structure
             if (modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
@@ -687,7 +687,8 @@ namespace XTMF
                 if (infoField == null && !infoProperty.CanWrite)
                 {
                     error = new ErrorWithPath(path,
-                        $"Since the {root.GetType().FullName}.{infoProperty.Name} property has no public setter we can not create a collection.  Please either add a public setter or initialize this property in your constructor.");
+                        $"Since the {root.GetType().FullName}.{infoProperty.Name} property has no public setter we can not create a collection.  Please either add a public setter or initialize this property in your constructor."
+                        , null, child.Name);
                     return false;
                 }
                 // Lets attempt to create it IF it doesn't already exist
@@ -752,12 +753,14 @@ namespace XTMF
                     if (infoField != null)
                     {
                         error = new ErrorWithPath(path,
-                            $"We were unable to create any Collection object for {root.GetType().FullName}.{infoField.Name}.  Please initialize this field in your constructor!");
+                            $"We were unable to create any Collection object for {root.GetType().FullName}.{infoField.Name}.  Please initialize this field in your constructor!"
+                            , null, child.Name);
                     }
                     else
                     {
                         error = new ErrorWithPath(path,
-                            $"We were unable to create any Collection object for {root.GetType().FullName}.{infoProperty.Name}.  Please initialize this field in your constructor!");
+                            $"We were unable to create any Collection object for {root.GetType().FullName}.{infoProperty.Name}.  Please initialize this field in your constructor!"
+                            , null, child.Name);
                     }
                     return false;
                 }
@@ -782,7 +785,7 @@ namespace XTMF
                 if (collectionObject == null)
                 {
                     error = new ErrorWithPath(path, string.Format("For module '{2}' we were unable to load back the previously created Collection object for {0}.{1}. Please make sure that its getter and setter are both working.", root.GetType().FullName,
-                        infoProperty.Name, root.Name));
+                        infoProperty.Name, root.Name), null, child.Name);
                     return false;
                 }
                 var collectionTrueType = collectionObject.GetType();
@@ -793,13 +796,14 @@ namespace XTMF
                     int pos = 0;
                     for (int i = 0; i < grandChildren.Count; i++)
                     {
+                        path.Add(i);
                         mod = grandChildren[i] as ModelSystemStructure;
-                        if (mod != null && mod.IsDisabled)
+                        if (!(mod != null && mod.IsDisabled))
                         {
-                            continue;
+                            if (!CreateModule(config, rootMS, child.Children[i], path, ref error)) return false;
+                            setValue.Invoke(collectionObject, new object[] { child.Children[i].Module, pos++ });
                         }
-                        if (!CreateModule(config, rootMS, child.Children[i], path, ref error)) return false;
-                        setValue.Invoke(collectionObject, new object[] { child.Children[i].Module, pos++ });
+                        path.RemoveAt(path.Count - 1);
                     }
                 }
                 else
@@ -807,18 +811,21 @@ namespace XTMF
                     var addMethod = collectionTrueType.GetMethod("Add", new[] { inner });
                     if (addMethod == null)
                     {
-                        error = new ErrorWithPath(path, string.Format("For module '{2}' we were unable to find an Add method for type {0} in Type {1}", inner.FullName, collectionType.FullName, root.Name));
+                        error = new ErrorWithPath(path, string.Format("For module '{2}' we were unable to find an Add method for type {0} in Type {1}", inner.FullName, collectionType.FullName, root.Name)
+                            , null, child.Name);
                         return false;
                     }
+                    int i = 0;
                     foreach (var member in grandChildren)
                     {
+                        path.Add(i++);
                         mod = member as ModelSystemStructure;
-                        if (mod != null && mod.IsDisabled)
+                        if (!(mod != null && mod.IsDisabled))
                         {
-                            continue;
+                            if (!CreateModule(config, rootMS, member, path, ref error)) return false;
+                            addMethod.Invoke(collectionObject, new object[] { member.Module });
                         }
-                        if (!CreateModule(config, rootMS, member, path, ref error)) return false;
-                        addMethod.Invoke(collectionObject, new object[] { member.Module });
+                        path.RemoveAt(path.Count - 1);
                     }
                 }
             }
@@ -827,6 +834,11 @@ namespace XTMF
 
         private static bool AttachParent(IModule parent, IModelSystemStructure child, List<int> path, ref ErrorWithPath error)
         {
+            if (child.Type == null)
+            {
+                error = new ErrorWithPath(path, $"The type of the child {child.Name} was expected but not selected for!", null, child.Name);
+                return false;
+            }
             foreach (var field in child.Type.GetFields())
             {
                 if (field.IsPublic)
@@ -837,7 +849,8 @@ namespace XTMF
                     if (!field.FieldType.IsAssignableFrom(parentType))
                     {
                         error = new ErrorWithPath(path,
-                            $"The parent type of {field.FieldType.FullName} is not assignable from the true parent type of {parentType.FullName}!");
+                            $"The parent type of {field.FieldType.FullName} is not assignable from the true parent type of {parentType.FullName}!"
+                            , null, child.Name);
                         return false;
                     }
                     field.SetValue(child.Module, parent);
@@ -856,7 +869,8 @@ namespace XTMF
                     if (!field.PropertyType.IsAssignableFrom(parentType))
                     {
                         error = new ErrorWithPath(path,
-                            $"The parent type of {field.PropertyType.FullName} is not assignable from the true parent type of {parentType.FullName}!");
+                            $"The parent type of {field.PropertyType.FullName} is not assignable from the true parent type of {parentType.FullName}!"
+                            , null, child.Name);
                         return false;
                     }
                     field.SetValue(child.Module, parent, null);
@@ -877,14 +891,15 @@ namespace XTMF
                     if (iModelSystem == null)
                     {
                         error = new ErrorWithPath(path,
-                            $"The type {field.FieldType.FullName} used for the root in {root.Name} has no module to use as an ancestor.  Please contact your model system provider!");
+                            $"The type {field.FieldType.FullName} used for the root in {root.Name} has no module to use as an ancestor.  Please contact your model system provider!", null, root.Name);
                         return false;
                     }
                     Type rootType = iModelSystem.Module.GetType();
                     if (!field.FieldType.IsAssignableFrom(rootType))
                     {
                         error = new ErrorWithPath(path,
-                            $"The parent type of {field.FieldType.FullName} is not assignable from the true root type of {rootType.FullName}!");
+                            $"The parent type of {field.FieldType.FullName} is not assignable from the true root type of {rootType.FullName}!"
+                            , null, iModelSystem.Name);
                         return false;
                     }
                     field.SetValue(root, iModelSystem.Module);
@@ -900,7 +915,8 @@ namespace XTMF
                     if (!field.PropertyType.IsAssignableFrom(rootType))
                     {
                         error = new ErrorWithPath(path,
-                            $"The parent type of {field.PropertyType.FullName} is not assignable from the true root type of {rootType.FullName}!");
+                            $"The parent type of {field.PropertyType.FullName} is not assignable from the true root type of {rootType.FullName}!"
+                            , null, iModelSystem.Name);
                         return false;
                     }
                     field.SetValue(root, iModelSystem.Module, null);
@@ -916,7 +932,7 @@ namespace XTMF
         private static void LoadLogger(IModule module)
         {
             var type = module.GetType();
-            foreach(var f in type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
+            foreach (var f in type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 var attribute = f.GetCustomAttribute<XTMF.Attributes.LoggerAttribute>();
                 if (attribute != null)
@@ -950,14 +966,13 @@ namespace XTMF
                 error = new ErrorWithPath(path, string.Concat("Attempted to create the ", ps.Name, " module however it's type does not exist!  Please make sure you have all of the required modules installed for your model system!"));
                 return false;
             }
-
             var constructor = (from c in ps.Type.GetConstructors()
                                orderby c.GetParameters().Length
                                select c).FirstOrDefault();
 
             object[] parameterList = new object[constructor.GetParameters().Length];
             var parameters = constructor.GetParameters();
-            for(int i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < parameters.Length; i++)
             {
                 if (parameters[i].ParameterType == typeof(IConfiguration))
                 {
@@ -976,10 +991,10 @@ namespace XTMF
             {
                 root = constructor.Invoke(parameterList) as IModule;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 error = new ErrorWithPath(path,
-                        $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!",exception:e);
+                        $"There was an error while trying to initialize {ps.Type.FullName}.\nPlease make sure that no parameters are being used in the constructor!", exception: e);
                 return false;
             }
             ps.Module = root;
@@ -990,9 +1005,9 @@ namespace XTMF
                 {
                     root.Name = ps.Name;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    error = new ErrorWithPath(path, string.Concat("Unable to assign the name of ", ps.Name, " to type ", ps.Type.FullName, "!"),exception:e);
+                    error = new ErrorWithPath(path, string.Concat("Unable to assign the name of ", ps.Name, " to type ", ps.Type.FullName, "!"), exception: e);
                     return false;
                 }
                 // Allow any module access to the host/client
@@ -1012,8 +1027,10 @@ namespace XTMF
                 }
                 if (ps.Children != null)
                 {
-                    foreach (var child in ps.Children)
+                    for (int i = 0; i < ps.Children.Count; i++)
                     {
+                        path.Add(i);
+                        var child = ps.Children[i];
                         var mod = child as ModelSystemStructure;
                         // check to see if we should just skip loading the child
                         if (child.IsCollection)
@@ -1042,14 +1059,17 @@ namespace XTMF
                             }
                             if (child.Children != null)
                             {
+                                var j = 0;
                                 // now that we have created the children try to attach the parent to them
                                 foreach (var cc in child.Children)
                                 {
+                                    path.Add(j++);
                                     // Now that the child has been created attach this parent object to any fields requesting it
                                     if (!AttachParent(root, cc, path, ref error))
                                     {
                                         return false;
                                     }
+                                    path.RemoveAt(path.Count - 1);
                                 }
                             }
                         }
@@ -1058,6 +1078,7 @@ namespace XTMF
                             // if this module is disabled, do not create it!
                             if (mod != null && mod.IsDisabled)
                             {
+                                path.RemoveAt(path.Count - 1);
                                 continue;
                             }
                             if (!CreateModule(config, rootMS, child, path, ref error))
@@ -1091,6 +1112,7 @@ namespace XTMF
                                 return false;
                             }
                         }
+                        path.RemoveAt(path.Count - 1);
                     }
                 }
             }
@@ -1234,7 +1256,7 @@ namespace XTMF
                     catch (ArgumentException e)
                     {
                         error = new ErrorWithPath(path, string.Format("In module {3} we were unable to assign parameter {0} of type {1} with type {2}, please rebuild your model system.",
-                            param.Name, info.FieldType.FullName, param.Value.GetType().FullName, ps.Name),exception:e);
+                            param.Name, info.FieldType.FullName, param.Value.GetType().FullName, ps.Name), exception: e);
                         return false;
                     }
                 }
@@ -1253,12 +1275,12 @@ namespace XTMF
                     catch (ArgumentException e)
                     {
                         error = new ErrorWithPath(path, string.Format("In module {3} we were unable to assign parameter {0} of type {1} with type {2}, please rebuild your model system.",
-                            param.Name, info.PropertyType.FullName, param.Value.GetType().FullName, ps.Name),exception:e);
+                            param.Name, info.PropertyType.FullName, param.Value.GetType().FullName, ps.Name), exception: e);
                         return false;
                     }
                     catch (Exception e)
                     {
-                        error = new ErrorWithPath(path, "An unexpected error occurred while trying to set the parameter '" + param.VariableName + "' in '" + ps.Name + "'\r\n" + e.Message, e.StackTrace,exception:e);
+                        error = new ErrorWithPath(path, "An unexpected error occurred while trying to set the parameter '" + param.VariableName + "' in '" + ps.Name + "'\r\n" + e.Message, e.StackTrace, exception: e);
                         return false;
                     }
                 }
