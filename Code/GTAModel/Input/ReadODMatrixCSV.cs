@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Datastructure;
 using TMG.Input;
@@ -28,13 +29,13 @@ namespace TMG.GTAModel.Input
 {
     public class ReadODMatrixCSV : IReadODData<float>
     {
-        [RunParameter( "File Name", "data.csv", typeof( FileFromInputDirectory ), "The file to read in.  If UseInputDirectory is false we will use the run directory instead." )]
+        [RunParameter("File Name", "data.csv", typeof(FileFromInputDirectory), "The file to read in.  If UseInputDirectory is false we will use the run directory instead.")]
         public FileFromInputDirectory FileName;
 
         [RootModule]
         public ITravelDemandModel Root;
 
-        [RunParameter( "Use Input Directory", false, "Should we use the model system's input directory as a base?" )]
+        [RunParameter("Use Input Directory", false, "Should we use the model system's input directory as a base?")]
         public bool UseInputDirectory;
 
         public string Name
@@ -56,7 +57,12 @@ namespace TMG.GTAModel.Input
         public IEnumerable<ODData<float>> Read()
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            using ( CsvReader reader = new CsvReader( FileName.GetFileName( UseInputDirectory ? Root.InputBaseDirectory : "." ) ) )
+            var path = FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".");
+            if(!File.Exists(path))
+            {
+                throw new XTMFRuntimeException(this, $"Unable to find a file named: {path}");
+            }
+            using (CsvReader reader = new CsvReader(path))
             {
                 ODData<float> point;
                 int length;
@@ -75,19 +81,19 @@ namespace TMG.GTAModel.Input
                     }
                 }
                 // now read in data
-                while ( !reader.EndOfFile )
+                while (!reader.EndOfFile)
                 {
                     length = reader.LoadLine();
                     anyLinesRead = true;
-                    reader.Get( out point.O, 0 );
-                    for ( int i = 1; i < length && i <= destinationMap.Length; i++ )
+                    reader.Get(out point.O, 0);
+                    for (int i = 1; i < length && i <= destinationMap.Length; i++)
                     {
                         point.D = destinationMap[i - 1];
-                        reader.Get( out point.Data, i );
+                        reader.Get(out point.Data, i);
                         yield return point;
                     }
                 }
-                if(!anyLinesRead)
+                if (!anyLinesRead)
                 {
                     throw new XTMFRuntimeException(this, $"In {Name} when reading the file '{FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".")}' we did not load any information!");
                 }

@@ -50,7 +50,14 @@ namespace TMG.Frameworks.FileManagement
             {
                 foreach(var file in dir.EnumerateFiles("*." + Extension).ToList())
                 {
-                    file.Delete();
+                    try
+                    {
+                        file.Delete();
+                    }
+                    catch (IOException e)
+                    {
+                        throw new XTMFRuntimeException(this, e, $"Unable to delete file {file.FullName}\r\n{e.Message}");
+                    }
                 }
                 foreach(var sub in dir.GetDirectories())
                 {

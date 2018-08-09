@@ -14,14 +14,11 @@
                        FontSize="32" Opacity="0.8" Foreground="{DynamicResource MaterialDesignBody}" />
         </Border>
     </UserControl.Resources>
-
     <Grid Name="LayoutRoot">
-
         <materialDesign:DialogHost Name="StackTraceDialogHost" CloseOnClickAway="True">
             <materialDesign:DialogHost.DataContext>
                 <local:ModelSystemErrorDisplayModel />
             </materialDesign:DialogHost.DataContext>
-
             <materialDesign:DialogHost.DialogContent>
                 <StackPanel Margin="5">
                     <TextBox Name="StackTraceTextBox" FontSize="14" MinWidth="400" MinHeight="100" IsReadOnly="True"
@@ -44,29 +41,19 @@
                         </TextBlock>
                     </StackPanel>
                 </StackPanel>
-
             </materialDesign:DialogHost.DialogContent>
-
-
             <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-
-
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="600" />
                     <ColumnDefinition Width="2" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-
-
                 <ContentControl Content="{Binding }" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                 HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Column="2"
                                 Name="ActiveRunContent" />
-
                 <GridSplitter Grid.Column="1" Width="2" ResizeDirection="Auto" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" />
-
                 <Grid Grid.Column="0" Background="{DynamicResource MaterialDesignPaper}">
-
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -79,8 +66,6 @@
                         <TextBlock Margin="10 10 5 10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}"
                                    Foreground="{DynamicResource MaterialDesignColumnHeader}" Grid.Row="0"
                                    Text="Active Runs" />
-
-
                         <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged"
                                   ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -96,21 +81,17 @@
                                         <materialDesign:PackIcon Kind="{Binding Icon}" Height="24" Width="24"
                                                                  Margin="0 0 10 0" VerticalAlignment="Center"
                                                                  DockPanel.Dock="Left" />
-
                                         <Grid DockPanel.Dock="Right" HorizontalAlignment="Stretch">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="AUTO" />
                                             </Grid.ColumnDefinitions>
-
                                             <Grid Grid.Column="0">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="25" />
                                                     <RowDefinition Height="4" />
                                                     <RowDefinition Height="25" />
                                                 </Grid.RowDefinitions>
-
-
                                                 <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"
                                                            Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4" />
                                                 <ProgressBar Foreground="{DynamicResource SecondaryAccentBrush}"
@@ -124,7 +105,6 @@
                                                            Margin="0 4 0 0" HorizontalAlignment="Stretch" />
                                             </Grid>
                                             <Grid Grid.Column="1">
-
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="140" />
@@ -151,28 +131,18 @@
                                                         </StackPanel>
                                                     </Border>
                                                 </Grid>
-
-
                                             </Grid>
-
                                         </Grid>
                                     </DockPanel>
                                 </DataTemplate>
-
                             </ListView.ItemTemplate>
-
                         </ListView>
-
                     </Grid>
-
-
                     <Grid Grid.Row="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-
-
                         <DockPanel Grid.Row="0">
                             <TextBlock DockPanel.Dock="Left" Margin="10 10 5 10"
                                        Style="{DynamicResource MaterialDesignSubheadingTextBlock}"
@@ -204,7 +174,6 @@
                             <ListView.ContextMenu>
                                 <ContextMenu />
                             </ListView.ContextMenu>
-
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Vertical" CanVerticallyScroll="False">
@@ -220,25 +189,20 @@
                                                     <Setter Property="ScrollViewer.BorderThickness" Value="0"></Setter>
                                                 </Style>
                                             </DockPanel.Style>
-
                                             <materialDesign:PackIcon Kind="{Binding Icon}" Height="24" Width="24"
                                                                      Margin="0 0 10 0" VerticalAlignment="Center"
                                                                      DockPanel.Dock="Left" BorderThickness="0" />
-
                                             <Grid DockPanel.Dock="Right" HorizontalAlignment="Stretch">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="AUTO" />
                                                 </Grid.ColumnDefinitions>
-
                                                 <Grid Grid.Column="0">
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="25" />
                                                         <RowDefinition Height="4" />
                                                         <RowDefinition Height="25" />
                                                     </Grid.RowDefinitions>
-
-
                                                     <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"
                                                                Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4" />
                                                     <ProgressBar Foreground="{DynamicResource SecondaryAccentBrush}"
@@ -253,7 +217,6 @@
                                                                HorizontalAlignment="Stretch" />
                                                 </Grid>
                                                 <Grid Grid.Column="1">
-
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="140" />
@@ -310,47 +273,31 @@
                                                             </StackPanel>
                                                         </Border>
                                                     </Grid>
-
-
                                                 </Grid>
-
                                             </Grid>
                                         </DockPanel>
                                         <Border Margin="0 0 0 0" BorderThickness="0 1 0 0"
                                                 BorderBrush="{DynamicResource MaterialDesignDivider}" />
-
                                         <ListView BorderThickness="0"
                                                   Visibility="{Binding RunErrorInformationVisibility}"
                                                   Name="ErrorListView" DataContext="{Binding }"
                                                   ItemsSource="{Binding ModelSystemErrors}">
-                                            
-                            
-
-
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem"
                                                        BasedOn="{StaticResource MaterialDesignGridViewItem}">
                                                     <Setter Property="Focusable" Value="false" />
                                                     <Setter Property="Margin" Value="-7 0 0 0" />
                                                     <Setter Property="BorderThickness" Value="0" />
-
-
                                                 </Style>
                                             </ListView.ItemContainerStyle>
-                                            
                                             <ListView.View>
                                                 <GridView>
-                                                   
                                                     <GridView.ColumnHeaderContainerStyle>
                                                         <Style TargetType="{x:Type GridViewColumnHeader}">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                             <Setter Property="BorderThickness" Value="0" />
                                                         </Style>
                                                     </GridView.ColumnHeaderContainerStyle>
-
-                                                    <!--<GridViewColumn Width="10" Header=" " DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, 
-                                         AncestorType={x:Type ListViewItem}}, 
-                                         Converter={StaticResource IndexConverter}}"></GridViewColumn>-->
                                                     <GridViewColumn Header="Module">
                                                         <GridViewColumn.CellTemplate>
                                                             <DataTemplate>
@@ -361,9 +308,7 @@
                                                                                Tag="{Binding ErrorWithPath}">
                                                                         <Hyperlink.Inlines>
                                                                             <TextBlock Text="{Binding ModelSystemName}" />
-
                                                                         </Hyperlink.Inlines>
-
                                                                     </Hyperlink>
                                                                 </TextBlock>
                                                             </DataTemplate>
@@ -389,11 +334,9 @@
                                                                                              VerticalAlignment="Top"
                                                                                              Background="Transparent" />
                                                                 </StackPanel>
-
                                                             </DataTemplate>
                                                         </GridViewColumn.CellTemplate>
                                                     </GridViewColumn>
-
                                                     <GridViewColumn Header=" ">
                                                         <GridViewColumn.CellTemplate>
                                                             <DataTemplate>
@@ -405,14 +348,11 @@
                                                                                Foreground="{DynamicResource PrimaryHueMidBrush}"
                                                                                x:Name="CopyErrorLink">
                                                                         Copy
-
-
                                                                     </TextBlock>
                                                                     <materialDesign:PackIcon Kind="ContentCopy"
                                                                                              VerticalAlignment="Top"
                                                                                              Background="Transparent" />
                                                                 </StackPanel>
-
                                                             </DataTemplate>
                                                         </GridViewColumn.CellTemplate>
                                                     </GridViewColumn>
@@ -425,7 +365,6 @@
 
                             </ListView.ItemTemplate>
                         </ListView>
-
                     </Grid>
                 </Grid>
             </Grid>

@@ -25,7 +25,7 @@
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" DataContext="{Binding .}"
              mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}"  d:DesignWidth="600">
-   
+
     <Grid Name="BaseGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
@@ -38,7 +38,7 @@
             <RowDefinition Height="2"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"></RowDefinition>
-           <!-- <RowDefinition Height="*"/> -->
+            <!-- <RowDefinition Height="*"/> -->
         </Grid.RowDefinitions>
         <GridSplitter Name="GridSplitter" Grid.ColumnSpan="3" Grid.Row="2" ResizeDirection="Auto" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"></GridSplitter>
         <Grid Grid.Row="0" ColumnSpan="3" Background="{DynamicResource MaterialDesignPaper}">
@@ -48,7 +48,6 @@
                     <Button  x:Name="OpenDirectoryButton" Click="OpenDirectoryButton_Clicked" ToolTip="Open run output folder" >
                         <materialDesign:PackIcon Kind="FolderOutline" />
                     </Button>
-
                     <Button Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButtonXtmf}"  Width="24" Height="24"
                             materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
                             materialDesign:ButtonProgressAssist.Value="-1" 
@@ -59,44 +58,12 @@
                     <Button x:Name="ClearRunButton"  Click="ClearRunButton_Click" ToolTip="Clear Run Display" Visibility="Collapsed">
                         <materialDesign:PackIcon Kind="NotificationClearAll" />
                     </Button>
-
                     <TextBlock x:Name="RunNameText" Text="Run Name" Style="{DynamicResource MaterialDesignHeadlineTextBlock}" VerticalAlignment="Center" Margin="18 0 0 0"></TextBlock>
-                  
-
-
                 </ToolBar>
-                </ToolBarTray>
-            <!--
-                    <StackPanel Margin="0" FlowDirection="LeftToRight" Orientation="Horizontal">
-                <userControls:FlatToolButton  x:Name="OpenDirectoryButton" ToolText="Open Run Output" Click="OpenDirectoryButton_Clicked" >
-                    <userControls:FlatToolButton.IconPath  >
-                        <Path Data="{DynamicResource FolderOpenIconPath}" Stretch="Uniform" />
-                    </userControls:FlatToolButton.IconPath>
-                </userControls:FlatToolButton>
-                <userControls:FlatToolButton Click="CancelButton_Clicked" x:Name="CancelButton"  ToolText="Cancel Run">
-                    <userControls:FlatToolButton.IconPath  >
-                        <Path Data="{DynamicResource CancelIconPath}" Stretch="Uniform" />
-                    </userControls:FlatToolButton.IconPath>
-                </userControls:FlatToolButton>
-                <userControls:FlatToolButton IsEnabled="{Binding Path=IsRunClearable,
-                        RelativeSource={RelativeSource AncestorType={x:Type userControls:RunWindow}}}"
-                        Click="ClearRunButton_Click" x:Name="ClearRunButton"  ToolText="Clear Run Display">
-                    <userControls:FlatToolButton.IconPath>
-                        <Path  Data="{DynamicResource ClearIconPathGeometry}" Stretch="Uniform" />
-                    </userControls:FlatToolButton.IconPath>
-                </userControls:FlatToolButton>
-                <userControls:FlatToolButton x:Name="ContinueButton" Visibility="Hidden" ToolText="Continue to Project">
-                    <userControls:FlatToolButton.IconPath>
-                        <Path Data="{DynamicResource Checkmark}" Stretch="Uniform" />
-                    </userControls:FlatToolButton.IconPath>
-                </userControls:FlatToolButton>
-            </StackPanel> -->
+            </ToolBarTray>
         </Grid>
         <GroupBox Name="DetailsGroupBox"  Style="{DynamicResource MaterialDesignCardGroupBox}"  Visibility="{Binding ProgressReportsVisibility}"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" Grid.ColumnSpan="3"  Grid.Column="0" Margin="12"  Header="Additional Information" BorderThickness="0.5" HorizontalContentAlignment="Center">
-          
-
-                <my:CollapsePanel x:Name="AdditionDetailsPanel" InternalHeight="150"  IsEnabled="True"   />
-            
+            <my:CollapsePanel x:Name="AdditionDetailsPanel" InternalHeight="150"  IsEnabled="True"   />
         </GroupBox>
         <GroupBox Foreground="{DynamicResource MaterialDesignBody}" Margin="3" Grid.Row="2" Grid.Column="0" Header="Run Status" BorderThickness="0.5" Visibility="Collapsed">
             <Grid >
@@ -172,54 +139,45 @@
                 </Grid>
             </Border>
         </GroupBox>
-        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}"  Name="ErrorGroupBox"  Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
-                   Visibility="Collapsed" Margin="12"> 
-            <ListView Name="ErrorListView" DataContext="{Binding }" >
+        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}" Name="ErrorGroupBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
+                   Visibility="Collapsed" Margin="12">
+            <ListView Name="ErrorListView" DataContext="{Binding}" >
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header=" " DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, 
                                          AncestorType={x:Type ListViewItem}}, 
-                                         Converter={StaticResource IndexConverter}}"></GridViewColumn>
+                                         Converter={StaticResource IndexConverter}}"/>
                         <GridViewColumn Header="Module">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock VerticalAlignment="Center"> <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" Tag="{Binding ErrorWithPath}" >
-                                        <Hyperlink.Inlines>
-                                            <TextBlock Text="{Binding ModelSystemName}"></TextBlock>
-
-                                        </Hyperlink.Inlines>
-                                       
-                                    </Hyperlink></TextBlock>
+                                    <TextBlock VerticalAlignment="Center">
+                                        <Hyperlink  Name="ModelSystemNameLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Click="ModelSystemNameLink_OnClick" Tag="{Binding ErrorWithPath}" >
+                                            <Hyperlink.Inlines>
+                                                <TextBlock Text="{Binding ModelSystemName}" />
+                                            </Hyperlink.Inlines>
+                                        </Hyperlink>
+                                    </TextBlock>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}"></GridViewColumn>
+                        <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}"/>
                         <GridViewColumn Header="Stack Trace">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <materialDesign:PopupBox UnfurlOrientation="Vertical"  Margin="16,0,16,0" StaysOpen="True" Name="StackTracePopupBox"  PlacementMode="TopAndAlignLeftEdges" >
-                                    
+                                    <materialDesign:PopupBox UnfurlOrientation="Vertical" Margin="16,0,16,0" StaysOpen="True" Name="StackTracePopupBox" PlacementMode="TopAndAlignLeftEdges" >
                                         <materialDesign:PopupBox.ToggleContent>
-
-                                            <Hyperlink Tag="{Binding ElementName=StackTracePopupBox}" Click="StackTraceLinkOnClick"   x:Name="StackTraceLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" >
+                                            <Hyperlink Tag="{Binding ElementName=StackTracePopupBox}" Click="StackTraceLinkOnClick" x:Name="StackTraceLink" Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" >
                                                 <Hyperlink.Inlines>
-                                                    <TextBlock  VerticalAlignment="Top"> Show Stacktrace</TextBlock>
-
+                                                    <TextBlock VerticalAlignment="Top">Show Stacktrace</TextBlock>
                                                 </Hyperlink.Inlines>
-
                                             </Hyperlink>
                                         </materialDesign:PopupBox.ToggleContent>
-                                    
-                                    
-                                    <materialDesign:PopupBox.PopupContent>
-                                            
+                                        <materialDesign:PopupBox.PopupContent>
                                             <StackPanel Margin="5">
                                                 <TextBox FontSize="11" Width="400" MinHeight="100" IsReadOnly="True" Foreground="{DynamicResource MaterialDesignBody1}" Text="{Binding StackTrace}"></TextBox>
                                                 <TextBlock HorizontalAlignment="Center" Margin="0,5"><Hyperlink Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .}" Click="Hyperlink_OnClick">  Copy to Clipboard</Hyperlink></TextBlock>
                                             </StackPanel>
-                                     
                                         </materialDesign:PopupBox.PopupContent>
-
                                     </materialDesign:PopupBox>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
@@ -228,6 +186,5 @@
                 </ListView.View>
             </ListView>
         </GroupBox>
-        
     </Grid>
 </UserControl>

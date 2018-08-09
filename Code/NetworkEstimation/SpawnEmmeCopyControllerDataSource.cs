@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -107,8 +107,15 @@ namespace TMG.NetworkEstimation
             FileInfo[] files = dir.GetFiles();
             foreach (FileInfo file in files)
             {
-                string temppath = Path.Combine(destinationDirectory, file.Name);
-                file.CopyTo(temppath, false);
+                try
+                {
+                    string temppath = Path.Combine(destinationDirectory, file.Name);
+                    file.CopyTo(temppath, false);
+                }
+                catch(IOException e)
+                {
+                    throw new XTMFRuntimeException(this, e, $"Unable to copy file {file.FullName}\r\n{e.Message}");
+                }
             }
 
             // If copying subdirectories, copy them and their contents to new location.
