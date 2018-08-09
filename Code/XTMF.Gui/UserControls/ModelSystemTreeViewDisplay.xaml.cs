@@ -130,6 +130,38 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleDisplay_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (CurrentlySelected.Count == 1)
+            {
+                var onlySelected = CurrentlySelected[0];
+                if (!onlySelected.IsCollection && onlySelected.Type == null)
+                {
+                    this._display.SelectReplacement();
+                    e.Handled = true;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleDisplay_Selected(object sender, RoutedEventArgs e)
+        {
+            if (e.OriginalSource is TreeViewItem tvi)
+            {
+                tvi.BringIntoView();
+            }
+        }
+
+        /// <summary>
         /// Collapse all menu item click
         /// </summary>
         /// <param name="sender"></param>

@@ -33,7 +33,7 @@
                                                         Orientation="Vertical" CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
                     </ItemsPanelTemplate>
                 </TreeView.ItemsPanel>
-                <TreeView.ContextMenu>
+                <!--<TreeView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
                             <MenuItem.Icon>
@@ -61,7 +61,7 @@
                         </MenuItem>
                         <MenuItem Name="ModuleMenuItem" Header="Module (Ctrl+M)" Click="Module_Clicked"/>
                         <MenuItem Name="DisableModuleMenuItem" Header="Disable Module (Ctrl+D)" Click="DisableModuleMenuItem_OnClick"/>
-                        <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
+                        <MenuItem Header="Remove (Del)" >
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="CheckboxMarkedCircle"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>
@@ -75,7 +75,7 @@
                             <MenuItem Header="Up   (Ctrl+Shift+Up)" Click="MoveUp_Click"/>
                             <MenuItem Header="Down (Ctrl+Shift+Down)" Click="MoveDown_Click"/>
                         </MenuItem>
-                        <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
+                        <MenuItem Header="Linked Parameters (Ctrl+L)" >
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="Link" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>
@@ -83,7 +83,7 @@
                         <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Expand all Modules" Click="ExpandAllMenuItem_Click"/>
                         <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Collapse all Modules" Click="CollapseAllMenuItem_Click"/>
                     </ContextMenu>
-                </TreeView.ContextMenu>
+                </TreeView.ContextMenu> -->
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
                         <local:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name, Mode=OneWay}"

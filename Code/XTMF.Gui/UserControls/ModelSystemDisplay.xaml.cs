@@ -640,7 +640,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void SelectReplacement()
+        /// <summary>
+        /// 
+        /// </summary>
+        internal void SelectReplacement()
         {
             if (Session == null)
             {
@@ -2474,13 +2477,7 @@ namespace XTMF.Gui.UserControls
             GotoSelectedParameterModule();
         }
 
-        private void ModuleDisplay_Selected(object sender, RoutedEventArgs e)
-        {
-            if (e.OriginalSource is TreeViewItem tvi)
-            {
-                tvi.BringIntoView();
-            }
-        }
+
 
         private void QuickParameterDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs eventargs)
         {
@@ -2783,18 +2780,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void ModuleDisplay_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (CurrentlySelected.Count == 1)
-            {
-                var onlySelected = CurrentlySelected[0];
-                if (!onlySelected.IsCollection && onlySelected.Type == null)
-                {
-                    SelectReplacement();
-                    e.Handled = true;
-                }
-            }
-        }
 
         /// <summary>
         /// Selected Listener for the RegionView button in the toolbar.
