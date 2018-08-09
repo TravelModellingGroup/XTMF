@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using XTMF.Interfaces;
 
 namespace XTMF
 {
@@ -56,6 +57,7 @@ namespace XTMF
             Name = name;
             SetIsLoaded(false);
             LinkedParameters = new List<ILinkedParameter>();
+            RegionDisplays = new List<IRegionDisplay>();
             if (name != null)
             {
                 ReadDescription();
@@ -151,6 +153,30 @@ namespace XTMF
         /// The name of the model system
         /// </summary>
         public string Name { get; set; }
+
+        private List<IRegionDisplay> _regionDisplays;
+
+        public List<IRegionDisplay> RegionDisplays
+        {
+            get
+            {
+
+                lock (this)
+                {
+                    if (!_IsLoaded)
+                    {
+                        Load(_Config, Name);
+                        SetIsLoaded(true);
+                    }
+                    return _regionDisplays;
+                }
+            }
+            internal set
+            {
+
+                _regionDisplays = value;
+            }
+        }
 
         public bool Save(Stream stream, ref string error)
         {
@@ -452,14 +478,32 @@ namespace XTMF
                                 {
                                     Description = reader.ReadContentAsString();
                                 }
+                                break;
                             }
-                            break;
+                        case "Regions":
+                            {
+                                while(reader.Read())
+                                {
+                                    if(reader.NodeType == XmlNodeType.Element && reader.Name == "RegionDisplay")
+                                    {
+                                        Console.WriteLine("Here");
+                                    }
+                                }
+                                break;
+                            }
+                         
+                            
                     }
                 }
             }
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="name"></param>
         private void Load(IConfiguration config, string name)
         {
             if (name != null)

@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using XTMF.Annotations;
 using XTMF.Editing;
+using XTMF.Interfaces;
 using XTMF.Logging;
 using XTMF.Networking;
 
@@ -1119,6 +1120,55 @@ namespace XTMF
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <param name="mss"></param>
+        /// <returns></returns>
+        private IModelSystemStructure GetModuleFromReference(string reference, IModelSystemStructure mss)
+        {
+            string[] modules = reference.Split('.');
+
+            if(modules.Length == 1)
+            {
+                return mss;
+            }
+            else
+            {
+                return GetModuleFromReference(modules.Skip(1).ToArray(), mss);
+            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modules"></param>
+        /// <param name="mss"></param>
+        /// <returns></returns>
+        private IModelSystemStructure GetModuleFromReference(string [] modules, IModelSystemStructure mss)
+        {
+            //find the child node of MSS that has the same name as reference [0]
+            var structure = mss.Children.SingleOrDefault(m => m.Name == modules[0]);
+
+            if(modules.Length == 1)
+            {
+                return structure;
+            }
+            else
+            {
+                return GetModuleFromReference(modules.Skip(1).ToArray(), structure);
+            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="variableLink"></param>
+        /// <param name="mss"></param>
+        /// <returns></returns>
         private IModuleParameter GetParameterFromLink(string variableLink, IModelSystemStructure mss)
         {
             // we need to search the space now
@@ -1420,6 +1470,11 @@ namespace XTMF
                     case "LinkedParameters":
                         {
                             pms.LinkedParameters = LoadLinkedParameters(child.ChildNodes[i], pms.Root);
+                            break;
+                        }
+                    case "Regions":
+                        {
+                            pms.RegionDisplays = LoadRegionDisplays(child.ChildNodes[i], pms.Root);
                         }
                         break;
                 }
@@ -1486,6 +1541,11 @@ namespace XTMF
                         case "LinkedParameters":
                             {
                                 pms.LinkedParameters = LoadLinkedParameters(child.ChildNodes[i], pms.Root);
+                                break;
+                            }
+                        case "Regions":
+                            {
+                                pms.RegionDisplays = LoadRegionDisplays(child.ChildNodes[i], pms.Root);
                             }
                             break;
                     }
@@ -1521,6 +1581,56 @@ namespace XTMF
             {
                 Console.WriteLine(e);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="mss"></param>
+        /// <returns></returns>
+        private List<IRegionDisplay> LoadRegionDisplays(XmlNode regionsNode, IModelSystemStructure mss)
+        {
+            List<IRegionDisplay> regionDisplays = new List<IRegionDisplay>();
+            if(!regionsNode.HasChildNodes)
+            {
+                return regionDisplays;
+            }
+            foreach (XmlNode node in regionsNode.ChildNodes)
+            {
+                RegionDisplay regionDisplay = new RegionDisplay()
+                {
+                    Name = node.Attributes["Name"].Value
+                };
+
+                var xmlRegionGroupNodes = node.SelectNodes("RegionGroup");
+
+                foreach(XmlNode regionGroupNode in xmlRegionGroupNodes)
+                {
+                    RegionGroup regionGroup = new RegionGroup()
+                    {
+                        Name = regionGroupNode.Attributes["Name"].Value
+                    };
+
+                    var xmlGroupModuleNodes = regionGroupNode.SelectNodes("Module");
+
+                    foreach(XmlNode moduleNode in xmlGroupModuleNodes)
+                    {
+                        //get reference to this module
+                        string reference = moduleNode.Attributes["Reference"].Value;
+                        var modelSystemStructure = GetModuleFromReference(reference, mss);
+
+                        regionGroup.Modules.Add(modelSystemStructure);
+                    }
+
+                    regionDisplay.RegionGroups.Add(regionGroup);
+
+                }
+
+                regionDisplays.Add(regionDisplay);
+            }
+
+            return regionDisplays;
         }
 
         private List<ILinkedParameter> LoadLinkedParameters(XmlNode xmlNode, IModelSystemStructure mss)

@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System.Collections.Generic;
+using XTMF.Interfaces;
 
 namespace XTMF
 {
@@ -32,6 +33,11 @@ namespace XTMF
         string Description { get; set; }
 
         List<ILinkedParameter> LinkedParameters { get; }
+
+        /// <summary>
+        /// Region Displays as part of this model system.
+        /// </summary>
+        List<IRegionDisplay> RegionDisplays { get; }
 
         /// <summary>
         /// The internal structure of the model system

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace XTMF.Interfaces
 {
-    interface IRegionDisplay
+    public interface IRegionDisplay
     {
         /// <summary>
         /// 

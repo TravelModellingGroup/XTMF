@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace XTMF.Interfaces
 {
-    interface IRegionGroup
+    public interface IRegionGroup
     {
         string Name { get; set; }
 
         List<IModelSystemStructure> Modules { get; set; }
+
+        
     }
 }
