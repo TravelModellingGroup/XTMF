@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using XTMF.Editing;
+using XTMF.Interfaces;
 
 namespace XTMF
 {
@@ -362,8 +363,9 @@ namespace XTMF
                 var ms = _Runtime.ModelSystemController.LoadOrCreate(name);
                 ms.Name = name;
                 ms.Description = Project.ModelSystemDescriptions[index];
-                ms.ModelSystemStructure = Project.CloneModelSystemStructure(out List<ILinkedParameter> lp, index);
+                ms.ModelSystemStructure = Project.CloneModelSystemStructure(out List<ILinkedParameter> lp, out List<IRegionDisplay> regionDisplays, index);
                 ms.LinkedParameters = lp;
+                ms.RegionDisplays = regionDisplays;
                 return ms.Save(ref error);
             }
         }
@@ -449,9 +451,15 @@ namespace XTMF
             }
         }
 
-        internal IModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> lp, int modelSystemIndex)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <param name="modelSystemIndex"></param>
+        /// <returns></returns>
+        internal IModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> lp, out List<IRegionDisplay> regionDisplays, int modelSystemIndex)
         {
-            return Project.CloneModelSystemStructure(out lp, modelSystemIndex);
+            return Project.CloneModelSystemStructure(out lp, out regionDisplays, modelSystemIndex);
         }
 
         /// <summary>

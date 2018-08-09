@@ -69,12 +69,14 @@ namespace XTMF
         /// </summary>
         /// <param name="linkedParameters">The linked parameters</param>
         /// <returns>A cloned model system that can be used for editing.</returns>
-        internal ModelSystemStructure CreateEditingClone(out List<ILinkedParameter> linkedParameters)
+        internal ModelSystemStructure CreateEditingClone(out List<ILinkedParameter> linkedParameters, out List<IRegionDisplay> regionDisplays)
         {
             var ourClone = ModelSystemStructure.Clone();
             linkedParameters = LinkedParameters.Count > 0 ?
                 LinkedParameter.MapLinkedParameters(LinkedParameters, ourClone, ModelSystemStructure)
                 : new List<ILinkedParameter>();
+
+            regionDisplays = this._regionDisplays;
             return ourClone as ModelSystemStructure;
         }
 
@@ -84,11 +86,13 @@ namespace XTMF
         /// <returns></returns>
         public ModelSystem Clone()
         {
-            var structure = CreateEditingClone(out List<ILinkedParameter> linkedParameters);
+            var structure = CreateEditingClone(out List<ILinkedParameter> linkedParameters, out List<IRegionDisplay> regionDisplays);
             return new ModelSystem(_Config, Name)
             {
                 ModelSystemStructure = structure,
-                LinkedParameters = linkedParameters
+                LinkedParameters = linkedParameters,
+                RegionDisplays = regionDisplays
+                
             };
         }
 

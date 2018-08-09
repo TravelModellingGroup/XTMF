@@ -82,13 +82,20 @@ namespace XTMF
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystem"></param>
+        /// <param name="newName"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public bool AddModelSystem(ModelSystem modelSystem, string newName, ref string error)
         {
             if (modelSystem == null)
             {
                 throw new ArgumentNullException(nameof(modelSystem));
             }
-            var clone = CloneModelSystemStructure(modelSystem, out List<ILinkedParameter> linkedParameters);
+            var clone = CloneModelSystemStructure(modelSystem, out List<ILinkedParameter> linkedParameters, out List<IRegionDisplay> regionDisplays);
             if (clone == null)
             {
                 error = "Unable to clone the model system.";
@@ -100,7 +107,8 @@ namespace XTMF
                 Root = clone,
                 LinkedParameters = linkedParameters,
                 Description = modelSystem.Description,
-                GUID = Guid.NewGuid().ToString()
+                GUID = Guid.NewGuid().ToString(),
+                RegionDisplays = regionDisplays
             });
             return Save(ref error);
         }
@@ -163,9 +171,16 @@ namespace XTMF
             return Save(ref error);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="newName"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         internal bool AddModelSystem(int index, string newName, ref string error)
         {
-            var clone = CloneModelSystemStructure(out List<ILinkedParameter> linkedParameters, index);
+            var clone = CloneModelSystemStructure(out List<ILinkedParameter> linkedParameters, out List<IRegionDisplay> regionDisplays, index);
             if (clone == null)
             {
                 error = "Unable to clone the model system.";
@@ -196,13 +211,15 @@ namespace XTMF
             var loadTo = new ProjectModelSystem[numberOfModelSystems];
             Parallel.For(0, numberOfModelSystems, (int i) =>
             {
-                var mss = toClone.CloneModelSystemStructure(out List<ILinkedParameter> lp, i);
+                var mss = toClone.CloneModelSystemStructure(out List<ILinkedParameter> lp, out List<IRegionDisplay> regionDisplays, i);
                 loadTo[i] = new ProjectModelSystem()
                 {
                     Root = mss,
                     LinkedParameters = lp,
                     Description = mss?.Description ?? "No Description",
-                    GUID = Guid.NewGuid().ToString()
+                    GUID = Guid.NewGuid().ToString(),
+                    RegionDisplays = regionDisplays
+                    
                 };
             });
             _ProjectModelSystems = loadTo.ToList();
@@ -240,12 +257,17 @@ namespace XTMF
         /// <param name="linkedParameters">The copied linked parameters targeted for the new model system</param>
         /// <param name="modelSystemIndex">The index of the model system inside of the project to work with.</param>
         /// <returns>The cloned model system structure</returns>
-        internal ModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> linkedParameters, int modelSystemIndex)
+        internal ModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> linkedParameters,
+            out List<IRegionDisplay> regionDisplays, int modelSystemIndex)
         {
             var ourClone = ModelSystemStructure[modelSystemIndex].Clone();
             linkedParameters = LinkedParameters[modelSystemIndex].Count > 0 ?
                 LinkedParameter.MapLinkedParameters(LinkedParameters[modelSystemIndex], ourClone, ModelSystemStructure[modelSystemIndex])
                 : new List<ILinkedParameter>();
+
+            //TODO TODO TODO
+            regionDisplays = this.RegionDisplays.First();
+            
             return ourClone as ModelSystemStructure;
         }
 
@@ -271,9 +293,15 @@ namespace XTMF
             return modelSystem;
         }
 
-        private ModelSystemStructure CloneModelSystemStructure(ModelSystem modelSystem, out List<ILinkedParameter> list)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystem"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        private ModelSystemStructure CloneModelSystemStructure(ModelSystem modelSystem, out List<ILinkedParameter> list, out List<IRegionDisplay> regionDisplays)
         {
-            return modelSystem.CreateEditingClone(out list);
+            return modelSystem.CreateEditingClone(out list, out regionDisplays);
         }
 
         public bool HasChanged { get; set; }
@@ -287,6 +315,18 @@ namespace XTMF
             {
                 SetActive();
                 return _ProjectModelSystems.Select(pms => pms.LinkedParameters).ToList();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IReadOnlyList<List<IRegionDisplay>> RegionDisplays
+        {
+            get
+            {
+                SetActive();
+                return _ProjectModelSystems.Select(pms => pms.RegionDisplays).ToList();
             }
         }
 
@@ -319,15 +359,20 @@ namespace XTMF
         /// <param name="modelSystemIndex"></param>
         /// <param name="realModelSystemStructure"></param>
         /// <param name="lps"></param>
+        /// <param name="regionDisplays"></param>
         /// <param name="description"></param>
-        public void SetModelSystem(int modelSystemIndex, IModelSystemStructure realModelSystemStructure, List<ILinkedParameter> lps, string description)
+        public void SetModelSystem(int modelSystemIndex, IModelSystemStructure realModelSystemStructure, 
+            List<ILinkedParameter> lps,
+            List<IRegionDisplay> regionDisplays, string description)
         {
             _ProjectModelSystems[modelSystemIndex] = new ProjectModelSystem()
             {
                 Root = realModelSystemStructure,
                 LinkedParameters = lps,
                 Description = description,
-                GUID = _ProjectModelSystems[modelSystemIndex]?.GUID ?? Guid.NewGuid().ToString()
+                GUID = _ProjectModelSystems[modelSystemIndex]?.GUID ?? Guid.NewGuid().ToString(),
+                RegionDisplays = regionDisplays
+             
             };
         }
 
@@ -571,6 +616,10 @@ namespace XTMF
                                     ms.Root.Save(msWriter);
                                     msWriter.WriteStartElement("LinkedParameters");
                                     WriteLinkedParameters(msWriter, ms.LinkedParameters, ms.Root);
+                                    msWriter.WriteEndElement();
+
+                                    msWriter.WriteStartElement("Regions");
+                                    WriteRegions(msWriter, ms.RegionDisplays, ms.Root);
                                     msWriter.WriteEndElement();
                                     msWriter.WriteEndElement();
                                 }
@@ -1769,6 +1818,46 @@ namespace XTMF
             return ret.ToArray();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="lpl"></param>
+        /// <param name="mss"></param>
+        private void WriteRegions(XmlTextWriter writer, List<IRegionDisplay> regionDisplays, IModelSystemStructure mss)
+        {
+            foreach(var regionDisplay in regionDisplays)
+            {
+                writer.WriteStartElement("RegionDisplay");
+                writer.WriteAttributeString("Name", regionDisplay.Name);
+                
+                foreach(var regionGroup in regionDisplay.RegionGroups)
+                {
+                    writer.WriteStartElement("RegionGroup");
+                    writer.WriteAttributeString("Name", regionGroup.Name);
+
+                    foreach(var module in regionGroup.Modules)
+                    {
+                        writer.WriteStartElement("Module");
+                        writer.WriteAttributeString("Reference", "");
+
+                        writer.WriteEndElement();
+                    }
+
+
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="lpl"></param>
+        /// <param name="mss"></param>
         private void WriteLinkedParameters(XmlTextWriter writer, List<ILinkedParameter> lpl, IModelSystemStructure mss)
         {
             foreach (var lp in lpl)

@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller\RunController.cs" />
+    <Compile Include="Editing\RegionDisplaysModel.cs" />
     <Compile Include="ErrorWithPath.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="ProjectModelSystem.cs" />

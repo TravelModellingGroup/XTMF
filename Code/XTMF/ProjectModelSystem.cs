@@ -33,5 +33,10 @@ namespace XTMF
         public List<IRegionDisplay> RegionDisplays { get; internal set; }
         public string Description { get; internal set; }
         public string GUID { get; internal set; }
+
+        public ProjectModelSystem()
+        {
+
+        }
     }
 }

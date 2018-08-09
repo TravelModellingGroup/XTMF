@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using XTMF.Editing;
+using XTMF.Interfaces;
 
 namespace XTMF
 {
@@ -294,6 +295,7 @@ namespace XTMF
                             _ModelSystemIndex,
                             ModelSystemModel.Root.RealModelSystemStructure,
                             ModelSystemModel.LinkedParameters.GetRealLinkedParameters(),
+                            new List<IRegionDisplay>(),
                              ModelSystemModel.Description
                             );
                         if (((Configuration) Configuration).RemoteHost)
@@ -341,6 +343,12 @@ namespace XTMF
             _Runtime.RunController.ExecuteDelayedRun(run, delayedStartTime);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         internal bool SaveAsModelSystem(string name, ref string error)
         {
             lock (_SessionLock)
@@ -351,8 +359,9 @@ namespace XTMF
                 if (EditingProject)
                 {
                     ms.ModelSystemStructure =
-                        ProjectEditingSession.CloneModelSystemStructure(out var lp, _ModelSystemIndex);
+                        ProjectEditingSession.CloneModelSystemStructure(out var lp, out List<IRegionDisplay> regionDisplays, _ModelSystemIndex);
                     ms.LinkedParameters = lp;
+                    ms.RegionDisplays = regionDisplays;
                     return ms.Save(ref error);
                 }
 

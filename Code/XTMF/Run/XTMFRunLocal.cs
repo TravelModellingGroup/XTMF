@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using XTMF.Interfaces;
 
 namespace XTMF.Run
 {
@@ -57,7 +58,8 @@ namespace XTMF.Run
             _ModelSystemIndex = modelSystemIndex;
             if(_Project is Project p)
             {
-                p.SetModelSystem(_ModelSystemIndex, root.ClonedModelSystemRoot, root.LinkedParameters.GetRealLinkedParameters(), root.Description ?? String.Empty);
+                p.SetModelSystem(_ModelSystemIndex, root.ClonedModelSystemRoot, root.LinkedParameters.GetRealLinkedParameters(),
+                    new List<IRegionDisplay>(), root.Description ?? String.Empty);
             }
             if (overwrite)
             {

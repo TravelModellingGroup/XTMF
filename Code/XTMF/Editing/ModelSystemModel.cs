@@ -23,6 +23,8 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Collections.ObjectModel;
+using XTMF.Interfaces;
+using XTMF.Editing;
 
 namespace XTMF
 {
@@ -37,6 +39,8 @@ namespace XTMF
         /// </summary>
         public LinkedParametersModel LinkedParameters { get; private set; }
 
+        public RegionDisplaysModel RegionDisplaysModel { get; private set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         internal ModelSystem ModelSystem { get; private set; }
@@ -47,13 +51,20 @@ namespace XTMF
 
         private int _ModelSystemIndex;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="modelSystem"></param>
         public ModelSystemModel(ModelSystemEditingSession session, ModelSystem modelSystem)
         {
             ModelSystem = modelSystem;
             Name = modelSystem.Name;
             _Description = modelSystem.Description;
-            Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters) as ModelSystemStructure);
+            Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters,
+                out List<IRegionDisplay> editingRegionDisplays) as ModelSystemStructure);
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
         }
 
         internal ParameterModel GetParameterModel(IModuleParameter moduleParameter)
@@ -105,15 +116,23 @@ namespace XTMF
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="project"></param>
+        /// <param name="modelSystemIndex"></param>
         public ModelSystemModel(ModelSystemEditingSession session, Project project, int modelSystemIndex)
         {
             _Project = project;
             _ModelSystemIndex = modelSystemIndex;
             Name = project.ModelSystemStructure[modelSystemIndex].Name;
             _Description = project.ModelSystemDescriptions[modelSystemIndex];
-            Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters, modelSystemIndex) as ModelSystemStructure));
+            Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters,
+                out List<IRegionDisplay> editingRegionDisplays, modelSystemIndex) as ModelSystemStructure));
             _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
         }
 
         /// <summary>
@@ -198,6 +217,7 @@ namespace XTMF
                 ModelSystem.ModelSystemStructure = ClonedModelSystemRoot;
                 ModelSystem.Description = Description;
                 ModelSystem.LinkedParameters = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
+                
                 return ModelSystem.Save(ref error);
             }
             else if (_ModelSystemIndex >= 0)
@@ -205,6 +225,7 @@ namespace XTMF
                 _Project.SetModelSystem(_ModelSystemIndex,
                     ClonedModelSystemRoot,
                     LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList(),
+                    RegionDisplaysModel.RegionDisplays,
                     Description);
                 // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
                 Name = ClonedModelSystemRoot.Name;

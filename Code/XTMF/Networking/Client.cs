@@ -23,6 +23,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using XTMF.Interfaces;
 
 namespace XTMF.Networking
 {
@@ -316,7 +317,7 @@ namespace XTMF.Networking
             }
             else
             {
-                project.SetModelSystem(0, mss, new List<ILinkedParameter>(), String.Empty);
+                project.SetModelSystem(0, mss, new List<ILinkedParameter>(), new List<IRegionDisplay>(), String.Empty);
             }
             ((ProjectRepository)_Configuration.ProjectRepository).SetActiveProject(project);
             var modelSystem = project.CreateModelSystem(ref error, 0);
