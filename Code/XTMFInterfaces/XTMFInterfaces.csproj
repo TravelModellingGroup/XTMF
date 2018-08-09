@@ -139,8 +139,10 @@
     <Compile Include="Interfaces\IModelSystemTemplate.cs" />
     <Compile Include="Interfaces\IModelSystemTemplateRepository.cs" />
     <Compile Include="Interfaces\IProgressReport.cs" />
+    <Compile Include="Interfaces\IRegionDisplay.cs" />
     <Compile Include="Interfaces\IResource.cs" />
     <Compile Include="Interfaces\ISetableDataSource.cs" />
+    <Compile Include="Interfaces\IRegionGroup.cs" />
     <Compile Include="Networking\IClient.cs" />
     <Compile Include="Networking\IHost.cs" />
     <Compile Include="Interfaces\IProject.cs" />
