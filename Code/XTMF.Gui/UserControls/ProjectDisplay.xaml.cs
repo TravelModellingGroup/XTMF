@@ -34,6 +34,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using XTMF.Gui.Annotations;
 using XTMF.Gui.Controllers;
+using XTMF.Gui.UserControls.Interfaces;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
@@ -43,7 +44,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for ProjectDisplay.xaml
     /// </summary>
-    public partial class ProjectDisplay : UserControl, INotifyPropertyChanged
+    public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabCloseListener
     {
         public static readonly DependencyProperty ProjectProperty = DependencyProperty.Register("Project",
             typeof(Project), typeof(ProjectDisplay),
@@ -951,6 +952,16 @@ namespace XTMF.Gui.UserControls
         private void PopupBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
            
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool HandleTabClose()
+        {
+            _session.EndSession();
+            return true;
         }
     }
 }

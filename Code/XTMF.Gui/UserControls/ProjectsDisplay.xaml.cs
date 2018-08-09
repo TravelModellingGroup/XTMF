@@ -36,11 +36,16 @@ namespace XTMF.Gui.UserControls
     {
         private XTMFRuntime Runtime;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="runtime"></param>
         public ProjectsDisplay(XTMFRuntime runtime)
         {
             InitializeComponent();
             Runtime = runtime;
             var projectRepository = ((ProjectRepository)runtime.Configuration.ProjectRepository);
+            projectRepository.ReloadRepository();
             Loaded += ProjectsDisplay_Loaded;
             Display.ItemsSource = new ProxyList<IProject>(projectRepository.Projects);
             projectRepository.ProjectAdded += ProjectRepository_ProjectAdded;

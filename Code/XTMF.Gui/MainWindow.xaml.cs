@@ -165,8 +165,10 @@ namespace XTMF.Gui
                 projectDisplay?.Model.Unload();
                 if (projectDisplay != null)
                 {
-                    projectDisplay.Session.Dispose();
+                    //projectDisplay.Session.Dispose();
                     WorkspaceProjects.Remove(projectDisplay.Session.Project);
+                    projectDisplay.Session.EndSession();
+                    Console.WriteLine("h");
                 }
             }
             if ((args.DragablzItem.Content as TabItem)?.Content is ITabCloseListener closeListener &&

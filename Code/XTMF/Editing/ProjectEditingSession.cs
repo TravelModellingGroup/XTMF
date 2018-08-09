@@ -136,11 +136,15 @@ namespace XTMF
             {
                 for (int i = 0; i < _EditingSessions.Length; i++)
                 {
+                   
                     if (_EditingSessions[i].Session != null)
                     {
                         _EditingSessions[i].Session.Dispose();
                     }
                 }
+                _Runtime.ProjectController.RemoveEditingReference(this);
+
+
             }
         }
 
@@ -695,7 +699,19 @@ namespace XTMF
             lock (_EditingSessionsLock)
             {
                 _Runtime.ProjectController.RemoveEditingReference(this);
+                Project = null;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void EndSession()
+        {
+            this.SessionTerminated();
+            this.Dispose();
+            this.Project = null;
+
         }
 
         /// <summary>

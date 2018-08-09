@@ -215,6 +215,10 @@ namespace XTMF
         /// <param name="project">The project to become the active one</param>
         public void SetActiveProject(IProject project) => ActiveProject = project;
 
+        public void ReloadRepository()
+        {
+            this.FindAndLoadProjects();
+        }
 
         private void FindAndLoadProjects()
         {

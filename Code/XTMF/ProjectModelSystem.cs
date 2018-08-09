@@ -36,7 +36,7 @@ namespace XTMF
 
         public ProjectModelSystem()
         {
-
+            RegionDisplays = new List<IRegionDisplay>();
         }
     }
 }

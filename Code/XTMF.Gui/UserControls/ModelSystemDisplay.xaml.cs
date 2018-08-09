@@ -338,7 +338,17 @@ namespace XTMF.Gui.UserControls
                 }
                 return false;
             }
-            return true;
+            else
+            {
+                string error = null;
+                if (!Session.Close(ref error))
+                {
+                    MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    
+                }
+                return true;
+            }
         }
 
         /// <summary>

@@ -189,6 +189,7 @@ namespace XTMF
                         ReferenceCount.RemoveAt(index);
                     }
                 }
+                
             }
         }
 
