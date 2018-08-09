@@ -274,7 +274,7 @@
                     </Grid>
                 </Grid>
 
-                <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{Binding ActiveModelSystemView}"
                                 HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="2" Grid.Column="0"
                                 Name="ModelSystemDisplayContent" />
                 

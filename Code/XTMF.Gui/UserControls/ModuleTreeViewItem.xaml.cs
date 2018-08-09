@@ -77,8 +77,14 @@ namespace XTMF.Gui.UserControls
             set => SetValue(CustomBackgrounDependencyProperty,value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ModuleTreeViewItem_Loaded(object sender, RoutedEventArgs e)
         {
+
             BackingModel.BaseModel.PropertyChanged += BaseModelOnPropertyChanged;
             BackingModel.PropertyChanged += BaseModelOnPropertyChanged;
             if (BackingModel.BaseModel.IsMetaModule)
@@ -101,6 +107,7 @@ namespace XTMF.Gui.UserControls
             Title.Opacity = ammount;
             IconPath.Opacity = ammount;
             SetupColours();
+            e.Handled = true;
         }
 
 

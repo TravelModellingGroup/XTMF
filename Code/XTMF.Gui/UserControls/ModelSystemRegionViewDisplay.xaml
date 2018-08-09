@@ -8,6 +8,7 @@
              mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
+        <ListBox Name="TestBox"></ListBox>
         <TextBlock>Hello</TextBlock>
     </Grid>
 </UserControl>

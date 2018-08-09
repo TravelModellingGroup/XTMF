@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Media;
 using System.Reflection;
@@ -23,7 +24,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     /// Interaction logic for ModelSystemTreeViewDisplay.xaml
     /// </summary>
-    public partial class ModelSystemTreeViewDisplay : UserControl, IModelSystemView
+    public partial class ModelSystemTreeViewDisplay : UserControl, IModelSystemView, INotifyPropertyChanged
     {
 
         private ModelSystemDisplay _display;
@@ -35,12 +36,20 @@ namespace XTMF.Gui.UserControls
 
         public ModelSystemStructureDisplayModel SelectedModule => ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
 
-        public ItemsControl ViewItemsControl => ModuleDisplay;
+        public ItemsControl ViewItemsControl
+        {
+            get
+            {
+                return ModuleDisplay;
+            }
+        }
 
         private bool _disableMultipleSelectOnce;
 
         private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
     "IsSelectionChangeActive", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         internal List<ModelSystemStructureDisplayModel> CurrentlySelected
         {
@@ -50,11 +59,16 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="display"></param>
         public ModelSystemTreeViewDisplay(ModelSystemDisplay display)
         {
             InitializeComponent();
             this._display = display;
-            
+            this.AllowMultiSelection(ModuleDisplay);
+
             //ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
         }
 
@@ -69,7 +83,7 @@ namespace XTMF.Gui.UserControls
 
             this._display.UpdateQuickParameters();
             this._display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
-            this._display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
+            //this._display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
         }
 
 
@@ -125,6 +139,44 @@ namespace XTMF.Gui.UserControls
                 if (ModuleDisplay.Items.Count > 0)
                 {
                     ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleTreeViewItem_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (sender is ModuleTreeViewItem treeViewItem)
+            {
+                var menu = treeViewItem.ContextMenu;
+                foreach (var item in menu.Items)
+                {
+                    if (item is MenuItem menuItem)
+                    {
+                        if (menuItem.Name == "DisableModuleMenuItem")
+                        {
+                            if (treeViewItem.BackingModel.BaseModel.CanDisable)
+                            {
+                                menuItem.Header = treeViewItem.BackingModel.BaseModel.IsDisabled
+                                    ? "Enable Module (Ctrl + D)"
+                                    : "Disable Module (Ctrl + D)";
+                            }
+                            else
+                            {
+                                menuItem.IsEnabled = false;
+                            }
+                        }
+                        else if (menuItem.Name == "ModuleMenuItem")
+                        {
+                            menuItem.Header = treeViewItem.BackingModel.BaseModel.IsCollection
+                                ? "Add Module (Ctrl + M)"
+                                : "Set Module (Ctrl + M)";
+                        }
+                    }
                 }
             }
         }
@@ -464,6 +516,16 @@ namespace XTMF.Gui.UserControls
             SetMetaModuleStateForSelected(false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Module_Clicked(object sender, RoutedEventArgs e)
+        {
+            this._display.SelectReplacement();
+        }
+
 
 
         /// <summary>
@@ -630,8 +692,6 @@ namespace XTMF.Gui.UserControls
             return source as TreeViewItem;
         }
 
-
-
-
+        
     }
 }

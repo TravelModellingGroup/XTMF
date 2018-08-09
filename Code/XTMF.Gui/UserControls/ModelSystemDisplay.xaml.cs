@@ -100,11 +100,17 @@ namespace XTMF.Gui.UserControls
 
         private ModelSystemTreeViewDisplay treeViewDisplay;
 
+        private IModelSystemView _activeModelSystemView;
+
         public IModelSystemView ActiveModelSystemView
         {
             get
             {
-                return ModelSystemDisplayContent.Content as IModelSystemView;
+                return this._activeModelSystemView;
+            }
+            set
+            {
+                this._activeModelSystemView = value;
             }
         }
 
@@ -177,6 +183,9 @@ namespace XTMF.Gui.UserControls
             //initialize sub displays for the model system
             this.regionViewDisplay = new ModelSystemRegionViewDisplay();
             this.treeViewDisplay = new ModelSystemTreeViewDisplay(this);
+
+
+            this.ActiveModelSystemView = this.treeViewDisplay;
         }
 
         /// <summary>
@@ -191,6 +200,7 @@ namespace XTMF.Gui.UserControls
             UpdateQuickParameters();
             //this.display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
             //this.display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
+            
         }
 
 
@@ -734,14 +744,15 @@ namespace XTMF.Gui.UserControls
 
                         //TODO ITEMS
                         //set the treeview to use regular model system items
-                        us.treeViewDisplay.ViewItemsControl.ItemsSource = displayModel;
+                        us.ActiveModelSystemView.ViewItemsControl.ItemsSource = displayModel;
                         us.ModelSystemName = newModelSystem.Name;
+                        us.ActiveModelSystemView.ViewItemsControl.InvalidateVisual();
 
                         //TODO MAYBE
-                        //us.ModuleDisplay.Items.MoveCurrentToFirst();
-                        us.FilterBox.Display = us.ActiveModelSystemView.ViewItemsControl;
-                        us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
-                        us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+                        us.treeViewDisplay.ModuleDisplay.Items.MoveCurrentToFirst();
+                        us.FilterBox.Display = us.ActiveModelSystemView?.ViewItemsControl;
+                        //us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+                        //us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                     });
                 });
             }
@@ -1661,10 +1672,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void Module_Clicked(object sender, RoutedEventArgs e)
-        {
-            SelectReplacement();
-        }
+
 
         private void Rename_Clicked(object sender, RoutedEventArgs e)
         {
@@ -2274,46 +2282,6 @@ namespace XTMF.Gui.UserControls
         {
             //ToggleDisableModule();
         }
-
-        private void ModuleTreeViewItem_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            if (sender is ModuleTreeViewItem treeViewItem)
-            {
-                var menu = treeViewItem.ContextMenu;
-                foreach (var item in menu.Items)
-                {
-                    if (item is MenuItem menuItem)
-                    {
-                        if (menuItem.Name == "DisableModuleMenuItem")
-                        {
-                            if (treeViewItem.BackingModel.BaseModel.CanDisable)
-                            {
-                                menuItem.Header = treeViewItem.BackingModel.BaseModel.IsDisabled
-                                    ? "Enable Module (Ctrl + D)"
-                                    : "Disable Module (Ctrl + D)";
-                            }
-                            else
-                            {
-                                menuItem.IsEnabled = false;
-                            }
-                        }
-                        else if (menuItem.Name == "ModuleMenuItem")
-                        {
-                            menuItem.Header = treeViewItem.BackingModel.BaseModel.IsCollection
-                                ? "Add Module (Ctrl + M)"
-                                : "Set Module (Ctrl + M)";
-                        }
-                    }
-                }
-            }
-        }
-
-
-
-        
-
-
-
 
         
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
