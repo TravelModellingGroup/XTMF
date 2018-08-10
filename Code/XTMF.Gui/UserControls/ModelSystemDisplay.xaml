@@ -193,8 +193,8 @@
                     <ColumnDefinition MinWidth="330px" Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="10.204"/>
-                    <RowDefinition Height="71.796"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="45"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="3"/>
                 </Grid.RowDefinitions>
@@ -202,7 +202,6 @@
                     <Grid VerticalAlignment="Top" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="54"/>
-                            <RowDefinition Height="26"/>
                         </Grid.RowDefinitions>
                         <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" Margin="0 0 0 0" >
                             <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
@@ -270,7 +269,7 @@
                                 </Grid>
                             </ToolBar>
                         </ToolBarTray>
-                        <this:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" x:Name="ModuleContextControl" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  />
+                        
                     </Grid>
                 </Grid>
 

@@ -71,7 +71,11 @@ namespace XTMF.Gui.UserControls
 
             this.Loaded += this.ModelSystemDisplay_Loaded;
 
-            ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
+            this.ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
+
+            this.ModuleContextControl.ModuleContextChanged += this.ModuleContextControlOnModuleContextChanged;
+
+
         }
 
         /// <summary>
@@ -90,7 +94,7 @@ namespace XTMF.Gui.UserControls
                 }
 
                 //update the module context control
-                this._display.ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
+                this.ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
             }
         }
 
