@@ -88,7 +88,7 @@ namespace XTMF.Gui.UserControls
 
         private ParameterDisplayModel _selectedParameterDisplayModel;
 
-        private ModelSystemEditingSession _Session;
+        private ModelSystemEditingSession _session;
 
         private ModelSystemStructureDisplayModel DisplayRoot;
 
@@ -96,24 +96,23 @@ namespace XTMF.Gui.UserControls
 
         private object SaveLock = new object();
 
-        private ModelSystemRegionViewDisplay regionViewDisplay;
+        private readonly ModelSystemRegionViewDisplay _regionViewDisplay;
 
-        private ModelSystemTreeViewDisplay treeViewDisplay;
+        private readonly ModelSystemTreeViewDisplay _treeViewDisplay;
 
         private IModelSystemView _activeModelSystemView;
 
+        public event EventHandler<ModelSystemEditingSessionChangedEventArgs> ModelSystemEditingSessionChanged;
+
         public IModelSystemView ActiveModelSystemView
         {
-            get
-            {
-                return this._activeModelSystemView;
-            }
-            set
-            {
-                this._activeModelSystemView = value;
-            }
+            get => this._activeModelSystemView;
+            set => this._activeModelSystemView = value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ModelSystemDisplay()
         {
             _saveSemaphor = new Semaphore(1, 1);
@@ -181,11 +180,11 @@ namespace XTMF.Gui.UserControls
             };
 
             //initialize sub displays for the model system
-            this.regionViewDisplay = new ModelSystemRegionViewDisplay();
-            this.treeViewDisplay = new ModelSystemTreeViewDisplay(this);
+            this._regionViewDisplay = new ModelSystemRegionViewDisplay(this);
+            this._treeViewDisplay = new ModelSystemTreeViewDisplay(this);
 
 
-            this.ActiveModelSystemView = this.treeViewDisplay;
+            this.ActiveModelSystemView = this._treeViewDisplay;
         }
 
         /// <summary>
@@ -220,23 +219,24 @@ namespace XTMF.Gui.UserControls
 
         public ModelSystemEditingSession Session
         {
-            get => _Session;
+            get => _session;
             set
             {
-                if (_Session != null)
+                if (_session != null)
                 {
-                    _Session.ProjectWasExternallySaved -= ProjectWasExternalSaved;
-                    _Session.CommandExecuted += SessionOnCommandExecuted;
-                    _Session.Saved += _Session_Saved;
+                    _session.ProjectWasExternallySaved -= ProjectWasExternalSaved;
+                    _session.CommandExecuted += SessionOnCommandExecuted;
+                    _session.Saved += _Session_Saved;
                 }
 
-                _Session = value;
+                _session = value;
+                this.ModelSystemEditingSessionChanged?.Invoke(this, new ModelSystemEditingSessionChangedEventArgs(_session));
                 if (value != null)
                 {
                     value.ProjectWasExternallySaved += ProjectWasExternalSaved;
                 }
 
-                CanRunModelSystem = _Session.ProjectEditingSession != null;
+                CanRunModelSystem = _session.ProjectEditingSession != null;
             }
         }
 
@@ -357,7 +357,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="eventArgs"></param>
         private void SessionOnCommandExecuted(object sender, EventArgs eventArgs)
         {
-            CanSaveModelSystem = _Session.HasChanged;
+            CanSaveModelSystem = _session.HasChanged;
         }
 
         /// <summary>
@@ -372,7 +372,7 @@ namespace XTMF.Gui.UserControls
         private void ProjectWasExternalSaved(object sender, EventArgs e)
         {
             // If the project was saved we need to reload in the new model system model
-            Dispatcher.Invoke(() => { ModelSystem = _Session.ModelSystemModel; });
+            Dispatcher.Invoke(() => { ModelSystem = _session.ModelSystemModel; });
         }
 
         private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText,
@@ -486,7 +486,7 @@ namespace XTMF.Gui.UserControls
         {
             var children = current.Children;
             var container = (previous == null
-                ? this.treeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current)
+                ? this._treeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current)
                 : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
             if (current == lookingFor && container != null)
             {
@@ -759,7 +759,7 @@ namespace XTMF.Gui.UserControls
                         us.ActiveModelSystemView.ViewItemsControl.InvalidateVisual();
 
                         //TODO MAYBE
-                        us.treeViewDisplay.ModuleDisplay.Items.MoveCurrentToFirst();
+                        us._treeViewDisplay.ModuleDisplay.Items.MoveCurrentToFirst();
                         us.FilterBox.Display = us.ActiveModelSystemView?.ViewItemsControl;
                         //us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                         //us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
@@ -1465,7 +1465,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 CurrentlySelected.Clear();
-                this.treeViewDisplay.ExpandToRoot(displayModel);
+                this._treeViewDisplay.ExpandToRoot(displayModel);
                 displayModel.IsSelected = true;
             });
 
@@ -1761,7 +1761,7 @@ namespace XTMF.Gui.UserControls
             var ansestry = DisplayRoot.BuildChainTo(selected);
             if (ansestry != null)
             {
-                var currentContainer = this.treeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
+                var currentContainer = this._treeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
                 for (var i = 1; i < ansestry.Count; i++)
                 {
                     if (currentContainer != null)
@@ -2671,7 +2671,7 @@ namespace XTMF.Gui.UserControls
             var parameterSource = (e.OriginalSource as ComboBox)?.Tag as ParameterDisplayModel;
             if (ParameterDisplay.Items.Contains(parameterSource) && _loadedOnce)
             {
-                CanSaveModelSystem = _Session.HasChanged;
+                CanSaveModelSystem = _session.HasChanged;
             }
             else
             {
@@ -2754,7 +2754,7 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.BeginInvoke(new Action(() =>
            {
-               ModelSystemDisplayContent.Content = this.regionViewDisplay;
+               ModelSystemDisplayContent.Content = this._regionViewDisplay;
            }));
 
         }
@@ -2768,8 +2768,25 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                ModelSystemDisplayContent.Content = this.treeViewDisplay;
+                ModelSystemDisplayContent.Content = this._treeViewDisplay;
             }));
         }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ModelSystemEditingSessionChangedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        public ModelSystemEditingSessionChangedEventArgs(ModelSystemEditingSession session)
+        {
+            Session = session;
+        }
+
+        public ModelSystemEditingSession Session { get; }
     }
 }

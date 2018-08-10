@@ -104,6 +104,8 @@ namespace XTMF.Gui
 
             xtmfMainWindow = new MainWindow();
             RegisterEditorController(e);
+
+          
         }
 
         /// <summary>

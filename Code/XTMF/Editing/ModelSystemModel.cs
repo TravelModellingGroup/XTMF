@@ -133,6 +133,7 @@ namespace XTMF
             _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
             RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
+            return;
         }
 
         /// <summary>
