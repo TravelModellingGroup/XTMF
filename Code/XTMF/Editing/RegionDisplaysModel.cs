@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,13 +15,13 @@ namespace XTMF.Editing
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private List<IRegionDisplay> _regionDisplays;
+        private ObservableCollection<IRegionDisplay> _regionDisplays;
 
         private ModelSystemEditingSession _session;
 
         private ModelSystemModel _modelSystemModel;
 
-        public List<IRegionDisplay> RegionDisplays
+        public ObservableCollection<IRegionDisplay> RegionDisplays
         {
             get
             {
@@ -33,6 +34,41 @@ namespace XTMF.Editing
         }
 
         /// <summary>
+        /// Creates a new Region Display with the specified name and adds it to the model.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="error"></param>
+        public bool CreateNewRegionDisplay(string name, ref string error)
+        {
+            RegionDisplay regionDisplay = new RegionDisplay()
+            {
+                Name = name
+            };
+
+            return _session.RunCommand(XTMFCommand.CreateCommand("New Region Display",
+                // on do
+                (ref string e) =>
+                {
+
+                    this.RegionDisplays.Add(regionDisplay);
+                    return true;
+                },
+                // on undo
+                (ref string e) =>
+                {
+                    this.RegionDisplays.Remove(regionDisplay);
+                    return true;
+                },
+
+                // on redo
+                (ref string e) =>
+                {
+                    this.RegionDisplays.Add(regionDisplay);
+                    return true;
+                }), ref error);
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="session"></param>
@@ -40,9 +76,11 @@ namespace XTMF.Editing
         /// <param name="regionDisplays"></param>
         public RegionDisplaysModel(ModelSystemEditingSession session, ModelSystemModel modelSystemModel, List<IRegionDisplay> regionDisplays)
         {
-            this._regionDisplays = regionDisplays;
+            this._regionDisplays = new ObservableCollection<IRegionDisplay>(regionDisplays);
             this._session = session;
             this._modelSystemModel = modelSystemModel;
+
+
         }
 
         [NotifyPropertyChangedInvocator]

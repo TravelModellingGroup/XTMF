@@ -226,7 +226,7 @@ namespace XTMF
                 _Project.SetModelSystem(_ModelSystemIndex,
                     ClonedModelSystemRoot,
                     LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList(),
-                    RegionDisplaysModel.RegionDisplays,
+                    RegionDisplaysModel.RegionDisplays.ToList(),
                     Description);
                 // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
                 Name = ClonedModelSystemRoot.Name;

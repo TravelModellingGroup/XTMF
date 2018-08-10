@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ using MaterialDesignThemes.Wpf;
 using XTMF.Editing;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
+using XTMF.Interfaces;
 
 namespace XTMF.Gui.UserControls
 {
@@ -31,6 +34,8 @@ namespace XTMF.Gui.UserControls
 
         private RegionDisplaysModel _regionDisplaysModel;
 
+        private ObservableCollection<IRegionDisplay> _regionDisplays;
+
         /// <summary>
         /// 
         /// </summary>
@@ -41,6 +46,18 @@ namespace XTMF.Gui.UserControls
 
             this._modelSystemDisplay = modelSystemDisplay;
             this._modelSystemDisplay.ModelSystemEditingSessionChanged += ModelSystemDisplay_ModelSystemEditingSessionChanged;
+            
+            
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionDisplaysOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            this._modelSystemDisplay.StatusSnackBar.MessageQueue.Enqueue($"New region display '{((IRegionDisplay)e.NewItems[0]).Name}' Added");
         }
 
         /// <summary>
@@ -54,8 +71,12 @@ namespace XTMF.Gui.UserControls
 
             this._regionDisplaysModel = this._modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel;
 
+            this._regionDisplaysModel.RegionDisplays.CollectionChanged += RegionDisplaysOnCollectionChanged;
+
             this.UpdateRegionDisplayList();
 
+
+            
 
         }
 
@@ -84,7 +105,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async Task AddRegionDisplayButton_OnClick(object sender, RoutedEventArgs e)
+        private async void AddRegionDisplayButton_OnClick(object sender, RoutedEventArgs e)
         {
             await this.ShowCreateNewRegionDisplayDialog();
         }
@@ -98,6 +119,9 @@ namespace XTMF.Gui.UserControls
             try
             {
                 var result = await dialog.ShowAsync(false);
+                string error = "";
+                this._regionDisplaysModel.CreateNewRegionDisplay(dialog.UserInput, ref error);
+
 
             }
             catch (Exception e)
