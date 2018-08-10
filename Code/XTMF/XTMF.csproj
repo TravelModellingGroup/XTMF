@@ -89,6 +89,7 @@
     <Compile Include="ErrorWithPath.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="ProjectModelSystem.cs" />
+    <Compile Include="Project_IO.cs" />
     <Compile Include="RegionDisplay.cs" />
     <Compile Include="RegionGroup.cs" />
     <Compile Include="Run\RemoteRunCommands.cs" />
