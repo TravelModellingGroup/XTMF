@@ -2021,7 +2021,8 @@ namespace XTMF
                     foreach (var module in regionGroup.Modules)
                     {
                         writer.WriteStartElement("Module");
-                        writer.WriteAttributeString("Reference", "");
+                        var referencePath = this.GetModuleReferencePath(module, new List<string>());
+                        writer.WriteAttributeString("Reference", referencePath);
 
                         writer.WriteEndElement();
                     }
@@ -2031,6 +2032,28 @@ namespace XTMF
                 }
 
                 writer.WriteEndElement();
+            }
+        }
+
+       
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystemStructure"></param>
+        /// <param name="referencePath"></param>
+        /// <returns></returns>
+        private string GetModuleReferencePath(IModelSystemStructure modelSystemStructure, List<string> referencePath)
+        {
+            if (modelSystemStructure.Parent == null)
+            {
+                referencePath?.Insert(0,modelSystemStructure.Name);
+   
+                return string.Join(".", referencePath?.ToArray());
+            }
+            else
+            {
+                referencePath.Insert(0, modelSystemStructure.Name);
+                return GetModuleReferencePath(modelSystemStructure.Parent, referencePath);
             }
         }
 

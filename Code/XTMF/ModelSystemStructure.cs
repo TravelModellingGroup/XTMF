@@ -69,7 +69,10 @@ namespace XTMF
 
         public string ParentFieldName { get; set; }
 
-        public Type ParentFieldType { get; set; }
+        public IModelSystemStructure Parent { get; set; }
+
+        public Type ParentFieldType { get;
+            set; }
 
         public bool Required { get; set; }
 
@@ -173,6 +176,8 @@ namespace XTMF
                     {
                         child.ParentFieldType = field.FieldType;
                     }
+
+                    child.Parent = element;
                     element.Add(child);
                 }
             }
@@ -184,6 +189,7 @@ namespace XTMF
                     child.ParentFieldName = property.Name;
                     child.Name = CreateModuleName(property.Name);
                     child.ParentFieldType = property.PropertyType;
+                    child.Parent = element;
                     element.Add(child);
                 }
             }
@@ -306,7 +312,9 @@ namespace XTMF
             }
             var newChild = new ModelSystemStructure(Configuration, name, ParentFieldType)
             {
-                Type = type
+                Type = type,
+                Parent = this
+               
             };
             Children.Add(newChild);
         }
@@ -320,7 +328,12 @@ namespace XTMF
             Children.Add(p);
         }
 
-        public IModelSystemStructure Clone()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public IModelSystemStructure Clone(IModelSystemStructure parent = null)
         {
             ModelSystemStructure cloneUs = new ModelSystemStructure(Configuration)
             {
@@ -343,6 +356,8 @@ namespace XTMF
             cloneUs.Required = Required;
             cloneUs.ParentFieldName = ParentFieldName;
             cloneUs.ParentFieldType = ParentFieldType;
+            cloneUs.Parent = parent;
+
             cloneUs._Type = _Type;
             cloneUs.IsCollection = IsCollection;
             cloneUs.IsDisabled = IsDisabled;
@@ -350,7 +365,7 @@ namespace XTMF
             {
                 foreach (var child in Children)
                 {
-                    cloneUs.Add(child.Clone());
+                    cloneUs.Add(child.Clone(cloneUs));
                 }
             }
             return cloneUs;
@@ -986,6 +1001,7 @@ namespace XTMF
             if (parentFieldNameAttribute != null)
             {
                 projectStructure.ParentFieldName = parentFieldNameAttribute.InnerText;
+                projectStructure.Parent = parent;
             }
             if (parentTIndexAttribute != null)
             {

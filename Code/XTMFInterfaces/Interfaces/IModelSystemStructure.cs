@@ -105,7 +105,7 @@ namespace XTMF
         /// Make an exact copy of this model system structure
         /// </summary>
         /// <returns>A copy of this model system structure including all children</returns>
-        IModelSystemStructure Clone();
+        IModelSystemStructure Clone(IModelSystemStructure parent = null);
 
         /// <summary>
         /// Create a new IProjectStructure that can be used as a
@@ -114,6 +114,8 @@ namespace XTMF
         /// <param name="newType">The type to make it from</param>
         /// <returns>The newly created project structure</returns>
         IModelSystemStructure CreateCollectionMember(Type newType);
+
+        IModelSystemStructure Parent { get; set; }
 
         /// <summary>
         ///
