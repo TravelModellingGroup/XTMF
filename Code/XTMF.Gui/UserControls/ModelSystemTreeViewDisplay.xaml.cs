@@ -371,6 +371,8 @@ namespace XTMF.Gui.UserControls
                         selected.IsDisabled ? "Unable to Enable" : "Unable to Disable", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
+
+               this._display.UpdateDisabledModules();
             }
         }
 

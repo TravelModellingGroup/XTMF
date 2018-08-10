@@ -508,6 +508,37 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public string DisabledModulesCountText
+        {
+            get
+            {
+                if (DisabledModules != null)
+                {
+                    return $"{DisabledModules.Count}";
+
+
+                }
+
+                    return "0";
+
+
+            }
+        }
+
+        /// <summary>
+        /// Initiates a property changed update for the DisabledModules count (text)
+        /// </summary>
+        public void UpdateDisabledModules()
+        {
+            this.OnPropertyChanged(this.DisabledModulesCountText);
+
+            
+
+        }
+
 
         /// <summary>
         /// 
@@ -527,6 +558,8 @@ namespace XTMF.Gui.UserControls
                     EnumerateDisabled(child);
                 }
             }
+            
+
         }
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
