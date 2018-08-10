@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
+using System.Linq.Expressions;
 
 namespace XTMF.Gui.UserControls
 {
@@ -45,6 +46,8 @@ namespace XTMF.Gui.UserControls
         }
 
         private bool _disableMultipleSelectOnce;
+
+        private ModelSystemEditingSession _modelSystemEditingSession;
 
         private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
     "IsSelectionChangeActive", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -75,7 +78,19 @@ namespace XTMF.Gui.UserControls
 
             this.ModuleContextControl.ModuleContextChanged += this.ModuleContextControlOnModuleContextChanged;
 
+            this._display.ModelSystemEditingSessionChanged += DisplayOnModelSystemEditingSessionChanged;
 
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisplayOnModelSystemEditingSessionChanged(object sender, ModelSystemEditingSessionChangedEventArgs e)
+        {
+            this._modelSystemEditingSession = e.Session;
         }
 
         /// <summary>
@@ -205,7 +220,40 @@ namespace XTMF.Gui.UserControls
                         }
                     }
                 }
+
+                //clear and get an up to date list of region groups available to the model system
+                var addRegionGroupMenuItem = menu.Items.Cast<MenuItem>().FirstOrDefault(m => m.Name == "AddToRegionGroupMenuItem");
+                
+                this.UpdateAddRegionGroupMenu(addRegionGroupMenuItem);
             }
+        }
+
+        /// <summary>
+        /// Updates the Add Region Group Sub Menu as part of the context menu
+        /// </summary>
+        /// <param name="addRegionGroupMenuItem"></param>
+        private void UpdateAddRegionGroupMenu(MenuItem addRegionGroupMenuItem)
+        {
+            addRegionGroupMenuItem.Items.Clear();
+            var regionDisplays = this._modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel.RegionDisplays;
+            foreach (var regionDisplay in regionDisplays)
+            {
+                var regionDisplayMenuItem = new MenuItem()
+                {
+                    Header = regionDisplay.Name
+                };
+                addRegionGroupMenuItem.Items.Add(regionDisplayMenuItem);
+
+                foreach (var regionGroup in regionDisplay.RegionGroups)
+                {
+                    regionDisplayMenuItem.Items.Add(new MenuItem()
+                    {
+                        Header = regionGroup.Name
+                    });
+                }
+            }
+
+
         }
 
         /// <summary>

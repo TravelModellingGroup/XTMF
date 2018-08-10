@@ -80,9 +80,14 @@
                             <MenuItem Header="Up   (Ctrl+Shift+Up)" Click="MoveUp_Click"/>
                             <MenuItem Header="Down (Ctrl+Shift+Down)" Click="MoveDown_Click"/>
                         </MenuItem>
-                        <MenuItem Header="Linked Parameters (Ctrl+L)" >
+                        <MenuItem Header="Linked Parameters (Ctrl+L)" Name="LinkedParametersMenuItem">
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="Link" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Add to Region Group (Ctrl+Shift+R)" Name="AddToRegionGroupMenuItem" >
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="Group" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Expand all Modules" Click="ExpandAllMenuItem_Click"/>
