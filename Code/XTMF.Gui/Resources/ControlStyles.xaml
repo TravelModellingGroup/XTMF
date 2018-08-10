@@ -276,9 +276,9 @@
                             </ContentPresenter.ContentTemplate>
                     
 
-                            <ContentPresenter.LayoutTransform>
+                            <!--<ContentPresenter.LayoutTransform>
                             <RotateTransform Angle="90" />
-                        </ContentPresenter.LayoutTransform>
+                        </ContentPresenter.LayoutTransform> -->
                     </ContentPresenter>
                     </Border>
                 </DataTemplate>

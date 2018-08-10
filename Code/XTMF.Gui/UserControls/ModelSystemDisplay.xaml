@@ -29,6 +29,7 @@
              xmlns:this2="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:controlzEx="clr-namespace:ControlzEx;assembly=MaterialDesignThemes.Wpf"
+             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" Name="MDisplay"
@@ -278,8 +279,13 @@
                                 Name="ModelSystemDisplayContent" />
 
                 <GridSplitter Grid.RowSpan="3" Grid.Row="0" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                <TabControl Grid.Row="0" Grid.RowSpan="3" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged" Background="{DynamicResource MaterialDesignPaper}">
-                    <TabItem IsSelected="True" Style="{DynamicResource XtmfTabItem}" Header="Quick Parameters" x:Name="QuickParameterTab" FontSize="14" VerticalAlignment="Top">
+                <dragablz:TabablzControl Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"  x:Name="ParameterTabControl" Style="{DynamicResource MaterialDesignXtmfSubTabablzControlStyle}">
+
+                    <dragablz:TabablzControl.InterTabController>
+                        <dragablz:InterTabController />
+                    </dragablz:TabablzControl.InterTabController>
+                    <!--<TabControl Grid.Row="0" Grid.RowSpan="3" BorderThickness="0" Margin="0" TabStripPlacement="Top" x:Name="ParameterTabControl" Grid.Column="2"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged" Background="{DynamicResource MaterialDesignPaper}"> -->
+                    <TabItem IsSelected="True" Header="QUICK PARAMETERS" x:Name="QuickParameterTab" FontSize="14" VerticalAlignment="Top">
                         <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
                             <materialDesign:DialogHost.DialogContent >
                                 <Grid Width="200" />
@@ -380,7 +386,7 @@
                             </Grid>
                         </materialDesign:DialogHost>
                     </TabItem>
-                    <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters" x:Name="ModuleParameterTab" FontSize="14">
+                    <TabItem Header="MODULE  PARAMETERS" x:Name="ModuleParameterTab" FontSize="14">
                         <materialDesign:DialogHost
                         materialDesign:ShadowAssist.ShadowDepth="Depth5"
                         x:Name="ModuleParameterDialogHost" CloseOnClickAway="True" PreviewKeyDown="ModuleParameterDialogHost_OnPreviewKeyDown">
@@ -517,7 +523,8 @@
                             </Grid>
                         </materialDesign:DialogHost>
                     </TabItem>
-                    <TabItem Style="{DynamicResource XtmfTabItem}" Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14" >
+                    <TabItem  Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14">
+                       
                         <ScrollViewer>
                             <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                                 <Grid.RowDefinitions>
@@ -602,8 +609,9 @@
                             </Grid>
                         </ScrollViewer>
                     </TabItem>
-                </TabControl>
-                <StatusBar Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="3" Background="{DynamicResource SecondaryAccentBrush}" Height="24">
+                <!--</TabControl> -->
+                </dragablz:TabablzControl>
+                    <StatusBar Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="3" Background="{DynamicResource SecondaryAccentBrush}" Height="24">
                     <StatusBar.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Grid >

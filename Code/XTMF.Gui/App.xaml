@@ -275,6 +275,18 @@
                 </Style.Triggers>
             </Style>
 
+            <Style TargetType="{x:Type dragablz:TabablzControl}" x:Key="MaterialDesignXtmfSubTabablzControlStyle" BasedOn="{StaticResource MaterialDesignXtmfRootTabablzControlStyle}">
+                <!-- <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignPaper}" /> -->
+                <Setter Property="ItemContainerStyle" Value="{StaticResource MaterialDesignXtmfDragableTabItemStyle}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignPaper}" />
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                <Style.Triggers>
+                    <Trigger Property="TabStripPlacement" Value="Left">
+                        <Setter Property="ItemContainerStyle" Value="{StaticResource MaterialDesignAlternateDragableTabItemVerticalStyle}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
             <Style TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource MaterialDesignXtmfTabablzControlStyle}" />
             <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource Primary700}"/>
             <SolidColorBrush x:Key="AccentBaseColorBrush" Color="{DynamicResource Primary600}" />

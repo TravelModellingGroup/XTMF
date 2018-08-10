@@ -199,7 +199,10 @@ namespace XTMF.Gui.UserControls
             UpdateQuickParameters();
             //this.display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
             //this.display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
-            
+
+            this.ParameterTabControl.Items.RemoveAt(2);
+
+
         }
 
 
