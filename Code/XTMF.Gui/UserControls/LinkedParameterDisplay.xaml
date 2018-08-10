@@ -131,19 +131,24 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource MaterialDesignBackground}" Background="{DynamicResource MaterialDesignPaper}">
+                    <GroupBox Grid.Row="0" Margin="10"  Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Parameter Properties"  >
+                        
+                    <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignBackground}" >
                         <StackPanel>
-                            <Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignBackground}"/>
+                            <!--<Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignBackground}"/> -->
                             <DockPanel FlowDirection="LeftToRight" >
-                                <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
-                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" IsReadOnly="True"/>
+                                    <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
+                                <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"  IsReadOnly="True"></TextBox>
+                                <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" IsReadOnly="True"/>-->
                             </DockPanel>
                             <DockPanel FlowDirection="LeftToRight" >
-                                <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
-                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}"/>
+                                <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
+                                <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  IsReadOnly="True"></TextBox>
+                                <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}"/> -->
                             </DockPanel>
                         </StackPanel>
                     </Border>
+                    </GroupBox>
                     <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignPaper}">
                         <Grid Background="{DynamicResource MaterialDesignPaper}" >
                             <Grid.RowDefinitions>

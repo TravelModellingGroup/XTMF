@@ -800,5 +800,15 @@ namespace XTMF.Gui.UserControls
         {
             this._display.RemoveSelectedModules();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LinkedParametersMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            this._display.ShowLinkedParameterDialog();
+        }
     }
 }

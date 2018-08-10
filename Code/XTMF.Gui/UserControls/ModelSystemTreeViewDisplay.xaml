@@ -80,7 +80,7 @@
                             <MenuItem Header="Up   (Ctrl+Shift+Up)" Click="MoveUp_Click"/>
                             <MenuItem Header="Down (Ctrl+Shift+Down)" Click="MoveDown_Click"/>
                         </MenuItem>
-                        <MenuItem Header="Linked Parameters (Ctrl+L)" Name="LinkedParametersMenuItem">
+                        <MenuItem Header="Linked Parameters (Ctrl+L)" Name="LinkedParametersMenuItem" Click="LinkedParametersMenuItem_OnClick">
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="Link" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>

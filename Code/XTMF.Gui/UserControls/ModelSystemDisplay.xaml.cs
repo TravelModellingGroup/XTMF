@@ -596,7 +596,7 @@ namespace XTMF.Gui.UserControls
         ///     Shows the Linked Parameter dialog
         /// </summary>
         /// <param name="assign"></param>
-        private void ShowLinkedParameterDialog(bool assign = false)
+        internal void ShowLinkedParameterDialog(bool assign = false)
         {
             var s = new LinkedParameterDisplay();
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
