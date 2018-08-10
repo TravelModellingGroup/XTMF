@@ -1654,20 +1654,7 @@ namespace XTMF.Gui.UserControls
                 .ToList();
         }
 
-        private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (e.NewValue is ModelSystemStructureDisplayModel module)
-            {
-                RefreshParameters();
-                if (ParameterTabControl.SelectedIndex != 1)
-                {
-                    ParameterTabControl.SelectedIndex = 1;
-                }
 
-                //update the module context control
-                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
-            }
-        }
 
 
 

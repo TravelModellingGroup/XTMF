@@ -69,7 +69,29 @@ namespace XTMF.Gui.UserControls
             this._display = display;
             this.AllowMultiSelection(ModuleDisplay);
 
-            //ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
+            this.Loaded += this.ModelSystemDisplay_Loaded;
+
+            ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (e.NewValue is ModelSystemStructureDisplayModel module)
+            {
+                this._display.RefreshParameters();
+                if (this._display.ParameterTabControl.SelectedIndex != 1)
+                {
+                    this._display.ParameterTabControl.SelectedIndex = 1;
+                }
+
+                //update the module context control
+                this._display.ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
+            }
         }
 
         /// <summary>
@@ -262,6 +284,9 @@ namespace XTMF.Gui.UserControls
             _display.MoveFocusNext(up);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ToggleDisableModule()
         {
             var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel)?.BaseModel;
