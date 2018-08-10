@@ -1787,12 +1787,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void Remove_Clicked(object sender, RoutedEventArgs e)
-        {
-            RemoveSelectedModules();
-        }
 
-        private void RemoveSelectedModules()
+        /// <summary>
+        /// 
+        /// </summary>
+        internal void RemoveSelectedModules()
         {
             ModelSystemStructureDisplayModel first = null;
             ModelSystemStructureModel parent = null;

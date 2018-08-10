@@ -190,6 +190,7 @@ namespace XTMF.Gui.UserControls
                                 menuItem.Header = treeViewItem.BackingModel.BaseModel.IsDisabled
                                     ? "Enable Module (Ctrl + D)"
                                     : "Disable Module (Ctrl + D)";
+                                menuItem.IsEnabled = true;
                             }
                             else
                             {
@@ -289,7 +290,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
+        /// Disables or re-enables the selected module
         /// </summary>
         private void ToggleDisableModule()
         {
@@ -453,11 +454,21 @@ namespace XTMF.Gui.UserControls
             return FindNextAncestor(item.Parent);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MoveUp_Click(object sender, RoutedEventArgs e)
         {
             MoveCurrentModule(-1);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MoveDown_Click(object sender, RoutedEventArgs e)
         {
             MoveCurrentModule(1);
@@ -721,6 +732,25 @@ namespace XTMF.Gui.UserControls
             return source as TreeViewItem;
         }
 
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisableModuleMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            this.ToggleDisableModule();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            this._display.RemoveSelectedModules();
+        }
     }
 }
