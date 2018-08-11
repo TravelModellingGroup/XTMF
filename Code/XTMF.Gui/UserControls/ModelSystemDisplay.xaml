@@ -295,12 +295,11 @@
                                     <RowDefinition Height="AUTO"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <ToolBarTray  IsLocked="True" Grid.Row="0" Height="52" Margin="0 0 0 0" VerticalAlignment="Top" >
-                                    <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" >
-                                        <StackPanel   MinWidth="180" Orientation="Vertical" VerticalAlignment="Center">
-                                            <TextBlock Padding="5 5 5 0" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}"  HorizontalAlignment="Left"  Text="Quick Parameters" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                        <Grid  Width="250" VerticalAlignment="Center" HorizontalAlignment="Right"   Margin="12 6 12 6">
+                                <Grid Grid.Row="0" HorizontalAlignment="Center" >
+                                <ToolBarTray  IsLocked="True"  Height="52" Margin="0 0 0 0" VerticalAlignment="Top" Background="Transparent" HorizontalAlignment="Stretch" >
+                                    <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" Background="Transparent" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Center" >
+
+                                        <Grid   VerticalAlignment="Center" HorizontalAlignment="Stretch"   Margin="12 6 12 6" Width="250">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
@@ -312,6 +311,7 @@
                                         </Grid>
                                     </ToolBar>
                                 </ToolBarTray>
+                                </Grid>
                                 <ListView PreviewKeyDown="QuickParameterDisplay_OnPreviewKeyDown"  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterDisplay"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
