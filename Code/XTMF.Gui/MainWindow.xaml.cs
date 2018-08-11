@@ -73,6 +73,8 @@ namespace XTMF.Gui
 
         private readonly ActiveEditingSessionDisplayModel NullEditingDisplayModel;
 
+        private SettingsPage _settingsPage;
+
         private MouseButtonEventHandler _LastAdded;
 
         private OperationProgressing operationProgressing;
@@ -85,9 +87,9 @@ namespace XTMF.Gui
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ThemeController = new ThemeController(GetConfigurationFilePath());
             InitializeComponent();
-			// I am changing the code here with a comment
+            // I am changing the code here with a comment
             //do you see any console window
-            Loaded += FrameworkElement_Loaded;
+            Loaded += MainWindow_Loaded;
             Us = this;
             operationProgressing = new OperationProgressing();
             SchedulerWindow = new SchedulerWindow();
@@ -99,9 +101,16 @@ namespace XTMF.Gui
             WorkspaceProjects = new Dictionary<Project, UserControl>();
             XtmfNotificationIcon.InitializeNotificationIcon();
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
+
+
             SetDisplayActive(new StartWindow(), "Start");
+
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private static string GetConfigurationFilePath()
         {
             var localConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalXTMFConfiguration.xml");
@@ -243,11 +252,13 @@ namespace XTMF.Gui
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FrameworkElement_Loaded(object sender, RoutedEventArgs e)
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             IsEnabled = false;
             StatusDisplay.Text = "Loading XTMF";
             Dispatcher.Invoke(() => { ExternalGrid.Focus(); });
+
+            _settingsPage = new SettingsPage();
         }
 
         public void ApplyTheme(ThemeController.Theme theme)
@@ -727,7 +738,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void SettingsMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            SetDisplayActive(new SettingsPage(), "Settings");
+            SetDisplayActive(_settingsPage, "Settings");
             MenuToggleButton.IsChecked = false;
         }
 
