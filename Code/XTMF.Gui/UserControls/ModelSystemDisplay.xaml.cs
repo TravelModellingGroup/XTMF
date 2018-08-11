@@ -36,6 +36,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
@@ -2818,6 +2819,67 @@ namespace XTMF.Gui.UserControls
             {
                 this.UpdateQuickParameters();
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterToolbarToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+            var column = ContentDisplayGrid.ColumnDefinitions[2];
+
+            bool expand = column.MaxWidth == 0 ? true : false;
+            int expandedWidth = 400;
+
+
+            Storyboard storyboard = new Storyboard();
+
+            Duration duration = new Duration(TimeSpan.FromMilliseconds(500));
+            CubicEase ease = new CubicEase { EasingMode = EasingMode.EaseInOut };
+
+            DoubleAnimation animation = new DoubleAnimation();
+            animation.EasingFunction = ease;
+            animation.Duration = duration;
+            storyboard.Children.Add(animation);
+            animation.From = column.MaxWidth;
+            animation.To = expand ? expandedWidth : 0;
+            Storyboard.SetTarget(animation, column);
+            Storyboard.SetTargetProperty(animation, new PropertyPath("(ColumnDefinition.MaxWidth)"));
+
+            storyboard.Begin();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleParametersToolbarToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+            var column = ContentDisplayGrid.ColumnDefinitions[3];
+
+            bool expand = column.MaxWidth == 0 ? true : false;
+            int expandedWidth = 400;
+
+
+            Storyboard storyboard = new Storyboard();
+
+            Duration duration = new Duration(TimeSpan.FromMilliseconds(500));
+            CubicEase ease = new CubicEase { EasingMode = EasingMode.EaseInOut };
+
+            DoubleAnimation animation = new DoubleAnimation();
+            animation.EasingFunction = ease;
+            animation.Duration = duration;
+            storyboard.Children.Add(animation);
+            animation.From = column.MaxWidth;
+            animation.To = expand ? expandedWidth : 0;
+            Storyboard.SetTarget(animation, column);
+            Storyboard.SetTargetProperty(animation, new PropertyPath("(ColumnDefinition.MaxWidth)"));
+
+            storyboard.Begin();
         }
     }
 
