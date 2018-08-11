@@ -194,17 +194,22 @@
                     <ColumnDefinition MinWidth="330px" Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="45"/>
+                    <RowDefinition Height="55"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="24"/>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Grid.ColumnSpan="2 " Grid.RowSpan="2">
-                    <Grid VerticalAlignment="Top" >
+                <Grid Grid.Row="0" Grid.ColumnSpan="3 " Grid.RowSpan="2" >
+                    <Grid VerticalAlignment="Top" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="54"/>
                         </Grid.RowDefinitions>
-                        <ToolBarTray IsLocked="True" Grid.Row="0" Height="54" Margin="0 0 0 0" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="1"  Background="{DynamicResource MaterialDesignToolBarBackground}"></Border>
+                        <ToolBarTray IsLocked="True" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Left" Height="54" Margin="0 0 0 0"  Background="{DynamicResource MaterialDesignPaper}" >
                             <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                                 <Button ToolTip="Save Model System" Click="ButtonBase_OnClick" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanSaveModelSystem}" Name="SaveModelSystemButton"
@@ -270,7 +275,16 @@
                                 </Grid>
                             </ToolBar>
                         </ToolBarTray>
-
+                        <ToolBarTray  Grid.Column="2" IsLocked="True" Grid.Row="0" DockPanel.Dock="Right" Height="54" Margin="0 0 0 0" VerticalAlignment="Center" >
+                            <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Bottom">
+                                <Button>
+                                    <materialDesign:PackIcon Kind="Flash" />
+                                </Button>
+                                <Button ToolTip="Open Project Folder"  >
+                                    <materialDesign:PackIcon Kind="Tune" />
+                                </Button>
+                            </ToolBar>
+                        </ToolBarTray>
                     </Grid>
                 </Grid>
 
@@ -278,8 +292,8 @@
                                 HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="2" Grid.Column="0"
                                 Name="ModelSystemDisplayContent" />
 
-                <GridSplitter Grid.RowSpan="3" Grid.Row="0" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                <dragablz:TabablzControl Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"  x:Name="ParameterTabControl" Style="{DynamicResource MaterialDesignXtmfSubTabablzControlStyle}">
+                <GridSplitter Grid.RowSpan="3" Grid.Row="0" Grid.Column="1" Width="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
+                <dragablz:TabablzControl Grid.Row="1" Grid.RowSpan="2" Grid.Column="2"  x:Name="ParameterTabControl" Style="{DynamicResource MaterialDesignXtmfSubTabablzControlStyle}">
 
                     <dragablz:TabablzControl.InterTabController>
                         <dragablz:InterTabController />
