@@ -279,13 +279,13 @@
                                 Name="ModelSystemDisplayContent" />
 
                 <GridSplitter Grid.RowSpan="3" Grid.Row="0" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                <dragablz:TabablzControl Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"  x:Name="ParameterTabControl" Style="{DynamicResource MaterialDesignXtmfSubTabablzControlStyle}">
+                <dragablz:TabablzControl Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"  x:Name="ParameterTabControl" Style="{DynamicResource MaterialDesignXtmfSubTabablzControlStyle}" SelectionChanged="ParameterTabControl_OnSelectionChanged">
 
                     <dragablz:TabablzControl.InterTabController>
                         <dragablz:InterTabController />
                     </dragablz:TabablzControl.InterTabController>
                     <!--<TabControl Grid.Row="0" Grid.RowSpan="3" BorderThickness="0" Margin="0" TabStripPlacement="Top" x:Name="ParameterTabControl" Grid.Column="2"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged" Background="{DynamicResource MaterialDesignPaper}"> -->
-                    <TabItem IsSelected="True" Header="QUICK PARAMETERS" x:Name="QuickParameterTab" FontSize="14" VerticalAlignment="Top">
+                    <TabItem   IsSelected="True" Header="QUICK PARAMETERS" x:Name="QuickParameterTab" FontSize="14" VerticalAlignment="Top">
                         <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
                             <materialDesign:DialogHost.DialogContent >
                                 <Grid Width="200" />

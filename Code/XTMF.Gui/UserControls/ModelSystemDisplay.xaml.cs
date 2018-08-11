@@ -202,7 +202,6 @@ namespace XTMF.Gui.UserControls
 
             this.ParameterTabControl.Items.RemoveAt(2);
 
-
         }
 
 
@@ -2806,6 +2805,19 @@ namespace XTMF.Gui.UserControls
             {
                 ModelSystemDisplayContent.Content = this._treeViewDisplay;
             }));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ParameterTabControl_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.ParameterTabControl.SelectedItem == QuickParameterTab)
+            {
+                this.UpdateQuickParameters();
+            }
         }
     }
 
