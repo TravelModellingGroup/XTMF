@@ -201,7 +201,7 @@ namespace XTMF.Gui.UserControls
             //this.display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
             //this.display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
 
-            this.ParameterTabControl.Items.RemoveAt(2);
+           // this.ParameterTabControl.Items.RemoveAt(2);
 
         }
 
@@ -431,7 +431,7 @@ namespace XTMF.Gui.UserControls
                 ModuleValidationErrorListView.Items.Clear();
                 ModuleRuntimeErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Message,
                     error.Path));
-                ParameterTabControl.SelectedIndex = 2;
+                //ParameterTabControl.SelectedIndex = 2;
                 ModuleRuntimeValidationErrorListView.UpdateLayout();
             });
         }
@@ -451,7 +451,7 @@ namespace XTMF.Gui.UserControls
                         new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
                 }
 
-                ParameterTabControl.SelectedIndex = 2;
+                //ParameterTabControl.SelectedIndex = 2;
                 ModuleRuntimeValidationErrorListView.UpdateLayout();
             });
         }
@@ -471,7 +471,7 @@ namespace XTMF.Gui.UserControls
                         new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
                 }
 
-                ParameterTabControl.SelectedIndex = 2;
+                //ParameterTabControl.SelectedIndex = 2;
                 ModuleValidationErrorListView.UpdateLayout();
             });
         }
@@ -601,30 +601,30 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ToggleQuickParameter()
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel displayParameter)
-            {
-                displayParameter.QuickParameter = !displayParameter.QuickParameter;
-            }
+            var column = ContentDisplayGrid.ColumnDefinitions[2];
+            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, column.MaxWidth == 0 ? 400 : 0);
         }
 
         private void RecentLinkedParameter_Click(object sender, RoutedEventArgs e)
         {
             if (sender is DependencyObject selected)
             {
-                var currentMenu = ParameterTabControl.SelectedItem == QuickParameterTab
-                    ? QuickParameterRecentLinkedParameters
-                    : ParameterRecentLinkedParameters;
+                //var currentMenu = ParameterTabControl.SelectedItem == QuickParameterTab
+                //    ? QuickParameterRecentLinkedParameters
+                //    : ParameterRecentLinkedParameters;
+                /*var currentMenu = new TabItem();
                 if (currentMenu.ItemContainerGenerator.ItemFromContainer(selected) is LinkedParameterDisplayModel
                     selectedLinkedParameter)
                 {
                     AddCurrentParameterToLinkedParameter(selectedLinkedParameter.LinkedParameter);
                     RecentLinkedParameters.RemoveAt(RecentLinkedParameters.IndexOf(selectedLinkedParameter));
                     RecentLinkedParameters.Insert(0, selectedLinkedParameter);
-                }
+                } */
             }
         }
 
@@ -1114,7 +1114,8 @@ namespace XTMF.Gui.UserControls
                 .OrderBy(n => n.Name));
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                ParameterTabControl.SelectedIndex = 0;
+                //ParameterTabControl.SelectedIndex = 0;
+                this.ToggleQuickParameter();
                 QuickParameterFilterBox.Focus();
                 Keyboard.Focus(QuickParameterFilterBox);
             }));
@@ -1963,6 +1964,8 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+
         private void RenameParameter()
         {
             if ((ParameterTabControl.SelectedItem == QuickParameterTab
@@ -2031,6 +2034,20 @@ namespace XTMF.Gui.UserControls
             return inputParameter;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private ParameterDisplayModel GetSelectedParameterDisplayModel()
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="openWith"></param>
+        /// <param name="openDirectory"></param>
         private void OpenParameterFileLocation(bool openWith, bool openDirectory)
         {
             if ((ParameterTabControl.SelectedItem == QuickParameterTab
@@ -2815,26 +2832,20 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ParameterTabControl_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (this.ParameterTabControl.SelectedItem == QuickParameterTab)
+            /*if (this.ParameterTabControl.SelectedItem == QuickParameterTab)
             {
                 this.UpdateQuickParameters();
-            }
+            } */
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterToolbarToggle_OnClick(object sender, RoutedEventArgs e)
+        /// <param name="column"></param>
+        /// <param name="fromWidth"></param>
+        /// <param name="toWidth"></param>
+        private void AnimateGridColumnWidth(ColumnDefinition column, int fromWidth, int toWidth)
         {
-            
-            var column = ContentDisplayGrid.ColumnDefinitions[2];
-
-            bool expand = column.MaxWidth == 0 ? true : false;
-            int expandedWidth = 400;
-
-
             Storyboard storyboard = new Storyboard();
 
             Duration duration = new Duration(TimeSpan.FromMilliseconds(500));
@@ -2844,12 +2855,24 @@ namespace XTMF.Gui.UserControls
             animation.EasingFunction = ease;
             animation.Duration = duration;
             storyboard.Children.Add(animation);
-            animation.From = column.MaxWidth;
-            animation.To = expand ? expandedWidth : 0;
+            animation.From = fromWidth;
+            animation.To = toWidth;
             Storyboard.SetTarget(animation, column);
             Storyboard.SetTargetProperty(animation, new PropertyPath("(ColumnDefinition.MaxWidth)"));
 
             storyboard.Begin();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterToolbarToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+
+           this.ToggleQuickParameter();
+
         }
 
         /// <summary>
@@ -2860,26 +2883,7 @@ namespace XTMF.Gui.UserControls
         private void ModuleParametersToolbarToggle_OnClick(object sender, RoutedEventArgs e)
         {
             var column = ContentDisplayGrid.ColumnDefinitions[3];
-
-            bool expand = column.MaxWidth == 0 ? true : false;
-            int expandedWidth = 400;
-
-
-            Storyboard storyboard = new Storyboard();
-
-            Duration duration = new Duration(TimeSpan.FromMilliseconds(500));
-            CubicEase ease = new CubicEase { EasingMode = EasingMode.EaseInOut };
-
-            DoubleAnimation animation = new DoubleAnimation();
-            animation.EasingFunction = ease;
-            animation.Duration = duration;
-            storyboard.Children.Add(animation);
-            animation.From = column.MaxWidth;
-            animation.To = expand ? expandedWidth : 0;
-            Storyboard.SetTarget(animation, column);
-            Storyboard.SetTargetProperty(animation, new PropertyPath("(ColumnDefinition.MaxWidth)"));
-
-            storyboard.Begin();
+            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, column.MaxWidth == 0 ? 400 : 0);
         }
     }
 
