@@ -287,7 +287,7 @@
                                 Name="ModelSystemDisplayContent" />
 
                 <GridSplitter Grid.RowSpan="2" Grid.Row="1" Grid.Column="1" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                <Grid Grid.Row="1" RowSpan="2" Grid.Column="3">
+                <Grid Name="ModuleParameterDisplay" Grid.Row="1" RowSpan="2" Grid.Column="3" IsEnabled="True" >
                     <materialDesign:DialogHost
                         materialDesign:ShadowAssist.ShadowDepth="Depth5"
                         x:Name="ModuleParameterDialogHost" CloseOnClickAway="True" PreviewKeyDown="ModuleParameterDialogHost_OnPreviewKeyDown">
@@ -425,7 +425,7 @@
                     </materialDesign:DialogHost>
                 </Grid>
 
-                <Grid  Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" >
+                <Grid Name="QuickParameterDisplay2" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" IsEnabled="True" >
                     <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
                         <materialDesign:DialogHost.DialogContent >
                             <Grid Width="200" />
@@ -452,7 +452,7 @@
                                     </ToolBar>
                                 </ToolBarTray>
                             </Grid>
-                            <ListView PreviewKeyDown="QuickParameterDisplay_OnPreviewKeyDown"  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterDisplay"
+                            <ListView PreviewKeyDown="QuickParameterDisplay_OnPreviewKeyDown"  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterListView"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -773,7 +773,7 @@
                             </Grid>
                         </materialDesign:DialogHost> 
                     </TabItem>-->
-                    <Grid x:Name="ModelSystemInformationTab">
+                    <!--<Grid x:Name="ModelSystemInformationTab">
                        
                         <ScrollViewer>
                             <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
@@ -826,8 +826,7 @@
                                                         <DataTrigger Binding="{Binding Path=IsDisabled}" Value="False">
                                                             <Setter Property="ContentTemplate" Value="{StaticResource ModuleEnabledTemplate}"/>
                                                         </DataTrigger>
-                                                        <!--  your other Status' here -->
-                                                    </Style.Triggers>
+                                                     
                                                 </Style>
                                             </ListView.ItemContainerStyle>
                                         </ListView>
@@ -858,7 +857,7 @@
                                 </Border>
                             </Grid>
                         </ScrollViewer>
-                    </Grid>
+                    </Grid> -->
                 <!-- </TabControl>
                 </dragablz:TabablzControl>-->
                 <StatusBar Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="3" Background="{DynamicResource SecondaryAccentBrush}" Height="24">

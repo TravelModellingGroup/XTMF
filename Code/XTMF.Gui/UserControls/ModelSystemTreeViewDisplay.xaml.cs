@@ -103,9 +103,10 @@ namespace XTMF.Gui.UserControls
             if (e.NewValue is ModelSystemStructureDisplayModel module)
             {
                 this._display.RefreshParameters();
-                if (this._display.ParameterTabControl.SelectedIndex != 1)
+
+                if (!this._display.ModuleParameterDisplay.IsEnabled)
                 {
-                    this._display.ParameterTabControl.SelectedIndex = 1;
+                    this._display.ToggleModuleParameterDisplay();
                 }
 
                 //update the module context control

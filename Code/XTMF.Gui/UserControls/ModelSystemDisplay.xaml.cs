@@ -105,6 +105,8 @@ namespace XTMF.Gui.UserControls
 
         public event EventHandler<ModelSystemEditingSessionChangedEventArgs> ModelSystemEditingSessionChanged;
 
+        public event EventHandler<SelectedModuleParameterContextChangedEventArgs> SelectedModuleParameterContextChanged;
+
         public IModelSystemView ActiveModelSystemView
         {
             get => this._activeModelSystemView;
@@ -123,7 +125,7 @@ namespace XTMF.Gui.UserControls
             Loaded += ModelSystemDisplay_Loaded;
             
             DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
-            DisabledModulesList.ItemsSource = DisabledModules;
+            //DisabledModulesList.ItemsSource = DisabledModules;
             FilterBox.Filter = (o, text) =>
             {
                 var module = o as ModelSystemStructureDisplayModel;
@@ -428,11 +430,11 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(() =>
             {
-                ModuleValidationErrorListView.Items.Clear();
-                ModuleRuntimeErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Message,
-                    error.Path));
+                //ModuleValidationErrorListView.Items.Clear();
+                //ModuleRuntimeErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Message,
+                //    error.Path));
                 //ParameterTabControl.SelectedIndex = 2;
-                ModuleRuntimeValidationErrorListView.UpdateLayout();
+                //ModuleRuntimeValidationErrorListView.UpdateLayout();
             });
         }
 
@@ -442,18 +444,17 @@ namespace XTMF.Gui.UserControls
         /// <param name="errorList"></param>
         private void Run_RuntimeValidationError(List<ErrorWithPath> errorList)
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() => { });
+            /*ModuleValidationErrorListView.Items.Clear();
+            foreach (var error in errorList)
             {
-                ModuleValidationErrorListView.Items.Clear();
-                foreach (var error in errorList)
-                {
-                    ModuleRuntimeValidationErrorListView.Items.Add(
-                        new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
-                }
+                ModuleRuntimeValidationErrorListView.Items.Add(
+                    new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
+            }
 
-                //ParameterTabControl.SelectedIndex = 2;
-                ModuleRuntimeValidationErrorListView.UpdateLayout();
-            });
+            //ParameterTabControl.SelectedIndex = 2;
+            ModuleRuntimeValidationErrorListView.UpdateLayout();
+        }); */
         }
 
         /// <summary>
@@ -462,18 +463,17 @@ namespace XTMF.Gui.UserControls
         /// <param name="errorList"></param>
         private void Run_ValidationError(List<ErrorWithPath> errorList)
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() => { });
+            /*ModuleValidationErrorListView.Items.Clear();
+            foreach (var error in errorList)
             {
-                ModuleValidationErrorListView.Items.Clear();
-                foreach (var error in errorList)
-                {
-                    ModuleValidationErrorListView.Items.Add(
-                        new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
-                }
+                ModuleValidationErrorListView.Items.Add(
+                    new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
+            }
 
-                //ParameterTabControl.SelectedIndex = 2;
-                ModuleValidationErrorListView.UpdateLayout();
-            });
+            //ParameterTabControl.SelectedIndex = 2;
+            ModuleValidationErrorListView.UpdateLayout();
+        }); */
         }
 
 
@@ -604,9 +604,18 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
-        private void ToggleQuickParameter()
+        public void ToggleQuickParameterDisplay()
         {
             var column = ContentDisplayGrid.ColumnDefinitions[2];
+            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, column.MaxWidth == 0 ? 400 : 0);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void ToggleModuleParameterDisplay()
+        {
+            var column = ContentDisplayGrid.ColumnDefinitions[3];
             this.AnimateGridColumnWidth(column, (int)column.MaxWidth, column.MaxWidth == 0 ? 400 : 0);
         }
 
@@ -671,19 +680,40 @@ namespace XTMF.Gui.UserControls
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displayParameter"></param>
         private void UpdateQuickParameterEquivalent(ParameterDisplayModel displayParameter)
         {
             if (displayParameter.QuickParameter)
             {
-                QuickParameterDisplay.Items.Refresh();
+                QuickParameterListView.Items.Refresh();
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private ParameterDisplayModel GetCurrentParameterDisplayModelContext()
+        {
+            if (ParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
+            {
+                return (ParameterDisplayModel)ParameterDisplay.SelectedItem;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void RemoveFromLinkedParameter()
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 string error = null;
                 if (!currentParameter.RemoveLinkedParameter(ref error))
@@ -786,7 +816,7 @@ namespace XTMF.Gui.UserControls
                     us.Dispatcher.Invoke(() =>
                     {
                         us.ParameterDisplay.ContextMenu.DataContext = us;
-                        us.QuickParameterDisplay.ContextMenu.DataContext = us;
+                        us.QuickParameterListView.ContextMenu.DataContext = us;
 
                         //TODO ITEMS
                         //set the treeview to use regular model system items
@@ -864,11 +894,11 @@ namespace XTMF.Gui.UserControls
                     switch (e.Key)
                     {
                         case Key.F:
-                            if (ParameterTabControl.SelectedIndex == 0)
+                            if (QuickParameterDisplay2.IsEnabled)
                             {
                                 QuickParameterDialogHost.IsOpen = true;
                             }
-                            else if (ParameterTabControl.SelectedIndex == 1)
+                            else if (ModuleParameterDisplay.IsEnabled)
                             {
                                 ModuleParameterDialogHost.IsOpen = true;
                             }
@@ -898,14 +928,15 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.R:
-                            ParameterTabControl.SelectedIndex = 2;
+                            //ParameterTabControl.SelectedIndex = 2;
                             //Mo.Focus();
                             // Keyboard.Focus(ParameterFilterBox);
                             e.Handled = true;
                             break;
                         case Key.P:
-                            ParameterTabControl.SelectedIndex = 1;
-                            ModuleParameterTab.Focus();
+                            //ParameterTabControl.SelectedIndex = 1;
+                            //ModuleParameterTab.Focus();
+                            ModuleParameterDisplay.Focus();
                             Keyboard.Focus(ParameterFilterBox);
                             e.Handled = true;
                             break;
@@ -934,7 +965,7 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.D:
-                            if (ModuleParameterTab.IsKeyboardFocusWithin)
+                            if (ModuleParameterDisplay.IsKeyboardFocusWithin)
                             {
                                 SelectDirectoryForCurrentParameter();
                             }
@@ -1081,9 +1112,9 @@ namespace XTMF.Gui.UserControls
                     var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes, !dialog.IsQueueRun, false);
                     if (run != null)
                     {
-                        ModuleValidationErrorListView.Items.Clear();
-                        ModuleRuntimeValidationErrorListView.Items.Clear();
-                        ModuleRuntimeErrorListView.Items.Clear();
+                        //ModuleValidationErrorListView.Items.Clear();
+                        //ModuleRuntimeValidationErrorListView.Items.Clear();
+                        //ModuleRuntimeErrorListView.Items.Clear();
                         //pass this as launchedFrom display in case model system run encounters an error
                         if (isDelayed)
                         {
@@ -1109,13 +1140,13 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void ShowQuickParameters()
         {
-            QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel
+            QuickParameterListView.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel
                 .GetQuickParameters()
                 .OrderBy(n => n.Name));
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 //ParameterTabControl.SelectedIndex = 0;
-                this.ToggleQuickParameter();
+                this.ToggleQuickParameterDisplay();
                 QuickParameterFilterBox.Focus();
                 Keyboard.Focus(QuickParameterFilterBox);
             }));
@@ -1166,15 +1197,18 @@ namespace XTMF.Gui.UserControls
         public event Action<object> RequestClose;
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void SaveCurrentlySelectedParameters()
         {
             if (ParameterDisplay.IsKeyboardFocusWithin)
             {
                 SaveCurrentlySelectedParameters(ParameterDisplay);
             }
-            else if (QuickParameterDisplay.IsKeyboardFocusWithin)
+            else if (QuickParameterDisplay2.IsKeyboardFocusWithin)
             {
-                SaveCurrentlySelectedParameters(QuickParameterDisplay);
+                SaveCurrentlySelectedParameters(QuickParameterListView);
             }
         }
 
@@ -1320,7 +1354,7 @@ namespace XTMF.Gui.UserControls
                         {
                             if (ctrlDown)
                             {
-                                ToggleQuickParameter();
+                                ToggleQuickParameterDisplay();
                                 e.Handled = true;
                             }
                             else
@@ -1513,8 +1547,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void GotoSelectedParameterModule()
         {
-            if (ParameterTabControl.SelectedItem == QuickParameterTab &&
-                QuickParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
+            if (ParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
             {
                 GoToModule((ModelSystemStructure)currentParameter.BelongsTo);
             }
@@ -1928,11 +1961,14 @@ namespace XTMF.Gui.UserControls
             RemoveFromLinkedParameter();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ResetParameter_Click(object sender, RoutedEventArgs e)
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 string error = null;
                 if (!currentParameter.ResetToDefault(ref error))
@@ -1943,21 +1979,25 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void CopyParameterName()
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 Clipboard.SetText(currentParameter.Name);
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hidden"></param>
         private void SetCurrentParameterHidden(bool hidden)
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 string error = null;
                 currentParameter.SetHidden(hidden, ref error);
@@ -1965,12 +2005,12 @@ namespace XTMF.Gui.UserControls
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void RenameParameter()
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 var selectedContainer =
                     (UIElement)ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
@@ -1996,11 +2036,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ResetParameterName()
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 string error = null;
                 currentParameter.RevertNameToDefault(ref error);
@@ -2050,10 +2091,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="openDirectory"></param>
         private void OpenParameterFileLocation(bool openWith, bool openDirectory)
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                    ? QuickParameterDisplay.SelectedItem
-                    : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter &&
-                ActiveModelSystemView.SelectedModule != null)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 var inputParameter =
                     GetInputParameter(ActiveModelSystemView.SelectedModule.BaseModel,
@@ -2092,11 +2130,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void SelectDirectoryForCurrentParameter()
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 var _ = GetInputParameter(
                     Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure),
@@ -2115,11 +2154,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void SelectFileForCurrentParameter()
         {
-            if ((ParameterTabControl.SelectedItem == QuickParameterTab
-                ? QuickParameterDisplay.SelectedItem
-                : ParameterDisplay.SelectedItem) is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 var _ = GetInputParameter(
                     Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure),
@@ -2268,24 +2308,24 @@ namespace XTMF.Gui.UserControls
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.Source == ParameterTabControl)
+          /*  if (e.Source == ParameterTabControl)
             {
                 if (ParameterTabControl.SelectedItem == QuickParameterTab)
                 {
                     UpdateQuickParameters();
                 }
-            }
+            } */
         }
 
         public void UpdateQuickParameters()
         {
             //DisplayRoot.
-            if (QuickParameterDisplay != null)
+            if (QuickParameterDisplay2 != null)
             {
-                QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel
+                QuickParameterListView.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel
                     .GetQuickParameters()
                     .OrderBy(n => n.Name));
-                QuickParameterFilterBox.Display = QuickParameterDisplay;
+                QuickParameterFilterBox.Display = QuickParameterListView;
                 QuickParameterFilterBox.Filter = FilterParameters;
                 QuickParameterFilterBox.RefreshFilter();
             }
@@ -2340,12 +2380,12 @@ namespace XTMF.Gui.UserControls
 
         private void QuickParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ParameterWidth = QuickParameterDisplay.ActualWidth - 24;
+            ParameterWidth = QuickParameterDisplay2.ActualWidth - 24;
         }
 
         private void ValidationErrorDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ParameterWidth = ModuleValidationErrorListView.ActualWidth - 24;
+            //ParameterWidth = ModuleValidationErrorListView.ActualWidth - 24;
         }
 
 
@@ -2421,7 +2461,7 @@ namespace XTMF.Gui.UserControls
             {
                 var error = string.Empty;
                 module.SetDisabled(!module.IsDisabled, ref error);
-                DisabledModulesList.InvalidateArrange();
+                //DisabledModulesList.InvalidateArrange();
             }
         }
 
@@ -2667,7 +2707,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QuickParameterDisplay_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            ProcessOnPreviewKeyboardForParameter(QuickParameterDisplay, e);
+            ProcessOnPreviewKeyboardForParameter(QuickParameterListView, e);
         }
 
         /// <summary>
@@ -2871,7 +2911,7 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterToolbarToggle_OnClick(object sender, RoutedEventArgs e)
         {
 
-           this.ToggleQuickParameter();
+           this.ToggleQuickParameterDisplay();
 
         }
 
@@ -2902,5 +2942,22 @@ namespace XTMF.Gui.UserControls
         }
 
         public ModelSystemEditingSession Session { get; }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SelectedModuleParameterContextChangedEventArgs : EventArgs
+    {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="session"></param>
+    public SelectedModuleParameterContextChangedEventArgs(ModelSystemEditingSession session)
+    {
+        Session = session;
+    }
+
+    public ModelSystemEditingSession Session { get; }
     }
 }
