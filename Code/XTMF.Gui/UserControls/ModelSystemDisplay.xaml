@@ -179,19 +179,15 @@
 
         <materialDesign:DialogHost Name="LinkedParametersDialogHost" DialogOpened="LinkedParametersDialogHost_OnDialogOpened" >
 
-
-            <Grid Background="{DynamicResource MaterialDesignPaper}" Name="ContentDisplayGrid">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MinWidth="100" Width="*"/>
-                    <ColumnDefinition Width="AUTO"/>
-                    <ColumnDefinition MinWidth="0" Width="400" MaxWidth="0"/>
-                    <ColumnDefinition MinWidth="0" Width="400" MaxWidth="0"/>
-                </Grid.ColumnDefinitions>
+            <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="55"/>
+                    <RowDefinition Height="55"></RowDefinition>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="24"/>
                 </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
                 <Grid Grid.Row="0" Grid.ColumnSpan="4 " Grid.RowSpan="2" >
                     <Grid VerticalAlignment="Top" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
@@ -281,39 +277,176 @@
                         </ToolBarTray>
                     </Grid>
                 </Grid>
+                <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}" Name="ContentDisplayGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="100" Width="*"/>
+                        <ColumnDefinition Width="AUTO"/>
+                        <ColumnDefinition MinWidth="0" Width="400" MaxWidth="0"/>
+                        <ColumnDefinition MinWidth="0" Width="400" MaxWidth="0"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{Binding ActiveModelSystemView}"
-                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="1" Grid.Column="0" 
+
+                    <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{Binding ActiveModelSystemView}"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="0" Grid.Column="0" 
                                 Name="ModelSystemDisplayContent" />
 
-                <GridSplitter Grid.RowSpan="2" Grid.Row="1" Grid.Column="1" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                <Grid Name="ModuleParameterDisplay" Grid.Row="1" RowSpan="2" Grid.Column="3" IsEnabled="False" >
-                    <materialDesign:DialogHost
+                    <GridSplitter  Grid.Row="0" Grid.Column="1" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
+                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="3" IsEnabled="False" >
+                        <materialDesign:DialogHost
                         materialDesign:ShadowAssist.ShadowDepth="Depth5"
                         x:Name="ModuleParameterDialogHost" CloseOnClickAway="True" PreviewKeyDown="ModuleParameterDialogHost_OnPreviewKeyDown">
-                        <materialDesign:DialogHost.DialogContent  >
-                            <Grid Width="250" VerticalAlignment="Top" />
-                        </materialDesign:DialogHost.DialogContent>
-                        <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="AUTO"/>
-                                <RowDefinition Height="AUTO"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Border Padding="0" HorizontalAlignment="Stretch"  Name="ListBorder" Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource MaterialDesignPaper}" BorderThickness="0" >
-                                <Grid HorizontalAlignment="Stretch" Name="ListGrid">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <ToolBarTray  IsLocked="True" Grid.Row="0" Height="52" Margin="0 0 0 0" VerticalAlignment="Center" >
-                                        <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" >
-                                            <StackPanel   MinWidth="240" Orientation="Vertical">
-                                                <TextBlock Padding="5 5 5 0" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}"  HorizontalAlignment="Left" x:Name="SelectedName" Text="None Selected" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" VerticalAlignment="Center"/>
-                                                <TextBlock Padding="5 0 5 0"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" HorizontalAlignment="Left" x:Name="SelectedNamespace" Text="SUB" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
-                                            </StackPanel>
-                                            <Grid  Width="250" VerticalAlignment="Center" HorizontalAlignment="Right"   Margin="12 4 12 12">
+                            <materialDesign:DialogHost.DialogContent  >
+                                <Grid Width="250" VerticalAlignment="Top" />
+                            </materialDesign:DialogHost.DialogContent>
+                            <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="AUTO"/>
+                                    <RowDefinition Height="AUTO"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Padding="0" HorizontalAlignment="Stretch"  Name="ListBorder" Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource MaterialDesignPaper}" BorderThickness="0" >
+                                    <Grid HorizontalAlignment="Stretch" Name="ListGrid">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <ToolBarTray  IsLocked="True" Grid.Row="0" Height="52" Margin="0 0 0 0" VerticalAlignment="Center" >
+                                            <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" >
+                                                <StackPanel   MinWidth="240" Orientation="Vertical">
+                                                    <TextBlock Padding="5 5 5 0" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}"  HorizontalAlignment="Left" x:Name="SelectedName" Text="None Selected" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" VerticalAlignment="Center"/>
+                                                    <TextBlock Padding="5 0 5 0"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" HorizontalAlignment="Left" x:Name="SelectedNamespace" Text="SUB" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
+                                                </StackPanel>
+                                                <Grid  Width="250" VerticalAlignment="Center" HorizontalAlignment="Right"   Margin="12 4 12 12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                                        <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                                    </Button>
+                                                    <my:FilterBox Opacity="0.5"   Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="0.2cm,4,0.2cm,2"/>
+                                                </Grid>
+                                            </ToolBar>
+                                        </ToolBarTray>
+                                        <Expander materialDesign:TransitionAssist.DisableTransitions="True"  Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
+                                          Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                            AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                                          MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                            AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                                    Name="DescriptionExpander" Grid.Row="2" VerticalAlignment="Bottom" Background="Transparent">
+                                            <Border Margin="0,4,0,0" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                            AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                                            MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                            AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}">
+                                                <TextBlock Margin="20 0 0 0"  Padding="5"  TextWrapping="Wrap"
+                                                 HorizontalAlignment="Stretch"  x:Name="SelectedDescription" Text="No description available." Style="{DynamicResource MaterialDesignBody1TextBlock}"/>
+                                            </Border>
+                                        </Expander>
+                                    </Grid>
+                                </Border>
+
+
+                                <ListView   materialDesign:TransitionAssist.DisableTransitions="True"   materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                  HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                  Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" 
+                                  ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged" SourceUpdated="ParameterDisplay_SourceUpdated">
+
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
+
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate >
+                                            <VirtualizingStackPanel    materialDesign:RippleAssist.IsDisabled="True" />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                    <ListView.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Parameter">
+                                                <MenuItem Header="Copy (Ctrl+N)" Click="CopyParameterName_Click">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource CopyIcon}"/>
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Rename        (F2)" Click="RenameParameter_Click"/>
+                                                <MenuItem Header="Reset Name     " Click="ResetParameterName_Click"/>
+                                                <Separator/>
+                                                <MenuItem Header="Hide Parameter(Ctrl+H)" Click="HideParameter_Click"/>
+                                                <MenuItem Header="Show Parameter(Ctrl+Shift+H)" Click="ShowParameter_Click"/>
+                                            </MenuItem>
+                                            <MenuItem Header="Open">
+                                                <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource OpenIcon}"/>
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Open File With" Click="OpenWith_Click"/>
+                                                <MenuItem Header="Open File Location" Click="OpenFolder_Click"/>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Template="{DynamicResource EditIcon}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem x:Name="ParameterLinkedParameterMenuItem" Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Template="{DynamicResource LinkIcon}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem x:Name="ParameterRecentLinkedParameters" Header="Recent Linked Parameters" IsEnabled="False">
+                                                <MenuItem.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type models:LinkedParameterDisplayModel}">
+                                                        <TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                                    </DataTemplate>
+                                                </MenuItem.ItemTemplate>
+                                                <MenuItem.ItemContainerStyle>
+                                                    <Style TargetType="{x:Type MenuItem}">
+                                                        <EventSetter Event="Click" Handler="RecentLinkedParameter_Click"/>
+                                                    </Style>
+                                                </MenuItem.ItemContainerStyle>
+                                            </MenuItem>
+                                            <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Template="{DynamicResource CancelIcon}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Template="{DynamicResource RefreshIcon}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </ListView.ContextMenu>
+                                </ListView>
+                            </Grid>
+                        </materialDesign:DialogHost>
+                    </Grid>
+
+                    <Grid Name="QuickParameterDisplay2" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" IsEnabled="False" >
+                        <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
+                            <materialDesign:DialogHost.DialogContent >
+                                <Grid Width="200" />
+                            </materialDesign:DialogHost.DialogContent>
+                            <Grid  HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="AUTO"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" HorizontalAlignment="Center" >
+                                    <ToolBarTray  IsLocked="True"  Height="52" Margin="0 0 0 0" VerticalAlignment="Top" Background="Transparent" HorizontalAlignment="Stretch" >
+                                        <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" Background="Transparent" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Center" >
+
+                                            <Grid   VerticalAlignment="Center" HorizontalAlignment="Stretch"   Margin="12 6 12 6" Width="250">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
@@ -321,213 +454,87 @@
                                                 <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                                     <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                                 </Button>
-                                                <my:FilterBox Opacity="0.5"   Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="0.2cm,4,0.2cm,2"/>
+                                                <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="0.2cm,4,0.2cm,2"/>
                                             </Grid>
                                         </ToolBar>
                                     </ToolBarTray>
-                                    <Expander materialDesign:TransitionAssist.DisableTransitions="True"  Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
-                                          Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                            AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
-                                          MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                            AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
-                                    Name="DescriptionExpander" Grid.Row="2" VerticalAlignment="Bottom" Background="Transparent">
-                                        <Border Margin="0,4,0,0" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                            AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
-                                            MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                            AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}">
-                                            <TextBlock Margin="20 0 0 0"  Padding="5"  TextWrapping="Wrap"
-                                                 HorizontalAlignment="Stretch"  x:Name="SelectedDescription" Text="No description available." Style="{DynamicResource MaterialDesignBody1TextBlock}"/>
-                                        </Border>
-                                    </Expander>
                                 </Grid>
-                            </Border>
-
-
-                            <ListView   materialDesign:TransitionAssist.DisableTransitions="True"   materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                  HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                  Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" 
-                                  ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged" SourceUpdated="ParameterDisplay_SourceUpdated">
-
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
-
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.ItemsPanel>
-                                    <ItemsPanelTemplate >
-                                        <VirtualizingStackPanel    materialDesign:RippleAssist.IsDisabled="True" />
-                                    </ItemsPanelTemplate>
-                                </ListView.ItemsPanel>
-                                <ListView.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Parameter">
-                                            <MenuItem Header="Copy (Ctrl+N)" Click="CopyParameterName_Click">
-                                                <MenuItem.Icon>
-                                                    <ContentControl Template="{DynamicResource CopyIcon}"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                            <Separator/>
-                                            <MenuItem Header="Rename        (F2)" Click="RenameParameter_Click"/>
-                                            <MenuItem Header="Reset Name     " Click="ResetParameterName_Click"/>
-                                            <Separator/>
-                                            <MenuItem Header="Hide Parameter(Ctrl+H)" Click="HideParameter_Click"/>
-                                            <MenuItem Header="Show Parameter(Ctrl+Shift+H)" Click="ShowParameter_Click"/>
-                                        </MenuItem>
-                                        <MenuItem Header="Open">
-                                            <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
-                                                <MenuItem.Icon>
-                                                    <ContentControl Template="{DynamicResource OpenIcon}"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                            <MenuItem Header="Open File With" Click="OpenWith_Click"/>
-                                            <MenuItem Header="Open File Location" Click="OpenFolder_Click"/>
-                                        </MenuItem>
-                                        <Separator/>
-                                        <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource EditIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
-                                        </MenuItem>
-                                        <Separator/>
-                                        <MenuItem x:Name="ParameterLinkedParameterMenuItem" Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource LinkIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="ParameterRecentLinkedParameters" Header="Recent Linked Parameters" IsEnabled="False">
-                                            <MenuItem.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type models:LinkedParameterDisplayModel}">
-                                                    <TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                                                </DataTemplate>
-                                            </MenuItem.ItemTemplate>
-                                            <MenuItem.ItemContainerStyle>
-                                                <Style TargetType="{x:Type MenuItem}">
-                                                    <EventSetter Event="Click" Handler="RecentLinkedParameter_Click"/>
-                                                </Style>
-                                            </MenuItem.ItemContainerStyle>
-                                        </MenuItem>
-                                        <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource CancelIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource RefreshIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                    </ContextMenu>
-                                </ListView.ContextMenu>
-                            </ListView>
-                        </Grid>
-                    </materialDesign:DialogHost>
-                </Grid>
-
-                <Grid Name="QuickParameterDisplay2" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" IsEnabled="False" >
-                    <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
-                        <materialDesign:DialogHost.DialogContent >
-                            <Grid Width="200" />
-                        </materialDesign:DialogHost.DialogContent>
-                        <Grid  HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="AUTO"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" HorizontalAlignment="Center" >
-                                <ToolBarTray  IsLocked="True"  Height="52" Margin="0 0 0 0" VerticalAlignment="Top" Background="Transparent" HorizontalAlignment="Stretch" >
-                                    <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" Background="Transparent" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Center" >
-
-                                        <Grid   VerticalAlignment="Center" HorizontalAlignment="Stretch"   Margin="12 6 12 6" Width="250">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
-                                                <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                                            </Button>
-                                            <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="0.2cm,4,0.2cm,2"/>
-                                        </Grid>
-                                    </ToolBar>
-                                </ToolBarTray>
-                            </Grid>
-                            <ListView PreviewKeyDown="QuickParameterDisplay_OnPreviewKeyDown"  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterListView"
+                                <ListView PreviewKeyDown="QuickParameterDisplay_OnPreviewKeyDown"  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterListView"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                   Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
 
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <VirtualizingStackPanel/>
-                                    </ItemsPanelTemplate>
-                                </ListView.ItemsPanel>
-                                <ListView.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Copy Parameter Name (Ctrl+N)" Click="CopyParameterName_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource CopyIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="Go To Module" Click="GoToModule_Click"/>
-                                        <Separator/>
-                                        <MenuItem Header="Open">
-                                            <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                    <ListView.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Copy Parameter Name (Ctrl+N)" Click="CopyParameterName_Click">
                                                 <MenuItem.Icon>
-                                                    <ContentControl Template="{DynamicResource OpenIcon}"/>
+                                                    <ContentControl Template="{DynamicResource CopyIcon}"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Open File With" Click="OpenWith_Click"/>
-                                            <MenuItem Header="Open File Location" Click="OpenFolder_Click"/>
-                                        </MenuItem>
-                                        <Separator/>
-                                        <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource EditIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click"/>
-                                        <Separator/>
-                                        <MenuItem Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource LinkIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem x:Name="QuickParameterRecentLinkedParameters" Header="Recent Linked Parameters" IsEnabled="False">
-                                            <MenuItem.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type models:LinkedParameterDisplayModel}">
-                                                    <TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                                                </DataTemplate>
-                                            </MenuItem.ItemTemplate>
-                                            <MenuItem.ItemContainerStyle>
-                                                <Style TargetType="{x:Type MenuItem}">
-                                                    <EventSetter Event="Click" Handler="RecentLinkedParameter_Click"/>
-                                                </Style>
-                                            </MenuItem.ItemContainerStyle>
-                                        </MenuItem>
-                                        <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource CancelIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
-                                            <MenuItem.Icon>
-                                                <ContentControl Template="{DynamicResource RefreshIcon}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                    </ContextMenu>
-                                </ListView.ContextMenu>
-                            </ListView>
-                        </Grid>
-                    </materialDesign:DialogHost>
-                </Grid>
+                                            <MenuItem Header="Go To Module" Click="GoToModule_Click"/>
+                                            <Separator/>
+                                            <MenuItem Header="Open">
+                                                <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Template="{DynamicResource OpenIcon}"/>
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Open File With" Click="OpenWith_Click"/>
+                                                <MenuItem Header="Open File Location" Click="OpenFolder_Click"/>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Template="{DynamicResource EditIcon}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click"/>
+                                            <Separator/>
+                                            <MenuItem Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Template="{DynamicResource LinkIcon}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem x:Name="QuickParameterRecentLinkedParameters" Header="Recent Linked Parameters" IsEnabled="False">
+                                                <MenuItem.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type models:LinkedParameterDisplayModel}">
+                                                        <TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                                    </DataTemplate>
+                                                </MenuItem.ItemTemplate>
+                                                <MenuItem.ItemContainerStyle>
+                                                    <Style TargetType="{x:Type MenuItem}">
+                                                        <EventSetter Event="Click" Handler="RecentLinkedParameter_Click"/>
+                                                    </Style>
+                                                </MenuItem.ItemContainerStyle>
+                                            </MenuItem>
+                                            <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Template="{DynamicResource CancelIcon}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Template="{DynamicResource RefreshIcon}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </ListView.ContextMenu>
+                                </ListView>
+                            </Grid>
+                        </materialDesign:DialogHost>
+                    </Grid>
 
-                <!-- <dragablz:TabablzControl Grid.Row="1" Grid.RowSpan="2" Grid.Column="2"  x:Name="ParameterTabControl" Style="{DynamicResource MaterialDesignXtmfSubTabablzControlStyle}">
+                    <!-- <dragablz:TabablzControl Grid.Row="1" Grid.RowSpan="2" Grid.Column="2"  x:Name="ParameterTabControl" Style="{DynamicResource MaterialDesignXtmfSubTabablzControlStyle}">
 
                     <dragablz:TabablzControl.InterTabController>
                         <dragablz:InterTabController />
@@ -858,9 +865,12 @@
                             </Grid>
                         </ScrollViewer>
                     </Grid> -->
-                <!-- </TabControl>
+                    <!-- </TabControl>
                 </dragablz:TabablzControl>-->
-                <StatusBar Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="3" Background="{DynamicResource SecondaryAccentBrush}" Height="24">
+                    
+                    <!--<GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="3" Height="3" ShowsPreview="True"/> -->
+                </Grid>
+                <StatusBar Grid.Row="2" Grid.Column="0"   Background="{DynamicResource SecondaryAccentBrush}" Height="24">
                     <StatusBar.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Grid >
@@ -893,10 +903,10 @@
                             <TextBlock Name="StatusBarDisabledModulesText"  Text="{Binding Path=DisabledModulesCountText, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" FontSize="10" VerticalAlignment="Stretch" Margin="2 0 0 0"  FontWeight="Bold"></TextBlock>
 
                         </StackPanel>
-                        
+
                     </StatusBarItem>
                 </StatusBar>
-                <!--<GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="3" Height="3" ShowsPreview="True"/> -->
+
             </Grid>
         </materialDesign:DialogHost>
 
