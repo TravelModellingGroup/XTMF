@@ -2932,6 +2932,16 @@ namespace XTMF.Gui.UserControls
             var column = ContentDisplayGrid.ColumnDefinitions[3];
             this.AnimateGridColumnWidth(column, (int)column.MaxWidth, column.MaxWidth == 0 ? 400 : 0);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterDisplayClose_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            this.ToggleQuickParameterDisplay();
+        }
     }
 
     /// <summary>

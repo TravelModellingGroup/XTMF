@@ -39,7 +39,7 @@
         TextElement.FontSize="12"
  
         TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"        
+        TextOptions.TextRenderingMode="Auto" BorderThickness="0"        
         FontFamily="{DynamicResource MaterialDesignFont}" Closing="XtmfWindow_Closing" Initialized="XtmfWindow_Initialized">
     <metro:MetroWindow.RightWindowCommands>
         <metro:WindowCommands BorderThickness="0">

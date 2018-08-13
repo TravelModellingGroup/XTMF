@@ -281,8 +281,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MinWidth="100" Width="*"/>
                         <ColumnDefinition Width="AUTO"/>
-                        <ColumnDefinition MinWidth="0" Width="400" MaxWidth="0"/>
-                        <ColumnDefinition MinWidth="0" Width="400" MaxWidth="0"/>
+                        <ColumnDefinition MinWidth="0" Width="400" MaxWidth="400"/>
+                        <ColumnDefinition MinWidth="0" Width="400" MaxWidth="400"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -294,7 +294,7 @@
                                 Name="ModelSystemDisplayContent" />
 
                     <GridSplitter  Grid.Row="0" Grid.Column="1" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="3" IsEnabled="False" >
+                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="3" IsEnabled="True" >
                         <materialDesign:DialogHost
                         materialDesign:ShadowAssist.ShadowDepth="Depth5"
                         x:Name="ModuleParameterDialogHost" CloseOnClickAway="True" PreviewKeyDown="ModuleParameterDialogHost_OnPreviewKeyDown">
@@ -432,11 +432,21 @@
                         </materialDesign:DialogHost>
                     </Grid>
 
-                    <Grid Name="QuickParameterDisplay2" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" IsEnabled="False" >
+                    <Grid Name="QuickParameterDisplay2" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" IsEnabled="True" >
                         <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
                             <materialDesign:DialogHost.DialogContent >
                                 <Grid Width="200" />
                             </materialDesign:DialogHost.DialogContent>
+                            <StackPanel Orientation="Vertical" Margin="20 20 20 0">
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="25"></ColumnDefinition>
+                              
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Quick Parameters</TextBlock>
+                                <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="Close" VerticalAlignment="Center" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterDisplayClose" MouseUp="QuickParameterDisplayClose_MouseUp" />
+                                </Grid>
                             <Grid  HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="AUTO"/>
@@ -531,6 +541,7 @@
                                     </ListView.ContextMenu>
                                 </ListView>
                             </Grid>
+                            </StackPanel>
                         </materialDesign:DialogHost>
                     </Grid>
 
