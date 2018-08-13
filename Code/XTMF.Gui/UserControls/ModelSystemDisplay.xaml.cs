@@ -607,7 +607,8 @@ namespace XTMF.Gui.UserControls
         public void ToggleQuickParameterDisplay()
         {
             var column = ContentDisplayGrid.ColumnDefinitions[2];
-            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, column.MaxWidth == 0 ? 400 : 0);
+            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, QuickParameterDisplay2.IsEnabled ? 400 : 0);
+            QuickParameterDisplay2.IsEnabled = !QuickParameterDisplay2.IsEnabled;
         }
 
         /// <summary>
@@ -616,9 +617,15 @@ namespace XTMF.Gui.UserControls
         public void ToggleModuleParameterDisplay()
         {
             var column = ContentDisplayGrid.ColumnDefinitions[3];
-            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, column.MaxWidth == 0 ? 400 : 0);
+            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, ModuleParameterDisplay.IsEnabled ? 400 : 0);
+            ModuleParameterDisplay.IsEnabled = !ModuleParameterDisplay.IsEnabled;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RecentLinkedParameter_Click(object sender, RoutedEventArgs e)
         {
             if (sender is DependencyObject selected)
