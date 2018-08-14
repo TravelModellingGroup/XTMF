@@ -88,7 +88,6 @@ namespace Tasha.PopulationSynthesis
                         SaveProbabilitiesToFile(data);
                     }
                     var pds = Zones.Select(z => z.PlanningDistrict).ToArray();
-                    List<int> noProbabilityZones = new List<int>();
                     for (int categoryIndex = 0; categoryIndex < data.Length; categoryIndex++)
                     {
                         var category = data[categoryIndex];
@@ -98,7 +97,7 @@ namespace Tasha.PopulationSynthesis
                             // we do not greater than in case total is NaN, this will pass
                             if (!(total > 0))
                             {
-                                noProbabilityZones.Add(originIndex);
+                                Array.Clear(category[originIndex], 0, category[originIndex].Length);
                                 continue;
                             }
                             // convert everything to pdf
@@ -109,42 +108,6 @@ namespace Tasha.PopulationSynthesis
                             {
                                 row[i] = row[i - 1] + row[i];
                             }
-                        }
-                        if (noProbabilityZones.Count > 0)
-                        {
-                            // copy the probability from somewhere else
-                            for (int i = 0; i < noProbabilityZones.Count; i++)
-                            {
-                                var zoneIndex = noProbabilityZones[i];
-                                var zonePD = pds[zoneIndex];
-                                bool any = false;
-                                for (int j = 0; j < pds.Length; j++)
-                                {
-                                    if (pds[j] != zonePD || noProbabilityZones.Contains(j))
-                                    {
-                                        continue;
-                                    }
-                                    // if we are here then we can copy the probabilities from j
-                                    Array.Copy(category[j], category[zoneIndex], Zones.Length);
-                                    any = true;
-                                    break;
-                                }
-                                if (!any)
-                                {
-                                    // then just copy from any zone because this is ridiculous we need a better model.
-                                    for (int j = 0; j < category.Length; j++)
-                                    {
-                                        if (noProbabilityZones.Contains(j))
-                                        {
-                                            continue;
-                                        }
-                                        // if we are here then we can copy the probabilities from j
-                                        Array.Copy(category[j], category[zoneIndex], Zones.Length);
-                                        break;
-                                    }
-                                }
-                            }
-                            noProbabilityZones.Clear();
                         }
                     }
                 }
@@ -198,7 +161,20 @@ namespace Tasha.PopulationSynthesis
                     var homeZoneIndex = ZoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
                     var row = Probabilities.GetFlatData()[type][homeZoneIndex];
                     var pop = (float)random.NextDouble();
-                    return Zones[FindFirstClosestIndex(pop, row)];
+                    var index = FindFirstClosestIndex(pop, row);
+                    // Detect if there is no actual data in this row and we are drawing from it anyways
+                    if (index == 0 && row[index] <= 0.0f)
+                    {
+                        // check to make sure that there is no probability in the row.
+                        if (VectorHelper.Sum(row, 0, row.Length) <= 0.0f)
+                        {
+                            throw new XTMFRuntimeException(this, $"A person living at zone {household.HomeZone.ZoneNumber} with worker category" +
+                                $" {type} tried to find an employment zone.  There was no aggregate data for any workers of this class however.  Please" +
+                                $" update your worker categories and zonal residence files for this scenario!\r\n" +
+                                $"HHLD#: {household.HouseholdId}");
+                        }
+                    }
+                    return Zones[index];
                 }
 
                 private int FindFirstClosestIndex(float pop, float[] row)
