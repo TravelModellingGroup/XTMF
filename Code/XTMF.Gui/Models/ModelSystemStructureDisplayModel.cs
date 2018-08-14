@@ -74,6 +74,8 @@ namespace XTMF.Gui.Models
             set => BaseModel.Type = value;
         }
 
+
+
         public bool IsCollection => BaseModel.IsCollection;
 
         public bool IsExpanded
@@ -145,8 +147,14 @@ namespace XTMF.Gui.Models
             ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BaseChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:

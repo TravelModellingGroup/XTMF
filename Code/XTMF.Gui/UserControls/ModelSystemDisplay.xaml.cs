@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -106,6 +107,15 @@ namespace XTMF.Gui.UserControls
         public event EventHandler<ModelSystemEditingSessionChangedEventArgs> ModelSystemEditingSessionChanged;
 
         public event EventHandler<SelectedModuleParameterContextChangedEventArgs> SelectedModuleParameterContextChanged;
+
+        public string StatusBarModuleCountText
+        {
+            get
+            {
+                var s = $"{(_treeViewDisplay != null ? this._treeViewDisplay.ModuleDisplay.Items.Count : 0)} modules";
+                return s;
+            }
+        }
 
         public IModelSystemView ActiveModelSystemView
         {
@@ -828,12 +838,16 @@ namespace XTMF.Gui.UserControls
                         //TODO ITEMS
                         //set the treeview to use regular model system items
                         us.ActiveModelSystemView.ViewItemsControl.ItemsSource = displayModel;
+
                         us.ModelSystemName = newModelSystem.Name;
                         us.ActiveModelSystemView.ViewItemsControl.InvalidateVisual();
 
                         //TODO MAYBE
                         us._treeViewDisplay.ModuleDisplay.Items.MoveCurrentToFirst();
                         us.FilterBox.Display = us.ActiveModelSystemView?.ViewItemsControl;
+                        us.UpdateModuleCount();
+
+ 
                         //us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                         //us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                     });
@@ -849,6 +863,22 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public void UpdateModuleCount()
+        {
+            Dispatcher.BeginInvoke(new Action(() => { StatusBarModuleCountTextBlock.Text = $"{this._treeViewDisplay.ModuleDisplay.Items.Count} Modules"; }));
+
+
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LinkedParameters_LinkedParameterRemoved(object sender, CollectionChangeEventArgs e)
         {
             if (e.Element != null)
@@ -870,6 +900,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="root"></param>
+        /// <returns></returns>
         private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(
             ModelSystemStructureModel root)
         {
@@ -878,8 +913,6 @@ namespace XTMF.Gui.UserControls
                 (DisplayRoot = new ModelSystemStructureDisplayModel(root, null, 0))
 
             };
-
-
 
             return s;
         }

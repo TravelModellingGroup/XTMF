@@ -19,6 +19,8 @@ using XTMF.Gui.Controllers;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using XTMF.Annotations;
 
 namespace XTMF.Gui.UserControls
 {
@@ -80,6 +82,8 @@ namespace XTMF.Gui.UserControls
 
             this._display.ModelSystemEditingSessionChanged += DisplayOnModelSystemEditingSessionChanged;
 
+            
+
 
         }
 
@@ -103,7 +107,7 @@ namespace XTMF.Gui.UserControls
             if (e.NewValue is ModelSystemStructureDisplayModel module)
             {
                 this._display.RefreshParameters();
-
+                this._display.UpdateModuleCount();
                 if (!this._display.ModuleParameterDisplay.IsEnabled)
                 {
                     this._display.ToggleModuleParameterDisplay();
@@ -812,6 +816,14 @@ namespace XTMF.Gui.UserControls
         private void LinkedParametersMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             this._display.ShowLinkedParameterDialog();
+        }
+
+
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

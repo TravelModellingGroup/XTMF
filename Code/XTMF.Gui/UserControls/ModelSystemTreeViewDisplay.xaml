@@ -10,26 +10,20 @@
              d:DesignHeight="450" d:DesignWidth="800" >
 
     <UserControl.Resources>
-        <DrawingBrush TileMode="Tile" Stretch="None" x:Key="GridTextureBrush"
-                      Viewport="0,0,60,60" ViewportUnits="Absolute">
+        <DrawingBrush TileMode="Tile" Stretch="None" x:Key="GridTextureBrush" 
+                      Viewport="0,0,80,80" ViewportUnits="Absolute">
 
             <DrawingBrush.Drawing>
                 <DrawingGroup>
+                 
                     <GeometryDrawing>
                         <GeometryDrawing.Pen>
-                            <Pen Brush="{DynamicResource PrimaryHueLightForegroundBrush}" Thickness="0.5"  />
-                        </GeometryDrawing.Pen>
-                        <GeometryDrawing.Geometry>
-                            <GeometryGroup>
-                                <RectangleGeometry Rect="0 0 60 60"  ></RectangleGeometry>
-                            </GeometryGroup>
+                            <Pen Thickness="0.3">
+                                <Pen.Brush>
+                                    <SolidColorBrush Color="{DynamicResource Primary600Foreground}" Opacity="0.5"></SolidColorBrush>
 
-
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                    <GeometryDrawing>
-                        <GeometryDrawing.Pen>
-                            <Pen Brush="{DynamicResource PrimaryHueLightForegroundBrush}" Thickness="0.3" />
+                                </Pen.Brush>
+                            </Pen>
                         </GeometryDrawing.Pen>
                         <GeometryDrawing.Geometry>
                             <GeometryGroup>
@@ -43,6 +37,34 @@
                                 <RectangleGeometry Rect="0 40 20 20" ></RectangleGeometry>
                                 <RectangleGeometry Rect="40 40 20 20" ></RectangleGeometry>
 
+                                <RectangleGeometry Rect="0 60 20 20" ></RectangleGeometry>
+                                <RectangleGeometry Rect="20 60 20 20" ></RectangleGeometry>
+                                <RectangleGeometry Rect="40 60 20 20" ></RectangleGeometry>
+                                <RectangleGeometry Rect="60 60 20 20" ></RectangleGeometry>
+
+                                <RectangleGeometry Rect="60 0 20 20" ></RectangleGeometry>
+                                <RectangleGeometry Rect="60 20 20 20" ></RectangleGeometry>
+                                <RectangleGeometry Rect="60 40 20 20" ></RectangleGeometry>
+
+
+                            </GeometryGroup>
+
+
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen>
+                            <Pen  Thickness="2" >
+                                <Pen.Brush>
+                                    <SolidColorBrush Color="{DynamicResource Primary100Foreground}" Opacity="0.5"></SolidColorBrush>
+
+                                </Pen.Brush>
+
+                            </Pen>
+                        </GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <RectangleGeometry Rect="0 0 80 80"  ></RectangleGeometry>
                             </GeometryGroup>
 
 
@@ -69,10 +91,10 @@
         <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
 
 
-            <TreeView    BorderThickness="0"  SnapsToDevicePixels="True" Visibility="Visible"
+            <TreeView    BorderThickness="0"  SnapsToDevicePixels="True" Visibility="Visible" 
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
-                              PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown" 
+                              PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown"
                                   PreviewMouseDoubleClick="ModuleDisplay_PreviewMouseDoubleClick"
                               TreeViewItem.Selected="ModuleDisplay_Selected" Grid.ColumnSpan="2" ItemContainerStyle="{DynamicResource TreeViewItemStyle}">
                 <TreeView.ItemsPanel>
