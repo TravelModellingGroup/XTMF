@@ -124,7 +124,33 @@ namespace XTMF.Gui.UserControls
             set => this._activeModelSystemView = value;
         }
 
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        public Brush QuickParameterToolBarForeground => QuickParameterDisplay2 == null ? (SolidColorBrush)TryFindResource("SecondaryAccentBrush") : (
+            QuickParameterDisplay2.IsEnabled
+                ? new SolidColorBrush()
+                {
+                    Color = ((SolidColorBrush)TryFindResource("SecondaryAccentBrush")).Color,
+
+                }
+                : new SolidColorBrush()
+                {
+                    Color = ((SolidColorBrush)TryFindResource("MaterialDesignBody")).Color,
+                });
+
+        public Brush ModuleParameterToolBarForeground => ModuleParameterDisplay == null ? (SolidColorBrush)TryFindResource("SecondaryAccentBrush") : (
+            ModuleParameterDisplay.IsEnabled 
+            ? new SolidColorBrush()
+            {
+                Color = ((SolidColorBrush)TryFindResource("SecondaryAccentBrush")).Color,
+
+            }
+            : new SolidColorBrush()
+            {
+                Color = ((SolidColorBrush)TryFindResource("MaterialDesignBody")).Color,
+            }); 
+
 
         /// <summary>
         /// 
@@ -136,7 +162,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             //AllowMultiSelection(ModuleDisplay);
             Loaded += ModelSystemDisplay_Loaded;
-            
+
             DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
             //DisabledModulesList.ItemsSource = DisabledModules;
             FilterBox.Filter = (o, text) =>
@@ -216,7 +242,7 @@ namespace XTMF.Gui.UserControls
             //this.display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
             //this.display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
 
-           // this.ParameterTabControl.Items.RemoveAt(2);
+            // this.ParameterTabControl.Items.RemoveAt(2);
 
         }
 
@@ -363,7 +389,7 @@ namespace XTMF.Gui.UserControls
                 {
                     MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
                         MessageBoxImage.Warning);
-                    
+
                 }
                 return true;
             }
@@ -538,7 +564,7 @@ namespace XTMF.Gui.UserControls
 
                 }
 
-                    return "0";
+                return "0";
 
 
             }
@@ -551,7 +577,7 @@ namespace XTMF.Gui.UserControls
         {
             this.OnPropertyChanged(this.DisabledModulesCountText);
 
-            
+
 
         }
 
@@ -574,7 +600,7 @@ namespace XTMF.Gui.UserControls
                     EnumerateDisabled(child);
                 }
             }
-            
+
 
         }
 
@@ -622,9 +648,9 @@ namespace XTMF.Gui.UserControls
             var column = ContentDisplayGrid.ColumnDefinitions[2];
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.AnimateGridColumnWidth(column, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400); }));
-           
-            //QuickParameterDisplay2.IsEnabled = !QuickParameterDisplay2.IsEnabled;
+                this.AnimateGridColumnWidth(column, QuickParameterDisplay2, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
+            }));
+
         }
 
         /// <summary>
@@ -635,9 +661,9 @@ namespace XTMF.Gui.UserControls
             var column = ContentDisplayGrid.ColumnDefinitions[3];
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.AnimateGridColumnWidth(column, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
+                this.AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
             }));
-            ModuleParameterDisplay.IsEnabled = !ModuleParameterDisplay.IsEnabled;
+
         }
 
         /// <summary>
@@ -828,7 +854,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            
+
             var us = source as ModelSystemDisplay;
             var newModelSystem = e.NewValue as ModelSystemModel;
             us.RecentLinkedParameters.Clear();
@@ -856,7 +882,7 @@ namespace XTMF.Gui.UserControls
                         us.FilterBox.Display = us.ActiveModelSystemView?.ViewItemsControl;
                         us.UpdateModuleCount();
 
- 
+
                         //us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                         //us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                     });
@@ -927,7 +953,7 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        
+
 
         /// <summary>
         /// 
@@ -1869,7 +1895,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-       
+
 
         /// <summary>
         /// Brings the specified module into view
@@ -2357,13 +2383,13 @@ namespace XTMF.Gui.UserControls
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-          /*  if (e.Source == ParameterTabControl)
-            {
-                if (ParameterTabControl.SelectedItem == QuickParameterTab)
-                {
-                    UpdateQuickParameters();
-                }
-            } */
+            /*  if (e.Source == ParameterTabControl)
+              {
+                  if (ParameterTabControl.SelectedItem == QuickParameterTab)
+                  {
+                      UpdateQuickParameters();
+                  }
+              } */
         }
 
         public void UpdateQuickParameters()
@@ -2380,7 +2406,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-     
+
 
         private void DisplayButton_RightClicked(object obj)
         {
@@ -2421,7 +2447,7 @@ namespace XTMF.Gui.UserControls
             //ToggleDisableModule();
         }
 
-        
+
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             //ParameterWidth = ParameterDisplay.ActualWidth - 24;
@@ -2500,7 +2526,7 @@ namespace XTMF.Gui.UserControls
             base.OnPreviewKeyDown(e);
         }
 
-        
+
 
 
 
@@ -2724,7 +2750,7 @@ namespace XTMF.Gui.UserControls
                 else if (e.Key == Key.Down)
                 {
                     _disableMultipleSelectOnce = true;
-                   // ModuleDisplayNavigateDown(item);
+                    // ModuleDisplayNavigateDown(item);
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         view.SelectedIndex = 0;
@@ -2933,9 +2959,9 @@ namespace XTMF.Gui.UserControls
         /// <param name="column"></param>
         /// <param name="fromWidth"></param>
         /// <param name="toWidth"></param>
-        private void AnimateGridColumnWidth(ColumnDefinition column, double fromWidth, double toWidth)
+        private void AnimateGridColumnWidth(ColumnDefinition column, FrameworkElement display, double fromWidth, double toWidth)
         {
-            
+
 
             Duration duration = new Duration(TimeSpan.FromMilliseconds(500));
 
@@ -2943,16 +2969,23 @@ namespace XTMF.Gui.UserControls
             DoubleAnimation animation = new DoubleAnimation();
             //animation.EasingFunction = ease;
             animation.Duration = duration;
-            
+
 
             animation.From = fromWidth;
             animation.To = toWidth;
             Storyboard.SetTarget(animation, column);
-            Storyboard.SetTargetName(animation,column.Name);
+            Storyboard.SetTargetName(animation, column.Name);
             Storyboard.SetTargetProperty(animation, new PropertyPath(ColumnDefinition.MaxWidthProperty));
 
             Storyboard storyboard = new Storyboard();
             storyboard.Children.Add(animation);
+
+            animation.Completed += delegate(object sender, EventArgs args)
+            {
+                display.IsEnabled = !display.IsEnabled;
+                OnPropertyChanged("QuickParameterToolBarForeground");
+                OnPropertyChanged("ModuleParameterToolBarForeground");
+            };
 
 
             storyboard.Begin(this);
@@ -2968,7 +3001,7 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterToolbarToggle_OnClick(object sender, RoutedEventArgs e)
         {
 
-           this.ToggleQuickParameterDisplay();
+            this.ToggleQuickParameterDisplay();
 
         }
 
@@ -3016,15 +3049,15 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public class SelectedModuleParameterContextChangedEventArgs : EventArgs
     {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="session"></param>
-    public SelectedModuleParameterContextChangedEventArgs(ModelSystemEditingSession session)
-    {
-        Session = session;
-    }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        public SelectedModuleParameterContextChangedEventArgs(ModelSystemEditingSession session)
+        {
+            Session = session;
+        }
 
-    public ModelSystemEditingSession Session { get; }
+        public ModelSystemEditingSession Session { get; }
     }
 }

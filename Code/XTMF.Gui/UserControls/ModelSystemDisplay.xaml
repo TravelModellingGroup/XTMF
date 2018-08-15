@@ -267,11 +267,11 @@
                         </ToolBarTray>
                         <ToolBarTray   Grid.Column="2" IsLocked="True" Grid.Row="0" DockPanel.Dock="Right" Height="54" Margin="0 0 0 0" VerticalAlignment="Center" >
                             <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Bottom">
-                                <Button Name="QuickParameterToolbarToggle" Click="QuickParameterToolbarToggle_OnClick">
-                                    <materialDesign:PackIcon Kind="Flash" />
+                                <Button Name="QuickParameterToolbarToggle" Click="QuickParameterToolbarToggle_OnClick"  >
+                                    <materialDesign:PackIcon Kind="Flash"  Foreground="{Binding QuickParameterToolBarForeground}" />
                                 </Button>
                                 <Button ToolTip="Toggle Module Parameters Panel" Name="ModuleParametersToolbarToggle" Click="ModuleParametersToolbarToggle_OnClick"  >
-                                    <materialDesign:PackIcon Kind="Tune" />
+                                    <materialDesign:PackIcon Kind="Tune" Foreground="{Binding ModuleParameterToolBarForeground}" />
                                 </Button>
                             </ToolBar>
                         </ToolBarTray>
