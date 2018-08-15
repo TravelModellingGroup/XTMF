@@ -42,6 +42,9 @@ namespace TMG.Frameworks.Testing
         [RunParameter("Execution Time", 60, "Specficy the simulated length of execution for this module, in seconds..")]
         public float ExecutionTime { get; set; }
 
+        [RunParameter("Test Boolean", false, "Just a simple test boolean")]
+        public bool TestBool { get; set; }
+
         public string Name { get; set; }
 
         public float Progress => _progress;

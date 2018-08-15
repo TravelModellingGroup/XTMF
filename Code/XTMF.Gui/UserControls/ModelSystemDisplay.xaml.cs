@@ -69,7 +69,7 @@ namespace XTMF.Gui.UserControls
 
         public static readonly DependencyProperty ParameterWidthDependencyProperty =
             DependencyProperty.Register("ParameterWidth", typeof(double), typeof(ModelSystemDisplay),
-                new PropertyMetadata(380.0));
+                new PropertyMetadata(360.0));
 
         private static int FilterNumber;
 
