@@ -460,13 +460,13 @@
                                         <Button  Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}" Name="QuickParameterDisplaySearchBackButton" Click="QuickParameterDisplaySearchBackButton_OnClick">
                                             <materialDesign:PackIcon Kind="ArrowLeft" Width="25" Height="25" />
                                         </Button>
-                                        <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Width="250">
+                                        <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Width="270">
                                             <materialDesign:ColorZone   Mode="Standard" Padding="0 0 0 0" CornerRadius="2"
-                                                                      Margin="5"
+                                                                      Margin="5 5 5 5"
                                                                       materialDesign:ShadowAssist.ShadowDepth="Depth3">
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <materialDesign:PackIcon Kind="FilterVariant" VerticalAlignment="Bottom" Margin="3 0 0 5" Width="18" Height="18" />
-                                                    <my:FilterBox VerticalAlignment="Center" Opacity="1.0" Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="5 2 5 2"/>
+                                                    <materialDesign:PackIcon Kind="FilterVariant" VerticalAlignment="Center" Margin="3 2 0 5"  />
+                                                    <my:FilterBox VerticalAlignment="Center" Opacity="1.0" Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="5 0 5 5"/>
                                                 </StackPanel>
                                             </materialDesign:ColorZone>
                                         </Grid>

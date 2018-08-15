@@ -30,7 +30,7 @@
     <Grid MinHeight="30">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="40" />
+            <ColumnDefinition Width="AUTO" />
         </Grid.ColumnDefinitions>
         <TextBox FontSize="16" Grid.Column="0" x:Name="Box" materialDesign:HintAssist.Hint="{Binding FilterWatermark, ElementName=self}" TextChanged="Box_TextChanged" PreviewKeyDown="Box_PreviewKeyDown" />
         <Button  Margin="0" Padding="0" BorderThickness="0" Background="Transparent" Grid.Column="1" x:Name="ClearFilterButton" Click="ClearFilter_Click" Visibility="Collapsed" >

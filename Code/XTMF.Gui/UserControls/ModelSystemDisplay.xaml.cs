@@ -2962,7 +2962,7 @@ namespace XTMF.Gui.UserControls
         private void AnimateGridColumnWidth(ColumnDefinition column, FrameworkElement display, double fromWidth, double toWidth)
         {
 
-            Duration duration = new Duration(TimeSpan.FromMilliseconds(500));
+            Duration duration = new Duration(TimeSpan.FromMilliseconds(300));
 
             DoubleAnimation animation = new DoubleAnimation();
             //animation.EasingFunction = ease;
