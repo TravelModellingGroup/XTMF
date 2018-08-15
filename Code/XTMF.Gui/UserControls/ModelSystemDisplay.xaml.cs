@@ -2962,9 +2962,7 @@ namespace XTMF.Gui.UserControls
         private void AnimateGridColumnWidth(ColumnDefinition column, FrameworkElement display, double fromWidth, double toWidth)
         {
 
-
             Duration duration = new Duration(TimeSpan.FromMilliseconds(500));
-
 
             DoubleAnimation animation = new DoubleAnimation();
             //animation.EasingFunction = ease;
@@ -3030,6 +3028,83 @@ namespace XTMF.Gui.UserControls
         {
             this.ToggleModuleParameterDisplay();
             
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterSearchButton_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            this.ToggleQuickParameterDisplaySearch();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void ToggleQuickParameterDisplaySearch()
+        {
+            if (QuickParameterDisplaySearch.Opacity == 0.0)
+            {
+                this.AnimateOpacity(QuickParameterDisplaySearch, 0, 1.0);
+                this.AnimateOpacity(QuickParameterDisplayHeader, 1.0, 0.0);
+            }
+            else
+            {
+                this.AnimateOpacity(QuickParameterDisplaySearch, 1.0, 0.0);
+                this.AnimateOpacity(QuickParameterDisplayHeader, 0.0, 1.0);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        private void AnimateOpacity(FrameworkElement element, double from, double to)
+        {
+            Duration duration = new Duration(TimeSpan.FromMilliseconds(200));
+
+            DoubleAnimation animation = new DoubleAnimation();
+            //animation.EasingFunction = ease;
+            animation.Duration = duration;
+
+
+            animation.From = from;
+            animation.To = to;
+            Storyboard.SetTarget(animation, element);
+            Storyboard.SetTargetName(animation, element.Name);
+            Storyboard.SetTargetProperty(animation, new PropertyPath(FrameworkElement.OpacityProperty));
+
+            Storyboard storyboard = new Storyboard();
+            storyboard.Children.Add(animation);
+
+            animation.Completed += delegate (object sender, EventArgs args)
+            {
+                if (element.Opacity == 0.0)
+                {
+                    element.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    element.Visibility = Visibility.Visible;
+                }
+            };
+
+
+            storyboard.Begin(this);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterDisplaySearchBackButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ToggleQuickParameterDisplaySearch();
         }
     }
 
