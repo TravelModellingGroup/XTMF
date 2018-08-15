@@ -280,9 +280,9 @@
                 <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}" Name="ContentDisplayGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MinWidth="100" Width="*"/>
-                        <ColumnDefinition Width="AUTO"/>
-                        <ColumnDefinition MinWidth="0" Width="400" MaxWidth="400"/>
-                        <ColumnDefinition MinWidth="0" Width="400" MaxWidth="400"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition MinWidth="0" Width="400" Name="QuickParameterDisplayColumnDefinition" />
+                        <ColumnDefinition MinWidth="0" Width="400" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -472,7 +472,7 @@
                                 <ListView PreviewKeyDown="QuickParameterDisplay_OnPreviewKeyDown"  materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterListView"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
-                                  HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">

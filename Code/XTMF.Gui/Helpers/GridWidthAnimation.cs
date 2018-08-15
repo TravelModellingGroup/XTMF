@@ -60,11 +60,14 @@ namespace XTMF.Gui.Helpers
 
 
             if (fromValue > toValue)
+            {
                 return new GridLength((1 - clock.CurrentProgress.Value) *
-                                      (fromValue - toValue) + toValue, GridUnitType.Star);
+                                      (fromValue - toValue) + toValue, GridUnitType.Pixel);
+            }
+
 
             return new GridLength(clock.CurrentProgress.Value *
-                                  (toValue - fromValue) + fromValue, GridUnitType.Star);
+                                  (toValue - fromValue) + fromValue, GridUnitType.Pixel);
         }
     }
 }

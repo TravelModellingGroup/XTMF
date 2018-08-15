@@ -43,6 +43,7 @@ using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 using XTMF.Gui.Controllers;
+using XTMF.Gui.Helpers;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls.Interfaces;
@@ -68,7 +69,7 @@ namespace XTMF.Gui.UserControls
 
         public static readonly DependencyProperty ParameterWidthDependencyProperty =
             DependencyProperty.Register("ParameterWidth", typeof(double), typeof(ModelSystemDisplay),
-                new PropertyMetadata(100.0));
+                new PropertyMetadata(380.0));
 
         private static int FilterNumber;
 
@@ -122,6 +123,8 @@ namespace XTMF.Gui.UserControls
             get => this._activeModelSystemView;
             set => this._activeModelSystemView = value;
         }
+
+        
 
         /// <summary>
         /// 
@@ -617,8 +620,11 @@ namespace XTMF.Gui.UserControls
         public void ToggleQuickParameterDisplay()
         {
             var column = ContentDisplayGrid.ColumnDefinitions[2];
-            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, QuickParameterDisplay2.IsEnabled ? 400 : 0);
-            QuickParameterDisplay2.IsEnabled = !QuickParameterDisplay2.IsEnabled;
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.AnimateGridColumnWidth(column, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400); }));
+           
+            //QuickParameterDisplay2.IsEnabled = !QuickParameterDisplay2.IsEnabled;
         }
 
         /// <summary>
@@ -627,7 +633,10 @@ namespace XTMF.Gui.UserControls
         public void ToggleModuleParameterDisplay()
         {
             var column = ContentDisplayGrid.ColumnDefinitions[3];
-            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, ModuleParameterDisplay.IsEnabled ? 400 : 0);
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.AnimateGridColumnWidth(column, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
+            }));
             ModuleParameterDisplay.IsEnabled = !ModuleParameterDisplay.IsEnabled;
         }
 
@@ -2415,12 +2424,12 @@ namespace XTMF.Gui.UserControls
         
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ParameterWidth = ParameterDisplay.ActualWidth - 24;
+            //ParameterWidth = ParameterDisplay.ActualWidth - 24;
         }
 
         private void QuickParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ParameterWidth = QuickParameterDisplay2.ActualWidth - 24;
+            //ParameterWidth = QuickParameterDisplay2.ActualWidth - 24;
         }
 
         private void ValidationErrorDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -2924,24 +2933,32 @@ namespace XTMF.Gui.UserControls
         /// <param name="column"></param>
         /// <param name="fromWidth"></param>
         /// <param name="toWidth"></param>
-        private void AnimateGridColumnWidth(ColumnDefinition column, int fromWidth, int toWidth)
+        private void AnimateGridColumnWidth(ColumnDefinition column, double fromWidth, double toWidth)
         {
-            Storyboard storyboard = new Storyboard();
+            
 
             Duration duration = new Duration(TimeSpan.FromMilliseconds(500));
-            CubicEase ease = new CubicEase { EasingMode = EasingMode.EaseInOut };
+
 
             DoubleAnimation animation = new DoubleAnimation();
-            animation.EasingFunction = ease;
+            //animation.EasingFunction = ease;
             animation.Duration = duration;
-            storyboard.Children.Add(animation);
+            
+
             animation.From = fromWidth;
             animation.To = toWidth;
             Storyboard.SetTarget(animation, column);
-            Storyboard.SetTargetProperty(animation, new PropertyPath("(ColumnDefinition.MaxWidth)"));
+            Storyboard.SetTargetName(animation,column.Name);
+            Storyboard.SetTargetProperty(animation, new PropertyPath(ColumnDefinition.MaxWidthProperty));
 
-            storyboard.Begin();
+            Storyboard storyboard = new Storyboard();
+            storyboard.Children.Add(animation);
+
+
+            storyboard.Begin(this);
+
         }
+
 
         /// <summary>
         /// 
@@ -2962,8 +2979,8 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModuleParametersToolbarToggle_OnClick(object sender, RoutedEventArgs e)
         {
-            var column = ContentDisplayGrid.ColumnDefinitions[3];
-            this.AnimateGridColumnWidth(column, (int)column.MaxWidth, column.MaxWidth == 0 ? 400 : 0);
+
+            this.ToggleModuleParameterDisplay();
         }
 
         /// <summary>
