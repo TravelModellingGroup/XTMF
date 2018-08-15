@@ -283,6 +283,7 @@
                         <ColumnDefinition MinWidth="100" Width="*"/>
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition MinWidth="0" Width="400" Name="QuickParameterDisplayColumnDefinition" />
+                        <ColumnDefinition Width="1"/>
                         <ColumnDefinition MinWidth="0" Width="400" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -295,15 +296,51 @@
                                 Name="ModelSystemDisplayContent" />
 
                     <GridSplitter  Grid.Row="0" Grid.Column="1" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="3" IsEnabled="True" >
+                    <GridSplitter  Grid.Row="0" Grid.Column="3" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
+                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="4" IsEnabled="True" >
                         <materialDesign:DialogHost
                         materialDesign:ShadowAssist.ShadowDepth="Depth5"
                         x:Name="ModuleParameterDialogHost" CloseOnClickAway="True" PreviewKeyDown="ModuleParameterDialogHost_OnPreviewKeyDown">
                             <materialDesign:DialogHost.DialogContent  >
                                 <Grid Width="250" VerticalAlignment="Top" />
                             </materialDesign:DialogHost.DialogContent>
-                            <StackPanel Orientation="Vertical" Margin="20 20 20 0">
-                                <Grid HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Vertical" Margin="0 0 0 0">
+                                <Grid  >
+                                    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 10 5 10"  Name="ModuleParameterDisplaySearch" Opacity="0"  >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="30" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button  Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}" Name="ModuleParameterDisplaySearchBackButton" Click="ModuleParameterDisplaySearchBackButton_OnClick">
+                                            <materialDesign:PackIcon Kind="ArrowLeft" Width="25" Height="25" />
+                                        </Button>
+                                        <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Width="270">
+                                            <materialDesign:ColorZone   Mode="Standard" Padding="0 0 0 0" CornerRadius="2"
+                                                                      Margin="5 5 5 5" UseLayoutRounding="True"
+                                                                      materialDesign:ShadowAssist.ShadowDepth="Depth3">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <materialDesign:PackIcon Kind="FilterVariant" VerticalAlignment="Center" Margin="5 2 0 5"  Width="18" Height="18" Opacity="0.6"  />
+                                                    <my:FilterBox VerticalAlignment="Center" Opacity="1.0" Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="4 0 0 5"/>
+                                                </StackPanel>
+                                            </materialDesign:ColorZone>
+                                        </Grid>
+                                    </Grid>
+
+                                    <Grid Height="45" HorizontalAlignment="Stretch" Name="ModuleParameterDisplayHeader"  Margin="20 20 20 0" VerticalAlignment="Top">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                            <ColumnDefinition Width="25"></ColumnDefinition>
+                                            <ColumnDefinition Width="25"></ColumnDefinition>
+
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Module Parameters</TextBlock>
+                                        <materialDesign:PackIcon  Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterSearchButton" MouseUp="ModuleParameterSearchButton_OnMouseUp" />
+                                        <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterDisplayClose" MouseUp="ModuleParameterDisplayClose_OnMouseUp" />
+                                    </Grid>
+                                </Grid>
+
+
+                                <!--<Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                         <ColumnDefinition Width="25"></ColumnDefinition>
@@ -313,7 +350,7 @@
                                     <TextBlock Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Module Parameters</TextBlock>
                                     <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Center" Width="20" Height="20" HorizontalContentAlignment="Stretch" Name="ModuleParameterSearch" />
                                     <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Center" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterDisplayClose" MouseUp="ModuleParameterDisplayClose_OnMouseUp" />
-                                </Grid>
+                                </Grid> -->
                                 <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="AUTO"/>
@@ -338,7 +375,7 @@
                                                         <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                                             <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                                         </Button>
-                                                        <my:FilterBox Opacity="0.5"   Grid.Column="1" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="0.2cm,4,0.2cm,2"/>
+                                                        <my:FilterBox Opacity="0.5"   Grid.Column="1" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="0.2cm,4,0.2cm,2"/>
                                                     </Grid>
                                                 </ToolBar>
                                             </ToolBarTray>
@@ -451,10 +488,9 @@
                             </materialDesign:DialogHost.DialogContent>
                             <StackPanel Orientation="Vertical" Margin="0 0 0 0">
                                 <Grid  >
-
                                     <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 10 5 10"  Name="QuickParameterDisplaySearch" Opacity="0"  >
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="25" />
+                                            <ColumnDefinition Width="30" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <Button  Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}" Name="QuickParameterDisplaySearchBackButton" Click="QuickParameterDisplaySearchBackButton_OnClick">

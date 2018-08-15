@@ -658,7 +658,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public void ToggleModuleParameterDisplay()
         {
-            var column = ContentDisplayGrid.ColumnDefinitions[3];
+            var column = ContentDisplayGrid.ColumnDefinitions[4];
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
@@ -3060,6 +3060,23 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
+        private void ToggleModuleParameterDisplaySearch()
+        {
+            if (ModuleParameterDisplaySearch.Opacity == 0.0)
+            {
+                this.AnimateOpacity(ModuleParameterDisplaySearch, 0, 1.0);
+                this.AnimateOpacity(ModuleParameterDisplayHeader, 1.0, 0.0);
+            }
+            else
+            {
+                this.AnimateOpacity(ModuleParameterDisplaySearch, 1.0, 0.0);
+                this.AnimateOpacity(ModuleParameterDisplayHeader, 0.0, 1.0);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="element"></param>
         /// <param name="from"></param>
         /// <param name="to"></param>
@@ -3106,6 +3123,28 @@ namespace XTMF.Gui.UserControls
         {
             ToggleQuickParameterDisplaySearch();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleParameterDisplaySearchBackButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            this.ToggleModuleParameterDisplaySearch();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleParameterSearchButton_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            this.ToggleModuleParameterDisplaySearch();
+        }
+
+
     }
 
     /// <summary>
