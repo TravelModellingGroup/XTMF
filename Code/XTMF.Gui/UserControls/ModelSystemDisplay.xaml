@@ -450,9 +450,9 @@
                                 <Grid Width="200" />
                             </materialDesign:DialogHost.DialogContent>
                             <StackPanel Orientation="Vertical" Margin="0 0 0 0">
-                                <Grid >
+                                <Grid  >
 
-                                    <Grid  VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 10 5 10"  Name="QuickParameterDisplaySearch" Opacity="1"  >
+                                    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 10 5 10"  Name="QuickParameterDisplaySearch" Opacity="0"  >
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="25" />
                                             <ColumnDefinition Width="*" />
@@ -462,26 +462,26 @@
                                         </Button>
                                         <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Width="270">
                                             <materialDesign:ColorZone   Mode="Standard" Padding="0 0 0 0" CornerRadius="2"
-                                                                      Margin="5 5 5 5"
+                                                                      Margin="5 5 5 5" UseLayoutRounding="True"
                                                                       materialDesign:ShadowAssist.ShadowDepth="Depth3">
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <materialDesign:PackIcon Kind="FilterVariant" VerticalAlignment="Center" Margin="3 2 0 5"  />
-                                                    <my:FilterBox VerticalAlignment="Center" Opacity="1.0" Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="5 0 5 5"/>
+                                                    <materialDesign:PackIcon Kind="FilterVariant" VerticalAlignment="Center" Margin="5 2 0 5"  Width="18" Height="18" Opacity="0.6"  />
+                                                    <my:FilterBox VerticalAlignment="Center" Opacity="1.0" Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="4 0 0 5"/>
                                                 </StackPanel>
                                             </materialDesign:ColorZone>
                                         </Grid>
                                     </Grid>
 
-                                    <Grid HorizontalAlignment="Stretch" Name="QuickParameterDisplayHeader" Margin="20 20 20 0" VerticalAlignment="Top">
+                                    <Grid Height="45" HorizontalAlignment="Stretch" Name="QuickParameterDisplayHeader"  Margin="20 20 20 0" VerticalAlignment="Top">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"></ColumnDefinition>
                                             <ColumnDefinition Width="25"></ColumnDefinition>
                                             <ColumnDefinition Width="25"></ColumnDefinition>
 
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Quick Parameters</TextBlock>
-                                        <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Center" Width="20" Height="20" HorizontalContentAlignment="Stretch" Name="QuickParameterSearchButton" MouseUp="QuickParameterSearchButton_OnMouseUp" />
-                                        <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Center" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterDisplayClose" MouseUp="QuickParameterDisplayClose_MouseUp" />
+                                        <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Quick Parameters</TextBlock>
+                                        <materialDesign:PackIcon  Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterSearchButton" MouseUp="QuickParameterSearchButton_OnMouseUp" />
+                                        <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterDisplayClose" MouseUp="QuickParameterDisplayClose_MouseUp" />
                                     </Grid>
                                 </Grid>
                                 <Grid  HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
