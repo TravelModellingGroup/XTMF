@@ -1733,10 +1733,10 @@ namespace XTMF.Gui.UserControls
                         var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
                         if (type != null)
                         {
-                            SelectedName.Text = CurrentlySelected.Count == 1
-                                ? CurrentlySelected[0].Name
-                                : "Multiple Modules Selected";
-                            SelectedNamespace.Text = type.FullName;
+                            //SelectedName.Text = CurrentlySelected.Count == 1
+                            //    ? CurrentlySelected[0].Name
+                             //   : "Multiple Modules Selected";
+                            //SelectedNamespace.Text = type.FullName;
                             var attr =
                                 (ModuleInformationAttribute)
                                 Attribute.GetCustomAttribute(type, typeof(ModuleInformationAttribute));
@@ -1757,8 +1757,8 @@ namespace XTMF.Gui.UserControls
                         }
                         else
                         {
-                            SelectedName.Text = CurrentlySelected.Count > 1 ? "Multiple Selected" : "None Selected";
-                            SelectedNamespace.Text = string.Empty;
+                            //SelectedName.Text = CurrentlySelected.Count > 1 ? "Multiple Selected" : "None Selected";
+                            //SelectedNamespace.Text = string.Empty;
                             SelectedDescription.Text = "No description available.";
                             SelectedDescription.Visibility = Visibility.Collapsed;
                             DescriptionExpander.Visibility = Visibility.Collapsed;
@@ -1771,8 +1771,8 @@ namespace XTMF.Gui.UserControls
             else
             {
                 ParameterDisplay.ItemsSource = null;
-                SelectedName.Text = "None Selected";
-                SelectedNamespace.Text = string.Empty;
+                //SelectedName.Text = "None Selected";
+                //SelectedNamespace.Text = string.Empty;
                 SelectedDescription.Text = "No description available.";
                 SelectedDescription.Visibility = Visibility.Collapsed;
             }
@@ -3024,6 +3024,12 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterDisplayClose_MouseUp(object sender, MouseButtonEventArgs e)
         {
             this.ToggleQuickParameterDisplay();
+        }
+
+        private void ModuleParameterDisplayClose_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            this.ToggleModuleParameterDisplay();
+            
         }
     }
 

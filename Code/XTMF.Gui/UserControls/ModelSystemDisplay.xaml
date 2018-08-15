@@ -301,7 +301,19 @@
                             <materialDesign:DialogHost.DialogContent  >
                                 <Grid Width="250" VerticalAlignment="Top" />
                             </materialDesign:DialogHost.DialogContent>
-                            <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
+                            <StackPanel Orientation="Vertical" Margin="20 20 20 0">
+                                <Grid HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="25"></ColumnDefinition>
+                                        <ColumnDefinition Width="25"></ColumnDefinition>
+
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Module Parameters</TextBlock>
+                                    <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Center" Width="20" Height="20" HorizontalContentAlignment="Stretch" Name="ModuleParameterSearch" />
+                                    <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Center" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterDisplayClose" MouseUp="ModuleParameterDisplayClose_OnMouseUp" />
+                                </Grid>
+                                <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="AUTO"/>
                                     <RowDefinition Height="AUTO"/>
@@ -314,12 +326,9 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
-                                        <ToolBarTray  IsLocked="True" Grid.Row="0" Height="52" Margin="0 0 0 0" VerticalAlignment="Center" >
+                                        <ToolBarTray Visibility="Collapsed"  IsLocked="True" Grid.Row="0" Height="52" Margin="0 0 0 0" VerticalAlignment="Center" >
                                             <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" >
-                                                <StackPanel   MinWidth="240" Orientation="Vertical">
-                                                    <TextBlock Padding="5 5 5 0" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}"  HorizontalAlignment="Left" x:Name="SelectedName" Text="None Selected" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" VerticalAlignment="Center"/>
-                                                    <TextBlock Padding="5 0 5 0"  Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" HorizontalAlignment="Left" x:Name="SelectedNamespace" Text="SUB" Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
-                                                </StackPanel>
+
                                                 <Grid  Width="250" VerticalAlignment="Center" HorizontalAlignment="Right"   Margin="12 4 12 12">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
@@ -429,7 +438,8 @@
                                     </ListView.ContextMenu>
                                 </ListView>
                             </Grid>
-                        </materialDesign:DialogHost>
+                        </StackPanel></materialDesign:DialogHost>
+                        
                     </Grid>
 
                     <Grid Name="QuickParameterDisplay2" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" IsEnabled="True" >
@@ -442,10 +452,12 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                     <ColumnDefinition Width="25"></ColumnDefinition>
-                              
-                                </Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="25"></ColumnDefinition>
+
+                                    </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Quick Parameters</TextBlock>
-                                <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="Close" VerticalAlignment="Center" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterDisplayClose" MouseUp="QuickParameterDisplayClose_MouseUp" />
+                                <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Center" Width="20" Height="20" HorizontalContentAlignment="Stretch" Name="QuickParameterSearch" />
+                                    <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Center" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterDisplayClose" MouseUp="QuickParameterDisplayClose_MouseUp" />
                                 </Grid>
                             <Grid  HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                                 <Grid.RowDefinitions>
@@ -453,7 +465,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0" HorizontalAlignment="Center" >
-                                    <ToolBarTray  IsLocked="True"  Height="52" Margin="0 0 0 0" VerticalAlignment="Top" Background="Transparent" HorizontalAlignment="Stretch" >
+                                        <ToolBarTray  Visibility="Collapsed"   IsLocked="True"  Height="52" Margin="0 0 0 0" VerticalAlignment="Top" Background="Transparent" HorizontalAlignment="Stretch" >
                                         <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" Background="Transparent" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Center" >
 
                                             <Grid   VerticalAlignment="Center" HorizontalAlignment="Stretch"   Margin="12 6 12 6" Width="250">
