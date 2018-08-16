@@ -239,10 +239,7 @@ namespace XTMF.Gui.UserControls
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
 
             UpdateQuickParameters();
-            //this.display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
-            //this.display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
 
-            // this.ParameterTabControl.Items.RemoveAt(2);
 
         }
 
@@ -3144,7 +3141,20 @@ namespace XTMF.Gui.UserControls
             this.ToggleModuleParameterDisplaySearch();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
+        }
 
+        private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
+        }
     }
 
     /// <summary>

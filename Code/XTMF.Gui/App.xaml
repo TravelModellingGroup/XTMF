@@ -359,7 +359,7 @@
                                                 
                                                 <DoubleAnimation Storyboard.TargetName="SelectedBorder"
                                                          Storyboard.TargetProperty="Opacity"
-                                                         To="0.5" Duration="0:0:0.1"/>
+                                                         To="0.7" Duration="0:0:0.1"/>
                                                 <!--<DoubleAnimation Storyboard.TargetName="SelectedBorder" Storyboard.TargetProperty="BorderBrush"
                                                     
                                                 To="0.18" Duration="0"/> -->
@@ -383,7 +383,7 @@
                                     BorderBrush="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}"/>
 
                                     <Border x:Name="SelectedBorder"
-                                            BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                                            BorderBrush="{DynamicResource Foreground}"
                                             Opacity="0"
                                             
                                             BorderThickness="3"
