@@ -80,8 +80,7 @@ namespace XTMF
                             case "DetachedModelSystem":
                                 {
                                     var guid = child.Attributes["GUID"]?.InnerText ?? string.Empty;
-                                    var msPath = Path.Combine(_DirectoryLocation, $"Project.ms-{guid}.xml");
-                                    if (LoadDetachedModelSystem(msPath, guid, out var pms))
+                                    if (LoadDetachedModelSystem(_DirectoryLocation, guid, out var pms))
                                     {
                                         toLoad[i] = pms;
                                     }
@@ -104,10 +103,26 @@ namespace XTMF
             return false;
         }
 
-        private bool LoadDetachedModelSystem(string fileName, string guid, out ProjectModelSystem pms)
+        private bool LoadDetachedModelSystem(string directory, string guid, out ProjectModelSystem pms)
         {
+            var msPath = Path.Combine(_DirectoryLocation, "._ModelSystems", $"Project.ms-{guid}.xml");
+            if(!File.Exists(msPath))
+            {
+                msPath = Path.Combine(_DirectoryLocation, $"Project.ms-{guid}.xml");
+                if (!File.Exists(msPath))
+                {
+                    pms = null;
+                    return false;
+                }
+                else
+                {
+                    var newMsPath = Path.Combine(EnsureModelSystemDirectoryExists(_DirectoryLocation), $"Project.ms-{guid}.xml");
+                    File.Move(msPath, newMsPath);
+                    msPath = newMsPath;
+                }
+            }
             XmlDocument msDoc = new XmlDocument();
-            msDoc.Load(fileName);
+            msDoc.Load(msPath);
             pms = new ProjectModelSystem()
             {
                 GUID = guid
@@ -547,11 +562,11 @@ namespace XTMF
                             directoryExists = true;
                             break;
                         }
-
                         Thread.Sleep(18);
                     }
                 }
             }
+            string modelSystemDirectoryPath = EnsureModelSystemDirectoryExists(Path.GetDirectoryName(path));
 
             try
             {
@@ -596,7 +611,7 @@ namespace XTMF
                                 }
 
                                 File.Copy(tempMSFileName,
-                                    Path.Combine(Path.GetDirectoryName(path), $"Project.ms-{ms.GUID}.xml"), true);
+                                    Path.Combine(modelSystemDirectoryPath, $"Project.ms-{ms.GUID}.xml"), true);
                                 File.Delete(tempMSFileName);
                             }
                         }));
@@ -622,6 +637,18 @@ namespace XTMF
             File.Delete(tempFileName);
             HasChanged = false;
             return true;
+        }
+
+        private static string EnsureModelSystemDirectoryExists(string projectDirectory)
+        {
+            // Create the model system directory
+            var modelSystemDirectoryPath = Path.Combine(projectDirectory, "._ModelSystems");
+            if (!Directory.Exists(modelSystemDirectoryPath))
+            {
+                DirectoryInfo msDirectory = Directory.CreateDirectory(modelSystemDirectoryPath);
+                msDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+            }
+            return modelSystemDirectoryPath;
         }
     }
 }
