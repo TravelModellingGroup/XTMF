@@ -48,6 +48,7 @@ using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls.Interfaces;
 
+
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
@@ -140,7 +141,7 @@ namespace XTMF.Gui.UserControls
                 });
 
         public Brush ModuleParameterToolBarForeground => ModuleParameterDisplay == null ? (SolidColorBrush)TryFindResource("SecondaryAccentBrush") : (
-            ModuleParameterDisplay.IsEnabled 
+            ModuleParameterDisplay.IsEnabled
             ? new SolidColorBrush()
             {
                 Color = ((SolidColorBrush)TryFindResource("SecondaryAccentBrush")).Color,
@@ -149,7 +150,7 @@ namespace XTMF.Gui.UserControls
             : new SolidColorBrush()
             {
                 Color = ((SolidColorBrush)TryFindResource("MaterialDesignBody")).Color,
-            }); 
+            });
 
 
         /// <summary>
@@ -239,6 +240,8 @@ namespace XTMF.Gui.UserControls
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
 
             UpdateQuickParameters();
+            this.ToggleModuleParameterDisplay(0);
+            
 
 
         }
@@ -646,6 +649,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.AnimateGridColumnWidth(column, QuickParameterDisplay2, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
+                
             }));
 
         }
@@ -653,12 +657,12 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
-        public void ToggleModuleParameterDisplay()
+        public void ToggleModuleParameterDisplay(int duration = -1)
         {
             var column = ContentDisplayGrid.ColumnDefinitions[4];
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
+                this.AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400,duration);
             }));
 
         }
@@ -1732,7 +1736,7 @@ namespace XTMF.Gui.UserControls
                         {
                             //SelectedName.Text = CurrentlySelected.Count == 1
                             //    ? CurrentlySelected[0].Name
-                             //   : "Multiple Modules Selected";
+                            //   : "Multiple Modules Selected";
                             //SelectedNamespace.Text = type.FullName;
                             var attr =
                                 (ModuleInformationAttribute)
@@ -2956,10 +2960,10 @@ namespace XTMF.Gui.UserControls
         /// <param name="column"></param>
         /// <param name="fromWidth"></param>
         /// <param name="toWidth"></param>
-        private void AnimateGridColumnWidth(ColumnDefinition column, FrameworkElement display, double fromWidth, double toWidth)
+        private void AnimateGridColumnWidth(ColumnDefinition column, FrameworkElement display, double fromWidth, double toWidth, int durationMs = -1)
         {
 
-            Duration duration = new Duration(TimeSpan.FromMilliseconds(300));
+            Duration duration = new Duration(TimeSpan.FromMilliseconds(durationMs >= 0 ? durationMs : 300));
 
             DoubleAnimation animation = new DoubleAnimation();
             //animation.EasingFunction = ease;
@@ -2975,7 +2979,7 @@ namespace XTMF.Gui.UserControls
             Storyboard storyboard = new Storyboard();
             storyboard.Children.Add(animation);
 
-            animation.Completed += delegate(object sender, EventArgs args)
+            animation.Completed += delegate (object sender, EventArgs args)
             {
                 display.IsEnabled = !display.IsEnabled;
                 OnPropertyChanged("QuickParameterToolBarForeground");
@@ -3024,7 +3028,7 @@ namespace XTMF.Gui.UserControls
         private void ModuleParameterDisplayClose_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
             this.ToggleModuleParameterDisplay();
-            
+
         }
 
         /// <summary>
@@ -3044,7 +3048,7 @@ namespace XTMF.Gui.UserControls
         {
             if (QuickParameterDisplaySearch.Opacity == 0.0)
             {
-                this.AnimateOpacity(QuickParameterDisplaySearch, 0, 1.0);
+                this.AnimateOpacity(QuickParameterDisplaySearch, 0, 1.0, QuickParameterFilterBox);
                 this.AnimateOpacity(QuickParameterDisplayHeader, 1.0, 0.0);
             }
             else
@@ -3061,13 +3065,15 @@ namespace XTMF.Gui.UserControls
         {
             if (ModuleParameterDisplaySearch.Opacity == 0.0)
             {
-                this.AnimateOpacity(ModuleParameterDisplaySearch, 0, 1.0);
+                this.AnimateOpacity(ModuleParameterDisplaySearch, 0, 1.0, ParameterFilterBox);
                 this.AnimateOpacity(ModuleParameterDisplayHeader, 1.0, 0.0);
+
             }
             else
             {
                 this.AnimateOpacity(ModuleParameterDisplaySearch, 1.0, 0.0);
                 this.AnimateOpacity(ModuleParameterDisplayHeader, 0.0, 1.0);
+
             }
         }
 
@@ -3077,7 +3083,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="element"></param>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        private void AnimateOpacity(FrameworkElement element, double from, double to)
+        private void AnimateOpacity(FrameworkElement element, double from, double to, UIElement focusAfter = null)
         {
             Duration duration = new Duration(TimeSpan.FromMilliseconds(200));
 
@@ -3104,6 +3110,12 @@ namespace XTMF.Gui.UserControls
                 else
                 {
                     element.Visibility = Visibility.Visible;
+
+                    if (focusAfter != null)
+                    {
+                        focusAfter.Focus();
+                        Keyboard.Focus(focusAfter);
+                    }
                 }
             };
 

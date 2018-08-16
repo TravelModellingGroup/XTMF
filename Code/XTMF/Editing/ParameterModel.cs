@@ -142,6 +142,12 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hide"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public bool SetHidden(bool hide, ref string error)
         {
             return _Session.RunCommand(XTMFCommand.CreateCommand(
