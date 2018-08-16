@@ -337,8 +337,12 @@
                                         <VisualState Name="Normal"/>
                                         <VisualState Name="MouseOver">
                                             <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetName="MouseOverBorder" Storyboard.TargetProperty="Opacity"
-                                                             To="0.1" Duration="0"/>
+                                                <!--<DoubleAnimation Storyboard.TargetName="MouseOverBorder" Storyboard.TargetProperty="Opacity"
+                                                             To="0.1" Duration="0"/> -->
+
+                                                <DoubleAnimation Storyboard.TargetName="MouseOverBorder"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 To="0.4" Duration="0:0:0.1"/>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState Name="Disabled"/>
@@ -346,13 +350,21 @@
                                     <VisualStateGroup Name="SelectionStates">
                                         <VisualStateGroup.Transitions>
                                             <VisualTransition GeneratedDuration="0:0:0.0"/>
+
                                         </VisualStateGroup.Transitions>
                                         <VisualState Name="Selected">
+
+                                           
                                             <Storyboard>
+                                                
                                                 <DoubleAnimation Storyboard.TargetName="SelectedBorder"
                                                          Storyboard.TargetProperty="Opacity"
-                                                         To="0.18" Duration="0"/>
+                                                         To="0.5" Duration="0:0:0.1"/>
+                                                <!--<DoubleAnimation Storyboard.TargetName="SelectedBorder" Storyboard.TargetProperty="BorderBrush"
+                                                    
+                                                To="0.18" Duration="0"/> -->
                                             </Storyboard>
+
                                         </VisualState>
                                         <VisualState Name="Unselected"/>
                                         <VisualState Name="SelectedUnfocused">
@@ -366,12 +378,16 @@
                                 </VisualStateManager.VisualStateGroups>
                                 <Grid>
                                     <Border x:Name="MouseOverBorder"
-                                    Opacity="0"
-                                    Background="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}"/>
+                                    Opacity="0" BorderThickness="3"
+
+                                    BorderBrush="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}"/>
 
                                     <Border x:Name="SelectedBorder"
-                                    Opacity="0"
-                                    Background="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                            BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                                            Opacity="0"
+                                            
+                                            BorderThickness="3"
+                       
                                     RenderTransformOrigin="0.5,0.5">
                                         <Border.RenderTransform>
                                             <ScaleTransform ScaleX="1"/>
