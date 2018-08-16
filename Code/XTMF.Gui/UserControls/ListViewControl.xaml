@@ -22,6 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" Name="ListViewControlName" BorderThickness="0 0 0 0" 
              d:DesignHeight="80" d:DesignWidth="800
             " >
@@ -86,14 +87,18 @@
 
 
         <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=VerticalAlignment,Mode=TwoWay}">
+            <Grid>
 
-            <Path Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
+                <materialDesign:PackIcon Width="32" Height="32" VerticalAlignment="Center" Kind="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconKind,Mode=OneWay}" Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconKindVisibility,Mode=OneWay}"/>
+
+                <Path Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8" Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconPathVisibility,Mode=OneWay}"
                   Fill="{DynamicResource MaterialDesignBody}"
                   Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconPath.Data,Mode=TwoWay}">
                 
              
             </Path>
-  
+            </Grid>
+
         </Border>
         <StackPanel Margin="8,0,0,0" Orientation="Vertical" Grid.Column="1">
             <Label Margin="0,8,0,0" Height="20" Padding="0" FontWeight="Bold" Name="Title"  Foreground="{DynamicResource MaterialDesignBody}"

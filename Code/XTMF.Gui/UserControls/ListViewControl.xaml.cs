@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
+using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Annotations;
 
 namespace XTMF.Gui.UserControls
@@ -48,12 +49,52 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty IconPathDependencyProperty =
             DependencyProperty.Register("IconPath", typeof(Path), typeof(ListViewControl), new PropertyMetadata(null));
 
+
+        public static readonly DependencyProperty IconKindDependencyProperty =
+            DependencyProperty.Register("IconKind", typeof(PackIconKind), typeof(ListViewControl), new PropertyMetadata(null));
+
         public static readonly DependencyProperty IsSelectedDependencyProperty =
             DependencyProperty.Register("IsSelected", typeof(bool), typeof(ListViewControl), new PropertyMetadata(true));
 
         public ListViewControl()
         {
             InitializeComponent();
+        }
+
+        public Visibility IconPathVisibility
+        {
+            get
+            {
+                if (!IsPathIcon)
+                {
+                    return Visibility.Collapsed;
+                }
+
+                return Visibility.Visible;
+            }
+        }
+
+        public Visibility IconKindVisibility
+        {
+            get
+            {
+                if (!IsPathIcon)
+                {
+                    return Visibility.Visible;
+                }
+
+                return Visibility.Collapsed;
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public PackIconKind IconKind
+        {
+            get => (PackIconKind)GetValue(IconKindDependencyProperty);
+            set => SetValue(IconKindDependencyProperty, value);
         }
 
         public Path IconPath
