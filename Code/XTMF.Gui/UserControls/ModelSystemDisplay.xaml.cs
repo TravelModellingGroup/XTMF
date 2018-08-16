@@ -123,6 +123,15 @@ namespace XTMF.Gui.UserControls
         {
             get => this._activeModelSystemView;
             set => this._activeModelSystemView = value;
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ModelSystemTreeViewDisplay TreeViewDisplay
+        {
+            get { return this._treeViewDisplay; }
         }
 
         /// <summary>

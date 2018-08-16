@@ -90,6 +90,24 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
+        public Brush GridBackgroundBrush
+        {
+            get
+            {
+                if (EditorController.Runtime.Configuration.IsDarkTheme)
+                {
+                    return (Brush)FindResource("GridTextureBrushDark");
+                }
+                else
+                {
+                    return (Brush)FindResource("GridTextureBrushLight");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void DisplayOnModelSystemEditingSessionChanged(object sender, ModelSystemEditingSessionChangedEventArgs e)

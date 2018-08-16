@@ -63,6 +63,7 @@ namespace XTMF.Gui.UserControls
             }));
         }
 
+
         private Window GetWindow()
         {
             var current = this as DependencyObject;
