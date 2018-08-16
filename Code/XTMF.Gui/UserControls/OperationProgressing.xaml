@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Operation Progressing" ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" WindowStyle="None" Background="{x:Null}" AllowsTransparency="True">
 
-    <Border Margin="20"  Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="1">
+    <Border Margin="20"  Background="{DynamicResource MaterialDesignPaper}" BorderThickness="1">
         <Border.Effect>
             <DropShadowEffect BlurRadius="15" ShadowDepth="5" Color="Black" Opacity="0.7"></DropShadowEffect>
         </Border.Effect>
@@ -13,7 +13,7 @@
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
             <Label Content="Please Wait..." Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" />
-            <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" Foreground="{DynamicResource ProgressBrush}" >
+            <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" Foreground="{DynamicResource PrimaryHueDarkBrush}" >
               
             </ProgressBar>
         </Grid>
