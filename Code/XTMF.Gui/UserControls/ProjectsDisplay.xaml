@@ -174,7 +174,7 @@
                         </Border>
 
                         <Button Click="Delete_Click" >
-                            <materialDesign:PackIcon Kind="Delete" />
+                            <local:PackIconOverlap IconKind="Folder" IconKindMinor="DeleteForever" Width="24" Height="24"></local:PackIconOverlap>
                         </Button>
                     </StackPanel>
 

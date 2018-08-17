@@ -74,7 +74,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" Opacity="1.0"></Label>
                         </Border>
                         <Button Click="NewModelSystem_Click"  >
-                            <materialDesign:PackIcon Kind="ShapePlus" />
+                            <xtmf:PackIconOverlap Width="28" Height="28"  IconKind="CubeOutline" IconKindMinor="Plus"></xtmf:PackIconOverlap>
                         </Button>
                     </StackPanel>
 
