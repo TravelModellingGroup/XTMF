@@ -31,7 +31,7 @@
     <UserControl.Resources>
 
     </UserControl.Resources>
-    <Border BorderThickness="0 0 0 1" BorderBrush="{DynamicResource MaterialDesignDivider}">
+    <Border BorderThickness="0 0 0 1" BorderBrush="{DynamicResource MaterialDesignDivider}" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=ActualWidth,Mode=OneWay}">
     <Grid HorizontalAlignment="Stretch" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50"></ColumnDefinition>
