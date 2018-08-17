@@ -53,6 +53,9 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty IconKindDependencyProperty =
             DependencyProperty.Register("IconKind", typeof(PackIconKind), typeof(ListViewControl), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty IconKindMergeDependencyProperty =
+            DependencyProperty.Register("IconKindMerge", typeof(PackIconKind), typeof(ListViewControl), new PropertyMetadata(null));
+
         public static readonly DependencyProperty IsSelectedDependencyProperty =
             DependencyProperty.Register("IsSelected", typeof(bool), typeof(ListViewControl), new PropertyMetadata(true));
 
@@ -96,6 +99,7 @@ namespace XTMF.Gui.UserControls
             get => (PackIconKind)GetValue(IconKindDependencyProperty);
             set => SetValue(IconKindDependencyProperty, value);
         }
+
 
         public Path IconPath
         {

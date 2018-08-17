@@ -235,6 +235,9 @@
     <Compile Include="UserControls\ModuleContextControl.xaml.cs">
       <DependentUpon>ModuleContextControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\PackIconOverlap.xaml.cs">
+      <DependentUpon>PackIconOverlap.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\PopupBoxEx.cs" />
     <Compile Include="UserControls\SchedulerWindow.xaml.cs">
       <DependentUpon>SchedulerWindow.xaml</DependentUpon>
@@ -403,6 +406,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\ModuleContextControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\PackIconOverlap.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -191,6 +191,7 @@
                                     </StackPanel>
                                 </ListBoxItem>
                             </ListBox>
+                          
                         </StackPanel>
                     </materialDesign:DrawerHost.LeftDrawerContent>
                 </materialDesign:DrawerHost>
