@@ -220,7 +220,10 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <xtmf:ListViewControl TitleText="{Binding Name}" SubText="{Binding TimeStamp}" MouseDoubleClick="PastRuns_MouseButton" IconKind="Timelapse" IsPathIcon="False">
+                                <xtmf:ListViewControl TitleText="{Binding Name}" SubText="{Binding TimeStamp}" IsPackIconOverlap="True" MouseDoubleClick="PastRuns_MouseButton" IconKind="Timelapse" IsPathIcon="False">
+                                    <xtmf:ListViewControl.PackIconOverlap>
+                                        <xtmf:PackIconOverlap IconKind="Run" IconKindMinor="Timelapse" Width="32" Height="32"></xtmf:PackIconOverlap>
+                                    </xtmf:ListViewControl.PackIconOverlap>
                                     
                                 </xtmf:ListViewControl >
                             </DataTemplate>

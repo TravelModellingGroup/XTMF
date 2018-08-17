@@ -29,56 +29,9 @@
    
     
     <UserControl.Resources>
-        <!--
-        <Style TargetType="{x:Type local:ListViewControl}">
 
-            <Style.Triggers>
-                <MultiDataTrigger >
-                    <MultiDataTrigger.Conditions>
-                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"></Condition>
-                        <Condition  Value="False"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}"></Condition>
-                    </MultiDataTrigger.Conditions>
-
-                    <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}"></Setter>
-                    </MultiDataTrigger.Setters>
-
-                </MultiDataTrigger>
-
-                <MultiDataTrigger >
-                    <MultiDataTrigger.Conditions>
-                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"></Condition>
-                        <Condition  Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}"></Condition>
-                    </MultiDataTrigger.Conditions>
-
-                    <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}"></Setter>
-                    </MultiDataTrigger.Setters>
-                </MultiDataTrigger>
-
-                <MultiDataTrigger >
-                    <MultiDataTrigger.Conditions>
-                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"></Condition>
-                        <Condition  Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}"></Condition>
-                    </MultiDataTrigger.Conditions>
-
-                    <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}"></Setter>
-                    </MultiDataTrigger.Setters>
-                </MultiDataTrigger>
-                
-     
-                <DataTrigger Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}">
-                    <Setter Property="Foreground" Value="White"></Setter>
-                </DataTrigger>
-
-                <DataTrigger Value="False"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}">
-                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"></Setter>
-                </DataTrigger>
-
-            </Style.Triggers>
-        </Style> -->
     </UserControl.Resources>
+    <Border BorderThickness="0 0 0 1" BorderBrush="{DynamicResource MaterialDesignDivider}">
     <Grid HorizontalAlignment="Stretch" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50"></ColumnDefinition>
@@ -88,6 +41,8 @@
 
         <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=VerticalAlignment,Mode=TwoWay}">
             <Grid>
+
+                <ContentPresenter Margin="5,5,5,5" Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=PackIconOverlap,Mode=OneWay}"></ContentPresenter>
 
                 <materialDesign:PackIcon Width="32" Height="32" VerticalAlignment="Center" Kind="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconKind,Mode=OneWay}" Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconKindVisibility,Mode=OneWay}"/>
 
@@ -112,6 +67,6 @@
 
         </StackPanel>
     </Grid>
-    
-     
+    </Border>
+
 </UserControl>

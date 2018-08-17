@@ -44,7 +44,10 @@ namespace XTMF.Gui.UserControls
             DependencyProperty.Register("IsBitmapIcon", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
 
         public static readonly DependencyProperty PathIconDependencyProperty =
-            DependencyProperty.Register("IsPathIcon", typeof(bool), typeof(ListViewControl), new PropertyMetadata(true));
+            DependencyProperty.Register("IsPathIcon", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty IsPackIconOverlapDependencyProperty =
+            DependencyProperty.Register("IsPackIconOverlap", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
 
         public static readonly DependencyProperty IconPathDependencyProperty =
             DependencyProperty.Register("IconPath", typeof(Path), typeof(ListViewControl), new PropertyMetadata(null));
@@ -53,8 +56,8 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty IconKindDependencyProperty =
             DependencyProperty.Register("IconKind", typeof(PackIconKind), typeof(ListViewControl), new PropertyMetadata(null));
 
-        public static readonly DependencyProperty IconKindMergeDependencyProperty =
-            DependencyProperty.Register("IconKindMerge", typeof(PackIconKind), typeof(ListViewControl), new PropertyMetadata(null));
+        public static readonly DependencyProperty PackIconOverlapDependencyProperty =
+            DependencyProperty.Register("PackIconOverlap", typeof(PackIconOverlap), typeof(ListViewControl), new PropertyMetadata(null));
 
         public static readonly DependencyProperty IsSelectedDependencyProperty =
             DependencyProperty.Register("IsSelected", typeof(bool), typeof(ListViewControl), new PropertyMetadata(true));
@@ -68,12 +71,13 @@ namespace XTMF.Gui.UserControls
         {
             get
             {
-                if (!IsPathIcon)
+                if (IsPathIcon)
                 {
-                    return Visibility.Collapsed;
+                    return Visibility.Visible;
                 }
+                
 
-                return Visibility.Visible;
+                return Visibility.Collapsed;
             }
         }
 
@@ -81,7 +85,7 @@ namespace XTMF.Gui.UserControls
         {
             get
             {
-                if (!IsPathIcon)
+                if (!IsPathIcon && !IsPackIconOverlap)
                 {
                     return Visibility.Visible;
                 }
@@ -90,6 +94,20 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        public Visibility PackIconOverlapVisibility
+        {
+            get
+            {
+                if (IsPackIconOverlap)
+                {
+                    return Visibility.Visible;
+                }
+                else
+                {
+                    return Visibility.Collapsed;
+                }
+            }
+        }
 
         /// <summary>
         /// 
@@ -99,6 +117,13 @@ namespace XTMF.Gui.UserControls
             get => (PackIconKind)GetValue(IconKindDependencyProperty);
             set => SetValue(IconKindDependencyProperty, value);
         }
+
+        public PackIconOverlap PackIconOverlap
+        {
+            get => (PackIconOverlap)GetValue(PackIconOverlapDependencyProperty);
+            set => SetValue(PackIconOverlapDependencyProperty, value);
+        }
+
 
 
         public Path IconPath
@@ -119,10 +144,32 @@ namespace XTMF.Gui.UserControls
             set => SetValue(IsSelectedDependencyProperty, value);
         }
 
+        public bool IsPackIconOverlap
+        {
+            get => (bool)GetValue(IsPackIconOverlapDependencyProperty);
+            set
+            {
+                if (value)
+                {
+                    IsPathIcon = false;
+                    IsBitmapIcon = false;
+                }
+                SetValue(IsPackIconOverlapDependencyProperty, value);
+            }
+        }
+
         public bool IsPathIcon
         {
             get => (bool)GetValue(PathIconDependencyProperty);
-            set => SetValue(PathIconDependencyProperty, value);
+            set
+            {
+                if (value)
+                {
+                    IsPackIconOverlap = false;
+                    IsBitmapIcon = false;
+                }
+                SetValue(PathIconDependencyProperty, value);
+            }
         }
 
         public string TitleText
