@@ -220,10 +220,8 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <xtmf:ListViewControl TitleText="{Binding Name}" SubText="{Binding TimeStamp}" MouseDoubleClick="PastRuns_MouseButton">
-                                    <xtmf:ListViewControl.IconPath>
-                                        <Path Data="{DynamicResource PreviousRunIconPath}" />
-                                    </xtmf:ListViewControl.IconPath>
+                                <xtmf:ListViewControl TitleText="{Binding Name}" SubText="{Binding TimeStamp}" MouseDoubleClick="PastRuns_MouseButton" IconKind="Timelapse" IsPathIcon="False">
+                                    
                                 </xtmf:ListViewControl >
                             </DataTemplate>
                         </ListBox.ItemTemplate>
