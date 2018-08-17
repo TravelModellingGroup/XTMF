@@ -75,6 +75,8 @@ namespace XTMF.Gui
 
         private SettingsPage _settingsPage;
 
+        private ProjectsDisplay _projectsDisplay;
+
         private MouseButtonEventHandler _LastAdded;
 
         private OperationProgressing operationProgressing;
@@ -215,6 +217,12 @@ namespace XTMF.Gui
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="projectName"></param>
         private void RecentProjectMenuItem_Click(object sender, RoutedEventArgs e, string projectName)
         {
             LoadProjectByName(projectName);
@@ -365,16 +373,31 @@ namespace XTMF.Gui
             StatusLinkLabel.Visibility = Visibility.Collapsed;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
         public static void SetStatusText(string text)
         {
             Us.Dispatcher.BeginInvoke(new Action(() => { Us.StatusDisplay.Text = text; }));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void OpenProject()
         {
-            SetDisplayActive(new ProjectsDisplay(EditorController.Runtime), "Projects");
+            if (_projectsDisplay == null)
+            {
+                _projectsDisplay = new ProjectsDisplay(EditorController.Runtime);
+            }
+            SetDisplayActive((UserControl)_projectsDisplay,"Projects Display");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="projectSession"></param>
         internal void EditProject(ProjectEditingSession projectSession)
         {
             if (projectSession != null)
@@ -758,7 +781,11 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void OpenProjectGlobalMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            SetDisplayActive(new ProjectsDisplay(EditorController.Runtime), "Projects");
+            if (_projectsDisplay == null)
+            {
+                _projectsDisplay = new ProjectsDisplay(EditorController.Runtime);
+            }
+            SetDisplayActive(_projectsDisplay, "Projects");
             MenuToggleButton.IsChecked = false;
         }
 
