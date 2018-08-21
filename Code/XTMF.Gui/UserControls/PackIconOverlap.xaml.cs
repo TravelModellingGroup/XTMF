@@ -30,6 +30,9 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty IconKindMinorDependencyProperty =
             DependencyProperty.Register("IconKindMinor", typeof(PackIconKind), typeof(PackIconOverlap), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty ShowMinorIconBackgroundDependencyProperty =
+            DependencyProperty.Register("ShowMinorIconBackground", typeof(bool), typeof(PackIconOverlap), new PropertyMetadata(true));
+
         public PackIconOverlap()
         {
 
@@ -48,6 +51,27 @@ namespace XTMF.Gui.UserControls
         {
             get => (PackIconKind)GetValue(IconKindMinorDependencyProperty);
             set => SetValue(IconKindMinorDependencyProperty, value); 
+        }
+
+        public bool ShowMinorIconBackground
+        {
+            get => (bool) GetValue(ShowMinorIconBackgroundDependencyProperty);
+            set => SetValue(ShowMinorIconBackgroundDependencyProperty, value);
+        }
+
+        public Visibility MinorIconBackgroundVisibility
+        {
+            get
+            {
+                if (ShowMinorIconBackground)
+                {
+                    return Visibility.Visible;
+                }
+                else
+                {
+                    return Visibility.Hidden;
+                }
+            }
         }
 
         public double MinorWidth => Width / 2;

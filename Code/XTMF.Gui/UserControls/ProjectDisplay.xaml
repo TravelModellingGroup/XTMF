@@ -83,7 +83,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Refresh previous runs" Opacity="1.0"></Label>
                         </Border>
                         <Button Name="RefreshPastRunsButton" Click="RefreshPastRunsButton_OnClick" >
-                            <materialDesign:PackIcon Kind="Refresh" />
+                            <xtmf:PackIconOverlap Width="32" Height="32"  IconKind="Run" IconKindMinor="Refresh"></xtmf:PackIconOverlap>
                         </Button>
                     </StackPanel>
                 </StackPanel>
