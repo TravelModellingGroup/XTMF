@@ -144,8 +144,8 @@
                         </Border>
                         
                     <Button Click="NewProject_Click">
-                        <materialDesign:PackIcon Kind="FolderPlus" />
-                    </Button>
+                        <local:PackIconOverlap IconKind="Folder" IconKindMinor="Plus" Width="24" Height="24"></local:PackIconOverlap>
+                        </Button>
                     </StackPanel>
 
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">

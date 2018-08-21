@@ -9,7 +9,9 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <materialDesign:PackIcon Width="{Binding MajorWidth}" Height="{Binding MajorHeight}" VerticalAlignment="Center" Kind="{Binding IconKind}" Visibility="Visible"/>
-        <materialDesign:PackIcon Width="{Binding MinorWidth}" Height="{Binding MinorHeight}" VerticalAlignment="Bottom" Kind="{Binding IconKindMinor}" Visibility="Visible" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+        <!--<materialDesign:PackIcon Width="{Binding MinorBorderWidth}" Height="{Binding MinorBorderHeight}" VerticalAlignment="Bottom" Kind="{Binding IconKindMinor}" Visibility="Visible" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"/> -->
+        <materialDesign:PackIcon Width="{Binding MinorBorderWidth}" Height="{Binding MinorBorderHeight}" VerticalAlignment="Bottom" Kind="{Binding IconKindMinor}" Visibility="Visible" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+      
 
 
 
