@@ -54,9 +54,9 @@ namespace XTMF.Gui.UserControls
 
         public double MinorHeight => Height /2;
 
-        public double MinorBorderWidth => (Width / 2)+5;
+        public double MinorBorderWidth => (Width / 2)-2;
 
-        public double MinorBorderHeight => (Height / 2)+5;
+        public double MinorBorderHeight => (Height / 2)-2;
 
         public double MajorWidth => Width;
 

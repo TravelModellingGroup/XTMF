@@ -56,7 +56,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System" Opacity="1.0"></Label>
                         </Border>
                         <Button   Name="ImportButton" Click="ImportButton_OnClick" >
-                            <materialDesign:PackIcon Kind="Import" />
+                            <xtmf:PackIconOverlap IconKind="CubeOutline" IconKindMinor="Import" Width="32" Height="32"></xtmf:PackIconOverlap>
                         </Button>
                     </StackPanel>
 
@@ -65,7 +65,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System From File" Opacity="1.0"></Label>
                         </Border>
                         <Button  Name="ImportFromFileButton" Click="ImportFromFileButton_OnClick" >
-                            <materialDesign:PackIcon Kind="FileImport" />
+                            <xtmf:PackIconOverlap IconKind="CubeOutline" IconKindMinor="FileImport" Width="32" Height="32"></xtmf:PackIconOverlap>
                         </Button>
                     </StackPanel>
 
@@ -74,7 +74,7 @@
                             <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" Opacity="1.0"></Label>
                         </Border>
                         <Button Click="NewModelSystem_Click"  >
-                            <xtmf:PackIconOverlap Width="28" Height="28"  IconKind="CubeOutline" IconKindMinor="Plus"></xtmf:PackIconOverlap>
+                            <xtmf:PackIconOverlap Width="32" Height="32"  IconKind="CubeOutline" IconKindMinor="Plus"></xtmf:PackIconOverlap>
                         </Button>
                     </StackPanel>
 

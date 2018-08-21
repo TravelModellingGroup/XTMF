@@ -5,15 +5,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" Height="32" Width="32"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <materialDesign:PackIcon Width="{Binding MajorWidth}" Height="{Binding MajorHeight}" VerticalAlignment="Center" Kind="{Binding IconKind}" Visibility="Visible"/>
-        <!--<materialDesign:PackIcon Width="{Binding MinorBorderWidth}" Height="{Binding MinorBorderHeight}" VerticalAlignment="Bottom" Kind="{Binding IconKindMinor}" Visibility="Visible" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"/> -->
-        <materialDesign:PackIcon Width="{Binding MinorBorderWidth}" Height="{Binding MinorBorderHeight}" VerticalAlignment="Bottom" Kind="{Binding IconKindMinor}" Visibility="Visible" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
-      
+        <Grid>
 
+            <Border >
+                <Grid>
+                    <materialDesign:PackIcon Width="{Binding MajorWidth}" Height="{Binding MajorHeight}" VerticalAlignment="Center" Kind="{Binding IconKind}" Visibility="Visible"/>
 
+                    <Canvas Width="{Binding MinorWidth}" Height="{Binding MinorHeight}" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                        <Ellipse Fill="{DynamicResource MaterialDesignBody}" Width="{Binding MinorWidth}" Height="{Binding MinorHeight}"></Ellipse>
 
-</Grid>
+                    </Canvas>
+                    <materialDesign:PackIcon   Width="{Binding MinorWidth}" Height="{Binding MinorHeight}" VerticalAlignment="Bottom" Kind="{Binding IconKindMinor}" Visibility="Visible" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Grid>
 </UserControl>
