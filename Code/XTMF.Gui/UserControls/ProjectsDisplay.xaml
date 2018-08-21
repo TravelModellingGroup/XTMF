@@ -1,4 +1,4 @@
-﻿<!-- 
+﻿ of le<!-- 
     Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
@@ -112,16 +112,9 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
 
-                    <local:ListViewControl IsPathIcon="False"  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" IconKind="FolderOutline">
+                    <local:ListViewControl IsPathIcon="False"  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" IconKind="FolderOutline" >
 
-                        <local:ListViewControl.IconPath>
-
-
-
-                            <Path Data="{DynamicResource FolderOpenIconPath}">
-
-                            </Path>
-                        </local:ListViewControl.IconPath>
+                      
 
                     </local:ListViewControl>
                     
