@@ -30,7 +30,7 @@ namespace TMG.Frameworks.Testing
     /// A dummmy / testing module to be used to help simulate estimation and scheduling for the XTMF GUI.
     /// </summary>
     [ModuleInformation(Description =
-        @"A dummy module that can be used as a root module in model systems used for testing the GUI.",DocURL = "https://tmg.utoronto.ca",
+        @"<h1>A sample H1 Header</h1><p>A dummy module that can be used as a root module in model systems used for testing the GUI.</p>",DocURL = "https://tmg.utoronto.ca",
         IconURI = "TestTube")]
     public class TestRootModule : IModelSystemTemplate
     {
