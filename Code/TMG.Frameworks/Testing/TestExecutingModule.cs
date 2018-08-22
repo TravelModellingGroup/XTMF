@@ -31,7 +31,7 @@ namespace TMG.Frameworks.Testing
     ///     A simple test module that simulates a module that requires an extended period of time to finish executing.
     /// </summary>
     ///
-    [ModuleInformation(Description = "This is just a simple module that runs for a pre determined amount of time.",Name = "Test Executing Module",IconURI = "CodeBraces")]
+    [ModuleInformation(Description = "This is just a simple module that runs for a pre determined amount of time.", Name = "Test Executing Module", IconURI = "CodeBraces")]
     public class TestExecutingModule : ISelfContainedModule
     {
         private int _ticks;
@@ -46,6 +46,22 @@ namespace TMG.Frameworks.Testing
 
         [RunParameter("Test Boolean", false, "Just a simple test boolean")]
         public bool TestBool { get; set; }
+
+        [RunParameter("Test Boolean 2", false, "Just a simple test boolean")]
+        public bool TestBool2 { get; set; }
+
+        [RunParameter("Test Boolean 3", false, "Just a simple test boolean")]
+        public bool TestBool3 { get; set; }
+        [RunParameter("Test Boolean 4", false, "Just a simple test boolean")]
+        public bool TestBool4 { get; set; }
+        [RunParameter("Test Boolean 5 ", false, "Just a simple test boolean")]
+        public bool TestBool5 { get; set; }
+        [RunParameter("Test Boolean 6", false, "Just a simple test boolean")]
+        public bool TestBool6 { get; set; }
+        [RunParameter("Test Boolean 7", false, "Just a simple test boolean")]
+        public bool TestBool7 { get; set; }
+        [RunParameter("Test Boolean 8", false, "Just a simple test boolean")]
+        public bool TestBool8 { get; set; }
 
         public string Name { get; set; }
 
@@ -97,7 +113,7 @@ namespace TMG.Frameworks.Testing
         private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             _ticks++;
-            _progress = (_ticks / (float) ExecutionTime);
+            _progress = (_ticks / (float)ExecutionTime);
             this._logger.Info("Timer tick from " + Name + " at " + e.SignalTime);
         }
     }
