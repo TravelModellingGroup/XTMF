@@ -269,10 +269,6 @@ namespace XTMF.Gui
             _settingsPage = new SettingsPage();
         }
 
-        public void ApplyTheme(ThemeController.Theme theme)
-        {
-            ThemeController.SetThemeActive(theme);
-        }
 
         /// <summary>
         /// </summary>

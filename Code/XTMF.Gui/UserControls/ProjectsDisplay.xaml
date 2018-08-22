@@ -153,11 +153,11 @@
 
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Clone Projeect" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Clone Project" Opacity="1.0"></Label>
                         </Border>
 
                         <Button Click="Clone_Click" >
-                            <materialDesign:PackIcon Kind="ContentCopy" />
+                            <local:PackIconOverlap IconKind="Folder" IconKindMinor="ContentCopy" Width="24" Height="24"></local:PackIconOverlap>
                         </Button>
                     </StackPanel>
 
