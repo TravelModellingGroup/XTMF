@@ -3194,6 +3194,19 @@ namespace XTMF.Gui.UserControls
                 this.ToggleQuickParameterDisplaySearch();
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleParameterDisplay_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (ModuleParameterDisplaySearch.Opacity > 0 && e.Key == Key.Escape)
+            {
+                this.ToggleModuleParameterDisplaySearch();
+            }
+        }
     }
 
     /// <summary>

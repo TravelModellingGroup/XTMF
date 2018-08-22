@@ -30,6 +30,8 @@ namespace TMG.Frameworks.Testing
     /// <summary>
     ///     A simple test module that simulates a module that requires an extended period of time to finish executing.
     /// </summary>
+    ///
+    [ModuleInformation(Description = "This is just a simple module that runs for a pre determined amount of time.",Name = "Test Executing Module",IconURI = "CodeBraces")]
     public class TestExecutingModule : ISelfContainedModule
     {
         private int _ticks;

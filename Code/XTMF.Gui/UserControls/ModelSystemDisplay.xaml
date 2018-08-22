@@ -297,7 +297,7 @@
 
                     <GridSplitter  Grid.Row="0" Grid.Column="1" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
                     <GridSplitter  Grid.Row="0" Grid.Column="3" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="4" IsEnabled="True" >
+                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="4" IsEnabled="True"  PreviewKeyDown="ModuleParameterDisplay_OnPreviewKeyDown">
                         <materialDesign:DialogHost
                         materialDesign:ShadowAssist.ShadowDepth="Depth5"
                         x:Name="ModuleParameterDialogHost" CloseOnClickAway="True" PreviewKeyDown="ModuleParameterDialogHost_OnPreviewKeyDown">
@@ -339,18 +339,6 @@
                                     </Grid>
                                 </Grid>
 
-
-                                <!--<Grid HorizontalAlignment="Stretch">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"></ColumnDefinition>
-                                        <ColumnDefinition Width="25"></ColumnDefinition>
-                                        <ColumnDefinition Width="25"></ColumnDefinition>
-
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Module Parameters</TextBlock>
-                                    <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Center" Width="20" Height="20" HorizontalContentAlignment="Stretch" Name="ModuleParameterSearch" />
-                                    <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Center" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterDisplayClose" MouseUp="ModuleParameterDisplayClose_OnMouseUp" />
-                                </Grid> -->
                                 <Grid Name="PG" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="AUTO"/>

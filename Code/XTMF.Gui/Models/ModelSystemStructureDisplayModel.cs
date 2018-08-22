@@ -50,10 +50,7 @@ namespace XTMF.Gui.Models
             _BaseChildren = baseModel.Children;
             UpdateChildren(baseModel);
             BaseModel.PropertyChanged += BaseModel_PropertyChanged;
-            if (_BaseChildren != null)
-            {
-                _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
-            }
+            if (_BaseChildren != null) _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
         }
 
         public int Index { get; set; }
@@ -73,7 +70,6 @@ namespace XTMF.Gui.Models
             get => BaseModel.Type;
             set => BaseModel.Type = value;
         }
-
 
 
         public bool IsCollection => BaseModel.IsCollection;
@@ -148,13 +144,11 @@ namespace XTMF.Gui.Models
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void BaseChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -174,10 +168,7 @@ namespace XTMF.Gui.Models
                     Children.Move(e.OldStartingIndex, e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    if (Children.Count > 0)
-                    {
-                        Children.RemoveAt(e.OldStartingIndex);
-                    }
+                    if (Children.Count > 0) Children.RemoveAt(e.OldStartingIndex);
 
                     break;
                 case NotifyCollectionChangedAction.Replace:
@@ -205,16 +196,10 @@ namespace XTMF.Gui.Models
                 switch (e.PropertyName)
                 {
                     case "Children":
-                        if (_BaseChildren != null)
-                        {
-                            _BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
-                        }
+                        if (_BaseChildren != null) _BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
 
                         _BaseChildren = BaseModel.Children;
-                        if (_BaseChildren != null)
-                        {
-                            _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
-                        }
+                        if (_BaseChildren != null) _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
 
                         break;
                     case "IsMetaModule":
@@ -252,18 +237,11 @@ namespace XTMF.Gui.Models
             while (toGet.Count > 0)
             {
                 var current = toGet.Pop();
-                foreach (var p in current.Parameters.GetParameters())
-                {
-                    ret.Add(p);
-                }
+                foreach (var p in current.Parameters.GetParameters()) ret.Add(p);
 
                 if (current.Children != null)
-                {
                     foreach (var c in current.Children)
-                    {
                         toGet.Push(c);
-                    }
-                }
             }
 
             return ret;
@@ -292,14 +270,10 @@ namespace XTMF.Gui.Models
         private static List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected,
             ModelSystemStructureDisplayModel current)
         {
-            if (selected == current)
-            {
-                return new List<ModelSystemStructureDisplayModel> {current};
-            }
+            if (selected == current) return new List<ModelSystemStructureDisplayModel> {current};
 
             var children = current.Children;
             if (children != null)
-            {
                 foreach (var child in children)
                 {
                     var ret = BuildChainTo(selected, child);
@@ -309,7 +283,6 @@ namespace XTMF.Gui.Models
                         return ret;
                     }
                 }
-            }
 
             return null;
         }

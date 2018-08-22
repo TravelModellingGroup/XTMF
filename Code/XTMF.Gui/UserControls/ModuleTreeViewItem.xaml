@@ -23,6 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="300" Margin="2,2,2,3" SnapsToDevicePixels="True">
     <UserControl.Resources>
@@ -86,9 +87,14 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Path Width="24" Height="24" Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
-                                  Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                            <Grid>
+                                <materialDesign:PackIcon Visibility="Collapsed" Opacity="0.8" Name="PackIcon" Width="24" Height="24" Margin="5,5,5,5" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=OneWay}"></materialDesign:PackIcon>
+                                <Border Name="PathBorder" Margin="0" Padding="0" Visibility="Collapsed">
+                                    <Path Width="24" Height="24" Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
+                                  Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=OneWay}"
                                   Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=IconPath.Data,Mode=TwoWay}"/>
+                            </Border>
+                                    </Grid>
                         </Border>
                         <StackPanel VerticalAlignment="Center" Orientation="Vertical" Grid.Column="1" Margin="0,8,7,0" TextOptions.TextFormattingMode="Display">
                             <DockPanel>

@@ -46,13 +46,16 @@
 
                 <materialDesign:PackIcon Width="32" Height="32" VerticalAlignment="Center" Kind="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconKind,Mode=OneWay}" Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconKindVisibility,Mode=OneWay}"/>
 
+                  
                 <Path Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8" Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconPathVisibility,Mode=OneWay}"
                   Fill="{DynamicResource MaterialDesignBody}"
                   Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconPath.Data,Mode=TwoWay}">
-                
-             
-            </Path>
-            </Grid>
+
+
+
+                        </Path>
+                  
+                </Grid>
 
         </Border>
         <StackPanel Margin="8,0,0,0" Orientation="Vertical" Grid.Column="1">

@@ -24,19 +24,23 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterOwner"
-        Title="Select Module" Height="500" Width="400">
+        Title="Select Module" Height="500" Width="800">
     <Grid Background="{DynamicResource MaterialDesignBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <materialDesign:ColorZone Grid.Row="0" Grid.Column="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
         Margin="12 12 12 12"
         materialDesign:ShadowAssist.ShadowDepth="Depth4">
             <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Filter Modules... (Ctrl+E)" />
         </materialDesign:ColorZone>
-      
-        <ListView x:Name="Display" MouseDoubleClick="Display_OnMouseDoubleClick"
+
+        <ListView Grid.Column="0" x:Name="Display" MouseDoubleClick="Display_OnMouseDoubleClick" SelectionChanged="Display_OnSelectionChanged"
                       Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -47,15 +51,30 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
 
-                    <userControls:ListViewControl TitleText="{Binding Name}" 
+                    <userControls:ListViewControl TitleText="{Binding Name}" IconKind="{Binding IconKind}" IsPathIcon="False"
                                              SubText="{Binding Text}">
-                        
-                        
+
+
+
                     </userControls:ListViewControl>
-                        
-                   
+
+
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Name="ModuleNameTextBlock" Grid.Row="0"  Text="No Module Selected" Style="{DynamicResource MaterialDesignTitleTextBlock}"></TextBlock>
+                <TextBlock MouseUp="ModuleUrlTextBlock_OnMouseUp"  Foreground="{DynamicResource PrimaryHueMidBrush}" Name="ModuleUrlTextBlock" Grid.Row="2"  Text="" Style="{DynamicResource MaterialDesignCaptionTextBlock}" Cursor="Hand" ></TextBlock>
+                <TextBlock  Foreground="{DynamicResource MaterialDesignBody}" Name="ModuleTypeTextBlock" Grid.Row="1"  Text="" Style="{DynamicResource MaterialDesignCaptionTextBlock}" Opacity="0.8"></TextBlock>
+                <TextBlock Margin="0 15 0 0" TextWrapping="Wrap" Height="300" Foreground="{DynamicResource MaterialDesignBody}" Name="ModuleDescriptionTextBlock" Grid.Row="3"  Text="" Style="{DynamicResource MaterialDesignBody1TextBlock}"></TextBlock>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

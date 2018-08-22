@@ -22,7 +22,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using MaterialDesignThemes.Wpf;
 
 namespace XTMF.Gui.UserControls
 {
@@ -39,11 +41,43 @@ namespace XTMF.Gui.UserControls
         {
             internal Type type;
 
-            public Model(Type type) => this.type = type;
+            public Model(Type type)
+            {
+                this.type = type;
+                foreach (var attr in type.GetCustomAttributes(true))
+                {
+                    if (attr.GetType() == typeof(ModuleInformationAttribute))
+                    {
+                        var info = (attr as ModuleInformationAttribute);
+                        Description = (attr as ModuleInformationAttribute)?.Description;
+                        Url = (attr as ModuleInformationAttribute)?.DocURL;
+
+                        if (info.IconURI != null)
+                        {
+                            try
+                            {
+                                IconKind = (PackIconKind)System.Enum.Parse(typeof(PackIconKind), info.IconURI);
+                            }
+                            catch (Exception e)
+                            {
+
+                            }
+                          
+                        }
+
+                    }
+                }
+            }
 
             public string Name => type.Name;
 
             public string Text => type.FullName;
+
+            public string Description { get; set; }
+
+            public string Url { get; set; }
+
+            public PackIconKind IconKind { get; set; } = PackIconKind.Settings;
 
             public event PropertyChangedEventHandler PropertyChanged;
         }
@@ -130,7 +164,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void BorderIconButton_Clicked(object obj) => Select();
 
         private void Select()
         {
@@ -139,6 +172,10 @@ namespace XTMF.Gui.UserControls
             SelectModel(index as Model);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
         private void SelectModel(Model model)
         {
             if (model != null)
@@ -169,6 +206,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedType"></param>
+        /// <param name="selectedForFreeVariables"></param>
+        /// <returns></returns>
         private Type CreateConcreteType(Type selectedType, List<Type> selectedForFreeVariables)
         {
             var originalTypes = selectedType.GetGenericArguments();
@@ -200,6 +243,11 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FilterBox_EnterPressed(object sender, EventArgs e)
         {
             var selected = Display.SelectedItem as Model;
@@ -210,6 +258,11 @@ namespace XTMF.Gui.UserControls
             SelectModel(selected);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var selected = Display.SelectedItem as Model;
@@ -233,6 +286,41 @@ namespace XTMF.Gui.UserControls
                 selected = GetFirstItem();
             }
             SelectModel(selected);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Display_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selected = Display.SelectedItem as Model;
+            if (selected != null)
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+
+                    ModuleNameTextBlock.Text = selected.Name ?? "No Module Selected";
+                    ModuleDescriptionTextBlock.Text = selected.Description ?? "";
+                    ModuleUrlTextBlock.Text = selected.Url ?? "";
+                    ModuleTypeTextBlock.Text = selected.Text;
+                }));
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleUrlTextBlock_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var selected = Display.SelectedItem as Model;
+            if (selected != null && selected.Url != null)
+            {
+                System.Diagnostics.Process.Start(selected.Url.StartsWith("http") ? selected.Url : $"http://{selected.Url}");
+            }
         }
     }
 }

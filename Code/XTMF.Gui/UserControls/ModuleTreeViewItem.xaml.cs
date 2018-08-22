@@ -23,6 +23,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 using XTMF.Gui.Models;
 
@@ -64,6 +65,9 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty CustomBackgrounDependencyProperty =
             DependencyProperty.Register("CustomBackground", typeof(Brush), typeof(ModuleTreeViewItem), new PropertyMetadata(Brushes.Transparent));
 
+
+        public PackIconKind Icon { get; set; }
+
         public ModuleTreeViewItem()
         {
             InitializeComponent();
@@ -87,27 +91,80 @@ namespace XTMF.Gui.UserControls
 
             BackingModel.BaseModel.PropertyChanged += BaseModelOnPropertyChanged;
             BackingModel.PropertyChanged += BaseModelOnPropertyChanged;
+
+            var type = BackingModel.BaseModel.Type;
+
+            PackIconKind iconKind = PackIconKind.Settings;
+            bool hasCustomIcon = false;
+
+
+            if (type != null)
+            {
+                foreach (var attr in type.GetCustomAttributes(true))
+                {
+                    if (attr.GetType() == typeof(ModuleInformationAttribute))
+                    {
+                        var info = (attr as ModuleInformationAttribute);
+                        if (info.IconURI != null)
+                        {
+                            try
+                            {
+                                iconKind = (PackIconKind) System.Enum.Parse(typeof(PackIconKind), info.IconURI);
+                                hasCustomIcon = true;
+                            }
+                            catch
+                            {
+                            }
+
+                        }
+                    }
+                }
+            }
+
+
             if (BackingModel.BaseModel.IsMetaModule)
             {
-                IconPath = new Path { Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"] };
+                IconPath = new Path {Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"]};
+                PathBorder.Visibility = Visibility.Visible;
             }
             else if (!BackingModel.BaseModel.IsMetaModule && !BackingModel.BaseModel.IsCollection)
             {
                 IconPath = new Path
                 {
-                    Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"],
+                    Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"],
                 };
+                if (hasCustomIcon)
+                {
+                    PackIcon.Kind = iconKind;
+                    IconPath.Visibility = Visibility.Hidden;
+                    PathBorder.Visibility = Visibility.Collapsed;
+                    PackIcon.Visibility = Visibility.Visible;
+
+                }
+                else
+                {
+                    PackIcon.Kind = PackIconKind.Settings;
+                    PackIcon.Visibility = Visibility.Collapsed;
+                    PathBorder.Visibility = Visibility.Visible;
+
+
+                }
+
             }
             else if (BackingModel.BaseModel.IsCollection)
             {
-                IconPath = new Path { Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"] };
+                IconPath = new Path {Data = (PathGeometry) Application.Current.Resources["CollectionIconPath"]};
+                PathBorder.Visibility = Visibility.Visible;
+                //PackIcon.Kind = PackIconKind.ViewList;
             }
+
             var ammount = BackingModel.BaseModel.IsDisabled ? 0.4 : 1.0;
             SubTextLabel.Opacity = ammount;
             Title.Opacity = ammount;
             IconPath.Opacity = ammount;
             SetupColours();
             e.Handled = true;
+           
         }
 
 
@@ -164,6 +221,7 @@ namespace XTMF.Gui.UserControls
                     NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
                     NotificationIcon.Visibility = Visibility.Visible;
                     NotificationIcon.Fill = Brushes.OliveDrab;
+                   
                 }
                 else if (!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
                 {
@@ -174,6 +232,7 @@ namespace XTMF.Gui.UserControls
                     NotificationIcon.Fill = Brushes.IndianRed;
                     InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
                     BlockBorder.Opacity = 0.7;
+                    PackIcon.Kind = PackIconKind.AlertCircle;
                 }
                 else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null && !BackingModel.IsCollection)
                 {
