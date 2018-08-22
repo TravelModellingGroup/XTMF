@@ -3172,9 +3172,27 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
             Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterDisplay2_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (QuickParameterDisplaySearch.Opacity > 0 && e.Key == Key.Escape)
+            {
+                this.ToggleQuickParameterDisplaySearch();
+            }
         }
     }
 

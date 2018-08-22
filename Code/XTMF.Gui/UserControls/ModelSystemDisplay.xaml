@@ -481,7 +481,7 @@
 
                     </Grid>
 
-                    <Grid Name="QuickParameterDisplay2" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" IsEnabled="True" >
+                    <Grid Name="QuickParameterDisplay2"  Grid.Column="2" IsEnabled="True" PreviewKeyDown="QuickParameterDisplay2_OnPreviewKeyDown" >
                         <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
                             <materialDesign:DialogHost.DialogContent >
                                 <Grid Width="200" />
