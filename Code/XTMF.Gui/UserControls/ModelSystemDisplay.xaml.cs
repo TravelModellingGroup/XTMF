@@ -349,6 +349,11 @@ namespace XTMF.Gui.UserControls
                         fail = true;
                         break;
                     }
+                    // If we find a meta-module we actually have the correct module
+                    if(current.IsMetaModule)
+                    {
+                        break;
+                    }
                 }
 
                 if (!fail)
