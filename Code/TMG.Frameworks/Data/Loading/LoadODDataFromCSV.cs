@@ -19,6 +19,7 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using TMG.Input;
 using XTMF;
 namespace TMG.Frameworks.Data.Loading
@@ -68,6 +69,10 @@ namespace TMG.Frameworks.Data.Loading
         {
             var anyLinesRead = false;
             // Spaces are not delimiters
+            if(!File.Exists(LoadFrom))
+            {
+                throw new XTMFRuntimeException(this, $"In {Name} the file '{LoadFrom.GetFilePath()}' does not exist!");
+            }
             using (var reader = new CsvReader(LoadFrom, false))
             {
                 // read in the destinations
@@ -101,6 +106,10 @@ namespace TMG.Frameworks.Data.Loading
 
         private IEnumerable<ODData<float>> ReadThirdNormalized()
         {
+            if (!File.Exists(LoadFrom))
+            {
+                throw new XTMFRuntimeException(this, $"In {Name} the file '{LoadFrom.GetFilePath()}' does not exist!");
+            }
             using (var reader = new CsvReader(LoadFrom, true))
             {
                 if (ContainsHeader)
