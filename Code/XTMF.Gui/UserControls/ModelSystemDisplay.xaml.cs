@@ -96,6 +96,8 @@ namespace XTMF.Gui.UserControls
 
         private ModelSystemStructureDisplayModel DisplayRoot;
 
+        private ParameterDisplayModel SoftActiveParameterDisplay { get; set; }
+
         private readonly LinkedParameterDisplay LinkedParameterDisplayOverlay;
 
         private object SaveLock = new object();
@@ -2249,8 +2251,14 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void SelectFileForCurrentParameter()
         {
-            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
+            var context = GetCurrentParameterDisplayModelContext();
+            if (context == null)
             {
+                context = SoftActiveParameterDisplay;
+            }
+            if (context != null)
+            {
+                ParameterDisplayModel currentParameter = context;
                 var _ = GetInputParameter(
                     Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure),
                     out var inputDirectory);
@@ -3210,6 +3218,32 @@ namespace XTMF.Gui.UserControls
             if (ModuleParameterDisplaySearch.Opacity > 0 && e.Key == Key.Escape)
             {
                 this.ToggleModuleParameterDisplaySearch();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ParameterDisplay_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (ParameterDisplay.SelectedItem is ParameterDisplayModel)
+            {
+                SoftActiveParameterDisplay = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterListView_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (QuickParameterListView.SelectedItem is ParameterDisplayModel)
+            {
+                SoftActiveParameterDisplay = QuickParameterListView.SelectedItem as ParameterDisplayModel;
             }
         }
     }
