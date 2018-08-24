@@ -104,6 +104,8 @@ namespace TMG.Frameworks.Testing
                 Thread.Sleep(100);
 
             _timer.Stop();
+
+            throw new Exception();
         }
 
         /// <summary>

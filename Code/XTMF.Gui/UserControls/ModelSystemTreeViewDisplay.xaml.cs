@@ -133,6 +133,12 @@ namespace XTMF.Gui.UserControls
 
                 //update the module context control
                 this.ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
+
+                Dispatcher.Invoke(() =>
+                {
+                    this._display.StatusBarModuleNameTextBlock.Text = $"{module.BaseModel.Type}";
+                });
+
             }
         }
 

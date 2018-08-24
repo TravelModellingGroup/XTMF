@@ -942,6 +942,8 @@
                         <ItemsPanelTemplate>
                             <Grid >
                                 <Grid.ColumnDefinitions>
+
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="100"></ColumnDefinition>
                                     <ColumnDefinition Width="50"></ColumnDefinition>
@@ -952,8 +954,11 @@
 
                         </ItemsPanelTemplate>
                     </StatusBar.ItemsPanel>
-                    <StatusBarItem Grid.Column="0"></StatusBarItem>
-                    <StatusBarItem Grid.Column="1">
+                    <StatusBarItem Grid.Column="0">
+                        <TextBlock  Text="No module selected." Name="StatusBarModuleNameTextBlock"></TextBlock>
+                    </StatusBarItem>
+                    <StatusBarItem Grid.Column="1"></StatusBarItem>
+                    <StatusBarItem Grid.Column="2">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                             <materialDesign:PackIcon Kind="Settings" Height="16" />
                             <TextBlock Name="StatusBarModuleCountTextBlock" Text="{Binding Path=StatusBarModuleCountText, Mode=OneWay}"  FontSize="11" VerticalAlignment="Stretch" Margin="4 0 0 0"  FontWeight="Normal"></TextBlock>
@@ -962,7 +967,7 @@
 
                     </StatusBarItem>
 
-                    <StatusBarItem Grid.Column="2">
+                    <StatusBarItem Grid.Column="3">
 
 
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
