@@ -209,7 +209,7 @@ namespace XTMF
         ///     This event fires when the project containing this model system
         ///     was saved externally
         /// </summary>
-        public event EventHandler ProjectWasExternallySaved;
+        public event EventHandler<ProjectWasExternallySavedEventArgs> ProjectWasExternallySaved;
 
         public event EventHandler Saved;
 
@@ -217,7 +217,7 @@ namespace XTMF
         {
             // we need to reload first so the GUI knows how to rebuild the display model.
             Reload();
-            ProjectWasExternallySaved?.Invoke(this, new EventArgs());
+            ProjectWasExternallySaved?.Invoke(this, new ProjectWasExternallySavedEventArgs(this.ModelSystemModel));
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace XTMF
                             ProjectEditingSession.Project.UpdateModelSystemStructure(_ModelSystemIndex, newMSS);
                             ProjectEditingSession.Project.Save(ref e);
                             Reload();
-                            ProjectWasExternallySaved?.Invoke(this, new EventArgs());
+                            ProjectWasExternallySaved?.Invoke(this, new ProjectWasExternallySavedEventArgs(ModelSystemModel));
                         };
                     }
                     else
@@ -686,5 +686,20 @@ namespace XTMF
         {
             _Runtime.RunController.CancelRun(run);
         }
+    }
+
+
+    public class ProjectWasExternallySavedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        public ProjectWasExternallySavedEventArgs(ModelSystemModel model)
+        {
+            this.ModelSystem = model;
+        }
+
+        public ModelSystemModel ModelSystem { get; private set; }
     }
 }
