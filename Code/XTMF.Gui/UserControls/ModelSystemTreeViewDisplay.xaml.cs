@@ -421,7 +421,18 @@ namespace XTMF.Gui.UserControls
                     ModuleDisplayNavigateDown(item);
                     e.Handled = true;
                     break;
+                case Key.D:
+                    if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
+                    {
+                        this.ToggleDisableModule();
+                    }
+
+                    break;
+
             }
+            
+            
+
         }
 
         /// <summary>

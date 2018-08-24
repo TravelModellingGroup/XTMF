@@ -3230,6 +3230,27 @@ namespace XTMF.Gui.UserControls
         {
             return;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterListView_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            SoftActiveParameterDisplay = QuickParameterListView.SelectedItem as ParameterDisplayModel;
+            
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ParameterDisplay_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            SoftActiveParameterDisplay = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+        }
     }
 
     /// <summary>
