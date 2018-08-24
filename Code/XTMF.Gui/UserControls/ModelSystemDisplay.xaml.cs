@@ -429,10 +429,20 @@ namespace XTMF.Gui.UserControls
             CanSaveModelSystem = false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ProjectWasExternalSaved(object sender, EventArgs e)
         {
             // If the project was saved we need to reload in the new model system model
-            Dispatcher.Invoke(() => { ModelSystem = _session.ModelSystemModel; });
+            Dispatcher.Invoke(() =>
+            {
+                ModelSystem = _session.ModelSystemModel;
+                this.UpdateQuickParameters();
+
+            });
         }
 
         private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText,
@@ -2692,6 +2702,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selected"></param>
         private void SelectParameterChildControl(UIElement selected)
         {
             var textbox = selected.FindChild<TextBox>("TextBox");
@@ -2727,6 +2741,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="display"></param>
+        /// <param name="e"></param>
         private void ProcessParameterDisplayKeyDown(ListView display, KeyEventArgs e)
         {
             var oldIndex = display.SelectedIndex;
