@@ -127,7 +127,7 @@
                                 <ListBoxItem Padding="15 8 5 8" MouseUp="NewModelSystemButton_Click">New Model System</ListBoxItem>
                                 <ListBoxItem Padding="15 8 5 8" Name="OpenModelSystemGlobalMenuItem" MouseUp="OpenModelSystemGlobalMenuItem_Selected">Open Model System</ListBoxItem>
                             </ListBox>
-                            <Separator />
+                            <Separator Foreground="{DynamicResource MaterialDesignDivider}" />
                             <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">Workspace</TextBlock>
                             <ListBox Name="XtmfWorkspacesListBox" SelectionChanged="XtmfWorkspacesListBox_OnSelectionChanged">
                                 <ListBoxItem Selected="SchedulerMenuItem_OnSelected"  Name="SchedulerMenuItem" Padding="15 8 5 8">
@@ -146,7 +146,7 @@
                                     </StackPanel>
                                 </ListBoxItem>
                             </ListBox>
-                            <Separator />
+                            <Separator Foreground="{DynamicResource MaterialDesignDivider}" />
                             <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">XTMF</TextBlock>
                             <ListBox SelectionChanged="XTMFSideMenuListBox_OnSelectionChanged"  Name="XTMFSideMenuListBox" >
                                 <ListBoxItem Selected="SettingsMenuItem_OnSelected" Name="SettingsMenuItem" Padding="15 8 5 8">

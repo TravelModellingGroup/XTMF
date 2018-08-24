@@ -3207,6 +3207,16 @@ namespace XTMF.Gui.UserControls
                 this.ToggleModuleParameterDisplaySearch();
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TextBox_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            return;
+        }
     }
 
     /// <summary>

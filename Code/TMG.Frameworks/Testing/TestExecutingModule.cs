@@ -21,9 +21,8 @@ using System;
 using System.Threading;
 using System.Timers;
 using XTMF;
-using Timer = System.Timers.Timer;
 using XTMF.Logging;
-using XTMF.Attributes;
+using Timer = System.Timers.Timer;
 
 namespace TMG.Frameworks.Testing
 {
@@ -34,11 +33,22 @@ namespace TMG.Frameworks.Testing
     [ModuleInformation(Description = "This is just a simple module that runs for a pre determined amount of time.", Name = "Test Executing Module", IconURI = "CodeBraces")]
     public class TestExecutingModule : ISelfContainedModule
     {
+        private readonly ILogger _logger;
+
         private int _ticks;
 
         private Timer _timer;
 
-        private readonly ILogger _logger;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="logger"></param>
+        public TestExecutingModule(IConfiguration configuration,
+            ILogger logger)
+        {
+            _logger = logger;
+        }
 
 
         [RunParameter("Execution Time", 60, "Specficy the simulated length of execution for this module, in seconds..")]
@@ -52,20 +62,25 @@ namespace TMG.Frameworks.Testing
 
         [RunParameter("Test Boolean 3", false, "Just a simple test boolean")]
         public bool TestBool3 { get; set; }
+
         [RunParameter("Test Boolean 4", false, "Just a simple test boolean")]
         public bool TestBool4 { get; set; }
+
         [RunParameter("Test Boolean 5 ", false, "Just a simple test boolean")]
         public bool TestBool5 { get; set; }
+
         [RunParameter("Test Boolean 6", false, "Just a simple test boolean")]
         public bool TestBool6 { get; set; }
+
         [RunParameter("Test Boolean 7", false, "Just a simple test boolean")]
         public bool TestBool7 { get; set; }
+
         [RunParameter("Test Boolean 8", false, "Just a simple test boolean")]
         public bool TestBool8 { get; set; }
 
         public string Name { get; set; }
 
-        public float Progress => _progress;
+        public float Progress { get; private set; }
 
         public Tuple<byte, byte, byte> ProgressColour { get; } = new Tuple<byte, byte, byte>(100, 120, 200);
 
@@ -75,11 +90,9 @@ namespace TMG.Frameworks.Testing
             return true;
         }
 
-        private float _progress = 0.0f;
-
         public void Start()
         {
-            _progress = 0.0f;
+            Progress = 0.0f;
             _timer = new Timer();
             _timer.Interval = 1000;
             _timer.Elapsed += _timer_Elapsed;
@@ -87,23 +100,10 @@ namespace TMG.Frameworks.Testing
             _timer.Start();
             var _totalTime = ExecutionTime;
             while (_ticks < _totalTime)
-            {
-                //hold up execution
+            //hold up execution
                 Thread.Sleep(100);
-            }
 
             _timer.Stop();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="logger"></param>
-        public TestExecutingModule(IConfiguration configuration,
-            ILogger logger)
-        {
-            this._logger = logger;
         }
 
         /// <summary>
@@ -113,8 +113,8 @@ namespace TMG.Frameworks.Testing
         private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             _ticks++;
-            _progress = (_ticks / (float)ExecutionTime);
-            this._logger.Info("Timer tick from " + Name + " at " + e.SignalTime);
+            Progress = _ticks / ExecutionTime;
+            _logger.Info("Timer tick from " + Name + " at " + e.SignalTime);
         }
     }
 }

@@ -112,7 +112,7 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
 
-                    <local:ListViewControl IsPathIcon="False"  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" IconKind="FolderOutline" >
+                    <local:ListViewControl Margin="0" IsPathIcon="False"  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" IconKind="FolderOutline" >
 
                       
 
