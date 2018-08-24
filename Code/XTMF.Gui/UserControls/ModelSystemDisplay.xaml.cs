@@ -96,6 +96,8 @@ namespace XTMF.Gui.UserControls
 
         private ModelSystemStructureDisplayModel DisplayRoot;
 
+        private ParameterDisplayModel SoftActiveParameterDisplay { get; set; }
+
         private readonly LinkedParameterDisplay LinkedParameterDisplayOverlay;
 
         private object SaveLock = new object();
@@ -347,6 +349,11 @@ namespace XTMF.Gui.UserControls
                     else
                     {
                         fail = true;
+                        break;
+                    }
+                    // If we find a meta-module we actually have the correct module
+                    if(current.IsMetaModule)
+                    {
                         break;
                     }
                 }
@@ -2244,8 +2251,14 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void SelectFileForCurrentParameter()
         {
-            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
+            var context = GetCurrentParameterDisplayModelContext();
+            if (context == null)
             {
+                context = SoftActiveParameterDisplay;
+            }
+            if (context != null)
+            {
+                ParameterDisplayModel currentParameter = context;
                 var _ = GetInputParameter(
                     Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure),
                     out var inputDirectory);

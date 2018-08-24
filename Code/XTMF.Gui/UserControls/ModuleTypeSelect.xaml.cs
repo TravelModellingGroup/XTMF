@@ -23,8 +23,16 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Media;
+using System.Windows.Navigation;
+using System.Xml;
 using MaterialDesignThemes.Wpf;
+
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace XTMF.Gui.UserControls
 {
@@ -302,9 +310,27 @@ namespace XTMF.Gui.UserControls
                 {
 
                     ModuleNameTextBlock.Text = selected.Name ?? "No Module Selected";
-                    ModuleDescriptionTextBlock.Text = selected.Description ?? "";
+                    var background = (SolidColorBrush)FindResource("MaterialDesignBackground");
+                    var body = (SolidColorBrush)FindResource("MaterialDesignBody");
+                    if (selected.Description != null)
+                    {
+                        
+                        var htmlString =
+                            $"<style>body{{ background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; " +
+                            $"font-family: \"Segoe UI\"; }}</style><body>{selected.Description}</body>";
+                        ModuleDescriptionTextBlock.NavigateToString(htmlString);
+                    }
+                    else
+                    {
+                        var htmlString =
+                            $"<style>body{{ background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body></body>";
+                        ModuleDescriptionTextBlock.NavigateToString(htmlString);
+
+                    }
                     ModuleUrlTextBlock.Text = selected.Url ?? "";
                     ModuleTypeTextBlock.Text = selected.Text;
+
+                   
                 }));
             }
         }
@@ -321,6 +347,30 @@ namespace XTMF.Gui.UserControls
             {
                 System.Diagnostics.Process.Start(selected.Url.StartsWith("http") ? selected.Url : $"http://{selected.Url}");
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleDescriptionTextBlock_OnNavigated(object sender, NavigationEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleDescriptionTextBlock_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var background = (SolidColorBrush)FindResource("MaterialDesignBackground");
+            var body = (SolidColorBrush)FindResource("MaterialDesignBody");
+            var htmlString =
+                $"<style>body{{ background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body></body>";
+            ModuleDescriptionTextBlock.NavigateToString(htmlString);
         }
     }
 }

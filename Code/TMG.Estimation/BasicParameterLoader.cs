@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using XTMF;
 using System.Xml;
 using TMG.Input;
+using System.IO;
+
 namespace TMG.Estimation
 {
     public class BasicParameterLoader : IDataSource<List<ParameterSetting>>
@@ -42,13 +44,19 @@ namespace TMG.Estimation
 
         public void LoadData()
         {
+
+            if(!File.Exists(ParameterFileLocation.GetFilePath()))
+            {
+                throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' does not exist!");
+            }
             XmlDocument doc = new XmlDocument();
             doc.Load( ParameterFileLocation.GetFilePath() );
             List<ParameterSetting> parameters = new List<ParameterSetting>();
             var root = doc["Root"];
             if (root == null)
             {
-                throw new XTMFRuntimeException(this, $"In {Name} the parameter file {ParameterFileLocation.GetFilePath()} contained an invalid parameter file!");
+                throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' contained an invalid parameter file!");
+
             }
             foreach ( XmlNode child in root.ChildNodes )
             {
