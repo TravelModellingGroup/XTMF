@@ -2785,6 +2785,7 @@ namespace XTMF.Gui.UserControls
             }
             else if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up || e.Key == Key.Enter)
             {
+                GetCurrentParameterDisplayModelContext().Value = ((TextBox) e.Source)?.Text;
                 ProcessParameterDisplayKeyDown(view, e);
                 e.Handled = true;
             }
