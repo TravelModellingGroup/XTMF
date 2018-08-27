@@ -119,6 +119,9 @@ namespace Tasha.PopulationSynthesis
             [RunParameter("Distance Constant", 0.0f, "The constant applied for distance.")]
             public float DistanceConstant;
 
+            [RunParameter("Distance Factor", 0.0f, "The constant applied against the zonal distances.")]
+            public float DistanceFactor;
+
             private float _IntrazonalConstant;
             [RunParameter("Intrazonal", 0.0f, "A constant applied to intrazonals.")]
             public float IntrazonalConstant
@@ -211,6 +214,7 @@ namespace Tasha.PopulationSynthesis
             {
                 utility += Math.Exp(segment.TransitTime * perceivedTime + segment.TransitConstant);
             }
+            utility += Math.Exp(segment.DistanceConstant + segment.DistanceFactor * Root.ZoneSystem.Distances.GetFlatData()[zoneO][zoneD]);
             var constants = segment.ExpSegmentConstant;
             if (zoneO == zoneD) constants *= segment.ExpIntrazonalConstant;
             if (pdO == pdD) constants *= segment.ExpIntraPDConstant;
