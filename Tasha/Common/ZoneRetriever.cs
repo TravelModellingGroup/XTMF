@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG;
@@ -30,22 +31,13 @@ namespace Tasha.Common
     [ModuleInformation(Description = "This module is designed to load in a zone system and to provide that information to the rest of the model system.")]
     public sealed class ZoneRetriever : IZoneSystem, IDisposable
     {
-        [RunParameter("Highest Zone Number", 7150, "The highest numbered zone.")]
-        public int HighestZoneNumber;
-
         public IZone RoamingZone;
 
         [RootModule]
         public IModelSystemTemplate Root;
 
-        [RunParameter("Zone Cache File", "Zones.zfc", "The file name of the zone data")]
-        public string ZoneCacheFile;
-
         [RunParameter("Zone File Name", "Zones.csv", "The location of the zone file.")]
         public string ZoneFileName;
-
-        [Parameter("Zones With Employment Data", "0", "LowerBound-UpperBound")]
-        public string ZonesWithEmploymentData;
 
         [RunParameter("Regenerate", true, "Should we regenerate the cache file every time?")]
         public bool Regenerate;
@@ -54,8 +46,6 @@ namespace Tasha.Common
         public bool LoadOnce;
 
         private SparseArray<IZone> AllZones;
-
-        private Pair<int, int>[] EmploymentDataRange;
 
         public SparseTwinIndex<float> Distances { get; private set; }
 
@@ -101,13 +91,6 @@ namespace Tasha.Common
             get { return AllZones; }
         }
 
-        public void Generate()
-        {
-            SparseZoneCreator creator = new SparseZoneCreator(HighestZoneNumber + 1, 22);
-            creator.LoadCsv(GetFullPath(ZoneFileName), true);
-            creator.Save(GetFullPath(ZoneCacheFile));
-        }
-
         public IZone Get(int zoneNumber)
         {
             if(zoneNumber == RoamingZoneNumber)
@@ -139,29 +122,67 @@ namespace Tasha.Common
             get { return AllZones != null; }
         }
 
+        [SubModelInformation(Required = false, Description = "Optional source to use for specifying the distances between zones.")]
+        public IDataSource<SparseTwinIndex<float>> DistanceMatrix;
+
         public void LoadData()
         {
             if(!LoadOnce || !Loaded)
             {
-                InitEmpDataRange();
-                var cacheFileName = GetFullPath(ZoneCacheFile);
-                if(CheckIfWeNeedToRegenerateCache(cacheFileName))
-                {
-                    Generate();
-                }
-                using (var cache = new ZoneCache<IZone>(cacheFileName, ConvertToZone))
-                {
-                    AllZones = cache.StoreAll();
-                }
-                ComputeDistances();
+                LoadZones();
                 LoadReagions();
+                LoadDistances();
             }
         }
 
-        private bool CheckIfWeNeedToRegenerateCache(string cacheFileName)
+        private void LoadZones()
         {
-            if(Regenerate) return true;
-            return !File.Exists(cacheFileName);
+            var zoneFile = GetZoneFilePath();
+            if(!File.Exists(zoneFile))
+            {
+                throw new XTMFRuntimeException(this, $"Unable to find a file with the path '{zoneFile}' to load zones from!");
+            }
+            List<IZone> zones = new List<IZone>(2500);
+            using (var reader = new CsvReader(zoneFile, false))
+            {
+                // burn the header
+                reader.LoadLine();
+                while(reader.LoadLine(out var columns))
+                {
+                    if(columns >= 23)
+                    {
+                        reader.Get(out int zoneNumber, 0);
+                        reader.Get(out int pd, 1);
+                        reader.Get(out float population, 2);
+                        reader.Get(out float x, 14);
+                        reader.Get(out float y, 15);
+                        reader.Get(out float internalDistance, 16);
+                        reader.Get(out float parkingCost, 21);
+                        zones.Add(new Zone(zoneNumber)
+                        {
+                            PlanningDistrict = pd,
+                            Population = (int)Math.Round(population),
+                            X = x,
+                            Y = y,
+                            InternalDistance = internalDistance,
+                            ParkingCost = parkingCost
+                        });
+                    }
+                }
+            }
+            // make sure the zones are in order
+            zones.Sort((first, second) => (first.ZoneNumber.CompareTo(second.ZoneNumber)));
+            AllZones = SparseArray<IZone>.CreateSparseArray(zones.Select(z => z.ZoneNumber).ToArray(), zones.ToArray());
+        }
+
+        private string GetZoneFilePath()
+        {
+            var path = ZoneFileName;
+            if(Path.IsPathRooted(path))
+            {
+                return path;
+            }
+            return Path.Combine(Root.InputBaseDirectory, path);
         }
 
         [SubModelInformation(Required = false, Description = "A CSV File with Zone,Region.")]
@@ -214,20 +235,6 @@ namespace Tasha.Common
             Dispose();
         }
 
-        public bool ZoneHasEmploymentData(IZone zone)
-        {
-            foreach(var pair in EmploymentDataRange)
-            {
-                if(pair.First > zone.ZoneNumber)
-                    return false;
-
-                if(pair.First <= zone.ZoneNumber && pair.Second >= zone.ZoneNumber)
-                    return true;
-            }
-
-            return false;
-        }
-
         /// <summary>
         /// Calculate the distance between two zones
         /// </summary>
@@ -253,22 +260,38 @@ namespace Tasha.Common
             return new Zone(zoneID, data);
         }
 
-        private void ComputeDistances()
+        private void LoadDistances()
         {
-            var distances = ZoneArray.CreateSquareTwinArray<float>();
-            var flatDistnaces = distances.GetFlatData();
-            var zones = ZoneArray.GetFlatData();
-            var length = zones.Length;
-            Parallel.For(0, flatDistnaces.Length, delegate (int i)
+            if (DistanceMatrix == null)
             {
-                var row = flatDistnaces[i];
-                for(int j = 0; j < length; j++)
+                var distances = ZoneArray.CreateSquareTwinArray<float>();
+                var flatDistnaces = distances.GetFlatData();
+                var zones = ZoneArray.GetFlatData();
+                var length = zones.Length;
+                Parallel.For(0, flatDistnaces.Length, delegate (int i)
                 {
-                    row[j] = (i == j) ? zones[i].InternalDistance
-                        : CalcDistance(zones[i], zones[j]);
+                    var row = flatDistnaces[i];
+                    for (int j = 0; j < length; j++)
+                    {
+                        row[j] = (i == j) ? zones[i].InternalDistance
+                            : CalcDistance(zones[i], zones[j]);
+                    }
+                });
+                Distances = distances;
+            }
+            else
+            {
+                if (!DistanceMatrix.Loaded)
+                {
+                    DistanceMatrix.LoadData();
+                    Distances = DistanceMatrix.GiveData();
+                    DistanceMatrix.UnloadData();
                 }
-            });
-            Distances = distances;
+                else
+                {
+                    Distances = DistanceMatrix.GiveData();
+                }
+            }
         }
 
         private string GetFullPath(string localPath)
@@ -278,26 +301,6 @@ namespace Tasha.Common
                 return Path.Combine(Root.InputBaseDirectory, localPath);
             }
             return localPath;
-        }
-
-        private void InitEmpDataRange()
-        {
-            List<Pair<int, int>> empDataRange = new List<Pair<int, int>>();
-            string sRange = ZonesWithEmploymentData;
-            string[] ranges = sRange.Split(',');
-            foreach(var r in ranges)
-            {
-                string[] range = r.Split('-');
-                if(range.Length == 1)
-                {
-                    empDataRange.Add(new Pair<int, int>(int.Parse(range[0]), int.Parse(range[0])));
-                }
-                else if(range.Length == 2)
-                {
-                    empDataRange.Add(new Pair<int, int>(int.Parse(range[0]), int.Parse(range[1])));
-                }
-            }
-            EmploymentDataRange = empDataRange.ToArray();
         }
 
         ~ZoneRetriever()
