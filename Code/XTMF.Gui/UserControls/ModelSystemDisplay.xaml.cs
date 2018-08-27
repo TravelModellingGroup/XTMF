@@ -295,6 +295,9 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool CanSaveModelSystem
         {
             get => _canSaveModelSystem;
@@ -434,17 +437,28 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ProjectWasExternalSaved(object sender, EventArgs e)
+        private void ProjectWasExternalSaved(object sender, ProjectWasExternallySavedEventArgs e)
         {
             // If the project was saved we need to reload in the new model system model
             Dispatcher.Invoke(() =>
             {
                 ModelSystem = _session.ModelSystemModel;
+                OnModelSystemChanged(this, e.ModelSystem);
                 this.UpdateQuickParameters();
+
 
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="module"></param>
+        /// <param name="filterText"></param>
+        /// <param name="parentExpanded"></param>
+        /// <param name="parentVisible"></param>
+        /// <param name="parentPassed"></param>
+        /// <returns></returns>
         private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText,
             bool parentExpanded = true, bool parentVisible = false, bool parentPassed = false)
         {
@@ -877,13 +891,11 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="e"></param>
-        private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        /// <param name="display"></param>
+        /// <param name="newModelSystem"></param>
+        private static void OnModelSystemChanged(ModelSystemDisplay display, ModelSystemModel newModelSystem)
         {
-
-            var us = source as ModelSystemDisplay;
-            var newModelSystem = e.NewValue as ModelSystemModel;
+            var us = display;
             us.RecentLinkedParameters.Clear();
             newModelSystem.LinkedParameters.LinkedParameterRemoved += us.LinkedParameters_LinkedParameterRemoved;
             if (newModelSystem != null)
@@ -923,6 +935,17 @@ namespace XTMF.Gui.UserControls
                 us.FilterBox.Display = null;
                 us.ParameterLinkedParameterMenuItem.ItemsSource = null;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+            OnModelSystemChanged(source as ModelSystemDisplay, e.NewValue as ModelSystemModel);
+           
         }
 
         /// <summary>

@@ -53,6 +53,11 @@ namespace XTMF
         /// </summary>
         public event EventHandler ProjectWasExternallySaved;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         internal void Project_ExternallySaved(object sender, ProjectExternallySavedEventArgs e)
         {
             if (Project == e.BaseProject)
