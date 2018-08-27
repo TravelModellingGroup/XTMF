@@ -65,6 +65,9 @@ namespace TMG.Estimation
         [RunParameter("Send Parameter Definitions", -1, "The channel to use for requesting the definitions for parameters.")]
         public int SendParameterDefinitions;
 
+        [RunParameter("Fail On Invalid Fitness", true, "Should the estimation terminate if an invalid fitness value is reported?")]
+        public bool FailOnInvalidFitness;
+
         private readonly List<IRemoteXTMF> AvailableClients = new List<IRemoteXTMF>();
         private IModelSystemStructure ClientStructure;
         private bool FirstLineToWrite = true;
@@ -181,6 +184,14 @@ namespace TMG.Estimation
                                     var currentJob = CurrentJobs[result.ProcessedIndex];
                                     currentJob.Value = result.ProcessedValue;
                                     currentJob.Processed = true;
+                                    if(IsInvalidFitnessValue(currentJob))
+                                    {
+                                        if (FailOnInvalidFitness)
+                                        {
+                                            Console.WriteLine("Invalid fitness value detected.  Terminating estimation.");
+                                            Exit = true;
+                                        }
+                                    }
                                     // store the result before starting the next generation
                                     // so the AI can play with the values after we write
                                     StoreResult(currentJob);
@@ -226,6 +237,11 @@ namespace TMG.Estimation
                 }
             }
             Host.Shutdown();
+        }
+
+        private static bool IsInvalidFitnessValue(Job currentJob)
+        {
+            return float.IsNaN(currentJob.Value) | float.IsInfinity(currentJob.Value);
         }
 
         public override string ToString()
