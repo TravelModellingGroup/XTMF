@@ -39,9 +39,6 @@ namespace Tasha.Common
         [RunParameter("Zone File Name", "Zones.csv", "The location of the zone file.")]
         public string ZoneFileName;
 
-        [RunParameter("Regenerate", true, "Should we regenerate the cache file every time?")]
-        public bool Regenerate;
-
         [RunParameter("Load Once", true, "Only load the zone system once.")]
         public bool LoadOnce;
 
