@@ -116,6 +116,9 @@ namespace Tasha.PopulationSynthesis
             [RunParameter("Transit Constant", 0.0f, "The constant applied for transit.")]
             public float TransitConstant;
 
+            [RunParameter("Include Distance Term", false, "Should distance be included in the model?")]
+            public bool IncludeDistanceTerm;
+
             [RunParameter("Distance Constant", 0.0f, "The constant applied for distance.")]
             public float DistanceConstant;
 
@@ -214,7 +217,10 @@ namespace Tasha.PopulationSynthesis
             {
                 utility += Math.Exp(segment.TransitTime * perceivedTime + segment.TransitConstant);
             }
-            utility += Math.Exp(segment.DistanceConstant + segment.DistanceFactor * Root.ZoneSystem.Distances.GetFlatData()[zoneO][zoneD]);
+            if (segment.IncludeDistanceTerm)
+            {
+                utility += Math.Exp(segment.DistanceConstant + segment.DistanceFactor * Root.ZoneSystem.Distances.GetFlatData()[zoneO][zoneD]);
+            }
             var constants = segment.ExpSegmentConstant;
             if (zoneO == zoneD) constants *= segment.ExpIntrazonalConstant;
             if (pdO == pdD) constants *= segment.ExpIntraPDConstant;
