@@ -143,7 +143,7 @@
                             </DockPanel>
                             <DockPanel FlowDirection="LeftToRight" >
                                 <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
-                                <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  IsReadOnly="True"></TextBox>
+                                <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  IsReadOnly="False"></TextBox>
                                 <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}"/> -->
                             </DockPanel>
                         </StackPanel>

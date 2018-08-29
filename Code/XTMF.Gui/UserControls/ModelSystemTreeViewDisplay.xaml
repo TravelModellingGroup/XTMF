@@ -191,7 +191,7 @@
                         </MenuItem>
                         <MenuItem Header="Meta-Module">
                             <MenuItem Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click"/>
-                            <MenuItem Header="Split(Ctrl+Alt+M)" Click="ConvertFromMetaModule_Click"/>
+                            <MenuItem Header="Split(Ctrl+Shift+Alt+M)" Click="ConvertFromMetaModule_Click"/>
                         </MenuItem>
                         <MenuItem Name="ModuleMenuItem" Header="Module (Ctrl+M)" Click="Module_Clicked"  />
                         <MenuItem Name="DisableModuleMenuItem" Header="Disable Module (Ctrl+D)" Click="DisableModuleMenuItem_OnClick"/>
