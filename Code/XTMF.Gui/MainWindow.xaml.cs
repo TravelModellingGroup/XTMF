@@ -564,6 +564,12 @@ namespace XTMF.Gui
             return Project.ValidateProjectName(name);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystemSession"></param>
+        /// <param name="titleBar"></param>
+        /// <returns></returns>
         internal ModelSystemDisplay EditModelSystem(ModelSystemEditingSession modelSystemSession, string titleBar = null)
         {
             if (modelSystemSession != null)

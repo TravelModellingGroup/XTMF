@@ -641,6 +641,11 @@ namespace XTMF.Gui.UserControls
             SetMetaModuleStateForSelected(true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ConvertFromMetaModule_Click(object sender, RoutedEventArgs e)
         {
             SetMetaModuleStateForSelected(false);

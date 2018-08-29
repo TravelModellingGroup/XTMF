@@ -252,7 +252,7 @@ namespace XTMF.Gui.UserControls
 
             UpdateQuickParameters();
             this.ToggleModuleParameterDisplay(0);
-            
+
 
 
         }
@@ -355,7 +355,7 @@ namespace XTMF.Gui.UserControls
                         break;
                     }
                     // If we find a meta-module we actually have the correct module
-                    if(current.IsMetaModule)
+                    if (current.IsMetaModule)
                     {
                         break;
                     }
@@ -689,7 +689,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.AnimateGridColumnWidth(column, QuickParameterDisplay2, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
-                
+
             }));
 
         }
@@ -702,7 +702,7 @@ namespace XTMF.Gui.UserControls
             var column = ContentDisplayGrid.ColumnDefinitions[4];
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400,duration);
+                this.AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400, duration);
             }));
 
         }
@@ -791,14 +791,24 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         private ParameterDisplayModel GetCurrentParameterDisplayModelContext()
         {
-            if (ParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplay() == ParameterDisplay)
             {
-                return (ParameterDisplayModel)ParameterDisplay.SelectedItem;
+                if (ParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
+                {
+                    return (ParameterDisplayModel)ParameterDisplay.SelectedItem;
+                }
             }
-            else
+            else if (GetCurrentParameterDisplay() == QuickParameterListView)
             {
-                return null;
+                if (QuickParameterListView.SelectedItem is ParameterDisplayModel currentParameter)
+                {
+                    return (ParameterDisplayModel)QuickParameterListView.SelectedItem;
+                }
             }
+
+
+            return null;
+
         }
 
         /// <summary>
@@ -945,7 +955,7 @@ namespace XTMF.Gui.UserControls
         private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             OnModelSystemChanged(source as ModelSystemDisplay, e.NewValue as ModelSystemModel);
-           
+
         }
 
         /// <summary>
@@ -2827,7 +2837,15 @@ namespace XTMF.Gui.UserControls
             }
             else if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up || e.Key == Key.Enter)
             {
-                GetCurrentParameterDisplayModelContext().Value = ((TextBox) e.Source)?.Text;
+                if (e.Source is TextBox)
+                {
+                    GetCurrentParameterDisplayModelContext().Value = ((TextBox) e.Source)?.Text;
+                }
+                else if (e.Source is ComboBox)
+                {
+                    GetCurrentParameterDisplayModelContext().Value = ((ComboBox)e.Source)?.Text;
+                }
+
                 ProcessParameterDisplayKeyDown(view, e);
                 e.Handled = true;
             }
@@ -2839,7 +2857,30 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void B_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            ProcessOnPreviewKeyboardForParameter(ParameterDisplay, e);
+            var context = GetCurrentParameterDisplay();
+            //test for null but should not be possible
+            if (context != null)
+            {
+                ProcessOnPreviewKeyboardForParameter(context, e);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private ListView GetCurrentParameterDisplay()
+        {
+            if (QuickParameterListView.IsKeyboardFocusWithin)
+            {
+                return QuickParameterListView;
+            }
+            else if (ParameterDisplay.IsKeyboardFocusWithin)
+            {
+                return ParameterDisplay;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -3282,7 +3323,7 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterListView_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
             SoftActiveParameterDisplay = QuickParameterListView.SelectedItem as ParameterDisplayModel;
-            
+
         }
 
         /// <summary>
