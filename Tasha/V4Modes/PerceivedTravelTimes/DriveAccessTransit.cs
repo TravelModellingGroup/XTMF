@@ -273,7 +273,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         public bool Feasible(ITrip trip)
         {
             if (trip.OriginalZone.PlanningDistrict == trip.DestinationZone.PlanningDistrict) return false;
-            return trip.TripChain.Person.Licence;
+            var person = trip.TripChain.Person;
+            return person.Licence && person.Household.Vehicles.Length > 0;
         }
 
         public bool Feasible(ITripChain tripChain)

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Datastructure;
 using System;
 using Tasha.Common;
 using TMG;
@@ -28,7 +29,7 @@ namespace Tasha.V4Modes
     /// </summary>
     [ModuleInformation(Description =
         @"This module is designed to implement the Bicycle mode for GTAModel V4.0+.")]
-    public sealed class Bicycle : ITashaMode
+    public sealed class Bicycle : ITashaMode, IIterationSensitive
     {
         [RootModule]
         public ITashaRuntime Root;
@@ -298,7 +299,7 @@ namespace Tasha.V4Modes
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
         {
-            return Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] <= MaxTravelDistance;
+            return _distances[origin.ZoneNumber, destination.ZoneNumber] <= MaxTravelDistance;
         }
 
         /// <summary>
@@ -308,7 +309,7 @@ namespace Tasha.V4Modes
         /// <returns>is it Feasible?</returns>
         public bool Feasible(ITrip trip)
         {
-            return Root.ZoneSystem.Distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber] <= MaxTravelDistance;
+            return _distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber] <= MaxTravelDistance;
         }
 
         /// <summary>
@@ -390,6 +391,11 @@ namespace Tasha.V4Modes
             return true;
         }
 
+        [SubModelInformation(Required = false, Description = "A custom set of distances if the paths differ from the zone system's distance matrix")]
+        public IDataSource<SparseTwinIndex<float>> CustomDistances;
+
+        private SparseTwinIndex<float> _distances;
+
         /// <summary>
         /// The Travel time from an origin to a zone using a bike
         /// </summary>
@@ -399,9 +405,34 @@ namespace Tasha.V4Modes
         /// <returns>The travel time</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            double distance = origin == destination ? origin.InternalDistance : Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber];
-            Time ret = Time.FromMinutes((float)(distance / AvgTravelSpeed));
-            return ret;
+            float distance = _distances[origin.ZoneNumber, destination.ZoneNumber];
+            return Time.FromMinutes((float)(distance / AvgTravelSpeed));
+        }
+
+        public void IterationEnding(int iterationNumber, int maxIterations)
+        {
+
+        }
+
+        public void IterationStarting(int iterationNumber, int maxIterations)
+        {
+            if (CustomDistances != null)
+            {
+                if (!CustomDistances.Loaded)
+                {
+                    CustomDistances.LoadData();
+                    _distances = CustomDistances.GiveData();
+                    CustomDistances.UnloadData();
+                }
+                else
+                {
+                    _distances = CustomDistances.GiveData();
+                }
+            }
+            else
+            {
+                _distances = Root.ZoneSystem.Distances;
+            }
         }
     }
 }
