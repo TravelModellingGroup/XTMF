@@ -888,5 +888,45 @@ namespace XTMF.Gui.UserControls
 
 
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RenameMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            this._display.RenameSelectedModule();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditDescriptionMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+           this._display.RenameDescription();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PastMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            this._display.PasteCurrentModule();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CopyMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            this._display.CopyCurrentModule();
+        }
     }
 }

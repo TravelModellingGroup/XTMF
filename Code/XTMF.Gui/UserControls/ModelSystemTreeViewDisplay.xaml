@@ -169,22 +169,22 @@
                 </TreeView.ItemsPanel>
                 <TreeView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Copy (Ctrl+C)" >
+                        <MenuItem Name="CopyMenuItem"  Header="Copy (Ctrl+C)" Click="CopyMenuItem_OnClick" >
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="ContentCopy" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Paste (Ctrl+V)" >
+                        <MenuItem Name="PastMenuItem"  Header="Paste (Ctrl+V)" Click="PastMenuItem_OnClick" >
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="ContentPaste" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Rename (F2)" >
+                        <MenuItem Name="RenameMenuItem" Header="Rename (F2)" Click="RenameMenuItem_OnClick" >
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="Refresh" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Edit Description (Shift + F2)" >
+                        <MenuItem Name="EditDescriptionMenuItem"  Header="Edit Description (Shift + F2)" Click="EditDescriptionMenuItem_OnClick" >
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="TooltipEdit" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>

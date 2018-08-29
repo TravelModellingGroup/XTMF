@@ -1706,7 +1706,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void CopyCurrentModule()
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CopyCurrentModule()
         {
             var selected = ActiveModelSystemView.SelectedModule as ModelSystemStructureDisplayModel;
             if (CurrentlySelected.Count == 1)
@@ -1722,7 +1725,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void PasteCurrentModule()
+        /// <summary>
+        /// 
+        /// </summary>
+        public void PasteCurrentModule()
         {
             var pasteText = Clipboard.GetText();
             var any = false;
@@ -2426,37 +2432,30 @@ namespace XTMF.Gui.UserControls
             OpenParameterFileLocation(false, true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             SelectFileForCurrentParameter();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SelectDirectory_Click(object sender, RoutedEventArgs e)
         {
             SelectDirectoryForCurrentParameter();
         }
 
-        private void CopyModule_Click(object sender, RoutedEventArgs e)
-        {
-            CopyCurrentModule();
-        }
 
-        private void PasteModule_Click(object sender, RoutedEventArgs e)
-        {
-            PasteCurrentModule();
-        }
-
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            /*  if (e.Source == ParameterTabControl)
-              {
-                  if (ParameterTabControl.SelectedItem == QuickParameterTab)
-                  {
-                      UpdateQuickParameters();
-                  }
-              } */
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void UpdateQuickParameters()
         {
             //DisplayRoot.
