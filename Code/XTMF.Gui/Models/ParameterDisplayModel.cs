@@ -30,7 +30,7 @@ namespace XTMF.Gui.Models
 {
     internal sealed class ParameterDisplayModel : INotifyPropertyChanged, IDisposable
     {
-        private static readonly List<string> BoolValueList = new List<string>(new[] {"True", "False"});
+        private static readonly List<string> BoolValueList = new List<string>(new[] { "True", "False" });
 
         private readonly bool _MultipleSelected;
 
@@ -91,20 +91,21 @@ namespace XTMF.Gui.Models
         public string Value
         {
             get => RealParameter.Value;
-            set
+            set => SetValue(value, out var _);
+        }
+
+        public bool SetValue(string value, out string error)
+        {
+            error = null;
+            // only update if something changed
+            if (value != RealParameter.Value)
             {
-                // only update if something changed
-                if (value != RealParameter.Value)
+                if (value != null && !RealParameter.SetValue(value, ref error))
                 {
-                    string error = null;
-                    if (value != null)
-                        if (!RealParameter.SetValue(value, ref error))
-                            MessageBox.Show(MainWindow.Us,
-                                "We were unable to set the parameter '" + Name + "' with the value '" + value +
-                                "'.\r\n" + error, "Unable to Set Parameter",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
                 }
             }
+            return true;
         }
 
         public Visibility SystemParameterVisibility =>
@@ -180,14 +181,14 @@ namespace XTMF.Gui.Models
             if (e.PropertyName == "IsLinked")
             {
 
-               
+
             }
             else if (e.PropertyName == "IsHidden")
             {
                 FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
                 property = nameof(FontColour);
             }
-            else if (property == "QuickParameter" && sender != null) 
+            else if (property == "QuickParameter" && sender != null)
             {
                 //RealParameter.QuickParameter = !RealParameter.QuickParameter;
             }

@@ -2282,9 +2282,8 @@ namespace XTMF.Gui.UserControls
                     {
                         return;
                     }
-
                     TransformToRelativePath(inputDirectory, ref directoryName);
-                    currentParameter.Value = directoryName;
+                    SetParameterValue(currentParameter, directoryName);
                 }
             }
         }
@@ -2315,7 +2314,7 @@ namespace XTMF.Gui.UserControls
                     }
 
                     TransformToRelativePath(inputDirectory, ref fileName);
-                    currentParameter.Value = fileName;
+                    SetParameterValue(currentParameter, fileName);
                 }
             }
         }
@@ -2837,15 +2836,21 @@ namespace XTMF.Gui.UserControls
             }
             else if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up || e.Key == Key.Enter)
             {
-                if (e.Source is TextBox)
+                var parameter = GetCurrentParameterDisplayModelContext();
+                if (e.Source is TextBox tb)
                 {
-                    GetCurrentParameterDisplayModelContext().Value = ((TextBox) e.Source)?.Text;
+                    if(!SetParameterValue(parameter, tb?.Text))
+                    {
+                        tb.Text = parameter.Value;
+                    }
                 }
-                else if (e.Source is ComboBox)
+                else if (e.Source is ComboBox cb)
                 {
-                    GetCurrentParameterDisplayModelContext().Value = ((ComboBox)e.Source)?.Text;
+                    if(!SetParameterValue(GetCurrentParameterDisplayModelContext(), cb?.Text))
+                    {
+                        cb.Text = parameter.Value;
+                    }
                 }
-
                 ProcessParameterDisplayKeyDown(view, e);
                 e.Handled = true;
             }
@@ -3002,7 +3007,10 @@ namespace XTMF.Gui.UserControls
         {
             if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
             {
-                ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+                if(!SetParameterValue(((sender as TextBox).DataContext as ParameterDisplayModel), (sender as TextBox).Text))
+                {
+                    (sender as TextBox).Text = ((sender as TextBox).DataContext as ParameterDisplayModel).Value;
+                }
             }
         }
 
@@ -3015,8 +3023,25 @@ namespace XTMF.Gui.UserControls
         {
             if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
             {
-                ((sender as TextBox).DataContext as ParameterDisplayModel).Value = (sender as TextBox).Text;
+                if(!SetParameterValue(((sender as TextBox).DataContext as ParameterDisplayModel), (sender as TextBox).Text))
+                {
+                    (sender as TextBox).Text = ((sender as TextBox).DataContext as ParameterDisplayModel).Value;
+                }
             }
+        }
+
+        private bool SetParameterValue(ParameterDisplayModel parameter, string value)
+        {
+            if (!parameter.SetValue(value, out string error))
+            {
+                Dispatcher.BeginInvoke( new Action(() =>
+                MessageBox.Show(MainWindow.Us,
+                        "We were unable to set the parameter '" + Name + "' with the value '" + value +
+                    "'.\r\n" + error, "Unable to Set Parameter",
+                    MessageBoxButton.OK, MessageBoxImage.Error)));
+                return false;
+            }
+            return true;
         }
 
 
