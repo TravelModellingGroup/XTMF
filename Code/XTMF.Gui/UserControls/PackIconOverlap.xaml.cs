@@ -33,6 +33,9 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty ShowMinorIconBackgroundDependencyProperty =
             DependencyProperty.Register("ShowMinorIconBackground", typeof(bool), typeof(PackIconOverlap), new PropertyMetadata(true));
 
+        public static readonly DependencyProperty ShowMinorIconDependencyProperty =
+            DependencyProperty.Register("ShowMinorIcon", typeof(bool), typeof(PackIconOverlap), new PropertyMetadata(true));
+
         public PackIconOverlap()
         {
 
@@ -50,7 +53,14 @@ namespace XTMF.Gui.UserControls
         public PackIconKind IconKindMinor
         {
             get => (PackIconKind)GetValue(IconKindMinorDependencyProperty);
-            set => SetValue(IconKindMinorDependencyProperty, value); 
+            set
+            {
+                OnPropertyChanged(nameof(IconKindMinor));
+                OnPropertyChanged(nameof(MinorIconVisibility));
+                OnPropertyChanged(nameof(MinorIconBackgroundVisibility));
+                SetValue(IconKindMinorDependencyProperty, value); 
+
+            }
         }
 
         public bool ShowMinorIconBackground
@@ -59,11 +69,39 @@ namespace XTMF.Gui.UserControls
             set => SetValue(ShowMinorIconBackgroundDependencyProperty, value);
         }
 
+        public bool ShowMinorIcon
+        {
+            get => (bool)GetValue(ShowMinorIconDependencyProperty);
+            set
+            {
+                OnPropertyChanged("ShowMinorIcon");
+                OnPropertyChanged("ShowMinorIconBackground");
+                OnPropertyChanged("MinorIconVisibility");
+                OnPropertyChanged(nameof(MinorIconBackgroundVisibility));
+                SetValue(ShowMinorIconDependencyProperty, value);
+            }
+        }
+
+        public Visibility MinorIconVisibility
+        {
+            get
+            {
+                if (!ShowMinorIcon)
+                {
+                    return Visibility.Collapsed;
+                }
+                else
+                {
+                    return Visibility.Visible;
+                }
+            }
+        }
+
         public Visibility MinorIconBackgroundVisibility
         {
             get
             {
-                if (ShowMinorIconBackground)
+                if (ShowMinorIconBackground && ShowMinorIcon)
                 {
                     return Visibility.Visible;
                 }

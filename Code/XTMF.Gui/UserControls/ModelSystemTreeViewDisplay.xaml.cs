@@ -21,6 +21,7 @@ using XTMF.Gui.Models;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using XTMF.Annotations;
+using TreeView = System.Windows.Controls.TreeView;
 
 namespace XTMF.Gui.UserControls
 {
@@ -864,6 +865,28 @@ namespace XTMF.Gui.UserControls
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleDisplay_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (CurrentlySelected.Count == 1)
+            {
+                MetaModuleConvertFrom.IsEnabled = CurrentlySelected[0].IsMetaModule;
+                MetaModuleConvertTo.IsEnabled = !CurrentlySelected[0].IsMetaModule;
+
+            }
+            else
+            {
+                MetaModuleConvertFrom.IsEnabled = true;
+                MetaModuleConvertTo.IsEnabled = true;
+            }
+
+
         }
     }
 }

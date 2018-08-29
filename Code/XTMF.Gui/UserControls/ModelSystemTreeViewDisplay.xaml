@@ -159,8 +159,8 @@
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                               PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown"
-                                  PreviewMouseDoubleClick="ModuleDisplay_PreviewMouseDoubleClick"
-                              TreeViewItem.Selected="ModuleDisplay_Selected" Grid.ColumnSpan="2" ItemContainerStyle="{DynamicResource TreeViewItemStyle}">
+                                  PreviewMouseDoubleClick="ModuleDisplay_PreviewMouseDoubleClick" 
+                              TreeViewItem.Selected="ModuleDisplay_Selected" Grid.ColumnSpan="2" ItemContainerStyle="{DynamicResource TreeViewItemStyle}" ContextMenuOpening="ModuleDisplay_ContextMenuOpening">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling"
@@ -190,8 +190,8 @@
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Header="Meta-Module">
-                            <MenuItem Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click"/>
-                            <MenuItem Header="Split(Ctrl+Shift+Alt+M)" Click="ConvertFromMetaModule_Click"/>
+                            <MenuItem Name="MetaModuleConvertTo" Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click"/>
+                            <MenuItem Name="MetaModuleConvertFrom" Header="Split(Ctrl+Shift+Alt+M)" Click="ConvertFromMetaModule_Click"/>
                         </MenuItem>
                         <MenuItem Name="ModuleMenuItem" Header="Module (Ctrl+M)" Click="Module_Clicked"  />
                         <MenuItem Name="DisableModuleMenuItem" Header="Disable Module (Ctrl+D)" Click="DisableModuleMenuItem_OnClick"/>
