@@ -276,11 +276,12 @@
                                                 </Grid>
                                             </Grid>
                                         </DockPanel>
-                                        <Border Margin="0 0 0 0" BorderThickness="0 1 0 0"
-                                                BorderBrush="{DynamicResource MaterialDesignDivider}" />
+
                                         <ListView BorderThickness="0"
                                                   Visibility="{Binding RunErrorInformationVisibility}"
                                                   Name="ErrorListView" DataContext="{Binding }"
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                                  ScrollViewer.VerticalScrollBarVisibility="Hidden"
                                                   ItemsSource="{Binding ModelSystemErrors}">
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem"
