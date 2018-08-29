@@ -14,11 +14,11 @@
                 <Grid>
                     <materialDesign:PackIcon Width="{Binding MajorWidth}" Height="{Binding MajorHeight}" VerticalAlignment="Center" Kind="{Binding IconKind}" Visibility="Visible"/>
 
-                    <Canvas Width="{Binding MinorWidth}" Height="{Binding MinorHeight}" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                    <Canvas Width="{Binding MinorWidth}" Height="{Binding MinorHeight}" VerticalAlignment="Bottom" HorizontalAlignment="Right"  Visibility="{Binding MinorIconBackgroundVisibility}">
                         <Ellipse Fill="{DynamicResource MaterialDesignBody}" Width="{Binding MinorWidth}" Height="{Binding MinorHeight}"></Ellipse>
 
                     </Canvas>
-                    <materialDesign:PackIcon   Width="{Binding MinorWidth}" Height="{Binding MinorHeight}" VerticalAlignment="Bottom" Kind="{Binding IconKindMinor}" Visibility="Visible" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
+                    <materialDesign:PackIcon   Width="{Binding MinorWidth}" Height="{Binding MinorHeight}" VerticalAlignment="Bottom" Kind="{Binding IconKindMinor}" Visibility="{Binding MinorIconVisibility}" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
                 </Grid>
             </Border>
 
