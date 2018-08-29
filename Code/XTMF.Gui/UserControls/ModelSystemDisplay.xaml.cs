@@ -1682,7 +1682,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void GotoSelectedParameterModule()
         {
-            if (ParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext()is ParameterDisplayModel currentParameter)
             {
                 GoToModule((ModelSystemStructure)currentParameter.BelongsTo);
             }
