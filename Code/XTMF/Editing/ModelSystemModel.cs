@@ -150,6 +150,7 @@ namespace XTMF
             _Description = "Previous run";
             Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
             LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, new List<ILinkedParameter>());
+            RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession,this, new List<IRegionDisplay>());
         }
 
         private bool _Dirty = false;
