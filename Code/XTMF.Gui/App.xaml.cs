@@ -75,12 +75,12 @@ namespace XTMF.Gui
 
                     if (EditorController.Runtime.Configuration.IsDarkTheme) new PaletteHelper().SetLightDark(true);
                     xtmfMainWindow.Show();
-                    if (args.Args.Contains("--remote-host"))
+                    /*if (args.Args.Contains("--remote-host"))
                     {
                         //use remote host even though a debugger may be attached. 
                         EditorController.Runtime.Configuration.RemoteHost = true;
 
-                    }
+                    } */
 
                     EditorController.Runtime.Configuration.LoadModules(() =>
                     {
