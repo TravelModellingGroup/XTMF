@@ -42,6 +42,9 @@ namespace Tasha.Common
         [RunParameter("Load Once", true, "Only load the zone system once.")]
         public bool LoadOnce;
 
+        [RunParameter("Set Internal Distances", true, "Set the distances in the distance matrix to the values from the zones file.")]
+        public bool SetInternalDistances;
+
         private SparseArray<IZone> AllZones;
 
         public SparseTwinIndex<float> Distances { get; private set; }
@@ -274,6 +277,7 @@ namespace Tasha.Common
                             : CalcDistance(zones[i], zones[j]);
                     }
                 });
+
                 Distances = distances;
             }
             else
@@ -287,6 +291,15 @@ namespace Tasha.Common
                 else
                 {
                     Distances = DistanceMatrix.GiveData();
+                }
+                var flatDistances = Distances.GetFlatData();
+                if (SetInternalDistances)
+                {
+                    var flatZones = ZoneArray.GetFlatData();
+                    for (int i = 0; i < flatDistances.Length; i++)
+                    {
+                        flatDistances[i][i] = flatZones[i].InternalDistance;
+                    }
                 }
             }
         }
