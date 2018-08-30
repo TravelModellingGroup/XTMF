@@ -45,7 +45,7 @@ namespace Tasha.Estimation
 
             public float Progress { get; set; }
 
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); } }
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
             public bool RuntimeValidation(ref string error)
             {
@@ -79,7 +79,7 @@ namespace Tasha.Estimation
         {
             get
             {
-                return new Tuple<byte, byte, byte>( 50, 150, 50 );
+                return new Tuple<byte, byte, byte>(50, 150, 50);
             }
         }
 
@@ -94,40 +94,38 @@ namespace Tasha.Estimation
         public void LoadData()
         {
             var ret = Data;
-            bool firstTime = false;
-            if ( ret == null )
+            if (ret == null)
             {
-                Data = ret = ZoneSystemHelper.CreatePdTwinArray<float>( Root.ZoneSystem.ZoneArray );
-                firstTime = true;
+                Data = ret = ZoneSystemHelper.CreatePdTwinArray<float>(Root.ZoneSystem.ZoneArray);
             }
             var data = ret.GetFlatData();
             // initialize the data
-            if ( data.Length > 0 )
+            if (data.Length > 0)
             {
-                if ( firstTime )
+                for (int i = 0; i < data.Length; i++)
                 {
-                    for ( int i = 0; i < data.Length; i++ )
+                    var row = data[i];
+                    for (int j = 0; j < row.Length; j++)
                     {
-                        var row = data[i];
-                        for ( int j = 0; j < row.Length; j++ )
-                        {
-                            row[j] = 1.0f;
-                        }
+                        row[j] = 1.0f;
                     }
                 }
                 // now load in our kfactors
-                for ( int i = 0; i < Factors.Length; i++ )
+                for (int o = 0; o < data.Length; o++)
                 {
-                    foreach (var oSet in Factors[i].OriginPD)
+                    var sparseO = ret.GetSparseIndex(o);
+                    for (int d = 0; d < data.Length; d++)
                     {
-                        foreach (var o in oSet.EnumerateInclusive())
+                        var sparseD = ret.GetSparseIndex(d);
+                        foreach (var factor in Factors)
                         {
-                            foreach (var dSet in Factors[i].DestinationPD)
+                            if (factor.OriginPD.Contains(sparseO) && factor.DestinationPD.Contains(sparseD))
                             {
-                                foreach (var d in dSet.EnumerateInclusive())
+                                if (data[o][d] != 1.0f)
                                 {
-                                    data[ret.GetFlatIndex(o)][ret.GetFlatIndex(d)] = Factors[i].Factor;
+                                    Console.WriteLine($"Warning: In {Name}, multiple KFactors are altering PD{sparseO} to PD{sparseD}!");
                                 }
+                                data[o][d] *= factor.Factor;
                             }
                         }
                     }
