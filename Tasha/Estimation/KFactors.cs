@@ -32,11 +32,11 @@ namespace Tasha.Estimation
 
         public class KFactor : IModule
         {
-            [RunParameter("Origin", 0, "The PD to start from.")]
-            public int OriginPD;
+            [RunParameter("Origin", "0", typeof(RangeSet), "The PD to start from.")]
+            public RangeSet OriginPD;
 
-            [RunParameter("Destination", 0, "The PD to start from.")]
-            public int DestinationPD;
+            [RunParameter("Destination", "0", typeof(RangeSet), "The PD to start from.")]
+            public RangeSet DestinationPD;
 
             [RunParameter("Factor", 1.0f, "The factor to apply to the OD pair.")]
             public float Factor;
@@ -118,7 +118,19 @@ namespace Tasha.Estimation
                 // now load in our kfactors
                 for ( int i = 0; i < Factors.Length; i++ )
                 {
-                    data[ret.GetFlatIndex( Factors[i].OriginPD )][ret.GetFlatIndex( Factors[i].DestinationPD )] = Factors[i].Factor;
+                    foreach (var oSet in Factors[i].OriginPD)
+                    {
+                        foreach (var o in oSet.EnumerateInclusive())
+                        {
+                            foreach (var dSet in Factors[i].DestinationPD)
+                            {
+                                foreach (var d in dSet.EnumerateInclusive())
+                                {
+                                    data[ret.GetFlatIndex(o)][ret.GetFlatIndex(d)] = Factors[i].Factor;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             Loaded = true;

@@ -44,9 +44,8 @@ namespace Datastructure
 
         public override bool Equals(object obj)
         {
-            if (obj is Range)
+            if (obj is Range other)
             {
-                var other = (Range)obj;
                 return this == other;
             }
             return false;
@@ -102,6 +101,22 @@ namespace Datastructure
         public bool ContainsInclusive(int i)
         {
             return (i >= Start) & (i <= Stop);
+        }
+
+        public IEnumerable<int> EnumerateInclusive()
+        {
+            for (int i = Start; i <= Stop; i++)
+            {
+                yield return i;
+            }
+        }
+
+        public IEnumerable<int> EnumerateExclusive()
+        {
+            for (int i = Start; i < Stop; i++)
+            {
+                yield return i;
+            }
         }
 
         /// <summary>
