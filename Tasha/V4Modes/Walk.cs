@@ -305,7 +305,7 @@ namespace Tasha.V4Modes
             return true;
         }
 
-        [SubModelInformation(Required = false, Description = "A custom set of distances if the paths differ from the zone system's distance matrix")]
+        [SubModelInformation(Required = false, Description = "A custom set of distances(m) if the paths differ from the zone system's distance matrix")]
         public IDataSource<SparseTwinIndex<float>> CustomDistances;
 
         private SparseTwinIndex<float> _distances;
