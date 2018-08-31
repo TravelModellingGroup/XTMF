@@ -1137,7 +1137,15 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.Q:
-                            ShowQuickParameters();
+                            if (QuickParameterDisplay2.IsKeyboardFocusWithin)
+                            {
+                                ToggleQuickParameterDisplaySearch();
+                            }
+                            else
+                            {
+                                ShowQuickParameters();
+                            }
+                          
                             e.Handled = true;
                             break;
                     }
