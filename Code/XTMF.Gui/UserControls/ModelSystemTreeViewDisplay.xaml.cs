@@ -632,6 +632,8 @@ namespace XTMF.Gui.UserControls
 
 
 
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -687,6 +689,20 @@ namespace XTMF.Gui.UserControls
                         if (EditorController.IsShiftDown() && EditorController.IsControlDown())
                         {
                             MoveCurrentModule(-1);
+                            e.Handled = true;
+                        }
+
+                        break;
+                    case Key.M:
+                        if (EditorController.IsControlDown() && EditorController.IsShiftDown() && !EditorController.IsAltDown())
+                        {
+                            this.SetMetaModuleStateForSelected(true);
+                            e.Handled = true;
+                        }
+                        else if (EditorController.IsControlDown() && EditorController.IsShiftDown() &&
+                                 EditorController.IsAltDown())
+                        {
+                            this.SetMetaModuleStateForSelected(false);
                             e.Handled = true;
                         }
 
