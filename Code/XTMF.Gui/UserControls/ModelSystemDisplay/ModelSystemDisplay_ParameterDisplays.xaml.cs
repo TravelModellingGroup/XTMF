@@ -27,7 +27,7 @@ namespace XTMF.Gui.UserControls
             if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
-                this.StatusBarDisabledModulesText.Text = s.Name;
+    
             }
         }
 
@@ -41,7 +41,7 @@ namespace XTMF.Gui.UserControls
             if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
-                this.StatusBarDisabledModulesText.Text = s.Name;
+              
 
             }
         }
