@@ -112,13 +112,14 @@ namespace XTMF.Gui.UserControls
 
         public event EventHandler<SelectedModuleParameterContextChangedEventArgs> SelectedModuleParameterContextChanged;
 
-        public string StatusBarModuleCountText
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count"></param>
+        public void UpdateDisableModuleCount(int count)
         {
-            get
-            {
-                var s = $"{(_treeViewDisplay != null ? this._treeViewDisplay.ModuleDisplay.Items.Count : 0)} modules";
-                return s;
-            }
+            StatusBarDisabledModulesText.Text = $"{count} disabled modules";
         }
 
         public IModelSystemView ActiveModelSystemView
@@ -253,8 +254,24 @@ namespace XTMF.Gui.UserControls
             UpdateQuickParameters();
             this.ToggleModuleParameterDisplay(0);
 
+            this.DisabledModules.CollectionChanged += DisabledModulesOnCollectionChanged;
 
 
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisabledModulesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if(sender is ObservableCollection<ModelSystemStructureDisplayModel> disabledModules)
+            {
+                this.UpdateDisableModuleCount(disabledModules.Count);
+            }
+            
         }
 
 
@@ -610,17 +627,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        /// <summary>
-        /// Initiates a property changed update for the DisabledModules count (text)
-        /// </summary>
-        public void UpdateDisabledModules()
-        {
-            this.OnPropertyChanged(this.DisabledModulesCountText);
-
-
-
-        }
-
 
         /// <summary>
         /// 
@@ -644,10 +650,6 @@ namespace XTMF.Gui.UserControls
 
         }
 
-        private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
-        {
-            UpdateParameters();
-        }
 
         private bool FilterParameters(object arg1, string arg2)
         {
@@ -919,17 +921,18 @@ namespace XTMF.Gui.UserControls
                         us.ParameterDisplay.ContextMenu.DataContext = us;
                         us.QuickParameterListView.ContextMenu.DataContext = us;
 
-                        //TODO ITEMS
+
                         //set the treeview to use regular model system items
                         us.ActiveModelSystemView.ViewItemsControl.ItemsSource = displayModel;
 
                         us.ModelSystemName = newModelSystem.Name;
                         us.ActiveModelSystemView.ViewItemsControl.InvalidateVisual();
 
-                        //TODO MAYBE
                         us._treeViewDisplay.ModuleDisplay.Items.MoveCurrentToFirst();
                         us.FilterBox.Display = us.ActiveModelSystemView?.ViewItemsControl;
                         us.UpdateModuleCount();
+                        us.EnumerateDisabled(display.DisplayRoot);
+                        us.UpdateDisableModuleCount(us.DisabledModules.Count);
 
 
                         //us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
@@ -1306,28 +1309,6 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() => { RequestClose?.Invoke(this); }));
         }
 
-        /// <summary>
-        ///     Get permission from the user to close the window
-        /// </summary>
-        /// <returns>True if we have gained permission to close, false otherwise</returns>
-        internal bool CloseRequested()
-        {
-            SaveCurrentlySelectedParameters();
-            var result = false;
-            Dispatcher.Invoke(() =>
-            {
-                if (!Session.CloseWillTerminate || !Session.HasChanged
-                                                || MessageBox.Show(
-                                                    "The model system has not been saved, closing this window will discard the changes!",
-                                                    "Are you sure?", MessageBoxButton.OKCancel,
-                                                    MessageBoxImage.Question,
-                                                    MessageBoxResult.Cancel) == MessageBoxResult.OK)
-                {
-                    result = true;
-                }
-            }, DispatcherPriority.Input);
-            return result;
-        }
 
         public event Action<object> RequestClose;
 
@@ -1347,6 +1328,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parameterDisplay"></param>
         public void SaveCurrentlySelectedParameters(ListView parameterDisplay)
         {
             var index = parameterDisplay.SelectedIndex;
@@ -1386,6 +1371,11 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
@@ -1520,6 +1510,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="saveAs"></param>
         public void SaveRequested(bool saveAs)
         {
             string error = null;
@@ -1857,6 +1851,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private List<ParameterModel> GetParameterIntersection()
         {
             var allParameters = CurrentlySelected.Select(m => m.GetParameters());
@@ -1881,12 +1879,21 @@ namespace XTMF.Gui.UserControls
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Rename_Clicked(object sender, RoutedEventArgs e)
         {
             RenameSelectedModule();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Description_Clicked(object sender, RoutedEventArgs e)
         {
             RenameDescription();
@@ -2190,6 +2197,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="currentRoot"></param>
+        /// <param name="directory"></param>
+        /// <returns></returns>
         private ParameterModel GetInputParameter(ModelSystemStructureModel currentRoot, out string directory)
         {
             directory = null;
@@ -2216,14 +2229,6 @@ namespace XTMF.Gui.UserControls
             return inputParameter;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private ParameterDisplayModel GetSelectedParameterDisplayModel()
-        {
-            return null;
-        }
 
         /// <summary>
         /// 
@@ -2325,6 +2330,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inputDirectory"></param>
+        /// <param name="fileName"></param>
         private void TransformToRelativePath(string inputDirectory, ref string fileName)
         {
             var runtimeInputDirectory =
@@ -2337,6 +2347,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         private string GetInputDirectory(ModelSystemStructureModel root, out ParameterModel parameter)
         {
             var inputDir = root.Type.GetProperty("InputBaseDirectory");
@@ -2359,6 +2375,13 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inputDirectory"></param>
+        /// <param name="parameterValue"></param>
+        /// <param name="isInputParameter"></param>
+        /// <returns></returns>
         private string GetRelativePath(string inputDirectory, string parameterValue, bool isInputParameter)
         {
             var parameterRooted = Path.IsPathRooted(parameterValue);
@@ -2378,6 +2401,11 @@ namespace XTMF.Gui.UserControls
                 "RunDirectory", inputDirectory, isInputParameter ? "" : parameterValue));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private string RemoveRelativeDirectories(string path)
         {
             var parts = path.Split('\\', '/');
@@ -2496,20 +2524,26 @@ namespace XTMF.Gui.UserControls
             ResetParameterName();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HideParameter_Click(object sender, RoutedEventArgs e)
         {
             SetCurrentParameterHidden(true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ShowParameter_Click(object sender, RoutedEventArgs e)
         {
             SetCurrentParameterHidden(false);
         }
 
-        private void DisableModuleMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            //ToggleDisableModule();
-        }
 
 
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -2522,10 +2556,6 @@ namespace XTMF.Gui.UserControls
             //ParameterWidth = QuickParameterDisplay2.ActualWidth - 24;
         }
 
-        private void ValidationErrorDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            //ParameterWidth = ModuleValidationErrorListView.ActualWidth - 24;
-        }
 
 
         /// <summary>
@@ -2578,6 +2608,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Down)
@@ -2615,7 +2650,11 @@ namespace XTMF.Gui.UserControls
 
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ModelSystemInformation_EnableModuleMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (((Label)sender).Tag is ModelSystemStructureDisplayModel module)
@@ -2670,33 +2709,22 @@ namespace XTMF.Gui.UserControls
 
 
 
-        private void ParameterTabControl_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-        }
-
-        private void TreeViewItem_Selected(object sender, RoutedEventArgs e)
-        {
-            var item = sender as TreeViewItem;
-            item.BringIntoView();
-        }
-
-        private void ModuleRuntimeValidationErrorListView_LostFocus(object sender, RoutedEventArgs e)
-        {
-            (sender as ListView).SelectedItem = null;
-        }
-
-        private void ModuleValidationErrorListView_LostFocus(object sender, RoutedEventArgs e)
-        {
-            (sender as ListView).SelectedItem = null;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GoToModule_Click(object sender, RoutedEventArgs e)
         {
             GotoSelectedParameterModule();
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventargs"></param>
         private void QuickParameterDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs eventargs)
         {
             Dispatcher.BeginInvoke(new Action(() =>
@@ -2736,6 +2764,12 @@ namespace XTMF.Gui.UserControls
             ExecuteRun(false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="view"></param>
+        /// <param name="e"></param>
+        /// <returns></returns>
         private int GetNewIndex(ListView view, KeyEventArgs e)
         {
             var shift = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift);
@@ -2775,24 +2809,17 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void B_OnGotFocus(object sender, RoutedEventArgs e)
         {
             SelectParameterChildControl(sender as UIElement);
         }
 
-        private void Parameter_GotFocus(object sender, RoutedEventArgs e)
-        {
-            var current = sender as UIElement;
-            while (current != null)
-            {
-                current = VisualTreeHelper.GetParent(current) as UIElement;
-                if (current is ListViewItem lvi)
-                {
-                    SelectParameterChildControl(current);
-                    return;
-                }
-            }
-        }
+
 
         /// <summary>
         /// 
@@ -3050,7 +3077,12 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private bool SetParameterValue(ParameterDisplayModel parameter, string value)
         {
             if (!parameter.SetValue(value, out string error))
@@ -3093,18 +3125,7 @@ namespace XTMF.Gui.UserControls
             }));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ParameterTabControl_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            /*if (this.ParameterTabControl.SelectedItem == QuickParameterTab)
-            {
-                this.UpdateQuickParameters();
-            } */
-        }
+
 
         /// <summary>
         /// 

@@ -96,9 +96,7 @@
 
                 <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Focusable="False"  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder">
-                    <!--<Expander materialDesign:TransitionAssist.DisableTransitions="True"  IsTabStop="False" Focusable="False" Padding="0 0 0 0"  Margin="0,0,0.0,0" Foreground="{DynamicResource MaterialDesignBody}"
-                                  HorizontalAlignment="Stretch">
-                        <Expander.Header> -->
+
                     <Grid materialDesign:TransitionAssist.DisableTransitions="True"   Focusable="False" HorizontalAlignment="Stretch" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="16"/>
@@ -167,20 +165,12 @@
                             <materialDesign:PackIcon Kind="DoNotDisturb"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
                         </StackPanel>
                     </Grid>
-                    <!--</Expander.Header> 
-                        <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"  Orientation="Vertical"
-                                    TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
-                                    Margin="48,0,24,4">
-                            <TextBlock materialDesign:TransitionAssist.DisableTransitions="True"  HorizontalAlignment="Left" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Normal"
-                                       FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}"/>
 
-                        </StackPanel>
-                    </Expander> -->
                 </StackPanel>
                 <Border Background="{DynamicResource MaterialDesignDivider}" Height="1" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" />
             </StackPanel>
         </DataTemplate>
-        <models:ParameterTypeSelector x:Key="ParameterSelecter" Standard="{StaticResource StandardParameterTemplate}" Enumeration="{StaticResource EnumerationParameterTemplate}"/>
+        <models:ParameterTypeSelector x:Key="ParameterSelector" Standard="{StaticResource StandardParameterTemplate}" Enumeration="{StaticResource EnumerationParameterTemplate}"/>
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{DynamicResource MaterialDesignPaper}">
@@ -409,7 +399,7 @@
                                     <ListView   materialDesign:TransitionAssist.DisableTransitions="True"   materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" ContextMenuOpening="ParameterDisplay_OnContextMenuOpening"
-                                  ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged" SourceUpdated="ParameterDisplay_SourceUpdated">
+                                  ItemTemplateSelector="{StaticResource ParameterSelector}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged" SourceUpdated="ParameterDisplay_SourceUpdated">
 
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
@@ -552,7 +542,7 @@
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ContextMenuOpening="QuickParameterListView_OnContextMenuOpening"
-                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">
+                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelector}" SizeChanged="QuickParameterDisplay_SizeChanged">
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
 
@@ -663,7 +653,7 @@
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">
+                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelector}" SizeChanged="QuickParameterDisplay_SizeChanged">
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
 
@@ -793,7 +783,7 @@
                                 <ListView   materialDesign:TransitionAssist.DisableTransitions="True"   materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" 
-                                  ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged" SourceUpdated="ParameterDisplay_SourceUpdated">
+                                  ItemTemplateSelector="{StaticResource ParameterSelector}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged" SourceUpdated="ParameterDisplay_SourceUpdated">
 
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
@@ -970,8 +960,8 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="100"></ColumnDefinition>
-                                    <ColumnDefinition Width="50"></ColumnDefinition>
+                                    <ColumnDefinition Width="130"></ColumnDefinition>
+                                    <ColumnDefinition Width="130"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
 
 

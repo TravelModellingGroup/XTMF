@@ -153,16 +153,11 @@ namespace XTMF.Gui.UserControls
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
 
             this._display.UpdateQuickParameters();
-            this._display.EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
-            //this._display.ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
+           
+           
         }
 
 
-
-        private void MDisplay_Unloaded(object sender, RoutedEventArgs e)
-        {
-            //MainWindow.Us.PreviewKeyDown -= UsOnPreviewKeyDown;
-        }
 
         /// <summary>
         ///     Callback for when the Module Context control changes the active "selected module
@@ -393,6 +388,11 @@ namespace XTMF.Gui.UserControls
                                 _display.DisabledModules.Add(sel);
                             }
                         }
+
+                        if (!sel.IsDisabled && _display.DisabledModules.Contains(sel))
+                        {
+                            _display.DisabledModules.Remove(sel);
+                        }
                     }
                 });
                 if (error != null)
@@ -402,7 +402,7 @@ namespace XTMF.Gui.UserControls
                         MessageBoxImage.Error);
                 }
 
-               this._display.UpdateDisabledModules();
+
             }
         }
 
