@@ -10,17 +10,28 @@
              d:DesignHeight="450" d:DesignWidth="800" >
 
     <UserControl.Resources>
-        <DrawingBrush TileMode="Tile" Stretch="None" x:Key="GridTextureBrushLight" 
-                      Viewport="0,0,80,80" ViewportUnits="Absolute">
+        <DrawingBrush TileMode="Tile" Stretch="None" x:Key="GridTextureBrushLight"  
+                      Viewport="0,0,80,80" ViewportUnits="Absolute" >
 
             <DrawingBrush.Drawing>
                 <DrawingGroup>
+                    
+                    <GeometryDrawing Brush="WhiteSmoke">
+
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <RectangleGeometry Rect="0 0 80 80" >
+                                    
+                                </RectangleGeometry>
+                                </GeometryGroup>
+                            </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
 
                     <GeometryDrawing>
                         <GeometryDrawing.Pen>
                             <Pen Thickness="0.3">
                                 <Pen.Brush>
-                                    <SolidColorBrush Color="#DD000000" Opacity="0.5"></SolidColorBrush>
+                                    <SolidColorBrush Color="#DD232323" Opacity="0.5"></SolidColorBrush>
 
                                 </Pen.Brush>
                             </Pen>
