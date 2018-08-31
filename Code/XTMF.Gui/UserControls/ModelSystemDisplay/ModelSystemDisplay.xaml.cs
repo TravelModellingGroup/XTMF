@@ -1026,183 +1026,7 @@ namespace XTMF.Gui.UserControls
 
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            if (e.Handled == false)
-            {
-                if (EditorController.IsShiftDown() && EditorController.IsControlDown())
-                {
-                    switch (e.Key)
-                    {
-                        case Key.F:
-                            if (QuickParameterDisplay2.IsEnabled)
-                            {
-                                QuickParameterDialogHost.IsOpen = true;
-                            }
-                            else if (ModuleParameterDisplay.IsEnabled)
-                            {
-                                ModuleParameterDialogHost.IsOpen = true;
-                            }
-
-                            break;
-                    }
-                }
-
-                if (EditorController.IsControlDown())
-                {
-                    switch (e.Key)
-                    {
-                        case Key.M:
-                            if (EditorController.IsAltDown())
-                            {
-                                //SetMetaModuleStateForSelected(false);
-                            }
-                            else if (EditorController.IsShiftDown())
-                            {
-                                //SetMetaModuleStateForSelected(true);
-                            }
-                            else
-                            {
-                                SelectReplacement();
-                            }
-
-                            e.Handled = true;
-                            break;
-                        case Key.R:
-                            //ParameterTabControl.SelectedIndex = 2;
-                            //Mo.Focus();
-                            // Keyboard.Focus(ParameterFilterBox);
-                            e.Handled = true;
-                            break;
-                        case Key.P:
-                            //ParameterTabControl.SelectedIndex = 1;
-                            //ModuleParameterTab.Focus();
-                            ModuleParameterDisplay.Focus();
-                            Keyboard.Focus(ParameterFilterBox);
-                            e.Handled = true;
-                            break;
-                        case Key.E:
-                            FilterBox.Focus();
-                            e.Handled = true;
-                            break;
-                        case Key.W:
-                            Close();
-                            e.Handled = true;
-                            break;
-                        case Key.L:
-                            ShowLinkedParameterDialog(true);
-                            e.Handled = true;
-                            break;
-                        case Key.N:
-                            CopyParameterName();
-                            e.Handled = true;
-                            break;
-                        case Key.O:
-                            OpenParameterFileLocation(false, false);
-                            e.Handled = true;
-                            break;
-                        case Key.F:
-                            SelectFileForCurrentParameter();
-                            e.Handled = true;
-                            break;
-                        case Key.D:
-                            if (ModuleParameterDisplay.IsKeyboardFocusWithin)
-                            {
-                                SelectDirectoryForCurrentParameter();
-                            }
-
-                            //TODO
-                            //if (ModuleDisplay.IsKeyboardFocusWithin)
-                            //{
-                            //    ToggleDisableModule();
-                            //}
-
-                            e.Handled = true;
-                            break;
-                        case Key.Z:
-                            Undo();
-                            e.Handled = true;
-                            break;
-                        case Key.Y:
-                            Redo();
-                            e.Handled = true;
-                            break;
-                        case Key.S:
-                            SaveRequested(false);
-                            e.Handled = true;
-                            break;
-                        case Key.C:
-                            CopyCurrentModule();
-                            e.Handled = true;
-                            break;
-                        case Key.V:
-                            PasteCurrentModule();
-                            e.Handled = true;
-                            break;
-                        case Key.Q:
-
-                            if (EditorController.IsShiftDown())
-                            {
-                                ToggleQuickParameterDisplay();
-                                e.Handled = true;
-                            }
-                            else
-                            {
-                                ToggleQuickParameterDisplaySearch();
-
-                                e.Handled = true;
-                                break;
-                            }
-                       
-
-                            break;
-                    }
-                }
-                else
-                {
-                    switch (e.Key)
-                    {
-                        case Key.F2:
-                            if (EditorController.IsShiftDown())
-                            {
-                                RenameDescription();
-                            }
-                            else
-                            {
-                                RenameParameter();
-                            }
-
-                            break;
-                        case Key.F1:
-                            ShowDocumentation();
-                            e.Handled = true;
-                            break;
-                        case Key.Delete:
-                            if ((ModelSystemDisplayContent.Content as UserControl).IsKeyboardFocusWithin)
-                            {
-                                RemoveSelectedModules();
-                                e.Handled = true;
-                            }
-
-                            break;
-                        case Key.F5:
-                            e.Handled = true;
-                            SaveCurrentlySelectedParameters();
-                            ExecuteRun();
-
-                            break;
-                        case Key.Escape:
-                            FilterBox.Box.Text = string.Empty;
-                            break;
-                    }
-                }
-            }
-        }
+       
 
         /// <summary>
         /// 
@@ -2602,34 +2426,6 @@ namespace XTMF.Gui.UserControls
             ExecuteRun();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
-            {
-                _selectedParameterDisplayModel = s;
-                this.StatusBarDisabledModulesText.Text = s.Name;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
-            {
-                _selectedParameterDisplayModel = s;
-                this.StatusBarDisabledModulesText.Text = s.Name;
-
-            }
-        }
 
         /// <summary>
         /// 
@@ -3041,33 +2837,6 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModuleParameterDialogHost_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-            {
-                ModuleParameterDialogHost.IsOpen = false;
-            }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterDialogHost_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-            {
-                QuickParameterDialogHost.IsOpen = false;
-            }
-        }
-
-        private void ParameterDisplay_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-        }
 
         /// <summary>
         /// 
@@ -3192,119 +2961,7 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterToolbarToggle_OnClick(object sender, RoutedEventArgs e)
-        {
-
-            this.ToggleQuickParameterDisplay();
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModuleParametersToolbarToggle_OnClick(object sender, RoutedEventArgs e)
-        {
-
-            this.ToggleModuleParameterDisplay();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterDisplayClose_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            this.ToggleQuickParameterDisplay();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModuleParameterDisplayClose_OnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            this.ToggleModuleParameterDisplay();
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterSearchButton_OnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            this.ToggleQuickParameterDisplaySearch();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void ToggleQuickParameterDisplaySearch()
-        {
-            Action localAction = new Action(() =>
-            {
-                if (QuickParameterDisplaySearch.Opacity == 0.0)
-                {
-                    this.AnimateOpacity(QuickParameterDisplaySearch, 0, 1.0, QuickParameterFilterBox);
-                    this.AnimateOpacity(QuickParameterDisplayHeader, 1.0, 0.0);
-                }
-                else
-                {
-                    this.AnimateOpacity(QuickParameterDisplaySearch, 1.0, 0.0);
-                    this.AnimateOpacity(QuickParameterDisplayHeader, 0.0, 1.0);
-                    QuickParameterFilterBox.Box.Text = "";
-                }
-            });
-            if (!IsQuickParameterDisplayOpen())
-            {
-                ToggleQuickParameterDisplay(100,localAction);
-            }
-            else
-            {
-                localAction.Invoke();
-            }
-           
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private bool IsQuickParameterDisplayOpen()
-        {
-           return ContentDisplayGrid.ColumnDefinitions[2].ActualWidth > 0;
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void ToggleModuleParameterDisplaySearch()
-        {
-            if (ModuleParameterDisplaySearch.Opacity == 0.0)
-            {
-                this.AnimateOpacity(ModuleParameterDisplaySearch, 0, 1.0, ParameterFilterBox);
-                this.AnimateOpacity(ModuleParameterDisplayHeader, 1.0, 0.0);
-
-            }
-            else
-            {
-                this.AnimateOpacity(ModuleParameterDisplaySearch, 1.0, 0.0);
-                this.AnimateOpacity(ModuleParameterDisplayHeader, 0.0, 1.0);
-                ParameterFilterBox.Box.Text = "";
-
-            }
-        }
+    
 
         /// <summary>
         /// 
@@ -3352,35 +3009,8 @@ namespace XTMF.Gui.UserControls
             storyboard.Begin(this);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterDisplaySearchBackButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            ToggleQuickParameterDisplaySearch();
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModuleParameterDisplaySearchBackButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            this.ToggleModuleParameterDisplaySearch();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModuleParameterSearchButton_OnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            this.ToggleModuleParameterDisplaySearch();
-        }
+  
 
         /// <summary>
         /// 
@@ -3402,31 +3032,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterDisplay2_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (QuickParameterDisplaySearch.Opacity > 0 && e.Key == Key.Escape)
-            {
-                this.ToggleQuickParameterDisplaySearch();
-            }
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModuleParameterDisplay_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (ModuleParameterDisplaySearch.Opacity > 0 && e.Key == Key.Escape)
-            {
-                this.ToggleModuleParameterDisplaySearch();
-            }
-        }
 
         /// <summary>
         /// 
@@ -3438,26 +3044,7 @@ namespace XTMF.Gui.UserControls
             return;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterListView_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            SoftActiveParameterDisplay = QuickParameterListView.SelectedItem as ParameterDisplayModel;
 
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ParameterDisplay_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            SoftActiveParameterDisplay = ParameterDisplay.SelectedItem as ParameterDisplayModel;
-        }
     }
 
     /// <summary>

@@ -166,10 +166,12 @@
     <Compile Include="UserControls\LoggingControl.xaml.cs">
       <DependentUpon>LoggingControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\ModelSystemRegionViewDisplay.xaml.cs">
+    <Compile Include="UserControls\ModelSystemDisplay\ModelSystemDisplay_ParameterDisplays.xaml.cs" />
+    <Compile Include="UserControls\ModelSystemDisplay\ModelSystemDisplay_EventHandlers.xaml.cs" />
+    <Compile Include="UserControls\ModelSystemDisplay\ModelSystemRegionViewDisplay.xaml.cs">
       <DependentUpon>ModelSystemRegionViewDisplay.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\ModelSystemTreeViewDisplay.xaml.cs">
+    <Compile Include="UserControls\ModelSystemDisplay\ModelSystemTreeViewDisplay.xaml.cs">
       <DependentUpon>ModelSystemTreeViewDisplay.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ModuleContextControl.xaml.cs">
@@ -241,7 +243,7 @@
     <Compile Include="UserControls\ListViewControl.xaml.cs">
       <DependentUpon>ListViewControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
+    <Compile Include="UserControls\ModelSystemDisplay\ModelSystemDisplay.xaml.cs">
       <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ModelSystemsDisplay.xaml.cs">
@@ -337,11 +339,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\ModelSystemRegionViewDisplay.xaml">
+    <Page Include="UserControls\ModelSystemDisplay\ModelSystemRegionViewDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\ModelSystemTreeViewDisplay.xaml">
+    <Page Include="UserControls\ModelSystemDisplay\ModelSystemTreeViewDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -437,7 +439,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\ModelSystemDisplay.xaml">
+    <Page Include="UserControls\ModelSystemDisplay\ModelSystemDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
