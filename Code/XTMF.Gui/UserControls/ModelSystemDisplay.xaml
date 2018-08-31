@@ -78,9 +78,21 @@
         <models:ModelSystemInfoTemplateSelector  x:Key="ModelSystemInfoTemplateSelector" ModuleDisabled="{StaticResource ModuleDisabledTemplate}"
                                                 ModuleEnabled="{StaticResource ModuleEnabledTemplate}"/>
         <DataTemplate  x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}" >
-            <StackPanel ToolTip="{Binding Description, Mode=OneTime}" materialDesign:TransitionAssist.DisableTransitions="True"  PreviewKeyDown="B_OnPreviewKeyDown"  GotFocus="B_OnGotFocus" MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+            <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"  PreviewKeyDown="B_OnPreviewKeyDown"  GotFocus="B_OnGotFocus" MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"  
                     Name="b" HorizontalAlignment="Stretch" Margin="0 0 0 0"  >
+                <StackPanel.ToolTip>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name, Mode=OneTime}" FontWeight="Bold" Margin="0 0 3 0" />
+                            <TextBlock Text="-" />
+                            <TextBlock Text="{Binding OwnerModuleName, Mode=OneTime}" FontWeight="Light" Margin="3 0 0 0" />
+                        </StackPanel>
+                        
+                        <TextBlock Text="{Binding Description, Mode=OneTime}" />
+                    </StackPanel>
+                    
+                </StackPanel.ToolTip>
 
                 <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Focusable="False"  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder">
@@ -115,10 +127,22 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="EnumerationParameterTemplate">
-            <StackPanel ToolTip="{Binding Description, Mode=OneTime}" PreviewKeyDown="B_OnPreviewKeyDown"  MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+            <StackPanel PreviewKeyDown="B_OnPreviewKeyDown"  MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" HorizontalAlignment="Stretch" materialDesign:TransitionAssist.DisableTransitions="True" >
                 <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Orientation="Vertical" HorizontalAlignment="Stretch" 
                                     x:Name="ParameterBorder">
+                    <StackPanel.ToolTip>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name, Mode=OneTime}" FontWeight="Bold" Margin="0 0 3 0" />
+                                <TextBlock Text="-" />
+                                <TextBlock Text="{Binding OwnerModuleName, Mode=OneTime}" FontWeight="Light" Margin="3 0 0 0" />
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding Description, Mode=OneTime}" />
+                        </StackPanel>
+
+                    </StackPanel.ToolTip>
 
                     <Grid materialDesign:TransitionAssist.DisableTransitions="True" >
                         <Grid.ColumnDefinitions>
@@ -944,6 +968,7 @@
                                 <Grid.ColumnDefinitions>
 
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="100"></ColumnDefinition>
                                     <ColumnDefinition Width="50"></ColumnDefinition>
@@ -957,8 +982,11 @@
                     <StatusBarItem Grid.Column="0">
                         <TextBlock  Text="No module selected." Name="StatusBarModuleNameTextBlock"></TextBlock>
                     </StatusBarItem>
-                    <StatusBarItem Grid.Column="1"></StatusBarItem>
-                    <StatusBarItem Grid.Column="2">
+                    <StatusBarItem Grid.Column="1">
+                        
+                    </StatusBarItem>
+                    <StatusBarItem Grid.Column="2"></StatusBarItem>
+                    <StatusBarItem Grid.Column="3">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                             <materialDesign:PackIcon Kind="Settings" Height="16" />
                             <TextBlock Name="StatusBarModuleCountTextBlock" Text="{Binding Path=StatusBarModuleCountText, Mode=OneWay}"  FontSize="11" VerticalAlignment="Stretch" Margin="4 0 0 0"  FontWeight="Normal"></TextBlock>
@@ -967,7 +995,7 @@
 
                     </StatusBarItem>
 
-                    <StatusBarItem Grid.Column="3">
+                    <StatusBarItem Grid.Column="4">
 
 
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >

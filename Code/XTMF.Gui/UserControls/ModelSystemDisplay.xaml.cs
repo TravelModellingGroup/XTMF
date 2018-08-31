@@ -2528,31 +2528,53 @@ namespace XTMF.Gui.UserControls
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LinkedParameter_Click(object sender, RoutedEventArgs e)
         {
             ShowLinkedParameterDialog();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RunModelSystem_Click(object sender, RoutedEventArgs e)
         {
             SaveCurrentlySelectedParameters();
             ExecuteRun();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
+                this.StatusBarDisabledModulesText.Text = s.Name;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void QuickParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
+                this.StatusBarDisabledModulesText.Text = s.Name;
+
             }
         }
 

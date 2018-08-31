@@ -30,13 +30,13 @@ namespace XTMF.Gui.Models
 {
     internal sealed class ParameterDisplayModel : INotifyPropertyChanged, IDisposable
     {
-        private static readonly List<string> BoolValueList = new List<string>(new[] { "True", "False" });
+        private static readonly List<string> BoolValueList = new List<string>(new[] {"True", "False"});
+
+        private readonly LinkedParameterModel _linkedParameterModel;
 
         private readonly bool _MultipleSelected;
 
         internal readonly ParameterModel RealParameter;
-
-        private readonly LinkedParameterModel _linkedParameterModel;
 
         public bool SetOnce = false;
 
@@ -84,6 +84,10 @@ namespace XTMF.Gui.Models
             }
         }
 
+        /// <summary>
+        /// </summary>
+        public string OwnerModuleName => RealParameter.BelongsToModel.Name;
+
         public string Name => GetName(_MultipleSelected);
 
         public string Description => RealParameter.Description;
@@ -91,21 +95,7 @@ namespace XTMF.Gui.Models
         public string Value
         {
             get => RealParameter.Value;
-            set => SetValue(value, out var _);
-        }
-
-        public bool SetValue(string value, out string error)
-        {
-            error = null;
-            // only update if something changed
-            if (value != RealParameter.Value)
-            {
-                if (value != null && !RealParameter.SetValue(value, ref error))
-                {
-                    return false;
-                }
-            }
-            return true;
+            set => SetValue(value, out _);
         }
 
         public Visibility SystemParameterVisibility =>
@@ -141,6 +131,16 @@ namespace XTMF.Gui.Models
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool SetValue(string value, out string error)
+        {
+            error = null;
+            // only update if something changed
+            if (value != RealParameter.Value)
+                if (value != null && !RealParameter.SetValue(value, ref error))
+                    return false;
+            return true;
+        }
 
         /// <summary>
         ///     Determines if this parameter is associated with a disabled module by descendence, that is, this method returns true
@@ -180,8 +180,6 @@ namespace XTMF.Gui.Models
             var property = e.PropertyName;
             if (e.PropertyName == "IsLinked")
             {
-
-
             }
             else if (e.PropertyName == "IsHidden")
             {
@@ -194,8 +192,6 @@ namespace XTMF.Gui.Models
             }
 
             ModelHelper.PropertyChanged(PropertyChanged, this, property);
-
-
         }
 
         /// <summary>
