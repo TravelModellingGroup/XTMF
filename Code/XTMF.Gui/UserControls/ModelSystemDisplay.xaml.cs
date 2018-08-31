@@ -267,11 +267,11 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void DisabledModulesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if(sender is ObservableCollection<ModelSystemStructureDisplayModel> disabledModules)
+            if (sender is ObservableCollection<ModelSystemStructureDisplayModel> disabledModules)
             {
                 this.UpdateDisableModuleCount(disabledModules.Count);
             }
-            
+
         }
 
 
@@ -671,6 +671,10 @@ namespace XTMF.Gui.UserControls
             FilterBox.Focus();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public Window GetWindow()
         {
             var current = this as DependencyObject;
@@ -685,12 +689,14 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
-        public void ToggleQuickParameterDisplay()
+        /// <param name="duration"></param>
+        /// <param name="postToggleAction">An action to be performed after the display has been toggled.</param>
+        public void ToggleQuickParameterDisplay(int duration = -1, Action postToggleAction = null)
         {
             var column = ContentDisplayGrid.ColumnDefinitions[2];
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.AnimateGridColumnWidth(column, QuickParameterDisplay2, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400);
+                this.AnimateGridColumnWidth(column, QuickParameterDisplay2, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400, postToggleAction, duration);
 
             }));
 
@@ -699,12 +705,14 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
-        public void ToggleModuleParameterDisplay(int duration = -1)
+        /// <param name="duration"></param>
+        /// <param name="postToggleAction"></param>
+        public void ToggleModuleParameterDisplay(int duration = -1, Action postToggleAction = null)
         {
             var column = ContentDisplayGrid.ColumnDefinitions[4];
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400, duration);
+                this.AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth, column.ActualWidth > 0 ? 0 : 400, postToggleAction, duration);
             }));
 
         }
@@ -1137,16 +1145,21 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.Q:
-                            if (QuickParameterDisplay2.IsKeyboardFocusWithin)
+
+                            if (EditorController.IsShiftDown())
                             {
-                                ToggleQuickParameterDisplaySearch();
+                                ToggleQuickParameterDisplay();
+                                e.Handled = true;
                             }
                             else
                             {
-                                ShowQuickParameters();
+                                ToggleQuickParameterDisplaySearch();
+
+                                e.Handled = true;
+                                break;
                             }
-                          
-                            e.Handled = true;
+                       
+
                             break;
                     }
                 }
@@ -1293,8 +1306,10 @@ namespace XTMF.Gui.UserControls
             {
                 //ParameterTabControl.SelectedIndex = 0;
                 this.ToggleQuickParameterDisplay();
-                QuickParameterFilterBox.Focus();
-                Keyboard.Focus(QuickParameterFilterBox);
+                //QuickParameterFilterBox.Focus();
+                //Keyboard.Focus(QuickParameterFilterBox);
+                QuickParameterDisplay2.Focus();
+                Keyboard.Focus(QuickParameterDisplay2);
             }));
         }
 
@@ -1684,7 +1699,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void GotoSelectedParameterModule()
         {
-            if (GetCurrentParameterDisplayModelContext()is ParameterDisplayModel currentParameter)
+            if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 GoToModule((ModelSystemStructure)currentParameter.BelongsTo);
             }
@@ -2895,14 +2910,14 @@ namespace XTMF.Gui.UserControls
                 var parameter = GetCurrentParameterDisplayModelContext();
                 if (e.Source is TextBox tb)
                 {
-                    if(!SetParameterValue(parameter, tb?.Text))
+                    if (!SetParameterValue(parameter, tb?.Text))
                     {
                         tb.Text = parameter.Value;
                     }
                 }
                 else if (e.Source is ComboBox cb)
                 {
-                    if(!SetParameterValue(GetCurrentParameterDisplayModelContext(), cb?.Text))
+                    if (!SetParameterValue(GetCurrentParameterDisplayModelContext(), cb?.Text))
                     {
                         cb.Text = parameter.Value;
                     }
@@ -3063,7 +3078,7 @@ namespace XTMF.Gui.UserControls
         {
             if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
             {
-                if(!SetParameterValue(((sender as TextBox).DataContext as ParameterDisplayModel), (sender as TextBox).Text))
+                if (!SetParameterValue(((sender as TextBox).DataContext as ParameterDisplayModel), (sender as TextBox).Text))
                 {
                     (sender as TextBox).Text = ((sender as TextBox).DataContext as ParameterDisplayModel).Value;
                 }
@@ -3079,7 +3094,7 @@ namespace XTMF.Gui.UserControls
         {
             if (((sender as TextBox).DataContext as ParameterDisplayModel) != null)
             {
-                if(!SetParameterValue(((sender as TextBox).DataContext as ParameterDisplayModel), (sender as TextBox).Text))
+                if (!SetParameterValue(((sender as TextBox).DataContext as ParameterDisplayModel), (sender as TextBox).Text))
                 {
                     (sender as TextBox).Text = ((sender as TextBox).DataContext as ParameterDisplayModel).Value;
                 }
@@ -3095,11 +3110,11 @@ namespace XTMF.Gui.UserControls
         {
             if (!parameter.SetValue(value, out string error))
             {
-                Dispatcher.BeginInvoke( new Action(() =>
-                MessageBox.Show(MainWindow.Us,
-                        "We were unable to set the parameter '" + Name + "' with the value '" + value +
-                    "'.\r\n" + error, "Unable to Set Parameter",
-                    MessageBoxButton.OK, MessageBoxImage.Error)));
+                Dispatcher.BeginInvoke(new Action(() =>
+               MessageBox.Show(MainWindow.Us,
+                       "We were unable to set the parameter '" + Name + "' with the value '" + value +
+                   "'.\r\n" + error, "Unable to Set Parameter",
+                   MessageBoxButton.OK, MessageBoxImage.Error)));
                 return false;
             }
             return true;
@@ -3139,9 +3154,12 @@ namespace XTMF.Gui.UserControls
         /// 
         /// </summary>
         /// <param name="column"></param>
+        /// <param name="display"></param>
         /// <param name="fromWidth"></param>
         /// <param name="toWidth"></param>
-        private void AnimateGridColumnWidth(ColumnDefinition column, FrameworkElement display, double fromWidth, double toWidth, int durationMs = -1)
+        /// <param name="postAnimateAction"></param>
+        /// <param name="durationMs"></param>
+        private void AnimateGridColumnWidth(ColumnDefinition column, FrameworkElement display, double fromWidth, double toWidth, Action postAnimateAction = null, int durationMs = -1)
         {
 
             Duration duration = new Duration(TimeSpan.FromMilliseconds(durationMs >= 0 ? durationMs : 300));
@@ -3163,8 +3181,9 @@ namespace XTMF.Gui.UserControls
             animation.Completed += delegate (object sender, EventArgs args)
             {
                 display.IsEnabled = !display.IsEnabled;
-                OnPropertyChanged("QuickParameterToolBarForeground");
-                OnPropertyChanged("ModuleParameterToolBarForeground");
+                OnPropertyChanged(nameof(QuickParameterToolBarForeground));
+                OnPropertyChanged(nameof(ModuleParameterToolBarForeground));
+                postAnimateAction?.Invoke();
             };
 
 
@@ -3206,6 +3225,11 @@ namespace XTMF.Gui.UserControls
             this.ToggleQuickParameterDisplay();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ModuleParameterDisplayClose_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
             this.ToggleModuleParameterDisplay();
@@ -3227,16 +3251,39 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void ToggleQuickParameterDisplaySearch()
         {
-            if (QuickParameterDisplaySearch.Opacity == 0.0)
+            Action localAction = new Action(() =>
             {
-                this.AnimateOpacity(QuickParameterDisplaySearch, 0, 1.0, QuickParameterFilterBox);
-                this.AnimateOpacity(QuickParameterDisplayHeader, 1.0, 0.0);
+                if (QuickParameterDisplaySearch.Opacity == 0.0)
+                {
+                    this.AnimateOpacity(QuickParameterDisplaySearch, 0, 1.0, QuickParameterFilterBox);
+                    this.AnimateOpacity(QuickParameterDisplayHeader, 1.0, 0.0);
+                }
+                else
+                {
+                    this.AnimateOpacity(QuickParameterDisplaySearch, 1.0, 0.0);
+                    this.AnimateOpacity(QuickParameterDisplayHeader, 0.0, 1.0);
+                    QuickParameterFilterBox.Box.Text = "";
+                }
+            });
+            if (!IsQuickParameterDisplayOpen())
+            {
+                ToggleQuickParameterDisplay(100,localAction);
             }
             else
             {
-                this.AnimateOpacity(QuickParameterDisplaySearch, 1.0, 0.0);
-                this.AnimateOpacity(QuickParameterDisplayHeader, 0.0, 1.0);
+                localAction.Invoke();
             }
+           
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private bool IsQuickParameterDisplayOpen()
+        {
+           return ContentDisplayGrid.ColumnDefinitions[2].ActualWidth > 0;
+
         }
 
         /// <summary>
@@ -3254,6 +3301,7 @@ namespace XTMF.Gui.UserControls
             {
                 this.AnimateOpacity(ModuleParameterDisplaySearch, 1.0, 0.0);
                 this.AnimateOpacity(ModuleParameterDisplayHeader, 0.0, 1.0);
+                ParameterFilterBox.Box.Text = "";
 
             }
         }
