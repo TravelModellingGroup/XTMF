@@ -210,7 +210,7 @@ namespace XTMF.Gui.UserControls
                 Dispatcher.Invoke(() =>
                 {
                     var newLP = LinkedParameterDisplayOverlay.SelectedLinkParameter;
-                    if (AddCurrentParameterToLinkedParameter(newLP))
+                    if (LinkedParameterDisplayOverlay.IsAssignMode && AddCurrentParameterToLinkedParameter(newLP))
                     {
                         LinkedParameterDisplayModel matched;
                         if ((matched = RecentLinkedParameters.FirstOrDefault(lpdm => lpdm.LinkedParameter == newLP)) !=
@@ -748,7 +748,9 @@ namespace XTMF.Gui.UserControls
         {
             var s = new LinkedParameterDisplay();
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
+
             RunHost.DialogContent = LinkedParameterDisplayOverlay;
+            LinkedParameterDisplayOverlay.IsAssignMode = assign;
             object x = RunHost.ShowDialog(LinkedParameterDisplayOverlay, OpenedEventHandler);
         }
 
@@ -908,6 +910,9 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void RefreshParameters()
         {
             UpdateParameters();

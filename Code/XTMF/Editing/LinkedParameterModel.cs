@@ -41,6 +41,12 @@ namespace XTMF
 
         private ModelSystemModel _ModelSystem;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="linkedParameter"></param>
+        /// <param name="session"></param>
+        /// <param name="modelSystem"></param>
         public LinkedParameterModel(ILinkedParameter linkedParameter, ModelSystemEditingSession session, ModelSystemModel modelSystem)
         {
             _Session = session;

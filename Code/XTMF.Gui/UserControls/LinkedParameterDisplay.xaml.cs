@@ -49,6 +49,9 @@ namespace XTMF.Gui.UserControls
 
         public Action OnCloseDisplay;
 
+
+        public bool IsAssignMode = false;
+
         public LinkedParameterDisplay(LinkedParametersModel linkedParameters)
         {
             InitializeComponent();
@@ -83,10 +86,6 @@ namespace XTMF.Gui.UserControls
 
         internal LinkedParameterModel SelectedLinkParameter { get; set; }
 
-        public void ShowLinkedParameterDisplay(bool assignLinkedParameter = false)
-        {
-            _assignMode = assignLinkedParameter;
-        }
 
         public void InitNewDisplay()
         {
@@ -230,6 +229,9 @@ namespace XTMF.Gui.UserControls
             Display.SelectionChanged += Display_SelectionChanged;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void AssignCurrentlySelected()
         {
             if (Display.SelectedItem is LinkedParameterDisplayModel selected)
@@ -238,6 +240,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selected"></param>
+        /// <param name="cleanup"></param>
         private void Select(LinkedParameterDisplayModel selected, bool cleanup)
         {
             _currentlySelected = selected;
@@ -250,11 +257,19 @@ namespace XTMF.Gui.UserControls
             ChangesMade = true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Rename_Click(object sender, RoutedEventArgs e)
         {
             Rename();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void Rename()
         {
             if (Display.SelectedItem is LinkedParameterDisplayModel selected)
@@ -268,11 +283,20 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private UIElement GetCurrentlySelectedControl()
         {
             return Display.ItemContainerGenerator.ContainerFromItem(Display.SelectedItem) as UIElement;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
         private void NewLinkedParameter_Clicked(object obj)
         {
             StringRequestOverlay.Description = "Name of new linked parameter:";
@@ -301,6 +325,11 @@ namespace XTMF.Gui.UserControls
             };
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RemoveCurrentlySelectedParameter(object sender, RoutedEventArgs e)
         {
             if (Display.SelectedItem is LinkedParameterDisplayModel selectedLinkedParameter)
@@ -320,24 +349,30 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RemoveLinkedParameter_Click(object sender, RoutedEventArgs e)
         {
             RemoveCurrentlySelectedParameter(sender, e);
         }
 
-        private void BorderIconButton_DoubleClicked(object obj)
-        {
-            if (_assignMode)
-            {
-                AssignCurrentlySelected();
-            }
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private LinkedParameterDisplayModel GetFirstItem()
         {
             return Display.ItemContainerGenerator.Items.Count > 0 ? Display.ItemContainerGenerator.Items[0] as LinkedParameterDisplayModel : null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LinkedParameterFilterBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
@@ -425,6 +460,7 @@ namespace XTMF.Gui.UserControls
                 if (DialogOpenedEventArgs != null)
                 {
                     DialogOpenedEventArgs.Session.Close();
+                    OnCloseDisplay.BeginInvoke(null, null);
                 }
             }
         }
@@ -449,6 +485,11 @@ namespace XTMF.Gui.UserControls
            
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UserControl_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Display.Focus();
@@ -561,15 +602,26 @@ namespace XTMF.Gui.UserControls
             if (DialogOpenedEventArgs != null)
             {
                 DialogOpenedEventArgs.Session.Close();
+                OnCloseDisplay.BeginInvoke(null, null);
                 e.Handled = true;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UserControl_GotFocus(object sender, RoutedEventArgs e)
         {
            
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             InitNewDisplay();
