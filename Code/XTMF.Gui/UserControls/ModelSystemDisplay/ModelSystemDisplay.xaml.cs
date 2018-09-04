@@ -253,6 +253,7 @@ namespace XTMF.Gui.UserControls
 
             UpdateQuickParameters();
             this.ToggleModuleParameterDisplay(0);
+            this.ToggleQuickParameterDisplay(0);
 
             this.DisabledModules.CollectionChanged += DisabledModulesOnCollectionChanged;
 
