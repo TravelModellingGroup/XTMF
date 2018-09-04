@@ -86,7 +86,9 @@ namespace XTMF.Gui.UserControls
 
         internal LinkedParameterModel SelectedLinkParameter { get; set; }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void InitNewDisplay()
         {
 
@@ -96,6 +98,11 @@ namespace XTMF.Gui.UserControls
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LinkedParameterValue_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled && e.Key == Key.Delete)
@@ -125,17 +132,6 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void LinkedParameterDisplay_Loaded(object sender, RoutedEventArgs e)
-        {
-            LinkedParameterFilterBox.Focus();
-            Keyboard.Focus(LinkedParameterFilterBox);
-        }
-
 
         /// <summary>
         /// 
@@ -161,6 +157,14 @@ namespace XTMF.Gui.UserControls
                 ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>(containedParameters);
                 LinkedParameterName.Text = selectedLinkedParameter.LinkedParameter.Name;
             }
+            else
+            {
+                ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>();
+                LinkedParameterValue.Text = "";
+                LinkedParameterName.Text = "";
+                ;
+            }
+
         }
 
         /// <summary>
