@@ -49,6 +49,12 @@ namespace XTMF
             RealLinkedParameter = linkedParameter as LinkedParameter;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="linkedParameter"></param>
+        /// <param name="modelSystem"></param>
+        /// <returns></returns>
         private static ObservableCollection<ParameterModel> CreateInitialParameterModels(ILinkedParameter linkedParameter, ModelSystemModel modelSystem)
         {
             var ret = new ObservableCollection<ParameterModel>();
@@ -111,6 +117,10 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public List<ParameterModel> GetParameters()
         {
             lock (_ParameterModelsLock)
@@ -121,7 +131,9 @@ namespace XTMF
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private sealed class LinkedParameterChange
         {
             internal LinkedParameterModel OriginalContainedIn;

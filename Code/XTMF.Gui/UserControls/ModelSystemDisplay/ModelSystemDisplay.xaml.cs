@@ -762,6 +762,11 @@ namespace XTMF.Gui.UserControls
             LinkedParameterDisplayOverlay.InitNewDisplay();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newLP"></param>
+        /// <returns></returns>
         private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
         {
             var displayParameter = _selectedParameterDisplayModel;

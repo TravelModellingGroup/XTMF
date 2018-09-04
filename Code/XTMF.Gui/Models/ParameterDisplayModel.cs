@@ -65,6 +65,9 @@ namespace XTMF.Gui.Models
 
         public Type ParameterType => RealParameter.Type;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public Visibility ModuledDisabledIconVisiblity
         {
             get
@@ -91,10 +94,23 @@ namespace XTMF.Gui.Models
         public string Name => GetName(_MultipleSelected);
 
         public string Description => RealParameter.Description;
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
         public string Value
         {
-            get => RealParameter.Value;
+            get
+            {
+                if (RealParameter.IsLinked)
+                {
+                    return RealParameter.GetLinkedParameter()?.GetValue();
+                }
+                else
+                {
+                    return RealParameter.Value;
+                }
+            }
             set => SetValue(value, out _);
         }
 
@@ -246,17 +262,31 @@ namespace XTMF.Gui.Models
                 new ParameterDisplayModel(p, multipleSelected)));
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newLP"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         internal bool AddToLinkedParameter(LinkedParameterModel newLP, ref string error)
         {
             return newLP.AddParameter(RealParameter, ref error);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         internal LinkedParameterModel GetLinkedParameter()
         {
             return RealParameter.GetLinkedParameter();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
         internal bool RemoveLinkedParameter(ref string error)
         {
             var lp = GetLinkedParameter();
