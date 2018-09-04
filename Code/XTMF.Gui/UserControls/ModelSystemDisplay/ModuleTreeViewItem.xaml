@@ -26,7 +26,9 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="300" Margin="2,2,2,3" SnapsToDevicePixels="True">
-    <UserControl.Resources>
+
+     
+        <UserControl.Resources>
         <Style TargetType="{x:Type userControls:ModuleTreeViewItem}">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWay}"/>
@@ -75,6 +77,7 @@
         </Style>
     </UserControl.Resources>
     <Grid >
+
         <Grid Margin="1" Name="InfoBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         <Border Name="BlockBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CornerRadius="5"
               Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=CustomBackground,Mode=TwoWay}"/>

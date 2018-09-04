@@ -971,9 +971,10 @@ namespace XTMF.Gui.UserControls
                 var transform = sibling.TransformToVisual(siblings[0]);
                 var point = transform.Transform(new Point(0, 0));
 
-                if (position.Y < point.Y && newPosition < 0)
+                if (position.Y - (sibling.RenderSize.Height / 2) < point.Y && newPosition < 0)
                 {
                     newPosition = idx;
+                    
                 }
 
                 if (sibling == module)
@@ -982,6 +983,13 @@ namespace XTMF.Gui.UserControls
                 }
 
                 idx++;
+
+                var layer = AdornerLayer.GetAdornerLayer(sibling);
+                var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(ModuleMoveAdorner));
+                if (moveAdorner != null)
+                {
+                    ((ModuleMoveAdorner)moveAdorner).Visibility = Visibility.Collapsed;
+                }
 
             }
 
@@ -1009,7 +1017,52 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemTreeViewDisplay_OnDragOver(object sender, DragEventArgs e)
         {
-            var position = e.GetPosition(this);
+            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData(typeof(ModuleTreeViewItem));
+
+            var siblings = module.GetSiblingModuleTreeViewItems();
+
+            // Loop over each sibling and determine the Y which this was dropped
+            var position = e.GetPosition(siblings[0]);
+
+            var newPosition = -1;
+            var oldPosition = 0;
+            int idx = 0;
+
+
+            foreach (var sibling in siblings)
+            {
+                var transform = sibling.TransformToVisual(siblings[0]);
+                var point = transform.Transform(new Point(0, 0));
+
+                if (position.Y -(sibling.RenderSize.Height / 2) < point.Y && newPosition < 0)
+                {
+                    newPosition = idx;
+                    var layer = AdornerLayer.GetAdornerLayer(sibling);
+                    var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(ModuleMoveAdorner));
+                    if (moveAdorner != null)
+                    {
+                        ((ModuleMoveAdorner) moveAdorner).Visibility = Visibility.Visible;
+                    }
+                }
+                else
+                {
+                    var layer = AdornerLayer.GetAdornerLayer(sibling);
+                    var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(ModuleMoveAdorner));
+                    if (moveAdorner != null)
+                    {
+                        ((ModuleMoveAdorner)moveAdorner).Visibility = Visibility.Collapsed;
+                    }
+                }
+
+                if (sibling == module)
+                {
+                    oldPosition = idx;
+                }
+
+                idx++;
+
+            }
+
 
 
             return;
