@@ -20,6 +20,7 @@ using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using MahApps.Metro.Controls;
 using XTMF.Annotations;
 using TreeView = System.Windows.Controls.TreeView;
 
@@ -38,14 +39,12 @@ namespace XTMF.Gui.UserControls
             get { return this._display.Session; }
         }
 
-        public ModelSystemStructureDisplayModel SelectedModule => ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+        public ModelSystemStructureDisplayModel SelectedModule =>
+            ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
 
         public ItemsControl ViewItemsControl
         {
-            get
-            {
-                return ModuleDisplay;
-            }
+            get { return ModuleDisplay; }
         }
 
         private bool _disableMultipleSelectOnce;
@@ -53,16 +52,13 @@ namespace XTMF.Gui.UserControls
         private ModelSystemEditingSession _modelSystemEditingSession;
 
         private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
-    "IsSelectionChangeActive", BindingFlags.NonPublic | BindingFlags.Instance);
+            "IsSelectionChangeActive", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         internal List<ModelSystemStructureDisplayModel> CurrentlySelected
         {
-            get
-            {
-                return _display.CurrentlySelected;
-            }
+            get { return _display.CurrentlySelected; }
         }
 
         /// <summary>
@@ -83,7 +79,7 @@ namespace XTMF.Gui.UserControls
 
             this._display.ModelSystemEditingSessionChanged += DisplayOnModelSystemEditingSessionChanged;
 
-            
+
 
 
         }
@@ -111,7 +107,8 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void DisplayOnModelSystemEditingSessionChanged(object sender, ModelSystemEditingSessionChangedEventArgs e)
+        private void DisplayOnModelSystemEditingSessionChanged(object sender,
+            ModelSystemEditingSessionChangedEventArgs e)
         {
             this._modelSystemEditingSession = e.Session;
         }
@@ -153,8 +150,8 @@ namespace XTMF.Gui.UserControls
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
 
             this._display.UpdateQuickParameters();
-           
-           
+
+
         }
 
 
@@ -247,8 +244,9 @@ namespace XTMF.Gui.UserControls
                 }
 
                 //clear and get an up to date list of region groups available to the model system
-                var addRegionGroupMenuItem = menu.Items.Cast<MenuItem>().FirstOrDefault(m => m.Name == "AddToRegionGroupMenuItem");
-                
+                var addRegionGroupMenuItem =
+                    menu.Items.Cast<MenuItem>().FirstOrDefault(m => m.Name == "AddToRegionGroupMenuItem");
+
                 this.UpdateAddRegionGroupMenu(addRegionGroupMenuItem);
             }
         }
@@ -437,8 +435,8 @@ namespace XTMF.Gui.UserControls
                     break;
 
             }
-            
-            
+
+
 
         }
 
@@ -622,7 +620,8 @@ namespace XTMF.Gui.UserControls
                         string error = null;
                         if (!selected.SetMetaModule(set, ref error))
                         {
-                            MessageBox.Show(this._display.GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK,
+                            MessageBox.Show(this._display.GetWindow(), error, "Failed to convert meta module.",
+                                MessageBoxButton.OK,
                                 MessageBoxImage.Error);
                         }
                     }
@@ -694,7 +693,8 @@ namespace XTMF.Gui.UserControls
 
                         break;
                     case Key.M:
-                        if (EditorController.IsControlDown() && EditorController.IsShiftDown() && !EditorController.IsAltDown())
+                        if (EditorController.IsControlDown() && EditorController.IsShiftDown() &&
+                            !EditorController.IsAltDown())
                         {
                             this.SetMetaModuleStateForSelected(true);
                             e.Handled = true;
@@ -922,7 +922,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void EditDescriptionMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-           this._display.RenameDescription();
+            this._display.RenameDescription();
         }
 
         /// <summary>
@@ -943,6 +943,86 @@ namespace XTMF.Gui.UserControls
         private void CopyMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             this._display.CopyCurrentModule();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnDrop(DragEventArgs e)
+        {
+            base.OnDrop(e);
+
+
+            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData(typeof(ModuleTreeViewItem));
+
+            var siblings = module.GetSiblingModuleTreeViewItems();
+
+            // Loop over each sibling and determine the Y which this was dropped
+            var position = e.GetPosition(siblings[0]);
+
+            var newPosition = -1;
+            var oldPosition = 0;
+            int idx = 0;
+
+            
+            foreach (var sibling in siblings)
+            {
+                var transform = sibling.TransformToVisual(siblings[0]);
+                var point = transform.Transform(new Point(0, 0));
+
+                if (position.Y < point.Y && newPosition < 0)
+                {
+                    newPosition = idx;
+                }
+
+                if (sibling == module)
+                {
+                    oldPosition = idx;
+                }
+
+                idx++;
+
+            }
+
+            //check end
+             var transformEnd = siblings.Last().TransformToVisual(siblings[0]);
+             var pointEnd = transformEnd.Transform(new Point(0, 0));
+
+            if (position.Y > pointEnd.Y + 25)
+            {
+                newPosition = siblings.Count-1;
+            }
+
+            if (newPosition >= 0 && newPosition != oldPosition)
+            {
+                this.MoveCurrentModule(newPosition - oldPosition);
+            }
+
+            return;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemTreeViewDisplay_OnDragOver(object sender, DragEventArgs e)
+        {
+            var position = e.GetPosition(this);
+
+
+            return;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemTreeViewDisplay_OnDragEnter(object sender, DragEventArgs e)
+        {
+            return;
         }
     }
 }

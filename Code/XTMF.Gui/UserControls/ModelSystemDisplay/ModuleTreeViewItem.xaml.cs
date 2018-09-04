@@ -17,10 +17,12 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
@@ -72,6 +74,22 @@ namespace XTMF.Gui.UserControls
         {
             InitializeComponent();
             Loaded += ModuleTreeViewItem_Loaded;
+            MouseMove += OnMouseMove;
+
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                DragDrop.DoDragDrop(sender as UIElement, this,DragDropEffects.Move);
+            }
         }
 
 
@@ -238,7 +256,31 @@ namespace XTMF.Gui.UserControls
             SetupColours();
             e.Handled = true;
 
+            if (BackingModel != null)
+            {
+                BackingModel.ControlTreeViewItem = this;
+            }
 
+
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<ModuleTreeViewItem> GetSiblingModuleTreeViewItems()
+        {
+            var list = new List<ModuleTreeViewItem>();
+            if (BackingModel.Parent != null)
+            {
+                foreach (var childModule in BackingModel.Parent.Children)
+                {
+                    list.Add(childModule.ControlTreeViewItem);
+                }
+            }
+
+            return list;
         }
 
 
@@ -288,6 +330,9 @@ namespace XTMF.Gui.UserControls
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void SetupColours()
         {
             if (BackingModel != null)
@@ -343,12 +388,18 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ModuleType ModuleType
         {
             get => (ModuleType)GetValue(ModuleTypeDependencyProperty);
             set => SetValue(ModuleTypeDependencyProperty, value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsSelected
         {
             get => (bool)GetValue(IsSelectedDependencyProperty);
@@ -362,30 +413,45 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public Path IconPath
         {
             get => (Path)GetValue(IconPathDependencyProperty);
             set => SetValue(IconPathDependencyProperty, value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsBitmapIcon
         {
             get => (bool)GetValue(BitmapIconDependencyProperty);
             set => SetValue(BitmapIconDependencyProperty, value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ModelSystemStructureDisplayModel BackingModel
         {
             get => (ModelSystemStructureDisplayModel)GetValue(BackingModelDependencyProperty);
             set => SetValue(BackingModelDependencyProperty, value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsPathIcon
         {
             get => (bool)GetValue(PathIconDependencyProperty);
             set => SetValue(PathIconDependencyProperty, value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string TitleText
         {
             get => (string)GetValue(TitleTextDependencyProperty);

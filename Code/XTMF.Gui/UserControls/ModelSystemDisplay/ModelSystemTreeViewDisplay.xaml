@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:models="clr-namespace:XTMF.Gui.Models"
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             mc:Ignorable="d" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" DragEnter="ModelSystemTreeViewDisplay_OnDragEnter"
+             mc:Ignorable="d" AllowDrop="True" DragOver="ModelSystemTreeViewDisplay_OnDragOver"
              d:DesignHeight="450" d:DesignWidth="800" >
 
     <UserControl.Resources>
@@ -157,7 +157,9 @@
         </VisualBrush>
     </UserControl.Resources>
 
-    <Grid  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{Binding TreeViewDisplay.GridBackgroundBrush}" SnapsToDevicePixels="True">
+    <Grid>
+        <Border BorderBrush="Black" BorderThickness="3" Name="DropIndicator" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="3"></Border>
+        <Grid  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{Binding TreeViewDisplay.GridBackgroundBrush}" SnapsToDevicePixels="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
@@ -252,4 +254,6 @@
             </TreeView>
         </Grid>
     </Grid>
+
+        </Grid>
 </UserControl>

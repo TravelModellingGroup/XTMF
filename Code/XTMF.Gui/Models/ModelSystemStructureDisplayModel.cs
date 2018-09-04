@@ -26,6 +26,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using XTMF.Annotations;
+using XTMF.Gui.UserControls;
 
 namespace XTMF.Gui.Models
 {
@@ -64,6 +65,8 @@ namespace XTMF.Gui.Models
         public string Description => BaseModel.Description;
 
         public ObservableCollection<ModelSystemStructureDisplayModel> Children { get; private set; }
+
+        public ModuleTreeViewItem ControlTreeViewItem { get; set; }
 
         public Type Type
         {

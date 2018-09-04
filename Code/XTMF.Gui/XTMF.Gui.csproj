@@ -174,8 +174,11 @@
     <Compile Include="UserControls\ModelSystemDisplay\ModelSystemTreeViewDisplay.xaml.cs">
       <DependentUpon>ModelSystemTreeViewDisplay.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\ModuleContextControl.xaml.cs">
+    <Compile Include="UserControls\ModelSystemDisplay\ModuleContextControl.xaml.cs">
       <DependentUpon>ModuleContextControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ModelSystemDisplay\ModuleMoveAdorner.xaml.cs">
+      <DependentUpon>ModuleMoveAdorner.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\PackIconOverlap.xaml.cs">
       <DependentUpon>PackIconOverlap.xaml</DependentUpon>
@@ -198,7 +201,7 @@
       <DependentUpon>ValidationErrorListControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ModelSystemListView.cs" />
-    <Compile Include="UserControls\ModuleTreeViewItem.xaml.cs">
+    <Compile Include="UserControls\ModelSystemDisplay\ModuleTreeViewItem.xaml.cs">
       <DependentUpon>ModuleTreeViewItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\Annotations.cs" />
@@ -347,7 +350,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\ModuleContextControl.xaml">
+    <Page Include="UserControls\ModelSystemDisplay\ModuleContextControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ModelSystemDisplay\ModuleMoveAdorner.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -375,7 +382,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UserControls\ModuleTreeViewItem.xaml">
+    <Page Include="UserControls\ModelSystemDisplay\ModuleTreeViewItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
