@@ -285,6 +285,7 @@
     <Compile Include="Network\NetworkDataSource.cs" />
     <Compile Include="Network\V4AutoNetwork.cs" />
     <Compile Include="Network\V4TransitData.cs" />
+    <Compile Include="PopulationSynthesis\ExtractEmploymentData.cs" />
     <Compile Include="PopulationSynthesis\PerceivedTimeAggregatePoRPoW.cs" />
     <Compile Include="PopulationSynthesis\AggregatePoRPoW.cs" />
     <Compile Include="PopulationSynthesis\ApplyOccupationRates.cs" />

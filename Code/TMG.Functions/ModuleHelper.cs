@@ -18,6 +18,8 @@
 */
 
 using XTMF;
+using System.IO;
+
 namespace TMG.Functions
 {
     /// <summary>

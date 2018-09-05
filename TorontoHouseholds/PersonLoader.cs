@@ -270,7 +270,8 @@ namespace TMG.Tasha
                     Reader.Get(out tempInt, PersonStudentZoneCol);
                     p.SchoolZone = tempInt != 0 ? (tempInt == UnknownZoneNumber ? p.Household.HomeZone : TashaRuntime.ZoneSystem.ZoneArray[tempInt]) : null;
                 }
-                if((p.EmploymentStatus == TTSEmploymentStatus.FullTime | p.EmploymentStatus == TTSEmploymentStatus.PartTime))
+                if((p.EmploymentStatus == TTSEmploymentStatus.FullTime | p.EmploymentStatus == TTSEmploymentStatus.PartTime)
+                    ||(p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_FullTime | p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_PartTime))
                 {
                     Reader.Get(out tempInt, PersonEmploymentZoneCol);
                     var employmentZone = tempInt != 0 ? (tempInt == UnknownZoneNumber ? p.Household.HomeZone : TashaRuntime.ZoneSystem.Get(tempInt)) : null;
