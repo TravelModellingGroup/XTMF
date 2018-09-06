@@ -32,11 +32,11 @@ namespace XTMF.Gui.UserControls
 
             Border = new Border();
            
-            Border.Width = adornedElement.RenderSize.Width;
-            Border.Margin = new Thickness(0, -5,0,0);
+            Border.Width = adornedElement.RenderSize.Width + 20;
+            Border.Margin = new Thickness(-10, -5,0,0);
             Border.BorderBrush = (Brush)Application.Current.TryFindResource("SecondaryAccentBrush");
-            Border.BorderThickness = new Thickness(0,5,0,3);
-            Border.Height = 3;
+            Border.BorderThickness = new Thickness(0,5,0,0);
+            Border.Height = adornedElement.RenderSize.Height;
 
 
             AddVisualChild(Border);
@@ -85,5 +85,17 @@ namespace XTMF.Gui.UserControls
         /// 
         /// </summary>
         protected override int VisualChildrenCount => 1;
+
+        public void SetMoveUpAdorner()
+        {
+            Border.BorderThickness = new Thickness(0, 5, 0, 0);
+            Border.Margin = new Thickness(-10, -5, 0, 0);
+        }
+
+        public void SetMoveDownAdorner()
+        {
+            Border.BorderThickness = new Thickness(0, 0, 0, 5);
+            Border.Margin = new Thickness(-10, 0, 0, 5);
+        }
     }
 }

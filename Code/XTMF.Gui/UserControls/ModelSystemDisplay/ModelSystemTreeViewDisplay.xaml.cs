@@ -978,7 +978,8 @@ namespace XTMF.Gui.UserControls
             var oldPosition = 0;
             int idx = 0;
 
-            
+
+
             foreach (var sibling in siblings)
             {
                 var transform = sibling.TransformToVisual(siblings[0]);
@@ -987,7 +988,7 @@ namespace XTMF.Gui.UserControls
                 if (position.Y - (sibling.RenderSize.Height / 2) < point.Y && newPosition < 0)
                 {
                     newPosition = idx;
-                    
+
                 }
 
                 if (sibling == module)
@@ -1007,12 +1008,12 @@ namespace XTMF.Gui.UserControls
             }
 
             //check end
-             var transformEnd = siblings.Last().TransformToVisual(siblings[0]);
-             var pointEnd = transformEnd.Transform(new Point(0, 0));
+            var transformEnd = siblings.Last().TransformToVisual(siblings[0]);
+            var pointEnd = transformEnd.Transform(new Point(0, 0));
 
             if (position.Y > pointEnd.Y + 25)
             {
-                newPosition = siblings.Count-1;
+                newPosition = siblings.Count - 1;
             }
 
             int i2 = 0;
@@ -1031,7 +1032,7 @@ namespace XTMF.Gui.UserControls
             }
 
             this.IsDragActive = false;
-            Console.WriteLine("in drop");
+
             return;
         }
 
@@ -1042,55 +1043,114 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemTreeViewDisplay_OnDragOver(object sender, DragEventArgs e)
         {
-            ModuleTreeViewItem module = (ModuleTreeViewItem) e.Data.GetData("catface");
+            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("catface");
 
             var siblings = module.GetSiblingModuleTreeViewItems();
 
-            // Loop over each sibling and determine the Y which this was dropped
-            var position = e.GetPosition(siblings[0]);
+            bool isUp = IsModuleMoveOrderUp(module);
+            var dragOverTarget = this.GetDragOverItem(module,isUp);
 
-            var newPosition = -1;
-            var oldPosition = 0;
-            int idx = 0;
-
-
-            foreach (var sibling in siblings)
+            if (dragOverTarget != module)
             {
-              
-                var transform = sibling.TransformToVisual(siblings[0]);
-                var point = transform.Transform(new Point(0, 0));
+                
 
-                if (position.Y -(sibling.RenderSize.Height / 2) < point.Y && newPosition < 0)
-                {
-                    newPosition = idx;
-                    var layer = AdornerLayer.GetAdornerLayer(sibling);
-                    var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(ModuleMoveAdorner));
-                    if (moveAdorner != null)
-                    {
-                      ((ModuleMoveAdorner) moveAdorner).Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    var layer = AdornerLayer.GetAdornerLayer(sibling);
-                    var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(ModuleMoveAdorner));
-                    if (moveAdorner != null)
-                    {
-                       ((ModuleMoveAdorner)moveAdorner).Visibility = Visibility.Collapsed;
-                    }
-                }
-
-                if (sibling == module)
-                {
-                    oldPosition = idx;
-                }
-
-                idx++;
+                ShowModuleMoveAdorner(dragOverTarget,isUp);
 
             }
 
+            foreach (var sibling in siblings)
+            {
+                if (sibling != dragOverTarget)
+                {
+                    HideModuleMoveAdorner(sibling);
+                }
+            }
 
-            return;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="module"></param>
+        private void ShowModuleMoveAdorner(ModuleTreeViewItem module, bool isOrderUp)
+        {
+            var layer = AdornerLayer.GetAdornerLayer(module);
+            ModuleMoveAdorner moveAdorner = (ModuleMoveAdorner)layer.GetAdorners(module)
+                .First(t => t.GetType() == typeof(ModuleMoveAdorner));
+            if (moveAdorner != null)
+            {
+
+                if (isOrderUp)
+                {
+                    moveAdorner.SetMoveUpAdorner();
+                }
+                else
+                {
+                    moveAdorner.SetMoveDownAdorner();
+                }
+               moveAdorner.Visibility = Visibility.Visible;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="module"></param>
+        /// <returns></returns>
+        private bool IsModuleMoveOrderUp(ModuleTreeViewItem module)
+        {
+            var mousePosition = Mouse.GetPosition(module);
+            if (mousePosition.Y - (module.RenderSize.Height/2) < 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="module"></param>
+        private void HideModuleMoveAdorner(ModuleTreeViewItem module)
+        {
+            var layer = AdornerLayer.GetAdornerLayer(module);
+            var moveAdorner = layer.GetAdorners(module)
+                .First(t => t.GetType() == typeof(ModuleMoveAdorner));
+            if (moveAdorner != null)
+            {
+                ((ModuleMoveAdorner)moveAdorner).Visibility = Visibility.Collapsed;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="module"></param>
+        /// <returns></returns>
+        private ModuleTreeViewItem GetDragOverItem(ModuleTreeViewItem module, bool isOrderUp)
+        {
+            var moduleSiblings = module.GetSiblingModuleTreeViewItems();
+
+            foreach (var moduleSibling in moduleSiblings)
+            {
+                var mousePosition = Mouse.GetPosition(moduleSibling);
+                if (isOrderUp)
+                {
+                    mousePosition.Y += moduleSibling.RenderSize.Height / 2.0;
+                }
+                else
+                {
+                    mousePosition.Y -= moduleSibling.RenderSize.Height / 2.0;
+                }
+                if (mousePosition.Y >= 0 && mousePosition.Y <= moduleSibling.RenderSize.Height)
+                {
+                    return moduleSibling;
+                }
+            }
+
+            //return self if no match was found
+            return module;
         }
 
         /// <summary>
