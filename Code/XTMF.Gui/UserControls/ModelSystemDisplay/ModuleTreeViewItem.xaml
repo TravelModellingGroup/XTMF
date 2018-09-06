@@ -24,7 +24,7 @@
              xmlns:local="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" GiveFeedback="ModuleTreeViewItem_OnGiveFeedback"
              d:DesignHeight="150" d:DesignWidth="300" Margin="2,2,2,3" SnapsToDevicePixels="True">
 
      
@@ -35,22 +35,46 @@
             <Style.Triggers>
                 <MultiDataTrigger >
                     <MultiDataTrigger.Conditions>
+                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self},Path=ModelSystemTreeViewDisplay.IsDragActive}"/>
                         <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
-                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
+                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=OneWay}"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters >
                         <Setter Property="CustomBackground" Value="{DynamicResource PrimaryHueMidBrush}"/>
                         <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
+                <MultiDataTrigger >
+                    <MultiDataTrigger.Conditions>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=ModelSystemTreeViewDisplay.IsDragActive}"/>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
+                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=OneWay}"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters >
+                        <Setter Property="CustomBackground" Value="{DynamicResource MaterialDesignPaper}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
+                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self},Path=ModelSystemTreeViewDisplay.IsDragActive}"/>
                         <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
                         <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
                         <Setter Property="CustomBackground" Value="{DynamicResource PrimaryHueLightBrush}"/>
                         <Setter Property="Foreground" Value="{DynamicResource PrimaryHueLightForegroundBrush}"/>
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=ModelSystemTreeViewDisplay.IsDragActive}"/>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"/>
+                        <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="CustomBackground" Value="{DynamicResource PrimaryHueDarkBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
                 <MultiDataTrigger>

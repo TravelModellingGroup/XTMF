@@ -34,6 +34,19 @@ namespace XTMF.Gui.UserControls
 
         private ModelSystemDisplay _display;
 
+
+        private bool _isDragActive = false;
+
+        public bool IsDragActive
+        {
+            get => _isDragActive;
+            set
+            {
+                _isDragActive = value;
+                OnPropertyChanged(nameof(IsDragActive));
+            }
+        }
+
         private ModelSystemEditingSession Session
         {
             get { return this._display.Session; }
@@ -79,7 +92,7 @@ namespace XTMF.Gui.UserControls
 
             this._display.ModelSystemEditingSessionChanged += DisplayOnModelSystemEditingSessionChanged;
 
-
+            AllowDrop = true;
 
 
         }
@@ -954,7 +967,7 @@ namespace XTMF.Gui.UserControls
             base.OnDrop(e);
 
 
-            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData(typeof(ModuleTreeViewItem));
+            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("catface");
 
             var siblings = module.GetSiblingModuleTreeViewItems();
 
@@ -1002,11 +1015,23 @@ namespace XTMF.Gui.UserControls
                 newPosition = siblings.Count-1;
             }
 
+            int i2 = 0;
+            for (int i = 0; i < siblings.Count; i++)
+            {
+                if (siblings[i] == module)
+                {
+                    i2 = i;
+                    break;
+                }
+            }
+
             if (newPosition >= 0 && newPosition != oldPosition)
             {
                 this.MoveCurrentModule(newPosition - oldPosition);
             }
 
+            this.IsDragActive = false;
+            Console.WriteLine("in drop");
             return;
         }
 
@@ -1017,7 +1042,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemTreeViewDisplay_OnDragOver(object sender, DragEventArgs e)
         {
-            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData(typeof(ModuleTreeViewItem));
+            ModuleTreeViewItem module = (ModuleTreeViewItem) e.Data.GetData("catface");
 
             var siblings = module.GetSiblingModuleTreeViewItems();
 
@@ -1031,6 +1056,7 @@ namespace XTMF.Gui.UserControls
 
             foreach (var sibling in siblings)
             {
+              
                 var transform = sibling.TransformToVisual(siblings[0]);
                 var point = transform.Transform(new Point(0, 0));
 
@@ -1041,7 +1067,7 @@ namespace XTMF.Gui.UserControls
                     var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(ModuleMoveAdorner));
                     if (moveAdorner != null)
                     {
-                        ((ModuleMoveAdorner) moveAdorner).Visibility = Visibility.Visible;
+                      ((ModuleMoveAdorner) moveAdorner).Visibility = Visibility.Visible;
                     }
                 }
                 else
@@ -1050,7 +1076,7 @@ namespace XTMF.Gui.UserControls
                     var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(ModuleMoveAdorner));
                     if (moveAdorner != null)
                     {
-                        ((ModuleMoveAdorner)moveAdorner).Visibility = Visibility.Collapsed;
+                       ((ModuleMoveAdorner)moveAdorner).Visibility = Visibility.Collapsed;
                     }
                 }
 
@@ -1064,7 +1090,6 @@ namespace XTMF.Gui.UserControls
             }
 
 
-
             return;
         }
 
@@ -1076,6 +1101,17 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemTreeViewDisplay_OnDragEnter(object sender, DragEventArgs e)
         {
             return;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemTreeViewDisplay_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this.IsDragActive = false;
         }
     }
 }

@@ -69,13 +69,39 @@ namespace XTMF.Gui.UserControls
             DependencyProperty.Register("CustomBackground", typeof(Brush), typeof(ModuleTreeViewItem), new PropertyMetadata(Brushes.Transparent));
 
 
+        public static readonly DependencyProperty ModelSystemTreeViewDisplayDependencyProperty =
+            DependencyProperty.Register("ModelSystemTreeViewDisplay", typeof(ModelSystemTreeViewDisplay), typeof(ModuleTreeViewItem), new PropertyMetadata(null));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ModelSystemTreeViewDisplay ModelSystemTreeViewDisplay
+        {
+            get
+            {
+                return (ModelSystemTreeViewDisplay)GetValue(ModelSystemTreeViewDisplayDependencyProperty);
+
+            }
+            set
+            {
+                SetValue(ModelSystemTreeViewDisplayDependencyProperty,value);
+            }
+        }
+
+
+        public static ModuleTreeViewItem ActiveDragItem { get; set; }
+
+        public static DataObject DragData { get; set; }
         public PackIconKind Icon { get; set; }
+
+
 
         public ModuleTreeViewItem()
         {
             InitializeComponent();
             Loaded += ModuleTreeViewItem_Loaded;
             MouseMove += OnMouseMove;
+           
 
         }
 
@@ -87,13 +113,32 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
+            base.OnMouseMove(e);
             if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                DragDrop.DoDragDrop(sender as UIElement, this,DragDropEffects.Move);
+                if (!ModelSystemTreeViewDisplay.IsDragActive)
+                {
+                    DragData = new DataObject();
+
+                    DragData.SetData("catface", this);
+
+                    ModelSystemTreeViewDisplay.IsDragActive = true;
+                    ActiveDragItem = this;
+                    DragDrop.DoDragDrop(ActiveDragItem, DragData, DragDropEffects.Move);
+                }
+                else
+                {
+                    DragDrop.DoDragDrop(ActiveDragItem, DragData, DragDropEffects.Move);
+                    e.Handled = true;
+                }
+
             }
+
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public Brush CustomBackground
         {
             get => (Brush)GetValue(CustomBackgrounDependencyProperty);
@@ -101,6 +146,9 @@ namespace XTMF.Gui.UserControls
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void UpdateIcon()
         {
             var type = BackingModel.BaseModel.Type;
@@ -481,6 +529,18 @@ namespace XTMF.Gui.UserControls
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleTreeViewItem_OnGiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            base.OnGiveFeedback(e);
+            
+            e.Handled = true;
         }
     }
 

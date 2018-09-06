@@ -6,7 +6,7 @@
              xmlns:models="clr-namespace:XTMF.Gui.Models"
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" DragEnter="ModelSystemTreeViewDisplay_OnDragEnter"
-             mc:Ignorable="d" AllowDrop="True" DragOver="ModelSystemTreeViewDisplay_OnDragOver"
+             mc:Ignorable="d" AllowDrop="True" DragOver="ModelSystemTreeViewDisplay_OnDragOver" PreviewMouseLeftButtonUp="ModelSystemTreeViewDisplay_OnPreviewMouseLeftButtonUp"
              d:DesignHeight="450" d:DesignWidth="800" >
 
     <UserControl.Resources>
@@ -239,7 +239,9 @@
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Children}">
 
-                        <local:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name}"
+                            <local:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name}" 
+                                                      
+                                                      ModelSystemTreeViewDisplay="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:ModelSystemTreeViewDisplay}, Path=.}"
                                               SubText="{Binding Description}"
                                               BackingModel="{Binding BackingDisplayModel}" 
                                                   ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
