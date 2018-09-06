@@ -20,6 +20,7 @@ using System;
 using XTMF;
 using Datastructure;
 using TMG;
+using System.Linq;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -66,6 +67,20 @@ namespace Tasha.PopulationSynthesis
                 flat[i] = postWaHEmployment * (1.0f - externalWorkerRates[i]);
             }
             Data = data;
+        }
+
+        public float GetPDTotal(int pd, float[] data)
+        {
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            var acc = 0.0f;
+            for (int i = 0; i < data.Length; i++)
+            {
+                if(zones[i].PlanningDistrict == pd)
+                {
+                    acc += data[i];
+                }
+            }
+            return acc;
         }
 
         public bool RuntimeValidation(ref string error)
