@@ -61,13 +61,19 @@ namespace Tasha.Data
             var pdMap = zones.Select(z => z.PlanningDistrict).ToArray();
             foreach(var entry in Input.Read())
             {
+                var any = false;
                 var pd = entry.O;
                 for(int i = 0; i < pdMap.Length; i++)
                 {
                     if(pdMap[i] == pd)
                     {
                         flatData[i] = entry.Data;
+                        any = true;
                     }
+                }
+                if(!any)
+                {
+                    throw new XTMFRuntimeException(this, $"Read in a PD of {pd} that has no zone in our zone system!");
                 }
             }
             Data = data;
