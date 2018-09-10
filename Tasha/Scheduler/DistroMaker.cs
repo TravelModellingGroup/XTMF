@@ -184,6 +184,9 @@ namespace DistroCacheMaker
             StreamReader readStartTimeFrequency;
             StreamReader readStartTime;
             StreamWriter writer;
+            FailIfNotExists(DurationDistribution);
+            FailIfNotExists(StartTimeFrequency);
+            FailIfNotExists(Frequency);
             using (writer = new StreamWriter(temp))
             using (readStartTime = new StreamReader(DurationDistribution))
             using (readStartTimeFrequency = new StreamReader(StartTimeFrequency))
@@ -224,6 +227,15 @@ namespace DistroCacheMaker
             zc.LoadCsv(temp, false);
             zc.Save(FrequencyLevelsZFC);
             File.Delete(temp);
+        }
+
+        private void FailIfNotExists(FileLocation durationDistribution)
+        {
+            var path = durationDistribution.GetFilePath();
+            if (!File.Exists(path))
+            {
+                throw new XTMFRuntimeException(this, $"Unable to find a file at the path '{path}'.");
+            }
         }
 
         /// <summary>
