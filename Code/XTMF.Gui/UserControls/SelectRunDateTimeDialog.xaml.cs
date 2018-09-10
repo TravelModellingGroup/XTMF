@@ -42,20 +42,15 @@ namespace XTMF.Gui.UserControls
     /// Interaction logic for SelectRunDateTimeDialog.xaml
     /// </summary>
     public partial class SelectRunDateTimeDialog : UserControl
-
-
     {
         private DialogSession _dialogSession;
 
-
         public bool DidComplete { get; set; }
-
     
-        public SelectRunDateTimeDialog()
+        public SelectRunDateTimeDialog(ModelSystemEditingSession session)
         {
             InitializeComponent();
-
-           
+            StringInputTextBox.ItemsSource = session.GetPreviousRunNames();
         }
 
         /// <summary>
@@ -64,22 +59,13 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public async Task<object> ShowAsync(DialogHost host = null)
         {
-
-            if (host == null)
-            {
-                return await DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler);
-            }
-            else
-            {
-                return await host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler);
-            }
+            return await (host == null ? DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler)
+                : host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler));
         }
 
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
         {
-            this._dialogSession = eventargs.Session;
-
-
+            _dialogSession = eventargs.Session;
         }
 
         /// <summary>
@@ -89,7 +75,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="eventArgs"></param>
         private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
         {
-
         }
 
         /// <summary>
@@ -99,17 +84,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void SelectRunDateTimeDialog_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            bool wasEnter;
+            if ((wasEnter = (e.Key == Key.Enter)) || e.Key == Key.Cancel)
             {
-                DidComplete = true;
+                DidComplete = wasEnter;
                 e.Handled = true;
-                this._dialogSession.Close(false);
-            }
-            else if (e.Key == Key.Escape)
-            {
-                DidComplete = false;
-                e.Handled = true;
-                this._dialogSession.Close(false);
+                _dialogSession.Close(false);
             }
         }
 
@@ -120,20 +100,11 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
         {
-            RunConfigurationDisplayModel context = this.DataContext as RunConfigurationDisplayModel;
-
+            RunConfigurationDisplayModel context = DataContext as RunConfigurationDisplayModel;
             if (RadioSchedule != null)
             {
-                if (RadioSchedule.IsChecked != null && (bool) RadioSchedule.IsChecked)
-                {
-                    context.SelectScheduleEnabled = true;
-                }
-                else
-                {
-                    context.SelectScheduleEnabled = false;
-                }
+                context.SelectScheduleEnabled = (RadioSchedule.IsChecked != null && (bool)RadioSchedule.IsChecked);
             }
-
         }
 
         public bool IsQueueRun => RadioQueue.IsChecked != null && (bool)RadioQueue.IsChecked;
@@ -149,10 +120,7 @@ namespace XTMF.Gui.UserControls
         {
             DidComplete = true;
             e.Handled = true;
-            //if (RadioQueue.IsChecked != null) IsQueueRun = (bool) RadioQueue.IsChecked;
-           // if (RadioImmediate.IsChecked != null) IsImmediateRun = (bool) RadioImmediate.IsChecked;
-
-            this._dialogSession.Close(false);
+            _dialogSession.Close(false);
         }
 
         /// <summary>
@@ -164,10 +132,8 @@ namespace XTMF.Gui.UserControls
         {
             DidComplete = false;
             e.Handled = true;
-            this._dialogSession.Close(false);
+            _dialogSession.Close(false);
         }
-
-       
     }
 
     public class XtmfDialog
@@ -175,12 +141,10 @@ namespace XTMF.Gui.UserControls
         public bool DidComplete;
     }
 
-
     /// <summary>
     /// 
     /// </summary>
     public class RunConfigurationDisplayModel : INotifyPropertyChanged
-  
     {
         private bool _selectScheduleEnabled = false;
 
@@ -209,8 +173,6 @@ namespace XTMF.Gui.UserControls
             {
                 _selectScheduleEnabled = value;
                 OnPropertyChanged(nameof(SelectScheduleEnabled));
-
-
             }
         }
 
@@ -220,8 +182,6 @@ namespace XTMF.Gui.UserControls
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
         }
     }
-
 }

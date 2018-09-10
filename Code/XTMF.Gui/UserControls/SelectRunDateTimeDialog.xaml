@@ -9,49 +9,43 @@
              d:DesignHeight="400" d:DesignWidth="500" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
 
     <UserControl.Resources>
-        
+
     </UserControl.Resources>
 
     <UserControl.DataContext>
         <local:RunConfigurationDisplayModel></local:RunConfigurationDisplayModel>
     </UserControl.DataContext>
     <StackPanel Orientation="Vertical">
-
         <TextBlock Style="{StaticResource MaterialDesignHeadlineTextBlock}" Margin="0 10 0 15" HorizontalAlignment="Center">Run Configuration</TextBlock>
-     
-    <Grid MinHeight="60"  MinWidth="300" Margin="10 0 10 5" VerticalAlignment="Center">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="300"></ColumnDefinition>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <TextBox   Grid.Column="0"  MinWidth="300"   x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="Run Name"   Style="{DynamicResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Top">
-            <TextBox.Text>
-                <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <local:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        
-    </Grid>
-
+        <Grid MinHeight="60"  MinWidth="300" Margin="10 0 10 5" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="300"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" MinWidth="300" x:Name="StringInputTextBox"
+                      materialDesign:HintAssist.Hint="Run Name" VerticalAlignment="Top"
+                      IsEditable="True">
+                <ComboBox.Text>
+                    <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <local:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </ComboBox.Text>
+            </ComboBox>
+        </Grid>
         <Expander IsExpanded="True">
             <Expander.Header>
-                <TextBlock FontSize="14" Text="Advanced run options"></TextBlock>
-         
+                <TextBlock FontSize="14" Text="Advanced run options"/>
             </Expander.Header>
             <Expander.Content >
-           
-                    <StackPanel Margin="20 0 15 20">
+                <StackPanel Margin="20 0 15 20">
                     <RadioButton Name="RadioImmediate"  Checked="ToggleButton_OnChecked" Margin="0 5 0 2" GroupName="RunType">Run immediately</RadioButton>
                     <RadioButton Name="RadioQueue" IsChecked="True"  Checked="ToggleButton_OnChecked" Margin="0 5 0 2" GroupName="RunType">Queue run</RadioButton>
                     <RadioButton Name="RadioSchedule"  Checked="ToggleButton_OnChecked"  Margin="0 5 0 2" GroupName="RunType">Schedule run</RadioButton>
                     <DockPanel Margin="20 20 20 0" IsEnabled="{Binding SelectScheduleEnabled}" HorizontalAlignment="Left">
-
                         <materialDesign:TimePicker DockPanel.Dock="Left" SelectedTime="{Binding ScheduleTime}"
                         x:Name="ScheduleTime"
-                                            
 	            Style="{DynamicResource MaterialDesignFloatingHintTimePicker}"
                         Width="100"
                         Margin="0,0,20,0"
@@ -66,22 +60,19 @@
                                     </Style.Setters>
                                 </Style>
                             </materialDesign:TimePicker.ClockStyle>
-                         
                         </materialDesign:TimePicker>
                         <DatePicker DockPanel.Dock="Right" x:Name="ScheduleRun" SelectedDate="{Binding ScheduleDate}"
                             Width="100"
                             Margin="0,0,0,0"
                             materialDesign:HintAssist.Hint="Pick Date"
-                            Style="{DynamicResource MaterialDesignFloatingHintDatePicker}" /> 
+                            Style="{DynamicResource MaterialDesignFloatingHintDatePicker}" />
                     </DockPanel>
                 </StackPanel>
-             
             </Expander.Content>
         </Expander>
         <StackPanel Margin="0 15 0 15" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Name="RunButton"  Margin="5 5 7 5" Click="RunButton_OnClick">Run</Button>
             <Button Name="CancelButton"  Margin="5 5 7 5" Click="CancelButton_OnClick" Style="{StaticResource MaterialDesignFlatButton}">Cancel</Button>
         </StackPanel>
-        </StackPanel>
-      
+    </StackPanel>
 </UserControl>

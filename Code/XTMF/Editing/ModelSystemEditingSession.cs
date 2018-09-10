@@ -52,6 +52,16 @@ namespace XTMF
 
         private readonly Semaphore _saveSemaphor;
 
+        public List<string> GetPreviousRunNames()
+        {
+            var pes = ProjectEditingSession;
+            if(pes != null)
+            {
+                return pes.GetPreviousRuns().Select(r => System.IO.Path.GetFileName(r)).ToList();
+            }
+            return new List<string>();
+        }
+
         private readonly object _SessionLock = new object();
 
         /// <summary>

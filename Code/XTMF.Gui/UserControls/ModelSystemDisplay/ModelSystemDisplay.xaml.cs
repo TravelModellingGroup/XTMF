@@ -84,8 +84,6 @@ namespace XTMF.Gui.UserControls
 
         private bool _canSaveModelSystem;
 
-        private bool _disableMultipleSelectOnce;
-
         private bool _loadedOnce;
 
         private Semaphore _saveSemaphor;
@@ -126,16 +124,12 @@ namespace XTMF.Gui.UserControls
         {
             get => this._activeModelSystemView;
             set => this._activeModelSystemView = value;
-
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public ModelSystemTreeViewDisplay TreeViewDisplay
-        {
-            get { return this._treeViewDisplay; }
-        }
+        public ModelSystemTreeViewDisplay TreeViewDisplay => _treeViewDisplay;
 
         /// <summary>
         /// 
@@ -153,17 +147,10 @@ namespace XTMF.Gui.UserControls
                 });
 
         public Brush ModuleParameterToolBarForeground => ModuleParameterDisplay == null ? (SolidColorBrush)TryFindResource("SecondaryAccentBrush") : (
-            ModuleParameterDisplay.IsEnabled
-            ? new SolidColorBrush()
+            new SolidColorBrush()
             {
-                Color = ((SolidColorBrush)TryFindResource("SecondaryAccentBrush")).Color,
-
-            }
-            : new SolidColorBrush()
-            {
-                Color = ((SolidColorBrush)TryFindResource("MaterialDesignBody")).Color,
+                Color = ((SolidColorBrush)TryFindResource(ModuleParameterDisplay.IsEnabled? "SecondaryAccentBrush" : "MaterialDesignBody")).Color
             });
-
 
         /// <summary>
         /// 
@@ -197,7 +184,6 @@ namespace XTMF.Gui.UserControls
 
 
             LinkedParameterDisplayOverlay = new LinkedParameterDisplay();
-            //LinkedParameterDisplayOverlay item =
             LinkedParameterDisplayOverlay.GoToModule += module =>
             {
                 if (module != null)
@@ -525,14 +511,6 @@ namespace XTMF.Gui.UserControls
 
         private void Run_RuntimeError(ErrorWithPath error)
         {
-            Dispatcher.Invoke(() =>
-            {
-                //ModuleValidationErrorListView.Items.Clear();
-                //ModuleRuntimeErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Message,
-                //    error.Path));
-                //ParameterTabControl.SelectedIndex = 2;
-                //ModuleRuntimeValidationErrorListView.UpdateLayout();
-            });
         }
 
         /// <summary>
@@ -542,16 +520,6 @@ namespace XTMF.Gui.UserControls
         private void Run_RuntimeValidationError(List<ErrorWithPath> errorList)
         {
             Dispatcher.Invoke(() => { });
-            /*ModuleValidationErrorListView.Items.Clear();
-            foreach (var error in errorList)
-            {
-                ModuleRuntimeValidationErrorListView.Items.Add(
-                    new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
-            }
-
-            //ParameterTabControl.SelectedIndex = 2;
-            ModuleRuntimeValidationErrorListView.UpdateLayout();
-        }); */
         }
 
         /// <summary>
@@ -560,17 +528,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="errorList"></param>
         private void Run_ValidationError(List<ErrorWithPath> errorList)
         {
-            Dispatcher.Invoke(() => { });
-            /*ModuleValidationErrorListView.Items.Clear();
-            foreach (var error in errorList)
-            {
-                ModuleValidationErrorListView.Items.Add(
-                    new ValidationErrorDisplayModel(DisplayRoot, error.Message, error.Path));
-            }
-
-            //ParameterTabControl.SelectedIndex = 2;
-            ModuleValidationErrorListView.UpdateLayout();
-        }); */
         }
 
 
@@ -1066,7 +1023,7 @@ namespace XTMF.Gui.UserControls
         {
             var runName = string.Empty;
             string error = null;
-            var dialog = new SelectRunDateTimeDialog();
+            var dialog = new SelectRunDateTimeDialog(Session);
             try
             {
                 var result = await dialog.ShowAsync(RunHost);
@@ -2691,8 +2648,6 @@ namespace XTMF.Gui.UserControls
                 var item = ActiveModelSystemView.SelectedModule;
                 if (e.Key == Key.Up)
                 {
-                    _disableMultipleSelectOnce = true;
-                    //ModuleDisplayNavigateUp(item);
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         view.SelectedIndex = 0;
@@ -2703,8 +2658,6 @@ namespace XTMF.Gui.UserControls
                 }
                 else if (e.Key == Key.Down)
                 {
-                    _disableMultipleSelectOnce = true;
-                    // ModuleDisplayNavigateDown(item);
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         view.SelectedIndex = 0;
