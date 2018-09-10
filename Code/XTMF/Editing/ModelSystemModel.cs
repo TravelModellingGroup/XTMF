@@ -374,8 +374,15 @@ namespace XTMF
                 }
                 else
                 {
-                    LoadModelSystemFromFile(session.Runtime, session, _Path);
-                    
+                    try
+                    {
+                        LoadModelSystemFromFile(session.Runtime, session, _Path);
+                    }
+                    catch(Exception e)
+                    {
+                        error = e.Message;
+                        return false;
+                    }
                 }
                 UpdateAll();
                 return true;

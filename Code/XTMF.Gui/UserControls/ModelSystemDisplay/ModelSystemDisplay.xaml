@@ -225,6 +225,9 @@
                                 <Button ToolTip="Open Project Folder" Click="OpenProjectFolderToolbarButton_Click" Name="OpenProjectFolderToolbarButton">
                                     <materialDesign:PackIcon Kind="FolderOpen" />
                                 </Button>
+                                <Button ToolTip="Revert Model System" Click="RevertModelSystemToolbarButton_Click" Name="RevertModelSystemToolbarButton">
+                                    <materialDesign:PackIcon Kind="Reload" />
+                                </Button>
                                 <Grid Width="250" HorizontalAlignment="Left"   Margin="12 2 12 0" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />

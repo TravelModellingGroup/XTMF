@@ -460,11 +460,11 @@ namespace XTMF.Gui.UserControls
             // If the project was saved we need to reload in the new model system model
             Dispatcher.Invoke(() =>
             {
+                CurrentlySelected.Clear();
                 ModelSystem = _session.ModelSystemModel;
                 OnModelSystemChanged(this, e.ModelSystem);
-                this.UpdateQuickParameters();
-
-
+                UpdateQuickParameters();
+                UpdateParameters();
             });
         }
 
@@ -2847,6 +2847,20 @@ namespace XTMF.Gui.UserControls
         {
             var path = Path.Combine(Session.Configuration.ProjectDirectory, Session.ProjectEditingSession.Project.Name);
             Process.Start(path);
+        }
+
+        private void RevertModelSystemToolbarButton_Click(object sender, RoutedEventArgs e)
+        {
+            RevertModelSystem();
+        }
+
+        private void RevertModelSystem()
+        {
+            string error = null;
+            if (!Session.RevertToLastSave(ref error))
+            {
+                MessageBox.Show(GetWindow(), error, "Unable to revert", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
 

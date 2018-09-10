@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -237,9 +237,18 @@ namespace XTMF
 
         private void ModelSystemModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (sender == ModelSystemModel && e.PropertyName == "Name")
+            if (sender == ModelSystemModel)
             {
-                NameChanged?.Invoke(this, e);
+                switch(e.PropertyName)
+                {
+                    case "Name":
+                        NameChanged?.Invoke(this, e);
+                        break;
+                    case "Root":
+                        ProjectWasExternallySaved?.Invoke(this, new ProjectWasExternallySavedEventArgs(this.ModelSystemModel));
+                        break;
+                }
+                
             }
         }
 
