@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -43,13 +43,45 @@ namespace XTMF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        internal ModelSystem ModelSystem { get; private set; }
-
         internal ModelSystemStructure ClonedModelSystemRoot { get { return Root.RealModelSystemStructure; } }
 
-        private Project _Project;
+        private readonly Project _Project;
 
-        private int _ModelSystemIndex;
+        private readonly int _ModelSystemIndex;
+
+        public ModelSystem ModelSystem { get; internal set; }
+
+        private readonly string _Path;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="project"></param>
+        /// <param name="modelSystemIndex"></param>
+        public ModelSystemModel(ModelSystemEditingSession session, Project project, int modelSystemIndex)
+        {
+            _Project = project;
+            _ModelSystemIndex = modelSystemIndex;
+            LoadModelSystemFromProject(session, project, modelSystemIndex);
+            return;
+        }
+
+        /// <summary>
+        /// Create a model system model for a previous run.
+        /// </summary>
+        /// <param name="modelSystemEditingSession">The session to use</param>
+        /// <param name="project">The project the previous run is in.</param>
+        /// <param name="runFile">The path to the run file.</param>
+        public ModelSystemModel(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, Project project, string runFile)
+        {
+            _Path = runFile;
+            _Project = project;
+            _ModelSystemIndex = -1;
+            Name = Path.GetFileName(runFile);
+            _Description = "Previous run";
+            LoadModelSystemFromFile(runtime, modelSystemEditingSession, runFile);
+        }
 
         /// <summary>
         /// 
@@ -61,10 +93,7 @@ namespace XTMF
             ModelSystem = modelSystem;
             Name = modelSystem.Name;
             _Description = modelSystem.Description;
-            Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters,
-                out List<IRegionDisplay> editingRegionDisplays) as ModelSystemStructure);
-            LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
-            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
+            LoadModelSystemFromModelSystem(session, modelSystem);
         }
 
         internal ParameterModel GetParameterModel(IModuleParameter moduleParameter)
@@ -114,43 +143,6 @@ namespace XTMF
                 }
             }
             return null;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="session"></param>
-        /// <param name="project"></param>
-        /// <param name="modelSystemIndex"></param>
-        public ModelSystemModel(ModelSystemEditingSession session, Project project, int modelSystemIndex)
-        {
-            _Project = project;
-            _ModelSystemIndex = modelSystemIndex;
-            Name = project.ModelSystemStructure[modelSystemIndex].Name;
-            _Description = project.ModelSystemDescriptions[modelSystemIndex];
-            Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters,
-                out List<IRegionDisplay> editingRegionDisplays, modelSystemIndex) as ModelSystemStructure));
-            _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
-            LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
-            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
-            return;
-        }
-
-        /// <summary>
-        /// Create a model system model for a previous run.
-        /// </summary>
-        /// <param name="modelSystemEditingSession">The session to use</param>
-        /// <param name="project">The project the previous run is in.</param>
-        /// <param name="runFile">The path to the run file.</param>
-        public ModelSystemModel(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, Project project, string runFile)
-        {
-            _Project = project;
-            _ModelSystemIndex = -1;
-            Name = Path.GetFileName(runFile);
-            _Description = "Previous run";
-            Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
-            LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, new List<ILinkedParameter>());
-            RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession,this, new List<IRegionDisplay>());
         }
 
         private bool _Dirty = false;
@@ -344,6 +336,65 @@ namespace XTMF
                 ModelSystemStructure = Root.RealModelSystemStructure
             };
             return ms.Clone();
+        }
+
+        private void LoadModelSystemFromProject(ModelSystemEditingSession session, Project project, int modelSystemIndex)
+        {
+            Name = project.ModelSystemStructure[modelSystemIndex].Name;
+            _Description = project.ModelSystemDescriptions[modelSystemIndex];
+            Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters,
+                out List<IRegionDisplay> editingRegionDisplays, modelSystemIndex) as ModelSystemStructure));
+            _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
+            LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
+        }
+
+        private void LoadModelSystemFromModelSystem(ModelSystemEditingSession session, ModelSystem modelSystem)
+        {
+            Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters,
+                            out List<IRegionDisplay> editingRegionDisplays) as ModelSystemStructure);
+            LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
+        }
+
+        private void LoadModelSystemFromFile(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, string runFile)
+        {
+            Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
+            LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, new List<ILinkedParameter>());
+            RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession, this, new List<IRegionDisplay>());
+        }
+
+        internal bool RevertToLastSave(ModelSystemEditingSession session, ref string error)
+        {
+            if(_Project != null)
+            {
+                if(_ModelSystemIndex >= 0)
+                {
+                    LoadModelSystemFromProject(session, _Project, _ModelSystemIndex);
+                }
+                else
+                {
+                    LoadModelSystemFromFile(session.Runtime, session, _Path);
+                    
+                }
+                UpdateAll();
+                return true;
+            }
+            else if(ModelSystem != null)
+            {
+                LoadModelSystemFromModelSystem(session, ModelSystem);
+                UpdateAll();
+                return true;
+            }
+            error = "Unknown model system model case for reloading.";
+            return false;
+        }
+
+        private void UpdateAll()
+        {
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Root));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(LinkedParameters));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(RegionDisplaysModel));
         }
     }
 }

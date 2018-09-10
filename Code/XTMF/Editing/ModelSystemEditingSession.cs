@@ -48,7 +48,7 @@ namespace XTMF
         /// <summary>
         ///     The runtime we are in
         /// </summary>
-        private readonly XTMFRuntime _Runtime;
+        public XTMFRuntime Runtime { get; private set; }
 
         private readonly Semaphore _saveSemaphor;
 
@@ -65,7 +65,7 @@ namespace XTMF
         /// <param name="modelSystem">The model system to edit</param>
         public ModelSystemEditingSession(XTMFRuntime runtime, ModelSystem modelSystem)
         {
-            _Runtime = runtime;
+            Runtime = runtime;
             _ModelSystem = modelSystem;
             ModelSystemModel = new ModelSystemModel(this, modelSystem);
             ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
@@ -80,7 +80,7 @@ namespace XTMF
         public ModelSystemEditingSession(XTMFRuntime runtime, ProjectEditingSession ProjectEditingSession,
             int modelSystemIndex)
         {
-            _Runtime = runtime;
+            Runtime = runtime;
             this.ProjectEditingSession = ProjectEditingSession;
             _ModelSystemIndex = modelSystemIndex;
             Reload();
@@ -95,10 +95,10 @@ namespace XTMF
         /// <param name="runFile">The location of the previous run.</param>
         public ModelSystemEditingSession(XTMFRuntime runtime, ProjectEditingSession projectSession, string runFile)
         {
-            _Runtime = runtime;
+            Runtime = runtime;
             ProjectEditingSession = projectSession;
             _ModelSystemIndex = -1;
-            ModelSystemModel = new ModelSystemModel(_Runtime, this, projectSession.Project, runFile);
+            ModelSystemModel = new ModelSystemModel(Runtime, this, projectSession.Project, runFile);
         }
 
         public ProjectEditingSession ProjectEditingSession { get; }
@@ -127,7 +127,7 @@ namespace XTMF
         /// </summary>
         public ModelSystemModel ModelSystemModel { get; private set; }
 
-        public IConfiguration Configuration => _Runtime.Configuration;
+        public IConfiguration Configuration => Runtime.Configuration;
 
         /// <summary>
         ///     Contains if the model system has changed since the last save.
@@ -145,7 +145,7 @@ namespace XTMF
                 {
                     if (EditingModelSystem)
                     {
-                        return _Runtime.ModelSystemController.WillCloseTerminate(this);
+                        return Runtime.ModelSystemController.WillCloseTerminate(this);
                     }
 
                     return ProjectEditingSession.WillCloseTerminate(_ModelSystemIndex);
@@ -301,7 +301,7 @@ namespace XTMF
                         if (((Configuration) Configuration).RemoteHost)
                         {
                             run = XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
-                                _Runtime.Configuration, runName, overwrite);
+                                Runtime.Configuration, runName, overwrite);
                         }
                         else
                         {
@@ -309,9 +309,9 @@ namespace XTMF
                                 Debugger.IsAttached || forceLocal ||
                                 !((Configuration) Configuration).RunInSeperateProcess
                                     ? XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel,
-                                        _Runtime.Configuration, runName, overwrite)
+                                        Runtime.Configuration, runName, overwrite)
                                     : XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
-                                        _Runtime.Configuration, runName, overwrite);
+                                        Runtime.Configuration, runName, overwrite);
                         }
                         run.ProjectSavedByRun += (theRun, newMSS) =>
                         {
@@ -325,7 +325,7 @@ namespace XTMF
                     else
                     {
                         run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel.Root,
-                            _Runtime.Configuration, runName, overwrite);
+                            Runtime.Configuration, runName, overwrite);
                     }
                     return run;
                 }
@@ -335,12 +335,12 @@ namespace XTMF
         ///
         public void ExecuteRun(XTMFRun run, bool executeNow)
         {
-            _Runtime.RunController.ExecuteRun(run, executeNow);
+            Runtime.RunController.ExecuteRun(run, executeNow);
         }
 
         public void ExecuteDelayedRun(XTMFRun run, DateTime delayedStartTime)
         {
-            _Runtime.RunController.ExecuteDelayedRun(run, delayedStartTime);
+            Runtime.RunController.ExecuteDelayedRun(run, delayedStartTime);
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace XTMF
         {
             lock (_SessionLock)
             {
-                var ms = _Runtime.ModelSystemController.LoadOrCreate(name);
+                var ms = Runtime.ModelSystemController.LoadOrCreate(name);
                 ms.Name = name;
                 ms.Description = ModelSystemModel.Description;
                 if (EditingProject)
@@ -368,7 +368,7 @@ namespace XTMF
                 ms.ModelSystemStructure = ModelSystemModel.Root.RealModelSystemStructure;
                 ms.LinkedParameters = ModelSystemModel.LinkedParameters.LinkedParameters
                     .Select(lpm => (ILinkedParameter) lpm.RealLinkedParameter).ToList();
-                using (var otherSession = _Runtime.ModelSystemController.EditModelSystem(ms))
+                using (var otherSession = Runtime.ModelSystemController.EditModelSystem(ms))
                 {
                     return otherSession.Save(ref error);
                 }
@@ -513,7 +513,7 @@ namespace XTMF
         {
             lock (_SessionLock)
             {
-                return ProjectEditingSession.CloneModelSystemAs(_Runtime,
+                return ProjectEditingSession.CloneModelSystemAs(Runtime,
                     ModelSystemModel.Root.RealModelSystemStructure,
                     ModelSystemModel.LinkedParameters.GetRealLinkedParameters(),
                     ModelSystemModel.Description, modelSystemName, ref error);
@@ -617,7 +617,7 @@ namespace XTMF
             {
                 if (EditingModelSystem)
                 {
-                    _Runtime.ModelSystemController.ReleaseEditingSession(this);
+                    Runtime.ModelSystemController.ReleaseEditingSession(this);
                 }
                 else
                 {
@@ -684,7 +684,23 @@ namespace XTMF
 
         public void CancelRun(XTMFRun run)
         {
-            _Runtime.RunController.CancelRun(run);
+            Runtime.RunController.CancelRun(run);
+        }
+
+        public bool RevertToLastSave(ref string error)
+        {
+            error = null;
+            lock (_SessionLock)
+            {
+                if (ModelSystemModel.RevertToLastSave(this, ref error))
+                {
+                    _UndoStack.Clear();
+                    _RedoStack.Clear();
+                    return true;
+                }
+                error = "Feature is not available yet.";
+                return false;
+            }
         }
     }
 
