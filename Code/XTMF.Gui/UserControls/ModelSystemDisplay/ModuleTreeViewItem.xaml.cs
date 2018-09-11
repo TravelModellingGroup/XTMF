@@ -114,13 +114,13 @@ namespace XTMF.Gui.UserControls
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            if (Mouse.LeftButton == MouseButtonState.Pressed && Keyboard.IsKeyDown(Key.LeftCtrl))
             {
                 if (!ModelSystemTreeViewDisplay.IsDragActive)
                 {
                     DragData = new DataObject();
 
-                    DragData.SetData("catface", this);
+                    DragData.SetData("drag", this);
 
                     ModelSystemTreeViewDisplay.IsDragActive = true;
                     ActiveDragItem = this;

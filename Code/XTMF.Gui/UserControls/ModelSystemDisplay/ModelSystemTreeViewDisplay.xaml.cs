@@ -1043,7 +1043,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemTreeViewDisplay_OnDragOver(object sender, DragEventArgs e)
         {
-            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("catface");
+            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("drag");
 
             var siblings = module.GetSiblingModuleTreeViewItems();
 
