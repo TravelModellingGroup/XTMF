@@ -534,7 +534,7 @@ namespace XTMF
         /// Get a list of previous runs for this project.
         /// </summary>
         /// <returns>A list of paths to directories containing</returns>
-        public List<string> GetPreviousRuns()
+        public List<string> GetPreviousRunPaths()
         {
             var projectDir = Path.Combine(GetConfiguration().ProjectDirectory, Project.Name);
             return (from dir in Directory.EnumerateDirectories(projectDir)

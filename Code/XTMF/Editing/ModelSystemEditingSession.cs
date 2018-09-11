@@ -57,7 +57,7 @@ namespace XTMF
             var pes = ProjectEditingSession;
             if(pes != null)
             {
-                return pes.GetPreviousRuns().Select(r => System.IO.Path.GetFileName(r)).ToList();
+                return pes.GetPreviousRunPaths().Select(r => System.IO.Path.GetFileName(r)).ToList();
             }
             return new List<string>();
         }

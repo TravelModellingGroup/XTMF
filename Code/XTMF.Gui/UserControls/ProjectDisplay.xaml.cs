@@ -231,7 +231,7 @@ namespace XTMF.Gui.UserControls
                     {
                         var list = new List<PreviousRun>();
                         PreviousRuns.Clear();
-                        foreach (var pastRun in session.GetPreviousRuns())
+                        foreach (var pastRun in session.GetPreviousRunPaths())
                         {
                             var info = new DirectoryInfo(pastRun);
                             var fileInfo = new FileInfo(Path.Combine(pastRun, "RunParameters.xml"));
