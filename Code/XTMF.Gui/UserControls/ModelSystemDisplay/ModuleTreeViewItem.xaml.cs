@@ -114,9 +114,9 @@ namespace XTMF.Gui.UserControls
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            if (Mouse.LeftButton == MouseButtonState.Pressed && Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                if (!ModelSystemTreeViewDisplay.IsDragActive)
+                if (!ModelSystemTreeViewDisplay.IsDragActive && System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.LeftShift) == true)
                 {
                     DragData = new DataObject();
 
@@ -126,7 +126,7 @@ namespace XTMF.Gui.UserControls
                     ActiveDragItem = this;
                     DragDrop.DoDragDrop(ActiveDragItem, DragData, DragDropEffects.Move);
                 }
-                else
+                else if(ModelSystemTreeViewDisplay.IsDragActive)
                 {
                     DragDrop.DoDragDrop(ActiveDragItem, DragData, DragDropEffects.Move);
                     e.Handled = true;
