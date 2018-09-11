@@ -967,7 +967,7 @@ namespace XTMF.Gui.UserControls
             base.OnDrop(e);
 
 
-            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("catface");
+            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("drag");
 
             var siblings = module.GetSiblingModuleTreeViewItems();
 
