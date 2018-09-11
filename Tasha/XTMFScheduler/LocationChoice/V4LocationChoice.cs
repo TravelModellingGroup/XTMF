@@ -549,7 +549,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             {
                 ZoneSystem = Root.ZoneSystem.ZoneArray;
                 Zones = ZoneSystem.GetFlatData();
-                if (To == null)
+                if (To == null || (To.Length > 0 && To[0].Length != Zones.Length))
                 {
                     To = new float[TimePeriod.Length][];
                     From = new float[TimePeriod.Length][];
