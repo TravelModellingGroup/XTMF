@@ -24,7 +24,7 @@
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:models="clr-namespace:XTMF.Gui.Models"
-             xmlns:my="clr-namespace:XTMF.Gui" Margin="0"
+             xmlns:my="clr-namespace:XTMF.Gui" Margin="0" 
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
              xmlns:this2="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -33,7 +33,7 @@
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" Name="MDisplay"
-             d:DesignHeight="500" d:DesignWidth="2000" Background="{DynamicResource MaterialDesignPaper}" Unloaded="MDisplay_Unloaded">
+             d:DesignHeight="500" d:DesignWidth="2000" Background="{DynamicResource MaterialDesignPaper}" Unloaded="MDisplay_Unloaded" MouseMove="MDisplay_MouseMove">
     <UserControl.Resources>
 
         <Grid x:Name="Overlay" Panel.ZIndex="1000" x:Key="LinkedParameterContent">

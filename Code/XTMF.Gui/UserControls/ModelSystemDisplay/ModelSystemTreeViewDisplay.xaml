@@ -4,10 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:models="clr-namespace:XTMF.Gui.Models"
-             xmlns:local="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:local="clr-namespace:XTMF.Gui.UserControls" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" DragEnter="ModelSystemTreeViewDisplay_OnDragEnter"
              mc:Ignorable="d" AllowDrop="True" DragOver="ModelSystemTreeViewDisplay_OnDragOver" PreviewMouseLeftButtonUp="ModelSystemTreeViewDisplay_OnPreviewMouseLeftButtonUp"
-             d:DesignHeight="450" d:DesignWidth="800" >
+             d:DesignHeight="450" d:DesignWidth="800" MouseMove="UserControl_MouseMove" >
 
     <UserControl.Resources>
         <DrawingBrush TileMode="Tile" Stretch="None" x:Key="GridTextureBrushLight"  

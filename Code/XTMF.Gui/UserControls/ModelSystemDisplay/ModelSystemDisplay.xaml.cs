@@ -3025,6 +3025,15 @@ namespace XTMF.Gui.UserControls
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MDisplay_MouseMove(object sender, MouseEventArgs e2)
+        {
+          
+        }
     }
 
     /// <summary>

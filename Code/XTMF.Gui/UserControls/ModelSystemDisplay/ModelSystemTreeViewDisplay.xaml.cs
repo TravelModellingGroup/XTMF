@@ -22,6 +22,7 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MahApps.Metro.Controls;
 using XTMF.Annotations;
+using Control = System.Windows.Forms.Control;
 using TreeView = System.Windows.Controls.TreeView;
 
 namespace XTMF.Gui.UserControls
@@ -1046,9 +1047,9 @@ namespace XTMF.Gui.UserControls
             ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("drag");
 
             var siblings = module.GetSiblingModuleTreeViewItems();
-
+            
             bool isUp = IsModuleMoveOrderUp(module);
-            var dragOverTarget = this.GetDragOverItem(module,isUp);
+            var dragOverTarget = this.GetDragOverItem(module,isUp,e);
 
             if (dragOverTarget != module)
             {
@@ -1128,22 +1129,26 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
-        private ModuleTreeViewItem GetDragOverItem(ModuleTreeViewItem module, bool isOrderUp)
+        private ModuleTreeViewItem GetDragOverItem(ModuleTreeViewItem module, bool isOrderUp, DragEventArgs e)
         {
             var moduleSiblings = module.GetSiblingModuleTreeViewItems();
 
             foreach (var moduleSibling in moduleSiblings)
             {
-                var mousePosition = Mouse.GetPosition(moduleSibling);
+                var mousePosition = e.GetPosition(moduleSibling);
+
+              
+
+           
                 if (isOrderUp)
                 {
-                    mousePosition.Y += moduleSibling.RenderSize.Height / 2.0;
+                    mousePosition.Y += (int)(moduleSibling.ActualHeight / 2.0);
                 }
                 else
                 {
-                    mousePosition.Y -= moduleSibling.RenderSize.Height / 2.0;
+                    mousePosition.Y -= (int)(moduleSibling.ActualHeight / 2.0);
                 }
-                if (mousePosition.Y >= 0 && mousePosition.Y <= moduleSibling.RenderSize.Height)
+                if (mousePosition.Y >= 0 && mousePosition.Y <= moduleSibling.ActualHeight)
                 {
                     return moduleSibling;
                 }
@@ -1172,6 +1177,13 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemTreeViewDisplay_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             this.IsDragActive = false;
+        }
+
+        private Point p = new Point();
+        private void UserControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            p = e.GetPosition(this);
+           
         }
     }
 }
