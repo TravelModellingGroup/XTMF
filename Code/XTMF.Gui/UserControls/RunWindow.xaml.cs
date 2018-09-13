@@ -543,7 +543,7 @@ namespace XTMF.Gui.UserControls
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                 StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
                 ProgressBar.Finished = true;
-                MainWindow.Us.HideStatusLink();
+                
                 //call scheduler window callback
                 if (callback)
                 {
@@ -624,7 +624,7 @@ namespace XTMF.Gui.UserControls
                         ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                         CancelButton.IsEnabled = false;
                         MainWindow.Us.UpdateStatusDisplay("Ready");
-                        MainWindow.Us.HideStatusLink();
+                        
                     }));
                 }
             }

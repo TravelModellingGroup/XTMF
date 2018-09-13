@@ -21,6 +21,8 @@ namespace XTMF.Editing
 
         private ModelSystemModel _modelSystemModel;
 
+        public event EventHandler<RegionViewGroupsUpdateEventArgs> RegionViewGroupsUpdated;
+
         public ObservableCollection<IRegionDisplay> RegionDisplays
         {
             get
@@ -51,6 +53,7 @@ namespace XTMF.Editing
                 {
 
                     this.RegionDisplays.Add(regionDisplay);
+                   
                     return true;
                 },
                 // on undo
@@ -64,6 +67,46 @@ namespace XTMF.Editing
                 (ref string e) =>
                 {
                     this.RegionDisplays.Add(regionDisplay);
+                    return true;
+                }), ref error);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="region"></param>
+        /// <param name="name"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public bool CreateNewGroupDisplay(RegionDisplay region, string name, ref string error)
+        {
+            RegionGroup regionGroup = new RegionGroup()
+            {
+                Name = name
+            };
+            return _session.RunCommand(XTMFCommand.CreateCommand("New Region Display",
+                // on do
+                (ref string e) =>
+                {
+
+                    region.RegionGroups.Add(regionGroup);
+                    RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(region));
+                    return true;
+                },
+                // on undo
+                (ref string e) =>
+                {
+                    region.RegionGroups.Add(regionGroup);
+                    RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(region));
+                    return true;
+                },
+
+                // on redo
+                (ref string e) =>
+                {
+                    region.RegionGroups.Add(regionGroup);
+                    RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(region));
                     return true;
                 }), ref error);
         }
@@ -85,5 +128,24 @@ namespace XTMF.Editing
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+     
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class RegionViewGroupsUpdateEventArgs : EventArgs
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="regionDisplay"></param>
+        public RegionViewGroupsUpdateEventArgs(RegionDisplay regionDisplay)
+        {
+            RegionDisplay = regionDisplay;
+        }
+
+        public RegionDisplay RegionDisplay { get; }
     }
 }

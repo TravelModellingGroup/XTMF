@@ -10,7 +10,7 @@ namespace XTMF
     /// <summary>
     /// 
     /// </summary>
-    class RegionDisplay : IRegionDisplay
+    public class RegionDisplay : IRegionDisplay
     {
         public string Name
         {

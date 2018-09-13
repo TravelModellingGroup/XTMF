@@ -20,7 +20,9 @@ namespace XTMF.Gui.UserControls
 
         private ModelSystemEditingSession _modelSystemEditingSession;
 
-        private ObservableCollection<IRegionDisplay> _regionDisplays;
+
+
+
 
         private RegionDisplaysModel _regionDisplaysModel;
 
@@ -46,7 +48,7 @@ namespace XTMF.Gui.UserControls
         private void RegionDisplaysOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             _modelSystemDisplay.StatusSnackBar.MessageQueue.Enqueue(
-                $"New region display '{((IRegionDisplay) e.NewItems[0]).Name}' Added");
+                $"New region display '{((IRegionDisplay)e.NewItems[0]).Name}' Added");
         }
 
         /// <summary>
@@ -60,9 +62,21 @@ namespace XTMF.Gui.UserControls
 
             _regionDisplaysModel = _modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel;
 
-            _regionDisplaysModel.RegionDisplays.CollectionChanged += RegionDisplaysOnCollectionChanged;
+            _regionDisplaysModel.RegionViewGroupsUpdated += RegionDisplaysModelOnRegionViewGroupsUpdated;
 
             UpdateRegionDisplayList();
+
+            _regionDisplaysModel.RegionDisplays.CollectionChanged += RegionDisplaysOnCollectionChanged;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionDisplaysModelOnRegionViewGroupsUpdated(object sender, RegionViewGroupsUpdateEventArgs e)
+        {
+            GroupDisplayList.UpdateLayout();
         }
 
         /// <summary>
@@ -73,15 +87,19 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 RegionsComboBox.DataContext = _regionDisplaysModel;
-                if (_regionDisplaysModel.RegionDisplays.Count > 0) RegionsComboBox.SelectedIndex = 0;
 
-                GroupDisplayList.Items.Add(1);
-                GroupDisplayList.Items.Add(1);
-                GroupDisplayList.Items.Add(1);
-                GroupDisplayList.Items.Add(1);
-                GroupDisplayList.Items.Add(1);
-                GroupDisplayList.Items.Add(1);
-                GroupDisplayList.Items.Add(1);
+
+                if (_regionDisplaysModel.RegionDisplays.Count > 0)
+                {
+                    RegionsComboBox.SelectedIndex = 0;
+                    GroupDisplayList.ItemsSource = _regionDisplaysModel.RegionDisplays[0].RegionGroups;
+
+
+                }
+
+    
+
+
             });
         }
 
@@ -106,7 +124,25 @@ namespace XTMF.Gui.UserControls
                 var error = "";
                 _regionDisplaysModel.CreateNewRegionDisplay(dialog.UserInput, ref error);
             }
-            catch
+            catch (Exception)
+            {
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private async Task ShowCreateNewGroupDisplayDialog()
+        {
+            var dialog = new StringRequestDialog("Enter a name for the group.", s => s.Trim().Length > 0);
+            try
+            {
+                var result = await dialog.ShowAsync(false);
+                var error = "";
+                _regionDisplaysModel.CreateNewGroupDisplay(((RegionDisplay)RegionsComboBox.SelectionBoxItem), dialog.UserInput, ref error);
+            }
+            catch (Exception)
             {
             }
         }
@@ -116,9 +152,31 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void NewGroupButton_OnClick(object sender, RoutedEventArgs e)
+        private async void NewGroupButton_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            await ShowCreateNewGroupDisplayDialog();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionsComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Console.WriteLine(RegionsComboBox.SelectionBoxItem);
+            if (RegionsComboBox.SelectionBoxItem is RegionDisplay region)
+            {
+                
+                GroupDisplayList.ItemsSource = region.RegionGroups;
+
+            }
+
+            
+        }
+
+
     }
+
+    
 }

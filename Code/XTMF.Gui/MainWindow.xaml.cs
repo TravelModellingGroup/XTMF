@@ -332,18 +332,6 @@ namespace XTMF.Gui
                 }
         }
 
-        public void SetStatusLink(string text, Action clickAction)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                StatusLinkLabel.Visibility = Visibility.Visible;
-                var handler = new MouseButtonEventHandler((e, a) => { clickAction.BeginInvoke(null, null); });
-                if (_LastAdded != null) StatusLinkLabel.MouseDown -= _LastAdded;
-                StatusLinkLabel.MouseDown += handler;
-                StatusLinkLabel.Content = text;
-                _LastAdded = handler;
-            });
-        }
 
         public void HideStatusLink()
         {

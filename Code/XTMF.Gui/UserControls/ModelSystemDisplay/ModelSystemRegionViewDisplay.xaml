@@ -18,7 +18,7 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="50"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-        <ComboBox Margin="30 0 15 0" DockPanel.Dock="Left" Grid.Column="0" Name="RegionsComboBox" ItemsSource="{Binding RegionDisplays}" Style="{StaticResource MaterialDesignComboBox}">
+        <ComboBox SelectionChanged="RegionsComboBox_OnSelectionChanged" Margin="30 0 15 0" DockPanel.Dock="Left" Grid.Column="0" Name="RegionsComboBox" ItemsSource="{Binding RegionDisplays}" Style="{StaticResource MaterialDesignComboBox}">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"></TextBlock>
@@ -30,14 +30,14 @@
             </Button>
         </Grid>
         <Grid Name="GroupDisplay" Grid.Row="1">
-            <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Name="NewGroupButton" Click="NewGroupButton_OnClick">New Group</Button>
+            
             <ListView Name="GroupDisplayList" Focusable="False">
 
                 <ListBox.ItemTemplate>
 
                     <DataTemplate>
                         <GroupBox
-                            Header="Card Group Box"
+                            Header="{Binding Name}"
                             Style="{DynamicResource MaterialDesignCardGroupBox}"
                             Margin="16">
                         </GroupBox>
@@ -45,7 +45,8 @@
                 </ListBox.ItemTemplate>
 
             </ListView>
-            </Grid>
+            <Button  HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Name="NewGroupButton" Click="NewGroupButton_OnClick">New Group</Button>
+</Grid>
 
 
     </Grid>
