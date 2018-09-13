@@ -1574,6 +1574,7 @@ namespace XTMF.Gui.UserControls
         private void UpdateParameters()
         {
             var parameters = GetActiveParameters();
+            
             if (parameters != null)
             {
                 Task.Factory.StartNew(() =>
@@ -1653,17 +1654,30 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private List<ParameterModel> GetActiveParameters()
         {
-            switch (CurrentlySelected.Count)
+            if (ActiveModelSystemView == _regionViewDisplay)
             {
-                case 0:
-                    return null;
-                case 1:
-                    return CurrentlySelected[0].GetParameters().ToList();
-                default:
-                    return GetParameterIntersection();
+                return ActiveModelSystemView.SelectedModule.GetParameters().ToList();
             }
+            else
+            {
+                switch (CurrentlySelected.Count)
+                {
+                    case 0:
+                        return null;
+                    case 1:
+                        return CurrentlySelected[0].GetParameters().ToList();
+                    default:
+                        return GetParameterIntersection();
+                }
+
+            }
+      
         }
 
         /// <summary>

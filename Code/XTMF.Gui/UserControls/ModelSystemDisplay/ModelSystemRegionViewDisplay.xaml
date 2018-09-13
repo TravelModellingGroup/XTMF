@@ -40,7 +40,7 @@
         </Grid>
         <Grid Name="GroupDisplay" Grid.Row="1" VerticalAlignment="Stretch">
 
-            <ListView Name="GroupDisplayList" ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }" >
+            <ListView Name="GroupDisplayList" ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }" SelectionChanged="GroupDisplayList_OnSelectionChanged" >
                
                 <ListBox.ItemTemplate>
 
@@ -49,7 +49,7 @@
                             Header="{Binding Name}"
                             Style="{DynamicResource MaterialDesignCardGroupBox}"
                             Margin="16">
-                            <ListView ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }" ItemsSource="{Binding Modules}" >
+                            <ListView Name="RegionGroupModuleListView"  ItemsSource="{Binding Modules}" SelectionChanged="RegionGroupModuleListView_OnSelectionChanged" >
                                
                             </ListView>
                         </GroupBox>

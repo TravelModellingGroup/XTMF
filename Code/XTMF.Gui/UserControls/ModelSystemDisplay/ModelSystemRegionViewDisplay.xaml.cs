@@ -21,9 +21,6 @@ namespace XTMF.Gui.UserControls
         private ModelSystemEditingSession _modelSystemEditingSession;
 
 
-
-
-
         private RegionDisplaysModel _regionDisplaysModel;
 
         /// <summary>
@@ -37,7 +34,13 @@ namespace XTMF.Gui.UserControls
             _modelSystemDisplay.ModelSystemEditingSessionChanged += ModelSystemDisplay_ModelSystemEditingSessionChanged;
         }
 
-        public ModelSystemStructureDisplayModel SelectedModule => throw new NotImplementedException();
+        /// <summary>
+        /// </summary>
+        private ModelSystemStructureDisplayModel ActiveModule { get; set; }
+
+        public ModelSystemStructureDisplayModel SelectedModule => ActiveModule;
+
+        private ObservableCollection<ModelSystemStructureDisplayModel> ActiveGroupModules { get; set; }
 
         public ItemsControl ViewItemsControl => GroupDisplayList;
 
@@ -48,7 +51,7 @@ namespace XTMF.Gui.UserControls
         private void RegionDisplaysOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             _modelSystemDisplay.StatusSnackBar.MessageQueue.Enqueue(
-                $"New region display '{((IRegionDisplay)e.NewItems[0]).Name}' Added");
+                $"New region display '{((IRegionDisplay) e.NewItems[0]).Name}' Added");
         }
 
         /// <summary>
@@ -70,7 +73,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -93,13 +95,7 @@ namespace XTMF.Gui.UserControls
                 {
                     RegionsComboBox.SelectedIndex = 0;
                     GroupDisplayList.ItemsSource = _regionDisplaysModel.RegionDisplays[0].RegionGroups;
-
-
                 }
-
-    
-
-
             });
         }
 
@@ -130,7 +126,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <returns></returns>
         private async Task ShowCreateNewGroupDisplayDialog()
@@ -141,7 +136,8 @@ namespace XTMF.Gui.UserControls
                 var result = await dialog.ShowAsync(false);
                 var error = "";
                 var item = (RegionDisplay) RegionsComboBox.SelectionBoxItem;
-                _regionDisplaysModel.CreateNewGroupDisplay(((RegionDisplay)RegionsComboBox.SelectionBoxItem), dialog.UserInput, ref error);
+                _regionDisplaysModel.CreateNewGroupDisplay((RegionDisplay) RegionsComboBox.SelectionBoxItem,
+                    dialog.UserInput, ref error);
             }
             catch (Exception)
             {
@@ -149,7 +145,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -159,7 +154,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -168,16 +162,30 @@ namespace XTMF.Gui.UserControls
             Console.WriteLine(RegionsComboBox.SelectionBoxItem);
             if (RegionsComboBox.SelectionBoxItem is RegionDisplay region)
             {
-                
+                ActiveGroupModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
                 GroupDisplayList.ItemsSource = region.RegionGroups;
-
             }
-
-            
         }
 
 
-    }
+        
 
-    
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GroupDisplayList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionGroupModuleListView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ActiveModule = (ModelSystemStructureDisplayModel) ((ListView) sender).SelectedItem;
+            _modelSystemDisplay.RefreshParameters();
+        }
+    }
 }
