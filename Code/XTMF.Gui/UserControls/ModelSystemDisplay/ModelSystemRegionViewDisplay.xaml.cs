@@ -37,7 +37,7 @@ namespace XTMF.Gui.UserControls
 
         public ModelSystemStructureDisplayModel SelectedModule => throw new NotImplementedException();
 
-        public ItemsControl ViewItemsControl => Placeholder;
+        public ItemsControl ViewItemsControl => GroupDisplayList;
 
         /// <summary>
         /// </summary>
@@ -74,6 +74,14 @@ namespace XTMF.Gui.UserControls
             {
                 RegionsComboBox.DataContext = _regionDisplaysModel;
                 if (_regionDisplaysModel.RegionDisplays.Count > 0) RegionsComboBox.SelectedIndex = 0;
+
+                GroupDisplayList.Items.Add(1);
+                GroupDisplayList.Items.Add(1);
+                GroupDisplayList.Items.Add(1);
+                GroupDisplayList.Items.Add(1);
+                GroupDisplayList.Items.Add(1);
+                GroupDisplayList.Items.Add(1);
+                GroupDisplayList.Items.Add(1);
             });
         }
 
@@ -101,6 +109,16 @@ namespace XTMF.Gui.UserControls
             catch
             {
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NewGroupButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

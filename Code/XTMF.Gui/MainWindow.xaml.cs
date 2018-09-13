@@ -105,7 +105,7 @@ namespace XTMF.Gui
                 new FrameworkPropertyMetadata {DefaultValue = 60});
 
 
-            SetDisplayActive(new StartWindow(), "Start");
+            //
         }
 
         public ThemeController ThemeController { get; }
@@ -258,7 +258,7 @@ namespace XTMF.Gui
             IsEnabled = false;
             StatusDisplay.Text = "Loading XTMF";
             Dispatcher.Invoke(() => { ExternalGrid.Focus(); });
-
+            SetDisplayActive(new StartWindow(), "Start");
             _settingsPage = new SettingsPage();
         }
 

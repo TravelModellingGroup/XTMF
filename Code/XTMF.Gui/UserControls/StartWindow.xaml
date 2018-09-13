@@ -27,17 +27,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <Style x:Key="StartWindowLabelStyle"  TargetType="{x:Type Label}">
-                <Style.Triggers>
-                    <MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True" />
-                        </MultiDataTrigger.Conditions>
-                        <Setter Property="Foreground" Value="White" />
-                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover}" />
-                    </MultiDataTrigger>
-                </Style.Triggers>
-            </Style>
+           
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

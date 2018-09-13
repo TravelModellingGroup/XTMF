@@ -29,8 +29,23 @@
                 <materialDesign:PackIcon Kind="PlusCircleOutline"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Button>
         </Grid>
-        <ListBox Grid.Row="1" Name="Placeholder">
-        </ListBox>
+        <Grid Name="GroupDisplay" Grid.Row="1">
+            <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Name="NewGroupButton" Click="NewGroupButton_OnClick">New Group</Button>
+            <ListView Name="GroupDisplayList" Focusable="False">
+
+                <ListBox.ItemTemplate>
+
+                    <DataTemplate>
+                        <GroupBox
+                            Header="Card Group Box"
+                            Style="{DynamicResource MaterialDesignCardGroupBox}"
+                            Margin="16">
+                        </GroupBox>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+            </ListView>
+            </Grid>
 
 
     </Grid>

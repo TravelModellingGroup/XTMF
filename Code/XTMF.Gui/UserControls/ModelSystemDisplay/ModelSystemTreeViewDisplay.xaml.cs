@@ -979,7 +979,7 @@ namespace XTMF.Gui.UserControls
             var oldPosition = 0;
             int idx = 0;
 
-
+            
 
             foreach (var sibling in siblings)
             {
