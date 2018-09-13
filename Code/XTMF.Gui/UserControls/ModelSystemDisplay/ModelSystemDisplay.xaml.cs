@@ -54,7 +54,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for ModelSystemDisplay.xaml
     /// </summary>
-    public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotifyPropertyChanged, IResumableControl
+    public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotifyPropertyChanged, IResumableControl, IKeyShortcutHandler
     {
         public static readonly DependencyProperty ModelSystemProperty = DependencyProperty.Register("ModelSystem",
             typeof(ModelSystemModel), typeof(ModelSystemDisplay),
@@ -3034,7 +3034,10 @@ namespace XTMF.Gui.UserControls
         {
           
         }
+
     }
+
+
 
     /// <summary>
     /// 

@@ -32,7 +32,7 @@
              xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
-             mc:Ignorable="d" Name="MDisplay"
+             mc:Ignorable="d" Name="MDisplay" PreviewKeyDown="ModelSystemDisplay_OnPreviewKeyDown"
              d:DesignHeight="500" d:DesignWidth="2000" Background="{DynamicResource MaterialDesignPaper}" Unloaded="MDisplay_Unloaded" MouseMove="MDisplay_MouseMove">
     <UserControl.Resources>
 

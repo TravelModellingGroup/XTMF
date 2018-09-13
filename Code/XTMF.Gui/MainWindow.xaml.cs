@@ -138,7 +138,11 @@ namespace XTMF.Gui
         private static string GetConfigurationFilePath()
         {
             var localConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalXTMFConfiguration.xml");
-            if (File.Exists(localConfigPath)) return localConfigPath;
+            if (File.Exists(localConfigPath))
+            {
+                return localConfigPath;
+            }
+
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF",
                 "Configuration.xml");
         }
@@ -151,7 +155,10 @@ namespace XTMF.Gui
         {
             (DockManager.SelectedContent as UserControl)?.Focus();
             Keyboard.Focus(DockManager.SelectedContent as UserControl);
-            if (DockManager.Items.Count == 0) SetDisplayActive(new StartWindow(), "Start");
+            if (DockManager.Items.Count == 0)
+            {
+                SetDisplayActive(new StartWindow(), "Start");
+            }
         }
 
         public event EventHandler RecentProjectsUpdated;
@@ -180,7 +187,9 @@ namespace XTMF.Gui
 
             if ((args.DragablzItem.Content as TabItem)?.Content is ITabCloseListener closeListener &&
                 !closeListener.HandleTabClose())
+            {
                 args.Cancel();
+            }
         }
 
         /// <summary>
@@ -290,6 +299,7 @@ namespace XTMF.Gui
                 Owner = this
             };
             if (project != null && !EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
+            {
                 Task.Run(() =>
                 {
                     try
@@ -300,7 +310,10 @@ namespace XTMF.Gui
                             session = EditorController.Runtime.ProjectController.EditProject(project);
                         });
                         loadingTask.Wait();
-                        if (session != null) Us.EditProject(session);
+                        if (session != null)
+                        {
+                            Us.EditProject(session);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -317,19 +330,27 @@ namespace XTMF.Gui
                     EditorController.Runtime.Configuration.Save();
                     UpdateRecentProjectsMenu();
                 });
+            }
             else if (EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
+            {
                 if (WorkspaceProjects.TryGetValue(project, out var projectContorl))
                 {
                     var visible = false;
                     foreach (TabItem tabItem in DockManager.Items)
+                    {
                         if (tabItem.Content == projectContorl && tabItem.IsSelected)
                         {
                             visible = true;
                             break;
                         }
+                    }
 
-                    if (!visible) SetDisplayActive(projectContorl, "Project - " + project.Name);
+                    if (!visible)
+                    {
+                        SetDisplayActive(projectContorl, "Project - " + project.Name);
+                    }
                 }
+            }
         }
 
 
@@ -350,7 +371,11 @@ namespace XTMF.Gui
         /// </summary>
         public void OpenProject()
         {
-            if (_projectsDisplay == null) _projectsDisplay = new ProjectsDisplay(EditorController.Runtime);
+            if (_projectsDisplay == null)
+            {
+                _projectsDisplay = new ProjectsDisplay(EditorController.Runtime);
+            }
+
             SetDisplayActive(_projectsDisplay, "Projects Display");
         }
 
@@ -360,6 +385,7 @@ namespace XTMF.Gui
         internal void EditProject(ProjectEditingSession projectSession)
         {
             if (projectSession != null)
+            {
                 Dispatcher.BeginInvoke(new Action(() =>
                     {
                         var display = new ProjectDisplay
@@ -377,6 +403,7 @@ namespace XTMF.Gui
                         SetStatusText("Ready");
                     }
                 ));
+            }
         }
 
 
@@ -429,12 +456,18 @@ namespace XTMF.Gui
             if (showAdvanced)
             {
                 var result = Win32Helper.VistaDialog.Show(new WindowInteropHelper(Us).Handle, null, "Select Directory");
-                if (result.Result) return result.FileName;
+                if (result.Result)
+                {
+                    return result.FileName;
+                }
             }
             else
             {
                 var dialog = new FolderBrowserDialog();
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) return dialog.SelectedPath;
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    return dialog.SelectedPath;
+                }
             }
 
             return null;
@@ -450,6 +483,7 @@ namespace XTMF.Gui
             {
                 var msName = Path.GetFileName(fileName);
                 if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, false, ref error))
+                {
                     switch (MessageBox.Show(this, error + "\r\nWould you like to overwrite?",
                         "Unable to import", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No))
                     {
@@ -457,15 +491,20 @@ namespace XTMF.Gui
                         {
                             if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true,
                                 ref error))
+                            {
                                 MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK,
                                     MessageBoxImage.Error);
+                            }
                             else
+                            {
                                 MessageBox.Show(this,
                                     "The model system has been successfully imported from '" + fileName + "'.",
                                     "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
                         }
                             break;
                     }
+                }
             }
         }
 
@@ -550,6 +589,7 @@ namespace XTMF.Gui
             if (!e.Cancel)
             {
                 if (LaunchUpdate)
+                {
                     Task.Run(() =>
                         {
                             var path = Assembly.GetExecutingAssembly().Location;
@@ -569,12 +609,17 @@ namespace XTMF.Gui
                             }
                         })
                         .Wait();
+                }
 
                 Application.Current.Shutdown(0);
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
                     TerminateProcess(Process.GetCurrentProcess().Handle, 0);
+                }
                 else
+                {
                     Process.GetCurrentProcess().Kill();
+                }
             }
         }
 
@@ -649,7 +694,11 @@ namespace XTMF.Gui
         public void LaunchHelpWindow(ModelSystemStructureModel getHelpFor = null)
         {
             var helpUI = new HelpDialog(EditorController.Runtime.Configuration);
-            if (getHelpFor != null) helpUI.SelectModuleContent(getHelpFor);
+            if (getHelpFor != null)
+            {
+                helpUI.SelectModuleContent(getHelpFor);
+            }
+
             SetDisplayActive(helpUI, "Help");
             Keyboard.Focus(helpUI);
         }
@@ -671,20 +720,33 @@ namespace XTMF.Gui
             {
                 var exists = false;
                 foreach (TabItem tab in DockManager.Items)
+                {
                     if (tab.Content == display)
                     {
                         exists = true;
                         tab.IsSelected = true;
                     }
+                }
 
                 if (!exists)
                 {
                     if (ContentControl.DataContext is ViewModelBase)
+                    {
                         ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
+                    }
+
                     var tabItem = new TabItem();
                     tabItem.Content = display;
                     tabItem.Header = title;
                     DockManager.Items.Add(tabItem);
+                    if (display is IKeyShortcutHandler shortcutHandler)
+                    {
+                        tabItem.PreviewKeyDown += delegate(object sender, KeyEventArgs args)
+                        {
+                            shortcutHandler.HandleKeyPreviewDown(sender,args);
+                        };
+                    }
+
                     tabItem.IsSelected = true;
                 }
 
@@ -719,7 +781,11 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void OpenProjectGlobalMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            if (_projectsDisplay == null) _projectsDisplay = new ProjectsDisplay(EditorController.Runtime);
+            if (_projectsDisplay == null)
+            {
+                _projectsDisplay = new ProjectsDisplay(EditorController.Runtime);
+            }
+
             SetDisplayActive(_projectsDisplay, "Projects");
             MenuToggleButton.IsChecked = false;
         }
@@ -740,7 +806,10 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void CloseTabButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (DockManager.SelectedItem != null) DockManager.Items.Remove(DockManager.SelectedItem);
+            if (DockManager.SelectedItem != null)
+            {
+                DockManager.Items.Remove(DockManager.SelectedItem);
+            }
         }
 
         /// <summary>
@@ -824,7 +893,9 @@ namespace XTMF.Gui
                 //before closing, attempt to save / interrupt if control supports
                 var tabItem = DockManager.SelectedItem as TabItem;
                 if (!(tabItem.Content is ITabCloseListener closeListener && !closeListener.HandleTabClose()))
+                {
                     Dispatcher.InvokeAsync(() => { DockManager.Items.Remove(DockManager.SelectedItem); });
+                }
             }
         }
 
@@ -858,11 +929,13 @@ namespace XTMF.Gui
         private void XtmfWindow_Closing(object sender, CancelEventArgs e)
         {
             foreach (TabItem tabItem in DockManager.Items)
+            {
                 if (tabItem.Content is ITabCloseListener closeListener && !closeListener.HandleTabClose())
                 {
                     e.Cancel = true;
                     break;
                 }
+            }
 
             XtmfNotificationIcon.ClearNotificationIcon();
         }
@@ -874,7 +947,16 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void DrawerHost_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape && DrawerHost.IsLeftDrawerOpen) DrawerHost.IsLeftDrawerOpen = false;
+            if (e.Key == Key.Escape && DrawerHost.IsLeftDrawerOpen)
+            {
+                DrawerHost.IsLeftDrawerOpen = false;
+            }
+
+            if (DockManager.SelectedContent is IKeyShortcutHandler handler)
+            {
+                handler.HandleKeyPreviewDown(sender,e);
+            }
+                
         }
 
         /// <summary>
@@ -905,6 +987,7 @@ namespace XTMF.Gui
             await Dispatcher.InvokeAsync(() =>
             {
                 foreach (TabItem tab in DockManager.Items)
+                {
                     if (tab.Content == display)
                     {
                         tab.IsSelected = true;
@@ -912,6 +995,7 @@ namespace XTMF.Gui
                         (display as IResumableControl)?.RestoreWithData(extraData);
                         break;
                     }
+                }
             });
 
 

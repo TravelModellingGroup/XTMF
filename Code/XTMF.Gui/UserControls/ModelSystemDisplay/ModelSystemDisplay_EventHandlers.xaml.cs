@@ -117,10 +117,6 @@ namespace XTMF.Gui.UserControls
                             Redo();
                             e.Handled = true;
                             break;
-                        case Key.S:
-                            SaveRequested(false);
-                            e.Handled = true;
-                            break;
                         case Key.C:
                             CopyCurrentModule();
                             e.Handled = true;
@@ -186,6 +182,37 @@ namespace XTMF.Gui.UserControls
                             break;
                     }
                 }
+            }
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemDisplay_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.S && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
+            {
+                SaveRequested(false);
+                e.Handled = true;
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void HandleKeyPreviewDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.S && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
+            {
+                SaveRequested(false);
+                e.Handled = true;
             }
         }
     }
