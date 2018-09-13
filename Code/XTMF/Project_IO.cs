@@ -344,7 +344,7 @@ namespace XTMF
                                 string reference = moduleNode.Attributes?["Reference"].Value;
                                 var modelSystemStructure = GetModuleFromReference(reference, mss);
 
-                                regionGroup.Modules.Add(modelSystemStructure);
+                                regionGroup.Modules.Add((IModelSystemStructure2)modelSystemStructure);
                             }
                         }
 
@@ -490,11 +490,17 @@ namespace XTMF
             {
                 referencePath?.Insert(0, modelSystemStructure.Name);
 
+                
+
                 return string.Join(".", referencePath?.ToArray());
             }
             else
             {
                 referencePath.Insert(0, modelSystemStructure.Name);
+                if (modelSystemStructure.Parent.IsCollection)
+                {
+                    referencePath.Insert(0, modelSystemStructure.Parent.Children.IndexOf(modelSystemStructure).ToString());
+                }
                 return GetModuleReferencePath(modelSystemStructure.Parent, referencePath);
             }
         }

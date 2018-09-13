@@ -22,6 +22,7 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MahApps.Metro.Controls;
 using XTMF.Annotations;
+using XTMF.Editing;
 using Control = System.Windows.Forms.Control;
 using TreeView = System.Windows.Controls.TreeView;
 
@@ -116,6 +117,8 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private RegionDisplaysModel _regionDisplaysModel;
+
         /// <summary>
         /// 
         /// </summary>
@@ -125,6 +128,8 @@ namespace XTMF.Gui.UserControls
             ModelSystemEditingSessionChangedEventArgs e)
         {
             this._modelSystemEditingSession = e.Session;
+
+            _regionDisplaysModel = _modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel;
         }
 
         /// <summary>
@@ -283,14 +288,33 @@ namespace XTMF.Gui.UserControls
 
                 foreach (var regionGroup in regionDisplay.RegionGroups)
                 {
-                    regionDisplayMenuItem.Items.Add(new MenuItem()
+                    MenuItem regionGroupMenuItem = new MenuItem()
                     {
-                        Header = regionGroup.Name
-                    });
+                        Header = regionGroup.Name,
+                        Tag = regionGroup
+
+                    };
+                    regionDisplayMenuItem.Items.Add(regionGroupMenuItem);
+
+                    regionGroupMenuItem.Click += RegionGroupMenuItem_Click;
+
                 }
             }
 
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionGroupMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            string error = "";
+            var group = (RegionGroup) ((MenuItem) e.Source).Tag;
+            var module = SelectedModule.BaseModel.RealModelSystemStructure;
+            _regionDisplaysModel.AddModuleToGroup(group, module, ref error);
         }
 
         /// <summary>

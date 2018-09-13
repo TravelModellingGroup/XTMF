@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -28,6 +29,7 @@ using System.Xml;
 using Exceptions;
 using XTMF;
 using XTMF.Editing;
+
 namespace XTMF
 {
     public class ModelSystemStructureModel : INotifyPropertyChanged
@@ -36,7 +38,7 @@ namespace XTMF
 
         private ModelSystemEditingSession _Session;
 
-        internal ModelSystemStructure RealModelSystemStructure;
+        public ModelSystemStructure RealModelSystemStructure { get; set; }
 
         private ModelSystemStructureModel _parent;
 
@@ -50,7 +52,7 @@ namespace XTMF
         }
 
         public ModelSystemStructureModel(ModelSystemEditingSession session,
-     ModelSystemStructure realModelSystemStructure, ModelSystemStructureModel parent)
+            ModelSystemStructure realModelSystemStructure, ModelSystemStructureModel parent)
         {
             _Session = session;
             RealModelSystemStructure = realModelSystemStructure;
@@ -165,7 +167,7 @@ namespace XTMF
                             {
                                 Children.Clear();
                                 // move the old children back into place
-                                for (int i = 0; i < oldChildren.Count; i++)
+                                for (var i = 0; i < oldChildren.Count; i++)
                                 {
                                     RealModelSystemStructure.Children[i] = oldChildren[i].RealModelSystemStructure;
                                     Children.Add(oldChildren[i]);
@@ -185,9 +187,6 @@ namespace XTMF
                             ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
                             return true;
                         }, apply), ref error);
-
-
-
                 }
             }
         }
@@ -201,8 +200,8 @@ namespace XTMF
                 {
                     var name = realParmameter.Name;
                     realParmameter.Value = (from p in Parameters.Parameters
-                                            where p.Name == name
-                                            select p.Value).First();
+                        where p.Name == name
+                        select p.Value).First();
                 }
             }
         }
@@ -227,7 +226,7 @@ namespace XTMF
                     "You can not add collection members to a module that is not a collection!");
             }
 
-            CollectionChangeData data = new CollectionChangeData();
+            var data = new CollectionChangeData();
             return _Session.RunCommand(XTMFCommand.CreateCommand(
                     "Add Collection Member",
                     (ref string e) =>
@@ -257,7 +256,7 @@ namespace XTMF
                         }
 
                         Children.Add(data.ModelInQuestion =
-                            new ModelSystemStructureModel(_Session, data.StructureInQuestion,this));
+                            new ModelSystemStructureModel(_Session, data.StructureInQuestion, this));
                         return true;
                     },
                     (ref string e) =>
@@ -278,17 +277,17 @@ namespace XTMF
         public bool Paste(ModelSystemEditingSession session, string buffer, ref string error)
         {
             // Get the data
-            using (MemoryStream backing = new MemoryStream())
+            using (var backing = new MemoryStream())
             {
-                StreamWriter writer = new StreamWriter(backing);
+                var writer = new StreamWriter(backing);
                 writer.Write(buffer);
                 writer.Flush();
                 backing.Position = 0;
                 try
                 {
-                    XmlDocument doc = new XmlDocument();
+                    var doc = new XmlDocument();
                     doc.Load(backing);
-                    XmlElement node = doc["MultipleModules"];
+                    var node = doc["MultipleModules"];
                     if (node != null)
                     {
                         var ret = true;
@@ -372,7 +371,7 @@ namespace XTMF
                 }
             }
 
-            List<LinkedParameterModel> newLinkedParameters = new List<LinkedParameterModel>();
+            var newLinkedParameters = new List<LinkedParameterModel>();
             var additions = new List<Tuple<ParameterModel, LinkedParameterModel>>();
             var oldReal = RealModelSystemStructure;
             return _Session.RunCommand(XTMFCommand.CreateCommand(
@@ -380,7 +379,7 @@ namespace XTMF
                 (ref string e) =>
                 {
                     ModelSystemStructureModel beingAdded;
-                    int indexOffset = 0;
+                    var indexOffset = 0;
                     if (IsCollection)
                     {
                         if (copiedStructure.IsCollection)
@@ -434,10 +433,10 @@ namespace XTMF
                     var linkedParameterModel = _Session.ModelSystemModel.LinkedParameters;
                     var realLinkedParameters = linkedParameterModel.GetLinkedParameters();
                     var missing = from lp in linkedParameters
-                                  where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
-                                  select lp;
+                        where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
+                        select lp;
                     var matching = linkedParameters.Join(realLinkedParameters, (p) => p.Name, (p) => p.Name,
-                        (t, r) => new { Real = r, Temp = t });
+                        (t, r) => new {Real = r, Temp = t});
                     // add links for the ones we've matched
                     foreach (var lp in matching)
                     {
@@ -447,10 +446,12 @@ namespace XTMF
                             {
                                 continue;
                             }
+
                             if (!lp.Real.AddParameterWithoutCommand(containedParameters, ref e))
                             {
                                 return false;
                             }
+
                             containedParameters.SignalIsLinkedChanged();
                             additions.Add(
                                 new Tuple<ParameterModel, LinkedParameterModel>(containedParameters, lp.Real));
@@ -588,7 +589,7 @@ namespace XTMF
             int indexOffset)
         {
             return (from path in temp.Paths
-                    select GetParametersFromTemp(path, root, indexOffset)).ToList();
+                select GetParametersFromTemp(path, root, indexOffset)).ToList();
         }
 
         private ParameterModel GetParametersFromTemp(string path, ModelSystemStructureModel root, int indexOffset)
@@ -636,7 +637,7 @@ namespace XTMF
 
                 if (current.IsCollection)
                 {
-                    if (int.TryParse(variableLink[index], out int collectionIndex))
+                    if (int.TryParse(variableLink[index], out var collectionIndex))
                     {
                         // if we are at the first index we need to look at the index offset.
                         // This is needed if we are copying a collection, thus the indexes will
@@ -672,21 +673,21 @@ namespace XTMF
 
         private string[] ParseLinkedParameterName(string variableLink)
         {
-            List<string> ret = new List<string>();
-            bool escape = false;
+            var ret = new List<string>();
+            var escape = false;
             var length = variableLink.Length;
-            StringBuilder builder = new StringBuilder(length);
-            for (int i = 0; i < length; i++)
+            var builder = new StringBuilder(length);
+            for (var i = 0; i < length; i++)
             {
                 var c = variableLink[i];
                 // check to see if we need to add in the escape
-                if (escape & c != '.')
+                if (escape & (c != '.'))
                 {
                     builder.Append('\\');
                 }
 
                 // check to see if we need to move onto the next part
-                if (escape == false & c == '.')
+                if ((escape == false) & (c == '.'))
                 {
                     ret.Add(builder.ToString());
                     builder.Clear();
@@ -771,12 +772,11 @@ namespace XTMF
                         var arguements = ParentFieldType.IsArray
                             ? ParentFieldType.GetElementType()
                             : ParentFieldType.GetGenericArguments()[0];
-                        if (arguements.IsAssignableFrom(t) && (ModelSystemStructure.CheckForParent(parentType, t)) &&
+                        if (arguements.IsAssignableFrom(t) && ModelSystemStructure.CheckForParent(parentType, t) &&
                             ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) != null)
                         {
                             return true;
                         }
-
                     }
                     else
                     {
@@ -812,7 +812,7 @@ namespace XTMF
 
         private List<TempLinkedParameter> GetLinkedParametersFromXML(XmlNode linkedParameterNode)
         {
-            List<TempLinkedParameter> ret = new List<TempLinkedParameter>();
+            var ret = new List<TempLinkedParameter>();
             if (linkedParameterNode != null)
             {
                 foreach (XmlNode child in linkedParameterNode.ChildNodes)
@@ -833,6 +833,7 @@ namespace XTMF
                     }
                 }
             }
+
             return ret;
         }
 
@@ -850,7 +851,7 @@ namespace XTMF
             try
             {
                 backing = new MemoryStream();
-                using (XmlTextWriter writer = new XmlTextWriter(backing, Encoding.Unicode))
+                using (var writer = new XmlTextWriter(backing, Encoding.Unicode))
                 {
                     writer.Formatting = Formatting.Indented;
                     CopyModule(writer);
@@ -876,9 +877,9 @@ namespace XTMF
         /// <returns></returns>
         public static string CopyModule(List<ModelSystemStructureModel> modules)
         {
-            using (MemoryStream backing = new MemoryStream())
+            using (var backing = new MemoryStream())
             {
-                using (XmlTextWriter writer = new XmlTextWriter(backing, Encoding.Unicode))
+                using (var writer = new XmlTextWriter(backing, Encoding.Unicode))
                 {
                     writer.Formatting = Formatting.Indented;
                     writer.WriteStartElement("MultipleModules");
@@ -939,7 +940,7 @@ namespace XTMF
             var param = current.Parameters;
             if (param != null && param.Parameters != null)
             {
-                int index = param.Parameters.IndexOf(reference);
+                var index = param.Parameters.IndexOf(reference);
                 if (index >= 0)
                 {
                     return current.Parameters.Parameters[index].Name;
@@ -949,7 +950,7 @@ namespace XTMF
             var childrenList = current.Children;
             if (childrenList != null)
             {
-                for (int i = 0; i < childrenList.Count; i++)
+                for (var i = 0; i < childrenList.Count; i++)
                 {
                     var res = LookupName(reference, childrenList[i]);
                     if (res != null)
@@ -969,10 +970,12 @@ namespace XTMF
         /// Get all of the referenced linked parameters
         /// </summary>
         /// <returns>A list of the linked parameters referenced by any of the modules in this subtree</returns>
-        private List<LinkedParameterModel> GetLinkedParameters(List<ModelSystemStructureModel> children) =>
-        (from lp in _Session.ModelSystemModel.LinkedParameters.LinkedParameters
-         where children.Any(child => lp.HasContainedModule(child))
-         select lp).ToList();
+        private List<LinkedParameterModel> GetLinkedParameters(List<ModelSystemStructureModel> children)
+        {
+            return (from lp in _Session.ModelSystemModel.LinkedParameters.LinkedParameters
+                where children.Any(child => lp.HasContainedModule(child))
+                select lp).ToList();
+        }
 
 
         private List<ModelSystemStructureModel> GetAllChildren()
@@ -1015,7 +1018,7 @@ namespace XTMF
                     "You can not add collection members to a module that is not a collection!");
             }
 
-            CollectionChangeData data = new CollectionChangeData();
+            var data = new CollectionChangeData();
             return _Session.RunCommand(XTMFCommand.CreateCommand(
                     "Remove Collection Member",
                     (ref string e) =>
@@ -1133,9 +1136,9 @@ namespace XTMF
         /// <returns>A string to use for a name</returns>
         private static string CreateNameFromType(Type type)
         {
-            bool LastCapital = true;
-            StringBuilder name = new StringBuilder(type.Name);
-            for (int i = 0; i < name.Length; i++)
+            var LastCapital = true;
+            var name = new StringBuilder(type.Name);
+            for (var i = 0; i < name.Length; i++)
             {
                 if (char.IsUpper(name[i]) & !LastCapital)
                 {
@@ -1171,7 +1174,7 @@ namespace XTMF
             if (Children == null)
             {
                 ret = new ObservableCollection<ModelSystemStructureModel>();
-                for (int i = 0; i < realModelSystemStructure.Children.Count; i++)
+                for (var i = 0; i < realModelSystemStructure.Children.Count; i++)
                 {
                     ret.Add(new ModelSystemStructureModel(session,
                         realModelSystemStructure.Children[i] as ModelSystemStructure, this));
@@ -1187,27 +1190,27 @@ namespace XTMF
                 else
                 {
                     var previousChildren = (from child in Children
-                                            where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
-                                            select child).ToList();
+                        where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
+                        select child).ToList();
                     foreach (var child in previousChildren)
                     {
                         ret.Remove(child);
                     }
 
                     foreach (var child in from child in realModelSystemStructure.Children
-                                          where !Children.Any(c => c.RealModelSystemStructure == child)
-                                          select child)
+                        where !Children.Any(c => c.RealModelSystemStructure == child)
+                        select child)
                     {
                         ret.Add(new ModelSystemStructureModel(session, child as ModelSystemStructure, this));
                     }
 
-                    bool repeat = false;
+                    var repeat = false;
                     do
                     {
                         // now search for children that have moved indexes after adds and deleted have been performed
                         var indexes = (from child in Children
-                                       select realModelSystemStructure.Children.IndexOf(child.RealModelSystemStructure)).ToArray();
-                        for (int i = 0; i < indexes.Length; i++)
+                            select realModelSystemStructure.Children.IndexOf(child.RealModelSystemStructure)).ToArray();
+                        for (var i = 0; i < indexes.Length; i++)
                         {
                             // if a child has moved
                             if (indexes[i] != i)
@@ -1241,7 +1244,7 @@ namespace XTMF
 
         public bool MoveModeInParent(int deltaPosition, ref string error)
         {
-            ModelSystemStructureModel parent = _Session.GetParent(this);
+            var parent = _Session.GetParent(this);
             if (!parent.IsCollection)
             {
                 error = "You can only move the children of a collection!";
@@ -1260,7 +1263,7 @@ namespace XTMF
                 return false;
             }
 
-            MoveChildData move = new MoveChildData();
+            var move = new MoveChildData();
             return _Session.RunCommand(
                 XTMFCommand.CreateCommand(
                     "Move Collection Member",
@@ -1269,13 +1272,13 @@ namespace XTMF
                     {
                         move.OriginalPosition = originalPosition;
                         move.NewPosition = newPosition;
-                        if (originalPosition < 0 | originalPosition >= Children.Count)
+                        if ((originalPosition < 0) | (originalPosition >= Children.Count))
                         {
                             e = "The original position was invalid!";
                             return false;
                         }
 
-                        if (newPosition < 0 | newPosition >= Children.Count)
+                        if ((newPosition < 0) | (newPosition >= Children.Count))
                         {
                             e = "The destination position was invalid!";
                             return false;
@@ -1326,7 +1329,7 @@ namespace XTMF
 
         public bool SetMetaModule(bool isMetaModule, ref string error)
         {
-            bool oldMeta = false;
+            var oldMeta = false;
             return _Session.RunCommand(XTMFCommand.CreateCommand(
                 isMetaModule ? "Compose Meta-Module" : "Decompose Meta-Module",
                 (ref string e) =>
@@ -1393,7 +1396,7 @@ namespace XTMF
         /// <summary>
         /// Does the model system have changes that are not saved.
         /// </summary>
-        public bool IsDirty => Dirty || (Children != null && Children.Any((child) => child.IsDirty));
+        public bool IsDirty => Dirty || Children != null && Children.Any((child) => child.IsDirty);
 
         public ParametersModel Parameters { get; private set; }
 
@@ -1401,10 +1404,7 @@ namespace XTMF
         /// Is this an optional module.
         /// </summary>
         /// <returns>True if the module is optional.</returns>
-        public bool IsOptional
-        {
-            get { return !RealModelSystemStructure.Required; }
-        }
+        public bool IsOptional => !RealModelSystemStructure.Required;
 
 
         /// <summary>
@@ -1442,14 +1442,14 @@ namespace XTMF
         public bool Save(Stream saveTo)
         {
             // save to a temporary stream in case of a failure
-            using (MemoryStream tempStream = new MemoryStream())
+            using (var tempStream = new MemoryStream())
             {
                 try
                 {
                     RealModelSystemStructure.Save(tempStream);
                     tempStream.Position = 0;
                     // if we have successfully saved continue by copying it to the real stream.
-                    BinaryWriter writer = new BinaryWriter(saveTo, Encoding.Unicode, true);
+                    var writer = new BinaryWriter(saveTo, Encoding.Unicode, true);
                     writer.Write(tempStream.Length);
                     writer.Flush();
                     tempStream.WriteTo(saveTo);
@@ -1468,9 +1468,8 @@ namespace XTMF
         /// <returns></returns>
         public override string ToString()
         {
-
-            return base.ToString() + " " + this.Name + ", IsCollection=" + this.IsCollection + ", Type=" + this.Type +
-                   ", ParentFieldName=" + this.ParentFieldName + ", ParentFieldType=" + ParentFieldType;
+            return base.ToString() + " " + Name + ", IsCollection=" + IsCollection + ", Type=" + Type +
+                   ", ParentFieldName=" + ParentFieldName + ", ParentFieldType=" + ParentFieldType;
         }
     }
 }
@@ -1480,7 +1479,7 @@ namespace Exceptions
     /// <summary>
     /// Exception for failed import due to a module missing
     /// </summary>
-    class MissingModuleTypeException : Exception
+    internal class MissingModuleTypeException : Exception
     {
         public MissingModuleTypeException()
         {
@@ -1493,9 +1492,6 @@ namespace Exceptions
         public MissingModuleTypeException(ModelSystemStructureModel modelSystemStructure) :
             base("Missing Module: " + modelSystemStructure)
         {
-
-
         }
-
     }
 }

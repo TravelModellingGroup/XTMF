@@ -10,11 +10,11 @@ namespace XTMF
     /// <summary>
     /// 
     /// </summary>
-    class RegionGroup : IRegionGroup
+    public class RegionGroup : IRegionGroup
     {
         private string _name;
 
-        private List<IModelSystemStructure> _modules;
+        private List<IModelSystemStructure2> _modules;
 
         public string Name
         {
@@ -27,7 +27,7 @@ namespace XTMF
                 _name = value;
             }
         }
-        public List<IModelSystemStructure> Modules {
+        public List<IModelSystemStructure2> Modules {
             get
             {
                 return _modules;
@@ -44,7 +44,7 @@ namespace XTMF
         /// </summary>
         public RegionGroup()
         {
-            _modules = new List<IModelSystemStructure>();
+            _modules = new List<IModelSystemStructure2>();
         }
     }
 }

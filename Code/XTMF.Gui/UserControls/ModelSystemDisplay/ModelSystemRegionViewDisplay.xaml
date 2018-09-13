@@ -49,6 +49,9 @@
                             Header="{Binding Name}"
                             Style="{DynamicResource MaterialDesignCardGroupBox}"
                             Margin="16">
+                            <ListView ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }" ItemsSource="{Binding Modules}" >
+                               
+                            </ListView>
                         </GroupBox>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

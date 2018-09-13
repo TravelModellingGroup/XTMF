@@ -97,7 +97,7 @@ namespace XTMF.Editing
                 // on undo
                 (ref string e) =>
                 {
-                    region.RegionGroups.Add(regionGroup);
+                    region.RegionGroups.Remove(regionGroup);
                     RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(region));
                     return true;
                 },
@@ -114,10 +114,42 @@ namespace XTMF.Editing
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="session"></param>
-        /// <param name="modelSystemModel"></param>
-        /// <param name="regionDisplays"></param>
-        public RegionDisplaysModel(ModelSystemEditingSession session, ModelSystemModel modelSystemModel, List<IRegionDisplay> regionDisplays)
+        /// <param name="group"></param>
+        /// <param name="name"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public bool AddModuleToGroup(IRegionGroup group, IModelSystemStructure2 module, ref string error)
+        {
+            return _session.RunCommand(XTMFCommand.CreateCommand("New Region Display",
+                // on do
+                (ref string e) =>
+                {
+
+                    group.Modules.Add(module);
+                    return true;
+                },
+                // on undo
+                (ref string e) =>
+                {
+                    group.Modules.Remove(module);
+                    return true;
+                },
+
+                // on redo
+                (ref string e) =>
+                {
+                    group.Modules.Add(module);
+                    return true;
+                }), ref error);
+        }
+
+        /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="session"></param>
+            /// <param name="modelSystemModel"></param>
+            /// <param name="regionDisplays"></param>
+            public RegionDisplaysModel(ModelSystemEditingSession session, ModelSystemModel modelSystemModel, List<IRegionDisplay> regionDisplays)
         {
             this._regionDisplays = new ObservableCollection<IRegionDisplay>(regionDisplays);
             this._session = session;
