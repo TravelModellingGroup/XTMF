@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using XTMF.Editing;
@@ -55,9 +56,14 @@ namespace XTMF
         public List<string> GetPreviousRunNames()
         {
             var pes = ProjectEditingSession;
-            if(pes != null)
+            if (pes != null)
             {
-                return pes.GetPreviousRunPaths().Select(r => System.IO.Path.GetFileName(r)).ToList();
+                return pes.GetPreviousRunPaths()
+                    .AsParallel()
+                    .Select(r => new DirectoryInfo(r))
+                    .OrderByDescending(r => r.LastWriteTime)
+                    .Select(r => r.Name)
+                    .ToList();
             }
             return new List<string>();
         }
@@ -249,7 +255,7 @@ namespace XTMF
         {
             if (sender == ModelSystemModel)
             {
-                switch(e.PropertyName)
+                switch (e.PropertyName)
                 {
                     case "Name":
                         NameChanged?.Invoke(this, e);
@@ -258,7 +264,7 @@ namespace XTMF
                         ProjectWasExternallySaved?.Invoke(this, new ProjectWasExternallySavedEventArgs(this.ModelSystemModel));
                         break;
                 }
-                
+
             }
         }
 
@@ -317,7 +323,7 @@ namespace XTMF
                             new List<IRegionDisplay>(),
                              ModelSystemModel.Description
                             );
-                        if (((Configuration) Configuration).RemoteHost)
+                        if (((Configuration)Configuration).RemoteHost)
                         {
                             run = XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
                                 Runtime.Configuration, runName, overwrite);
@@ -326,7 +332,7 @@ namespace XTMF
                         {
                             run =
                                 Debugger.IsAttached || forceLocal ||
-                                !((Configuration) Configuration).RunInSeperateProcess
+                                !((Configuration)Configuration).RunInSeperateProcess
                                     ? XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel,
                                         Runtime.Configuration, runName, overwrite)
                                     : XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
@@ -386,7 +392,7 @@ namespace XTMF
 
                 ms.ModelSystemStructure = ModelSystemModel.Root.RealModelSystemStructure;
                 ms.LinkedParameters = ModelSystemModel.LinkedParameters.LinkedParameters
-                    .Select(lpm => (ILinkedParameter) lpm.RealLinkedParameter).ToList();
+                    .Select(lpm => (ILinkedParameter)lpm.RealLinkedParameter).ToList();
                 using (var otherSession = Runtime.ModelSystemController.EditModelSystem(ms))
                 {
                     return otherSession.Save(ref error);
@@ -430,7 +436,7 @@ namespace XTMF
                     _UndoStack.Add(XTMFCommand.CreateCommand(name, (ref string error) => { return true; },
                         (ref string error) =>
                         {
-                            foreach (var command in ((IEnumerable<XTMFCommand>) list).Reverse())
+                            foreach (var command in ((IEnumerable<XTMFCommand>)list).Reverse())
                             {
                                 if (command.CanUndo())
                                 {
@@ -512,7 +518,7 @@ namespace XTMF
 
             return ProjectEditingSession.RunNameExists(runName);
         }
-        
+
         /// <summary>
         /// Checks for validitiy of the passed run name
         /// </summary>
@@ -698,7 +704,7 @@ namespace XTMF
 
         public ICollection<Type> GetValidGenericVariableTypes(Type[] conditions)
         {
-            return ((Configuration) Configuration).GetValidGenericVariableTypes(conditions);
+            return ((Configuration)Configuration).GetValidGenericVariableTypes(conditions);
         }
 
         public void CancelRun(XTMFRun run)
