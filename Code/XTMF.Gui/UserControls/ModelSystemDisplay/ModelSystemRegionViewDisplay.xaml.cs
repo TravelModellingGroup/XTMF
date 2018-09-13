@@ -140,6 +140,7 @@ namespace XTMF.Gui.UserControls
             {
                 var result = await dialog.ShowAsync(false);
                 var error = "";
+                var item = (RegionDisplay) RegionsComboBox.SelectionBoxItem;
                 _regionDisplaysModel.CreateNewGroupDisplay(((RegionDisplay)RegionsComboBox.SelectionBoxItem), dialog.UserInput, ref error);
             }
             catch (Exception)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,9 +25,9 @@ namespace XTMF
             }
         }
 
-        private List<IRegionGroup> _regionGroups;
+        private ObservableCollection<IRegionGroup> _regionGroups;
         private string _name;
-        public List<IRegionGroup> RegionGroups
+        public ObservableCollection<IRegionGroup> RegionGroups
         {
             get
             {
@@ -40,7 +41,7 @@ namespace XTMF
 
         public RegionDisplay()
         {
-            _regionGroups = new List<IRegionGroup>();
+            _regionGroups = new ObservableCollection<IRegionGroup>();
         }
     }
 }
