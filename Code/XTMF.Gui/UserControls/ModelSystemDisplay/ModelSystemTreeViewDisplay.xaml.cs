@@ -142,7 +142,7 @@ namespace XTMF.Gui.UserControls
             if (e.NewValue is ModelSystemStructureDisplayModel module)
             {
                 this._display.RefreshParameters();
-                this._display.UpdateModuleCount();
+                //this._display.UpdateModuleCount();
                 if (!this._display.ModuleParameterDisplay.IsEnabled)
                 {
                     this._display.ToggleModuleParameterDisplay();

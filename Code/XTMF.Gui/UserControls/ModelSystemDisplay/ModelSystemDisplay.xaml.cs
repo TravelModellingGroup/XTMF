@@ -110,6 +110,8 @@ namespace XTMF.Gui.UserControls
 
         public event EventHandler<SelectedModuleParameterContextChangedEventArgs> SelectedModuleParameterContextChanged;
 
+        public Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel> ModelSystemDisplayModelMap;
+
 
         /// <summary>
         /// 
@@ -226,6 +228,8 @@ namespace XTMF.Gui.UserControls
 
 
             this.ActiveModelSystemView = this._treeViewDisplay;
+
+            ModelSystemDisplayModelMap = new Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel>();
         }
 
         /// <summary>
@@ -568,6 +572,20 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="model"></param>
+        private void EnumerateModules(ModelSystemStructureDisplayModel model)
+        {
+            this.ModelSystemDisplayModelMap.Add(model.BaseModel.RealModelSystemStructure,model);
+            foreach (var m in model.Children)
+            {
+                EnumerateModules(m);
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string DisabledModulesCountText
         {
             get
@@ -900,13 +918,18 @@ namespace XTMF.Gui.UserControls
 
                         //set the treeview to use regular model system items
                         us.ActiveModelSystemView.ViewItemsControl.ItemsSource = displayModel;
+                        us.ModelSystemDisplayModelMap.Clear();
+                        us.EnumerateModules(display.DisplayRoot);
+
 
                         us.ModelSystemName = newModelSystem.Name;
                         us.ActiveModelSystemView.ViewItemsControl.InvalidateVisual();
 
                         us._treeViewDisplay.ModuleDisplay.Items.MoveCurrentToFirst();
                         us.FilterBox.Display = us.ActiveModelSystemView?.ViewItemsControl;
-                        us.UpdateModuleCount();
+
+                        us.StatusBarModuleCountTextBlock.Text = $"{us.ModelSystemDisplayModelMap.Count} Modules"; 
+
                         us.EnumerateDisabled(display.DisplayRoot);
                         us.UpdateDisableModuleCount(us.DisabledModules.Count);
 
@@ -937,15 +960,7 @@ namespace XTMF.Gui.UserControls
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public void UpdateModuleCount()
-        {
-            Dispatcher.BeginInvoke(new Action(() => { StatusBarModuleCountTextBlock.Text = $"{this._treeViewDisplay.ModuleDisplay.Items.Count} Modules"; }));
-
-
-        }
+        
 
 
         /// <summary>
@@ -1004,6 +1019,7 @@ namespace XTMF.Gui.UserControls
         private void MDisplay_Unloaded(object sender, RoutedEventArgs e)
         {
             MainWindow.Us.PreviewKeyDown -= UsOnPreviewKeyDown;
+            ModelSystemDisplayModelMap.Clear();
         }
 
         /// <summary>
@@ -1662,7 +1678,9 @@ namespace XTMF.Gui.UserControls
         {
             if (ActiveModelSystemView == _regionViewDisplay)
             {
+
                 return ActiveModelSystemView.SelectedModule.GetParameters().ToList();
+
             }
             else
             {

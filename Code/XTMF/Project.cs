@@ -430,8 +430,10 @@ namespace XTMF
                     ModelSystemStructure[modelSystemIndex])
                 : new List<ILinkedParameter>();
 
-            //TODO TODO TODO
+            
             regionDisplays = RegionDisplays[modelSystemIndex];
+
+            var r  = RegionDisplay.MapRegionDisplays(regionDisplays, ourClone);
 
             return ourClone as ModelSystemStructure;
         }

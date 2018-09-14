@@ -10,7 +10,7 @@ namespace XTMF.Interfaces
     {
         string Name { get; set; }
 
-        List<IModelSystemStructure2> Modules { get; set; }
+        List<IModelSystemStructure> Modules { get; set; }
 
         
     }

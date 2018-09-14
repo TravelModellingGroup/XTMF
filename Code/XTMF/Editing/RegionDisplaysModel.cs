@@ -21,6 +21,11 @@ namespace XTMF.Editing
 
         private ModelSystemModel _modelSystemModel;
 
+        public ModelSystemModel Model
+        {
+            get => _modelSystemModel;
+        }
+
         public event EventHandler<RegionViewGroupsUpdateEventArgs> RegionViewGroupsUpdated;
 
         public ObservableCollection<IRegionDisplay> RegionDisplays
@@ -53,7 +58,7 @@ namespace XTMF.Editing
                 {
 
                     this.RegionDisplays.Add(regionDisplay);
-                   
+
                     return true;
                 },
                 // on undo
@@ -144,24 +149,31 @@ namespace XTMF.Editing
         }
 
         /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="session"></param>
-            /// <param name="modelSystemModel"></param>
-            /// <param name="regionDisplays"></param>
-            public RegionDisplaysModel(ModelSystemEditingSession session, ModelSystemModel modelSystemModel, List<IRegionDisplay> regionDisplays)
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="modelSystemModel"></param>
+        /// <param name="regionDisplays"></param>
+        /// <param name="rootModel"></param>
+        public RegionDisplaysModel(ModelSystemEditingSession session, ModelSystemModel modelSystemModel,
+            List<IRegionDisplay> regionDisplays, ModelSystemStructureModel rootModel = null)
         {
             this._regionDisplays = new ObservableCollection<IRegionDisplay>(regionDisplays);
             this._session = session;
             this._modelSystemModel = modelSystemModel;
+            RootModelSystemStructureModel = rootModel;
 
 
         }
 
+        public ModelSystemStructureModel RootModelSystemStructureModel { get; set; }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-     
+
+
+
     }
 
     /// <summary>

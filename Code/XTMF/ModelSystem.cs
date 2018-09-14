@@ -76,7 +76,7 @@ namespace XTMF
                 LinkedParameter.MapLinkedParameters(LinkedParameters, ourClone, ModelSystemStructure)
                 : new List<ILinkedParameter>();
 
-            regionDisplays = this._regionDisplays;
+            regionDisplays = RegionDisplay.MapRegionDisplays(this._regionDisplays, ourClone);
             return ourClone as ModelSystemStructure;
         }
 

@@ -39,9 +39,50 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public RegionDisplay()
         {
             _regionGroups = new ObservableCollection<IRegionGroup>();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displays"></param>
+        /// <param name="clone"></param>
+        /// <returns></returns>
+        public static List<IRegionDisplay> MapRegionDisplays(List<IRegionDisplay> displays, IModelSystemStructure clone)
+        {
+            var list = new List<IRegionDisplay>();
+
+            foreach (var region in displays)
+            {
+                var r = new RegionDisplay()
+                {
+                    Name = region.Name
+                };
+
+                foreach (var group in region.RegionGroups)
+                {
+                    var g = new RegionGroup(group,clone);
+
+                    
+                    r.RegionGroups.Add(g);
+                }
+
+
+
+
+                list.Add(r);
+            }
+
+            return (List<IRegionDisplay>)list;
+        }
+
+
+
+
     }
 }

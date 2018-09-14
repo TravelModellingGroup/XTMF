@@ -232,11 +232,38 @@ namespace XTMF.Gui.Models
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private ObservableCollection<ParameterModel> GetMetaModuleParamters()
         {
             var ret = new ObservableCollection<ParameterModel>();
             var toGet = new Stack<ModelSystemStructureModel>();
             toGet.Push(BaseModel);
+            while (toGet.Count > 0)
+            {
+                var current = toGet.Pop();
+                foreach (var p in current.Parameters.GetParameters()) ret.Add(p);
+
+                if (current.Children != null)
+                    foreach (var c in current.Children)
+                        toGet.Push(c);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static ObservableCollection<ParameterModel> GetMetaModuleParamters(ModelSystemStructureModel model)
+        {
+            var ret = new ObservableCollection<ParameterModel>();
+            var toGet = new Stack<ModelSystemStructureModel>();
+            toGet.Push(model);
             while (toGet.Count > 0)
             {
                 var current = toGet.Pop();

@@ -346,22 +346,33 @@ namespace XTMF
                 out List<IRegionDisplay> editingRegionDisplays, modelSystemIndex) as ModelSystemStructure));
             _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
-            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
+            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays,Root);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="modelSystem"></param>
         private void LoadModelSystemFromModelSystem(ModelSystemEditingSession session, ModelSystem modelSystem)
         {
             Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters,
                             out List<IRegionDisplay> editingRegionDisplays) as ModelSystemStructure);
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
-            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays);
+            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays,Root);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="runtime"></param>
+        /// <param name="modelSystemEditingSession"></param>
+        /// <param name="runFile"></param>
         private void LoadModelSystemFromFile(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, string runFile)
         {
             Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
             LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, new List<ILinkedParameter>());
-            RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession, this, new List<IRegionDisplay>());
+            RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession, this, new List<IRegionDisplay>(),Root);
         }
 
         internal bool RevertToLastSave(ModelSystemEditingSession session, ref string error)

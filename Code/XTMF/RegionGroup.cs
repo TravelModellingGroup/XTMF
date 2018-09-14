@@ -14,7 +14,7 @@ namespace XTMF
     {
         private string _name;
 
-        private List<IModelSystemStructure2> _modules;
+        private List<IModelSystemStructure> _modules;
 
         public string Name
         {
@@ -27,7 +27,7 @@ namespace XTMF
                 _name = value;
             }
         }
-        public List<IModelSystemStructure2> Modules {
+        public List<IModelSystemStructure> Modules {
             get
             {
                 return _modules;
@@ -44,7 +44,22 @@ namespace XTMF
         /// </summary>
         public RegionGroup()
         {
-            _modules = new List<IModelSystemStructure2>();
+            _modules = new List<IModelSystemStructure>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clone"></param>
+        public RegionGroup(IRegionGroup clone, IModelSystemStructure cloneStructure)
+        {
+            _modules = new List<IModelSystemStructure>();
+            Name = clone.Name;
+
+            foreach (var module in clone.Modules)
+            {
+                _modules.Add(cloneStructure);
+            }
         }
     }
 }

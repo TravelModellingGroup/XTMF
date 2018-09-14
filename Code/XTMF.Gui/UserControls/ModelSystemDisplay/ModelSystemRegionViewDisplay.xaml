@@ -30,7 +30,7 @@
             <ComboBox SelectionChanged="RegionsComboBox_OnSelectionChanged" Margin="30 0 15 0" DockPanel.Dock="Left" Grid.Column="0" Name="RegionsComboBox" ItemsSource="{Binding RegionDisplays}" Style="{StaticResource MaterialDesignComboBox}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name}"></TextBlock>
+                        <TextBlock Text="{Binding Model.Name}"></TextBlock>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
@@ -46,7 +46,7 @@
 
                     <DataTemplate>
                         <GroupBox
-                            Header="{Binding Name}"
+                            Header="{Binding  Model.Name}"
                             Style="{DynamicResource MaterialDesignCardGroupBox}"
                             Margin="16">
                             <ListView Name="RegionGroupModuleListView"  ItemsSource="{Binding Modules}" SelectionChanged="RegionGroupModuleListView_OnSelectionChanged" >

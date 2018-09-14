@@ -97,6 +97,14 @@ namespace XTMF
             return ret;
         }
 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ret"></param>
+        /// <param name="newModelSystemStructure"></param>
+        /// <param name="oldModelSystemStructure"></param>
         private static void WalkAndMoveParameters(List<ILinkedParameter> ret, IModelSystemStructure newModelSystemStructure, IModelSystemStructure oldModelSystemStructure)
         {
             // we only need to walk if we are not a collection since collections can not have parameters
@@ -135,6 +143,11 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="original"></param>
+        /// <returns></returns>
         private static ILinkedParameter CopyLinkedParameter(ILinkedParameter original)
         {
             var ret = new LinkedParameter( original.Name );

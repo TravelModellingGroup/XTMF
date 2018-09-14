@@ -268,7 +268,7 @@ namespace XTMF.Gui
             StatusDisplay.Text = "Loading XTMF";
             Dispatcher.Invoke(() => { ExternalGrid.Focus(); });
             SetDisplayActive(new StartWindow(), "Start");
-            _settingsPage = new SettingsPage();
+           
         }
 
 
@@ -761,6 +761,10 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void SettingsMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
+            if (_settingsPage == null)
+            {
+                _settingsPage = new SettingsPage();
+            }
             SetDisplayActive(_settingsPage, "Settings");
             MenuToggleButton.IsChecked = false;
         }

@@ -21,7 +21,7 @@ namespace XTMF.Gui.UserControls
         private ModelSystemEditingSession _modelSystemEditingSession;
 
 
-        private RegionDisplaysModel _regionDisplaysModel;
+        private RegionDisplaysDisplayModel _regionDisplaysModel;
 
         /// <summary>
         /// </summary>
@@ -51,7 +51,7 @@ namespace XTMF.Gui.UserControls
         private void RegionDisplaysOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             _modelSystemDisplay.StatusSnackBar.MessageQueue.Enqueue(
-                $"New region display '{((IRegionDisplay) e.NewItems[0]).Name}' Added");
+                $"New region display '{((IRegionDisplay)e.NewItems[0]).Name}' Added");
         }
 
         /// <summary>
@@ -63,13 +63,13 @@ namespace XTMF.Gui.UserControls
         {
             _modelSystemEditingSession = e.Session;
 
-            _regionDisplaysModel = _modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel;
+            _regionDisplaysModel = new RegionDisplaysDisplayModel(_modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel);
 
-            _regionDisplaysModel.RegionViewGroupsUpdated += RegionDisplaysModelOnRegionViewGroupsUpdated;
+            _regionDisplaysModel.Model.RegionViewGroupsUpdated += RegionDisplaysModelOnRegionViewGroupsUpdated;
 
             UpdateRegionDisplayList();
 
-            _regionDisplaysModel.RegionDisplays.CollectionChanged += RegionDisplaysOnCollectionChanged;
+            _regionDisplaysModel.Regions.CollectionChanged += RegionDisplaysOnCollectionChanged;
         }
 
         /// <summary>
@@ -91,10 +91,10 @@ namespace XTMF.Gui.UserControls
                 RegionsComboBox.DataContext = _regionDisplaysModel;
 
 
-                if (_regionDisplaysModel.RegionDisplays.Count > 0)
+                if (_regionDisplaysModel.Regions.Count > 0)
                 {
                     RegionsComboBox.SelectedIndex = 0;
-                    GroupDisplayList.ItemsSource = _regionDisplaysModel.RegionDisplays[0].RegionGroups;
+                    GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[0].Groups;
                 }
             });
         }
@@ -118,7 +118,7 @@ namespace XTMF.Gui.UserControls
             {
                 var result = await dialog.ShowAsync(false);
                 var error = "";
-                _regionDisplaysModel.CreateNewRegionDisplay(dialog.UserInput, ref error);
+                _regionDisplaysModel.Model.CreateNewRegionDisplay(dialog.UserInput, ref error);
             }
             catch (Exception)
             {
@@ -135,8 +135,8 @@ namespace XTMF.Gui.UserControls
             {
                 var result = await dialog.ShowAsync(false);
                 var error = "";
-                var item = (RegionDisplay) RegionsComboBox.SelectionBoxItem;
-                _regionDisplaysModel.CreateNewGroupDisplay((RegionDisplay) RegionsComboBox.SelectionBoxItem,
+                var item = (RegionDisplay)RegionsComboBox.SelectionBoxItem;
+                _regionDisplaysModel.Model.CreateNewGroupDisplay((RegionDisplay)RegionsComboBox.SelectionBoxItem,
                     dialog.UserInput, ref error);
             }
             catch (Exception)
@@ -168,7 +168,7 @@ namespace XTMF.Gui.UserControls
         }
 
 
-        
+
 
         /// <summary>
         /// </summary>
@@ -184,8 +184,11 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RegionGroupModuleListView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ActiveModule = (ModelSystemStructureDisplayModel) ((ListView) sender).SelectedItem;
-            _modelSystemDisplay.RefreshParameters();
+
+
+            ModelSystemStructure m = (ModelSystemStructure)((ListView)sender).SelectedItem;
+            //ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
+            //_modelSystemDisplay.RefreshParameters();
         }
     }
 }
