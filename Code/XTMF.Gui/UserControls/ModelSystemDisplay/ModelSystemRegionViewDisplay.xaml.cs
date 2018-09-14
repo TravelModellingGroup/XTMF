@@ -189,6 +189,10 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 ModelSystemStructure m = (ModelSystemStructure) ((ListBox) sender).SelectedItem;
+                if (m == null)
+                {
+                    return;
+                }
                 ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
                 _modelSystemDisplay.RefreshParameters();
             }));
@@ -214,6 +218,26 @@ namespace XTMF.Gui.UserControls
                 });
             }));
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RemoveFromGroupMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem element = (MenuItem)e.Source;
+            ModelSystemStructure model = element.Tag as ModelSystemStructure;
+
+            var target = (FrameworkElement)((FrameworkElement) ((ContextMenu) element.Parent).PlacementTarget).Tag;
+
+            var target2 = target.Tag as RegionGroupDisplayModel;
+            target2.Model.Modules.Remove(model);
+            ((RegionGroup)target2.Model).UpdateModules(target2.Model);
+
+
+            Console.WriteLine("h");
         }
     }
 }

@@ -46,15 +46,35 @@
 
                     <DataTemplate>
                         <GroupBox
-                            Header="{Binding  Model.Name}"
+                            
                             Style="{DynamicResource MaterialDesignCardGroupBox}"
                             Margin="16">
-                            <ListBox ItemContainerStyle="{DynamicResource RegionViewModuleListBoxItem}" Name="RegionGroupModuleListView"  ItemsSource="{Binding Modules}" SelectionChanged="RegionGroupModuleListView_OnSelectionChanged" >
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="SettingsBox"></materialDesign:PackIcon>
+                                    <TextBlock Text="{Binding Model.Name}"></TextBlock>
+                                </StackPanel>
+                                
+                            </GroupBox.Header>
+                            <ListBox Tag="{Binding .}"  ItemContainerStyle="{DynamicResource RegionViewModuleListBoxItem}" Name="RegionGroupModuleListView"  ItemsSource="{Binding Modules}" SelectionChanged="RegionGroupModuleListView_OnSelectionChanged" >
                                 <ListBox.ItemTemplate>
 
                                     <DataTemplate>
                                         
-                                        <TextBlock Background="Transparent"  HorizontalAlignment="Stretch" Tag="{Binding ElementName=RegionGroupModuleListView}" Name="ModuleItem"  Text="{Binding Name}" MouseLeftButtonDown="ModuleItem_OnMouseLeftButtonDown"></TextBlock>
+                                        <TextBlock Background="Transparent"  HorizontalAlignment="Stretch" Tag="{Binding ElementName=RegionGroupModuleListView}" Name="ModuleItem"  Text="{Binding Name}" MouseLeftButtonDown="ModuleItem_OnMouseLeftButtonDown" >
+                                            <TextBlock.ContextMenu>
+                                                <ContextMenu Tag="{Binding ElementName=RegionGroupModuleListView}" >
+                                                    <MenuItem Tag="{Binding .}"  Name="RemoveFromGroupMenuItem" Click="RemoveFromGroupMenuItem_OnClick">
+                                                        <MenuItem.Header>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <materialDesign:PackIcon Kind="Delete"></materialDesign:PackIcon>
+                                                                <TextBlock Margin="5 0 0 0" Text="Remove from group"></TextBlock>
+                                                            </StackPanel>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
+                                                </ContextMenu>
+                                            </TextBlock.ContextMenu>
+                                        </TextBlock>
                                     </DataTemplate>
                                     </ListBox.ItemTemplate>
                             </ListBox>
