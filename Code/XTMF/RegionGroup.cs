@@ -16,6 +16,8 @@ namespace XTMF
 
         private List<IModelSystemStructure> _modules;
 
+        public event EventHandler ModulesUpdated;
+
         public string Name
         {
             get
@@ -37,6 +39,15 @@ namespace XTMF
 
             }
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="group"></param>
+        public void UpdateModules(IRegionGroup group)
+        {
+            ModulesUpdated?.Invoke(group,new EventArgs());
         }
 
         /// <summary>

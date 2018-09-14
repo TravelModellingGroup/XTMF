@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,6 +62,34 @@ namespace XTMF.Gui.Models
                 Modules.Add(module);
             }
 
+            ((RegionGroup)group).ModulesUpdated += OnModulesUpdated;
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnModulesUpdated(object sender, EventArgs e)
+        {
+            var group = sender as IRegionGroup;
+
+            Modules.Clear();
+            foreach (var module in group.Modules)
+            {
+                Modules.Add(module);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModulesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+           
         }
 
         public IRegionGroup Model

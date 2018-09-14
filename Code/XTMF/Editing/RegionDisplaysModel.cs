@@ -129,14 +129,16 @@ namespace XTMF.Editing
                 // on do
                 (ref string e) =>
                 {
-
+                    
                     group.Modules.Add(module);
+                    ((RegionGroup)group).UpdateModules(group);
                     return true;
                 },
                 // on undo
                 (ref string e) =>
                 {
                     group.Modules.Remove(module);
+                    ((RegionGroup)group).UpdateModules(group);
                     return true;
                 },
 
@@ -144,6 +146,7 @@ namespace XTMF.Editing
                 (ref string e) =>
                 {
                     group.Modules.Add(module);
+                    ((RegionGroup)group).UpdateModules(group);
                     return true;
                 }), ref error);
         }
