@@ -28,6 +28,8 @@ namespace XTMF.Editing
 
         public event EventHandler<RegionViewGroupsUpdateEventArgs> RegionViewGroupsUpdated;
 
+        public event EventHandler<RegionViewsUpdateEventArgs> RegionViewsUpdated;
+
         public ObservableCollection<IRegionDisplay> RegionDisplays
         {
             get
@@ -58,13 +60,14 @@ namespace XTMF.Editing
                 {
 
                     this.RegionDisplays.Add(regionDisplay);
-
+                    RegionViewsUpdated?.Invoke(this, new RegionViewsUpdateEventArgs(regionDisplay));
                     return true;
                 },
                 // on undo
                 (ref string e) =>
                 {
                     this.RegionDisplays.Remove(regionDisplay);
+                    RegionViewsUpdated?.Invoke(this, new RegionViewsUpdateEventArgs(regionDisplay));
                     return true;
                 },
 
@@ -72,6 +75,7 @@ namespace XTMF.Editing
                 (ref string e) =>
                 {
                     this.RegionDisplays.Add(regionDisplay);
+                    RegionViewsUpdated?.Invoke(this, new RegionViewsUpdateEventArgs(regionDisplay));
                     return true;
                 }), ref error);
         }
@@ -103,7 +107,7 @@ namespace XTMF.Editing
                 (ref string e) =>
                 {
                     region.RegionGroups.Remove(regionGroup);
-                    RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(region));
+                    
                     return true;
                 },
 
@@ -189,6 +193,23 @@ namespace XTMF.Editing
         /// </summary>
         /// <param name="regionDisplay"></param>
         public RegionViewGroupsUpdateEventArgs(RegionDisplay regionDisplay)
+        {
+            RegionDisplay = regionDisplay;
+        }
+
+        public RegionDisplay RegionDisplay { get; }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class RegionViewsUpdateEventArgs : EventArgs
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="regionDisplay"></param>
+        public RegionViewsUpdateEventArgs(RegionDisplay regionDisplay)
         {
             RegionDisplay = regionDisplay;
         }

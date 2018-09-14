@@ -52,8 +52,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RegionDisplaysOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            _modelSystemDisplay.StatusSnackBar.MessageQueue.Enqueue(
-                $"New region display '{((IRegionDisplay)e.NewItems[0]).Name}' Added");
+           
         }
 
         /// <summary>
@@ -122,8 +121,9 @@ namespace XTMF.Gui.UserControls
                 var error = "";
                 _regionDisplaysModel.Model.CreateNewRegionDisplay(dialog.UserInput, ref error);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
             }
         }
 

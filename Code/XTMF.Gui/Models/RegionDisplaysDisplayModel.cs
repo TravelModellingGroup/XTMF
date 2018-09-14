@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using XTMF.Editing;
 using XTMF.Gui.Models;
 using XTMF.Interfaces;
@@ -113,6 +114,9 @@ namespace XTMF.Gui.Models
             Regions = new ObservableCollection<RegionDisplayModel>();
             this._model = model;
 
+            
+            model.RegionViewsUpdated += ModelOnRegionViewsUpdated;
+
             foreach (var region in model.RegionDisplays)
             {
                 Regions.Add(new RegionDisplayModel(region));
@@ -120,6 +124,23 @@ namespace XTMF.Gui.Models
 
 
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelOnRegionViewsUpdated(object sender, RegionViewsUpdateEventArgs e)
+        {
+
+            Regions.Clear();
+            foreach (var region in Model.RegionDisplays)
+            {
+
+                Regions.Add(new RegionDisplayModel(region));
+            }
+        }
+
 
     }
 
