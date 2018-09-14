@@ -200,6 +200,20 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
             }
         }
+        /// <summary>
+        /// PreviewKeyDown Listener for this control
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="keyEventArgs"></param>
+        private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
+        {
+            if (keyEventArgs.Key == Key.F5 && IsKeyboardFocusWithin && !LinkedParameterDisplayOverlay.IsVisible)
+            {
+                SaveCurrentlySelectedParameters();
+                ExecuteRun();
+            }
+        }
+
 
 
         /// <summary>
@@ -212,6 +226,12 @@ namespace XTMF.Gui.UserControls
             if (e.Key == Key.S && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
             {
                 SaveRequested(false);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.F5)
+            {
+                SaveCurrentlySelectedParameters();
+                ExecuteRun();
                 e.Handled = true;
             }
         }

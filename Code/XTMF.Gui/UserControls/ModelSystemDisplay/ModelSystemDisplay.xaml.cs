@@ -2514,19 +2514,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        /// <summary>
-        /// PreviewKeyDown Listener for this control
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="keyEventArgs"></param>
-        private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
-        {
-            if (keyEventArgs.Key == Key.F5 && IsKeyboardFocusWithin && !LinkedParameterDisplayOverlay.IsVisible)
-            {
-                SaveCurrentlySelectedParameters();
-                ExecuteRun();
-            }
-        }
 
 
 

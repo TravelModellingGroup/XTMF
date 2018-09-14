@@ -42,8 +42,12 @@
         TextOptions.TextRenderingMode="Auto" BorderThickness="0"        
         FontFamily="{DynamicResource MaterialDesignFont}" Closing="XtmfWindow_Closing" Initialized="XtmfWindow_Initialized">
     <metro:MetroWindow.RightWindowCommands>
-        <metro:WindowCommands BorderThickness="0">
-            <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right">
+        
+        <metro:WindowCommands BorderThickness="0" >
+            <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right" >
+                <materialDesign:PopupBox.ToggleContent>
+                    <materialDesign:PackIcon Kind="DotsHorizontal"></materialDesign:PackIcon>
+                </materialDesign:PopupBox.ToggleContent>
                 <StackPanel>
                     <Button Name="CloseTabButton" Content="Close Tab" Click="CloseTabButton_OnClick"/>
                 </StackPanel>
