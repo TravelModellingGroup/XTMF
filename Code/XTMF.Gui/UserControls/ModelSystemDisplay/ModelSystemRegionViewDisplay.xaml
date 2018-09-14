@@ -61,7 +61,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <materialDesign:PackIcon Kind="SettingsBox" />
                                         <TextBlock Margin="5" Name="HeaderText" Text="{Binding Model.Name}" />
-                                        <TextBox Margin="5" Name="HeaderTextInput" Background="{DynamicResource PrimaryHueDarkBrush}" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
+                                        <TextBox LostFocus="HeaderTextInput_OnLostFocus" Margin="5" Name="HeaderTextInput" Background="{DynamicResource PrimaryHueDarkBrush}" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
                                                  Text="{Binding Model.Name,Mode=TwoWay}" Visibility="Collapsed" />
                                     </StackPanel>
                                 </ContentControl>

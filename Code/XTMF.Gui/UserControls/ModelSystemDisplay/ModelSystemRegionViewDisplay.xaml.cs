@@ -298,5 +298,22 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HeaderTextInput_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            var element = ((FrameworkElement) sender).Parent;
+            var headerTextInput = element.FindChild<TextBox>("HeaderTextInput");
+            var headerText = element.FindChild<TextBlock>("HeaderText");
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                headerText.Visibility = Visibility.Visible;
+                headerTextInput.Visibility = Visibility.Collapsed;
+            }));
+        }
     }
 }
