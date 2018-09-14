@@ -58,8 +58,25 @@ namespace XTMF
 
             foreach (var module in clone.Modules)
             {
-                _modules.Add(cloneStructure);
+                _modules.Add(GetSiblingModule(module,cloneStructure));
+
+
             }
+
+            return;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="original"></param>
+        /// <param name="cloneRoot"></param>
+        /// <returns></returns>
+        private IModelSystemStructure GetSiblingModule(IModelSystemStructure original, IModelSystemStructure cloneRoot)
+        {
+            var path = ModelSystemStructure.GetModuleReferencePath(original, new List<string>());
+
+            return ModelSystemStructure.GetModuleFromReference(path, cloneRoot);
         }
     }
 }

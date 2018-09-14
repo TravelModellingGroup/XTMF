@@ -72,15 +72,15 @@ namespace XTMF
                     r.RegionGroups.Add(g);
                 }
 
-
-
-
                 list.Add(r);
             }
 
             return (List<IRegionDisplay>)list;
         }
 
+
+
+    
 
 
 

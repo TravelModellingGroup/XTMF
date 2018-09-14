@@ -157,6 +157,84 @@ namespace XTMF
             return result;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <param name="mss"></param>
+        /// <returns></returns>
+        public static IModelSystemStructure GetModuleFromReference(string reference, IModelSystemStructure mss)
+        {
+            var modules = reference.Split('.');
+
+            if (modules.Length == 1)
+            {
+                return mss;
+            }
+
+
+
+            return GetModuleFromReference(modules.Skip(1).ToArray(), mss);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="modules"></param>
+        /// <param name="mss"></param>
+        /// <returns></returns>
+        public static IModelSystemStructure GetModuleFromReference(string[] modules, IModelSystemStructure mss)
+        {
+
+            if (mss.IsCollection)
+            {
+                var childStructure = mss.Children[int.Parse(modules[0])];
+                return GetModuleFromReference(modules.Skip(2).ToArray(), childStructure);
+
+            }
+
+            else if (modules.Length == 0)
+            {
+                return mss;
+            }
+
+            //find the child node of MSS that has the same name as reference [0]
+            var structure = mss.Children.SingleOrDefault(m => m.Name == modules[0]);
+
+            if (modules.Length == 1)
+            {
+                return structure;
+            }
+
+            return GetModuleFromReference(modules.Skip(1).ToArray(), structure);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystemStructure"></param>
+        /// <param name="referencePath"></param>
+        /// <returns></returns>
+        public static string GetModuleReferencePath(IModelSystemStructure modelSystemStructure, List<string> referencePath)
+        {
+            if (modelSystemStructure.Parent == null)
+            {
+                referencePath?.Insert(0, modelSystemStructure.Name);
+
+
+
+                return string.Join(".", referencePath?.ToArray());
+            }
+            else
+            {
+                referencePath.Insert(0, modelSystemStructure.Name);
+                if (modelSystemStructure.Parent.IsCollection)
+                {
+                    referencePath.Insert(0, modelSystemStructure.Parent.Children.IndexOf(modelSystemStructure).ToString());
+                }
+                return GetModuleReferencePath(modelSystemStructure.Parent, referencePath);
+            }
+        }
+
         public static void GenerateChildren(IConfiguration config, IModelSystemStructure element)
         {
             if (element?.Type == null) return;

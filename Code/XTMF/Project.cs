@@ -433,7 +433,7 @@ namespace XTMF
             
             regionDisplays = RegionDisplays[modelSystemIndex];
 
-            var r  = RegionDisplay.MapRegionDisplays(regionDisplays, ourClone);
+            var r = regionDisplays = RegionDisplay.MapRegionDisplays(regionDisplays, ourClone);
 
             return ourClone as ModelSystemStructure;
         }
