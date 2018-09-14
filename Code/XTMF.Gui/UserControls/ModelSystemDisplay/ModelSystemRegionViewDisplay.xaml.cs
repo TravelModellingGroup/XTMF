@@ -188,7 +188,7 @@ namespace XTMF.Gui.UserControls
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                ModelSystemStructure m = (ModelSystemStructure) ((ListView) sender).SelectedItem;
+                ModelSystemStructure m = (ModelSystemStructure) ((ListBox) sender).SelectedItem;
                 ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
                 _modelSystemDisplay.RefreshParameters();
             }));
@@ -202,12 +202,16 @@ namespace XTMF.Gui.UserControls
         private void ModuleItem_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Dispatcher.BeginInvoke(new Action(() => {
-                ListView view = (ListView)((TextBlock)sender as TextBlock).Tag;
+                ListBox view = (ListBox)((TextBlock)sender as TextBlock).Tag;
                 ;
-                ModelSystemStructure m = (ModelSystemStructure)((ListView)view).SelectedItem;
+                ModelSystemStructure m = (ModelSystemStructure)((ListBox)view).SelectedItem;
                 ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
-                ActiveModule.IsSelected = true;
-                //_modelSystemDisplay.RefreshParameters();
+                
+                Dispatcher.Invoke(() =>
+                {
+                    ActiveModule.IsSelected = true;
+                   // this._modelSystemDisplay.StatusBarModuleNameTextBlock.Text = $"{ActiveModule.BaseModel.Type} [{ActiveModule.Name}]";
+                });
             }));
 
         }

@@ -49,14 +49,15 @@
                             Header="{Binding  Model.Name}"
                             Style="{DynamicResource MaterialDesignCardGroupBox}"
                             Margin="16">
-                            <ListView Name="RegionGroupModuleListView"  ItemsSource="{Binding Modules}" SelectionChanged="RegionGroupModuleListView_OnSelectionChanged" >
+                            <ListBox ItemContainerStyle="{DynamicResource RegionViewModuleListBoxItem}" Name="RegionGroupModuleListView"  ItemsSource="{Binding Modules}" SelectionChanged="RegionGroupModuleListView_OnSelectionChanged" >
                                 <ListBox.ItemTemplate>
 
                                     <DataTemplate>
+                                        
                                         <TextBlock Background="Transparent"  HorizontalAlignment="Stretch" Tag="{Binding ElementName=RegionGroupModuleListView}" Name="ModuleItem"  Text="{Binding Name}" MouseLeftButtonDown="ModuleItem_OnMouseLeftButtonDown"></TextBlock>
                                     </DataTemplate>
                                     </ListBox.ItemTemplate>
-                            </ListView>
+                            </ListBox>
                         </GroupBox>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
