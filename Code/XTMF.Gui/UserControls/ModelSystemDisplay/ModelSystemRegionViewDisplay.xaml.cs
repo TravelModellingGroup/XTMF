@@ -206,7 +206,8 @@ namespace XTMF.Gui.UserControls
                 ;
                 ModelSystemStructure m = (ModelSystemStructure)((ListView)view).SelectedItem;
                 ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
-                _modelSystemDisplay.RefreshParameters();
+                ActiveModule.IsSelected = true;
+                //_modelSystemDisplay.RefreshParameters();
             }));
 
         }

@@ -153,7 +153,7 @@ namespace XTMF.Gui.UserControls
 
                 Dispatcher.Invoke(() =>
                 {
-                    this._display.StatusBarModuleNameTextBlock.Text = $"{module.BaseModel.Type}";
+                    this._display.StatusBarModuleNameTextBlock.Text = $"{module.BaseModel.Type} [{module.Name}]";
                 });
 
             }

@@ -53,7 +53,7 @@
                                 <ListBox.ItemTemplate>
 
                                     <DataTemplate>
-                                        <TextBlock Tag="{Binding ElementName=RegionGroupModuleListView}" Name="ModuleItem"  Text="{Binding Name}" MouseLeftButtonDown="ModuleItem_OnMouseLeftButtonDown"></TextBlock>
+                                        <TextBlock Background="Transparent"  HorizontalAlignment="Stretch" Tag="{Binding ElementName=RegionGroupModuleListView}" Name="ModuleItem"  Text="{Binding Name}" MouseLeftButtonDown="ModuleItem_OnMouseLeftButtonDown"></TextBlock>
                                     </DataTemplate>
                                     </ListBox.ItemTemplate>
                             </ListView>

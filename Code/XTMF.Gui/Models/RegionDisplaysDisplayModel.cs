@@ -82,16 +82,6 @@ namespace XTMF.Gui.Models
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModulesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-           
-        }
-
         public IRegionGroup Model
         {
             get => _model;
