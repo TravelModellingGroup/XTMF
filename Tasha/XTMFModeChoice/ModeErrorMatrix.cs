@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -46,6 +46,12 @@ namespace Tasha.XTMFModeChoice
         [RunParameter("Report Expansion Factors", false, "When exporting the trips use expansion factors?")]
         public bool ReportExpansionFactors;
 
+        [RunParameter("StartTime", "0:00", typeof(Time), "The early bound for when to collect data from.")]
+        public Time StartTime;
+
+        [RunParameter("EndTime", "30:00", typeof(Time), "The late bound for when to collect data from.")]
+        public Time EndTime;
+
         [RootModule]
         public ITashaRuntime TashaRuntime;
 
@@ -85,6 +91,11 @@ namespace Tasha.XTMFModeChoice
             var householdData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
             double householdFitness = 0.0;
             double zeroFitness = 0.0;
+            // Make sure there is data for this household.  This might happen if there is no trips.
+            if(householdData == null)
+            {
+                return;
+            }
             for(int personIndex = 0; personIndex < householdData.PersonData.Length; personIndex++)
             {
                 var personData = householdData.PersonData[personIndex];
@@ -95,6 +106,10 @@ namespace Tasha.XTMFModeChoice
                     for(int tripIndex = 0; tripIndex < tripChainData.TripData.Length; tripIndex++)
                     {
                         var trip = tripChainData.TripChain.Trips[tripIndex];
+                        if (!IsInTimeBound(trip))
+                        {
+                            continue;
+                        }
                         var tripData = tripChainData.TripData[tripIndex];
                         int correct = 0;
                         if(trip.ModesChosen == null)
@@ -195,6 +210,19 @@ namespace Tasha.XTMFModeChoice
             ZeroParamFitness += (float)zeroFitness;
             Thread.MemoryBarrier();
             if(entered) FitnessUpdateLock.Exit(true);
+        }
+
+        private bool IsInTimeBound(ITrip trip)
+        {
+            var activity = trip.Purpose;
+            /*
+             We need to actually compute this to make sure that the changing of the active mode does not change when this trip
+             started compared to the base data.  Home trips are going to change the activity start time, other trips will change
+             the trip start time depending on the currently selected mode.  To keep things consistent we will use their activity
+             start time.
+            */
+            var activityTime = activity == Activity.Home ? trip.TripStartTime : trip.ActivityStartTime;
+            return StartTime <= activityTime && activityTime < EndTime;
         }
 
         public void IterationFinished(int iteration)
