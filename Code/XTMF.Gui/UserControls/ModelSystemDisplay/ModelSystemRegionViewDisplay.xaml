@@ -28,7 +28,7 @@
                 <ColumnDefinition Width="50" />
             </Grid.ColumnDefinitions>
             <ComboBox SelectionChanged="RegionsComboBox_OnSelectionChanged" Margin="30 0 15 0" DockPanel.Dock="Left"
-                      Grid.Column="0" Name="RegionsComboBox" ItemsSource="{Binding RegionDisplays}"
+                      Grid.Column="0" Name="RegionsComboBox" ItemsSource="{Binding Regions}"
                       Style="{StaticResource MaterialDesignComboBox}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
