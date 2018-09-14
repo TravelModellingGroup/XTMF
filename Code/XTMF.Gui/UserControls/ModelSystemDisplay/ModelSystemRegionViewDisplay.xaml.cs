@@ -168,11 +168,8 @@ namespace XTMF.Gui.UserControls
         private void RegionsComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Console.WriteLine(RegionsComboBox.SelectionBoxItem);
-            if (RegionsComboBox.SelectionBoxItem is RegionDisplay region)
-            {
-                ActiveGroupModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
-                GroupDisplayList.ItemsSource = region.RegionGroups;
-            }
+            GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[RegionsComboBox.SelectedIndex].Groups;
+
         }
 
 
