@@ -45,7 +45,7 @@
         <Grid Name="GroupDisplay" Grid.Row="1" VerticalAlignment="Stretch">
 
             <ListView Name="GroupDisplayList" ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }"
-                      SelectionChanged="GroupDisplayList_OnSelectionChanged">
+                      SelectionChanged="GroupDisplayList_OnSelectionChanged" >
 
                 <ListBox.ItemTemplate>
 

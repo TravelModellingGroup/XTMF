@@ -40,6 +40,22 @@ namespace XTMF.Gui.Models
             {
                 Groups.Add(new RegionGroupDisplayModel(group));
             }
+
+            ((RegionDisplay)region).RegionGroups.CollectionChanged += RegionGroupsOnCollectionChanged;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionGroupsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Groups.Clear();
+            foreach (var g in Model.RegionGroups)
+            {
+                Groups.Add(new RegionGroupDisplayModel(g));
+            }
         }
     }
 

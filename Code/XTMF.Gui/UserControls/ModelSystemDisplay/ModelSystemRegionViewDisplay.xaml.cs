@@ -94,8 +94,13 @@ namespace XTMF.Gui.UserControls
 
                 if (_regionDisplaysModel.Regions.Count > 0)
                 {
-                    RegionsComboBox.SelectedIndex = 0;
-                    GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[0].Groups;
+                    
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        RegionsComboBox.SelectedIndex = 0;
+                        GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[0].Groups;
+                    }));
+                    
                 }
             });
         }
@@ -137,12 +142,13 @@ namespace XTMF.Gui.UserControls
             {
                 var result = await dialog.ShowAsync(false);
                 var error = "";
-                var item = (RegionDisplay)RegionsComboBox.SelectionBoxItem;
-                _regionDisplaysModel.Model.CreateNewGroupDisplay((RegionDisplay)RegionsComboBox.SelectionBoxItem,
+                var item = (RegionDisplayModel)RegionsComboBox.SelectionBoxItem;
+                _regionDisplaysModel.Model.CreateNewGroupDisplay((RegionDisplay)item.Model,
                     dialog.UserInput, ref error);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
             }
         }
 

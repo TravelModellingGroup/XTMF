@@ -107,7 +107,7 @@ namespace XTMF.Editing
                 (ref string e) =>
                 {
                     region.RegionGroups.Remove(regionGroup);
-                    
+                    RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(region));
                     return true;
                 },
 
