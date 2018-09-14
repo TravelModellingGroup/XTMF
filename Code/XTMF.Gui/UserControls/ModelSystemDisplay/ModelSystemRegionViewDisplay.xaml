@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:models="clr-namespace:XTMF.Gui.Models"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" Focusable="True"
-             mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}"
+             mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}" 
              d:DesignHeight="450" d:DesignWidth="800">
 
     <UserControl.Resources>
@@ -50,7 +50,12 @@
                             Style="{DynamicResource MaterialDesignCardGroupBox}"
                             Margin="16">
                             <ListView Name="RegionGroupModuleListView"  ItemsSource="{Binding Modules}" SelectionChanged="RegionGroupModuleListView_OnSelectionChanged" >
-                               
+                                <ListBox.ItemTemplate>
+
+                                    <DataTemplate>
+                                        <TextBlock Tag="{Binding ElementName=RegionGroupModuleListView}" Name="ModuleItem"  Text="{Binding Name}" MouseLeftButtonDown="ModuleItem_OnMouseLeftButtonDown"></TextBlock>
+                                    </DataTemplate>
+                                    </ListBox.ItemTemplate>
                             </ListView>
                         </GroupBox>
                     </DataTemplate>

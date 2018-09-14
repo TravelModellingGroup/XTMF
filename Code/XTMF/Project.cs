@@ -431,9 +431,9 @@ namespace XTMF
                 : new List<ILinkedParameter>();
 
             
-            regionDisplays = RegionDisplays[modelSystemIndex];
+            //regionDisplays = RegionDisplays[modelSystemIndex];
 
-            var r = regionDisplays = RegionDisplay.MapRegionDisplays(regionDisplays, ourClone);
+            regionDisplays = RegionDisplay.MapRegionDisplays(RegionDisplays[modelSystemIndex], ourClone);
 
             return ourClone as ModelSystemStructure;
         }

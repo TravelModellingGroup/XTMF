@@ -2912,6 +2912,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() =>
            {
                ModelSystemDisplayContent.Content = this._regionViewDisplay;
+               ActiveModelSystemView = this._regionViewDisplay;
            }));
 
         }
@@ -2926,6 +2927,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 ModelSystemDisplayContent.Content = this._treeViewDisplay;
+                ActiveModelSystemView = this._treeViewDisplay;
             }));
         }
 

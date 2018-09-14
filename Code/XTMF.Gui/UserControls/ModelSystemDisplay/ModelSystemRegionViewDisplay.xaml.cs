@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using XTMF.Editing;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
@@ -185,10 +186,29 @@ namespace XTMF.Gui.UserControls
         private void RegionGroupModuleListView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ModelSystemStructure m = (ModelSystemStructure) ((ListView) sender).SelectedItem;
+                ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
+                _modelSystemDisplay.RefreshParameters();
+            }));
+        }
 
-            ModelSystemStructure m = (ModelSystemStructure)((ListView)sender).SelectedItem;
-            //ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
-            //_modelSystemDisplay.RefreshParameters();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModuleItem_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() => {
+                ListView view = (ListView)((TextBlock)sender as TextBlock).Tag;
+                ;
+                ModelSystemStructure m = (ModelSystemStructure)((ListView)view).SelectedItem;
+                ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
+                _modelSystemDisplay.RefreshParameters();
+            }));
+
         }
     }
 }
