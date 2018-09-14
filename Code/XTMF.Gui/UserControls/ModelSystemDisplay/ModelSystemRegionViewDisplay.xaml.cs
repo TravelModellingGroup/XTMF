@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using MahApps.Metro.Controls;
 using XTMF.Editing;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
@@ -236,8 +237,60 @@ namespace XTMF.Gui.UserControls
             target2.Model.Modules.Remove(model);
             ((RegionGroup)target2.Model).UpdateModules(target2.Model);
 
+        }
 
-            Console.WriteLine("h");
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionGroupHeader_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+            var headerTextInput = element.FindChild<TextBox>("HeaderTextInput");
+            var headerText = element.FindChild<TextBlock>("HeaderText");
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                headerText.Visibility = headerText.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+                headerTextInput.Visibility = headerTextInput.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+
+                if (headerTextInput.Visibility == Visibility.Visible)
+                {
+                    headerTextInput.CaretIndex = headerTextInput.SelectionLength;
+                    headerTextInput.SelectionLength = headerTextInput.Text.Length;
+                    headerTextInput.SelectionStart = 0;
+                    headerTextInput.Focus();
+                    Keyboard.Focus(headerTextInput);
+                }
+            }));
+            return;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionGroupHeader_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                var element = sender as FrameworkElement;
+                var headerTextInput = element.FindChild<TextBox>("HeaderTextInput");
+                var headerText = element.FindChild<TextBlock>("HeaderText");
+                if (headerTextInput.Visibility == Visibility.Visible)
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        headerText.Visibility = headerText.Visibility == Visibility.Collapsed
+                            ? Visibility.Visible
+                            : Visibility.Collapsed;
+                        headerTextInput.Visibility = headerTextInput.Visibility == Visibility.Collapsed
+                            ? Visibility.Visible
+                            : Visibility.Collapsed;
+                    }));
+                }
+            }
         }
     }
 }
