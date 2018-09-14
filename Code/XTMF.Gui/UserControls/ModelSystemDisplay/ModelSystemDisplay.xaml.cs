@@ -1306,19 +1306,7 @@ namespace XTMF.Gui.UserControls
                         }
 
                         break;
-                    case Key.T:
-                        {
-                            if (ctrlDown)
-                            {
-                                ToggleQuickParameterDisplay();
-                                e.Handled = true;
-                            }
-                            else
-                            {
-                                e.Handled = false;
-                            }
-                        }
-                        break;
+
                     default:
                         e.Handled = false;
                         break;
@@ -2685,6 +2673,15 @@ namespace XTMF.Gui.UserControls
                     }));
                     e.Handled = true;
                 }
+                else if (e.Key == Key.T)
+                {
+
+                        GetCurrentParameterDisplayModelContext().QuickParameter = !GetCurrentParameterDisplayModelContext().QuickParameter;
+                        e.Handled = true;
+
+
+                }
+              
             }
             else if (e.Key == Key.Tab || e.Key == Key.Down || e.Key == Key.Up || e.Key == Key.Enter)
             {
@@ -2706,6 +2703,7 @@ namespace XTMF.Gui.UserControls
                 ProcessParameterDisplayKeyDown(view, e);
                 e.Handled = true;
             }
+           
         }
 
         /// <summary>
