@@ -257,13 +257,13 @@
 
                                         </ListBox.ToolTip>
 
-                                        <ListBoxItem Name="TreeViewListBoxItem" Selected="TreeViewListBoxItem_Selected" >
+                                        <ListBoxItem Name="TreeViewListBoxItem" Selected="TreeViewListBoxItem_Selected"  ToolTip="Show / Hide the model system tree view display" >
 
                                             <materialDesign:PackIcon Kind="FileTree"/>
 
                                         </ListBoxItem>
 
-                                        <ListBoxItem Name="RegionViewListBoxItem" Selected="RegionViewListBoxItem_Selected" >
+                                        <ListBoxItem Name="RegionViewListBoxItem" Selected="RegionViewListBoxItem_Selected" ToolTip="Show / Hide the model system region view display" >
 
                                             <materialDesign:PackIcon Kind="Group"/>
 
