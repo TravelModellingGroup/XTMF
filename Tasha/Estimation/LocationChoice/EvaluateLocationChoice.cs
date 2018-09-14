@@ -41,6 +41,15 @@ namespace Tasha.Estimation.LocationChoice
         public FileLocation ConfusionMatrix;
 
         [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+        public FileLocation ModelWorkOD;
+
+        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+        public FileLocation ModelMarketOD;
+
+        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+        public FileLocation ModelOtherOD;
+
+        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
         public FileLocation ObservedWorkOD;
 
         [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
@@ -146,14 +155,30 @@ namespace Tasha.Estimation.LocationChoice
                                         for (int i = 0; i < choices.Length; i++)
                                         {
                                             flatChoices[i][revieldChoice] += expansionFactor;
+                                            switch (activtiyType)
+                                            {
+                                                case Activity.WorkBasedBusiness:
+                                                    ModelWork[i][revieldChoice] += choices[i];
+                                                    break;
+                                                case Activity.Market:
+                                                case Activity.JointMarket:
+                                                    ModelMarket[i][revieldChoice] += choices[i];
+                                                    break;
+                                                case Activity.IndividualOther:
+                                                case Activity.JointOther:
+                                                    ModelOther[i][revieldChoice] += choices[i];
+                                                    break;
+                                            }
                                         }
                                         switch (activtiyType)
                                         {
                                             case Activity.WorkBasedBusiness:
+
                                                 AddIfExists(ObservedWork, origin, revieldChoice);
                                                 break;
                                             case Activity.Market:
                                             case Activity.JointMarket:
+
                                                 AddIfExists(ObservedMarket, origin, revieldChoice);
                                                 break;
                                             case Activity.IndividualOther:
@@ -161,7 +186,6 @@ namespace Tasha.Estimation.LocationChoice
                                                 AddIfExists(ObservedOther, origin, revieldChoice);
                                                 break;
                                         }
-
                                         if (taken) ChoicesLock.Exit(false);
                                         localFitness += (float)Math.Log(correct);
                                         break;
@@ -216,6 +240,10 @@ namespace Tasha.Estimation.LocationChoice
             SaveIfExists(ObservedWork, ObservedWorkOD);
             SaveIfExists(ObservedMarket, ObservedMarketOD);
             SaveIfExists(ObservedOther, ObservedOtherOD);
+
+            SaveIfExists(ModelWork, ModelWorkOD);
+            SaveIfExists(ModelMarket, ModelMarketOD);
+            SaveIfExists(ModelOther, ModelOtherOD);
         }
 
         private void SaveIfExists(float[][] observedWork, FileLocation observedWorkOD)
@@ -231,6 +259,10 @@ namespace Tasha.Estimation.LocationChoice
         private float[][] ObservedMarket;
         private float[][] ObservedOther;
 
+        private float[][] ModelWork;
+        private float[][] ModelMarket;
+        private float[][] ModelOther;
+
 
         public void IterationStarting(int iteration)
         {
@@ -245,6 +277,10 @@ namespace Tasha.Estimation.LocationChoice
             CreateIfObserved(out ObservedWork, ObservedWorkOD);
             CreateIfObserved(out ObservedMarket, ObservedMarketOD);
             CreateIfObserved(out ObservedOther, ObservedOtherOD);
+
+            CreateIfObserved(out ModelWork, ObservedWorkOD);
+            CreateIfObserved(out ModelMarket, ObservedMarketOD);
+            CreateIfObserved(out ModelOther, ObservedOtherOD);
         }
 
         private void CreateIfObserved(out float[][] observedDataSet, FileLocation observedDatasetOutputLocation)
