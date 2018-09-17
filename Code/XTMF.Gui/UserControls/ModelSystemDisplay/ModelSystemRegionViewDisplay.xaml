@@ -43,7 +43,7 @@
                                          HorizontalAlignment="Center" />
             </Button>
             <Button Grid.Column="2" Name="RemoveRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}"
-                    Click="RemoveRegionDisplayButton_OnClick" Foreground="{DynamicResource SecondaryAccentBrush}">
+                    Click="RemoveRegionDisplayButton_OnClick" Foreground="{DynamicResource SecondaryAccentBrush}" >
                 <materialDesign:PackIcon Kind="TableRowRemove" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
             </Button>

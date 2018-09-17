@@ -168,7 +168,10 @@ namespace XTMF.Gui.UserControls
         private void RegionsComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Console.WriteLine(RegionsComboBox.SelectionBoxItem);
-            GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[RegionsComboBox.SelectedIndex].Groups;
+            if (RegionsComboBox.SelectedIndex >= 0)
+            {
+                GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[RegionsComboBox.SelectedIndex].Groups;
+            }
 
         }
 
@@ -333,7 +336,14 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RemoveRegionDisplayButton_OnClick(object sender, RoutedEventArgs e)
         {
-           
+            var display = (RegionsComboBox.SelectedItem as RegionDisplayModel)?.Model;
+
+            string error = "";
+            if (display != null)
+            {
+                _regionDisplaysModel.Model.RemoveRegionDisplay((RegionDisplay) display, ref error);
+            }
+
         }
     }
 }

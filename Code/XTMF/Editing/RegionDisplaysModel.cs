@@ -83,6 +83,41 @@ namespace XTMF.Editing
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="name"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public bool RemoveRegionDisplay(RegionDisplay display, ref string error)
+        {
+
+            return _session.RunCommand(XTMFCommand.CreateCommand("New Region Display",
+                // on do
+                (ref string e) =>
+                {
+
+                    this.RegionDisplays.Remove(display);
+                    RegionViewsUpdated?.Invoke(this, new RegionViewsUpdateEventArgs(display));
+                    return true;
+                },
+                // on undo
+                (ref string e) =>
+                {
+                    this.RegionDisplays.Add(display);
+                    RegionViewsUpdated?.Invoke(this, new RegionViewsUpdateEventArgs(display));
+                    return true;
+                },
+
+                // on redo
+                (ref string e) =>
+                {
+                    this.RegionDisplays.Remove(display);
+                    RegionViewsUpdated?.Invoke(this, new RegionViewsUpdateEventArgs(display));
+                    return true;
+                }), ref error);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="group"></param>
         /// <param name="error"></param>
         /// <returns></returns>
