@@ -312,5 +312,18 @@ namespace XTMF.Gui.UserControls
                 headerTextInput.Visibility = Visibility.Collapsed;
             }));
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GroupCloseIcon_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = ((sender as FrameworkElement)?.Tag as RegionGroupDisplayModel)?.Model;
+            string error = "";
+            _regionDisplaysModel.Model.RemoveRegionGroup((RegionGroup)item, ref error);
+            
+        }
     }
 }

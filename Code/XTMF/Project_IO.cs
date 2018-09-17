@@ -329,7 +329,7 @@ namespace XTMF
                 {
                     foreach (XmlNode regionGroupNode in xmlRegionGroupNodes)
                     {
-                        RegionGroup regionGroup = new RegionGroup()
+                        RegionGroup regionGroup = new RegionGroup(regionDisplay)
                         {
                             Name = regionGroupNode.Attributes?["Name"].Value
                         };

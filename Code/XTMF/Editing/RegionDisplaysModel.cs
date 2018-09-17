@@ -80,6 +80,39 @@ namespace XTMF.Editing
                 }), ref error);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public bool RemoveRegionGroup(RegionGroup group, ref string error)
+        {
+            return _session.RunCommand(XTMFCommand.CreateCommand("New Region Display",
+                // on do
+                (ref string e) =>
+                {
+
+                    group.ParentDisplay.RegionGroups.Remove(group);
+                    RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(group.ParentDisplay));
+                    return true;
+                },
+                // on undo
+                (ref string e) =>
+                {
+                    group.ParentDisplay.RegionGroups.Add(group);
+                    RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(group.ParentDisplay));
+                    return true;
+                },
+
+                // on redo
+                (ref string e) =>
+                {
+                    group.ParentDisplay.RegionGroups.Remove(group);
+                    RegionViewGroupsUpdated?.Invoke(this, new RegionViewGroupsUpdateEventArgs(group.ParentDisplay));
+                    return true;
+                }), ref error);
+        }
 
         /// <summary>
         /// 
@@ -90,7 +123,7 @@ namespace XTMF.Editing
         /// <returns></returns>
         public bool CreateNewGroupDisplay(RegionDisplay region, string name, ref string error)
         {
-            RegionGroup regionGroup = new RegionGroup()
+            RegionGroup regionGroup = new RegionGroup(region)
             {
                 Name = name
             };

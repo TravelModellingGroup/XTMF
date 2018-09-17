@@ -58,12 +58,21 @@
                                 <ContentControl Name="RegionGroupHeader"
                                                 MouseDoubleClick="RegionGroupHeader_OnMouseDoubleClick"
                                                 PreviewKeyDown="RegionGroupHeader_OnPreviewKeyDown">
-                                    <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="SettingsBox" />
-                                        <TextBlock Margin="5" Name="HeaderText" Text="{Binding Model.Name}" />
+                                    <Grid >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <materialDesign:PackIcon Kind="SettingsBox" Grid.Column="0" />
+                                        <TextBlock Margin="5" Name="HeaderText" Text="{Binding Model.Name}"  Grid.Column="1"/>
                                         <TextBox LostFocus="HeaderTextInput_OnLostFocus" Margin="5" Name="HeaderTextInput" Background="{DynamicResource PrimaryHueDarkBrush}" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
-                                                 Text="{Binding Model.Name,Mode=TwoWay}" Visibility="Collapsed" />
-                                    </StackPanel>
+                                                 Text="{Binding Model.Name,Mode=TwoWay}" Visibility="Collapsed"  Grid.Column="2" />
+                                        <materialDesign:PackIcon Kind="Close" Grid.Column="3" HorizontalAlignment="Right" Name="GroupCloseIcon" MouseDown="GroupCloseIcon_OnMouseDown" Tag="{Binding .}"
+                                                                 Cursor="Hand"
+                                                                 Background="Transparent"/>
+                                    </Grid>
                                 </ContentControl>
                             </GroupBox.Header>
                             <ListBox Tag="{Binding .}"

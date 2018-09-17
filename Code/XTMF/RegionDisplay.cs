@@ -66,7 +66,7 @@ namespace XTMF
 
                 foreach (var group in region.RegionGroups)
                 {
-                    var g = new RegionGroup(group,clone);
+                    var g = new RegionGroup(group,clone,r);
 
                     
                     r.RegionGroups.Add(g);

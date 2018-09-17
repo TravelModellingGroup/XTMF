@@ -18,6 +18,8 @@ namespace XTMF
 
         public event EventHandler ModulesUpdated;
 
+        public RegionDisplay ParentDisplay { get; set; }
+
         public string Name
         {
             get
@@ -53,19 +55,24 @@ namespace XTMF
         /// <summary>
         /// 
         /// </summary>
-        public RegionGroup()
+        /// <param name="parent"></param>
+        public RegionGroup(RegionDisplay parent)
         {
             _modules = new List<IModelSystemStructure>();
+            ParentDisplay = parent;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="clone"></param>
-        public RegionGroup(IRegionGroup clone, IModelSystemStructure cloneStructure)
+       /// <summary>
+       /// 
+       /// </summary>
+       /// <param name="clone"></param>
+       /// <param name="cloneStructure"></param>
+       /// <param name="parent"></param>
+        public RegionGroup(IRegionGroup clone, IModelSystemStructure cloneStructure, IRegionDisplay parent)
         {
             _modules = new List<IModelSystemStructure>();
             Name = clone.Name;
+            ParentDisplay = (RegionDisplay)parent;
 
             foreach (var module in clone.Modules)
             {
