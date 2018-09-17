@@ -325,5 +325,15 @@ namespace XTMF.Gui.UserControls
             _regionDisplaysModel.Model.RemoveRegionGroup((RegionGroup)item, ref error);
             
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RemoveRegionDisplayButton_OnClick(object sender, RoutedEventArgs e)
+        {
+           
+        }
     }
 }
