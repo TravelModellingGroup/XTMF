@@ -125,6 +125,7 @@ namespace XTMF.Gui.UserControls
                 var result = await dialog.ShowAsync(false);
                 var error = "";
                 _regionDisplaysModel.Model.CreateNewRegionDisplay(dialog.UserInput, ref error);
+                UpdateRegionDisplayList();
             }
             catch (Exception e)
             {
@@ -171,6 +172,11 @@ namespace XTMF.Gui.UserControls
             if (RegionsComboBox.SelectedIndex >= 0)
             {
                 GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[RegionsComboBox.SelectedIndex].Groups;
+                RemoveRegionDisplayButton.IsEnabled = true;
+            }
+            else
+            {
+                RemoveRegionDisplayButton.IsEnabled = false;
             }
 
         }
