@@ -161,8 +161,10 @@ namespace Tasha.V4Modes
                 v += DriversLicenseFlag;
             }
 
-            var o = _zoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber);
-            var d = _zoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+            var origin = trip.OriginalZone;
+            var destination = trip.DestinationZone;
+            var o = _zoneSystem.GetFlatIndex(origin.ZoneNumber);
+            var d = _zoneSystem.GetFlatIndex(destination.ZoneNumber);
             Time startTime = trip.ActivityStartTime;
             v += TravelTime(o, d, startTime).ToMinutes() * walkBeta;
             v += _zonalDestinationUtility[d];
@@ -328,6 +330,12 @@ namespace Tasha.V4Modes
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
             float distance = _distances[origin.ZoneNumber, destination.ZoneNumber];
+            return Time.FromMinutes((float)(distance / AvgWalkSpeed));
+        }
+
+        private Time TravelTime(int flatOrigin, int flatDesination, Time time)
+        {
+            float distance = _distances.GetFlatData()[flatOrigin][flatDesination];
             return Time.FromMinutes((float)(distance / AvgWalkSpeed));
         }
 
