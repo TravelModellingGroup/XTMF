@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -181,6 +181,13 @@ namespace Tasha.V4Modes
             set;
         }
 
+        [SubModelInformation(Required = false, Description = "An optional utility modification when traveling to the given zone.")]
+        public IDataSource<SparseArray<float>> ZonalDestinationUtility;
+
+        private float[] _zonalDestinationUtility;
+
+        private SparseArray<IZone> _zoneSystem;
+
         /// <summary>
         /// The V for a trip whose mode is bike
         /// </summary>
@@ -192,12 +199,15 @@ namespace Tasha.V4Modes
             ITashaPerson person = trip.TripChain.Person;
             GetPersonVariables(person, out float timeFactor, out float constant);
             v += constant;
-            if(trip.OriginalZone == trip.DestinationZone)
+            var o = _zoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber);
+            var d = _zoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+            if (o == d)
             {
                 v += IntrazonalConstant;
             }
-            v += timeFactor * TravelTime(trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime).ToMinutes();
-            if(person.Youth)
+            v += timeFactor * TravelTime(o, d, trip.ActivityStartTime).ToMinutes();
+            v += _zonalDestinationUtility[d];
+            if (person.Youth)
             {
                 v += YouthFlag;
             }
@@ -409,6 +419,12 @@ namespace Tasha.V4Modes
             return Time.FromMinutes((float)(distance / AvgTravelSpeed));
         }
 
+        private Time TravelTime(int flatOrigin, int flatDesination, Time time)
+        {
+            float distance = _distances.GetFlatData()[flatOrigin][flatDesination];
+            return Time.FromMinutes((float)(distance / AvgTravelSpeed));
+        }
+
         public void IterationEnding(int iterationNumber, int maxIterations)
         {
 
@@ -416,6 +432,7 @@ namespace Tasha.V4Modes
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
+            _zoneSystem = Root.ZoneSystem.ZoneArray;
             if (CustomDistances != null)
             {
                 if (!CustomDistances.Loaded)
@@ -432,6 +449,23 @@ namespace Tasha.V4Modes
             else
             {
                 _distances = Root.ZoneSystem.Distances;
+            }
+            if(ZonalDestinationUtility != null)
+            {
+                ZonalDestinationUtility.LoadData();
+                _zonalDestinationUtility = ZonalDestinationUtility.GiveData().GetFlatData();
+                ZonalDestinationUtility.UnloadData();
+                if(_zonalDestinationUtility.Length != _zoneSystem.Count)
+                {
+                    throw new XTMFRuntimeException(this, $"The number of zones in the mode's ZonalUtility is not consistent with the current zone system!");
+                }
+            }
+            else
+            {
+                if(_zonalDestinationUtility == null || _zonalDestinationUtility.Length != _zoneSystem.Count)
+                {
+                    _zonalDestinationUtility = new float[_zoneSystem.Count];
+                }
             }
         }
     }

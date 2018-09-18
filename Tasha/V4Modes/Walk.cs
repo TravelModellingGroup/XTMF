@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,14 +27,14 @@ namespace Tasha.V4Modes
     /// <summary>
     ///
     /// </summary>
-    [ModuleInformation( Description =
-        @"This module is designed to implement the Walk mode for GTAModel V4.0+." )]
+    [ModuleInformation(Description =
+        @"This module is designed to implement the Walk mode for GTAModel V4.0+.")]
     public sealed class Walk : ITashaMode, IIterationSensitive
     {
         [RootModule]
         public ITashaRuntime Root;
 
-        [RunParameter( "Average walking speed", 4.5f, "The walking speed in km/h." )]
+        [RunParameter("Average walking speed", 4.5f, "The walking speed in km/h.")]
         public float AvgWalkSpeedInKmPerHour;
 
         [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
@@ -63,34 +63,34 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentWalkTimeFactor", 0f, "The Walk applied to the person type.")]
         public float NonWorkerStudentWalk;
 
-        [RunParameter( "DriversLicenseFlag", 0.0f, "The constant factor for having a driver's license" )]
+        [RunParameter("DriversLicenseFlag", 0.0f, "The constant factor for having a driver's license")]
         public float DriversLicenseFlag;
 
-        [RunParameter( "Intrazonal", 0f, "The factor applied for being an intrazonal trip" )]
+        [RunParameter("Intrazonal", 0f, "The factor applied for being an intrazonal trip")]
         public float IntrazonalConstant;
 
-        [RunParameter( "MarketFlag", 0f, "Added to the utility if the trip's purpose is market." )]
+        [RunParameter("MarketFlag", 0f, "Added to the utility if the trip's purpose is market.")]
         public float MarketFlag;
 
-        [RunParameter( "Max Walking Distance", 4000, "The largest distance (Manhattan) allowed for walking" )]
+        [RunParameter("Max Walking Distance", 4000, "The largest distance (Manhattan) allowed for walking")]
         public float MaxWalkDistance;
 
-        [RunParameter( "NoVehicleFlag", 0.0f, "Added to the utility if the household has no vehicle" )]
+        [RunParameter("NoVehicleFlag", 0.0f, "Added to the utility if the household has no vehicle")]
         public float NoVehicleFlag;
 
-        [RunParameter( "OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'." )]
+        [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
         public float OtherFlag;
 
-        [RunParameter( "SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'." )]
+        [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
         public float SchoolFlag;
 
-        [RunParameter( "TravelTimeFactor", 0.0f, "The factor for the distance walked" )]
+        [RunParameter("TravelTimeFactor", 0.0f, "The factor for the distance walked")]
         public float TravelTimeFactor;
 
-        [RunParameter( "YoungAdultFlag", 0.0f, "The constant factor for being a young adult" )]
+        [RunParameter("YoungAdultFlag", 0.0f, "The constant factor for being a young adult")]
         public float YoungAdultFlag;
 
-        [RunParameter( "YouthFlag", 0.0f, "The constant factor for being a youth" )]
+        [RunParameter("YouthFlag", 0.0f, "The constant factor for being a youth")]
         public float YouthFlag;
 
         [RunParameter("ChildFlag", 0f, "Added to the utility if the person is a child.")]
@@ -98,14 +98,21 @@ namespace Tasha.V4Modes
 
         private float AvgWalkSpeed;
 
-        [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
+        [Parameter("Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?")]
         public float CurrentlyFeasible { get; set; }
 
-        [RunParameter( "Mode Name", "Walk", "The name of the mode" )]
+        [RunParameter("Mode Name", "Walk", "The name of the mode")]
         public string ModeName { get; set; }
 
         [SubModelInformation(Required = false, Description = "Constants for time of day")]
         public TimePeriodSpatialConstant[] TimePeriodConstants;
+
+        [SubModelInformation(Required = false, Description = "An optional utility modification when traveling to the given zone.")]
+        public IDataSource<SparseArray<float>> ZonalDestinationUtility;
+
+        private float[] _zonalDestinationUtility;
+
+        private SparseArray<IZone> _zoneSystem;
 
         /// <summary>
         /// What is the name of this mode?
@@ -149,43 +156,43 @@ namespace Tasha.V4Modes
             v += constant;
 
             //if person has a license
-            if ( person.Licence )
+            if (person.Licence)
             {
                 v += DriversLicenseFlag;
             }
 
-            IZone origin = trip.OriginalZone;
-            IZone destination = trip.DestinationZone;
+            var o = _zoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber);
+            var d = _zoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
             Time startTime = trip.ActivityStartTime;
-            v += TravelTime(origin, destination, startTime).ToMinutes() * walkBeta;
-
+            v += TravelTime(o, d, startTime).ToMinutes() * walkBeta;
+            v += _zonalDestinationUtility[d];
 
             //checking if child
-            if ( person.Youth )
+            if (person.Youth)
             {
                 v += YouthFlag;
             }
-            else if ( person.YoungAdult )
+            else if (person.YoungAdult)
             {
                 v += YoungAdultFlag;
             }
-            else if ( person.Child )
+            else if (person.Child)
             {
                 v += ChildFlag;
             }
 
             //if intrazonal trip
-            if (origin == destination)
+            if (o == d)
             {
                 v += IntrazonalConstant;
             }
 
             //if no vehicles
-            if ( person.Household.Vehicles.Length == 0 )
+            if (person.Household.Vehicles.Length == 0)
             {
                 v += NoVehicleFlag;
             }
-            switch ( trip.Purpose )
+            switch (trip.Purpose)
             {
                 case Activity.Market:
                 case Activity.JointMarket:
@@ -206,9 +213,9 @@ namespace Tasha.V4Modes
 
         public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
         {
-            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
             {
-                if(startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
                 {
                     return TimePeriodConstants[i].GetConstant(pdO, pdD);
                 }
@@ -218,9 +225,9 @@ namespace Tasha.V4Modes
 
         private void GetPersonVariables(ITashaPerson person, out float constant, out float walk)
         {
-            if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
+            if (person.EmploymentStatus == TTSEmploymentStatus.FullTime)
             {
-                switch(person.Occupation)
+                switch (person.Occupation)
                 {
                     case Occupation.Professional:
                         constant = ProfessionalConstant;
@@ -240,7 +247,7 @@ namespace Tasha.V4Modes
                         return;
                 }
             }
-            switch(person.StudentStatus)
+            switch (person.StudentStatus)
             {
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
@@ -248,9 +255,9 @@ namespace Tasha.V4Modes
                     walk = StudentWalk;
                     return;
             }
-            if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
+            if (person.EmploymentStatus == TTSEmploymentStatus.PartTime)
             {
-                switch(person.Occupation)
+                switch (person.Occupation)
                 {
                     case Occupation.Professional:
                         constant = ProfessionalConstant;
@@ -297,7 +304,7 @@ namespace Tasha.V4Modes
         /// <returns>true if the Trip is feasible for walking</returns>
         public bool Feasible(ITrip trip)
         {
-            return Feasible( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
+            return Feasible(trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime);
         }
 
         public bool Feasible(ITripChain tripChain)
@@ -321,7 +328,7 @@ namespace Tasha.V4Modes
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
             float distance = _distances[origin.ZoneNumber, destination.ZoneNumber];
-            return Time.FromMinutes( (float)( distance / AvgWalkSpeed ) );
+            return Time.FromMinutes((float)(distance / AvgWalkSpeed));
         }
 
         public string NetworkType
@@ -336,10 +343,10 @@ namespace Tasha.V4Modes
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 200, 100); }
         }
 
-        [RunParameter( "Variance Scale", 1.0, "The scaling of the random term for this mode." )]
+        [RunParameter("Variance Scale", 1.0, "The scaling of the random term for this mode.")]
         public double VarianceScale { get; set; }
 
         /// <summary>
@@ -356,14 +363,15 @@ namespace Tasha.V4Modes
 
         public void IterationEnding(int iterationNumber, int maxIterations)
         {
-            
+
         }
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
-            if(CustomDistances != null)
+            _zoneSystem = Root.ZoneSystem.ZoneArray;
+            if (CustomDistances != null)
             {
-                if(!CustomDistances.Loaded)
+                if (!CustomDistances.Loaded)
                 {
                     CustomDistances.LoadData();
                     _distances = CustomDistances.GiveData();
@@ -378,9 +386,26 @@ namespace Tasha.V4Modes
             {
                 _distances = Root.ZoneSystem.Distances;
             }
-            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
             {
                 TimePeriodConstants[i].BuildMatrix();
+            }
+            if (ZonalDestinationUtility != null)
+            {
+                ZonalDestinationUtility.LoadData();
+                _zonalDestinationUtility = ZonalDestinationUtility.GiveData().GetFlatData();
+                ZonalDestinationUtility.UnloadData();
+                if (_zonalDestinationUtility.Length != _zoneSystem.Count)
+                {
+                    throw new XTMFRuntimeException(this, $"The number of zones in the mode's ZonalUtility is not consistent with the current zone system!");
+                }
+            }
+            else
+            {
+                if (_zonalDestinationUtility == null || _zonalDestinationUtility.Length != _zoneSystem.Count)
+                {
+                    _zonalDestinationUtility = new float[_zoneSystem.Count];
+                }
             }
         }
     }
