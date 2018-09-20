@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Tasha.Common;
+using TMG.Input;
 using XTMF;
 
 namespace Tasha.XTMFModeChoice
@@ -54,6 +55,9 @@ namespace Tasha.XTMFModeChoice
 
         [RootModule]
         public ITashaRuntime TashaRuntime;
+
+        [RunParameter("Exlude Intrazonal", false, "Should intrazonal trips be excluded from the confusion matrix?")]
+        public bool ExcludeIntrazonal;
 
         private int[] BadTrips;
         private ConcurrentQueue<BadTripEntry> BadTripsQueue;
@@ -106,11 +110,14 @@ namespace Tasha.XTMFModeChoice
                     for(int tripIndex = 0; tripIndex < tripChainData.TripData.Length; tripIndex++)
                     {
                         var trip = tripChainData.TripChain.Trips[tripIndex];
-                        if (!IsInTimeBound(trip))
+                        // Check to see if we should exclude this trip
+                        if ((ExcludeIntrazonal && trip.OriginalZone == trip.DestinationZone) || !IsInTimeBound(trip))
                         {
                             continue;
                         }
+                        
                         var tripData = tripChainData.TripData[tripIndex];
+                        
                         int correct = 0;
                         if(trip.ModesChosen == null)
                         {
