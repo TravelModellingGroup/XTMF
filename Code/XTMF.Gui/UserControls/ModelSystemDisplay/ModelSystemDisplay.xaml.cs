@@ -702,10 +702,16 @@ namespace XTMF.Gui.UserControls
         {
             if (sender is DependencyObject selected)
             {
-                //var currentMenu = ParameterTabControl.SelectedItem == QuickParameterTab
-                //    ? QuickParameterRecentLinkedParameters
-                //    : ParameterRecentLinkedParameters;
-                /*var currentMenu = new TabItem();
+                /*
+                var model = GetCurrentParameterDisplayModelContext();
+                var display = GetCurrentParameterDisplay().ItemContainerGenerator.ItemFromContainer(GetCurrentParameterDisplay()) is LinkedParameterDisplayModel;
+                ;
+
+                    //GetGetCurrentParameterDisplayModelContext())
+                var currentMenu = ParameterTabControl.SelectedItem == QuickParameterTab
+                    ? QuickParameterRecentLinkedParameters
+                    : ParameterRecentLinkedParameters;
+                var currentMenu = new TabItem();
                 if (currentMenu.ItemContainerGenerator.ItemFromContainer(selected) is LinkedParameterDisplayModel
                     selectedLinkedParameter)
                 {
@@ -714,6 +720,7 @@ namespace XTMF.Gui.UserControls
                     RecentLinkedParameters.Insert(0, selectedLinkedParameter);
                 } */
             }
+           
         }
 
         /// <summary>
