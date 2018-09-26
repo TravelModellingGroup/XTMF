@@ -50,7 +50,18 @@ namespace XTMF.Gui.UserControls
         public SelectRunDateTimeDialog(ModelSystemEditingSession session)
         {
             InitializeComponent();
-            StringInputTextBox.ItemsSource = session.GetPreviousRunNames();
+            var getNames = session.GetPreviousRunNamesAsync();
+                getNames.ContinueWith(previousRuns =>
+            {
+                if(!DidComplete && !Dispatcher.HasShutdownStarted)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        StringInputTextBox.ItemsSource = previousRuns.Result;
+                    });
+                }   
+            });
+            getNames.Start();
         }
 
         /// <summary>

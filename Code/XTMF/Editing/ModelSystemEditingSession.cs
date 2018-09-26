@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using XTMF.Editing;
 using XTMF.Interfaces;
 
@@ -66,6 +67,11 @@ namespace XTMF
                     .ToList();
             }
             return new List<string>();
+        }
+        
+        public Task<List<string>> GetPreviousRunNamesAsync()
+        {
+            return new Task<List<string>>(GetPreviousRunNames);
         }
 
         private readonly object _SessionLock = new object();
