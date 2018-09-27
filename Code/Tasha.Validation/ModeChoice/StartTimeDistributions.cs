@@ -202,6 +202,11 @@ namespace Tasha.Validation.ModeChoice
 
         public bool RuntimeValidation(ref string error)
         {
+            var file = new FileInfo(OutputFile);
+            if(file.Exists)
+            {
+                file.Delete();
+            }
             return true;
         }
 
