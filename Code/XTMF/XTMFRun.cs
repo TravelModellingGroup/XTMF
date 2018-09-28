@@ -103,13 +103,8 @@ namespace XTMF
             filter.AcceptOnMatch = true;
             filter.LoggerToMatch = "XTMFRun";
 
-            RollingFileAppender fileAppender = new RollingFileAppender() {Layout = layout};
-            fileAppender.AddFilter(filter);
-            fileAppender.RollingStyle = RollingFileAppender.RollingMode.Date;
-            fileAppender.File = "XTMFLog.log";
-            fileAppender.ActivateOptions();
             
-            BasicConfigurator.Configure(appender,fileAppender);
+            BasicConfigurator.Configure(appender);
 
             _globalLogger = new Logger(LogManager.GetLogger("XTMFRun"));
 
@@ -271,16 +266,6 @@ namespace XTMF
         /// <param name="error"></param>
         protected static void SaveErrorMessage(ErrorWithPath error)
         {
-
-
-            if (error.Exception != null)
-            {
-                _globalLogger.Error(error.Message,error.Exception);
-            }
-            else
-            {
-                _globalLogger.Error(error.Message);
-            }
 
             using (var writer = new StreamWriter("XTMF.ErrorLog.txt", true))
             {

@@ -1042,12 +1042,16 @@ namespace XTMF
                 {
                     try
                     {
-                        f.SetValue(module,
-                            new Logger(LogManager.GetLogger(attribute.LoggerName == null
-                                ? type.ToString()
-                                : attribute.LoggerName)));
+                        var logger = new Logger(LogManager.GetLogger(attribute.LoggerName == null
+                            ? type.ToString()
+                            : attribute.LoggerName));
+
+
+                        f.SetValue(module,logger);
+
+                       Console.WriteLine("made kigger");
                     }
-                    catch
+                    catch(Exception e)
                     {
                     }
                 }

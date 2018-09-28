@@ -114,6 +114,7 @@ namespace TMG.Frameworks.Testing
         /// <param name="e"></param>
         private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            Console.WriteLine("test");
             _ticks++;
             Progress = _ticks / ExecutionTime;
             _logger.Info("Timer tick from " + Name + " at " + e.SignalTime);
