@@ -154,7 +154,7 @@ namespace Tasha.Estimation.LocationChoice
                                         ChoicesLock.Enter(ref taken);
                                         for (int i = 0; i < choices.Length; i++)
                                         {
-                                            flatChoices[i][revieldChoice] += expansionFactor;
+                                            flatChoices[i][revieldChoice] += choices[i];
                                             switch (activtiyType)
                                             {
                                                 case Activity.WorkBasedBusiness:

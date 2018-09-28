@@ -202,11 +202,6 @@ namespace Tasha.Validation.ModeChoice
 
         public bool RuntimeValidation(ref string error)
         {
-            var file = new FileInfo(OutputFile);
-            if(file.Exists)
-            {
-                file.Delete();
-            }
             return true;
         }
 
@@ -216,6 +211,14 @@ namespace Tasha.Validation.ModeChoice
         public void IterationStarting(int iteration)
         {
             TimeBin.Clear();
+            if(iteration == 0)
+            {
+                var file = new FileInfo(OutputFile);
+                if (file.Exists)
+                {
+                    file.Delete();
+                }
+            }
             if (Modes == null)
             {
                 Modes = Root.AllModes.ToArray();
