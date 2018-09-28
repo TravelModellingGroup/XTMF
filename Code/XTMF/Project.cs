@@ -227,7 +227,7 @@ namespace XTMF
             }
 
             bool ret;
-            if (((Configuration) _Configuration).DivertSaveRequests)
+            if (((Configuration)_Configuration).DivertSaveRequests)
             {
                 ret = true;
                 ExternallySaved?.Invoke(this, new ProjectExternallySavedEventArgs(this, null));
@@ -239,7 +239,7 @@ namespace XTMF
                 {
                     var e = _ClonedFrom.ExternallySaved;
                     // swap the project that this was a clone of and replace the real project.
-                    ((ProjectRepository) _Configuration.ProjectRepository).ReplaceProjectFromClone(_ClonedFrom, this);
+                    ((ProjectRepository)_Configuration.ProjectRepository).ReplaceProjectFromClone(_ClonedFrom, this);
                     e?.Invoke(_ClonedFrom, new ProjectExternallySavedEventArgs(_ClonedFrom, this));
                 }
             }
@@ -430,7 +430,7 @@ namespace XTMF
                     ModelSystemStructure[modelSystemIndex])
                 : new List<ILinkedParameter>();
 
-            
+
             //regionDisplays = RegionDisplays[modelSystemIndex];
 
             regionDisplays = RegionDisplay.MapRegionDisplays(RegionDisplays[modelSystemIndex], ourClone);
@@ -624,7 +624,7 @@ namespace XTMF
         public IModelSystemTemplate CreateModelSystem(ref ErrorWithPath error, IConfiguration configuration,
             IModelSystemStructure modelSystemStructure)
         {
-            if (!((ModelSystemStructure) modelSystemStructure).Validate(ref error, new List<int>()))
+            if (!((ModelSystemStructure)modelSystemStructure).Validate(ref error, new List<int>()))
             {
                 return null;
             }
@@ -853,7 +853,7 @@ namespace XTMF
                 var grandChildren = child.Children;
                 if (collectionType.IsArray)
                 {
-                    var setValue = collectionTrueType.GetMethod("SetValue", new[] {typeof(object), typeof(int)});
+                    var setValue = collectionTrueType.GetMethod("SetValue", new[] { typeof(object), typeof(int) });
                     var pos = 0;
                     for (var i = 0; i < grandChildren.Count; i++)
                     {
@@ -866,7 +866,7 @@ namespace XTMF
                                 return false;
                             }
 
-                            setValue.Invoke(collectionObject, new object[] {child.Children[i].Module, pos++});
+                            setValue.Invoke(collectionObject, new object[] { child.Children[i].Module, pos++ });
                         }
 
                         path.RemoveAt(path.Count - 1);
@@ -874,7 +874,7 @@ namespace XTMF
                 }
                 else
                 {
-                    var addMethod = collectionTrueType.GetMethod("Add", new[] {inner});
+                    var addMethod = collectionTrueType.GetMethod("Add", new[] { inner });
                     if (addMethod == null)
                     {
                         error = new ErrorWithPath(path,
@@ -897,7 +897,7 @@ namespace XTMF
                                 return false;
                             }
 
-                            addMethod.Invoke(collectionObject, new object[] {member.Module});
+                            addMethod.Invoke(collectionObject, new object[] { member.Module });
                         }
 
                         path.RemoveAt(path.Count - 1);
@@ -1046,10 +1046,9 @@ namespace XTMF
                             ? type.ToString()
                             : attribute.LoggerName));
 
-
-                        f.SetValue(module,logger);
+                        f.SetValue(module, logger);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                     }
                 }
@@ -1077,8 +1076,8 @@ namespace XTMF
             }
 
             var constructor = (from c in ps.Type.GetConstructors()
-                orderby c.GetParameters().Length
-                select c).FirstOrDefault();
+                               orderby c.GetParameters().Length
+                               select c).FirstOrDefault();
 
             var parameterList = new object[constructor.GetParameters().Length];
             var parameters = constructor.GetParameters();
@@ -1272,7 +1271,7 @@ namespace XTMF
                 return mss;
             }
 
-         
+
 
             return GetModuleFromReference(modules.Skip(1).ToArray(), mss);
         }
