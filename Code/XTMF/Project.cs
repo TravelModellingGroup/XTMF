@@ -1048,8 +1048,6 @@ namespace XTMF
 
 
                         f.SetValue(module,logger);
-
-                       Console.WriteLine("made kigger");
                     }
                     catch(Exception e)
                     {
