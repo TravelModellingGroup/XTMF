@@ -81,7 +81,15 @@
                                         <materialDesign:PackIcon Kind="{Binding Icon}" Height="24" Width="24"
                                                                  Margin="0 0 10 0" VerticalAlignment="Center"
                                                                  DockPanel.Dock="Left" />
+                                       
                                         <Grid DockPanel.Dock="Right" HorizontalAlignment="Stretch">
+                                            <Grid.ContextMenu>
+                                                <ContextMenu Name="RunContextMenu">
+                                                    <MenuItem Name="CancelRunMenuItem" Header="Cancel run" Click="CancelRunMenuItem_OnClick"></MenuItem>
+                                                    <MenuItem Name="QueuePriorityUpMenuItem" Header="Move up in queue" Click="QueuePriorityUpMenuItem_OnClick"></MenuItem>
+                                                    <MenuItem Name="QueuePriorityDownMenuItem" Header="Move down in queue" Click="QueuePriorityDownMenuItem_OnClick"></MenuItem>
+                                                </ContextMenu>
+                                            </Grid.ContextMenu>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="AUTO" />
