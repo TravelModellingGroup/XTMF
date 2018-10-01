@@ -103,18 +103,19 @@ namespace XTMF.Controller
         }
 
         /// <summary>
-        /// 
+        /// Reinserts (moves) the specified run into the new queue position
         /// </summary>
         /// <param name="run"></param>
         /// <param name="newQueueIndex"></param>
         public void ReorderQueuedRun(XTMFRun run, int newQueueIndex)
         {
-            if (newQueueIndex >= _CurrentlyExecuting.Count - 1)
+            if (newQueueIndex >= _Backlog.Count || newQueueIndex < 0 )
             {
                 throw new ArgumentOutOfRangeException();
             }
-            var oldIndex = _CurrentlyExecuting.IndexOf(run);
-            _CurrentlyExecuting.Move(oldIndex, newQueueIndex);
+            var oldIndex = _Backlog.IndexOf(run);
+           
+            _Backlog.Move(oldIndex, newQueueIndex);
         }
 
         public void CancelRun(XTMFRun run)

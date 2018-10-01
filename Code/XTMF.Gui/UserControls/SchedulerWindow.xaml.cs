@@ -573,6 +573,20 @@ namespace XTMF.Gui.UserControls
             }));
         }
 
+        private int CountNonQueuedRuns()
+        {
+            var count = 0;
+            foreach (SchedulerRunItem run in ScheduledRuns.Items)
+            {
+                if (run.IsRunStarted)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -580,10 +594,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void CancelRunMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var contextMenu = (sender as FrameworkElement).ContextMenu;
-
             var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
-
             item.RunWindow.CancelRun();
 
         }
@@ -595,11 +606,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QueuePriorityUpMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
+            var nonQueuedRuns = this.CountNonQueuedRuns();
             var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
             var selectedIndex = ScheduledRuns.SelectedIndex;
             this.ScheduledRuns.Items.RemoveAt(selectedIndex);
             this.ScheduledRuns.Items.Insert(selectedIndex-1, item);
-            item.RunWindow.ReorderRun(selectedIndex - 1);
+            item.RunWindow.ReorderRun(selectedIndex - 1 - nonQueuedRuns);
         }
 
         /// <summary>
@@ -609,11 +621,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QueuePriorityDownMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
+            var nonQueuedRuns = this.CountNonQueuedRuns();
             var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
             var selectedIndex = ScheduledRuns.SelectedIndex;
             this.ScheduledRuns.Items.RemoveAt(selectedIndex);
             this.ScheduledRuns.Items.Insert(selectedIndex + 1, item);
-           item.RunWindow.ReorderRun(selectedIndex+1);
+           item.RunWindow.ReorderRun(selectedIndex+1- nonQueuedRuns);
         }
 
         /// <summary>
@@ -624,27 +637,27 @@ namespace XTMF.Gui.UserControls
         private void ScheduledRunItem_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
 
-            var contextMenu = (sender as FrameworkElement).ContextMenu;
+            var contextMenu = (sender as FrameworkElement)?.ContextMenu;
 
-            var cancelItem = (MenuItem)contextMenu.Items[0];
-            var upItem = (MenuItem)contextMenu.Items[1];
-            var downItem = (MenuItem)contextMenu.Items[2];
+            var cancelItem = (MenuItem)contextMenu?.Items[0];
+            var upItem = (MenuItem)contextMenu?.Items[1];
+            var downItem = (MenuItem)contextMenu?.Items[2];
 
             upItem.IsEnabled = true;
             downItem.IsEnabled = true;
             cancelItem.IsEnabled = true;
             cancelItem.IsEnabled = true;
             var runItem = ScheduledRuns.SelectedItem as SchedulerRunItem;
-
-            if (ScheduledRuns.SelectedIndex == 0)
+            var nonQueue = CountNonQueuedRuns();
+            if (ScheduledRuns.SelectedIndex == 0 || ScheduledRuns.SelectedIndex == nonQueue)
             {
                 upItem.IsEnabled = false;
             }
-            if (ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1)
+            if (ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1 || runItem.IsRunStarted)
             {
                 downItem.IsEnabled = false;
             }
-            
+
 
 
         }
