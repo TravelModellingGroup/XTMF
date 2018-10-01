@@ -176,6 +176,15 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newQueuePosition"></param>
+        public void ReorderRun(int newQueuePosition)
+        {
+            Session.ReorderQueuedRun(Run, newQueuePosition);
+        }
+
+        /// <summary>
         /// </summary>
         /// <param name="session"></param>
         /// <param name="run"></param>
@@ -608,9 +617,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void CancelButton_Clicked(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CancelRun()
         {
-            //Are you sure?
             if (MessageBox.Show(MainWindow.Us, "Are you sure you want to cancel this run?", "Cancel run?",
                     MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
@@ -624,10 +635,22 @@ namespace XTMF.Gui.UserControls
                         ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
                         CancelButton.IsEnabled = false;
                         MainWindow.Us.UpdateStatusDisplay("Ready");
-                        
+
                     }));
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CancelButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            //Are you sure?
+            this.CancelRun();
+
         }
 
         private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)

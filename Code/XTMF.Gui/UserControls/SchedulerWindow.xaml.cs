@@ -23,13 +23,16 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 using XTMF.Gui.Util;
+
 
 namespace XTMF.Gui.UserControls
 {
@@ -577,7 +580,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void CancelRunMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var contextMenu = (sender as FrameworkElement).ContextMenu;
+
+            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
+
+            item.RunWindow.CancelRun();
+
         }
 
         /// <summary>
@@ -587,7 +595,11 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QueuePriorityUpMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
+            var selectedIndex = ScheduledRuns.SelectedIndex;
+            this.ScheduledRuns.Items.RemoveAt(selectedIndex);
+            this.ScheduledRuns.Items.Insert(selectedIndex-1, item);
+            item.RunWindow.ReorderRun(selectedIndex - 1);
         }
 
         /// <summary>
@@ -597,7 +609,44 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QueuePriorityDownMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
+            var selectedIndex = ScheduledRuns.SelectedIndex;
+            this.ScheduledRuns.Items.RemoveAt(selectedIndex);
+            this.ScheduledRuns.Items.Insert(selectedIndex + 1, item);
+           item.RunWindow.ReorderRun(selectedIndex+1);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScheduledRunItem_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+
+            var contextMenu = (sender as FrameworkElement).ContextMenu;
+
+            var cancelItem = (MenuItem)contextMenu.Items[0];
+            var upItem = (MenuItem)contextMenu.Items[1];
+            var downItem = (MenuItem)contextMenu.Items[2];
+
+            upItem.IsEnabled = true;
+            downItem.IsEnabled = true;
+            cancelItem.IsEnabled = true;
+            cancelItem.IsEnabled = true;
+            var runItem = ScheduledRuns.SelectedItem as SchedulerRunItem;
+
+            if (ScheduledRuns.SelectedIndex == 0)
+            {
+                upItem.IsEnabled = false;
+            }
+            if (ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1)
+            {
+                downItem.IsEnabled = false;
+            }
+            
+
+
         }
     }
 }

@@ -363,12 +363,31 @@ namespace XTMF
             }
         }
 
-        ///
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="run"></param>
+        /// <param name="executeNow"></param>
         public void ExecuteRun(XTMFRun run, bool executeNow)
         {
             Runtime.RunController.ExecuteRun(run, executeNow);
         }
 
+        /// <summary>
+        /// Reorders a queued run - inserts the passed run into the new Queue index.
+        /// </summary>
+        /// <param name="run"></param>
+        /// <param name="newQueueIndex"></param>
+        public void ReorderQueuedRun(XTMFRun run, int newQueueIndex)
+        {
+            Runtime.RunController.ReorderQueuedRun(run,newQueueIndex);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="run"></param>
+        /// <param name="delayedStartTime"></param>
         public void ExecuteDelayedRun(XTMFRun run, DateTime delayedStartTime)
         {
             Runtime.RunController.ExecuteDelayedRun(run, delayedStartTime);

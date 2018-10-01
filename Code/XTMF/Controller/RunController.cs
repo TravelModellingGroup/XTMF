@@ -102,6 +102,21 @@ namespace XTMF.Controller
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="run"></param>
+        /// <param name="newQueueIndex"></param>
+        public void ReorderQueuedRun(XTMFRun run, int newQueueIndex)
+        {
+            if (newQueueIndex >= _CurrentlyExecuting.Count - 1)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            var oldIndex = _CurrentlyExecuting.IndexOf(run);
+            _CurrentlyExecuting.Move(oldIndex, newQueueIndex);
+        }
+
         public void CancelRun(XTMFRun run)
         {
             if (run == null)
