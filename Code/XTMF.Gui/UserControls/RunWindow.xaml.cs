@@ -100,7 +100,7 @@ namespace XTMF.Gui.UserControls
         public SchedulerWindow SchedulerWindow { get; set; }
 
         //Display model reference in the scheduler window
-        public SchedulerWindow.SchedulerRunItem SchedulerRunItem { get; set; }
+        public SchedulerWindow.SchedulerRunItemDisplayModel SchedulerRunItemDisplayModel { get; set; }
 
         private SwatchesProvider swatchesProvider;
 
@@ -476,13 +476,13 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                SchedulerRunItem?.ModelSystemErrors.Clear();
+                SchedulerRunItemDisplayModel?.ModelSystemErrors.Clear();
                 foreach (var error in errors)
                 {
                     var displayError = new ModelSystemErrorDisplayModel(error.Message, error.ModuleName,
                         error.StackTrace, error, this);
                     ErrorListView.Items.Add(displayError);
-                    SchedulerRunItem?.ModelSystemErrors.Add(displayError);
+                    SchedulerRunItemDisplayModel?.ModelSystemErrors.Add(displayError);
                 }
             }));
         }

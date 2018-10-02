@@ -30,6 +30,14 @@ namespace XTMF.Gui.Converters
 {
     public class IndexConverter : IValueConverter
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="TargetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object Convert(object value, Type TargetType, object parameter, CultureInfo culture)
         {
             ListViewItem item = (ListViewItem)value;
@@ -38,6 +46,14 @@ namespace XTMF.Gui.Converters
             return index.ToString();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

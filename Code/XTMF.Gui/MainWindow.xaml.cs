@@ -855,7 +855,7 @@ namespace XTMF.Gui
         }
 
         /// <summary>
-        ///     Launches remote menu item window.
+        ///     Launches remote menu itemDisplayModel window.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

@@ -210,7 +210,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Expand all menu item click
+        /// Expand all menu itemDisplayModel click
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -350,7 +350,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Collapse all menu item click
+        /// Collapse all menu itemDisplayModel click
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -524,12 +524,12 @@ namespace XTMF.Gui.UserControls
             // make sure we are not the root module
             if (item.Parent != null)
             {
-                // if parent item has a single child
+                // if parent itemDisplayModel has a single child
                 if (item.Index == 0 || item.Parent.Children.Count == 1)
                 {
                     item.Parent.IsSelected = true;
                 }
-                // if parent item has multiple children
+                // if parent itemDisplayModel has multiple children
                 else if (item.Parent.Children.Count > 1)
                 {
                     // find the most expanded "deepest" subchild of sibling element
@@ -1024,10 +1024,10 @@ namespace XTMF.Gui.UserControls
                 idx++;
 
                 var layer = AdornerLayer.GetAdornerLayer(sibling);
-                var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(ModuleMoveAdorner));
+                var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(DragDropAdorner));
                 if (moveAdorner != null)
                 {
-                    ((ModuleMoveAdorner)moveAdorner).Visibility = Visibility.Collapsed;
+                    ((DragDropAdorner)moveAdorner).Visibility = Visibility.Collapsed;
                 }
 
             }
@@ -1100,8 +1100,8 @@ namespace XTMF.Gui.UserControls
         private void ShowModuleMoveAdorner(ModuleTreeViewItem module, bool isOrderUp)
         {
             var layer = AdornerLayer.GetAdornerLayer(module);
-            ModuleMoveAdorner moveAdorner = (ModuleMoveAdorner)layer.GetAdorners(module)
-                .First(t => t.GetType() == typeof(ModuleMoveAdorner));
+            DragDropAdorner moveAdorner = (DragDropAdorner)layer.GetAdorners(module)
+                .First(t => t.GetType() == typeof(DragDropAdorner));
             if (moveAdorner != null)
             {
 
@@ -1141,10 +1141,10 @@ namespace XTMF.Gui.UserControls
         {
             var layer = AdornerLayer.GetAdornerLayer(module);
             var moveAdorner = layer.GetAdorners(module)
-                .First(t => t.GetType() == typeof(ModuleMoveAdorner));
+                .First(t => t.GetType() == typeof(DragDropAdorner));
             if (moveAdorner != null)
             {
-                ((ModuleMoveAdorner)moveAdorner).Visibility = Visibility.Collapsed;
+                ((DragDropAdorner)moveAdorner).Visibility = Visibility.Collapsed;
             }
         }
 

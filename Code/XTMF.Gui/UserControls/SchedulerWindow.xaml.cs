@@ -83,8 +83,8 @@ namespace XTMF.Gui.UserControls
         /// <param name="run"></param>
         public void CloseRun(RunWindow run)
         {
-            SchedulerRunItem toRemove = null;
-            foreach (SchedulerRunItem item in FinishedRuns.Items)
+            SchedulerRunItemDisplayModel toRemove = null;
+            foreach (SchedulerRunItemDisplayModel item in FinishedRuns.Items)
             {
                 if (item.RunWindow == run)
                 {
@@ -123,7 +123,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 ActiveContent = run;
-                ScheduledRuns.Items.Add(new SchedulerRunItem(run, this));
+                ScheduledRuns.Items.Add(new SchedulerRunItemDisplayModel(run, this));
                 ActiveRunContent.DataContext = run;
             });
         }
@@ -133,10 +133,10 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 ActiveContent = run;
-                SchedulerRunItem item = new SchedulerRunItem(run, this);
-                item.StatusText = "Delayed Run";
-                item.StartTime = delayedStartTime.ToString("MM/dd/yyyy H:mm");
-                ScheduledRuns.Items.Add(item);
+                SchedulerRunItemDisplayModel itemDisplayModel = new SchedulerRunItemDisplayModel(run, this);
+                itemDisplayModel.StatusText = "Delayed Run";
+                itemDisplayModel.StartTime = delayedStartTime.ToString("MM/dd/yyyy H:mm");
+                ScheduledRuns.Items.Add(itemDisplayModel);
                 ActiveRunContent.DataContext = run;
             });
         }
@@ -147,7 +147,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ScheduledRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
             runWindow?.ScrollToBottomOfConsole();
@@ -165,19 +165,19 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            var item = (sender as Button).Tag as SchedulerRunItem;
+            var item = (sender as Button).Tag as SchedulerRunItemDisplayModel;
             Dispatcher.Invoke(() => { FinishedRuns.Items.Remove(item); });
         }
 
         /// <summary>
         /// </summary>
-        /// <param name="runItem"></param>
-        public void RemoveFromActiveRuns(SchedulerRunItem runItem)
+        /// <param name="runItemDisplayModel"></param>
+        public void RemoveFromActiveRuns(SchedulerRunItemDisplayModel runItemDisplayModel)
         {
             Dispatcher.Invoke(() =>
             {
-                ScheduledRuns.Items.Remove(runItem);
-                FinishedRuns.Items.Insert(0, runItem);
+                ScheduledRuns.Items.Remove(runItemDisplayModel);
+                FinishedRuns.Items.Insert(0, runItemDisplayModel);
 
                 var defaultd = Resources["DefaultDisplay"];
                 Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
@@ -191,7 +191,7 @@ namespace XTMF.Gui.UserControls
         private void OpenOutput_OnClick(object sender, RoutedEventArgs e)
         {
             var b = sender as Button;
-            var item = b.Tag as SchedulerRunItem;
+            var item = b.Tag as SchedulerRunItemDisplayModel;
             ;
             if (Directory.Exists(item?.RunWindow.Run.RunDirectory))
             {
@@ -247,17 +247,17 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void FinishedRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
 
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
             runWindow?.ScrollToBottomOfConsole();
-            
+
         }
 
         /// <summary>
         /// </summary>
-        public class SchedulerRunItem : INotifyPropertyChanged
+        public class SchedulerRunItemDisplayModel : INotifyPropertyChanged
         {
             private string _elapsedTime = "--";
             private PackIconKind _icon = PackIconKind.TimerSand;
@@ -285,7 +285,7 @@ namespace XTMF.Gui.UserControls
             ///     Constructor of the ScheduleRunItem, takes in the RunWindow (run control) in the constructor.
             /// </summary>
             /// <param name="runWindow"></param>
-            public SchedulerRunItem(RunWindow runWindow, SchedulerWindow schedulerWindow)
+            public SchedulerRunItemDisplayModel(RunWindow runWindow, SchedulerWindow schedulerWindow)
             {
                 Name = runWindow.Run.RunName;
                 RunWindow = runWindow;
@@ -295,7 +295,7 @@ namespace XTMF.Gui.UserControls
                 runWindow.UpdateRunProgress = val => { Progress = val; };
                 runWindow.UpdateStartTime = UpdateStartTime;
                 runWindow.OnRuntimeValidationError = OnRuntimeValidationError;
-                runWindow.SchedulerRunItem = this;
+                runWindow.SchedulerRunItemDisplayModel = this;
                 runWindow.OnRunFinished = OnRunFinished;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
@@ -474,7 +474,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void FinishedRuns_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
             runWindow?.ScrollToBottomOfConsole();
@@ -487,7 +487,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ScheduledRuns_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItem)?.RunWindow;
+            var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
             runWindow?.ScrollToBottomOfConsole();
@@ -500,7 +500,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void CloseDialogHyperLink_OnClick(object sender, RoutedEventArgs e)
         {
-            Dispatcher.BeginInvoke(new Action(()=> { StackTraceDialogHost.IsOpen = false; }));
+            Dispatcher.BeginInvoke(new Action(() => { StackTraceDialogHost.IsOpen = false; }));
         }
 
         /// <summary>
@@ -512,8 +512,8 @@ namespace XTMF.Gui.UserControls
         {
             var runWindow = ((e.Source as FrameworkContentElement)?.DataContext as ModelSystemErrorDisplayModel)
                 ?.RunWindow;
-                
-             runWindow.NavigateToModelSystemDisplay((sender as FrameworkContentElement)?.Tag);
+
+            runWindow.NavigateToModelSystemDisplay((sender as FrameworkContentElement)?.Tag);
         }
 
         /// <summary>
@@ -576,7 +576,7 @@ namespace XTMF.Gui.UserControls
         private int CountNonQueuedRuns()
         {
             var count = 0;
-            foreach (SchedulerRunItem run in ScheduledRuns.Items)
+            foreach (SchedulerRunItemDisplayModel run in ScheduledRuns.Items)
             {
                 if (run.IsRunStarted)
                 {
@@ -587,106 +587,20 @@ namespace XTMF.Gui.UserControls
             return count;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CancelRunMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
-            item.RunWindow.CancelRun();
-
-        }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QueuePriorityUpMenuItem_OnClick(object sender, RoutedEventArgs e)
+        /// <returns></returns>
+        public bool CanMoveQueueDown()
         {
-            MoveQueueUp();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QueuePriorityDownMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            MoveQueueDown();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ScheduledRunItem_ContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            var contextMenu = (sender as FrameworkElement)?.ContextMenu;
-            var cancelItem = (MenuItem)contextMenu?.Items[0];
-            var upItem = (MenuItem)contextMenu?.Items[1];
-            var downItem = (MenuItem)contextMenu?.Items[2];
-
-            upItem.IsEnabled = true;
-            downItem.IsEnabled = true;
-            cancelItem.IsEnabled = true;
-            cancelItem.IsEnabled = true;
-            upItem.IsEnabled = CanMoveQueueUp();
-            downItem.IsEnabled = CanMoveQueueDown();
-
-        }
-
-        private bool CanMoveQueueDown()
-        {
-            var runItem = ScheduledRuns.SelectedItem as SchedulerRunItem;
+            var runItem = ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel;
             if (ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1 || runItem.IsRunStarted)
             {
                 return false;
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private bool CanMoveQueueUp()
-        {
-            var nonQueue = CountNonQueuedRuns();
-            return !(ScheduledRuns.SelectedIndex == 0 || ScheduledRuns.SelectedIndex == nonQueue);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void MoveQueueDown()
-        {
-            var nonQueuedRuns = this.CountNonQueuedRuns();
-            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
-            var selectedIndex = ScheduledRuns.SelectedIndex;
-            this.ScheduledRuns.Items.RemoveAt(selectedIndex);
-            this.ScheduledRuns.Items.Insert(selectedIndex + 1, item);
-            item.RunWindow.ReorderRun(selectedIndex + 1 - nonQueuedRuns);
-            this.ScheduledRuns.SelectedIndex = selectedIndex + 1;
-        }
-
-        /// <summary>
-        /// Move selected item in list view 
-        /// </summary>
-        private void MoveQueueUp()
-        {
-            var nonQueuedRuns = this.CountNonQueuedRuns();
-            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
-            var selectedIndex = ScheduledRuns.SelectedIndex;
-            this.ScheduledRuns.Items.RemoveAt(selectedIndex);
-            this.ScheduledRuns.Items.Insert(selectedIndex - 1, item);
-            item.RunWindow.ReorderRun(selectedIndex - 1 - nonQueuedRuns);
-            this.ScheduledRuns.SelectedIndex = selectedIndex - 1;
         }
 
         /// <summary>
@@ -711,5 +625,49 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool CanMoveQueueUp()
+        {
+            var nonQueue = CountNonQueuedRuns();
+            return !(ScheduledRuns.SelectedIndex == 0 || ScheduledRuns.SelectedIndex == nonQueue);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="fromIndex"></param>
+        /// <param name="toIndex"></param>
+        public void MoveQueueInsert(SchedulerRunItemDisplayModel item, int fromIndex, int toIndex)
+        {
+            var nonQueuedRuns = this.CountNonQueuedRuns();
+            this.ScheduledRuns.Items.RemoveAt(fromIndex);
+            this.ScheduledRuns.Items.Insert(toIndex, item);
+            item.RunWindow.ReorderRun(toIndex - nonQueuedRuns);
+            this.ScheduledRuns.SelectedIndex = toIndex;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void MoveQueueDown()
+        {
+            this.MoveQueueInsert((SchedulerRunItemDisplayModel)ScheduledRuns.SelectedItem, ScheduledRuns.SelectedIndex, ScheduledRuns.SelectedIndex+1);
+            
+        }
+
+        /// <summary>
+        /// Move selected itemDisplayModel in list view 
+        /// </summary>
+        public void MoveQueueUp()
+        {
+            this.MoveQueueInsert((SchedulerRunItemDisplayModel)ScheduledRuns.SelectedItem, ScheduledRuns.SelectedIndex, ScheduledRuns.SelectedIndex - 1);
+        }
+
+
     }
 }

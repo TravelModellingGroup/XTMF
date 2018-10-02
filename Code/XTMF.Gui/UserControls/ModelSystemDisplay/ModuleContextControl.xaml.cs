@@ -102,7 +102,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        ///     Updates the item source of ModulePathList to contain the path to the root module
+        ///     Updates the itemDisplayModel source of ModulePathList to contain the path to the root module
         /// </summary>
         /// <param name="module"></param>
         private void UpdateModulePathToRoot(ModelSystemStructureDisplayModel module)
@@ -246,13 +246,13 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Event for when the context menu closes, will select the active module if navigation terminated on a list item.
+        /// Event for when the context menu closes, will select the active module if navigation terminated on a list itemDisplayModel.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ContextMenu_Closed(object sender, RoutedEventArgs e)
         {
-            //if the menu closed, make sure the proper item is selected
+            //if the menu closed, make sure the proper itemDisplayModel is selected
             var listViewItem =
                 ModulePathList.ItemContainerGenerator.ContainerFromIndex(
                     ModulePathList.Items.Count - 1) as ListViewItem;
@@ -264,7 +264,7 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// Right mouse button event listener for each item in the context list, will display the module's context menu.
+        /// Right mouse button event listener for each itemDisplayModel in the context list, will display the module's context menu.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

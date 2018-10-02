@@ -16,9 +16,9 @@ using System.Windows.Shapes;
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for ModuleMoveAdorner.xaml
+    /// Interaction logic for DragDropAdorner.xaml
     /// </summary>
-    public partial class ModuleMoveAdorner 
+    public partial class DragDropAdorner 
     {
 
         public Border Border { get; set; }
@@ -26,7 +26,7 @@ namespace XTMF.Gui.UserControls
         /// 
         /// </summary>
         /// <param name="adornedElement"></param>
-        public ModuleMoveAdorner(UIElement adornedElement) :
+        public DragDropAdorner(UIElement adornedElement) :
             base(adornedElement)
         {
 

@@ -114,7 +114,14 @@ namespace XTMF.Gui.UserControls
             {
                 DidComplete = false;
                 e.Handled = true;
-                this._dialogSession.Close(false);
+                try
+                {
+                    this._dialogSession.Close(false);
+                }
+                catch
+                {
+                }
+
             }
         }
 

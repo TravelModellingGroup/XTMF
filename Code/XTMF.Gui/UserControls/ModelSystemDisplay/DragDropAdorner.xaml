@@ -1,4 +1,4 @@
-﻿<Adorner x:Class="XTMF.Gui.UserControls.ModuleMoveAdorner" 
+﻿<Adorner x:Class="XTMF.Gui.UserControls.DragDropAdorner" 
          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

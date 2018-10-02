@@ -311,7 +311,7 @@ namespace XTMF.Gui.UserControls
             }
 
             var layer = AdornerLayer.GetAdornerLayer(this);
-            ModuleMoveAdorner moveAdorner = new ModuleMoveAdorner(this);
+            DragDropAdorner moveAdorner = new DragDropAdorner(this);
             layer.Add(moveAdorner);
             moveAdorner.Focus();
 
