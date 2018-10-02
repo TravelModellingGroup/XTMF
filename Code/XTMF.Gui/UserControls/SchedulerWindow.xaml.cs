@@ -606,7 +606,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QueuePriorityUpMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-           
+            MoveQueueUp();
         }
 
         /// <summary>
@@ -661,7 +661,9 @@ namespace XTMF.Gui.UserControls
             return !(ScheduledRuns.SelectedIndex == 0 || ScheduledRuns.SelectedIndex == nonQueue);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void MoveQueueDown()
         {
             var nonQueuedRuns = this.CountNonQueuedRuns();
