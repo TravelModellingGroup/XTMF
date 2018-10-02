@@ -626,9 +626,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ScheduledRunItem_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-
             var contextMenu = (sender as FrameworkElement)?.ContextMenu;
-
             var cancelItem = (MenuItem)contextMenu?.Items[0];
             var upItem = (MenuItem)contextMenu?.Items[1];
             var downItem = (MenuItem)contextMenu?.Items[2];
@@ -637,11 +635,8 @@ namespace XTMF.Gui.UserControls
             downItem.IsEnabled = true;
             cancelItem.IsEnabled = true;
             cancelItem.IsEnabled = true;
-  
             upItem.IsEnabled = CanMoveQueueUp();
             downItem.IsEnabled = CanMoveQueueDown();
-
-
 
         }
 
