@@ -606,12 +606,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QueuePriorityUpMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var nonQueuedRuns = this.CountNonQueuedRuns();
-            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
-            var selectedIndex = ScheduledRuns.SelectedIndex;
-            this.ScheduledRuns.Items.RemoveAt(selectedIndex);
-            this.ScheduledRuns.Items.Insert(selectedIndex-1, item);
-            item.RunWindow.ReorderRun(selectedIndex - 1 - nonQueuedRuns);
+           
         }
 
         /// <summary>
@@ -621,12 +616,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QueuePriorityDownMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var nonQueuedRuns = this.CountNonQueuedRuns();
-            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
-            var selectedIndex = ScheduledRuns.SelectedIndex;
-            this.ScheduledRuns.Items.RemoveAt(selectedIndex);
-            this.ScheduledRuns.Items.Insert(selectedIndex + 1, item);
-           item.RunWindow.ReorderRun(selectedIndex+1- nonQueuedRuns);
+            MoveQueueDown();
         }
 
         /// <summary>
@@ -647,19 +637,82 @@ namespace XTMF.Gui.UserControls
             downItem.IsEnabled = true;
             cancelItem.IsEnabled = true;
             cancelItem.IsEnabled = true;
+  
+            upItem.IsEnabled = CanMoveQueueUp();
+            downItem.IsEnabled = CanMoveQueueDown();
+
+
+
+        }
+
+        private bool CanMoveQueueDown()
+        {
             var runItem = ScheduledRuns.SelectedItem as SchedulerRunItem;
-            var nonQueue = CountNonQueuedRuns();
-            if (ScheduledRuns.SelectedIndex == 0 || ScheduledRuns.SelectedIndex == nonQueue)
-            {
-                upItem.IsEnabled = false;
-            }
             if (ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1 || runItem.IsRunStarted)
             {
-                downItem.IsEnabled = false;
+                return false;
             }
 
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private bool CanMoveQueueUp()
+        {
+            var nonQueue = CountNonQueuedRuns();
+            return !(ScheduledRuns.SelectedIndex == 0 || ScheduledRuns.SelectedIndex == nonQueue);
+        }
 
 
+        private void MoveQueueDown()
+        {
+            var nonQueuedRuns = this.CountNonQueuedRuns();
+            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
+            var selectedIndex = ScheduledRuns.SelectedIndex;
+            this.ScheduledRuns.Items.RemoveAt(selectedIndex);
+            this.ScheduledRuns.Items.Insert(selectedIndex + 1, item);
+            item.RunWindow.ReorderRun(selectedIndex + 1 - nonQueuedRuns);
+            this.ScheduledRuns.SelectedIndex = selectedIndex + 1;
+        }
+
+        /// <summary>
+        /// Move selected item in list view 
+        /// </summary>
+        private void MoveQueueUp()
+        {
+            var nonQueuedRuns = this.CountNonQueuedRuns();
+            var item = (SchedulerRunItem)ScheduledRuns.SelectedItem;
+            var selectedIndex = ScheduledRuns.SelectedIndex;
+            this.ScheduledRuns.Items.RemoveAt(selectedIndex);
+            this.ScheduledRuns.Items.Insert(selectedIndex - 1, item);
+            item.RunWindow.ReorderRun(selectedIndex - 1 - nonQueuedRuns);
+            this.ScheduledRuns.SelectedIndex = selectedIndex - 1;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScheduledRunItemListItemContainer_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Down && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
+            {
+                if (CanMoveQueueDown())
+                {
+                    MoveQueueDown();
+                }
+            }
+            else if (e.Key == Key.Up && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
+            {
+                if (CanMoveQueueUp())
+                {
+                    MoveQueueUp();
+                }
+            }
         }
     }
 }

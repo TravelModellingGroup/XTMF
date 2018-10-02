@@ -68,7 +68,7 @@
                                    Text="Active Runs" />
                         <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged"
                                   ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" PreviewKeyDown="ScheduledRunItemListItemContainer_OnKeyDown"
                                   PreviewMouseDown="ScheduledRuns_PreviewMouseDown">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
@@ -82,7 +82,7 @@
                                                                  Margin="0 0 10 0" VerticalAlignment="Center"
                                                                  DockPanel.Dock="Left" />
 
-                                        <Grid Background="Transparent" DockPanel.Dock="Right" HorizontalAlignment="Stretch"  ContextMenuOpening="ScheduledRunItem_ContextMenuOpening">
+                                        <Grid Background="Transparent" DockPanel.Dock="Right" HorizontalAlignment="Stretch"  ContextMenuOpening="ScheduledRunItem_ContextMenuOpening"  Name="ScheduledRunItemListItemContainer">
                                             <Grid.ContextMenu>
                                                 <ContextMenu Name="RunContextMenu">
                                                     <MenuItem Tag="{Binding .}"  Name="CancelRunMenuItem" Header="Cancel run" Click="CancelRunMenuItem_OnClick"></MenuItem>
