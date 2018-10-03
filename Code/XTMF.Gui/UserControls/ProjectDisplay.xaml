@@ -126,7 +126,7 @@
 
                     <DockPanel Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" VerticalAlignment="Stretch" >
                         <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
-                        <xtmf:ModelSystemListView BorderBrush="{x:Null}" MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick"  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay">
+                        <xtmf:ModelSystemListView ItemContainerStyle="{DynamicResource XtmfListBoxItemNoDuration}" BorderBrush="{x:Null}" MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick"  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay">
                             <xtmf:ModelSystemListView.Style>
                                 <Style TargetType="{x:Type ListView}" BasedOn="{StaticResource MaterialDesignListView}" />
                             </xtmf:ModelSystemListView.Style>
@@ -210,7 +210,7 @@
                         </Grid>
                     </materialDesign:ColorZone>
 
-                    <ListView Grid.Row="2" x:Name="PastRunDisplay"
+                    <ListView Grid.Row="2" x:Name="PastRunDisplay" ItemContainerStyle="{DynamicResource XtmfListBoxItemNoDuration}"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
                         <ListBox.ItemsPanel>
 
