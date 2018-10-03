@@ -702,25 +702,20 @@ namespace XTMF.Gui.UserControls
         {
             if (sender is DependencyObject selected)
             {
-                /*
-                var model = GetCurrentParameterDisplayModelContext();
-                var display = GetCurrentParameterDisplay().ItemContainerGenerator.ItemFromContainer(GetCurrentParameterDisplay()) is LinkedParameterDisplayModel;
-                ;
 
-                    //GetGetCurrentParameterDisplayModelContext())
-                var currentMenu = ParameterTabControl.SelectedItem == QuickParameterTab
-                    ? QuickParameterRecentLinkedParameters
-                    : ParameterRecentLinkedParameters;
-                var currentMenu = new TabItem();
-                if (currentMenu.ItemContainerGenerator.ItemFromContainer(selected) is LinkedParameterDisplayModel
-                    selectedLinkedParameter)
+                var currentMenu = GetCurrentParameterDisplay() == ParameterDisplay
+                    ? ParameterRecentLinkedParameters
+                    : QuickParameterRecentLinkedParameters;
+
+                if (currentMenu.ItemContainerGenerator.ItemFromContainer(selected) is LinkedParameterDisplayModel selectedLinkedParameter)
                 {
                     AddCurrentParameterToLinkedParameter(selectedLinkedParameter.LinkedParameter);
                     RecentLinkedParameters.RemoveAt(RecentLinkedParameters.IndexOf(selectedLinkedParameter));
                     RecentLinkedParameters.Insert(0, selectedLinkedParameter);
-                } */
+                }
+
             }
-           
+
         }
 
         /// <summary>
@@ -941,8 +936,8 @@ namespace XTMF.Gui.UserControls
                         us.UpdateDisableModuleCount(us.DisabledModules.Count);
 
 
-                        //us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
-                        //us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+                        us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+                        us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                     });
                 });
             }
