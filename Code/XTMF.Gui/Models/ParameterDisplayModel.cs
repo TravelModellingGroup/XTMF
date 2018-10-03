@@ -30,7 +30,7 @@ namespace XTMF.Gui.Models
 {
     internal sealed class ParameterDisplayModel : INotifyPropertyChanged, IDisposable
     {
-        private static readonly List<string> BoolValueList = new List<string>(new[] {"True", "False"});
+        private static readonly List<string> BoolValueList = new List<string>(new[] { "True", "False" });
 
         private readonly LinkedParameterModel _linkedParameterModel;
 
@@ -66,7 +66,6 @@ namespace XTMF.Gui.Models
         public Type ParameterType => RealParameter.Type;
 
         /// <summary>
-        /// 
         /// </summary>
         public Visibility ModuledDisabledIconVisiblity
         {
@@ -81,8 +80,13 @@ namespace XTMF.Gui.Models
 
                 var parameters = _linkedParameterModel.GetParameters();
                 foreach (var s in parameters)
+                {
                     if (!IsDisabledByDesdencence(s))
+                    {
                         return Visibility.Collapsed;
+                    }
+                }
+
                 return Visibility.Visible;
             }
         }
@@ -94,9 +98,8 @@ namespace XTMF.Gui.Models
         public string Name => GetName(_MultipleSelected);
 
         public string Description => RealParameter.Description;
-        
+
         /// <summary>
-        /// 
         /// </summary>
         public string Value
         {
@@ -104,12 +107,22 @@ namespace XTMF.Gui.Models
             {
                 if (RealParameter.IsLinked)
                 {
+                    if (RealParameter.Type == typeof(bool))
+                    {
+                        bool outParse = false;
+                        if (bool.TryParse(RealParameter.GetLinkedParameter()?.GetValue(), out outParse))
+                        {
+                            return outParse.ToString();
+                        }
+
+                    }
+
                     return RealParameter.GetLinkedParameter()?.GetValue();
+
+
                 }
-                else
-                {
-                    return RealParameter.Value;
-                }
+
+                return RealParameter.Value;
             }
             set => SetValue(value, out _);
         }
@@ -148,13 +161,24 @@ namespace XTMF.Gui.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public bool SetValue(string value, out string error)
         {
             error = null;
             // only update if something changed
             if (value != RealParameter.Value)
+            {
                 if (value != null && !RealParameter.SetValue(value, ref error))
+                {
                     return false;
+                }
+            }
+
             return true;
         }
 
@@ -168,8 +192,15 @@ namespace XTMF.Gui.Models
         {
             //in the case of the root module
             if (parameter.BelongsToModel.Parent == null && parameter.IsDisabled)
+            {
                 return true;
-            if (parameter.BelongsToModel.Parent == null && !parameter.IsDisabled) return false;
+            }
+
+            if (parameter.BelongsToModel.Parent == null && !parameter.IsDisabled)
+            {
+                return false;
+            }
+
             var hasDisabledParent = false;
             var m = parameter.BelongsToModel;
             do
@@ -263,7 +294,6 @@ namespace XTMF.Gui.Models
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="newLP"></param>
         /// <param name="error"></param>
@@ -274,7 +304,6 @@ namespace XTMF.Gui.Models
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <returns></returns>
         internal LinkedParameterModel GetLinkedParameter()
@@ -283,7 +312,6 @@ namespace XTMF.Gui.Models
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="error"></param>
         /// <returns></returns>
@@ -315,8 +343,15 @@ namespace XTMF.Gui.Models
         {
             if (item is ParameterDisplayModel param)
             {
-                if (param.IsEnumeration) return Enumeration;
-                if (param.RealParameter.Type == typeof(bool)) return Enumeration;
+                if (param.IsEnumeration)
+                {
+                    return Enumeration;
+                }
+
+                if (param.RealParameter.Type == typeof(bool))
+                {
+                    return Enumeration;
+                }
             }
 
             return Standard;
