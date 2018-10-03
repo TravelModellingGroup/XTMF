@@ -406,7 +406,7 @@
 
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
-
+                                                <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
                                             </Style>
                                         </ListView.ItemContainerStyle>
                                         <ListView.ItemsPanel>
@@ -548,7 +548,7 @@
                                   Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelector}" SizeChanged="QuickParameterDisplay_SizeChanged">
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
-
+    <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
                                             </Style>
                                         </ListView.ItemContainerStyle>
                                         <ListView.ItemsPanel>

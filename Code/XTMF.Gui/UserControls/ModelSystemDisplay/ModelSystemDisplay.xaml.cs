@@ -3056,6 +3056,15 @@ namespace XTMF.Gui.UserControls
           
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EventSetter_OnHandler(object sender, RequestBringIntoViewEventArgs e)
+        {
+            e.Handled = true;
+        }
     }
 
 

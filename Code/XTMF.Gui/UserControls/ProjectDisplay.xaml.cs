@@ -32,7 +32,7 @@ using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using XTMF.Gui.Annotations;
+using XTMF.Annotations;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.UserControls.Interfaces;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -54,231 +54,13 @@ namespace XTMF.Gui.UserControls
             typeof(ProjectModel), typeof(ProjectDisplay),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectModelChanged));
 
-        public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
+        private ProjectEditingSession _session;
 
-        public class ProjectModel : INotifyPropertyChanged
+        public ProjectDisplay()
         {
-            public class ContainedModelSystemModel : INotifyPropertyChanged
-            {
-                private ProjectEditingSession _session;
-
-                public IModelSystemStructure ModelSystemStructure { get; }
-
-                public event PropertyChangedEventHandler PropertyChanged;
-
-                public string Name => ModelSystemStructure.Name;
-
-                public string StatusText => IsMissingModules
-                    ? "This module requires additional setup, or a required module is not present."
-                    : null;
-
-                public string Description => ModelSystemStructure.Description;
-
-                public bool IsMissingModules { get; private set; }
-
-                public int RealIndex { get; }
-
-                public bool IsCanPasteModelSystem
-                {
-                    get => MainWindow.Us.ClipboardModel != null; 
-                    set => OnPropertyChanged(nameof(IsCanPasteModelSystem));
-                }
-
-                private IProject _project;
-
-                private bool _IsSelected;
-
-                [NotifyPropertyChangedInvocator]
-                protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-                }
-
-                public bool IsSelected
-                {
-                    get => _IsSelected;
-                    set
-                    {
-                        if (_IsSelected != value)
-                        {
-                            _IsSelected = value;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "IsSelected");
-                        }
-                    }
-                }
-
-                public ContainedModelSystemModel(ProjectEditingSession session, IModelSystemStructure ms,
-                    IProject project)
-                {
-                    ModelSystemStructure = ms;
-                    RealIndex = ((Project)project).IndexOf(ms);
-                    _project = project;
-                    _session = session;
-                    FindMissingModules(ms);
-                }
-
-                private void FindMissingModules(IModelSystemStructure ms)
-                {
-                    var loadTask = Task.Run(() =>
-                    {
-                        try
-                        {
-                            if (ms.Type == null && ms.Required && !ms.IsCollection)
-                            {
-                                IsMissingModules = true;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                        }
-                    });
-
-                    if (ms.Children != null)
-                    {
-                        foreach (var subModule in ms.Children)
-                        {
-                            if(ms is IModelSystemStructure2 ms2)
-                            {
-                                if(ms2.IsDisabled)
-                                {
-                                    continue;
-                                }
-                            }
-                            FindMissingModules(subModule);
-                        }
-                    }
-                }
-
-                internal bool SetName(ProjectEditingSession session, string newName, ref string error)
-                {
-                    var ret = session.RenameModelSystem(ModelSystemStructure, newName, ref error);
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
-                    return ret;
-                }
-
-                internal bool CloneModelSystem(ProjectEditingSession session, string name, ref string error)
-                {
-                    return session.CloneModelSystemAs(ModelSystemStructure, name, ref error);
-                }
-
-                internal bool CloneModelSystemToProject(ProjectEditingSession session, string name, ref string error)
-                {
-                    return session.CloneModelSystemToProjectAs(ModelSystemStructure, name, ref error);
-                }
-
-
-                internal bool ExportModelSystem(ProjectEditingSession session, string fileName, ref string error)
-                {
-                    return session.ExportModelSystem(RealIndex, fileName, ref error);
-                }
-            }
-
-            public class PreviousRun : INotifyPropertyChanged
-            {
-                public string Name { get; internal set; }
-
-                public string Path { get; internal set; }
-
-                internal DateTime Time { get; set; }
-
-                public string TimeStamp => Time.ToString(CultureInfo.InvariantCulture);
-
-                public event PropertyChangedEventHandler PropertyChanged;
-
-                [NotifyPropertyChangedInvocator]
-                protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null)
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-                }
-            }
-
-            public List<ContainedModelSystemModel> ContainedModelSystems;
-
-            public List<PreviousRun> PreviousRuns = new List<PreviousRun>();
-
-            private IProject Project;
-
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            private readonly ProjectEditingSession Session;
-
-            public ProjectModel(IProject project, ProjectEditingSession session)
-            {
-                Session = session;
-                Project = project;
-                session.ProjectWasExternallySaved += Session_ProjectWasExternallySaved;
-                RefreshModelSystems();
-                RefreshPastRuns(session);
-            }
-
-            private void Session_ProjectWasExternallySaved(object sender, EventArgs e)
-            {
-                // re-setup the page for the new project
-                Project = Session.Project;
-                RefreshModelSystems();
-            }
-
-            public void RefreshPastRuns(ProjectEditingSession session)
-            {
-                lock (PreviousRuns)
-                {
-                    PreviousRuns.Clear();
-                }
-
-                Task.Factory.StartNew(() =>
-                {
-                    lock (PreviousRuns)
-                    {
-                        var list = new List<PreviousRun>();
-                        PreviousRuns.Clear();
-                        foreach (var pastRun in session.GetPreviousRunPaths())
-                        {
-                            var info = new DirectoryInfo(pastRun);
-                            var fileInfo = new FileInfo(Path.Combine(pastRun, "RunParameters.xml"));
-                            list.Add(new PreviousRun
-                            {
-                                Name = info.Name,
-                                Path = pastRun,
-                                Time = fileInfo.LastWriteTime
-                            });
-                        }
-
-                        PreviousRuns.AddRange(from entry in list
-                            orderby entry.Time descending
-                            select entry);
-                    }
-
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
-                });
-            }
-
-            internal void RefreshModelSystems()
-            {
-                if (ContainedModelSystems == null)
-                    ContainedModelSystems = new List<ContainedModelSystemModel>();
-                else
-                    lock (ContainedModelSystems)
-                    {
-                        ContainedModelSystems.Clear();
-                    }
-
-                Task.Factory.StartNew(() =>
-                {
-                    lock (ContainedModelSystems)
-                    {
-                        ContainedModelSystems.AddRange(from ms in Project.ModelSystemStructure
-                            orderby ms.Name
-                            select new ContainedModelSystemModel(Session, ms, Project));
-                    }
-
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
-                });
-            }
-
-            public void Unload()
-            {
-                Session.ProjectWasExternallySaved -= Session_ProjectWasExternallySaved;
-            }
+            InitializeComponent();
+            Loaded += ProjectDisplay_Loaded;
+            // ContextMenu.PlacementTarget = ModelSystemDisplay;
         }
 
         private Project Project
@@ -286,8 +68,6 @@ namespace XTMF.Gui.UserControls
             get => GetValue(ProjectProperty) as Project;
             set => SetValue(ProjectProperty, value);
         }
-
-        private ProjectEditingSession _session;
 
         public ProjectEditingSession Session
         {
@@ -305,18 +85,19 @@ namespace XTMF.Gui.UserControls
             set => SetValue(ProjectModelProperty, value);
         }
 
-        public ProjectDisplay()
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        public bool HandleTabClose()
         {
-            InitializeComponent();
-            Loaded += ProjectDisplay_Loaded;
-           // ContextMenu.PlacementTarget = ModelSystemDisplay;
+            _session.EndSession();
+            return true;
         }
 
-        private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
-        {
-            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
-            Dispatcher.BeginInvoke(new Action(() => { FilterModelSystemsBox.Focus(); }));
-        }
+        public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
+
 
         private static void OnProjectChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
@@ -647,12 +428,9 @@ namespace XTMF.Gui.UserControls
             // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
             ModelSystemDisplay.IsCanPasteModelSystem = true;
             CloneCurrentModelSystem();
-           
-            foreach (var m in this.Model.ContainedModelSystems)
-            {
-                m.IsCanPasteModelSystem = true;
-            }
-           // ((ProjectModel) this.DataContext)IsCanPasteModelSystem = true;
+
+            foreach (var m in Model.ContainedModelSystems) m.IsCanPasteModelSystem = true;
+            // ((ProjectModel) this.DataContext)IsCanPasteModelSystem = true;
         }
 
         private void CloneCurrentModelSystem()
@@ -672,11 +450,10 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Attempts to create a new model system
+        ///     Attempts to create a new model system
         /// </summary>
         private async void CreateNewModelSystem()
         {
-           
             var dialog = new StringRequestDialog("Name of New Model System",
                 newName => { return Session.ValidateModelSystemName(newName); });
             var result = await dialog.ShowAsync(true);
@@ -740,7 +517,6 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -750,12 +526,12 @@ namespace XTMF.Gui.UserControls
             if (MainWindow.Us.ClipboardModel != null)
             {
                 var cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
-               /* var sr = new StringRequest("Paste: Model System's Name?",
-                    newName => { return Session.ValidateModelSystemName(newName); })
-                {
-                    Owner = GetWindow()
-                }; */
- 
+                /* var sr = new StringRequest("Paste: Model System's Name?",
+                     newName => { return Session.ValidateModelSystemName(newName); })
+                 {
+                     Owner = GetWindow()
+                 }; */
+
 
                 var dialog = new StringRequestDialog("Paste: Model System's Name?",
                     newName => Session.ValidateModelSystemName(newName));
@@ -771,9 +547,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [XTMF.Annotations.NotifyPropertyChangedInvocator]
+        [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -796,7 +570,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -884,8 +657,6 @@ namespace XTMF.Gui.UserControls
                     }
 
                     break;
-                default:
-                    break;
             }
         }
 
@@ -895,17 +666,15 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ImportModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            ImportButton_OnClick(sender,e);
+            ImportButton_OnClick(sender, e);
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -915,7 +684,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -925,7 +693,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -935,7 +702,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -945,23 +711,263 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void PopupBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-           
         }
 
         /// <summary>
-        /// 
         /// </summary>
-        /// <returns></returns>
-        public bool HandleTabClose()
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
         {
-            _session.EndSession();
-            return true;
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemDisplay_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
+        {
+            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
+            Dispatcher.BeginInvoke(new Action(() => { FilterModelSystemsBox.Focus(); }));
+        }
+
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EventSetter_OnHandler(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        public class ProjectModel : INotifyPropertyChanged
+        {
+            private readonly ProjectEditingSession Session;
+
+            public List<ContainedModelSystemModel> ContainedModelSystems;
+
+            public List<PreviousRun> PreviousRuns = new List<PreviousRun>();
+
+            private IProject Project;
+
+            public ProjectModel(IProject project, ProjectEditingSession session)
+            {
+                Session = session;
+                Project = project;
+                session.ProjectWasExternallySaved += Session_ProjectWasExternallySaved;
+                RefreshModelSystems();
+                RefreshPastRuns(session);
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void Session_ProjectWasExternallySaved(object sender, EventArgs e)
+            {
+                // re-setup the page for the new project
+                Project = Session.Project;
+                RefreshModelSystems();
+            }
+
+            public void RefreshPastRuns(ProjectEditingSession session)
+            {
+                lock (PreviousRuns)
+                {
+                    PreviousRuns.Clear();
+                }
+
+                Task.Factory.StartNew(() =>
+                {
+                    lock (PreviousRuns)
+                    {
+                        var list = new List<PreviousRun>();
+                        PreviousRuns.Clear();
+                        foreach (var pastRun in session.GetPreviousRunPaths())
+                        {
+                            var info = new DirectoryInfo(pastRun);
+                            var fileInfo = new FileInfo(Path.Combine(pastRun, "RunParameters.xml"));
+                            list.Add(new PreviousRun
+                            {
+                                Name = info.Name,
+                                Path = pastRun,
+                                Time = fileInfo.LastWriteTime
+                            });
+                        }
+
+                        PreviousRuns.AddRange(from entry in list
+                            orderby entry.Time descending
+                            select entry);
+                    }
+
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
+                });
+            }
+
+            internal void RefreshModelSystems()
+            {
+                if (ContainedModelSystems == null)
+                    ContainedModelSystems = new List<ContainedModelSystemModel>();
+                else
+                    lock (ContainedModelSystems)
+                    {
+                        ContainedModelSystems.Clear();
+                    }
+
+                Task.Factory.StartNew(() =>
+                {
+                    lock (ContainedModelSystems)
+                    {
+                        ContainedModelSystems.AddRange(from ms in Project.ModelSystemStructure
+                            orderby ms.Name
+                            select new ContainedModelSystemModel(Session, ms, Project));
+                    }
+
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
+                });
+            }
+
+            public void Unload()
+            {
+                Session.ProjectWasExternallySaved -= Session_ProjectWasExternallySaved;
+            }
+
+            public class ContainedModelSystemModel : INotifyPropertyChanged
+            {
+                private bool _IsSelected;
+
+                private IProject _project;
+                private ProjectEditingSession _session;
+
+                public ContainedModelSystemModel(ProjectEditingSession session, IModelSystemStructure ms,
+                    IProject project)
+                {
+                    ModelSystemStructure = ms;
+                    RealIndex = ((Project) project).IndexOf(ms);
+                    _project = project;
+                    _session = session;
+                    FindMissingModules(ms);
+                }
+
+                public IModelSystemStructure ModelSystemStructure { get; }
+
+                public string Name => ModelSystemStructure.Name;
+
+                public string StatusText => IsMissingModules
+                    ? "This module requires additional setup, or a required module is not present."
+                    : null;
+
+                public string Description => ModelSystemStructure.Description;
+
+                public bool IsMissingModules { get; private set; }
+
+                public int RealIndex { get; }
+
+                public bool IsCanPasteModelSystem
+                {
+                    get => MainWindow.Us.ClipboardModel != null;
+                    set => OnPropertyChanged(nameof(IsCanPasteModelSystem));
+                }
+
+                public bool IsSelected
+                {
+                    get => _IsSelected;
+                    set
+                    {
+                        if (_IsSelected != value)
+                        {
+                            _IsSelected = value;
+                            ModelHelper.PropertyChanged(PropertyChanged, this, "IsSelected");
+                        }
+                    }
+                }
+
+                public event PropertyChangedEventHandler PropertyChanged;
+
+                [Annotations.NotifyPropertyChangedInvocator]
+                protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                }
+
+                private void FindMissingModules(IModelSystemStructure ms)
+                {
+                    var loadTask = Task.Run(() =>
+                    {
+                        try
+                        {
+                            if (ms.Type == null && ms.Required && !ms.IsCollection) IsMissingModules = true;
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    });
+
+                    if (ms.Children != null)
+                        foreach (var subModule in ms.Children)
+                        {
+                            if (ms is IModelSystemStructure2 ms2)
+                                if (ms2.IsDisabled)
+                                    continue;
+                            FindMissingModules(subModule);
+                        }
+                }
+
+                internal bool SetName(ProjectEditingSession session, string newName, ref string error)
+                {
+                    var ret = session.RenameModelSystem(ModelSystemStructure, newName, ref error);
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                    return ret;
+                }
+
+                internal bool CloneModelSystem(ProjectEditingSession session, string name, ref string error)
+                {
+                    return session.CloneModelSystemAs(ModelSystemStructure, name, ref error);
+                }
+
+                internal bool CloneModelSystemToProject(ProjectEditingSession session, string name, ref string error)
+                {
+                    return session.CloneModelSystemToProjectAs(ModelSystemStructure, name, ref error);
+                }
+
+
+                internal bool ExportModelSystem(ProjectEditingSession session, string fileName, ref string error)
+                {
+                    return session.ExportModelSystem(RealIndex, fileName, ref error);
+                }
+            }
+
+            public class PreviousRun : INotifyPropertyChanged
+            {
+                public string Name { get; internal set; }
+
+                public string Path { get; internal set; }
+
+                internal DateTime Time { get; set; }
+
+                public string TimeStamp => Time.ToString(CultureInfo.InvariantCulture);
+
+                public event PropertyChangedEventHandler PropertyChanged;
+
+                [Annotations.NotifyPropertyChangedInvocator]
+                protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
         }
     }
 }

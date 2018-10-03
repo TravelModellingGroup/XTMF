@@ -126,9 +126,15 @@
 
                     <DockPanel Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" VerticalAlignment="Stretch" >
                         <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
-                        <xtmf:ModelSystemListView ItemContainerStyle="{DynamicResource XtmfListBoxItemNoDuration}" BorderBrush="{x:Null}" MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick"  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay">
+                        <xtmf:ModelSystemListView PreviewMouseLeftButtonDown="ModelSystemDisplay_OnPreviewMouseLeftButtonDown"  BorderBrush="{x:Null}" MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource XtmfListBoxItemNoDuration}">
+                                    <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
                             <xtmf:ModelSystemListView.Style>
-                                <Style TargetType="{x:Type ListView}" BasedOn="{StaticResource MaterialDesignListView}" />
+                                <Style TargetType="{x:Type ListView}" BasedOn="{StaticResource MaterialDesignListView}"/>
+
                             </xtmf:ModelSystemListView.Style>
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -210,8 +216,15 @@
                         </Grid>
                     </materialDesign:ColorZone>
 
-                    <ListView Grid.Row="2" x:Name="PastRunDisplay" ItemContainerStyle="{DynamicResource XtmfListBoxItemNoDuration}"
+                    <ListView Grid.Row="2" x:Name="PastRunDisplay" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource XtmfListBoxItemNoDuration}">
+                                <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                       
                         <ListBox.ItemsPanel>
 
                             <ItemsPanelTemplate>
