@@ -290,9 +290,18 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void StandardParameterTemplateTextBox_OnPreviewDragOver(object sender, DragEventArgs e)
         {
-            e.Handled = true;
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Handled = true;
+            }
+            
         }
     }
 }
