@@ -2593,7 +2593,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="selected"></param>
         private void SelectParameterChildControl(UIElement selected)
         {
-            var textbox = selected.FindChild<TextBox>("TextBox");
+            var textbox = selected.FindChild<TextBox>("StandardParameterTemplateTextBox");
             if (textbox != null)
             {
                 textbox.Focus();
@@ -2740,14 +2740,6 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void QuickParameterDisplay_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            ProcessOnPreviewKeyboardForParameter(QuickParameterListView, e);
-        }
 
         /// <summary>
         ///     When the module value textbox receives focus

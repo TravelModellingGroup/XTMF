@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -271,5 +272,27 @@ namespace XTMF.Gui.UserControls
         }
 
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StandardParameterTemplateTextBox_OnDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
+                if (files.Length > 0)
+                {
+                    ((TextBox) e.Source).Text = files[0];
+                }
+            }
+        }
+
+        private void StandardParameterTemplateTextBox_OnPreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
     }
 }
