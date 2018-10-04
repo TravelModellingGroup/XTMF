@@ -439,6 +439,7 @@ namespace XTMF.Gui.UserControls
                         () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
                     Icon = PackIconKind.CheckCircleOutline;
                 }
+
             }
 
             /// <summary>
@@ -668,6 +669,19 @@ namespace XTMF.Gui.UserControls
             this.MoveQueueInsert((SchedulerRunItemDisplayModel)ScheduledRuns.SelectedItem, ScheduledRuns.SelectedIndex, ScheduledRuns.SelectedIndex - 1);
         }
 
-
+      
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StatusTextCopyMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            var source =  e.Source as TextBlock;
+            if (source != null)
+            {
+                Clipboard.SetText(source.Text);
+            }
+        }
     }
 }
