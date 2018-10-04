@@ -36,11 +36,6 @@
              d:DesignHeight="500" d:DesignWidth="2000" Background="{DynamicResource MaterialDesignPaper}" Unloaded="MDisplay_Unloaded" MouseMove="MDisplay_MouseMove">
     <UserControl.Resources>
 
-        <Grid x:Name="Overlay" Panel.ZIndex="1000" x:Key="LinkedParameterContent">
-
-            <this:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay"/>
-            <this:LinkedParameterDisplay  x:Name="LinkedParameterDisplayOverlay"/>
-        </Grid>
 
         <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20" Viewbox="0,0,14,14" ViewportUnits="Absolute" ViewboxUnits="Absolute">
             <VisualBrush.Visual>

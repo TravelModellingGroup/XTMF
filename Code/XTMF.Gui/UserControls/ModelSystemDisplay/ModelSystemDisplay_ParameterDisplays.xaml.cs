@@ -281,7 +281,7 @@ namespace XTMF.Gui.UserControls
 
                     string path = files[0];
 
-                    GetInputDirectory(Session.GetModelSystemStructureModel(parameterDisplayModel?.BelongsTo as ModelSystemStructure), out var inputDirectory);
+                    GetInputDirectory(Session.GetModelSystemStructureModel(DisplayRoot.BaseModel.RealModelSystemStructure), out var inputDirectory);
 
                     string inputDirectoryString = inputDirectory.Value;
         
@@ -289,6 +289,7 @@ namespace XTMF.Gui.UserControls
                     SetParameterValue(parameterDisplayModel, path);
 
                    // ((TextBox) sender).Text = path;
+                    
                 }
             }
         }
