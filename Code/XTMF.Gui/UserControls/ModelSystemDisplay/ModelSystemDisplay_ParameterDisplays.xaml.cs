@@ -314,12 +314,12 @@ namespace XTMF.Gui.UserControls
 
             }
             var parameterDisplayModel = ((TextBox)sender).Tag as ParameterDisplayModel;
-            if (parameterDisplayModel?.ParameterType != typeof(string))
+            if (parameterDisplayModel?.ParameterType != typeof(int))
             {
-                return;
+                e.Handled = true;
             }
 
-            e.Handled = true;
+
 
         }
     }
