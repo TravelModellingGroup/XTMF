@@ -402,7 +402,7 @@
                                     <ListView AllowDrop="False"   materialDesign:TransitionAssist.DisableTransitions="True"   materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" ContextMenuOpening="ParameterDisplay_OnContextMenuOpening"
-                                  ItemTemplateSelector="{StaticResource ParameterSelector}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged" SourceUpdated="ParameterDisplay_SourceUpdated">
+                                  ItemTemplateSelector="{StaticResource ParameterSelector}"  SelectionChanged="ParameterDisplay_SelectionChanged">
 
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
@@ -545,7 +545,7 @@
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ContextMenuOpening="QuickParameterListView_OnContextMenuOpening"
-                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelector}" SizeChanged="QuickParameterDisplay_SizeChanged">
+                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelector}">
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
     <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>

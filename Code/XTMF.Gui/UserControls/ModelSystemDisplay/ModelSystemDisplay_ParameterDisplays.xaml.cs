@@ -262,15 +262,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ParameterDisplay_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-        }
-
 
 
         /// <summary>
