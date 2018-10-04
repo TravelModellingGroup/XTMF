@@ -295,8 +295,9 @@ namespace XTMF.Gui.UserControls
                     string inputDirectoryString = inputDirectory.Value;
         
                     TransformToRelativePath(inputDirectoryString, ref path);
+                    SetParameterValue(parameterDisplayModel, path);
 
-                    ((TextBox) sender).Text = path;
+                   // ((TextBox) sender).Text = path;
                 }
             }
         }
