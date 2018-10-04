@@ -282,6 +282,7 @@ namespace XTMF.Gui.UserControls
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
+                
                 var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
                 if (files.Length > 0)
                 {
@@ -297,11 +298,19 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void StandardParameterTemplateTextBox_OnPreviewDragOver(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                e.Handled = true;
+                return;
+
             }
-            
+            var parameterDisplayModel = ((TextBox)sender).Tag as ParameterDisplayModel;
+            if (parameterDisplayModel?.ParameterType != typeof(string))
+            {
+                return;
+            }
+
+            e.Handled = true;
+
         }
     }
 }
