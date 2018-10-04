@@ -286,7 +286,17 @@ namespace XTMF.Gui.UserControls
                 var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
                 if (files.Length > 0)
                 {
-                    ((TextBox) e.Source).Text = files[0];
+                    var parameterDisplayModel = ((TextBox)sender).Tag as ParameterDisplayModel;
+                    //((TextBox) e.Source)
+                    string path = files[0];
+
+                    GetInputDirectory(Session.GetModelSystemStructureModel(parameterDisplayModel?.BelongsTo as ModelSystemStructure), out var inputDirectory);
+
+                    string inputDirectoryString = inputDirectory.Value;
+        
+                    TransformToRelativePath(inputDirectoryString, ref path);
+
+                    ((TextBox) sender).Text = path;
                 }
             }
         }

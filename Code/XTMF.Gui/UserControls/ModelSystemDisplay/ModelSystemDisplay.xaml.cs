@@ -1048,6 +1048,7 @@ namespace XTMF.Gui.UserControls
             }
             catch (Exception e)
             {
+                Console.Error.WriteLine(e);
             }
 
 
