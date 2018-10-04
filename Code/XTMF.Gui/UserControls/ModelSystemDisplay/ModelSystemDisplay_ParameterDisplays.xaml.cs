@@ -287,7 +287,7 @@ namespace XTMF.Gui.UserControls
                 if (files.Length > 0)
                 {
                     var parameterDisplayModel = ((TextBox)sender).Tag as ParameterDisplayModel;
-                    //((TextBox) e.Source)
+
                     string path = files[0];
 
                     GetInputDirectory(Session.GetModelSystemStructureModel(parameterDisplayModel?.BelongsTo as ModelSystemStructure), out var inputDirectory);
