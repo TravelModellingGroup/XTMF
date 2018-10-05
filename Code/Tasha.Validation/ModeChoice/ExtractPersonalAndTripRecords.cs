@@ -31,7 +31,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 
-namespace WSPModules.GTAModel.ModeChoice
+namespace Tasha.Validation.ModeChoice
 {
     [ModuleInformation(Description = "This module is designed to extract out data on each person, trip, trip mode assignment, and station choice from" +
         "GTAModelV4.0.  Data is only recorded for the final iteration.")]
