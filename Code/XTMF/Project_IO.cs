@@ -88,7 +88,9 @@ namespace XTMF
                                 break;
                         }
                     });
-                    _ProjectModelSystems.AddRange(toLoad);
+                    var validToLoad = toLoad.Select(load => load).Where(load => load != null).ToList();
+                    _ProjectModelSystems.AddRange(validToLoad);
+
                     _IsLoaded = true;
                     return true;
                 }
@@ -103,6 +105,13 @@ namespace XTMF
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="guid"></param>
+        /// <param name="pms"></param>
+        /// <returns></returns>
         private bool LoadDetachedModelSystem(string directory, string guid, out ProjectModelSystem pms)
         {
             var msPath = Path.Combine(_DirectoryLocation, "._ModelSystems", $"Project.ms-{guid}.xml");
