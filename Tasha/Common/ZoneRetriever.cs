@@ -93,14 +93,14 @@ namespace Tasha.Common
 
         public IZone Get(int zoneNumber)
         {
-            if(zoneNumber == RoamingZoneNumber)
+            if (zoneNumber == RoamingZoneNumber)
             {
-                if(RoamingZone == null)
+                if (RoamingZone == null)
                 {
                     lock (this)
                     {
                         System.Threading.Thread.MemoryBarrier();
-                        if(RoamingZone == null)
+                        if (RoamingZone == null)
                         {
                             RoamingZone = new Zone(zoneNumber);
                         }
@@ -127,7 +127,7 @@ namespace Tasha.Common
 
         public void LoadData()
         {
-            if(!LoadOnce || !Loaded)
+            if (!LoadOnce || !Loaded)
             {
                 LoadZones();
                 LoadReagions();
@@ -138,18 +138,20 @@ namespace Tasha.Common
         private void LoadZones()
         {
             var zoneFile = GetZoneFilePath();
-            if(!File.Exists(zoneFile))
+            if (!File.Exists(zoneFile))
             {
                 throw new XTMFRuntimeException(this, $"Unable to find a file with the path '{zoneFile}' to load zones from!");
             }
             List<IZone> zones = new List<IZone>(2500);
+            var maxColumnSize = 0;
             using (var reader = new CsvReader(zoneFile, false))
             {
                 // burn the header
                 reader.LoadLine();
-                while(reader.LoadLine(out var columns))
+                while (reader.LoadLine(out var columns))
                 {
-                    if(columns >= 23)
+                    maxColumnSize = Math.Max(maxColumnSize, columns);
+                    if (columns >= 23)
                     {
                         reader.Get(out int zoneNumber, 0);
                         reader.Get(out int pd, 1);
@@ -170,6 +172,15 @@ namespace Tasha.Common
                     }
                 }
             }
+            // check for errors
+            if(maxColumnSize > 0 && maxColumnSize < 23)
+            {
+                throw new XTMFRuntimeException(this, $"When reading the zones there was no row with 23 columns, the maximum size was {maxColumnSize}!");
+            }
+            if (zones.Count <= 0)
+            {
+                throw new XTMFRuntimeException(this, $"No zones were loaded when reading in the zone file from '{zoneFile}'!");
+            }
             // make sure the zones are in order
             zones.Sort((first, second) => (first.ZoneNumber.CompareTo(second.ZoneNumber)));
             AllZones = SparseArray<IZone>.CreateSparseArray(zones.Select(z => z.ZoneNumber).ToArray(), zones.ToArray());
@@ -178,7 +189,7 @@ namespace Tasha.Common
         private string GetZoneFilePath()
         {
             var path = ZoneFileName;
-            if(Path.IsPathRooted(path))
+            if (Path.IsPathRooted(path))
             {
                 return path;
             }
@@ -190,7 +201,7 @@ namespace Tasha.Common
 
         private void LoadReagions()
         {
-            if(RegionFile != null)
+            if (RegionFile != null)
             {
                 var zoneArray = ZoneArray;
                 var zones = zoneArray.GetFlatData();
@@ -201,11 +212,11 @@ namespace Tasha.Common
                     // read the rest
                     while (reader.LoadLine(out columns))
                     {
-                        if(columns < 2) continue;
+                        if (columns < 2) continue;
                         reader.Get(out int zoneNumber, 0);
                         reader.Get(out int regionNumber, 1);
                         int index = zoneArray.GetFlatIndex(zoneNumber);
-                        if(index >= 0)
+                        if (index >= 0)
                         {
                             zones[index].RegionNumber = regionNumber;
                         }
@@ -306,7 +317,7 @@ namespace Tasha.Common
 
         private string GetFullPath(string localPath)
         {
-            if(!Path.IsPathRooted(localPath))
+            if (!Path.IsPathRooted(localPath))
             {
                 return Path.Combine(Root.InputBaseDirectory, localPath);
             }
@@ -326,7 +337,7 @@ namespace Tasha.Common
 
         private void LocalDispose()
         {
-            if(!LoadOnce)
+            if (!LoadOnce)
             {
                 AllZones = null;
             }

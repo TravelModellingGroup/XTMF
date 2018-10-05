@@ -121,6 +121,7 @@
     <Compile Include="DemographicSummery.cs" />
     <Compile Include="ModeChoice\ConvertZonalModeSplitToPDModeSplit.cs" />
     <Compile Include="ModeChoice\ConvertZonalModeSplitToRegionModeSplit.cs" />
+    <Compile Include="ModeChoice\ExtractPersonalAndTripRecords.cs" />
     <Compile Include="ModeChoice\ModeSplitsByPersonAttributes.cs" />
     <Compile Include="ModeChoice\PrintFailedModeChoice.cs" />
     <Compile Include="ModeChoice\StartTimeDistributions.cs" />

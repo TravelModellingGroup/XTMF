@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -261,15 +262,58 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ParameterDisplay_SourceUpdated(object sender, DataTransferEventArgs e)
+        private void StandardParameterTemplateTextBox_OnDrop(object sender, DragEventArgs e)
         {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                
+                var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
+                if (files.Length > 0)
+                {
+                    var parameterDisplayModel = ((TextBox)sender).Tag as ParameterDisplayModel;
+
+                    string path = files[0];
+
+                    GetInputDirectory(Session.GetModelSystemStructureModel(DisplayRoot.BaseModel.RealModelSystemStructure), out var inputDirectory);
+
+                    string inputDirectoryString = inputDirectory.Value;
+        
+                    TransformToRelativePath(inputDirectoryString, ref path);
+                    SetParameterValue(parameterDisplayModel, path);
+
+                   // ((TextBox) sender).Text = path;
+                    
+                }
+            }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StandardParameterTemplateTextBox_OnPreviewDragOver(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                return;
 
+            }
+            var parameterDisplayModel = ((TextBox)sender).Tag as ParameterDisplayModel;
+            if (parameterDisplayModel?.ParameterType != typeof(int))
+            {
+                e.Handled = true;
+            }
+
+
+
+        }
     }
 }

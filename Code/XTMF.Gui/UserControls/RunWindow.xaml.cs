@@ -102,7 +102,6 @@ namespace XTMF.Gui.UserControls
         //Display model reference in the scheduler window
         public SchedulerWindow.SchedulerRunItemDisplayModel SchedulerRunItemDisplayModel { get; set; }
 
-        private SwatchesProvider swatchesProvider;
 
         static RunWindow()
         {

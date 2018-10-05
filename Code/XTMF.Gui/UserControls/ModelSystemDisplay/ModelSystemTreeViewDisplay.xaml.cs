@@ -1069,7 +1069,10 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemTreeViewDisplay_OnDragOver(object sender, DragEventArgs e)
         {
             ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("drag");
-
+            if (module == null)
+            {
+                return;
+            }
             var siblings = module.GetSiblingModuleTreeViewItems();
             
             bool isUp = IsModuleMoveOrderUp(module);

@@ -182,9 +182,21 @@ namespace XTMF.Run
         {
             var runName = reader.ReadString();
             var runDirectory = reader.ReadString();
+            var deleteDirectory = reader.ReadBoolean();
             var modelSystemString = reader.ReadString();
             Task.Factory.StartNew(() =>
             {
+                try
+                {
+                    if (Directory.Exists(runDirectory))
+                    {
+                        Directory.Delete(runDirectory, true);
+                    }
+                }
+                catch
+                {
+                    // if there is an error it is alright to just continue
+                }
                 var run = XTMFRun.CreateRemoteClient(config, runName, runDirectory, modelSystemString);
                 run.ValidationError += (message) =>
                 {

@@ -69,9 +69,9 @@
                         <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged"
                                   ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" PreviewKeyDown="ScheduledRunItemListItemContainer_OnKeyDown"
-                                  PreviewMouseDown="ScheduledRuns_PreviewMouseDown">
+                                  PreviewMouseDown="ScheduledRuns_PreviewMouseDown" >
                             <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                                <Style TargetType="ListViewItem" BasedOn="{StaticResource XtmfListBoxItemNoDuration}">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 </Style>
                             </ListView.ItemContainerStyle>
@@ -157,11 +157,21 @@
                                                                  Maximum="10000" Value="{Binding Progress}" Height="4" />
                                                     <TextBlock TextWrapping="Wrap"
                                                                Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                                               Grid.Row="2"
+                                                               Grid.Row="2" 
                                                                ToolTip="{Binding StatusText}"
                                                                Text="{Binding StatusText}"
                                                                TextTrimming="CharacterEllipsis" Margin="0 4 0 0"
-                                                               HorizontalAlignment="Stretch" />
+                                                               HorizontalAlignment="Stretch">
+                                                        <TextBlock.ContextMenu>
+                                                            <ContextMenu>
+                                                                <MenuItem  Header="Copy" Name="StatusTextCopyMenuItem" Click="StatusTextCopyMenuItem_OnClick">
+
+                                                                </MenuItem>
+                                                            </ContextMenu>
+                                                        </TextBlock.ContextMenu>
+
+
+                                                    </TextBlock>
                                                 </Grid>
                                                 <Grid Grid.Column="1">
                                                     <Grid>
@@ -252,7 +262,9 @@
                                                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                                    ScrollViewer.CanContentScroll="True"
                                                                    HorizontalScrollBarVisibility="Disabled">
-                                                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
+                                                                
+                                                            </TextBlock>
                                                         </ScrollViewer>
                                                         <StackPanel Grid.Column="2" Margin="2,0,2,0" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Hand"
                                                                             Tag="{Binding .}" Name="StackTraceGroup"

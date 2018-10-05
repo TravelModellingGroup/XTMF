@@ -1050,6 +1050,7 @@ namespace XTMF
                     }
                     catch (Exception e)
                     {
+                        Console.Error.WriteLine(e);
                     }
                 }
             }
