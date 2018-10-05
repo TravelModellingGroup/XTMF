@@ -48,11 +48,14 @@ namespace XTMF.Run
 
         private List<ILinkedParameter> _LinkedParameters;
         private readonly string _modelSystemAsString;
+        private bool _deleteDirectory;
 
-        public XTMFRunRemoteHost(IConfiguration configuration, ModelSystemStructureModel root, List<ILinkedParameter> linkedParameters, string runName, string runDirectory)
+        public XTMFRunRemoteHost(IConfiguration configuration, ModelSystemStructureModel root, List<ILinkedParameter> linkedParameters, string runName,
+            string runDirectory, bool deleteDirectory)
             : base(runName, runDirectory, configuration)
         {
             ModelSystemStructureModelRoot = root;
+            _deleteDirectory = deleteDirectory;
             _LinkedParameters = linkedParameters;
             using (MemoryStream memStream = new MemoryStream())
             {
@@ -372,6 +375,7 @@ namespace XTMF.Run
                     pipeWriter.Write((UInt32)ToClient.RunModelSystem);
                     pipeWriter.Write(RunName);
                     pipeWriter.Write(RunDirectory);
+                    pipeWriter.Write(_deleteDirectory);
                     pipeWriter.Write(_modelSystemAsString);
 
                 }
