@@ -46,6 +46,9 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("External Zone Ranges", "6000-6999", typeof(RangeSet), "The ranges that represent external zones.")]
         public RangeSet ExternalZones;
 
+        [RunParameter("Allow Work At Home Status", false, "Set this to true to allow work at home employment statuses.")]
+        public bool WriteWorkAtHomeEmploymentStatus;
+
         private float _invHouseholdExpansion;
 
         private SparseArray<PDData> _householdsByPD;
@@ -85,14 +88,14 @@ namespace Tasha.PopulationSynthesis
 
         private class PDData
         {
-            private int PD;
-            internal List<ExpandedHousehold> Households = new List<ExpandedHousehold>(10);
+            private readonly int _pd;
+            internal readonly List<ExpandedHousehold> Households = new List<ExpandedHousehold>(10);
             internal float TotalExpansionFactor;
-            private SpinLock Lock = new SpinLock(false);
+            private SpinLock _lock = new SpinLock(false);
 
             public PDData(int pd)
             {
-                PD = pd;
+                _pd = pd;
             }
 
             internal void Add(ITashaHousehold household)
@@ -100,16 +103,16 @@ namespace Tasha.PopulationSynthesis
                 var expansionFactor = household.ExpansionFactor;
                 var newHhld = new ExpandedHousehold(household);
                 bool taken = false;
-                Lock.Enter(ref taken);
+                _lock.Enter(ref taken);
                 TotalExpansionFactor += expansionFactor;
                 Households.Add(newHhld);
-                if (taken) Lock.Exit(true);
+                if (taken) _lock.Exit(true);
             }
 
             internal List<KeyValuePair<int, int>> ProcessPD(int randomSeed, IZone[] zones, float householdExpansion, int[] zoneIndexes)
             {
                 bool any;
-                Random random = new Random(randomSeed * PD);
+                Random random = new Random(randomSeed * _pd);
                 var rPerZone = zoneIndexes.Select(z => new Random(random.Next())).ToArray();
                 var ret = new List<KeyValuePair<int, int>>();
                 var remaining = zoneIndexes.Select((z) => (int)Math.Round(zones[z].Population * householdExpansion)).ToArray();
@@ -193,7 +196,7 @@ namespace Tasha.PopulationSynthesis
                         return h.ExpansionFactor;
                     });
                 }
-                throw new XTMFRuntimeException(null, "We managed to be unable to assign any households to flat zone '" + zone + "' in PD'" + PD + "'!");
+                throw new XTMFRuntimeException(null, "We managed to be unable to assign any households to flat zone '" + zone + "' in PD'" + _pd + "'!");
             }
         }
 
@@ -462,6 +465,26 @@ namespace Tasha.PopulationSynthesis
                                     break;
                                 case TTSEmploymentStatus.PartTime:
                                     writer.Write("P,");
+                                    break;
+                                case TTSEmploymentStatus.WorkAtHome_FullTime:
+                                    if(WriteWorkAtHomeEmploymentStatus)
+                                    {
+                                        writer.Write("H,");
+                                    }
+                                    else
+                                    {
+                                        writer.Write("O,");
+                                    }
+                                    break;
+                                case TTSEmploymentStatus.WorkAtHome_PartTime:
+                                    if (WriteWorkAtHomeEmploymentStatus)
+                                    {
+                                        writer.Write("J,");
+                                    }
+                                    else
+                                    {
+                                        writer.Write("O,");
+                                    }
                                     break;
                                 default:
                                     writer.Write("O,");
