@@ -88,7 +88,7 @@ namespace Tasha.PopulationSynthesis
                     var flatOriginal = linkages.GetFlatData();
                     for (int i = 0; i < flatLinkages.Length; i++)
                     {
-                        for(int j = 0; j < flatLinkages[i].Length; j++)
+                        for (int j = 0; j < flatLinkages[i].Length; j++)
                         {
                             Array.Copy(flatLinkages[i][j], flatOriginal[i][j], flatLinkages[i][j].Length);
                         }
@@ -146,7 +146,7 @@ namespace Tasha.PopulationSynthesis
                 {
                     var pop = (float)random.NextDouble();
                     var index = PickAZoneToSelect(pop, household, person.ExpansionFactor);
-                    if(index < 0 || index >= Zones.Length)
+                    if (index < 0 || index >= Zones.Length)
                     {
                         Console.WriteLine("ERROR WITH INDEX!");
                     }
@@ -162,11 +162,11 @@ namespace Tasha.PopulationSynthesis
                     var homeZoneIndex = ZoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
                     var row = _linkages.GetFlatData()[type][homeZoneIndex];
                     var totalLinkages = VectorHelper.Sum(row, 0, row.Length);
-                    if(totalLinkages <= 0.0f)
+                    if (totalLinkages <= 0.0f)
                     {
                         Array.Copy(_originalLinkages.GetFlatData()[type][homeZoneIndex], row, row.Length);
                         totalLinkages = VectorHelper.Sum(row, 0, row.Length);
-                        if(totalLinkages <= 0.0f)
+                        if (totalLinkages <= 0.0f)
                         {
                             throw new XTMFRuntimeException(this, $"A person living at zone {household.HomeZone.ZoneNumber} with worker category" +
                                 $" {type} tried to find an employment zone.  There was no aggregate data for any workers of this class however.  Please" +
@@ -181,7 +181,7 @@ namespace Tasha.PopulationSynthesis
                     for (; index < row.Length; index++)
                     {
                         acc += row[index];
-                        if(pop < acc)
+                        if (pop < acc)
                         {
                             break;
                         }
@@ -189,7 +189,7 @@ namespace Tasha.PopulationSynthesis
                     // make sure it is bounded in case of rounding errors
                     index = Math.Min(index, row.Length - 1);
                     var newValue = row[index] - expansionFactor;
-                    if(newValue < MinimumLinkageRemainder)
+                    if (newValue < MinimumLinkageRemainder)
                     {
                         newValue = 0.0f;
                     }
@@ -314,8 +314,14 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Random Seed", 154321, "A seed used to generate random numbers.")]
         public int RandomSeed;
 
+        private IZone _roamingZone;
+
+        [RootModule]
+        public ITravelDemandModel Root;
+
         public void Load()
         {
+            _roamingZone = Root.ZoneSystem.Get(Root.ZoneSystem.RoamingZoneNumber);
             Console.WriteLine("Loading PoRPoW...");
             Console.WriteLine("Professional...");
             Professional.Load();
@@ -333,37 +339,30 @@ namespace Tasha.PopulationSynthesis
 
         private bool IsExternal(IZone employmentZone)
         {
-            return employmentZone != null && ExternalZones.Contains(employmentZone.ZoneNumber);
+            return employmentZone != null && 
+                (employmentZone == _roamingZone || ExternalZones.Contains(employmentZone.ZoneNumber));
         }
 
         public IZone ProduceResult(ITashaPerson person)
         {
             // Gather the base data and create our random generator
             IZone empZone;
-            try
+            if (IsExternal(empZone = person.EmploymentZone))
             {
-                if (IsExternal(empZone = person.EmploymentZone))
-                {
-                    return empZone;
-                }
-                var household = person.Household;
-                var random = new Random(RandomSeed * household.HouseholdId);
-                switch (person.Occupation)
-                {
-                    case Occupation.Office:
-                        return General.ProduceResult(random, person, household);
-                    case Occupation.Retail:
-                        return Sales.ProduceResult(random, person, household);
-                    case Occupation.Manufacturing:
-                        return Manufacturing.ProduceResult(random, person, household);
-                    default:
-                        return Professional.ProduceResult(random, person, household);
-                }
+                return empZone;
             }
-            catch(Exception e)
+            var household = person.Household;
+            var random = new Random(RandomSeed * household.HouseholdId);
+            switch (person.Occupation)
             {
-                Console.WriteLine("FAILED TO GENERATE AN EMP ZONE! " + e.Message);
-                throw e;
+                case Occupation.Office:
+                    return General.ProduceResult(random, person, household);
+                case Occupation.Retail:
+                    return Sales.ProduceResult(random, person, household);
+                case Occupation.Manufacturing:
+                    return Manufacturing.ProduceResult(random, person, household);
+                default:
+                    return Professional.ProduceResult(random, person, household);
             }
         }
 

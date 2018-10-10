@@ -324,8 +324,14 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Random Seed", 154321, "A seed used to generate random numbers.")]
         public int RandomSeed;
 
+        private IZone _roamingZone;
+
+        [RootModule]
+        public ITravelDemandModel Root;
+
         public void Load()
         {
+            _roamingZone = Root.ZoneSystem.Get(Root.ZoneSystem.RoamingZoneNumber);
             Console.WriteLine("Loading PoRPoW...");
             Console.WriteLine("Professional...");
             Professional.Load();
@@ -343,7 +349,8 @@ namespace Tasha.PopulationSynthesis
 
         private bool IsExternal(IZone employmentZone)
         {
-            return employmentZone != null && ExternalZones.Contains(employmentZone.ZoneNumber);
+            return employmentZone != null &&
+                (employmentZone == _roamingZone || ExternalZones.Contains(employmentZone.ZoneNumber));
         }
 
         public IZone ProduceResult(ITashaPerson person)
