@@ -234,8 +234,6 @@ namespace TMG.Tasha
                     FinishHousehold(household, persons);
                     return true;
                 }
-
-                //Person p = Person.GetPerson();
                 Person p = Person.GetPerson();
                 p.Household = household;
                 Reader.Get(out tempInt, PersonIDCol);
@@ -270,12 +268,15 @@ namespace TMG.Tasha
                     Reader.Get(out tempInt, PersonStudentZoneCol);
                     p.SchoolZone = tempInt != 0 ? (tempInt == UnknownZoneNumber ? p.Household.HomeZone : TashaRuntime.ZoneSystem.ZoneArray[tempInt]) : null;
                 }
-                if((p.EmploymentStatus == TTSEmploymentStatus.FullTime | p.EmploymentStatus == TTSEmploymentStatus.PartTime)
-                    ||(p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_FullTime | p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_PartTime))
+                if((p.EmploymentStatus == TTSEmploymentStatus.FullTime | p.EmploymentStatus == TTSEmploymentStatus.PartTime))
                 {
                     Reader.Get(out tempInt, PersonEmploymentZoneCol);
                     var employmentZone = tempInt != 0 ? (tempInt == UnknownZoneNumber ? p.Household.HomeZone : TashaRuntime.ZoneSystem.Get(tempInt)) : null;
                     p.EmploymentZone = employmentZone;
+                }
+                else if(p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_FullTime | p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_PartTime)
+                {
+                    p.EmploymentZone = household.HomeZone;
                 }
                 else
                 {
