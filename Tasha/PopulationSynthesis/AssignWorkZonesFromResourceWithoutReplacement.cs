@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using Datastructure;
 using Tasha.Common;
 using TMG;
@@ -59,6 +60,15 @@ namespace Tasha.PopulationSynthesis
                 private IZone[] Zones;
                 private SparseArray<IZone> ZoneSystem;
                 private float[][] WorkerResults;
+                /// <summary>
+                /// [type, workZone]
+                /// </summary>
+                private float[][] _assigned;
+                /// <summary>
+                /// [type, workZone]
+                /// </summary>
+                private float[][] _totalEmployment;
+
                 public void Load()
                 {
                     ZoneSystem = Root.ZoneSystem.ZoneArray;
@@ -86,11 +96,16 @@ namespace Tasha.PopulationSynthesis
                     _originalLinkages = linkages.CreateSimilarArray<float>();
                     var flatLinkages = linkages.GetFlatData();
                     var flatOriginal = _originalLinkages.GetFlatData();
+                    _totalEmployment = new float[3][];
+                    _assigned = new float[3][];
                     for (int i = 0; i < flatLinkages.Length; i++)
                     {
+                        _totalEmployment[i] = new float[flatLinkages[i].Length];
+                        _assigned[i] = new float[flatLinkages[i].Length];
                         for (int j = 0; j < flatLinkages[i].Length; j++)
                         {
                             Array.Copy(flatLinkages[i][j], flatOriginal[i][j], flatLinkages[i][j].Length);
+                            VectorHelper.Add(_totalEmployment[i], 0, _totalEmployment[i], 0, flatLinkages[i][j], 0, _totalEmployment.Length);
                         }
                     }
                 }
@@ -149,12 +164,34 @@ namespace Tasha.PopulationSynthesis
                     return Zones[index];
                 }
 
+                private float GetTotalLinkages(float[] row, float[] assigned, float[] total)
+                {
+                    int i = 0;
+                    var acc = 0.0f;
+                    var accV = Vector<float>.Zero;
+                    var one = Vector<float>.One;
+                    for (; i < row.Length - Vector<float>.Count; i+=Vector<float>.Count)
+                    {
+                        var eV = new Vector<float>(total, i);
+                        var aV = new Vector<float>(assigned, i);
+                        var ratio = VectorHelper.SelectIfFinite(aV / eV, Vector<float>.Zero);
+                        accV += new Vector<float>(row, i) * (one - ratio);
+                    }
+                    for (; i < row.Length; i++)
+                    {
+                        acc += row[i] * (1.0f - assigned[i] / total[i]);
+                    }
+                    return acc + Vector.Dot(accV, one);
+                }
+
                 private int PickAZoneToSelect(float pop, ITashaHousehold household, ITashaPerson person, float expansionFactor)
                 {
                     var type = ClassifyHousehold(household, person);
                     var homeZoneIndex = ZoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
                     var row = _linkages.GetFlatData()[type][homeZoneIndex];
-                    var totalLinkages = VectorHelper.Sum(row, 0, row.Length);
+                    float[] assigned = _assigned[type];
+                    float[] emp = _totalEmployment[type];
+                    var totalLinkages = GetTotalLinkages(row, assigned, emp);
                     if (totalLinkages <= 0.0f)
                     {
                         Array.Copy(_originalLinkages.GetFlatData()[type][homeZoneIndex], row, row.Length);
@@ -173,7 +210,8 @@ namespace Tasha.PopulationSynthesis
                     int index = 0;
                     for (; index < row.Length; index++)
                     {
-                        acc += row[index];
+                        var ratio = emp[index] > 0 ? (assigned[index] / emp[index]) : 1f;
+                        acc += row[index] * (1.0f - ratio);
                         if (pop < acc)
                         {
                             break;
@@ -195,19 +233,7 @@ namespace Tasha.PopulationSynthesis
                             throw new XTMFRuntimeException(this, $"After already checking that there was an available job, none were found!");
                         }
                     }
-                    var newValue = row[index] - expansionFactor;
-                    var remainder = 0f;
-                    if (newValue < 0f)
-                    {
-                        remainder = -newValue;
-                        newValue = 0.0f;
-                    }
-                    row[index] = newValue;
-                    // if we need to reduce the column
-                    if (remainder > 0f)
-                    {
-                        ReduceJobColumn(type, index, remainder);
-                    }
+                    _assigned[type][index] += expansionFactor;
                     return index;
                 }
 
