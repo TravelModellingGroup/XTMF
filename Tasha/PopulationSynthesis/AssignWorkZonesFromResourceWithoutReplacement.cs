@@ -149,9 +149,6 @@ namespace Tasha.PopulationSynthesis
                     return Zones[index];
                 }
 
-                [RunParameter("Minimum Linkage Remainder", 0.001f, "The minimum remainder of jobs before a zone is considered to have none left.")]
-                public float MinimumLinkageRemainder;
-
                 private int PickAZoneToSelect(float pop, ITashaHousehold household, ITashaPerson person, float expansionFactor)
                 {
                     var type = ClassifyHousehold(household, person);
@@ -199,12 +196,45 @@ namespace Tasha.PopulationSynthesis
                         }
                     }
                     var newValue = row[index] - expansionFactor;
-                    if (newValue < MinimumLinkageRemainder)
+                    var remainder = 0f;
+                    if (newValue < 0f)
                     {
+                        remainder = -newValue;
                         newValue = 0.0f;
                     }
                     row[index] = newValue;
+                    // if we need to reduce the column
+                    if (remainder > 0f)
+                    {
+                        ReduceJobColumn(type, index, remainder);
+                    }
                     return index;
+                }
+
+                private void ReduceJobColumn(int type, int index, float remainder)
+                {
+                    var total = SumJobs(type, index);
+                    var factor = 1.0f - (remainder / total);
+                    if(factor < 0)
+                    {
+                        factor = 0.0f;
+                    }
+                    var data = _linkages.GetFlatData()[type];
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        data[i][index] *= factor;
+                    }
+                }
+
+                private float SumJobs(int type, int index)
+                {
+                    var data = _linkages.GetFlatData()[type];
+                    float acc = 0.0f;
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        acc += data[i][index];
+                    }
+                    return acc;
                 }
 
                 private int ClassifyHousehold(ITashaHousehold household, ITashaPerson person)
