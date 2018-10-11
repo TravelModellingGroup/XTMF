@@ -85,7 +85,7 @@ namespace Tasha.PopulationSynthesis
                 {
                     _originalLinkages = linkages.CreateSimilarArray<float>();
                     var flatLinkages = linkages.GetFlatData();
-                    var flatOriginal = linkages.GetFlatData();
+                    var flatOriginal = _originalLinkages.GetFlatData();
                     for (int i = 0; i < flatLinkages.Length; i++)
                     {
                         for (int j = 0; j < flatLinkages[i].Length; j++)
@@ -145,20 +145,16 @@ namespace Tasha.PopulationSynthesis
                 internal IZone ProduceResult(Random random, ITashaHousehold household, ITashaPerson person)
                 {
                     var pop = (float)random.NextDouble();
-                    var index = PickAZoneToSelect(pop, household, person.ExpansionFactor);
-                    if (index < 0 || index >= Zones.Length)
-                    {
-                        Console.WriteLine("ERROR WITH INDEX!");
-                    }
+                    var index = PickAZoneToSelect(pop, household, person, person.ExpansionFactor);
                     return Zones[index];
                 }
 
                 [RunParameter("Minimum Linkage Remainder", 0.001f, "The minimum remainder of jobs before a zone is considered to have none left.")]
                 public float MinimumLinkageRemainder;
 
-                private int PickAZoneToSelect(float pop, ITashaHousehold household, float expansionFactor)
+                private int PickAZoneToSelect(float pop, ITashaHousehold household, ITashaPerson person, float expansionFactor)
                 {
-                    var type = ClassifyHousehold(household);
+                    var type = ClassifyHousehold(household, person);
                     var homeZoneIndex = ZoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
                     var row = _linkages.GetFlatData()[type][homeZoneIndex];
                     var totalLinkages = VectorHelper.Sum(row, 0, row.Length);
@@ -211,7 +207,7 @@ namespace Tasha.PopulationSynthesis
                     return index;
                 }
 
-                private int ClassifyHousehold(ITashaHousehold household)
+                private int ClassifyHousehold(ITashaHousehold household, ITashaPerson person)
                 {
                     var numberOfLicenses = 0;
                     var numberOfVehicles = household.Vehicles.Length;

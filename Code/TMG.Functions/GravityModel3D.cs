@@ -66,8 +66,9 @@ namespace TMG.Functions
         private static bool VectorBalance(float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon)
         {
             VectorHelper.Divide(columnTotals, 0, destinations, 0, columnTotals, 0, columnTotals.Length);
+            // Fix the 0/0's caused by having no employment
+            VectorHelper.ReplaceIfNotFinite(columnTotals, 0, 1.0f, columnTotals.Length);
             VectorHelper.Multiply(destinationStar, 0, destinationStar, 0, columnTotals, 0, destinationStar.Length);
-            VectorHelper.ReplaceIfNotFinite(destinationStar, 0, 1.0f, destinationStar.Length);
             return VectorHelper.AreBoundedBy(columnTotals, 0, 1.0f, epsilon, columnTotals.Length);
         }
     }
