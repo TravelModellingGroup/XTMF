@@ -187,7 +187,21 @@ namespace Tasha.PopulationSynthesis
                         }
                     }
                     // make sure it is bounded in case of rounding errors
-                    index = Math.Min(index, row.Length - 1);
+                    if(index == row.Length)
+                    {
+                        for (index = row.Length - 1; index >= 0; index--)
+                        {
+                            if(row[index] > 0)
+                            {
+                                break;
+                            }
+                        }
+                        // make sure we didn't run all the way back past the start of the array
+                        if(index == -1)
+                        {
+                            throw new XTMFRuntimeException(this, $"After already checking that there was an available job, none were found!");
+                        }
+                    }
                     var newValue = row[index] - expansionFactor;
                     if (newValue < MinimumLinkageRemainder)
                     {
