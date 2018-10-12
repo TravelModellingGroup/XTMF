@@ -117,6 +117,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -177,6 +178,7 @@
     <Compile Include="Utilities\IterateEMMETools.cs" />
     <Compile Include="Utilities\LoadEMME4BinaryMatrixInMatrixZoneSystem.cs" />
     <Compile Include="Utilities\LOSBetweenPoints.cs" />
+    <Compile Include="Utilities\ZoneSystemFromNWP.cs" />
     <Compile Include="XTMF_Internal\CopyScenario.cs" />
     <Compile Include="XTMF_Internal\DeleteScenario.cs" />
     <Compile Include="XTMF_Internal\ReturnBoardingsMulticlass.cs" />
