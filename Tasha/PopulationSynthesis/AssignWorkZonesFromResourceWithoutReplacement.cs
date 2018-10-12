@@ -197,11 +197,14 @@ namespace Tasha.PopulationSynthesis
                         var eV = new Vector<float>(total, i);
                         var aV = new Vector<float>(assigned, i);
                         var ratio = VectorHelper.SelectIfFinite(aV / eV, Vector<float>.Zero);
-                        accV += Vector.Max(new Vector<float>(row, i) * (one - ratio), Vector<float>.Zero);
+                        accV += new Vector<float>(row, i) * Vector.Max((one - ratio), Vector<float>.Zero);
                     }
                     for (; i < row.Length; i++)
                     {
-                        acc += row[i] * Math.Max((1.0f - assigned[i] / total[i]), 0f) ;
+                        if (total[i] > 0)
+                        {
+                            acc += row[i] * Math.Max((1.0f - assigned[i] / total[i]), 0f);
+                        }
                     }
                     return acc + Vector.Dot(accV, one);
                 }
@@ -234,7 +237,7 @@ namespace Tasha.PopulationSynthesis
                     for (; index < row.Length; index++)
                     {
                         var ratio = emp[index] > 0 ? (assigned[index] / emp[index]) : 1f;
-                        acc += row[index] * Math.Min((1.0f - ratio), 0f);
+                        acc += row[index] * Math.Max((1.0f - ratio), 0f);
                         if (pop < acc)
                         {
                             break;
