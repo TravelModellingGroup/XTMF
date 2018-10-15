@@ -239,12 +239,6 @@ namespace Tasha.PopulationSynthesis
                         }
                         total += temp[j];
                     }
-                    if(acc > 0)
-                    {
-                        ++temp[lastWithAnyEmp];
-                        ++total;
-                        lastWithEmp = lastWithAnyEmp;
-                    }
                     unchecked
                     {
                         Random r = new Random(RandomSeed * total * homeZoneIndex * type);
