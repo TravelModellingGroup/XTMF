@@ -43,16 +43,18 @@ namespace Tasha.PopulationSynthesis
 
         public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
-
-
         private IZone _roamingZone;
 
         [RunParameter("External Zones", "6000-6999", typeof(RangeSet), "External employment zones previously loaded will not be overwritten.")]
         public RangeSet ExternalZones;
 
+        [SubModelInformation(Required = true)]
         public OccupationData Professional;
+        [SubModelInformation(Required = true)]
         public OccupationData General;
+        [SubModelInformation(Required = true)]
         public OccupationData Sales;
+        [SubModelInformation(Required = true)]
         public OccupationData Manufacturing;
 
         public void Load()
@@ -163,14 +165,12 @@ namespace Tasha.PopulationSynthesis
                 /// [type, homeZone]
                 /// </summary>
                 private int[][] _index;
-                float[][][] _linkages;
 
                 internal void Load()
                 {
                     _zoneSystem = Root.ZoneSystem.ZoneArray;
                     Linkages.LoadData();
                     var results = Linkages.GiveData();
-                    _linkages = results.GetFlatData();
                     Linkages.UnloadData();
                     CreateIndexes();
                     CreateChoices(results.GetFlatData());
@@ -224,7 +224,7 @@ namespace Tasha.PopulationSynthesis
                     {
                         var remander = row[j] - temp[j];
                         acc += remander;
-                        if (acc >= 1.0f)
+                        if (acc >= 0.5f)
                         {
                             acc -= 1.0f;
                             ++temp[j];
