@@ -30,15 +30,16 @@ namespace TMG.Frameworks.Data.Processing
         [RunParameter("Runtime Only", true, "If this is true the model system will not be altered.  If this is false then if the model system gets saved that parameter will be saved as well.")]
         public bool RuntimeOnly;
 
-        [SubModelInformation(Required = true, Description = "The data source that will be loaded in order to assign tot he given parameter.")]
+        [SubModelInformation(Required = true, Description = "The data source that will be loaded in order to assign to the given parameter.")]
         public IDataSource<T> AssignFrom;
 
-        private IConfiguration Config;
+        private readonly IConfiguration _config;
 
-        private IModuleParameter Parameter;
+        private IModuleParameter _parameter;
+
         public AssignParameterFromDataSource(IConfiguration config)
         {
-            Config = config;
+            _config = config;
         }
 
         public string Name { get; set; }
@@ -49,8 +50,8 @@ namespace TMG.Frameworks.Data.Processing
 
         public bool RuntimeValidation(ref string error)
         {
-            Parameter = Functions.ModelSystemReflection.FindParameter(Config, this, ParameterPath);
-            if (Parameter == null)
+            _parameter = Functions.ModelSystemReflection.FindParameter(_config, this, ParameterPath);
+            if (_parameter == null)
             {
                 error = "In '" + Name + "' we were unable to find a parameter with the path '" + ParameterPath + "'!";
                 return false;
@@ -66,11 +67,11 @@ namespace TMG.Frameworks.Data.Processing
             }
             if (RuntimeOnly)
             {
-                Functions.ModelSystemReflection.AssignValueRunOnly(Config, Parameter, AssignFrom.GiveData());
+                Functions.ModelSystemReflection.AssignValueRunOnly(_config, _parameter, AssignFrom.GiveData());
             }
             else
             {
-                Functions.ModelSystemReflection.AssignValue(Config, Parameter, AssignFrom.GiveData());
+                Functions.ModelSystemReflection.AssignValue(_config, _parameter, AssignFrom.GiveData());
             }
         }
     }
