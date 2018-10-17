@@ -137,8 +137,10 @@ namespace Tasha.Validation.NWS
         private void Store(List<ITrip> trips, int i, float expFactor)
         {
             bool isHomeBased = (i == 0);
-            float distance = ComputeManhattanDistance(trips[i].OriginalZone, trips[i].DestinationZone);
-            bool intraZonal = false;
+            var o = trips[i].OriginalZone;
+            var d = trips[i].DestinationZone;
+            float distance = ComputeManhattanDistance(o, d);
+            bool intraZonal = (o == d);
 
             switch(trips[i].Purpose)
             {
