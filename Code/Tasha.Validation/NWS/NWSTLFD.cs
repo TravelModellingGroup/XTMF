@@ -106,12 +106,19 @@ namespace Tasha.Validation.NWS
             _nhb = new Bin("NHB", StepSize, NumberOfBins);
         }
 
-        private static float ComputeManhattanDistance(IZone origin, IZone destination)
+        private static float ComputeManhattanDistance(IZone origin, IZone episodeZone, IZone destinationZone)
         {
-            var deltaX = Math.Abs(origin.X - destination.X);
-            var deltaY = Math.Abs(origin.Y - destination.Y);
+            var deltaX = Math.Abs(origin.X - episodeZone.X);
+            var deltaY = Math.Abs(origin.Y - episodeZone.Y);
+            float deltaX2 = 0.0f;
+            float deltaY2 = 0.0f;
+            if(destinationZone != null)
+            {
+                deltaX2 = Math.Abs(destinationZone.X - episodeZone.X);
+                deltaY2 = Math.Abs(destinationZone.Y - episodeZone.Y);
+            }
             // Convert it to KMs
-            return (deltaX + deltaY)/1000f;
+            return (deltaX + deltaY + deltaX2 + deltaY2)/1000f;
         }
 
 
@@ -139,7 +146,8 @@ namespace Tasha.Validation.NWS
             bool isHomeBased = (i == 0);
             var o = trips[i].OriginalZone;
             var d = trips[i].DestinationZone;
-            float distance = ComputeManhattanDistance(o, d);
+            var d2 = trips.Count > i + 1 ? trips[i + 1].DestinationZone : null;
+            float distance = ComputeManhattanDistance(o, d, d2);
             bool intraZonal = (o == d);
 
             switch(trips[i].Purpose)
