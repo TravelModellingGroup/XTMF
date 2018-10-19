@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.Collections.Generic;
 using Datastructure;
 namespace TMG.Functions
@@ -53,6 +54,52 @@ namespace TMG.Functions
             }
             var regionArray = regionNumbersFound.ToArray();
             return SparseArray<T>.CreateSparseArray(regionArray, new T[regionArray.Length]);
+        }
+
+        /// <summary>
+        /// Check to see if two zone systems share the same zone system
+        /// </summary>
+        /// <param name="firstMatrix"></param>
+        /// <param name="secondMatrix"></param>
+        /// <returns>True if they both represent the same indexes, false otherwise.</returns>
+        public static bool IsSameZoneSystem(SparseTwinIndex<float> firstMatrix, SparseTwinIndex<float> secondMatrix)
+        {
+            var first = firstMatrix.Indexes.Indexes;
+            var second = secondMatrix.Indexes.Indexes;
+            // if they are using the same memory then they must be the same zone system
+            if(first == second)
+            {
+                return true;
+            }
+            // if they are not we need to look at the contents
+            if (first.Length != second.Length)
+            {
+                return false;
+            }
+            for (int i = 0; i < first.Length; i++)
+            {
+                // check the contents of the rows
+                if((first[i].Start != second[i].Start) | (first[i].Stop != second[i].Stop))
+                {
+                    return false;
+                }
+                // now search all of the columns
+                var firstInner = first[i].SubIndex.Indexes;
+                var secondInner = second[i].SubIndex.Indexes;
+                if(firstInner.Length != secondInner.Length)
+                {
+                    return false;
+                }
+                for (int j = 0; j < firstInner.Length; j++)
+                {
+                    if ((firstInner[j].Start != secondInner[j].Start) | (firstInner[j].Stop != secondInner[j].Stop))
+                    {
+                        return false;
+                    }
+                }
+            }
+            // If everything has matched then they are the same.
+            return true;
         }
 
         public static SparseTwinIndex<T> CreatePdTwinArray<T>(SparseArray<IZone> zoneArray)

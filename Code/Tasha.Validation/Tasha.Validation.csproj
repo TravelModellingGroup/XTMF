@@ -147,6 +147,7 @@
     <Compile Include="PoRPoW\ExtractPoRPoWAssignments.cs" />
     <Compile Include="PoRPoW\LinkageDistanceHistogram.cs" />
     <Compile Include="PoRPoW\PostSchedulePoRPoWAssignments.cs" />
+    <Compile Include="Scheduler\SaveTripLengthFrequencyDistribution.cs" />
     <Compile Include="Scheduler\ExtractTripPurposes.cs" />
     <Compile Include="Scheduler\PrintMissedWorkEpisodes.cs" />
     <Compile Include="Scheduler\TripChainSizeVSDailyTrips.cs" />
