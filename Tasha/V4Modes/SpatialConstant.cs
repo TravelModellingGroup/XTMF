@@ -58,10 +58,10 @@ namespace Tasha.V4Modes
 
         private SparseTwinIndex<float> PlanningDistrictConstants;
 
-        [RunParameter("Start Time", "6:00AM", typeof(Time), "The start time for this time period, inclusive.")]
+        [RunParameter("Start Time", "6:00AM", typeof(Time), "The start time for this time period, inclusive.", Index = 0)]
         public Time StartTime;
 
-        [RunParameter("End Time", "9:00AM", typeof(Time), "The end time for this time period, exclusive.")]
+        [RunParameter("End Time", "9:00AM", typeof(Time), "The end time for this time period, exclusive.", Index = 1)]
         public Time EndTime;
 
         public string Name { get; set; }
@@ -75,6 +75,7 @@ namespace Tasha.V4Modes
             if(StartTime >= EndTime)
             {
                 error = "In '" + Name + "' the Start Time is greater than or the same to the end time!";
+                return false;
             }
             return true;
         }
