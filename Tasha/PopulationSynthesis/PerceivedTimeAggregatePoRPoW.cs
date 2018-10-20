@@ -24,6 +24,7 @@ using Datastructure;
 using System.Threading.Tasks;
 using TMG.Input;
 using TMG.Functions;
+using System.IO;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -455,26 +456,33 @@ namespace Tasha.PopulationSynthesis
                 return WorkerCategories;
             }
             var ret = new float[zones.Length * NumberOfWorkerCategories];
-            using (CsvReader reader = new CsvReader(WorkerCategorySplits))
+            try
             {
-                //burn header
-                reader.LoadLine(out int columns);
-                // read data
-                while (reader.LoadLine(out columns))
+                using (CsvReader reader = new CsvReader(WorkerCategorySplits))
                 {
-                    if (columns < 3)
+                    //burn header
+                    reader.LoadLine(out int columns);
+                    // read data
+                    while (reader.LoadLine(out columns))
                     {
-                        continue;
+                        if (columns < 3)
+                        {
+                            continue;
+                        }
+                        reader.Get(out int zone, 0);
+                        reader.Get(out int category, 1);
+                        reader.Get(out float probability, 2);
+                        zone = zoneArray.GetFlatIndex(zone);
+                        // categories are 1 indexed however we want 0 indexed
+                        category -= 1;
+                        if (zone < 0 | category < 0 | category >= NumberOfWorkerCategories) continue;
+                        ret[zone + (zones.Length * category)] = probability;
                     }
-                    reader.Get(out int zone, 0);
-                    reader.Get(out int category, 1);
-                    reader.Get(out float probability, 2);
-                    zone = zoneArray.GetFlatIndex(zone);
-                    // categories are 1 indexed however we want 0 indexed
-                    category -= 1;
-                    if (zone < 0 | category < 0 | category >= NumberOfWorkerCategories) continue;
-                    ret[zone + (zones.Length * category)] = probability;
                 }
+            }
+            catch(IOException e)
+            {
+                throw new XTMFRuntimeException(this, e, $"Unable to read worker category file at '{WorkerCategorySplits.GetFilePath()}'. {e.Message}");
             }
             return (WorkerCategories = ret);
         }
