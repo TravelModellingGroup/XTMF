@@ -55,6 +55,9 @@ For specification about the language, and extensibility please consult the TMG F
 
         public string OutputBaseDirectory { get; set; }
 
+        [SubModelInformation(Required = false, Description = "The location to store a copy of the batch file to.")]
+        public FileLocation CopyBatchFileTo;
+
 
         public float Progress
         {
@@ -111,6 +114,17 @@ For specification about the language, and extensibility please consult the TMG F
         public void Start()
         {
             CurrentProgress = () => Child.Progress;
+            if (CopyBatchFileTo != null)
+            {
+                try
+                {
+                    File.Copy(BatchRunFile.GetFilePath(), CopyBatchFileTo.GetFilePath(), true);
+                }
+                catch (IOException e)
+                {
+                    throw new XTMFRuntimeException(this, e, $"Unable to copy the multi-run batch file {CopyBatchFileTo.GetFilePath()}. {e.Message}");
+                }
+            }
             foreach (var runName in ExecuteRuns())
             {
                 try
