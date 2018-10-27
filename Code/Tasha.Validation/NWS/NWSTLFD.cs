@@ -161,6 +161,7 @@ namespace Tasha.Validation.NWS
                     (isHomeBased ? _hbm : _nhb).Record(intraZonal, distance, expFactor);
                     break;
                 case Activity.WorkBasedBusiness:
+                case Activity.SecondaryWork:
                     // We double count work based business trips if they are not home based
                     _abb.Record(intraZonal, distance, expFactor);
                     if (!isHomeBased)
