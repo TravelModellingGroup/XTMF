@@ -50,14 +50,13 @@ namespace TMG.Emme.NetworkAssignment
         {
             if(controller is ModellerController mc)
             {
-                mc.Run(this, ToolName, new ModellerControllerParameter[]
+                return mc.Run(this, ToolName, new ModellerControllerParameter[]
                     {
                         new ModellerControllerParameter("xtmf_AssignmentModes", Modes),
                         new ModellerControllerParameter("DistanceSkimMatrixID", DistanceMatrix.ToString()),
                         new ModellerControllerParameter("xtmf_ScenarioId", ScenarioNumber.ToString()),
                         new ModellerControllerParameter("ClassName", "aux_transit_distance")
                     });
-                return true;
             }
             throw new XTMFRuntimeException(this, "The runtime controller for EMME was not a modeller controller!");
         }
