@@ -130,6 +130,9 @@ namespace Tasha.StationAccess
                 CalculateUtilities(stationRanges, spatialZones, capacity.GetFlatData(), closestStation);
             }
 
+            [RunParameter("CapacityFactorScale", 1.0f, "A scale on the congestion computed by the capacity factor.")]
+            public float CapacityFactorScale;
+
             private void CalculateUtilities(RangeSet stationRanges, RangeSet spatialZones, float[] capacity, int[] closestStation)
             {
                 INetworkData autoNetwork = GetNetwork(AutoNetworkName);
@@ -151,7 +154,7 @@ namespace Tasha.StationAccess
                 var parkingUtil = new float[stationZones.Length];
                 for (int i = 0; i < stationZones.Length; i++)
                 {
-                    invStationFactor[i] = 1.0f / ComputeCapacityFactor(flatCapacityFactor[stationZones[i]], Alpha);
+                    invStationFactor[i] = 1.0f / (((ComputeCapacityFactor(flatCapacityFactor[stationZones[i]], Alpha) - 1.0f) * CapacityFactorScale) + 1.0f);
                     parkingUtil[i] = ParkingCost * zones[stationZones[i]].ParkingCost;
                 }
 

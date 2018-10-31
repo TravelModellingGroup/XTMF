@@ -65,6 +65,9 @@ blended average between iteration to help converge.")]
             [RootModule]
             public ITravelDemandModel Root;
 
+            [RunParameter("Capacity Multiplier", 1.0f, "A multiplier to apply against the capacity of stations.")]
+            public float CapacityMultiplier;
+
             [ParentModel]
             public ComputeStationCapacityFactor Parent;
 
@@ -145,7 +148,7 @@ blended average between iteration to help converge.")]
                             writer.Write(',');
                             writer.Write(accessStationCounts[i]);
                             writer.Write(',');
-                            writer.WriteLine(stationCapacity);
+                            writer.WriteLine(CapacityMultiplier * stationCapacity);
                         }
                         else
                         {
@@ -162,7 +165,7 @@ blended average between iteration to help converge.")]
                     capacityFactor = float.NaN;
                     return false;
                 }
-                capacityFactor = current * (demand / capacity) + previous * (previousCapacityFactor);
+                capacityFactor = current * (demand / (CapacityMultiplier * capacity)) + previous * (previousCapacityFactor);
                 return true;
             }
 
