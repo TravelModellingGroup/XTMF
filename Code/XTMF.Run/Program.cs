@@ -188,7 +188,7 @@ namespace XTMF.Run
             {
                 try
                 {
-                    if (Directory.Exists(runDirectory))
+                    if (deleteDirectory && Directory.Exists(runDirectory))
                     {
                         Directory.Delete(runDirectory, true);
                     }
