@@ -169,7 +169,7 @@ namespace Tasha.PopulationSynthesis
                         if (VectorHelper.Sum(row, 0, row.Length) <= 0.0f)
                         {
                             throw new XTMFRuntimeException(this, $"A person living at zone {household.HomeZone.ZoneNumber} with worker category" +
-                                $" {type} tried to find an employment zone.  There was no aggregate data for any workers of this class however.  Please" +
+                                $" {type + 1} tried to find an employment zone.  There was no aggregate data for any workers of this class however.  Please" +
                                 $" update your worker categories and zonal residence files for this scenario!\r\n" +
                                 $"HHLD#: {household.HouseholdId}");
                         }
