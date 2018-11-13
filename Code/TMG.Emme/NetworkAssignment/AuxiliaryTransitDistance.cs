@@ -37,7 +37,7 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Distance Matrix", 0, "The matrix number to store the distances to.")]
         public int DistanceMatrix;
 
-        [RunParameter("Allowed AuxillaryModes", "w", "The auxiliary transit modes that are allowed to be used to find the shortest path.")]
+        [RunParameter("Allowed AuxillaryModes", "wv", "The auxiliary transit modes that are allowed to be used to find the shortest path.")]
         public string Modes;
 
         public string Name { get; set; }

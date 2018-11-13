@@ -115,6 +115,9 @@ namespace Tasha.V4Modes
         [RunParameter("Mode Name", "Bicycle", "The name of the mode")]
         public string ModeName { get; set; }
 
+        [SubModelInformation(Required = false, Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
         /// <summary>
         ///
         /// </summary>
@@ -199,13 +202,16 @@ namespace Tasha.V4Modes
             ITashaPerson person = trip.TripChain.Person;
             GetPersonVariables(person, out float timeFactor, out float constant);
             v += constant;
-            var o = _zoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber);
-            var d = _zoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+            Time startTime = trip.ActivityStartTime;
+            IZone origin = trip.OriginalZone;
+            IZone destination = trip.DestinationZone;
+            var o = _zoneSystem.GetFlatIndex(origin.ZoneNumber);
+            var d = _zoneSystem.GetFlatIndex(destination.ZoneNumber);
             if (o == d)
             {
                 v += IntrazonalConstant;
             }
-            v += timeFactor * TravelTime(o, d, trip.ActivityStartTime).ToMinutes();
+            v += timeFactor * TravelTime(o, d, startTime).ToMinutes();
             v += _zonalDestinationUtility[d];
             if (person.Youth)
             {
@@ -215,7 +221,19 @@ namespace Tasha.V4Modes
             {
                 v += YoungAdultFlag;
             }
-            return v;
+            return v + GetPlanningDistrictConstant(startTime, origin.PlanningDistrict, destination.PlanningDistrict);
+        }
+
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
+                }
+            }
+            return 0f;
         }
 
         private void GetPersonVariables(ITashaPerson person, out float time, out float constant)
@@ -450,7 +468,11 @@ namespace Tasha.V4Modes
             {
                 _distances = Root.ZoneSystem.Distances;
             }
-            if(ZonalDestinationUtility != null)
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                TimePeriodConstants[i].BuildMatrix();
+            }
+            if (ZonalDestinationUtility != null)
             {
                 ZonalDestinationUtility.LoadData();
                 _zonalDestinationUtility = ZonalDestinationUtility.GiveData().GetFlatData();
