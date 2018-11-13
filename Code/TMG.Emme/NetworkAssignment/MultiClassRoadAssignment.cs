@@ -153,6 +153,11 @@ namespace TMG.Emme.NetworkAssignment
                 [RunParameter("Paths to Select", "ALL", typeof(Selection), "The paths that will be used for analysis")]
                 public Selection PathSelection;
 
+                [RunParameter("Multiply Path Proportion By Analyzed Demand", true, "Choose whether to multiply the path proportion by the analyzed demand")]
+                public bool MultiplyPathByDemand;
+                [RunParameter("Multiply Path Proportion By Path Value", true, "Choose whether to multiply the path proportion by the path value")]
+                public bool MultiplyPathByValue;
+
                 public bool RuntimeValidation(ref string error)
                 {
                     if (String.IsNullOrWhiteSpace(AttributeId))
@@ -221,6 +226,8 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("xtmf_LowerBound", GetLowerBound()),
                 new ModellerControllerParameter("xtmf_UpperBound", GetUpperBound()),
                 new ModellerControllerParameter("xtmf_PathSelection", GetPathSelection()),
+                new ModellerControllerParameter("xtmf_MultiplyPathPropByDemand", GetPathMultiplyDemand()),
+                new ModellerControllerParameter("xtmf_MultiplyPathPropByValue", GetPathMultiplyValue()),
                 new ModellerControllerParameter("xtmf_BackgroundTransit", BackgroundTransit.ToString())
             };
         }
@@ -265,6 +272,20 @@ namespace TMG.Emme.NetworkAssignment
             return string.Join("|", from c in Classes
                                     select string.Join(",", from at in c.PathAnalyses
                                                             select at.PathSelection));
+        }
+
+        private string GetPathMultiplyDemand()
+        {
+            return string.Join("|", from c in Classes
+                                    select string.Join(",", from at in c.PathAnalyses
+                                                            select at.MultiplyPathByDemand));
+        }
+
+        private string GetPathMultiplyValue()
+        {
+            return string.Join("|", from c in Classes
+                                    select string.Join(",", from at in c.PathAnalyses
+                                                            select at.MultiplyPathByValue));
         }
 
         private string GetTimes()
