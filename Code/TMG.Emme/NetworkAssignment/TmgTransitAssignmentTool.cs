@@ -1,4 +1,5 @@
 ﻿using System;
+using Datastructure;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,6 +76,8 @@ namespace TMG.Emme.NetworkAssignment
 
         //[RunParameter("Warm Start", false, "Set this to false in order to not apply congestion during assignment.")]
         //public bool ApplyCongestion;
+        [RunParameter("Exclusive ROW TTF Range", "2", typeof(RangeSet), "Set this to the TTF, TTFs or range of TTFs (seperated by commas) that represent going in an exclusive right of way. This is for use in STSU")]
+        public RangeSet XRowTTF;
 
         [SubModelInformation(Description = "The classes for this multi-class assignment.")]
         public Class[] Classes;
@@ -155,7 +158,8 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("xtmf_congestedAssignment", ApplyCongestion.ToString()),
                 new ModellerControllerParameter("xtmf_CSVFile", GetFileLocationOrNone(IterationCSVFile)),
                 new ModellerControllerParameter("xtmf_SurfaceTransitSpeed", GetSurfaceSpeedModel()),
-                new ModellerControllerParameter("xtmf_WalkAllWayFlag", WalkAllWayFlag.ToString())
+                new ModellerControllerParameter("xtmf_WalkAllWayFlag", WalkAllWayFlag.ToString()),
+                new ModellerControllerParameter("xtmf_XRowTTFRange", XRowTTF.ToString())
 
                 };
             }
@@ -217,8 +221,7 @@ namespace TMG.Emme.NetworkAssignment
             if (SurfaceTransitSpeedModel != null)
             {
                 args = string.Join(" ", args, "\"" + string.Join(",", from model in SurfaceTransitSpeedModel
-                                                                      select model.AutoScenarioNumber.ToString() + ":"
-                                                                      + Controller.ToEmmeFloat(model.BoardingDuration) + ":"
+                                                                      select Controller.ToEmmeFloat(model.BoardingDuration) + ":"
                                                                       + Controller.ToEmmeFloat(model.AlightingDuration) + ":"
                                                                       + Controller.ToEmmeFloat(model.DefaultDuration) + ":"
                                                                       + Controller.ToEmmeFloat(model.Correlation) + ":"
@@ -245,8 +248,7 @@ namespace TMG.Emme.NetworkAssignment
             if (SurfaceTransitSpeedModel != null)
             {
                 surfaceSpeedModel = string.Join(",", from model in SurfaceTransitSpeedModel
-                                                     select model.AutoScenarioNumber.ToString() + ":"
-                                         + Controller.ToEmmeFloat(model.BoardingDuration) + ":"
+                                                     select Controller.ToEmmeFloat(model.BoardingDuration) + ":"
                                          + Controller.ToEmmeFloat(model.AlightingDuration) + ":"
                                          + Controller.ToEmmeFloat(model.DefaultDuration) + ":"
                                          + Controller.ToEmmeFloat(model.Correlation) + ":"
@@ -397,8 +399,6 @@ namespace TMG.Emme.NetworkAssignment
         public sealed class SurfaceTransitSpeed : IModule
         {
             //scenario_number, time_period_duration, boarding_duration, alighting_duration, default_duration, correlation)
-            [RunParameter("Auto Scenario Number", 0, "The scenario number of the corresponding auto assignment of the same time period.")]
-            public int AutoScenarioNumber;
 
             [RunParameter("Boarding Duration", 1.9577, "The boarding duration in seconds per passenger to apply.")]
             public float BoardingDuration;
@@ -412,7 +412,7 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("Transit Auto Correlation", 1, "The multiplier to auto time to use to find transit time.")]
             public float Correlation;
 
-            [RunParameter("Average EROW Speed", 1, "The average speed to use in segments that have Exclusive Right of Way for transit. Note the average speed inclused accelaration and decelaration time.")]
+            [RunParameter("Global EROW Speed", 1, "The speed to use in segments that have Exclusive Right of Way for transit and do not have @erow_speed defined. Note that the speed includes accelaration and decelaration time.")]
             public float ErowSpeed;
 
             [RunParameter("Mode Filter Expression", "bpgq", "The modes that will get surface transit speed updating applied to them. To select all lines, leave this and the line filter blank")]
