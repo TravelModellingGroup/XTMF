@@ -187,7 +187,7 @@ namespace Tasha.StationAccess
                                 if(autoTimeToStation <= 0)
                                 {
                                     throw new XTMFRuntimeException(this, $"There exists an auto access station {zones[stationZones[i]].ZoneNumber}" +
-                                        $" that has an capacity however it does not have an auto in vehicle travel time!");
+                                        $" that has an capacity however it does not have an auto in vehicle travel time from zone {zoneNumber}!");
                                 }
                                 // calculate access' to access station this will include more factors
                                 AutoFromOriginToAccessStation[saveIndex] = (float)Math.Exp(
