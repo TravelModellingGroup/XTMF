@@ -1,4 +1,4 @@
-# XTMF
+# XTMF - The eXtensible Travel Modelling Framework
 
 XTMF is software that creates, edits and runs _model systems_. Model systems in XTMF are designed with a hierarchical compositions of modules. Every module in a model system provides data input and custom execution logic. XTMF uses projects as an organizational structure for containing a collection of model systems.
 
