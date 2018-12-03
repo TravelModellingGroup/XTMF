@@ -42,4 +42,4 @@ For development of XTMF, Visual Studio 2017 or later is required. *XTMF.sln* in 
 
 ## Documentation
 
-Documentation for XTMF is available on the Travel Modelling Group's [documentation site](https://tmg.utoronto.ca/documentation/Documentation/1.4_docfx/_site/articles/intro.html "XTMF User Guide").
+Documentation for XTMF is available on the Travel Modelling Group's [documentation site](https://tmg.utoronto.ca/doc "XTMF User Guide").
