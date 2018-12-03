@@ -82,6 +82,8 @@ namespace XTMF
         /// </summary>
         Type Type { get; set; }
 
+        DateTime LastModified { get; set; }
+
         /// <summary>
         /// Notify if the model system structure
         /// should behave like a meta module
@@ -100,6 +102,7 @@ namespace XTMF
         /// </summary>
         /// <param name="p"></param>
         void Add(IModelSystemStructure p);
+
 
         /// <summary>
         /// Make an exact copy of this model system structure
@@ -140,5 +143,7 @@ namespace XTMF
         /// <param name="parent"></param>
         /// <returns>If the ProjectStructure is valid (able to be created into an executable model system)</returns>
         bool Validate(ref string error, IModelSystemStructure parent = null);
+
+
     }
 }

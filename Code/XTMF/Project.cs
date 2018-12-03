@@ -91,6 +91,7 @@ namespace XTMF
             {
                 var mss = toClone.CloneModelSystemStructure(out var lp,
                     out var regionDisplays, i);
+
                 loadTo[i] = new ProjectModelSystem
                 {
                     Root = mss,
@@ -234,6 +235,7 @@ namespace XTMF
             }
             else
             {
+               
                 ret = Save(Path.Combine(dirName, "Project.xml"), ref error);
                 if (_ClonedFrom != null)
                 {
@@ -321,7 +323,8 @@ namespace XTMF
                 LinkedParameters = linkedParameters,
                 Description = modelSystem.Description,
                 GUID = Guid.NewGuid().ToString(),
-                RegionDisplays = regionDisplays
+                RegionDisplays = regionDisplays,
+                LastModified = DateTime.Now
             });
             return Save(ref error);
         }
@@ -333,7 +336,8 @@ namespace XTMF
                 Root = system.ModelSystemStructure,
                 LinkedParameters = system.LinkedParameters,
                 Description = system.Description,
-                GUID = Guid.NewGuid().ToString()
+                GUID = Guid.NewGuid().ToString(),
+                LastModified = DateTime.Now
             });
             return Save(ref error);
         }
@@ -353,11 +357,15 @@ namespace XTMF
                     Name = modelSystemName,
                     Required = true,
                     Description = "The root of the model system",
-                    ParentFieldType = typeof(IModelSystemTemplate)
+                    ParentFieldType = typeof(IModelSystemTemplate),
+                    LastModified = DateTime.Now
+
+              
                 },
                 LinkedParameters = new List<ILinkedParameter>(),
                 Description = string.Empty,
-                GUID = Guid.NewGuid().ToString()
+                GUID = Guid.NewGuid().ToString(),
+                LastModified = DateTime.Now
             });
             return Save(ref error);
         }
@@ -385,7 +393,8 @@ namespace XTMF
                 LinkedParameters = linkedParameters,
                 Description = _ProjectModelSystems[index].Description,
                 GUID = Guid.NewGuid().ToString(),
-                RegionDisplays = regionDisplays
+                RegionDisplays = regionDisplays,
+                LastModified = DateTime.Now
             });
             return Save(ref error);
         }
@@ -401,12 +410,25 @@ namespace XTMF
             return project;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         internal bool RemoveModelSystem(int index, ref string error)
         {
             _ProjectModelSystems.RemoveAt(index);
             return Save(ref error);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="currentIndex"></param>
+        /// <param name="newIndex"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         internal bool MoveModelSystems(int currentIndex, int newIndex, ref string error)
         {
             var temp = _ProjectModelSystems[currentIndex];
@@ -425,6 +447,7 @@ namespace XTMF
             out List<IRegionDisplay> regionDisplays, int modelSystemIndex)
         {
             var ourClone = ModelSystemStructure[modelSystemIndex].Clone();
+            ourClone.LastModified = this._ProjectModelSystems[modelSystemIndex].LastModified;
             linkedParameters = LinkedParameters[modelSystemIndex].Count > 0
                 ? LinkedParameter.MapLinkedParameters(LinkedParameters[modelSystemIndex], ourClone,
                     ModelSystemStructure[modelSystemIndex])
@@ -438,7 +461,11 @@ namespace XTMF
             return ourClone as ModelSystemStructure;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystemStructure"></param>
+        /// <returns></returns>
         internal ModelSystem CloneModelSystem(IModelSystemStructure modelSystemStructure)
         {
             var index = 0;

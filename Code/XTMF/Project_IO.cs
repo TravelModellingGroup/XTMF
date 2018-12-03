@@ -115,7 +115,7 @@ namespace XTMF
         private bool LoadDetachedModelSystem(string directory, string guid, out ProjectModelSystem pms)
         {
             var msPath = Path.Combine(_DirectoryLocation, "._ModelSystems", $"Project.ms-{guid}.xml");
-            if(!File.Exists(msPath))
+            if (!File.Exists(msPath))
             {
                 msPath = Path.Combine(_DirectoryLocation, $"Project.ms-{guid}.xml");
                 if (!File.Exists(msPath))
@@ -176,6 +176,15 @@ namespace XTMF
             {
                 switch (child.ChildNodes[i].Name)
                 {
+                    case "LastModified":
+
+                        {
+                            var result = DateTime.TryParse(child.ChildNodes[i].Attributes?["Time"]?.InnerText, out var modified);
+                            pms.LastModified = result ? modified : DateTime.Now;
+
+
+                            break;
+                        }
                     case "LinkedParameters":
                         {
                             pms.LinkedParameters = LoadLinkedParameters(child.ChildNodes[i], pms.Root);
@@ -262,6 +271,15 @@ namespace XTMF
                 {
                     switch (child.ChildNodes[i].Name)
                     {
+                        case "LastModified":
+
+                            {
+                                var result = DateTime.TryParse(child.ChildNodes[i].Attributes?["Time"]?.InnerText, out var modified);
+                                pms.LastModified = result ? modified : DateTime.Now;
+
+
+                                break;
+                            }
                         case "LinkedParameters":
                             {
                                 pms.LinkedParameters = LoadLinkedParameters(child.ChildNodes[i], pms.Root);
@@ -299,10 +317,15 @@ namespace XTMF
                                 case "Root":
                                     Description = reader.GetAttribute("Description");
                                     // we can just exit at this point since using will clean up for us
-                                    return;
+                                    break;
                             }
                         }
                     }
+                }
+
+                for (int i = 0; i < this.ModelSystemStructure.Count; i++)
+                {
+                    this.ModelSystemStructure[i].LastModified = this._ProjectModelSystems[i].LastModified;
                 }
             }
             catch (Exception e)
@@ -499,7 +522,7 @@ namespace XTMF
             {
                 referencePath?.Insert(0, modelSystemStructure.Name);
 
-                
+
 
                 return string.Join(".", referencePath?.ToArray());
             }
@@ -615,6 +638,25 @@ namespace XTMF
                                     msWriter.WriteStartDocument();
                                     msWriter.WriteStartElement("Root");
                                     ms.Root.Save(msWriter);
+
+
+
+                                    if (ms.Root.LastModified.Year > 1)
+                                    {
+                                        msWriter.WriteStartElement("LastModified");
+                                        msWriter.WriteAttributeString("Time", ms.Root.LastModified.ToString("F"));
+                                        msWriter.WriteEndElement();
+                                    }
+                                    else if (ms.LastModified.Year > 1)
+                                    {
+                                        msWriter.WriteStartElement("LastModified");
+                                        msWriter.WriteAttributeString("Time", ms.LastModified.ToString("F"));
+                                        msWriter.WriteEndElement();
+                                    }
+
+
+
+
                                     msWriter.WriteStartElement("LinkedParameters");
                                     WriteLinkedParameters(msWriter, ms.LinkedParameters, ms.Root);
                                     msWriter.WriteEndElement();
@@ -623,6 +665,8 @@ namespace XTMF
                                     WriteRegions(msWriter, ms.RegionDisplays, ms.Root);
                                     msWriter.WriteEndElement();
                                     msWriter.WriteEndElement();
+
+
                                 }
 
                                 File.Copy(tempMSFileName,

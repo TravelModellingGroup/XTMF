@@ -26,7 +26,7 @@ using System.Windows.Controls;
 
 namespace XTMF.Gui.UserControls
 {
-    class ModelSystemListView : ListView
+    public class ModelSystemListView : DataGrid
     {
         protected override void OnContextMenuOpening(ContextMenuEventArgs e)
         {

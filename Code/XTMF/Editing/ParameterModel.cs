@@ -55,7 +55,11 @@ namespace XTMF
             }
         }
  
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="realParameter"></param>
+        /// <param name="session"></param>
         public ParameterModel(ModuleParameter realParameter, ModelSystemEditingSession session)
         {
             IsDirty = false;
@@ -64,6 +68,12 @@ namespace XTMF
             _Value = _Value = RealParameter.Value != null ? RealParameter.Value.ToString() : string.Empty;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="realParameter"></param>
+        /// <param name="session"></param>
+        /// <param name="belongsTo"></param>
         public ParameterModel(ModuleParameter realParameter, ModelSystemEditingSession session, ModelSystemStructureModel belongsTo)
         {
             IsDirty = false;

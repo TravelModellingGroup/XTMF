@@ -130,7 +130,6 @@ namespace XTMF
             {
                 var oldType = RealModelSystemStructure.Type;
 
-                Console.WriteLine(oldType);
                 if (oldType != value)
                 {
                     var oldChildren = Children?.ToList();
@@ -191,6 +190,9 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void SetRealParametersToModel()
         {
             var parameters = RealModelSystemStructure.Parameters;
@@ -1428,6 +1430,7 @@ namespace XTMF
             if (Dirty)
             {
                 Dirty = false;
+
                 ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
             }
 

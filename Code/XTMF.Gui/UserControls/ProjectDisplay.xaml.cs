@@ -148,7 +148,8 @@ namespace XTMF.Gui.UserControls
             {
                 us.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    us.ModelSystemDisplay.ItemsSource = us.Model.ContainedModelSystems;
+                    us.ModelSystemsDataGrid.ItemsSource = us.Model.ContainedModelSystems;
+                    // us.ModelSystemsDataGrid.ItemsSource = us.Model.ContainedModelSystems;
                     us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
                     us.FilterModelSystemsBox.RefreshFilter();
                     us.FilterPastRunsBox.RefreshFilter();
@@ -156,7 +157,8 @@ namespace XTMF.Gui.UserControls
             };
             lock (us.Model.ContainedModelSystems)
             {
-                us.ModelSystemDisplay.ItemsSource = us.Model.ContainedModelSystems;
+                // us.ModelSystemDisplay.ItemsSource = us.Model.ContainedModelSystems;
+                us.ModelSystemsDataGrid.ItemsSource = us.Model.ContainedModelSystems;
             }
 
             lock (us.Model.PreviousRuns)
@@ -164,22 +166,31 @@ namespace XTMF.Gui.UserControls
                 us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
             }
 
-            us.FilterModelSystemsBox.Display = us.ModelSystemDisplay;
+            us.FilterModelSystemsBox.Display = us.ModelSystemsDataGrid;
             us.FilterModelSystemsBox.Filter = us.FilterMS;
             us.FilterPastRunsBox.Display = us.PastRunDisplay;
             us.FilterPastRunsBox.Filter = us.FilterRuns;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnGotFocus(RoutedEventArgs e)
         {
             base.OnGotFocus(e);
             FilterModelSystemsBox.Focus();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.Handled == false)
+            
+            if (true)
+            {
                 switch (e.Key)
                 {
                     case Key.W:
@@ -219,16 +230,27 @@ namespace XTMF.Gui.UserControls
                     }
                         break;
                     case Key.C:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control)) CloneCurrentModelSystem();
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            CloneCurrentModelSystem();
+                        }
                         break;
                     case Key.Delete:
                         DeleteCurrentModelSystem();
                         break;
                     case Key.N:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control)) CreateNewModelSystem();
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            CreateNewModelSystem();
+                        }
+
                         break;
                     case Key.S:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control)) SaveCurrentAsModelSystem(true);
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            SaveCurrentAsModelSystem(true);
+                        }
+
                         break;
                     case Key.V:
                         if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
@@ -239,6 +261,7 @@ namespace XTMF.Gui.UserControls
 
                         break;
                 }
+            }
         }
 
         public event Action<object> RequestClose;
@@ -247,14 +270,18 @@ namespace XTMF.Gui.UserControls
         {
             var e = RequestClose;
             if (e != null)
+            {
                 if (MessageBox.Show("Are you sure that you want to close this window?", "Are you sure?",
                         MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
                     Dispatcher.BeginInvoke(new Action(() => { e(this); }));
+                }
+            }
         }
 
         private void LoadModelSystem()
         {
-            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            var selected = ModelSystemsDataGrid.SelectedItem as ProjectModel.ContainedModelSystemModel;
             LoadModelSystem(selected);
         }
 
@@ -269,7 +296,7 @@ namespace XTMF.Gui.UserControls
                     invoke(Session.EditModelSystem(index));
                 }
 
-                ModelSystemDisplay.SelectedItem = null;
+                ModelSystemsDataGrid.SelectedItem = null;
             }
         }
 
@@ -283,7 +310,10 @@ namespace XTMF.Gui.UserControls
                     previousRun.Name);
                 try
                 {
-                    if (Project != null && Directory.Exists(directoryName)) Process.Start(directoryName);
+                    if (Project != null && Directory.Exists(directoryName))
+                    {
+                        Process.Start(directoryName);
+                    }
                 }
                 catch
                 {
@@ -298,7 +328,10 @@ namespace XTMF.Gui.UserControls
             var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
             try
             {
-                if (Project != null && Directory.Exists(directoryName)) Process.Start(directoryName);
+                if (Project != null && Directory.Exists(directoryName))
+                {
+                    Process.Start(directoryName);
+                }
             }
             catch
             {
@@ -310,7 +343,11 @@ namespace XTMF.Gui.UserControls
         private Window GetWindow()
         {
             var current = this as DependencyObject;
-            while (current != null && !(current is Window)) current = VisualTreeHelper.GetParent(current);
+            while (current != null && !(current is Window))
+            {
+                current = VisualTreeHelper.GetParent(current);
+            }
+
             return current as Window;
         }
 
@@ -322,30 +359,41 @@ namespace XTMF.Gui.UserControls
 
         private void DeleteCurrentModelSystem()
         {
-            if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+            if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
                 var index = selected.RealIndex;
                 string error = null;
                 if (MessageBox.Show("Are you sure you wish to delete '" + selected.Name + "'?  This can not be undone!",
                         "Confirm Delete!",
                         MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
+                {
                     if (!Session.RemoveModelSystem(index, ref error))
+                    {
                         MessageBox.Show(error, "Unable to Delete Model System", MessageBoxButton.OK,
                             MessageBoxImage.Error);
+                    }
                     else
+                    {
                         Model.RefreshModelSystems();
+                    }
+                }
             }
         }
 
         private void DeletePreviousRun_Click(object sender, RoutedEventArgs e)
         {
             if (PastRunDisplay.SelectedItem is ProjectModel.PreviousRun previousRun)
+            {
                 try
                 {
                     var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name,
                         previousRun.Name);
                     var dir = new DirectoryInfo(directoryName);
-                    if (dir.Exists) dir.Delete(true);
+                    if (dir.Exists)
+                    {
+                        dir.Delete(true);
+                    }
+
                     Model.RefreshPastRuns(Session);
                 }
                 catch (IOException error)
@@ -353,20 +401,23 @@ namespace XTMF.Gui.UserControls
                     MessageBox.Show(error.Message, "Unable to Delete Previous Run", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
+            }
         }
 
         private void RenameCurrentModelSystem()
         {
-            if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+            if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
-                var container = ModelSystemDisplay.ItemContainerGenerator.ContainerFromItem(selected) as ListBoxItem;
+                var container = ModelSystemsDataGrid.ItemContainerGenerator.ContainerFromItem(selected) as ListBoxItem;
                 var layer = AdornerLayer.GetAdornerLayer(container);
                 var adorn = new TextboxAdorner("Rename", result =>
                 {
                     string error = null;
                     if (!selected.SetName(Session, result, ref error))
+                    {
                         MessageBox.Show(error, "Unable to Rename Model System", MessageBoxButton.OK,
                             MessageBoxImage.Error);
+                    }
                 }, container, selected.Name);
                 layer.Add(adorn);
                 adorn.Focus();
@@ -390,7 +441,8 @@ namespace XTMF.Gui.UserControls
 
         private void SaveCurrentAsModelSystem(bool exportToFile)
         {
-            if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+            if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+            {
                 if (exportToFile)
                 {
                     // save as a model system in an external file
@@ -400,8 +452,10 @@ namespace XTMF.Gui.UserControls
                     {
                         string error = null;
                         if (!selected.ExportModelSystem(Session, fileName, ref error))
+                        {
                             MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System",
                                 MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        }
                     }
                 }
                 else
@@ -417,26 +471,40 @@ namespace XTMF.Gui.UserControls
                         string error = null;
 
                         if (!selected.CloneModelSystem(Session, sr.Answer, ref error))
+                        {
                             MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK,
                                 MessageBoxImage.Error);
+                        }
                     }
                 }
+            }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CopyModelSystem_Click(object sender, RoutedEventArgs e)
         {
             // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
-            ModelSystemDisplay.IsCanPasteModelSystem = true;
+            // ModelSystemsDataGrid.IsCanPasteModelSystem = true;
+
             CloneCurrentModelSystem();
 
-            foreach (var m in Model.ContainedModelSystems) m.IsCanPasteModelSystem = true;
+            foreach (var m in Model.ContainedModelSystems)
+            {
+                m.IsCanPasteModelSystem = true;
+            }
+
             // ((ProjectModel) this.DataContext)IsCanPasteModelSystem = true;
         }
 
         private void CloneCurrentModelSystem()
         {
-            if (ModelSystemDisplay.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+            if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+            {
                 MainWindow.Us.ClipboardModel = selected;
+            }
         }
 
         private void NewModelSystem_Click(object sender, RoutedEventArgs e)
@@ -461,24 +529,32 @@ namespace XTMF.Gui.UserControls
             {
                 string error = null;
                 if (!Session.AddModelSystem(dialog.UserInput, ref error))
+                {
                     MessageBox.Show(error, "Unable to create New Model System", MessageBoxButton.OK,
                         MessageBoxImage.Error);
+                }
                 else
+                {
                     Model.RefreshModelSystems();
+                }
             }
         }
 
         private ProjectModel.ContainedModelSystemModel GetFirstItem()
         {
-            return ModelSystemDisplay.ItemContainerGenerator.Items.Any()
-                ? ModelSystemDisplay.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel
+            return ModelSystemsDataGrid.ItemContainerGenerator.Items.Any()
+                ? ModelSystemsDataGrid.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel
                 : null;
         }
 
         private void FilterModelSystemsBox_EnterPressed(object sender, EventArgs e)
         {
-            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            if (selected == null) selected = GetFirstItem();
+            var selected = ModelSystemsDataGrid.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+
             LoadModelSystem(selected);
         }
 
@@ -539,11 +615,17 @@ namespace XTMF.Gui.UserControls
                 var aresult = await dialog.ShowAsync(false);
 
                 if (dialog.DidComplete)
+                {
                     if (!Session.AddExternalModelSystem(cloned, dialog.UserInput, ref error))
+                    {
                         MessageBox.Show(error, "Unable to Paste Model System", MessageBoxButton.OK,
                             MessageBoxImage.Error);
+                    }
                     else
+                    {
                         Model.RefreshModelSystems();
+                    }
+                }
             }
         }
 
@@ -559,8 +641,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemDisplay_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            if (selected == null) selected = GetFirstItem();
+            var selected = ModelSystemsDataGrid.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+
             LoadModelSystem(selected);
         }
 
@@ -820,12 +906,16 @@ namespace XTMF.Gui.UserControls
             internal void RefreshModelSystems()
             {
                 if (ContainedModelSystems == null)
+                {
                     ContainedModelSystems = new List<ContainedModelSystemModel>();
+                }
                 else
+                {
                     lock (ContainedModelSystems)
                     {
                         ContainedModelSystems.Clear();
                     }
+                }
 
                 Task.Factory.StartNew(() =>
                 {
@@ -876,6 +966,19 @@ namespace XTMF.Gui.UserControls
 
                 public int RealIndex { get; }
 
+                public string LastModified
+                {
+                    get
+                    {
+                        if (ModelSystemStructure.LastModified.Year > 1)
+                        {
+                            return ModelSystemStructure.LastModified.ToString("dddd, dd MMMM yyyy H:mm tt");
+                        }
+
+                        return "N/A";
+                    }
+                }
+
                 public bool IsCanPasteModelSystem
                 {
                     get => MainWindow.Us.ClipboardModel != null;
@@ -909,7 +1012,10 @@ namespace XTMF.Gui.UserControls
                     {
                         try
                         {
-                            if (ms.Type == null && ms.Required && !ms.IsCollection) IsMissingModules = true;
+                            if (ms.Type == null && ms.Required && !ms.IsCollection)
+                            {
+                                IsMissingModules = true;
+                            }
                         }
                         catch (Exception)
                         {
@@ -917,13 +1023,20 @@ namespace XTMF.Gui.UserControls
                     });
 
                     if (ms.Children != null)
+                    {
                         foreach (var subModule in ms.Children)
                         {
                             if (ms is IModelSystemStructure2 ms2)
+                            {
                                 if (ms2.IsDisabled)
+                                {
                                     continue;
+                                }
+                            }
+
                             FindMissingModules(subModule);
                         }
+                    }
                 }
 
                 internal bool SetName(ProjectEditingSession session, string newName, ref string error)
@@ -968,6 +1081,26 @@ namespace XTMF.Gui.UserControls
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemsDataGrid_OnKeyDown(object sender, KeyEventArgs e)
+        {
+           this.OnKeyDown(e);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemsDataGrid_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            this.OnKeyDown(e);
         }
     }
 }

@@ -51,6 +51,8 @@ namespace XTMF
 
         public bool IsMetaModule { get; set; }
 
+        public DateTime LastModified { get; set; }
+
         public IList<IModelSystemStructure> Children { get; set; }
 
         public bool IsDisabled { get; set; }
@@ -557,6 +559,10 @@ namespace XTMF
             return new List<Type>(possibleTypes);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stream"></param>
         public void Save(Stream stream)
         {
             XmlTextWriter writer = new XmlTextWriter(stream, Encoding.Unicode)
@@ -570,6 +576,10 @@ namespace XTMF
             writer.Flush();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
         public void Save(XmlWriter writer)
         {
             var typesUsed = GatherAllTypes(this);
@@ -579,6 +589,10 @@ namespace XTMF
             writer.Flush();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
         public void Save(string fileName)
         {
             var dirName = Path.GetDirectoryName(fileName);
