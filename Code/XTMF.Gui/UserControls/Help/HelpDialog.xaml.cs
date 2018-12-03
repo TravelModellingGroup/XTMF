@@ -41,6 +41,10 @@ namespace XTMF.Gui.UserControls.Help
 
         private SpinLock FullyLoaded = new SpinLock(false);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="xtmfConfiguration"></param>
         public HelpDialog(IConfiguration xtmfConfiguration)
         {
             DataContext = this;
@@ -57,12 +61,23 @@ namespace XTMF.Gui.UserControls.Help
             UpdateSearch(true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="s"></param>
+        /// <returns></returns>
         private bool Filter(object o, string s)
         {
             UpdateSearch(true);
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
@@ -72,12 +87,21 @@ namespace XTMF.Gui.UserControls.Help
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateSearch(true);
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="async"></param>
         private void UpdateSearch(bool async)
         {
             //search
@@ -123,6 +147,11 @@ namespace XTMF.Gui.UserControls.Help
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="module"></param>
+        /// <returns></returns>
         private static ContentReference CreateContentReference(Type module)
         {
             foreach (var at in module.GetCustomAttributes(true))
@@ -148,6 +177,11 @@ namespace XTMF.Gui.UserControls.Help
         public static readonly DependencyProperty CurrentContentProperty =
             DependencyProperty.Register("CurrentContent", typeof(ContentReference), typeof(HelpDialog), new PropertyMetadata(null, OnCurrentContentChanged));
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="e"></param>
         private static void OnCurrentContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var us = d as HelpDialog;
@@ -169,6 +203,11 @@ namespace XTMF.Gui.UserControls.Help
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ResultBox_Selected(object sender, RoutedEventArgs e)
         {
             if (ResultBox.SelectedItem is ContentReference cr)
@@ -177,6 +216,10 @@ namespace XTMF.Gui.UserControls.Help
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="module"></param>
         public void SelectModuleContent(ModelSystemStructureModel module)
         {
             Task.Run(() =>
