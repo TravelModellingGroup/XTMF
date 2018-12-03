@@ -93,6 +93,8 @@ namespace XTMF.Gui.UserControls
 
         private ModelSystemStructureDisplayModel DisplayRoot;
 
+        private bool _isAnimationgToggle = false;
+
         public Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel> ModelSystemDisplayModelMap;
 
         private object SaveLock = new object();
@@ -576,7 +578,14 @@ namespace XTMF.Gui.UserControls
         /// <param name="postToggleAction">An action to be performed after the display has been toggled.</param>
         public void ToggleQuickParameterDisplay(int duration = -1, Action postToggleAction = null)
         {
+            if (this._isAnimationgToggle)
+            {
+                return;
+            }
+
+            this._isAnimationgToggle = true;
             var column = ContentDisplayGrid.ColumnDefinitions[2];
+
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 AnimateGridColumnWidth(column, QuickParameterDisplay2, column.ActualWidth,
@@ -590,6 +599,11 @@ namespace XTMF.Gui.UserControls
         /// <param name="postToggleAction"></param>
         public void ToggleModuleParameterDisplay(int duration = -1, Action postToggleAction = null)
         {
+            if (this._isAnimationgToggle)
+            {
+                return;
+            }
+            this._isAnimationgToggle = true;
             var column = ContentDisplayGrid.ColumnDefinitions[4];
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -2533,6 +2547,7 @@ namespace XTMF.Gui.UserControls
                 display.IsEnabled = !display.IsEnabled;
                 OnPropertyChanged(nameof(QuickParameterToolBarForeground));
                 OnPropertyChanged(nameof(ModuleParameterToolBarForeground));
+                this._isAnimationgToggle = false;
                 postAnimateAction?.Invoke();
             };
 
