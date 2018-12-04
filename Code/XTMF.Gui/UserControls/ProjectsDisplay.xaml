@@ -127,7 +127,7 @@
                 xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
-                UnfurlOrientation="Vertical"
+                UnfurlOrientation="Vertical" PopupMode="Click"
                 ToolTipService.Placement="Left">
                 <StackPanel>
                     <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">

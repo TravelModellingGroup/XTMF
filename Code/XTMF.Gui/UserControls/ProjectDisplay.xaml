@@ -38,7 +38,7 @@
             <xtmf:PopupBoxEx  xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
-                UnfurlOrientation="Vertical"
+                UnfurlOrientation="Vertical" PopupMode="Click"
                 ToolTipService.Placement="Left" IsVisibleChanged="PopupBox_IsVisibleChanged">
                 <StackPanel>
                     <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">

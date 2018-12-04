@@ -118,6 +118,7 @@
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
                 UnfurlOrientation="Vertical"
+                PopupMode="Click"
                 ToolTipService.Placement="Left"
             >
                 <StackPanel>
