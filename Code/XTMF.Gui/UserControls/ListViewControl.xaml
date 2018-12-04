@@ -31,7 +31,7 @@
     <UserControl.Resources>
 
     </UserControl.Resources>
-    <Border BorderThickness="0 0 0 0" BorderBrush="{DynamicResource MaterialDesignDivider}" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=ActualWidth,Mode=OneWay}">
+    <Border BorderThickness="0 0 0 0" BorderBrush="{DynamicResource MaterialDesignDivider}" >
     <Grid HorizontalAlignment="Stretch" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50"></ColumnDefinition>
@@ -39,7 +39,7 @@
         </Grid.ColumnDefinitions>
 
 
-        <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=VerticalAlignment,Mode=TwoWay}">
+        <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" >
             <Grid>
 
                 <ContentPresenter Margin="5,5,5,5" Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=PackIconOverlap,Mode=OneWay}"></ContentPresenter>

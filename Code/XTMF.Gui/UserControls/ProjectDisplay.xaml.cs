@@ -182,13 +182,12 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            
+
             if (true)
             {
                 switch (e.Key)
@@ -234,6 +233,7 @@ namespace XTMF.Gui.UserControls
                         {
                             CloneCurrentModelSystem();
                         }
+
                         break;
                     case Key.Delete:
                         DeleteCurrentModelSystem();
@@ -841,6 +841,24 @@ namespace XTMF.Gui.UserControls
             e.Handled = true;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemsDataGrid_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            OnKeyDown(e);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemsDataGrid_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            OnKeyDown(e);
+        }
+
         public class ProjectModel : INotifyPropertyChanged
         {
             private readonly ProjectEditingSession Session;
@@ -966,6 +984,10 @@ namespace XTMF.Gui.UserControls
 
                 public int RealIndex { get; }
 
+                /// <summary>
+                ///     Returns a string representation of the last modified date. N/A is returned if last modified
+                ///     information is missing.
+                /// </summary>
                 public string LastModified
                 {
                     get
@@ -1006,6 +1028,9 @@ namespace XTMF.Gui.UserControls
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
                 }
 
+                /// <summary>
+                /// </summary>
+                /// <param name="ms"></param>
                 private void FindMissingModules(IModelSystemStructure ms)
                 {
                     var loadTask = Task.Run(() =>
@@ -1081,26 +1106,6 @@ namespace XTMF.Gui.UserControls
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
                 }
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemsDataGrid_OnKeyDown(object sender, KeyEventArgs e)
-        {
-           this.OnKeyDown(e);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemsDataGrid_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            this.OnKeyDown(e);
         }
     }
 }
