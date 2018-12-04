@@ -138,9 +138,13 @@ namespace XTMF.Gui
         protected override void OnGotFocus(RoutedEventArgs e)
         {
             base.OnGotFocus(e);
-            Box.Focus();
+            //Box.Focus();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
             if (e.Handled == false)
