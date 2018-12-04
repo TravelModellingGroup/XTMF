@@ -135,10 +135,21 @@ namespace XTMF.Gui
 
         public event EventHandler EnterPressed;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnGotFocus(RoutedEventArgs e)
         {
             base.OnGotFocus(e);
-            //Box.Focus();
+            try
+            {
+                Box.Focus();
+            }
+            catch
+            {
+            }
+
         }
 
         /// <summary>
