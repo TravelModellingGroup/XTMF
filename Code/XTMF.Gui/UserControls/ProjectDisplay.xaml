@@ -35,7 +35,7 @@
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
         <Border  Margin="10 10 30 30"   Grid.Row="1" HorizontalAlignment="Right">
-            <xtmf:PopupBoxEx  xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
+            <materialDesign:PopupBox  
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
                 UnfurlOrientation="Vertical" PopupMode="Click"
@@ -87,7 +87,7 @@
                         </Button>
                     </StackPanel>
                 </StackPanel>
-            </xtmf:PopupBoxEx>
+            </materialDesign:PopupBox>
         </Border>
 
         <Grid Grid.Row="0">
