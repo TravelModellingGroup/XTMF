@@ -346,7 +346,7 @@ namespace Tasha.PopulationSynthesis
 
         private static void SaveIfFileExists(SparseTwinIndex<float> matrix, FileLocation file)
         {
-            if (file != null)
+            if (file != null && matrix != null)
             {
                 SaveData.SaveMatrix(matrix, file);
             }
