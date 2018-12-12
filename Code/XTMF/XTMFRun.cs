@@ -179,8 +179,6 @@ namespace XTMF
         /// </summary>
         public event Action<List<ErrorWithPath>> ValidationError;
 
-        public event Action Test;
-
         /// <summary>
         /// An event that fires when Model Validation starts
         /// </summary>

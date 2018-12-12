@@ -360,9 +360,6 @@ namespace XTMF.Gui.UserControls
 
         public event EventHandler<ModelSystemEditingSessionChangedEventArgs> ModelSystemEditingSessionChanged;
 
-        public event EventHandler<SelectedModuleParameterContextChangedEventArgs> SelectedModuleParameterContextChanged;
-
-
         /// <summary>
         /// </summary>
         /// <param name="count"></param>
@@ -1211,7 +1208,7 @@ namespace XTMF.Gui.UserControls
                     SaveModelSystemButton.Style = (Style) FindResource("MaterialDesignFloatingActionMiniDarkButton");
                 });
                 MainWindow.SetStatusText("Saving...");
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
                     if (Session.SaveWait())
                         try

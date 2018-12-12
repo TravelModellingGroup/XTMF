@@ -71,9 +71,6 @@ namespace XTMF.Gui
         internal static MainWindow Us;
 
         private readonly ActiveEditingSessionDisplayModel NullEditingDisplayModel;
-
-        private MouseButtonEventHandler _LastAdded;
-
         private ProjectsDisplay _projectsDisplay;
 
         private SettingsPage _settingsPage;

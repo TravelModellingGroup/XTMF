@@ -59,20 +59,16 @@ namespace XTMF.Gui.UserControls
                         var info = (attr as ModuleInformationAttribute);
                         Description = (attr as ModuleInformationAttribute)?.Description;
                         Url = (attr as ModuleInformationAttribute)?.DocURL;
-
                         if (info.IconURI != null)
                         {
                             try
                             {
                                 IconKind = (PackIconKind)System.Enum.Parse(typeof(PackIconKind), info.IconURI);
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
-
                             }
-                          
                         }
-
                     }
                 }
             }
@@ -81,12 +77,13 @@ namespace XTMF.Gui.UserControls
 
             public string Text => type.FullName;
 
-            public string Description { get; set; }
+            public string Description { get; }
 
-            public string Url { get; set; }
+            public string Url { get; }
 
             public PackIconKind IconKind { get; set; } = PackIconKind.Settings;
 
+            #pragma warning disable CS0067
             public event PropertyChangedEventHandler PropertyChanged;
         }
 

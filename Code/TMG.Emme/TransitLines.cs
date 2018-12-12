@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using TransitLine = TMG.Emme.TransitLine;
 
 namespace TMG.Emme
 {

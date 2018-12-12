@@ -27,31 +27,30 @@ namespace XTMF.Gui.Models
 {
     public class ValidationErrorDisplayModel : INotifyPropertyChanged
     {
+        #pragma warning disable CS0067
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private ModelSystemStructureDisplayModel _DisplayModel;
 
         public string ErrorString { get; private set; }
 
-        public string ModuleName => _DisplayModel?.Name ?? "Unknown Module";
+        public string ModuleName => DisplayModule?.Name ?? "Unknown Module";
 
-        public ModelSystemStructureDisplayModel DisplayModule => _DisplayModel;
+        public ModelSystemStructureDisplayModel DisplayModule { get; }
 
         public ValidationErrorDisplayModel(ModelSystemStructureDisplayModel root, string error, IReadOnlyList<int> path)
         {
             ErrorString = error;
             if(path == null)
             {
-                _DisplayModel = null;
+                DisplayModule = null;
             }
             else if(path.Count == 0)
             {
-                _DisplayModel = root;
+                DisplayModule = root;
             }
             else
             {
                 // make a copy of the path in case something else is also going to use it
-                _DisplayModel = MapModuleWithPath(root, path.ToList());
+                DisplayModule = MapModuleWithPath(root, path.ToList());
             }
         }
 

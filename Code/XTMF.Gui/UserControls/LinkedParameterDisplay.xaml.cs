@@ -36,8 +36,6 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class LinkedParameterDisplay : UserControl
     {
-        private bool _assignMode;
-
         private LinkedParameterDisplayModel _currentlySelected;
 
         private List<ParameterDisplay> _currentParameters;

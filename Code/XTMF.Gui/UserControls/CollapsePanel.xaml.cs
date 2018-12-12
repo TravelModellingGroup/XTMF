@@ -31,8 +31,6 @@ namespace XTMF.Gui
     {
         private double _internalHeight;
 
-        private bool _collapsing;
-
         public CollapsePanel()
         {
             InitializeComponent();
@@ -50,7 +48,6 @@ namespace XTMF.Gui
             {
                 InnerContents.Children.Add( element );
             }
-
         }
 
         public void Remove(UIElement element)
@@ -60,45 +57,5 @@ namespace XTMF.Gui
                 InnerContents.Children.Remove( element );
             }
         }
-
-        /*
-        protected override void OnCollapsed()
-        {
-            if ( !_collapsing )
-            {
-                _collapsing = true;
-                IsExpanded = true;
-                double startingHeight = _internalHeight;
-                var hide = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
-                hide.Completed += delegate
-                {
-                    var shrink = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
-                    shrink.RemoveRequested += AnimationStopped;
-                    shrink.Completed += AnimationStopped;
-                    InnerContentContainer.BeginAnimation( HeightProperty, shrink );
-                };
-                hide.RemoveRequested += AnimationStopped;
-                InnerContentContainer.BeginAnimation( OpacityProperty, hide );
-            }
-        } */
-
-        /*
-        protected override void OnExpanded()
-        {
-            if ( !_collapsing )
-            {
-                InnerContentContainer.Opacity = 0;
-                DoubleAnimation expand = new DoubleAnimation( 0, _internalHeight, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
-                expand.Completed += delegate
-                {
-                    DoubleAnimation show = new DoubleAnimation( 1, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
-                    InnerContentContainer.BeginAnimation( OpacityProperty, show );
-                };
-                InnerContentContainer.BeginAnimation( HeightProperty, expand );
-                base.OnExpanded();
-            }
-        } */
-
-      
     }
 }

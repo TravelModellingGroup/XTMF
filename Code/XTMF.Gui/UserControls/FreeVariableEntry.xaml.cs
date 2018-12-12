@@ -54,6 +54,7 @@ namespace XTMF.Gui.UserControls
 
             public string Text => Type.FullName;
 
+#pragma warning disable CS0067
             public event PropertyChangedEventHandler PropertyChanged;
 
             internal static Task<ObservableCollection<Model>> CreateModel(ICollection<Type> types) =>
