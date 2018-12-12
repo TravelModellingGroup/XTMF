@@ -70,26 +70,22 @@ namespace XTMF.Gui
         /// </summary>
         internal static MainWindow Us;
 
-        private readonly ActiveEditingSessionDisplayModel NullEditingDisplayModel;
         private ProjectsDisplay _projectsDisplay;
 
         private SettingsPage _settingsPage;
 
         private bool LaunchUpdate;
 
-        private OperationProgressing operationProgressing;
-
         public MainWindow()
         {
             ViewModelBase = new ViewModelBase();
-            EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
+            EditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             ThemeController = new ThemeController(GetConfigurationFilePath());
             InitializeComponent();
             // I am changing the code here with a comment
             //do you see any console window
             Loaded += MainWindow_Loaded;
             Us = this;
-            operationProgressing = new OperationProgressing();
             SchedulerWindow = new SchedulerWindow();
             ViewDockPanel.DataContext = ViewModelBase;
             ContentControl.DataContext = ViewModelBase;
@@ -100,9 +96,6 @@ namespace XTMF.Gui
             XtmfNotificationIcon.InitializeNotificationIcon();
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline),
                 new FrameworkPropertyMetadata {DefaultValue = 60});
-
-
-            //
         }
 
         public ThemeController ThemeController { get; }
@@ -411,21 +404,6 @@ namespace XTMF.Gui
             SetDisplayActive(new ModelSystemsDisplay(EditorController.Runtime), "Model Systems");
         }
 
-        private bool RunAlreadyExists(string runName, ModelSystemEditingSession session)
-        {
-            return session.RunNameExists(runName);
-        }
-
-        private void SaveMenu_Click(object sender, RoutedEventArgs e)
-        {
-            EditingDisplayModel.Save();
-        }
-
-        private void SaveAsMenu_Click(object sender, RoutedEventArgs e)
-        {
-            EditingDisplayModel.SaveAs();
-        }
-
         public static string OpenFile(string title, KeyValuePair<string, string>[] extensions, bool alreadyExists)
         {
             var filter = string.Join("|",
@@ -700,12 +678,6 @@ namespace XTMF.Gui
             Keyboard.Focus(helpUI);
         }
 
-        private void NewProjectButton_Click(object sender, RoutedEventArgs e)
-        {
-            e.Handled = true;
-            NewProject();
-        }
-
         /// <summary>
         /// </summary>
         /// <param name="display"></param>
@@ -732,13 +704,15 @@ namespace XTMF.Gui
                         ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
                     }
 
-                    var tabItem = new TabItem();
-                    tabItem.Content = display;
-                    tabItem.Header = title;
+                    var tabItem = new TabItem
+                    {
+                        Content = display,
+                        Header = title
+                    };
                     DockManager.Items.Add(tabItem);
                     if (display is IKeyShortcutHandler shortcutHandler)
                     {
-                        tabItem.PreviewKeyDown += delegate(object sender, KeyEventArgs args)
+                        tabItem.PreviewKeyDown += delegate (object sender, KeyEventArgs args)
                         {
                             shortcutHandler.HandleKeyPreviewDown(sender,args);
                         };
@@ -770,16 +744,6 @@ namespace XTMF.Gui
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void HelpMenuItem_OnSelected(object sender, RoutedEventArgs e)
-        {
-            MenuToggleButton.IsChecked = false;
-            LaunchHelpWindow(null);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void OpenProjectGlobalMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
             if (_projectsDisplay == null)
@@ -788,16 +752,6 @@ namespace XTMF.Gui
             }
 
             SetDisplayActive(_projectsDisplay, "Projects");
-            MenuToggleButton.IsChecked = false;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OpenModelSystemGlobalMenuItem_Selected(object sender, RoutedEventArgs e)
-        {
-            SetDisplayActive(new ModelSystemsDisplay(EditorController.Runtime), "Model Systems");
             MenuToggleButton.IsChecked = false;
         }
 

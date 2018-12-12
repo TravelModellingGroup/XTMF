@@ -18,4 +18,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug Remote Host|AnyCPU'">
     <StartArguments>--remote-host</StartArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug Remote Host|x64'">
+    <StartArguments>--remote-host</StartArguments>
+  </PropertyGroup>
 </Project>

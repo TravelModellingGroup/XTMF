@@ -85,8 +85,6 @@ namespace XTMF.Gui.UserControls
 
         private bool _loadedOnce;
 
-        private Semaphore _saveSemaphor;
-
         private ParameterDisplayModel _selectedParameterDisplayModel;
 
         private ModelSystemEditingSession _session;
@@ -97,13 +95,10 @@ namespace XTMF.Gui.UserControls
 
         public Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel> ModelSystemDisplayModelMap;
 
-        private object SaveLock = new object();
-
         /// <summary>
         /// </summary>
         public ModelSystemDisplay()
         {
-            _saveSemaphor = new Semaphore(1, 1);
             DataContext = this;
             InitializeComponent();
             //AllowMultiSelection(ModuleDisplay);
@@ -470,25 +465,6 @@ namespace XTMF.Gui.UserControls
                 ActiveModelSystemView.SelectedModule);
         }
 
-        private void Run_RuntimeError(ErrorWithPath error)
-        {
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="errorList"></param>
-        private void Run_RuntimeValidationError(List<ErrorWithPath> errorList)
-        {
-            Dispatcher.Invoke(() => { });
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="errorList"></param>
-        private void Run_ValidationError(List<ErrorWithPath> errorList)
-        {
-        }
-
 
         /// <summary>
         /// </summary>
@@ -543,13 +519,6 @@ namespace XTMF.Gui.UserControls
             return arg1 is ParameterDisplayModel parameter &&
                    (string.IsNullOrWhiteSpace(arg2) ||
                     parameter.Name.IndexOf(arg2, StringComparison.InvariantCultureIgnoreCase) >= 0);
-        }
-
-        private void OnTreeExpanded(object sender, RoutedEventArgs e)
-        {
-            var tvi = (TreeViewItem) sender;
-            e.Handled = true;
-            FilterBox.RefreshFilter();
         }
 
         protected override void OnGotFocus(RoutedEventArgs e)
@@ -903,15 +872,6 @@ namespace XTMF.Gui.UserControls
 
         /// <summary>
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        private bool ValidateName(string name)
-        {
-            return Project.ValidateProjectName(name);
-        }
-
-        /// <summary>
-        /// </summary>
         /// <param name="executeNow"></param>
         public async void ExecuteRun(bool executeNow = true)
         {
@@ -978,24 +938,6 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// </summary>
-        private void ShowQuickParameters()
-        {
-            QuickParameterListView.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel
-                .GetQuickParameters()
-                .OrderBy(n => n.Name));
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                //ParameterTabControl.SelectedIndex = 0;
-                ToggleQuickParameterDisplay();
-                //QuickParameterFilterBox.Focus();
-                //Keyboard.Focus(QuickParameterFilterBox);
-                QuickParameterDisplay2.Focus();
-                Keyboard.Focus(QuickParameterDisplay2);
-            }));
         }
 
         public void Redo()
@@ -1499,25 +1441,6 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Rename_Clicked(object sender, RoutedEventArgs e)
-        {
-            RenameSelectedModule();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Description_Clicked(object sender, RoutedEventArgs e)
-        {
-            RenameDescription();
-        }
-
-
-        /// <summary>
         ///     Renames the selected module
         /// </summary>
         public void RenameSelectedModule()
@@ -1588,10 +1511,8 @@ namespace XTMF.Gui.UserControls
             var ansestry = DisplayRoot.BuildChainTo(selected);
             if (ansestry != null)
             {
-                var currentContainer =
-                    TreeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
                 for (var i = 1; i < ansestry.Count; i++)
-                    if (currentContainer != null)
+                    if (TreeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) is TreeViewItem currentContainer)
                     {
                         if (i + 1 < ansestry.Count)
                         {
@@ -1689,11 +1610,6 @@ namespace XTMF.Gui.UserControls
         private void CleanUpParameters()
         {
             // ParameterDisplay.BeginAnimation(OpacityProperty, null);
-        }
-
-        private void LinkedParameters_Click(object sender, RoutedEventArgs e)
-        {
-            ShowLinkedParameterDialog();
         }
 
         private void AssignLinkedParameters_Click(object sender, RoutedEventArgs e)
@@ -2150,18 +2066,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        ///     MouseDown Listener for the ValidationList
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ValidationListModuleNameMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var label = sender as ValidationErrorListControl;
-            if (label?.Tag is ModelSystemStructureDisplayModel model) model.IsSelected = true;
-        }
-
-
-        /// <summary>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -2525,13 +2429,13 @@ namespace XTMF.Gui.UserControls
         {
             var duration = new Duration(TimeSpan.FromMilliseconds(durationMs >= 0 ? durationMs : 200));
 
-            var animation = new DoubleAnimation();
-            //animation.EasingFunction = ease;
-            animation.Duration = duration;
-
-
-            animation.From = fromWidth;
-            animation.To = toWidth;
+            var animation = new DoubleAnimation
+            {
+                //animation.EasingFunction = ease;
+                Duration = duration,
+                From = fromWidth,
+                To = toWidth
+            };
             Storyboard.SetTarget(animation, column);
             Storyboard.SetTargetName(animation, column.Name);
             Storyboard.SetTargetProperty(animation, new PropertyPath(ColumnDefinition.MaxWidthProperty));
@@ -2562,13 +2466,13 @@ namespace XTMF.Gui.UserControls
         {
             var duration = new Duration(TimeSpan.FromMilliseconds(200));
 
-            var animation = new DoubleAnimation();
-            //animation.EasingFunction = ease;
-            animation.Duration = duration;
-
-
-            animation.From = from;
-            animation.To = to;
+            var animation = new DoubleAnimation
+            {
+                //animation.EasingFunction = ease;
+                Duration = duration,
+                From = from,
+                To = to
+            };
             Storyboard.SetTarget(animation, element);
             Storyboard.SetTargetName(animation, element.Name);
             Storyboard.SetTargetProperty(animation, new PropertyPath(OpacityProperty));

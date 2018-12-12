@@ -83,9 +83,5 @@ namespace XTMF.Gui.UserControls
 
         #pragma warning disable CS0067
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private void ModuleNameLabel_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-        }
     }
 }
