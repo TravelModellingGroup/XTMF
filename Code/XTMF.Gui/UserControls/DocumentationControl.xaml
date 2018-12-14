@@ -24,22 +24,13 @@
              xmlns:my="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="500">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="35.88" />
-                <RowDefinition Height="7.12"/>
-                <RowDefinition Height="AUTO" />
-                <RowDefinition Height="AUTO" />
-                <RowDefinition Height="AUTO" />
-                <RowDefinition Height="AUTO" />
-                <RowDefinition Height="AUTO" />
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Margin="5" HorizontalAlignment="Center" FontSize="24" Text="{Binding ModuleName}" Foreground="{DynamicResource MaterialDesignBody}" Grid.RowSpan="2" />
-            <TextBlock Grid.Row="2" Margin="5" HorizontalAlignment="Center" FontSize="16" Text="{Binding ModuleNamespace}" Foreground="{DynamicResource MaterialDesignBody}" />
-            <WebBrowser Grid.Row="3" x:Name="Browser" Margin="5,5,5,0" HorizontalAlignment="Stretch" DataContext="{Binding ModuleDescription}" VerticalAlignment="Top"
+
+
+            <!-- <TextBlock Grid.Row="0" Margin="5" HorizontalAlignment="Center" FontSize="24" Text="{Binding ModuleName}" Foreground="{DynamicResource MaterialDesignBody}" Grid.RowSpan="2" />
+            <TextBlock Grid.Row="2" Margin="5" HorizontalAlignment="Center" FontSize="16" Text="{Binding ModuleNamespace}" Foreground="{DynamicResource MaterialDesignBody}" /> -->
+            <WebBrowser  Grid.Row="0" x:Name="Browser" Margin="5,5,5,0" HorizontalAlignment="Stretch" DataContext="{Binding ModuleDescription}" VerticalAlignment="Top"
                         ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.CanContentScroll="False" />
-            <Grid Grid.Row="4" Background="{DynamicResource MaterialDesignPaper}" Height="2" HorizontalAlignment="Stretch" Margin="5,6,5,5" />
+            <!--<Grid Grid.Row="4" Background="{DynamicResource MaterialDesignPaper}" Height="2" HorizontalAlignment="Stretch" Margin="5,6,5,5" />
             <Grid Grid.Row="5" Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="AUTO" />
@@ -85,7 +76,7 @@
                         </ItemContainerTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </Grid>
-        </Grid>
-    </ScrollViewer>
+            </Grid> -->
+
+
 </UserControl>

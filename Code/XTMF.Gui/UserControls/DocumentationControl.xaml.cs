@@ -45,6 +45,8 @@ namespace XTMF.Gui.UserControls
             set => SetValue(TypeProperty, value);
         }
 
+        public  const string DOC_URL_ROOT = "https://tmg.utoronto.ca/doc/1.5/modules/";
+
         public string TypeNameText { get { var t = Type; return t == null ? "No Type!" : t.Name; } }
 
         // Using a DependencyProperty as the backing store for Type.  This enables animation, styling, binding, etc...
@@ -116,7 +118,7 @@ namespace XTMF.Gui.UserControls
             {
                 us.ModuleName = newType.Name;
                 us.ModuleNamespace = newType.FullName;
-                SetDescription(us, GetDescription(newType));
+                SetDescription(us, GetDescription(newType), newType);
                 us.ModuleParameters = GetParameters(newType);
                 us.ModuleSubmodules = GetSubmodules(newType);
             }
@@ -137,7 +139,7 @@ namespace XTMF.Gui.UserControls
             return description;
         }
 
-        private static void SetDescription(DocumentationControl window, string description)
+        private static void SetDescription(DocumentationControl window, string description, Type module)
         {
             StringBuilder builder = new StringBuilder();
             window.Browser.Visibility = Visibility.Collapsed;
@@ -151,7 +153,8 @@ namespace XTMF.Gui.UserControls
             builder.Append(description);
             builder.Append("</body></html>");
             window.ModuleDescription = builder.ToString();
-            window.Browser.NavigateToString(window.ModuleDescription);
+            var docUrl = DocumentationControl.DOC_URL_ROOT + module.FullName + ".html";
+            window.Browser.Navigate(DocumentationControl.DOC_URL_ROOT + module.FullName + ".html?fromXtmf=true");
             window.Browser.Visibility = Visibility.Visible;
         }
 
