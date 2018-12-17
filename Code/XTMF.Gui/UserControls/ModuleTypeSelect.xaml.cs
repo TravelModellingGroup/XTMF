@@ -41,9 +41,9 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class ModuleTypeSelect : Window
     {
-        private ModelSystemStructureModel _selectedModule;
+        private readonly ModelSystemStructureModel _selectedModule;
 
-        private ModelSystemEditingSession _modelSystemSession;
+        private readonly ModelSystemEditingSession _modelSystemSession;
 
         private class Model : INotifyPropertyChanged
         {
@@ -59,20 +59,16 @@ namespace XTMF.Gui.UserControls
                         var info = (attr as ModuleInformationAttribute);
                         Description = (attr as ModuleInformationAttribute)?.Description;
                         Url = (attr as ModuleInformationAttribute)?.DocURL;
-
                         if (info.IconURI != null)
                         {
                             try
                             {
                                 IconKind = (PackIconKind)System.Enum.Parse(typeof(PackIconKind), info.IconURI);
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
-
                             }
-                          
                         }
-
                     }
                 }
             }
@@ -81,12 +77,13 @@ namespace XTMF.Gui.UserControls
 
             public string Text => type.FullName;
 
-            public string Description { get; set; }
+            public string Description { get; }
 
-            public string Url { get; set; }
+            public string Url { get; }
 
             public PackIconKind IconKind { get; set; } = PackIconKind.Settings;
 
+            #pragma warning disable CS0067
             public event PropertyChangedEventHandler PropertyChanged;
         }
 
@@ -127,8 +124,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private List<Model> _availableModules;
-
         public Type SelectedType { get; private set; }
 
         /// <summary>
@@ -136,7 +131,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void BuildRequirements(ModelSystemEditingSession session)
         {
-            Display.ItemsSource = _availableModules = Convert(session.GetValidModules(_selectedModule));
+            Display.ItemsSource = Convert(session.GetValidModules(_selectedModule));
         }
 
         private List<Model> Convert(List<Type> before)
@@ -256,40 +251,9 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FilterBox_EnterPressed(object sender, EventArgs e)
-        {
-            var selected = Display.SelectedItem as Model;
-            if (selected == null)
-            {
-                selected = GetFirstItem();
-            }
-            SelectModel(selected);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var selected = Display.SelectedItem as Model;
-            if (selected == null)
-            {
-                selected = GetFirstItem();
-            }
-            SelectModel(selected);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Display_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var selected = Display.SelectedItem as Model;
-            if (selected == null)
+            if (!(Display.SelectedItem is Model selected))
             {
                 selected = GetFirstItem();
             }
@@ -303,8 +267,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void Display_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selected = Display.SelectedItem as Model;
-            if (selected != null)
+            if (Display.SelectedItem is Model selected)
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -314,7 +277,7 @@ namespace XTMF.Gui.UserControls
                     var body = (SolidColorBrush)FindResource("MaterialDesignBody");
                     if (selected.Description != null)
                     {
-                        
+
                         var htmlString =
                             $"<style>body{{ background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; " +
                             $"font-family: \"Segoe UI\"; }}</style><body>{selected.Description}</body>";
@@ -330,7 +293,7 @@ namespace XTMF.Gui.UserControls
                     ModuleUrlTextBlock.Text = selected.Url ?? "";
                     ModuleTypeTextBlock.Text = selected.Text;
 
-                   
+
                 }));
             }
         }
@@ -342,8 +305,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModuleUrlTextBlock_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
-            var selected = Display.SelectedItem as Model;
-            if (selected != null && selected.Url != null)
+            if (Display.SelectedItem is Model selected && selected.Url != null)
             {
                 System.Diagnostics.Process.Start(selected.Url.StartsWith("http") ? selected.Url : $"http://{selected.Url}");
             }

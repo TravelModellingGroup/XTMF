@@ -834,6 +834,11 @@ namespace XTMF.Gui.UserControls
                 error.Description :
                 error.Description + "\r\n" + error.StackTrace);
         }
+
+        private void ConsoleOutput_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            _oldCaret = ((TextBox)sender).CaretIndex;
+        }
     }
 
     /// <summary>

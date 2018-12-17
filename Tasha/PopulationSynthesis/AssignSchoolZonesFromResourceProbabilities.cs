@@ -219,7 +219,7 @@ namespace Tasha.PopulationSynthesis
         /// <param name="probabilities">The probabilities to select from</param>
         /// <param name="random">The random number generator to use.</param>
         /// <param name="personExpansionFactor"></param>
-        /// <exception cref="XTMF.XTMFRuntimeException">If the household zone does not have data defined for it.</exception>
+        /// <exception cref="XTMFRuntimeException">If the household zone does not have data defined for it.</exception>
         /// <returns>A zone to use for school, null if no options exist</returns>
         private IZone PickSchoolZone(int householdZone, SparseTwinIndex<float> probabilities, Random random, float personExpansionFactor)
         {
@@ -346,7 +346,7 @@ namespace Tasha.PopulationSynthesis
 
         private static void SaveIfFileExists(SparseTwinIndex<float> matrix, FileLocation file)
         {
-            if (file != null)
+            if (file != null && matrix != null)
             {
                 SaveData.SaveMatrix(matrix, file);
             }

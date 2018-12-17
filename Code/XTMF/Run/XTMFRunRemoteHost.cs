@@ -69,7 +69,7 @@ namespace XTMF.Run
 
         private void StartupHost()
         {
-            var debugMode = !((Configuration)Configuration).RunInSeperateProcess; // Debugger.IsAttached;
+            var debugMode = !((Configuration)Configuration).RunInSeperateProcess; // || Debugger.IsAttached;
             var pipeName = debugMode ? "DEBUG_MODEL_SYSTEM" : Guid.NewGuid().ToString();
             _Pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             if (!debugMode)

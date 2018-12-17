@@ -137,7 +137,6 @@
     <Compile Include="RandomNumberHelper.cs" />
     <Compile Include="SaveData.cs" />
     <Compile Include="SinglyConstrainedGravityModel.cs" />
-    <Compile Include="TransitLines.cs" />
     <Compile Include="VectorHelper.cs" />
     <Compile Include="VectorHelper\Conditions\FlagAnd.cs" />
     <Compile Include="VectorHelper\Conditions\FlagIfGreaterThan.cs" />

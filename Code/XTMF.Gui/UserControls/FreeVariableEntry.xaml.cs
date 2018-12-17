@@ -54,6 +54,7 @@ namespace XTMF.Gui.UserControls
 
             public string Text => Type.FullName;
 
+#pragma warning disable CS0067
             public event PropertyChangedEventHandler PropertyChanged;
 
             internal static Task<ObservableCollection<Model>> CreateModel(ICollection<Type> types) =>
@@ -63,20 +64,17 @@ namespace XTMF.Gui.UserControls
         private async void FreeVariableEntry_Loaded(object sender, RoutedEventArgs e)
         {
             var temp = await Model.CreateModel(Session.GetValidGenericVariableTypes(Conditions));
-            Display.ItemsSource = (_availableModules = temp);
+            Display.ItemsSource = temp;
             FilterBox.Filter = CheckAgainstFilter;
             FilterBox.Display = Display;
         }
 
         public Type SelectedType { get; private set; }
 
-        private ObservableCollection<Model> _availableModules;
-
         private bool CheckAgainstFilter(object o, string text)
         {
-            var model = o as Model;
             if (string.IsNullOrWhiteSpace(text)) return true;
-            if (model == null) return false;
+            if (!(o is Model model)) return false;
             return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0 || model.Text.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
         }
 
@@ -121,31 +119,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void BorderIconButton_Clicked(object obj) => Select();
-
         private void Select()
         {
             var index = Display.SelectedItem;
             if (index == null) return;
             SelectModel(index as Model);
         }
-
-        private Model GetFirstItem()
-        {
-            return Display.ItemContainerGenerator.Items.Count > 0 ?
-                Display.ItemContainerGenerator.Items[0] as Model : null;
-        }
-
-        private void FilterBox_EnterPressed(object sender, EventArgs e)
-        {
-            var selected = Display.SelectedItem as Model;
-            if (selected == null)
-            {
-                selected = GetFirstItem();
-            }
-            SelectModel(selected);
-        }
-
 
         private void SelectModel(Model model)
         {
@@ -191,9 +170,6 @@ namespace XTMF.Gui.UserControls
 
         private bool ContainsFreeVariables(Type selectedType) => selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
 
-        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
-
         private void Display_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
-
     }
 }
