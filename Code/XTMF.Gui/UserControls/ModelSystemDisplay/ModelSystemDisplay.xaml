@@ -653,7 +653,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="130"></ColumnDefinition>
+                                    <ColumnDefinition Width="190"></ColumnDefinition>
                                     <ColumnDefinition Width="130"></ColumnDefinition>
                                     <ColumnDefinition Width="130"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
@@ -672,7 +672,7 @@
                     <StatusBarItem Grid.Column="2"></StatusBarItem>
 
 
-                    <StatusBarItem Grid.Column="3" Name="UnassignedModulesStatusBar" MouseUp="UnassignedModulesStatusBar_MouseDown">
+                    <StatusBarItem HorizontalAlignment="Left" Grid.Column="3" Name="UnassignedModulesStatusBar" MouseUp="UnassignedModulesStatusBar_MouseDown">
 
                         <StatusBarItem.Style>
 
@@ -709,10 +709,12 @@
 
                             </Style>
                         </StatusBarItem.Style>
-                
 
-                            <TextBlock >Module Requirements</TextBlock>
-       
+                        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Top">
+                            <materialDesign:PackIcon Kind="InfoOutline" />
+                            <TextBlock FontSize="11" VerticalAlignment="Stretch" Margin="4 0 0 0"  FontWeight="Normal" >Model System Requirements</TextBlock>
+                        </StackPanel>
+
 
 
                     </StatusBarItem>
