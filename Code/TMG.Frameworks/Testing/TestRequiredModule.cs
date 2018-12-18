@@ -35,9 +35,6 @@ namespace TMG.Frameworks.Testing
     {
         private readonly ILogger _logger;
 
-        private int _ticks;
-
-        private Timer _timer;
 
         /// <summary>
         /// 
