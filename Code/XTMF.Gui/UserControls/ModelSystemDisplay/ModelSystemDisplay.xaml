@@ -614,9 +614,10 @@
                     </Grid>
                     <Popup StaysOpen="False" Name="NoUnassignedModulesPopup" Width="200" Height="Auto" Placement="Top" PlacementTarget="{Binding ElementName=UnassignedModulesStatusBar}" PopupAnimation="Slide">
                         <Border BorderBrush="{DynamicResource MaterialDesignTextBoxBorder}" BorderThickness="1">
+                            <Grid Background="{DynamicResource MaterialDesignBackground}" MaxHeight="100">
+                                <Label Padding="10" Foreground="{DynamicResource MaterialDesignColumnHeader}">No required modules missing.</Label>
 
-                            <Label Padding="10" Foreground="{DynamicResource MaterialDesignColumnHeader}">No required modules missing.</Label>
-
+                            </Grid>
 
 
 
@@ -644,7 +645,7 @@
                         </Border>
                     </Popup>
                 </Grid>
-                <StatusBar Name="StatusBar" Grid.Row="2" Grid.Column="0"   Background="{DynamicResource SecondaryAccentBrush}" Height="24">
+                <StatusBar  Name="StatusBar" Grid.Row="2" Grid.Column="0"   Background="{DynamicResource SecondaryAccentBrush}" Height="24">
                     <StatusBar.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Grid >
@@ -710,7 +711,7 @@
                             </Style>
                         </StatusBarItem.Style>
 
-                        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Top">
+                        <StackPanel Margin="5 0 5 0" HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Top">
                             <materialDesign:PackIcon Kind="InfoOutline" />
                             <TextBlock FontSize="11" VerticalAlignment="Stretch" Margin="4 0 0 0"  FontWeight="Normal" >Model System Requirements</TextBlock>
                         </StackPanel>
