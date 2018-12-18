@@ -32,6 +32,7 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class LaunchRemoteClientWindow : UserControl
     {
+        #pragma warning disable CS0649
         internal Action<object> RequestClose;
 
         public LaunchRemoteClientWindow()

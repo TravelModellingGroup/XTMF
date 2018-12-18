@@ -61,7 +61,7 @@ namespace XTMF
 
         public abstract bool RunsRemotely { get; }
 
-        private const string Pattern = "%date %-5level %logger - %message%newline";
+        private const string Pattern = "%logger***%message%newline";
 
         private static ILogger _globalLogger;
 
@@ -90,24 +90,23 @@ namespace XTMF
                         Pattern);
             ConsoleAppender appender =
                 new ConsoleAppender() {Layout = layout};
-
             //create logger (console) unrelated to global logging under XTMFRun
-            LoggerMatchFilter filter = new LoggerMatchFilter();
-            filter.AcceptOnMatch = false;
-            filter.LoggerToMatch = "XTMFRun";
+            LoggerMatchFilter filter = new LoggerMatchFilter
+            {
+                AcceptOnMatch = false,
+                LoggerToMatch = "XTMFRun"
+            };
             appender.AddFilter(filter);
             appender.ActivateOptions();
 
             //create logger (file) for global logging using name XTMFRun
-            filter = new LoggerMatchFilter();
-            filter.AcceptOnMatch = true;
-            filter.LoggerToMatch = "XTMFRun";
-
-            
+            filter = new LoggerMatchFilter
+            {
+                AcceptOnMatch = true,
+                LoggerToMatch = "XTMFRun"
+            };
             BasicConfigurator.Configure(appender);
-
             _globalLogger = new Logger(LogManager.GetLogger("XTMFRun"));
-
         }
 
         public static XTMFRun CreateLocalRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
@@ -178,8 +177,6 @@ namespace XTMF
         /// An event that fires when the Model does not pass validation
         /// </summary>
         public event Action<List<ErrorWithPath>> ValidationError;
-
-        public event Action Test;
 
         /// <summary>
         /// An event that fires when Model Validation starts
@@ -268,7 +265,6 @@ namespace XTMF
         /// <param name="error"></param>
         protected static void SaveErrorMessage(ErrorWithPath error)
         {
-
             using (var writer = new StreamWriter("XTMF.ErrorLog.txt", true))
             {
                 writer.WriteLine(error.Message);
@@ -283,7 +279,6 @@ namespace XTMF
         /// <param name="errorMessage"></param>
         protected void InvokeRuntimeValidationError(List<ErrorWithPath> errorMessage)
         {
-            
             RuntimeValidationError?.Invoke(errorMessage);
         }
 

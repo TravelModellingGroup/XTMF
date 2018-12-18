@@ -20,6 +20,7 @@ namespace XTMF.Networking
 {
     internal struct ResourcePost
     {
+#pragma warning disable CS0649
         internal object Data;
         internal string Name;
     }

@@ -40,13 +40,13 @@ namespace XTMF.Networking
 
         private MessageQueue<IRemoteXTMF> _AvailableClients = new MessageQueue<IRemoteXTMF>();
 
-        private IConfiguration _Configuration;
+        private readonly IConfiguration _Configuration;
 
-        private ConcurrentDictionary<int, List<Action<object, IRemoteXTMF>>> _CustomHandlers = new ConcurrentDictionary<int, List<Action<object, IRemoteXTMF>>>();
+        private readonly ConcurrentDictionary<int, List<Action<object, IRemoteXTMF>>> _CustomHandlers = new ConcurrentDictionary<int, List<Action<object, IRemoteXTMF>>>();
 
-        private ConcurrentDictionary<int, Func<Stream, IRemoteXTMF, object>> _CustomReceivers = new ConcurrentDictionary<int, Func<Stream, IRemoteXTMF, object>>();
+        private readonly ConcurrentDictionary<int, Func<Stream, IRemoteXTMF, object>> _CustomReceivers = new ConcurrentDictionary<int, Func<Stream, IRemoteXTMF, object>>();
 
-        private ConcurrentDictionary<int, Action<object, IRemoteXTMF, Stream>> _CustomSenders = new ConcurrentDictionary<int, Action<object, IRemoteXTMF, Stream>>();
+        private readonly ConcurrentDictionary<int, Action<object, IRemoteXTMF, Stream>> _CustomSenders = new ConcurrentDictionary<int, Action<object, IRemoteXTMF, Stream>>();
 
         private MessageQueue<IModelSystemStructure> _ExecutionTasks = new MessageQueue<IModelSystemStructure>();
 
@@ -252,8 +252,7 @@ namespace XTMF.Networking
 
         private void ClientMain(object clientObject)
         {
-            var client = clientObject as TcpClient;
-            if (client == null) return;
+            if (!(clientObject is TcpClient client)) return;
             bool done = false;
             RemoteXTMF ourRemoteClient = new RemoteXTMF();
             try

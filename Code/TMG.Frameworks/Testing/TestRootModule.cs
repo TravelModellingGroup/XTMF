@@ -30,8 +30,11 @@ namespace TMG.Frameworks.Testing
     /// A dummmy / testing module to be used to help simulate estimation and scheduling for the XTMF GUI.
     /// </summary>
     [ModuleInformation(Description =
-        @"<h1>A sample H1 Header</h1><p>A dummy module that can be used as a root module in model systems used for testing the GUI.</p>",
-        DocURL = "https://tmg.utoronto.ca/documentation/Documentation/1.4_docfx/_site/articles/intro.html",
+        @"
+        <b>Test</b>
+        A dummy module that can be used as a root module in model systems used for testing the GUI.
+          
+        ",
         IconURI = "TestTube")]
     public class TestRootModule : IModelSystemTemplate
     {
@@ -40,10 +43,10 @@ namespace TMG.Frameworks.Testing
         public float Progress => calculateProgress();
         public Tuple<byte, byte, byte> ProgressColour { get; }
 
-        [SubModelInformation(Description = "Child Modules",Required = false)]
+        [SubModelInformation(Description = "Child Modules", Required = false)]
         public List<ISelfContainedModule> ChildModules { get; set; }
 
-  
+
         private IConfiguration _configuration;
 
         public bool RuntimeValidation(ref string error)

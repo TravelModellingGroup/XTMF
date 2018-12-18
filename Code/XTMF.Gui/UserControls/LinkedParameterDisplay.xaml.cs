@@ -36,8 +36,6 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class LinkedParameterDisplay : UserControl
     {
-        private bool _assignMode;
-
         private LinkedParameterDisplayModel _currentlySelected;
 
         private List<ParameterDisplay> _currentParameters;
@@ -45,10 +43,8 @@ namespace XTMF.Gui.UserControls
         private LinkedParametersModel _linkedParametersModel;
 
         public Action<IModelSystemStructure> GoToModule;
-        private ObservableCollection<LinkedParameterDisplayModel> Items;
-
+        
         public Action OnCloseDisplay;
-
 
         public bool IsAssignMode = false;
 
@@ -223,7 +219,6 @@ namespace XTMF.Gui.UserControls
         {
             var items = LinkedParameterDisplayModel.CreateDisplayModel(linkedParameters.GetLinkedParameters());
             Display.ItemsSource = items;
-            Items = items;
             LinkedParameterFilterBox.Display = Display;
             LinkedParameterFilterBox.Filter = (o, text) =>
             {
@@ -499,19 +494,6 @@ namespace XTMF.Gui.UserControls
             Display.Focus();
         }
 
-        /// <summary>
-        ///     Close button click listener
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (DialogOpenedEventArgs != null)
-            {
-                DialogOpenedEventArgs.Session.Close();
-            }
-        }
-
         private void ListViewControl_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Handled == false)
@@ -529,7 +511,6 @@ namespace XTMF.Gui.UserControls
 
             OnKeyDown(e);
         }
-
         private void ContainedParameterDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F2)

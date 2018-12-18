@@ -2,6 +2,7 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <ResolveComReferenceSilent>True</ResolveComReferenceSilent>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{8B983608-B6C7-49EB-A5DD-6CCCF55B9C45}</ProjectGuid>
@@ -19,6 +20,7 @@
     </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
+    <ResolveComReferenceSilent>True</ResolveComReferenceSilent>
     <OutputPath>bin\Development\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
@@ -30,6 +32,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
+    <ResolveComReferenceSilent>True</ResolveComReferenceSilent>
     <OutputPath>bin\32Bit\</OutputPath>
     <DefineConstants>
     </DefineConstants>
@@ -41,6 +44,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
+    <ResolveComReferenceSilent>True</ResolveComReferenceSilent>
     <OutputPath>bin\64Bit\</OutputPath>
     <Prefer32Bit>false</Prefer32Bit>
     <Optimize>true</Optimize>
@@ -61,6 +65,7 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug Remote Host|AnyCPU'">
+    <ResolveComReferenceSilent>True</ResolveComReferenceSilent>
     <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>pdbonly</DebugType>
