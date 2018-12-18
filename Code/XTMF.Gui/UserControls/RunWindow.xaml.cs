@@ -33,6 +33,7 @@ using System.Windows.Threading;
 using log4net;
 using log4net.Appender;
 using log4net.Core;
+using log4net.Repository;
 using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Annotations;
@@ -179,10 +180,10 @@ namespace XTMF.Gui.UserControls
             }
             DetailsGroupBox.DataContext = this;
             ConfigureLogger();
-            var conc =  new ConsoleOutputController(this, Run, iLog);
+            var conc = new ConsoleOutputController(this, Run, iLog);
             ConsoleOutput.DataContext = conc;
             _consoleAppener.ConsoleOutputController = conc;
-            
+
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             session.ExecuteRun(run, immediateRun);
             StartRunAsync();
@@ -191,11 +192,26 @@ namespace XTMF.Gui.UserControls
 
 
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void ConfigureLogger()
         {
-            var logger = (log4net.Repository.Hierarchy.Logger)log4net.LogManager.GetRepository().GetLogger(Run.RunName);
-            var ilogger = log4net.LogManager.GetRepository().GetLogger(Run.RunName);
+            var repos = LogManager.GetAllRepositories();
+            ILoggerRepository repo = null;
+            foreach (var r in repos)
+            {
+                if (r.Name == Run.RunName)
+                {
+                    repo = r;
+                }
+            }
+            if (repo == null)
+            {
+                repo = LogManager.CreateRepository(Run.RunName);
+            }
+            var logger = repo.GetLogger(Run.RunName);
+            var ilogger = repo.GetLogger(Run.RunName);
 
 
             var appender = new log4net.Appender.RollingFileAppender();
@@ -219,10 +235,11 @@ namespace XTMF.Gui.UserControls
                 Layout = layout
             };
 
+
             //Let log4net configure itself based on the values provided
             appender.ActivateOptions();
-            log4net.Config.BasicConfigurator.Configure(appender, _consoleAppener);
-            iLog = LogManager.GetLogger(Run.RunName);
+            log4net.Config.BasicConfigurator.Configure(repo, appender, _consoleAppener);
+            iLog = LogManager.GetLogger(Run.RunName, Run.RunName);
 
         }
 
@@ -864,7 +881,7 @@ namespace XTMF.Gui.UserControls
             /// <param name="loggingEvent"></param>
             protected override void Append(LoggingEvent loggingEvent)
             {
-               
+
                 ConsoleOutputController.ConsoleOutput += RenderLoggingEvent(loggingEvent);
             }
         }
