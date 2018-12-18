@@ -102,6 +102,23 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
                 _dialogSession.Close(false);
             }
+            if(e.Key == Key.Escape)
+            {
+                DidComplete = false;
+                e.Handled = true;
+                _dialogSession.Close(false);
+            }
+        }
+        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="didComplete"></param>
+        public void CloseDialog(bool didComplete)
+        {
+            DidComplete = didComplete;
+            _dialogSession.Close(false);
         }
 
         /// <summary>

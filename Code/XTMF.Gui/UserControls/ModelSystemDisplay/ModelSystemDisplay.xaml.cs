@@ -887,6 +887,7 @@ namespace XTMF.Gui.UserControls
                 Console.Error.WriteLine(e);
             }
 
+            
 
             //LinkedParametersDialogHost.DialogContent = dialog;
             if (dialog.DidComplete)
@@ -904,12 +905,13 @@ namespace XTMF.Gui.UserControls
                 }
 
                 if (Session.RunNameExists(runName))
+                {
                     runQuestion = MessageBox.Show(
                         "This run name has been previously used. Do you wish to delete the previous output?",
                         "Run Name Already Exists", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning,
                         MessageBoxResult.No);
 
-
+                }
                 if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
                 {
                     var isDelayed = (dialog.DataContext as RunConfigurationDisplayModel).SelectScheduleEnabled;
@@ -938,6 +940,11 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
+        }
+
+        private void Dialog_KeyDown(object sender, KeyEventArgs e)
+        {
+            
         }
 
         public void Redo()

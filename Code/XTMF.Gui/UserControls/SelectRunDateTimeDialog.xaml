@@ -15,7 +15,7 @@
     <UserControl.DataContext>
         <local:RunConfigurationDisplayModel></local:RunConfigurationDisplayModel>
     </UserControl.DataContext>
-    <StackPanel Orientation="Vertical">
+    <StackPanel Orientation="Vertical" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
         <TextBlock Style="{StaticResource MaterialDesignHeadlineTextBlock}" Margin="0 10 0 15" HorizontalAlignment="Center">Run Configuration</TextBlock>
         <Grid MinHeight="60"  MinWidth="300" Margin="10 0 10 5" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>

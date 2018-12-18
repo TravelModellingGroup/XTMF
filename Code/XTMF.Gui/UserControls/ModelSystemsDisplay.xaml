@@ -57,7 +57,7 @@
             </Grid>
         </materialDesign:ColorZone>
        
-        <ListView MouseDoubleClick="ListViewControl_MouseDoubleClick" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0">
+        <ListView MouseDoubleClick="ListViewControl_MouseDoubleClick" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" BorderThickness="0">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename ModelSystem (F2)" Click="Rename_Click">
