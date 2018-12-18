@@ -2547,6 +2547,29 @@ namespace XTMF.Gui.UserControls
         {
             e.Handled = true;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="modules"></param>
+        private void EnumerateUnassignedRequiredModules(ModelSystemStructureDisplayModel model, List<ModelSystemStructureDisplayModel> modules)
+        {
+            if (model.BaseModel.Type == null && model.BaseModel.IsOptional == false && !model.IsCollection)
+            {
+
+                modules.Add(model);
+            }
+            if (model.Children != null)
+            {
+                foreach (var c in model.Children)
+                {
+                    EnumerateUnassignedRequiredModules(c,modules);
+                }
+            }
+        }
+
+
     }
 
 

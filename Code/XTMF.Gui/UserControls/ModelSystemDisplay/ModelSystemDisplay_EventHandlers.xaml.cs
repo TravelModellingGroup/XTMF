@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using XTMF.Gui.Controllers;
+using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
@@ -234,6 +236,63 @@ namespace XTMF.Gui.UserControls
                 ExecuteRun();
                 e.Handled = true;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UnassignedModulesStatusBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+            List<ModelSystemStructureDisplayModel> modules = new List<ModelSystemStructureDisplayModel>();
+
+            Dispatcher.BeginInvoke(new Action(() =>
+              {
+                  this.EnumerateUnassignedRequiredModules(DisplayRoot, modules);
+
+                  if (modules.Count > 0)
+                  {
+                      this.UnassignedModulesList.ItemsSource = modules;
+                      UnassignedModulesPopup.IsOpen = true;
+                  }
+                  else
+                  {
+                      NoUnassignedModulesPopup.IsOpen = true;
+                  }
+              }));
+
+            e.Handled = true;
+
+            return;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UnassignedModuleLabel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var model = ((FrameworkElement)e.Source).Tag as ModelSystemStructureDisplayModel;
+            if (model != null)
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    model.IsSelected = true;
+                    if(ActiveModelSystemView is ModelSystemTreeViewDisplay view)
+                    {
+                        view.ExpandToRoot(model);
+                    }
+                    UnassignedModulesPopup.IsOpen = false;
+                    NoUnassignedModulesPopup.IsOpen = false;
+
+
+
+                }));
+            }
+            return;
         }
     }
 }

@@ -83,10 +83,10 @@
                             <TextBlock Text="-" />
                             <TextBlock Text="{Binding OwnerModuleName, Mode=OneTime}" FontWeight="Light" Margin="3 0 0 0" />
                         </StackPanel>
-                        
+
                         <TextBlock Text="{Binding Description, Mode=OneTime}" />
                     </StackPanel>
-                    
+
                 </StackPanel.ToolTip>
 
                 <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Focusable="False"  Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
@@ -543,7 +543,7 @@
                                   Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelector}">
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
-    <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
+                                                <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
                                             </Style>
                                         </ListView.ItemContainerStyle>
                                         <ListView.ItemsPanel>
@@ -612,10 +612,39 @@
                             </Grid>
                         </materialDesign:DialogHost>
                     </Grid>
+                    <Popup StaysOpen="False" Name="NoUnassignedModulesPopup" Width="200" Height="Auto" Placement="Top" PlacementTarget="{Binding ElementName=UnassignedModulesStatusBar}" PopupAnimation="Slide">
+                        <Border BorderBrush="{DynamicResource MaterialDesignTextBoxBorder}" BorderThickness="1">
 
-                  
+                            <Label Padding="10" Foreground="{DynamicResource MaterialDesignColumnHeader}">No required modules missing.</Label>
+
+
+
+
+                        </Border>
+                    </Popup>
+                    <Popup StaysOpen="False" Name="UnassignedModulesPopup" Width="200" Height="Auto" Placement="Top" PlacementTarget="{Binding ElementName=UnassignedModulesStatusBar}" PopupAnimation="Slide">
+                        <Border BorderBrush="{DynamicResource MaterialDesignTextBoxBorder}" BorderThickness="1">
+                            <Grid Background="{DynamicResource MaterialDesignBackground}" MaxHeight="250">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Label Foreground="{DynamicResource MaterialDesignColumnHeader}" Grid.Row="0">Missing Required Modules</Label>
+                                <ListView Grid.Row="1" Name="UnassignedModulesList" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="True">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Label Tag="{Binding .}" MouseDown="UnassignedModuleLabel_MouseDown" Content="{Binding Name}"></Label>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+
+                                </ListView>
+
+
+                            </Grid>
+                        </Border>
+                    </Popup>
                 </Grid>
-                <StatusBar Grid.Row="2" Grid.Column="0"   Background="{DynamicResource SecondaryAccentBrush}" Height="24">
+                <StatusBar Name="StatusBar" Grid.Row="2" Grid.Column="0"   Background="{DynamicResource SecondaryAccentBrush}" Height="24">
                     <StatusBar.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Grid >
@@ -624,6 +653,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="130"></ColumnDefinition>
                                     <ColumnDefinition Width="130"></ColumnDefinition>
                                     <ColumnDefinition Width="130"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
@@ -637,10 +667,57 @@
                         <TextBlock  Text="No module selected." Name="StatusBarModuleNameTextBlock"></TextBlock>
                     </StatusBarItem>
                     <StatusBarItem Grid.Column="1">
-                        
+
                     </StatusBarItem>
                     <StatusBarItem Grid.Column="2"></StatusBarItem>
-                    <StatusBarItem Grid.Column="3">
+
+
+                    <StatusBarItem Grid.Column="3" Name="UnassignedModulesStatusBar" MouseUp="UnassignedModulesStatusBar_MouseDown">
+
+                        <StatusBarItem.Style>
+
+                            <Style TargetType="{x:Type StatusBarItem}">
+                                <Style.Setters>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="StatusBarItem">
+                                                <Border>
+
+                                                    <Grid>
+                                                        <Rectangle Name="bg" Fill="{DynamicResource SecondaryAccentForegroundBrush}"></Rectangle>
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"></ContentPresenter>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+
+                                                    <Trigger Property="IsMouseOver" Value="True">
+   
+                                                        <Setter TargetName="bg" Property="Opacity" Value="0.2"></Setter>
+
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="False">
+
+                                                        <Setter TargetName="bg" Property="Opacity" Value="0.0"></Setter>
+
+                                                    </Trigger>
+
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style.Setters>
+
+                            </Style>
+                        </StatusBarItem.Style>
+                
+
+                            <TextBlock >Module Requirements</TextBlock>
+       
+
+
+                    </StatusBarItem>
+
+                    <StatusBarItem Grid.Column="4">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                             <materialDesign:PackIcon Kind="Settings" Height="16" />
                             <TextBlock Name="StatusBarModuleCountTextBlock" Text="{Binding Path=StatusBarModuleCountText, Mode=OneWay}"  FontSize="11" VerticalAlignment="Stretch" Margin="4 0 0 0"  FontWeight="Normal"></TextBlock>
@@ -649,7 +726,7 @@
 
                     </StatusBarItem>
 
-                    <StatusBarItem Grid.Column="4">
+                    <StatusBarItem Grid.Column="5">
 
 
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
