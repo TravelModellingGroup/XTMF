@@ -37,7 +37,7 @@
         <materialDesign:ColorZone Grid.Row="0" Grid.Column="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
         Margin="12 12 12 12"
         materialDesign:ShadowAssist.ShadowDepth="Depth4">
-            <my:FilterBox Grid.Row="0" x:Name="FilterBox"  FilterWatermark="Filter Modules... (Ctrl+E)" />
+            <my:FilterBox Grid.Row="0" x:Name="FilterBox"  FilterWatermark="Filter Modules... (Ctrl+E)" KeyDown="FilterBox_KeyDown" />
         </materialDesign:ColorZone>
 
         <ListView Grid.Column="0" x:Name="Display" MouseDoubleClick="Display_OnMouseDoubleClick" SelectionChanged="Display_OnSelectionChanged"

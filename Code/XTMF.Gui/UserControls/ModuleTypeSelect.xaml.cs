@@ -337,5 +337,27 @@ namespace XTMF.Gui.UserControls
                 $"<style>body{{ background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body></body>";
             ModuleDescriptionTextBlock.NavigateToString(htmlString);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FilterBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+
+                case Key.Enter:
+
+                    e.Handled = true; if (!(Display.SelectedItem is Model selected))
+                    {
+                        selected = GetFirstItem();
+                    }
+                    SelectModel(selected);
+                    // Select();
+                    break;
+            }
+        }
     }
 }
