@@ -30,6 +30,9 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shell;
 using System.Windows.Threading;
+using log4net;
+using log4net.Appender;
+using log4net.Core;
 using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Annotations;
@@ -102,6 +105,14 @@ namespace XTMF.Gui.UserControls
         //Display model reference in the scheduler window
         public SchedulerWindow.SchedulerRunItemDisplayModel SchedulerRunItemDisplayModel { get; set; }
 
+        /// <summary>
+        /// log4net logger for this run instance (file appender).
+        /// </summary>
+        private ILog iLog;
+
+
+
+        private ConsoleOutputAppender _consoleAppener;
 
         static RunWindow()
         {
@@ -166,12 +177,53 @@ namespace XTMF.Gui.UserControls
                     _taskbarInformation.ProgressValue = 0;
                 }
             }
-            ConsoleOutput.DataContext = new ConsoleOutputController(this, Run);
+            DetailsGroupBox.DataContext = this;
+            ConfigureLogger();
+            var conc =  new ConsoleOutputController(this, Run, iLog);
+            ConsoleOutput.DataContext = conc;
+            _consoleAppener.ConsoleOutputController = conc;
+            
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             session.ExecuteRun(run, immediateRun);
             StartRunAsync();
             _timer.Start();
-            DetailsGroupBox.DataContext = this;
+
+
+
+        }
+
+        private void ConfigureLogger()
+        {
+            var logger = (log4net.Repository.Hierarchy.Logger)log4net.LogManager.GetRepository().GetLogger(Run.RunName);
+            var ilogger = log4net.LogManager.GetRepository().GetLogger(Run.RunName);
+
+
+            var appender = new log4net.Appender.RollingFileAppender();
+            appender.Name = "RollingFileAppender";
+            appender.File = Path.Combine(Run.RunDirectory, "XTMF.Console.log");
+            appender.StaticLogFileName = true;
+            appender.AppendToFile = false;
+            appender.RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Once;
+            appender.MaxSizeRollBackups = 10;
+            appender.MaximumFileSize = "10MB";
+            appender.PreserveLogFileNameExtension = true;
+            var layout = new log4net.Layout.PatternLayout()
+            {
+                ConversionPattern = "%date %-5level %logger - %message%newline"
+            };
+            appender.Layout = layout;
+            layout.ActivateOptions();
+
+            _consoleAppener = new ConsoleOutputAppender()
+            {
+                Layout = layout
+            };
+
+            //Let log4net configure itself based on the values provided
+            appender.ActivateOptions();
+            log4net.Config.BasicConfigurator.Configure(appender, _consoleAppener);
+            iLog = LogManager.GetLogger(Run.RunName);
+
         }
 
         /// <summary>
@@ -239,7 +291,10 @@ namespace XTMF.Gui.UserControls
                     _taskbarInformation.ProgressValue = 0;
                 }
             }
-            ConsoleOutput.DataContext = new ConsoleOutputController(this, Run);
+            ConfigureLogger();
+            var conc = new ConsoleOutputController(this, Run, iLog);
+            ConsoleOutput.DataContext = conc;
+            _consoleAppener.ConsoleOutputController = conc;
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             session.ExecuteDelayedRun(run, delayedStartTime);
             DetailsGroupBox.DataContext = this;
@@ -551,7 +606,7 @@ namespace XTMF.Gui.UserControls
                 ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
                 StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
                 ProgressBar.Finished = true;
-                
+
                 //call scheduler window callback
                 if (callback)
                 {
@@ -575,8 +630,8 @@ namespace XTMF.Gui.UserControls
                StartTime = DateTime.Now;
                StartTimeLabel.Content = $"Start Time: {StartTime:g}";
                UpdateStartTime?.Invoke($"{StartTime:g}");
-                //ButtonProgressAssist.
-                IsRunClearable = false;
+               //ButtonProgressAssist.
+               IsRunClearable = false;
            }));
         }
 
@@ -757,7 +812,7 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(async () =>
             {
-                var result = await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay,extraData);
+                var result = await MainWindow.Us.BringDisplayIntoView(this._launchedFromModelSystemDisplay, extraData);
 
                 //if the display failed to open, relaunch and edit the model system
                 if (!result)
@@ -798,14 +853,54 @@ namespace XTMF.Gui.UserControls
             internal TMGProgressBar ProgressBar;
         }
 
-        public class ConsoleOutputController : INotifyPropertyChanged, IDisposable
+        public class ConsoleOutputAppender : AppenderSkeleton
         {
-            public ConsoleOutputController(RunWindow runWindow, XTMFRun run)
+
+            public ConsoleOutputController ConsoleOutputController { get; set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="loggingEvent"></param>
+            protected override void Append(LoggingEvent loggingEvent)
+            {
+               
+                ConsoleOutputController.ConsoleOutput += RenderLoggingEvent(loggingEvent);
+            }
+        }
+
+        public class ConsoleOutputController : AppenderSkeleton, INotifyPropertyChanged, IDisposable
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="runWindow"></param>
+            /// <param name="run"></param>
+            /// <param name="log"></param>
+            /// <param name="memoryAppender"></param>
+            public ConsoleOutputController(RunWindow runWindow, XTMFRun run, ILog log = null)
             {
                 run.RunMessage += Run_RunMessage;
+                this._log = log;
+
+            }
+            private string _output;
+            public string ConsoleOutput
+            {
+                get
+                {
+                    return _output;
+                }
+                set
+                {
+
+                    _output = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
+                }
             }
 
-            public string ConsoleOutput { get; set; }
+            private ILog _log;
+
 
             public void Dispose()
             {
@@ -814,10 +909,27 @@ namespace XTMF.Gui.UserControls
 
             public event PropertyChangedEventHandler PropertyChanged;
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="message"></param>
             private void Run_RunMessage(string message)
             {
+                message = message.Replace("***", " ");
+                if (_log != null)
+                {
+                    _log.Info(message);
+                }
 
-                ConsoleOutput = ConsoleOutput + message + "\r\n";
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="loggingEvent"></param>
+            protected override void Append(LoggingEvent loggingEvent)
+            {
+                ConsoleOutput = ConsoleOutput + loggingEvent.RenderedMessage + Environment.NewLine;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
             }
         }

@@ -87,7 +87,10 @@ namespace XTMF.Gui.UserControls
             public event PropertyChangedEventHandler PropertyChanged;
         }
 
-        public ModuleTypeSelect() => InitializeComponent();
+        public ModuleTypeSelect()
+        {
+            InitializeComponent();
+        }
 
         private bool CheckAgainstFilter(object o, string text)
         {

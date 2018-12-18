@@ -61,7 +61,7 @@ namespace XTMF
 
         public abstract bool RunsRemotely { get; }
 
-        private const string Pattern = "%date %-5level %logger - %message%newline";
+        private const string Pattern = "%logger***%message%newline";
 
         private static ILogger _globalLogger;
 
