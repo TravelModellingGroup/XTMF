@@ -359,7 +359,8 @@ namespace XTMF.Gui.UserControls
             var display = (RegionsComboBox.SelectedItem as RegionDisplayModel)?.Model;
 
             string error = "";
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Are sure want to delete the region display \"{display.Name}\"?", "Confirm Deletion", System.Windows.MessageBoxButton.YesNoCancel);
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Are sure want to delete the region display \"{display.Name}\"?", 
+                "Confirm Deletion", System.Windows.MessageBoxButton.YesNoCancel);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 if (display != null)
@@ -381,7 +382,7 @@ namespace XTMF.Gui.UserControls
             (sender as FrameworkElement)?.Focus();
             Keyboard.Focus(sender as FrameworkElement);
             FocusManager.SetFocusedElement(GroupDisplay, sender as FrameworkElement);
-            Console.WriteLine((sender as FrameworkElement).IsFocused);
+
         }
 
         /// <summary>
@@ -441,6 +442,19 @@ namespace XTMF.Gui.UserControls
             {
                 Console.WriteLine(e2.Message);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RenameGroupHeaderMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = (sender as MenuItem);
+            var p = menuItem.TemplatedParent;
+            ToggleRegionGroupRename(p as FrameworkElement);
+            return;
         }
     }
 }

@@ -160,8 +160,8 @@ namespace XTMF.Gui.UserControls
             ModelSystemDisplayModelMap = new Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel>();
 
             // hide quick parameter display by default
-            ContentDisplayGrid.ColumnDefinitions[2].Width = new GridLength(0);
-            QuickParameterDisplay2.IsEnabled = false;
+            // ContentDisplayGrid.ColumnDefinitions[2].Width = new GridLength(0);
+            // QuickParameterDisplay2.IsEnabled = false;
         }
 
         private ParameterDisplayModel SoftActiveParameterDisplay { get; set; }
