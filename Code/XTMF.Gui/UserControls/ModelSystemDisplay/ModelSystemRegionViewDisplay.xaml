@@ -83,19 +83,19 @@
                                 <ContentControl Name="RegionGroupHeader" 
                                                 MouseDoubleClick="RegionGroupHeader_OnMouseDoubleClick"
                                                 PreviewKeyDown="RegionGroupHeader_OnPreviewKeyDown">
-                                    <Grid >
+                                    <Grid VerticalAlignment="Center">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                                             <ColumnDefinition Width="*"></ColumnDefinition>
                                         </Grid.ColumnDefinitions>
-                                        <materialDesign:PackIcon Kind="SettingsBox" Grid.Column="0" />
-                                        <TextBlock Margin="5" Name="HeaderText" Text="{Binding Model.Name}"  Grid.Column="1"/>
+                                        <materialDesign:PackIcon Kind="SettingsBox" Grid.Column="0" VerticalContentAlignment="Center"  VerticalAlignment="Center"/>
+                                        <TextBlock Margin="5" Name="HeaderText" Text="{Binding Model.Name}"  Grid.Column="1" VerticalAlignment="Center"/>
                                         <TextBox LostFocus="HeaderTextInput_OnLostFocus" Margin="5" Name="HeaderTextInput" Background="{DynamicResource PrimaryHueDarkBrush}" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
-                                                 Text="{Binding Model.Name,Mode=TwoWay}" Visibility="Collapsed"  Grid.Column="2" />
+                                                 Text="{Binding Model.Name,Mode=TwoWay}" Visibility="Collapsed"  Grid.Column="2" VerticalAlignment="Center"/>
                                         <materialDesign:PackIcon Kind="Close" Grid.Column="3" HorizontalAlignment="Right" Name="GroupCloseIcon" MouseDown="GroupCloseIcon_OnMouseDown" Tag="{Binding .}"
-                                                                 Cursor="Hand"
+                                                                 Cursor="Hand" VerticalAlignment="Center"
                                                                  Background="Transparent"/>
                                     </Grid>
                                 </ContentControl>
@@ -110,7 +110,7 @@
 
                                         <TextBlock Background="Transparent" HorizontalAlignment="Stretch"
                                                    Tag="{Binding ElementName=RegionGroupModuleListView}"
-                                                   Name="ModuleItem" Text="{Binding Name}"
+                                                   Name="ModuleItem" Text="{Binding Name}" 
                                                    MouseLeftButtonDown="ModuleItem_OnMouseLeftButtonDown">
                                             <TextBlock.ContextMenu>
                                                 <ContextMenu Tag="{Binding ElementName=RegionGroupModuleListView}">
@@ -120,6 +120,15 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <materialDesign:PackIcon Kind="Delete" />
                                                                 <TextBlock Margin="5 0 0 0" Text="Remove from group" />
+                                                            </StackPanel>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
+                                                    <MenuItem Tag="{Binding .}" Name="GoToModuleInTreeView"
+                                                              Click="GoToModuleInTreeView_Click">
+                                                        <MenuItem.Header>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <materialDesign:PackIcon Kind="FileTree" />
+                                                                <TextBlock Margin="5 0 0 0" Text="Go to module (Tree View)" />
                                                             </StackPanel>
                                                         </MenuItem.Header>
                                                     </MenuItem>

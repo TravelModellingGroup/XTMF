@@ -124,7 +124,7 @@ namespace XTMF.Gui.UserControls
             LinkedParameterDisplayOverlay = new LinkedParameterDisplay();
             LinkedParameterDisplayOverlay.GoToModule += module =>
             {
-                if (module != null) GoToModule((ModelSystemStructure) module);
+                if (module != null) GoToModule((ModelSystemStructure)module);
             };
             LinkedParameterDisplayOverlay.OnCloseDisplay += () =>
             {
@@ -158,6 +158,10 @@ namespace XTMF.Gui.UserControls
             ActiveModelSystemView = TreeViewDisplay;
 
             ModelSystemDisplayModelMap = new Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel>();
+
+            // hide quick parameter display by default
+            ContentDisplayGrid.ColumnDefinitions[2].Width = new GridLength(0);
+            QuickParameterDisplay2.IsEnabled = false;
         }
 
         private ParameterDisplayModel SoftActiveParameterDisplay { get; set; }
@@ -171,23 +175,23 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// </summary>
         public Brush QuickParameterToolBarForeground => QuickParameterDisplay2 == null
-            ? (SolidColorBrush) TryFindResource("SecondaryAccentBrush")
+            ? (SolidColorBrush)TryFindResource("SecondaryAccentBrush")
             : (
                 QuickParameterDisplay2.IsEnabled
                     ? new SolidColorBrush
                     {
-                        Color = ((SolidColorBrush) TryFindResource("SecondaryAccentBrush")).Color
+                        Color = ((SolidColorBrush)TryFindResource("SecondaryAccentBrush")).Color
                     }
                     : new SolidColorBrush
                     {
-                        Color = ((SolidColorBrush) TryFindResource("MaterialDesignBody")).Color
+                        Color = ((SolidColorBrush)TryFindResource("MaterialDesignBody")).Color
                     });
 
         public Brush ModuleParameterToolBarForeground => ModuleParameterDisplay == null
-            ? (SolidColorBrush) TryFindResource("SecondaryAccentBrush")
+            ? (SolidColorBrush)TryFindResource("SecondaryAccentBrush")
             : new SolidColorBrush
             {
-                Color = ((SolidColorBrush) TryFindResource(ModuleParameterDisplay.IsEnabled
+                Color = ((SolidColorBrush)TryFindResource(ModuleParameterDisplay.IsEnabled
                     ? "SecondaryAccentBrush"
                     : "MaterialDesignBody")).Color
             };
@@ -195,7 +199,7 @@ namespace XTMF.Gui.UserControls
 
         public bool CanRunModelSystem
         {
-            get => (bool) GetValue(CanRunModelSystemDependencyProperty);
+            get => (bool)GetValue(CanRunModelSystemDependencyProperty);
             set => SetValue(CanRunModelSystemDependencyProperty, value);
         }
 
@@ -203,7 +207,7 @@ namespace XTMF.Gui.UserControls
 
         public double ParameterWidth
         {
-            get => (double) GetValue(ParameterWidthDependencyProperty);
+            get => (double)GetValue(ParameterWidthDependencyProperty);
             set => SetValue(ParameterWidthDependencyProperty, value);
         }
 
@@ -247,13 +251,13 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public ModelSystemModel ModelSystem
         {
-            get => (ModelSystemModel) GetValue(ModelSystemProperty);
+            get => (ModelSystemModel)GetValue(ModelSystemProperty);
             set => SetValue(ModelSystemProperty, value);
         }
 
         public string ModelSystemName
         {
-            get => (string) GetValue(ModelSystemNameProperty);
+            get => (string)GetValue(ModelSystemNameProperty);
             private set => SetValue(ModelSystemNameProperty, value);
         }
 
@@ -665,12 +669,12 @@ namespace XTMF.Gui.UserControls
             if (GetCurrentParameterDisplay() == ParameterDisplay)
             {
                 if (ParameterDisplay.SelectedItem is ParameterDisplayModel currentParameter)
-                    return (ParameterDisplayModel) ParameterDisplay.SelectedItem;
+                    return (ParameterDisplayModel)ParameterDisplay.SelectedItem;
             }
             else if (GetCurrentParameterDisplay() == QuickParameterListView)
             {
                 if (QuickParameterListView.SelectedItem is ParameterDisplayModel currentParameter)
-                    return (ParameterDisplayModel) QuickParameterListView.SelectedItem;
+                    return (ParameterDisplayModel)QuickParameterListView.SelectedItem;
             }
 
 
@@ -887,7 +891,7 @@ namespace XTMF.Gui.UserControls
                 Console.Error.WriteLine(e);
             }
 
-            
+
 
             //LinkedParametersDialogHost.DialogContent = dialog;
             if (dialog.DidComplete)
@@ -944,7 +948,7 @@ namespace XTMF.Gui.UserControls
 
         private void Dialog_KeyDown(object sender, KeyEventArgs e)
         {
-            
+
         }
 
         public void Redo()
@@ -1151,10 +1155,10 @@ namespace XTMF.Gui.UserControls
                     ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, true);
                     ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, true);
                     ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton,
-                        (Brush) FindResource("MaterialDesignPaper"));
+                        (Brush)FindResource("MaterialDesignPaper"));
                     ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton,
-                        (Brush) FindResource("SecondaryAccentBrush"));
-                    SaveModelSystemButton.Style = (Style) FindResource("MaterialDesignFloatingActionMiniDarkButton");
+                        (Brush)FindResource("SecondaryAccentBrush"));
+                    SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
                 });
                 MainWindow.SetStatusText("Saving...");
                 Task.Run(() =>
@@ -1264,7 +1268,7 @@ namespace XTMF.Gui.UserControls
         private void GotoSelectedParameterModule()
         {
             if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
-                GoToModule((ModelSystemStructure) currentParameter.BelongsTo);
+                GoToModule((ModelSystemStructure)currentParameter.BelongsTo);
         }
 
         private void ExpandParameterDocumentation(object sender)
@@ -1673,7 +1677,7 @@ namespace XTMF.Gui.UserControls
             if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 var selectedContainer =
-                    (UIElement) ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
+                    (UIElement)ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
                 if (selectedContainer != null)
                 {
                     var layer = AdornerLayer.GetAdornerLayer(selectedContainer);
@@ -1805,7 +1809,7 @@ namespace XTMF.Gui.UserControls
                 if (inputDirectory != null)
                 {
                     var fileName = MainWindow.OpenFile("Select File",
-                        new[] {new KeyValuePair<string, string>("All Files", "*")}, true);
+                        new[] { new KeyValuePair<string, string>("All Files", "*") }, true);
                     if (fileName == null) return;
 
                     TransformToRelativePath(inputDirectory, ref fileName);
@@ -1838,7 +1842,7 @@ namespace XTMF.Gui.UserControls
             var attributes = inputDir.GetCustomAttributes(typeof(ParameterAttribute), true);
             if (attributes != null && attributes.Length > 0)
             {
-                var parameterName = ((ParameterAttribute) attributes[0]).Name;
+                var parameterName = ((ParameterAttribute)attributes[0]).Name;
                 var parameters = root.Parameters.GetParameters();
                 for (var i = 0; i < parameters.Count; i++)
                     if (parameters[i].Name == parameterName)
@@ -2055,7 +2059,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemInformation_EnableModuleMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (((Label) sender).Tag is ModelSystemStructureDisplayModel module)
+            if (((Label)sender).Tag is ModelSystemStructureDisplayModel module)
             {
                 var error = string.Empty;
                 module.SetDisabled(!module.IsDisabled, ref error);
@@ -2069,7 +2073,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void Path_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (((Border) sender).Tag is ModelSystemStructureDisplayModel module) DisabledModules.Remove(module);
+            if (((Border)sender).Tag is ModelSystemStructureDisplayModel module) DisabledModules.Remove(module);
         }
 
         /// <summary>
@@ -2203,7 +2207,7 @@ namespace XTMF.Gui.UserControls
                     {
                         view.SelectedIndex = 0;
                         SelectParameterChildControl(
-                            (UIElement) view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
+                            (UIElement)view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
                     }), DispatcherPriority.Input);
                     e.Handled = true;
                 }
@@ -2213,7 +2217,7 @@ namespace XTMF.Gui.UserControls
                     {
                         view.SelectedIndex = 0;
                         SelectParameterChildControl(
-                            (UIElement) view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
+                            (UIElement)view.ItemContainerGenerator.ContainerFromIndex(view.SelectedIndex));
                     }));
                     e.Handled = true;
                 }
@@ -2422,6 +2426,12 @@ namespace XTMF.Gui.UserControls
             }));
         }
 
+        public void ShowTreeViewDisplay()
+        {
+            TreeViewListBoxItem.IsSelected = true;
+
+        }
+
 
         /// <summary>
         /// </summary>
@@ -2571,7 +2581,7 @@ namespace XTMF.Gui.UserControls
             {
                 foreach (var c in model.Children)
                 {
-                    EnumerateUnassignedRequiredModules(c,modules);
+                    EnumerateUnassignedRequiredModules(c, modules);
                 }
             }
         }

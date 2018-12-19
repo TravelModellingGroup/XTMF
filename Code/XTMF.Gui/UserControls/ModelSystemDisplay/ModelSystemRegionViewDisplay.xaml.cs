@@ -394,5 +394,22 @@ namespace XTMF.Gui.UserControls
             }
             return;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GoToModuleInTreeView_Click(object sender, RoutedEventArgs e)
+        {
+            _modelSystemDisplay.ShowTreeViewDisplay();
+            ModelSystemStructureDisplayModel module = this._modelSystemDisplay.ModelSystemDisplayModelMap[(sender as MenuItem)?.Tag as ModelSystemStructure];
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                module.IsSelected = true;
+                _modelSystemDisplay.TreeViewDisplay.ExpandToRoot(module);
+            }));
+
+        }
     }
 }

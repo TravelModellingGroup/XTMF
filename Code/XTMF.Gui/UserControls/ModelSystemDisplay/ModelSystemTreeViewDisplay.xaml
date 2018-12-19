@@ -245,7 +245,7 @@
                                 <materialDesign:PackIcon Kind="Link" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Add to Region Group (Ctrl+Shift+R)" Name="AddToRegionGroupMenuItem" >
+                        <MenuItem Header="Add to Region Group" Name="AddToRegionGroupMenuItem" >
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="Group" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>

@@ -314,6 +314,7 @@ namespace XTMF.Gui.UserControls
             string error = "";
             var group = (RegionGroup) ((MenuItem) e.Source).Tag;
             var module = SelectedModule.BaseModel.RealModelSystemStructure;
+            this._display.ModelSystemDisplayModelMap[SelectedModule.BaseModel.RealModelSystemStructure] = SelectedModule;
             _regionDisplaysModel.AddModuleToGroup(group, module, ref error);
         }
 
