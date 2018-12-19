@@ -112,8 +112,8 @@
                                                 </ContextMenu>
                                             </TextBlock.ContextMenu>
                                         </TextBlock>
-                                        <TextBox LostFocus="HeaderTextInput_OnLostFocus" Margin="5" Name="HeaderTextInput" Background="{DynamicResource PrimaryHueDarkBrush}" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
-                                                 Text="{Binding Model.Name,Mode=TwoWay}" Visibility="Collapsed"  Grid.Column="2" VerticalAlignment="Center"/>
+                                        <TextBox Tag="{Binding .}" LostFocus="HeaderTextInput_OnLostFocus" Margin="5" Name="HeaderTextInput" Background="{DynamicResource PrimaryHueDarkBrush}" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
+                                                 Text="{Binding Model.Name,Mode=OneWay}" Visibility="Collapsed"  Grid.Column="2" VerticalAlignment="Center"/>
                                         <materialDesign:PackIcon Kind="Close" Grid.Column="3" HorizontalAlignment="Right" Name="GroupCloseIcon" MouseDown="GroupCloseIcon_OnMouseDown" Tag="{Binding .}"
                                                                  Cursor="Hand" VerticalAlignment="Center"
                                                                  Background="Transparent"/>
@@ -165,7 +165,12 @@
             </ListView>
             <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Name="NewGroupButton"
                     Click="NewGroupButton_OnClick">
-                New Group
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="LibraryAdd" VerticalAlignment="Center" Margin="0 0 5 0"
+                                         HorizontalAlignment="Center" />
+                    <TextBlock> New Group</TextBlock>
+                </StackPanel>
+               
             </Button>
         </Grid>
 

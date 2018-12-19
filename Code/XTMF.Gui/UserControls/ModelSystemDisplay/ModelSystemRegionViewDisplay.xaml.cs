@@ -262,14 +262,21 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RegionGroupHeader_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            ToggleRegionGroupRename(sender as FrameworkElement);
+            var element = sender as FrameworkElement;
+            var headerTextInput = element.FindChild<TextBox>("HeaderTextInput");
+            var headerText = element.FindChild<TextBlock>("HeaderText");
+
+            if (headerTextInput.Visibility != Visibility.Visible)
+            {
+                ToggleRegionGroupRename(sender as FrameworkElement);
+            }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="regionHeaderElement"></param>
-        private void ToggleRegionGroupRename(FrameworkElement regionHeaderElement)
+        private void ToggleRegionGroupRename(FrameworkElement regionHeaderElement, bool save = true)
         {
             var element = regionHeaderElement as FrameworkElement;
             var headerTextInput = element.FindChild<TextBox>("HeaderTextInput");
@@ -287,6 +294,19 @@ namespace XTMF.Gui.UserControls
                     headerTextInput.Focus();
                     Keyboard.Focus(headerTextInput);
                 }
+                else
+                {
+                    if (save)
+                    {
+                        (headerTextInput.Tag as RegionGroupDisplayModel).Model.Name = headerTextInput.Text;
+
+                    }
+                    else
+                    {
+                        headerTextInput.Text = (headerTextInput.Tag as RegionGroupDisplayModel).Model.Name;
+                        // (headerTextInput.Tag as RegionGroupDisplayModel).Model.Name = (headerTextInput.Tag as RegionGroupDisplayModel).Model.Name;
+                    }
+                }
             }));
             return;
         }
@@ -298,23 +318,15 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RegionGroupHeader_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
+            var element = sender as FrameworkElement;
             if (e.Key == Key.Enter)
             {
-                var element = sender as FrameworkElement;
-                var headerTextInput = element.FindChild<TextBox>("HeaderTextInput");
-                var headerText = element.FindChild<TextBlock>("HeaderText");
-                if (headerTextInput.Visibility == Visibility.Visible)
-                {
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        headerText.Visibility = headerText.Visibility == Visibility.Collapsed
-                            ? Visibility.Visible
-                            : Visibility.Collapsed;
-                        headerTextInput.Visibility = headerTextInput.Visibility == Visibility.Collapsed
-                            ? Visibility.Visible
-                            : Visibility.Collapsed;
-                    }));
-                }
+                ToggleRegionGroupRename(element, true);
+
+            }
+            else if (e.Key == Key.Escape)
+            {
+                ToggleRegionGroupRename(element, false);
             }
 
         }
@@ -345,7 +357,12 @@ namespace XTMF.Gui.UserControls
         {
             var item = ((sender as FrameworkElement)?.Tag as RegionGroupDisplayModel)?.Model;
             string error = "";
-            _regionDisplaysModel.Model.RemoveRegionGroup((RegionGroup)item, ref error);
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Are sure want to delete the region group \"{item.Name}\"?",
+                "Confirm Deletion", System.Windows.MessageBoxButton.YesNoCancel);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                _regionDisplaysModel.Model.RemoveRegionGroup((RegionGroup)item, ref error);
+            }
 
         }
 
@@ -359,7 +376,7 @@ namespace XTMF.Gui.UserControls
             var display = (RegionsComboBox.SelectedItem as RegionDisplayModel)?.Model;
 
             string error = "";
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Are sure want to delete the region display \"{display.Name}\"?", 
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Are sure want to delete the region display \"{display.Name}\"?",
                 "Confirm Deletion", System.Windows.MessageBoxButton.YesNoCancel);
             if (messageBoxResult == MessageBoxResult.Yes)
             {

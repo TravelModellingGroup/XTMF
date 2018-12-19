@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,13 +11,14 @@ namespace XTMF
     /// <summary>
     /// 
     /// </summary>
-    public class RegionGroup : IRegionGroup
+    public class RegionGroup : IRegionGroup, INotifyPropertyChanged
     {
         private string _name;
 
         private List<IModelSystemStructure> _modules;
 
         public event EventHandler ModulesUpdated;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public RegionDisplay ParentDisplay { get; set; }
 
@@ -29,6 +31,8 @@ namespace XTMF
             set
             {
                 _name = value;
+                OnPropertyChanged(nameof(Name));
+
             }
         }
         public List<IModelSystemStructure> Modules {
@@ -50,6 +54,16 @@ namespace XTMF
         public void UpdateModules(IRegionGroup group)
         {
             ModulesUpdated?.Invoke(group,new EventArgs());
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        private void OnPropertyChanged(string name)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         /// <summary>

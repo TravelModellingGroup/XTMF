@@ -84,9 +84,11 @@ namespace XTMF.Gui.Models
     /// <summary>
     /// 
     /// </summary>
-    public class RegionGroupDisplayModel
+    public class RegionGroupDisplayModel : INotifyPropertyChanged
     {
         private IRegionGroup _model;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// 
@@ -102,7 +104,27 @@ namespace XTMF.Gui.Models
             }
 
             ((RegionGroup)group).ModulesUpdated += OnModulesUpdated;
+            ((RegionGroup)group).PropertyChanged += RegionGroupDisplayModel_PropertyChanged;
 
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionGroupDisplayModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            this.OnPropertyChanged(nameof(Model));
         }
 
         /// <summary>
