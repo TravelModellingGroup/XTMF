@@ -654,6 +654,10 @@ namespace Tasha.Scheduler
                 {
                     for(int id = range.Start; id <= range.Stop; id++)
                     {
+                        if(id < 0 || id >= ResultsArray.Length)
+                        {
+                            throw new XTMFRuntimeException(mod, $"Invalid Distribution ID number {id}.");
+                        }
                         var row = ResultsArray[id];
                         for(int i = 1; i < row.Length; i++)
                         {
