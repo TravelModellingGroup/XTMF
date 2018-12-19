@@ -54,6 +54,7 @@ namespace XTMF.Editing
                 Name = name
             };
 
+
             return _session.RunCommand(XTMFCommand.CreateCommand("New Region Display",
                 // on do
                 (ref string e) =>
@@ -79,6 +80,7 @@ namespace XTMF.Editing
                     return true;
                 }), ref error);
         }
+
 
         /// <summary>
         /// 
@@ -240,6 +242,7 @@ namespace XTMF.Editing
 
 
         }
+
 
         public ModelSystemStructureModel RootModelSystemStructureModel { get; set; }
 

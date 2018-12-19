@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,9 +17,11 @@ namespace XTMF.Gui.Models
     /// <summary>
     /// 
     /// </summary>
-    public class RegionDisplayModel
+    public class RegionDisplayModel: INotifyPropertyChanged
     {
         private IRegionDisplay _model;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<RegionGroupDisplayModel> Groups { get; set; }
 
@@ -40,8 +43,27 @@ namespace XTMF.Gui.Models
             {
                 Groups.Add(new RegionGroupDisplayModel(group));
             }
-
+           ((RegionDisplay)region).PropertyChanged += RegionDisplayModel_PropertyChanged;
             ((RegionDisplay)region).RegionGroups.CollectionChanged += RegionGroupsOnCollectionChanged;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionDisplayModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Model));
         }
 
         /// <summary>
@@ -130,7 +152,7 @@ namespace XTMF.Gui.Models
             Regions = new ObservableCollection<RegionDisplayModel>();
             this._model = model;
 
-            
+
             model.RegionViewsUpdated += ModelOnRegionViewsUpdated;
 
             foreach (var region in model.RegionDisplays)

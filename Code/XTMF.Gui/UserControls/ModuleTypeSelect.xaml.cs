@@ -276,20 +276,20 @@ namespace XTMF.Gui.UserControls
                 {
 
                     ModuleNameTextBlock.Text = selected.Name ?? "No Module Selected";
-                    var background = (SolidColorBrush)FindResource("MaterialDesignBackground");
+                    var background = (SolidColorBrush)FindResource("MaterialDesignPaper");
                     var body = (SolidColorBrush)FindResource("MaterialDesignBody");
-                    if (selected.Description != null)
+                    if (!string.IsNullOrEmpty(selected.Description))
                     {
 
                         var htmlString =
-                            $"<style>body{{ background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; " +
-                            $"font-family: \"Segoe UI\"; }}</style><body>{selected.Description}</body>";
+                            $"<style>body{{ font-size:14px; background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; " +
+                            $"font-family: \"Segoe UI\";overflow: hidden }}</style><body>{selected.Description}</body>";
                         ModuleDescriptionTextBlock.NavigateToString(htmlString);
                     }
                     else
                     {
                         var htmlString =
-                            $"<style>body{{ background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body></body>";
+                            $"<style>body{{font-size:14px; overflow: hidden; background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body>No description available.</body>";
                         ModuleDescriptionTextBlock.NavigateToString(htmlString);
 
                     }
@@ -331,10 +331,10 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModuleDescriptionTextBlock_OnLoaded(object sender, RoutedEventArgs e)
         {
-            var background = (SolidColorBrush)FindResource("MaterialDesignBackground");
+            var background = (SolidColorBrush)FindResource("MaterialDesignPaper");
             var body = (SolidColorBrush)FindResource("MaterialDesignBody");
             var htmlString =
-                $"<style>body{{ background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body></body>";
+                $"<style>body{{ overflow: hidden;background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body></body>";
             ModuleDescriptionTextBlock.NavigateToString(htmlString);
         }
 

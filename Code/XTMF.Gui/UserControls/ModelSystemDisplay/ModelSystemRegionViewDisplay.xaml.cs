@@ -168,15 +168,18 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RegionsComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Console.WriteLine(RegionsComboBox.SelectionBoxItem);
+
             if (RegionsComboBox.SelectedIndex >= 0)
             {
                 GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[RegionsComboBox.SelectedIndex].Groups;
                 RemoveRegionDisplayButton.IsEnabled = true;
+                EditRegionDisplayButton.IsEnabled = true;
             }
             else
             {
                 RemoveRegionDisplayButton.IsEnabled = false;
+                EditRegionDisplayButton.IsEnabled = false;
+                GroupDisplayList.ItemsSource = null;
             }
 
         }
@@ -415,6 +418,29 @@ namespace XTMF.Gui.UserControls
                 _modelSystemDisplay.TreeViewDisplay.ExpandToRoot(module);
             }));
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void EditRegionDisplayButton_Click(object sender, RoutedEventArgs e)
+        {
+            var display = (RegionsComboBox.SelectedItem as RegionDisplayModel)?.Model;
+            var dialog = new StringRequestDialog("Enter a new name for the region display.", s => s.Trim().Length > 0);
+            try
+            {
+                dialog.UserInput = display.Name;
+                var result = await dialog.ShowAsync(false);
+                var error = "";
+                display.Name = dialog.UserInput;
+                UpdateRegionDisplayList();
+            }
+            catch (Exception e2)
+            {
+                Console.WriteLine(e2.Message);
+            }
         }
     }
 }
