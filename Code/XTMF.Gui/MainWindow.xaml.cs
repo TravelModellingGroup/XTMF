@@ -76,6 +76,8 @@ namespace XTMF.Gui
 
         private bool LaunchUpdate;
 
+        private bool _isDialogOpen = false;
+
         public MainWindow()
         {
             ViewModelBase = new ViewModelBase();
@@ -171,7 +173,6 @@ namespace XTMF.Gui
                         projectDisplay.Session.EndSession();
                     }
 
-                    Console.WriteLine("h");
                 }
             }
 
@@ -509,19 +510,28 @@ namespace XTMF.Gui
         public async void NewProject()
         {
             var dialog = new StringRequestDialog("Project Name", ValidateName);
+            _isDialogOpen = true;
             var result = await dialog.ShowAsync();
+            
             if (dialog.DidComplete)
             {
                 var name = dialog.UserInput;
                 string error = null;
+                _isDialogOpen = false;
                 var ms = EditorController.Runtime.ProjectController.LoadOrCreate(name, ref error);
                 EditProject(EditorController.Runtime.ProjectController.EditProject(ms));
                 EditorController.Runtime.Configuration.AddRecentProject(ms.Name);
                 EditorController.Runtime.Configuration.Save();
                 UpdateRecentProjectsMenu();
             }
+            _isDialogOpen = false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         private bool ValidateName(string name)
         {
             return Project.ValidateProjectName(name);
@@ -558,6 +568,10 @@ namespace XTMF.Gui
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
@@ -836,7 +850,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void MainWindow_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (DrawerHost.IsLeftDrawerOpen && e.Key != Key.LeftAlt && e.Key != Key.RightAlt)
+            if (DrawerHost.IsLeftDrawerOpen && e.Key != Key.LeftAlt && e.Key != Key.RightAlt && !_isDialogOpen)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
                 e.Handled = true;
@@ -902,7 +916,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void DrawerHost_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape && DrawerHost.IsLeftDrawerOpen)
+            if (e.Key == Key.Escape && DrawerHost.IsLeftDrawerOpen && !_isDialogOpen)
             {
                 DrawerHost.IsLeftDrawerOpen = false;
             }
