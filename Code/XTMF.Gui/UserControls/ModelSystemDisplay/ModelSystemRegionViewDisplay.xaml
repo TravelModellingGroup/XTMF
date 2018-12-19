@@ -55,12 +55,12 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button Grid.Column="1" Name="AddRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}"
+            <Button Grid.Column="1" Name="AddRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Create new region display"
                     Click="AddRegionDisplayButton_OnClick">
                 <materialDesign:PackIcon Kind="PlusCircleOutline" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
             </Button>
-            <Button Grid.Column="2" Name="RemoveRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}"
+            <Button Grid.Column="2" Name="RemoveRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Remove current region display"
                     Click="RemoveRegionDisplayButton_OnClick" Foreground="{DynamicResource SecondaryAccentBrush}" IsEnabled="False" >
                 <materialDesign:PackIcon Kind="TableRowRemove" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
