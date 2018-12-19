@@ -258,7 +258,16 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RegionGroupHeader_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var element = sender as FrameworkElement;
+            ToggleRegionGroupRename(sender as FrameworkElement);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="regionHeaderElement"></param>
+        private void ToggleRegionGroupRename(FrameworkElement regionHeaderElement)
+        {
+            var element = regionHeaderElement as FrameworkElement;
             var headerTextInput = element.FindChild<TextBox>("HeaderTextInput");
             var headerText = element.FindChild<TextBlock>("HeaderText");
             Dispatcher.BeginInvoke(new Action(() =>
@@ -303,6 +312,7 @@ namespace XTMF.Gui.UserControls
                     }));
                 }
             }
+            
         }
 
         /// <summary>
@@ -350,6 +360,39 @@ namespace XTMF.Gui.UserControls
                 _regionDisplaysModel.Model.RemoveRegionDisplay((RegionDisplay) display, ref error);
             }
 
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionGroupGroupBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            (sender as FrameworkElement)?.Focus();
+            Keyboard.Focus(sender as FrameworkElement);
+            FocusManager.SetFocusedElement(GroupDisplay, sender as FrameworkElement);
+            Console.WriteLine((sender as FrameworkElement).IsFocused);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UserControl_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F2)
+            {
+                var element = FocusManager.GetFocusedElement(GroupDisplay);
+                if (element is GroupBox groupBox)
+                {
+                    ToggleRegionGroupRename(groupBox.Header as FrameworkElement);
+                }
+                e.Handled = true;
+            }
+            return;
         }
     }
 }
