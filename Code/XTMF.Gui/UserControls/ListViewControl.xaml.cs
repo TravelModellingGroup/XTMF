@@ -178,7 +178,7 @@ namespace XTMF.Gui.UserControls
             set
             {
                 SetValue(TitleTextDependencyProperty, value);
-                Title.Content = value;
+                Title.Text = value;
             }
         }
 
@@ -194,7 +194,7 @@ namespace XTMF.Gui.UserControls
             set
             {
                 StatusTextLabel.Visibility = string.IsNullOrEmpty(value) ?
-                    Visibility.Visible : Visibility.Collapsed;
+                    Visibility.Collapsed : Visibility.Visible;
                 SetValue(StatusTextDependencyProperty, value);
             }
         }

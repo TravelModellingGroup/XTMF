@@ -58,15 +58,15 @@
                 </Grid>
 
         </Border>
-        <StackPanel Margin="8,0,0,0" Orientation="Vertical" Grid.Column="1">
-            <Label Margin="0,8,0,0" Height="20" Padding="0" FontWeight="Bold" Name="Title"  Foreground="{DynamicResource MaterialDesignBody}"
-                   Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=TitleText,Mode=TwoWay}" ></Label>
-            <Label Height="20" Padding="0" Name="SubTextLabel" 
+        <StackPanel Margin="8,0,0,0" Orientation="Vertical" Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Margin="0,0,0,0" Padding="0" FontWeight="Bold" Name="Title" 
+                   Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=TitleText,Mode=TwoWay}" ></TextBlock>
+                <TextBlock  Padding="0" Name="SubTextLabel" 
                    
-                   Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=SubText,Mode=TwoWay}"></Label>
-            <Label Height="20" Padding="0" Name="StatusTextLabel" 
-                   Visibility="Visible" Opacity="0.7"
-                   Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=StatusText,Mode=TwoWay}" FontStyle="Italic"></Label>
+                   Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=SubText,Mode=TwoWay}"></TextBlock>
+                <TextBlock  Padding="0" Name="StatusTextLabel" 
+                   Visibility="Collapsed" Opacity="0.7"
+                   Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=StatusText,Mode=TwoWay}" FontStyle="Italic"></TextBlock>
 
         </StackPanel>
     </Grid>

@@ -899,7 +899,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        private void RemoveModuleMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             this._display.RemoveSelectedModules();
         }

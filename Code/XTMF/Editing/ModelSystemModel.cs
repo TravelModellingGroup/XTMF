@@ -41,6 +41,8 @@ namespace XTMF
 
         public RegionDisplaysModel RegionDisplaysModel { get; private set; }
 
+        public int ModelSystemModuleCount { get; set; } = 0;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         internal ModelSystemStructure ClonedModelSystemRoot { get { return Root.RealModelSystemStructure; } }
@@ -240,11 +242,20 @@ namespace XTMF
             return quickParameters;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newMSS"></param>
         internal void SetRoot(ModelSystemStructure newMSS)
         {
             
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="quickParameters"></param>
+        /// <param name="current"></param>
         private void AddQuickParameters(ObservableCollection<ParameterModel> quickParameters, ModelSystemStructureModel current)
         {
             var parameters = current.Parameters.Parameters;
@@ -274,6 +285,12 @@ namespace XTMF
         /// <param name="error">The reason why changing the name failed.</param>
         public bool ChangeModelSystemName(string newName, ref string error) => Root.SetName(newName, ref error);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selected"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public bool Remove(ModelSystemStructureModel selected, ref string error)
         {
             if (selected.IsCollection)
@@ -283,6 +300,14 @@ namespace XTMF
             return Remove(Root, null, selected, ref error);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="previous"></param>
+        /// <param name="selected"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         private bool Remove(ModelSystemStructureModel current, ModelSystemStructureModel previous, ModelSystemStructureModel selected, ref string error)
         {
             if (current == selected)

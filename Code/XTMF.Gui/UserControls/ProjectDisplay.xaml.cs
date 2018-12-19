@@ -994,10 +994,23 @@ namespace XTMF.Gui.UserControls
                     {
                         if (ModelSystemStructure.LastModified.Year > 1)
                         {
-                            return ModelSystemStructure.LastModified.ToString("dddd, dd MMMM yyyy H:mm tt");
+                            return ModelSystemStructure.LastModified.ToString("dddd, dd MMMM yyyy");
                         }
 
                         return "N/A";
+                    }
+                }
+
+                public string LastModifiedTime
+                {
+                    get
+                    {
+                        if (ModelSystemStructure.LastModified.Year > 1)
+                        {
+                            return ModelSystemStructure.LastModified.ToString("H:mm tt");
+                        }
+
+                        return "";
                     }
                 }
 

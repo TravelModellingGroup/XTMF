@@ -52,7 +52,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void RegionDisplaysOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-           
+
         }
 
         /// <summary>
@@ -94,13 +94,13 @@ namespace XTMF.Gui.UserControls
 
                 if (_regionDisplaysModel.Regions.Count > 0)
                 {
-                    
+
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         RegionsComboBox.SelectedIndex = 0;
                         GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[0].Groups;
                     }));
-                    
+
                 }
             });
         }
@@ -201,7 +201,7 @@ namespace XTMF.Gui.UserControls
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                ModelSystemStructure m = (ModelSystemStructure) ((ListBox) sender).SelectedItem;
+                ModelSystemStructure m = (ModelSystemStructure)((ListBox)sender).SelectedItem;
                 if (m == null)
                 {
                     return;
@@ -218,16 +218,17 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModuleItem_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            Dispatcher.BeginInvoke(new Action(() => {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
                 ListBox view = (ListBox)((TextBlock)sender as TextBlock).Tag;
                 ;
                 ModelSystemStructure m = (ModelSystemStructure)((ListBox)view).SelectedItem;
                 ActiveModule = this._modelSystemDisplay.ModelSystemDisplayModelMap[m];
-                
+
                 Dispatcher.Invoke(() =>
                 {
                     ActiveModule.IsSelected = true;
-                   // this._modelSystemDisplay.StatusBarModuleNameTextBlock.Text = $"{ActiveModule.BaseModel.Type} [{ActiveModule.Name}]";
+                    // this._modelSystemDisplay.StatusBarModuleNameTextBlock.Text = $"{ActiveModule.BaseModel.Type} [{ActiveModule.Name}]";
                 });
             }));
 
@@ -243,7 +244,7 @@ namespace XTMF.Gui.UserControls
             MenuItem element = (MenuItem)e.Source;
             ModelSystemStructure model = element.Tag as ModelSystemStructure;
 
-            var target = (FrameworkElement)((FrameworkElement) ((ContextMenu) element.Parent).PlacementTarget).Tag;
+            var target = (FrameworkElement)((FrameworkElement)((ContextMenu)element.Parent).PlacementTarget).Tag;
 
             var target2 = target.Tag as RegionGroupDisplayModel;
             target2.Model.Modules.Remove(model);
@@ -312,7 +313,7 @@ namespace XTMF.Gui.UserControls
                     }));
                 }
             }
-            
+
         }
 
         /// <summary>
@@ -322,7 +323,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void HeaderTextInput_OnLostFocus(object sender, RoutedEventArgs e)
         {
-            var element = ((FrameworkElement) sender).Parent;
+            var element = ((FrameworkElement)sender).Parent;
             var headerTextInput = element.FindChild<TextBox>("HeaderTextInput");
             var headerText = element.FindChild<TextBlock>("HeaderText");
             Dispatcher.BeginInvoke(new Action(() =>
@@ -342,7 +343,7 @@ namespace XTMF.Gui.UserControls
             var item = ((sender as FrameworkElement)?.Tag as RegionGroupDisplayModel)?.Model;
             string error = "";
             _regionDisplaysModel.Model.RemoveRegionGroup((RegionGroup)item, ref error);
-            
+
         }
 
         /// <summary>
@@ -355,9 +356,13 @@ namespace XTMF.Gui.UserControls
             var display = (RegionsComboBox.SelectedItem as RegionDisplayModel)?.Model;
 
             string error = "";
-            if (display != null)
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Are sure want to delete the region display \"{display.Name}\"?", "Confirm Deletion", System.Windows.MessageBoxButton.YesNoCancel);
+            if (messageBoxResult == MessageBoxResult.Yes)
             {
-                _regionDisplaysModel.Model.RemoveRegionDisplay((RegionDisplay) display, ref error);
+                if (display != null)
+                {
+                    _regionDisplaysModel.Model.RemoveRegionDisplay((RegionDisplay)display, ref error);
+                }
             }
 
         }

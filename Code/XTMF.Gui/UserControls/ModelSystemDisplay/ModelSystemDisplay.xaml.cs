@@ -697,6 +697,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
+        /// Sets, repalces, or adds a module to the currently selected module.
         /// </summary>
         internal void SelectReplacement()
         {
@@ -946,10 +947,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void Dialog_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
 
         public void Redo()
         {

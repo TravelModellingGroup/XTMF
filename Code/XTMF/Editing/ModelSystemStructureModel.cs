@@ -74,6 +74,12 @@ namespace XTMF
 
         public bool CanDisable => !RealModelSystemStructure.Required;
 
+        /// <summary>
+        /// Toggles disable status on this module.
+        /// </summary>
+        /// <param name="disabled"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public bool SetDisabled(bool disabled, ref string error)
         {
             var oldValue = RealModelSystemStructure.IsDisabled;
@@ -1169,7 +1175,9 @@ namespace XTMF
                     return Children;
                 }
 
-                return new ObservableCollection<ModelSystemStructureModel>();
+                var children = new ObservableCollection<ModelSystemStructureModel>();
+
+                return children;
             }
 
             ObservableCollection<ModelSystemStructureModel> ret;
@@ -1228,6 +1236,8 @@ namespace XTMF
 
             return ret;
         }
+
+
 
         private sealed class MoveChildData
         {

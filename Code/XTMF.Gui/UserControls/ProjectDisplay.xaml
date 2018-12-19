@@ -29,6 +29,11 @@
              Focusable="True" SnapsToDevicePixels="True"
              Background="{DynamicResource MaterialDesignPaper}"
              d:DesignHeight="400" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -103,97 +108,161 @@
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" HorizontalAlignment="Stretch">
                     <Grid Grid.Column="0" HorizontalAlignment="Stretch">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="AUTO"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <materialDesign:ColorZone Width="Auto"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="AUTO"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <materialDesign:ColorZone Width="Auto"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                               Margin="12 12 12 12"
                                               materialDesign:ShadowAssist.ShadowDepth="Depth4">
-                        <Grid HorizontalAlignment="Stretch">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
-                                <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                            </Button>
-                            <my:FilterBox Grid.Column="1" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
-                            <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2" />
-                        </Grid>
-                    </materialDesign:ColorZone>
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                </Button>
+                                <my:FilterBox Grid.Column="1" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
+                                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2" />
+                            </Grid>
+                        </materialDesign:ColorZone>
 
 
-                    <DockPanel 
+                        <DockPanel 
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Width="Auto"
                         ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
                         Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" VerticalAlignment="Stretch" >
-                        <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
-                        <DataGrid PreviewKeyDown="ModelSystemsDataGrid_OnPreviewKeyDown" KeyDown="ModelSystemsDataGrid_OnKeyDown" Focusable="True" VerticalContentAlignment="Center" Name="ModelSystemsDataGrid"  MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" VerticalAlignment="Stretch" 
+                            <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
+                            <DataGrid PreviewKeyDown="ModelSystemsDataGrid_OnPreviewKeyDown" KeyDown="ModelSystemsDataGrid_OnKeyDown" Focusable="True" VerticalContentAlignment="Center" Name="ModelSystemsDataGrid"  MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" VerticalAlignment="Stretch" 
                             PreviewMouseLeftButtonDown="ModelSystemDisplay_OnPreviewMouseLeftButtonDown"   Margin="0 8 0 0" ItemsSource="{Binding Items3}" CanUserSortColumns="True" CanUserAddRows="False" AutoGenerateColumns="False"
+  
                                   materialDesign:DataGridAssist.CellPadding="13 8 8 8" materialDesign:DataGridAssist.ColumnHeaderPadding="8" Width="Auto" HorizontalContentAlignment="Stretch">
-                            <DataGrid.Columns>
-                                <DataGridTemplateColumn Header="Model System" CanUserSort="True">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <xtmf:ListViewControl IconKind="CubeOutline" TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch" IsPathIcon="False"
+                                <DataGrid.CellStyle>
+                                    <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+
+                                        <Setter Property="BorderBrush" Value="Transparent"></Setter>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type DataGridCell}">
+                                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                                        <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                          Margin="{TemplateBinding Padding}"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                            </Trigger>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="IsSelected" Value="True"/>
+                                                    <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                </MultiTrigger.Conditions>
+                                                <Setter Property="Background" Value="{DynamicResource MaterialDesignSelection}"/>
+                                            </MultiTrigger>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="IsSelected" Value="True"/>
+                                                    <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                </MultiTrigger.Conditions>
+                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                                <Setter Property="Background" Value="{DynamicResource MaterialDesignSelection}" />
+                                            </MultiTrigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Opacity" Value=".56"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+
+                                </DataGrid.CellStyle>
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+
+                                        <Setter Property="Background" Value="Transparent"></Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource MaterialDesignSelection}" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource MaterialDesignSelection}" />
+                                            </Trigger>
+                                            <Trigger Property="IsNewItem" Value="True">
+                                                <Setter Property="Margin" Value="{Binding NewItemMargin, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+
+                                    </Style>
+                                </DataGrid.RowStyle>
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Model System" CanUserSort="True">
+
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <xtmf:ListViewControl IconKind="CubeOutline" TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch" IsPathIcon="False" VerticalAlignment="Center" VerticalContentAlignment="Center"
                                                           SubText="{Binding Description, Mode=OneWay}" StatusText="{Binding StatusText, Mode=OneWay}">
-                                                <xtmf:ListViewControl.ContextMenu>
-                                                    <ContextMenu Tag="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}"  >
-                                                        <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
-                                                            <MenuItem.Icon>
-                                                                <ContentControl Template="{DynamicResource RefreshIcon}" />
-                                                            </MenuItem.Icon>
-                                                        </MenuItem>
-                                                        <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
-                                                            <MenuItem.Icon>
-                                                                <ContentControl Template="{DynamicResource CancelIcon}" />
-                                                            </MenuItem.Icon>
-                                                        </MenuItem>
-                                                        <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
-                                                            <MenuItem.Icon>
-                                                                <ContentControl Template="{DynamicResource SaveIcon}" />
-                                                            </MenuItem.Icon>
-                                                        </MenuItem>
-                                                        <MenuItem Header="Export Model System As (Ctrl+S)" Click="ExportModelSystemAs_Click">
-                                                            <MenuItem.Icon>
-                                                                <ContentControl Template="{DynamicResource SaveIcon}" />
-                                                            </MenuItem.Icon>
-                                                        </MenuItem>
-                                                        <MenuItem Header="Copy Model System (Ctrl+C)" Click="CopyModelSystem_Click">
-                                                            <MenuItem.Icon>
-                                                                <ContentControl Template="{DynamicResource CopyIcon}" />
-                                                            </MenuItem.Icon>
-                                                        </MenuItem>
-                                                        <MenuItem Header="Paste As New Model System (Ctrl+V)" Click="PasteModelSystem_OnClick"
+                                                    <xtmf:ListViewControl.ContextMenu>
+                                                        <ContextMenu Tag="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}"  >
+                                                            <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
+                                                                <MenuItem.Icon>
+                                                                    <ContentControl Template="{DynamicResource RefreshIcon}" />
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                            <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
+                                                                <MenuItem.Icon>
+                                                                    <ContentControl Template="{DynamicResource CancelIcon}" />
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                            <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
+                                                                <MenuItem.Icon>
+                                                                    <ContentControl Template="{DynamicResource SaveIcon}" />
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                            <MenuItem Header="Export Model System As (Ctrl+S)" Click="ExportModelSystemAs_Click">
+                                                                <MenuItem.Icon>
+                                                                    <ContentControl Template="{DynamicResource SaveIcon}" />
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                            <MenuItem Header="Copy Model System (Ctrl+C)" Click="CopyModelSystem_Click">
+                                                                <MenuItem.Icon>
+                                                                    <ContentControl Template="{DynamicResource CopyIcon}" />
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                            <MenuItem Header="Paste As New Model System (Ctrl+V)" Click="PasteModelSystem_OnClick"
                                                     IsEnabled="{Binding DataContext.IsCanPasteModelSystem, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                                            <MenuItem.Icon>
-                                                                <ContentControl Template="{DynamicResource PasteIcon}" />
-                                                            </MenuItem.Icon>
-                                                        </MenuItem>
-                                                    </ContextMenu>
-                                                </xtmf:ListViewControl.ContextMenu>
-                                                <xtmf:ListViewControl.IconPath>
-                                                    <Path Data="{DynamicResource ModelSystemIconPath}"/>
-                                                </xtmf:ListViewControl.IconPath>
-                                            </xtmf:ListViewControl>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Last Modified" CanUserSort="True" >
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
+                                                                <MenuItem.Icon>
+                                                                    <ContentControl Template="{DynamicResource PasteIcon}" />
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                        </ContextMenu>
+                                                    </xtmf:ListViewControl.ContextMenu>
+                                                    <xtmf:ListViewControl.IconPath>
+                                                        <Path Data="{DynamicResource ModelSystemIconPath}"/>
+                                                    </xtmf:ListViewControl.IconPath>
+                                                </xtmf:ListViewControl>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Last Modified" CanUserSort="True" >
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
 
-                                            <Label VerticalAlignment="Stretch" VerticalContentAlignment="Center" Content="{Binding LastModified}" ></Label>
+                                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                    <TextBlock VerticalAlignment="Center" Text="{Binding LastModifiedTime}" ></TextBlock>
+                                                    <TextBlock VerticalAlignment="Center" Text="{Binding LastModified}" ></TextBlock>
+                                                </StackPanel>
+                                                
 
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
 
-                        <!--
+                            <!--
                                 <xtmf:ModelSystemListView PreviewMouseLeftButtonDown="ModelSystemDisplay_OnPreviewMouseLeftButtonDown"  BorderBrush="{x:Null}" MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource XtmfListBoxItemNoDuration}">
@@ -255,8 +324,8 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </xtmf:ModelSystemListView> -->
-                    </DockPanel>
-                </Grid>
+                        </DockPanel>
+                    </Grid>
                 </Grid>
                 <GridSplitter  Grid.Column="1" Width="2" Background="{DynamicResource MaterialDesignBackground}" HorizontalAlignment="Stretch"></GridSplitter>
                 <Grid  Grid.Column="2" Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch">
@@ -293,7 +362,7 @@
                                 <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
                             </Style>
                         </ListView.ItemContainerStyle>
-                       
+
                         <ListBox.ItemsPanel>
 
                             <ItemsPanelTemplate>
@@ -306,7 +375,7 @@
                                     <xtmf:ListViewControl.PackIconOverlap>
                                         <xtmf:PackIconOverlap IconKind="Run" IconKindMinor="AvTimer" Width="32" Height="32"></xtmf:PackIconOverlap>
                                     </xtmf:ListViewControl.PackIconOverlap>
-                                    
+
                                 </xtmf:ListViewControl >
                             </DataTemplate>
                         </ListBox.ItemTemplate>
