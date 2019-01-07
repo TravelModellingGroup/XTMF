@@ -49,9 +49,23 @@ namespace XTMF.Gui.UserControls
 
         public ItemsControl ViewItemsControl => GroupDisplayList;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsNewGroupButtonEnabled
         {
-            get { return this.RegionsComboBox.SelectedIndex >= 0 && this.RegionsComboBox.Items.Count >= 0; }
+            get
+            
+            {
+                if (RegionsComboBox.Items.Count <= 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return this.RegionsComboBox.SelectedIndex >= 0 && this.RegionsComboBox.Items.Count >= 0;
+                }
+            }
             set => OnPropertyChanged(nameof(IsNewGroupButtonEnabled));
         }
 
@@ -65,6 +79,8 @@ namespace XTMF.Gui.UserControls
 
             NewGroupButton.DataContext = this;
             RegionsComboBox.DataContext = this;
+
+            IsNewGroupButtonEnabled = false;
         }
 
         /// <summary>
