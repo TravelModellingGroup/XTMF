@@ -47,7 +47,7 @@
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
             </Grid.ColumnDefinitions>
-            <ComboBox SelectionChanged="RegionsComboBox_OnSelectionChanged" Margin="30 0 15 0" DockPanel.Dock="Left"
+            <ComboBox SelectionChanged="RegionsComboBox_OnSelectionChanged" Margin="30 0 15 0" DockPanel.Dock="Left" IsEnabled="{Binding IsNewGroupButtonEnabled}"
                       Grid.Column="0" Name="RegionsComboBox" ItemsSource="{Binding Regions}"
                       Style="{StaticResource MaterialDesignComboBox}">
                 <ComboBox.ItemTemplate>
@@ -163,7 +163,7 @@
                 </ListBox.ItemTemplate>
 
             </ListView>
-            <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Name="NewGroupButton"
+            <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Name="NewGroupButton" IsEnabled="{Binding IsNewGroupButtonEnabled}"
                     Click="NewGroupButton_OnClick">
                 <StackPanel Orientation="Horizontal">
                     <materialDesign:PackIcon Kind="LibraryAdd" VerticalAlignment="Center" Margin="0 0 5 0"

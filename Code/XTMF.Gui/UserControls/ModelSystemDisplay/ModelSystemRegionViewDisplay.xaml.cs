@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 using XTMF.Editing;
+using XTMF.Gui.Annotations;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
 using XTMF.Interfaces;
@@ -16,7 +19,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for ModelSystemRegionViewDisplay.xaml
     /// </summary>
-    public partial class ModelSystemRegionViewDisplay : UserControl, IModelSystemView
+    public partial class ModelSystemRegionViewDisplay : UserControl, IModelSystemView, INotifyPropertyChanged
     {
         private readonly ModelSystemDisplay _modelSystemDisplay;
 
@@ -46,6 +49,24 @@ namespace XTMF.Gui.UserControls
 
         public ItemsControl ViewItemsControl => GroupDisplayList;
 
+        public bool IsNewGroupButtonEnabled
+        {
+            get { return this.RegionsComboBox.SelectedIndex >= 0 && this.RegionsComboBox.Items.Count >= 0; }
+            set => OnPropertyChanged(nameof(IsNewGroupButtonEnabled));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+
+            NewGroupButton.DataContext = this;
+            RegionsComboBox.DataContext = this;
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
@@ -63,7 +84,7 @@ namespace XTMF.Gui.UserControls
             ModelSystemEditingSessionChangedEventArgs e)
         {
             _modelSystemEditingSession = e.Session;
-
+            IsNewGroupButtonEnabled = false;
             _regionDisplaysModel = new RegionDisplaysDisplayModel(_modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel);
 
             _regionDisplaysModel.Model.RegionViewGroupsUpdated += RegionDisplaysModelOnRegionViewGroupsUpdated;
@@ -71,6 +92,8 @@ namespace XTMF.Gui.UserControls
             UpdateRegionDisplayList();
 
             _regionDisplaysModel.Regions.CollectionChanged += RegionDisplaysOnCollectionChanged;
+
+           
         }
 
         /// <summary>
@@ -101,6 +124,10 @@ namespace XTMF.Gui.UserControls
                         GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[0].Groups;
                     }));
 
+                }
+                else
+                {
+                    IsNewGroupButtonEnabled = false;
                 }
             });
         }
@@ -174,12 +201,14 @@ namespace XTMF.Gui.UserControls
                 GroupDisplayList.ItemsSource = _regionDisplaysModel.Regions[RegionsComboBox.SelectedIndex].Groups;
                 RemoveRegionDisplayButton.IsEnabled = true;
                 EditRegionDisplayButton.IsEnabled = true;
+                IsNewGroupButtonEnabled = true;
             }
             else
             {
                 RemoveRegionDisplayButton.IsEnabled = false;
                 EditRegionDisplayButton.IsEnabled = false;
                 GroupDisplayList.ItemsSource = null;
+                IsNewGroupButtonEnabled = false;
             }
 
         }
@@ -472,6 +501,14 @@ namespace XTMF.Gui.UserControls
             var p = menuItem.TemplatedParent;
             ToggleRegionGroupRename(p as FrameworkElement);
             return;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
