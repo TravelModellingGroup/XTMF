@@ -24,7 +24,8 @@ namespace XTMF.Gui.UserControls
         private readonly ModelSystemDisplay _modelSystemDisplay;
 
         private ModelSystemEditingSession _modelSystemEditingSession;
-
+  
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private RegionDisplaysDisplayModel _regionDisplaysModel;
 
@@ -519,8 +520,11 @@ namespace XTMF.Gui.UserControls
             return;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyName"></param>
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
