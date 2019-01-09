@@ -135,6 +135,10 @@ namespace Tasha.Network
                     return false;
                 }
                 var index = (NumberOfZones * flatO + flatD) * (NumberOfDataTypes);
+                if(Data == null)
+                {
+                    throw new XTMFRuntimeException(this, "Network data was accessed before it was loaded!");
+                }
                 travelTime = Data[index + TravelTimeIndex];
                 travelCost = Data[index + CostIndex];
                 return true;

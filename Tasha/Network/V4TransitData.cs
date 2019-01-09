@@ -145,6 +145,10 @@ namespace Tasha.Network
             {
                 var data = Data;
                 var index = (NumberOfZones * flatO + flatD) * NumberOfDataTypes;
+                if(data == null)
+                {
+                    throw new XTMFRuntimeException(this, "Network data was accessed before it was loaded!");
+                }
                 travelTime = data[index + TravelTimeIndex];
                 waitTime = data[index + WaitTimeIndex];
                 walkTime = data[index + WalkTimeIndex];
