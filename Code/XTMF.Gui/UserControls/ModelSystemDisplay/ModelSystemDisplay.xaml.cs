@@ -727,6 +727,7 @@ namespace XTMF.Gui.UserControls
                             () =>
                             {
                                 foreach (var selectedModule in CurrentlySelected.ToList())
+                                {
                                     if (selectedModule.BaseModel.IsCollection)
                                     {
                                         string error = null;
@@ -747,8 +748,26 @@ namespace XTMF.Gui.UserControls
                                         selectedModule.Type = selectedType;
                                         selectedModule.IsExpanded = true;
                                     }
+
+                                    // selectedModule.BackingDisplayModel.PropertyChanged()
+                                }
+
                             });
                         CanSaveModelSystem = true;
+                        Dispatcher.Invoke(() =>
+                        {
+                            if (CurrentlySelected.Count == 1)
+                            {
+                                this.StatusBarModuleNameTextBlock.Text = $"{CurrentlySelected[0].BaseModel.Type} [{CurrentlySelected[0].Name}]";
+                            }
+                            else if (this.CurrentlySelected.Count > 1)
+                            {
+                                this.StatusBarModuleNameTextBlock.Text =
+                                    $"{this.CurrentlySelected.Count} modules selected.";
+                            }
+
+                        });
+
                         RefreshParameters();
                     }
                 }

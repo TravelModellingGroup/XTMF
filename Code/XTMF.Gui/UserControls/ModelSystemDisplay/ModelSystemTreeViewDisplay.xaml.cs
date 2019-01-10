@@ -153,7 +153,17 @@ namespace XTMF.Gui.UserControls
 
                 Dispatcher.Invoke(() =>
                 {
-                    this._display.StatusBarModuleNameTextBlock.Text = $"{module.BaseModel.Type} [{module.Name}]";
+                    if (this._display.CurrentlySelected.Count == 1)
+                    {
+                        this._display.StatusBarModuleNameTextBlock.Text = $"{module.BaseModel.Type} [{module.Name}]";
+                    }
+                    else if (this._display.CurrentlySelected.Count > 1)
+                    {
+                        this._display.StatusBarModuleNameTextBlock.Text =
+                            $"{this._display.CurrentlySelected.Count} modules selected.";
+                    }
+
+
                 });
 
             }
@@ -312,7 +322,7 @@ namespace XTMF.Gui.UserControls
         private void RegionGroupMenuItem_Click(object sender, RoutedEventArgs e)
         {
             string error = "";
-            var group = (RegionGroup) ((MenuItem) e.Source).Tag;
+            var group = (RegionGroup)((MenuItem)e.Source).Tag;
             var module = SelectedModule.BaseModel.RealModelSystemStructure;
             this._display.ModelSystemDisplayModelMap[SelectedModule.BaseModel.RealModelSystemStructure] = SelectedModule;
             _regionDisplaysModel.AddModuleToGroup(group, module, ref error);
@@ -1004,7 +1014,7 @@ namespace XTMF.Gui.UserControls
             var oldPosition = 0;
             int idx = 0;
 
-            
+
 
             foreach (var sibling in siblings)
             {
@@ -1075,15 +1085,15 @@ namespace XTMF.Gui.UserControls
                 return;
             }
             var siblings = module.GetSiblingModuleTreeViewItems();
-            
+
             bool isUp = IsModuleMoveOrderUp(module);
-            var dragOverTarget = this.GetDragOverItem(module,isUp,e);
+            var dragOverTarget = this.GetDragOverItem(module, isUp, e);
 
             if (dragOverTarget != module)
             {
-                
 
-                ShowModuleMoveAdorner(dragOverTarget,isUp);
+
+                ShowModuleMoveAdorner(dragOverTarget, isUp);
 
             }
 
@@ -1117,7 +1127,7 @@ namespace XTMF.Gui.UserControls
                 {
                     moveAdorner.SetMoveDownAdorner();
                 }
-               moveAdorner.Visibility = Visibility.Visible;
+                moveAdorner.Visibility = Visibility.Visible;
             }
         }
 
@@ -1129,7 +1139,7 @@ namespace XTMF.Gui.UserControls
         private bool IsModuleMoveOrderUp(ModuleTreeViewItem module)
         {
             var mousePosition = Mouse.GetPosition(module);
-            if (mousePosition.Y - (module.RenderSize.Height/2) < 0)
+            if (mousePosition.Y - (module.RenderSize.Height / 2) < 0)
             {
                 return true;
             }
@@ -1165,9 +1175,9 @@ namespace XTMF.Gui.UserControls
             {
                 var mousePosition = e.GetPosition(moduleSibling);
 
-              
 
-           
+
+
                 if (isOrderUp)
                 {
                     mousePosition.Y += (int)(moduleSibling.ActualHeight / 2.0);
@@ -1211,7 +1221,7 @@ namespace XTMF.Gui.UserControls
         private void UserControl_MouseMove(object sender, MouseEventArgs e)
         {
             p = e.GetPosition(this);
-           
+
         }
     }
 }

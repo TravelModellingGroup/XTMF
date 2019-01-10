@@ -199,6 +199,36 @@ namespace XTMF.Gui.UserControls
                 PackIcon.Visibility = Visibility.Visible;
 
             }
+            else if (!BackingModel.BaseModel.IsMetaModule && !BackingModel.BaseModel.IsCollection)
+            {
+                IconPath = new Path
+                {
+                    Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"],
+                };
+                if (hasCustomIcon)
+                {
+                    PackIcon.IconKind = iconKind;
+                    IconPath.Visibility = Visibility.Hidden;
+                    PathBorder.Visibility = Visibility.Collapsed;
+                    PackIcon.Visibility = Visibility.Visible;
+
+                }
+                else
+                {
+                    PackIcon.IconKind = PackIconKind.Settings;
+                    PackIcon.Visibility = Visibility.Collapsed;
+                    PathBorder.Visibility = Visibility.Visible;
+
+
+                }
+
+            }
+            else if (BackingModel.BaseModel.IsCollection)
+            {
+                IconPath = new Path { Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"] };
+                PathBorder.Visibility = Visibility.Visible;
+                //PackIcon.Kind = PackIconKind.ViewList;
+            }
         }
 
         /// <summary>
@@ -294,12 +324,12 @@ namespace XTMF.Gui.UserControls
                 //PackIcon.Kind = PackIconKind.ViewList;
             }
 
-            var ammount = BackingModel.BaseModel.IsDisabled ? 0.4 : 1.0;
-            SubTextLabel.Opacity = ammount;
-            Title.Opacity = ammount;
+            var amount = BackingModel.BaseModel.IsDisabled ? 0.4 : 1.0;
+            SubTextLabel.Opacity = amount;
+            Title.Opacity = amount;
             if (IconPath != null)
             {
-                IconPath.Opacity = ammount;
+                IconPath.Opacity = amount;
             }
 
             SetupColours();
@@ -370,11 +400,16 @@ namespace XTMF.Gui.UserControls
                 case "IsDisabled":
                     if (BackingModel != null)
                     {
-                        var ammount = BackingModel.BaseModel.IsDisabled ? 0.4 : 1.0;
-                        SubTextLabel.Opacity = ammount;
-                        Title.Opacity = ammount;
-                        IconPath.Opacity = ammount;
+                        var amount = BackingModel.BaseModel.IsDisabled ? 0.4 : 1.0;
+                        SubTextLabel.Opacity = amount;
+                        Title.Opacity = amount;
+                        IconPath.Opacity = amount;
                     }
+                    break;
+                case "Type":
+                    TitleText = BackingModel.BaseModel.Name;
+                    SubText = BackingModel.BaseModel.Description;
+                    UpdateIcon();
                     break;
             }
             Dispatcher.Invoke(() =>

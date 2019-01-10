@@ -191,6 +191,12 @@ namespace XTMF.Gui.Models
             ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+
         private void BaseModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var ev = PropertyChanged;
@@ -212,6 +218,7 @@ namespace XTMF.Gui.Models
                         break;
                     case "IsDisabled":
                     case "Type":
+
                         ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
                         ModelHelper.PropertyChanged(ev, this, "HighlightColour");
                         break;
