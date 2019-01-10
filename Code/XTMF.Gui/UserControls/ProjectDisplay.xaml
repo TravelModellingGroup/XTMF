@@ -46,6 +46,14 @@
                 UnfurlOrientation="Vertical" PopupMode="Click"
                 ToolTipService.Placement="Left" IsVisibleChanged="PopupBox_IsVisibleChanged">
                 <StackPanel>
+                    <StackPanel Name="CreateNewModelSystemStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="CreateNewModelSystemStackPanel_MouseLeftButtonUp">
+                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" Opacity="1.0"></Label>
+                        </Border>
+                        <Button Click="NewModelSystem_Click"  >
+                            <xtmf:PackIconOverlap Width="32" Height="32"  IconKind="CubeOutline" IconKindMinor="Plus"></xtmf:PackIconOverlap>
+                        </Button>
+                    </StackPanel>
                     <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
 
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
@@ -74,14 +82,7 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel Name="CreateNewModelSystemStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="CreateNewModelSystemStackPanel_MouseLeftButtonUp">
-                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" Opacity="1.0"></Label>
-                        </Border>
-                        <Button Click="NewModelSystem_Click"  >
-                            <xtmf:PackIconOverlap Width="32" Height="32"  IconKind="CubeOutline" IconKindMinor="Plus"></xtmf:PackIconOverlap>
-                        </Button>
-                    </StackPanel>
+
 
                     <StackPanel Name="RefreshRunsStackPanel"  HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="RefreshRunsStackPanel_MouseLeftButtonUp" >
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
