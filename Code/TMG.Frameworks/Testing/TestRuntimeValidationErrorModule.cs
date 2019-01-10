@@ -22,10 +22,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XTMF;
 
 namespace TMG.Frameworks.Testing
 {
-    class TestRuntimeValidationErrorModule
+    [ModuleInformation(Description =
+        @"A test module that explicitly generates a runtime validation failure. The `RuntimeValidation` module method of this module returns false in all circumstances.",
+        IconURI = "TestTube")]
+    public class TestRuntimeValidationErrorModule : ISelfContainedModule
     {
+        public string Name { get; set; } = "Test Runtime Validation Error Module";
+        public float Progress { get; }
+        public Tuple<byte, byte, byte> ProgressColour { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public bool RuntimeValidation(ref string error)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Start()
+        {
+            
+        }
     }
 }

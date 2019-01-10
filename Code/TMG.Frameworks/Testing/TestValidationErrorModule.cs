@@ -27,7 +27,8 @@ using XTMF;
 namespace TMG.Frameworks.Testing
 {
     [ModuleInformation(Description =
-        @"A dummy module that can be used as a root module in model systems used for testing the GUI.")]
+        @"A test module that simulates validation errors. ",
+        IconURI = "TestTube")]
     public class TestValidationErrorModule : ISelfContainedModule
     {
         public string Name { get; set; } = "TestValidationErrorModule";
@@ -37,15 +38,20 @@ namespace TMG.Frameworks.Testing
         [SubModelInformation(Required = true)]
         public IModule RequiredSubModule { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public bool RuntimeValidation(ref string error)
         {
-            error =  "Generic Validation Error";
+            error = "Generic Validation Error";
             return false;
         }
 
         public void Start()
         {
-            throw new NotImplementedException();
+            
         }
     }
 

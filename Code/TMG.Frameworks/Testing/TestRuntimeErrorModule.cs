@@ -27,7 +27,8 @@ using XTMF;
 namespace TMG.Frameworks.Testing
 {
     [ModuleInformation(Description =
-        @"A dummy module that can be used as a root module in model systems used for testing the GUI.")]
+        @"A test module that will generate a runtime exception at the start of this module's execution. A divide by 0 error is generated in the module's Start() method.",
+        IconURI = "TestTube")]
     public class TestRuntimeErrorModule : ISelfContainedModule
     {
         private float _progress = 0;
@@ -54,8 +55,6 @@ namespace TMG.Frameworks.Testing
             //throw new dummy exception
             var p = 0;
             var s = 10 / p;
-
-
         }
     }
 
