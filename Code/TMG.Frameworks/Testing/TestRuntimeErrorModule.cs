@@ -52,7 +52,10 @@ namespace TMG.Frameworks.Testing
         public void Start()
         {
             //throw new dummy exception
-            throw new XTMFRuntimeException(this,"Test Runtime Error!");
+            var p = 0;
+            var s = 10 / p;
+
+
         }
     }
 

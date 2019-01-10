@@ -23,16 +23,21 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
-using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
 using XTMF.Annotations;
 using XTMF.Gui.Util;
-
+using Button = System.Windows.Controls.Button;
+using Clipboard = System.Windows.Clipboard;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using ListView = System.Windows.Controls.ListView;
+using MenuItem = System.Windows.Controls.MenuItem;
+using MessageBox = System.Windows.MessageBox;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui.UserControls
 {
@@ -52,17 +57,6 @@ namespace XTMF.Gui.UserControls
             ActiveRunContent.DataContext = Resources["DefaultDisplay"];
         }
 
-        /// <summary>
-        /// OnInitialized
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            //allow the stack trace text box to only be as large as 80% of the primary screen
-            StackTraceTextBox.MaxWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width * 0.8;
-        }
-
         public FrameworkElement ActiveContent
         {
             get => _activeContent;
@@ -76,6 +70,17 @@ namespace XTMF.Gui.UserControls
         public ObservableCollection<RunWindow> RunCollection { get; } = new ObservableCollection<RunWindow>();
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        ///     OnInitialized
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+            //allow the stack trace text box to only be as large as 80% of the primary screen
+            StackTraceTextBox.MaxWidth = Screen.PrimaryScreen.Bounds.Width * 0.8;
+        }
 
         /// <summary>
         ///     Removes a RunWindow from the SchedulerWindow
@@ -92,26 +97,28 @@ namespace XTMF.Gui.UserControls
                     break;
                 }
             }
+
             if (toRemove != null)
             {
                 FinishedRuns.Items.Remove(toRemove);
             }
+
             var defaultd = Resources["DefaultDisplay"];
             Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
             FinishedRuns.Items.Refresh();
         }
 
         /// <summary>
-        /// copy to clipboard (stack trace)
+        ///     copy to clipboard (stack trace)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
         {
             var error = (sender as FrameworkContentElement)?.Tag as ModelSystemErrorDisplayModel;
-            Clipboard.SetText(error.StackTrace == "Unavailable" ?
-                error.Description :
-                error.Description + "\r\n" + error.StackTrace);
+            Clipboard.SetText(error.StackTrace == "Unavailable"
+                ? error.Description
+                : error.Description + "\r\n" + error.StackTrace);
         }
 
         /// <summary>
@@ -133,7 +140,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 ActiveContent = run;
-                SchedulerRunItemDisplayModel itemDisplayModel = new SchedulerRunItemDisplayModel(run, this);
+                var itemDisplayModel = new SchedulerRunItemDisplayModel(run, this);
                 itemDisplayModel.StatusText = "Delayed Run";
                 itemDisplayModel.StartTime = delayedStartTime.ToString("MM/dd/yyyy H:mm");
                 ScheduledRuns.Items.Add(itemDisplayModel);
@@ -231,10 +238,7 @@ namespace XTMF.Gui.UserControls
                 Dispatcher.Invoke(() => { menu.Items.Clear(); });
                 menuItem.Click += (o, args) =>
                 {
-                    Dispatcher.Invoke(() =>
-                    {
-                        FinishedRuns.Items.RemoveAt(FinishedRuns.SelectedIndex);
-                    });
+                    Dispatcher.Invoke(() => { FinishedRuns.Items.RemoveAt(FinishedRuns.SelectedIndex); });
                 };
                 menu?.Items.Add(menuItem);
             }
@@ -252,39 +256,236 @@ namespace XTMF.Gui.UserControls
             ActiveRunContent.DataContext = runWindow;
             ActiveContent = runWindow;
             runWindow?.ScrollToBottomOfConsole();
+        }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FinishedRuns_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
+            ActiveRunContent.DataContext = runWindow;
+            ActiveContent = runWindow;
+            runWindow?.ScrollToBottomOfConsole();
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScheduledRuns_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
+            ActiveRunContent.DataContext = runWindow;
+            ActiveContent = runWindow;
+            runWindow?.ScrollToBottomOfConsole();
+        }
+
+        /// <summary>
+        ///     OnClick listener for the stack trace dialog close button / link.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CloseDialogHyperLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() => { StackTraceDialogHost.IsOpen = false; }));
+        }
+
+        /// <summary>
+        ///     Loads the ModelSystemDisplay editor with the passed module navigated to (and selected).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            var runWindow = ((e.Source as FrameworkContentElement)?.DataContext as ModelSystemErrorDisplayModel)
+                ?.RunWindow;
+
+            runWindow?.NavigateToModelSystemDisplay((sender as FrameworkContentElement)?.Tag);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StackTraceLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkContentElement)?.DataContext;
+            ShowTrackTraceError(errorDataContext);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="errorDataContext"></param>
+        public void ShowTrackTraceError(ModelSystemErrorDisplayModel errorDataContext)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                StackTraceDialogHost.DataContext = errorDataContext;
+                StackTraceDialogHost.IsOpen = true;
+            }));
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CopyErrorLink_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
+            Clipboard.SetText(errorDataContext?.StackTrace == "Unavailable"
+                ? $"Description: {errorDataContext.Description}"
+                : $"Module: {errorDataContext?.ModelSystemName}\r\n" +
+                  $"Description:\r\n {errorDataContext?.Description} " +
+                  $"\r\nStack Trace:\r\n{errorDataContext?.StackTrace}");
+            MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Error information copied to clipboard",
+                "SCHEDULER",
+                () => MainWindow.Us.ShowSchedulerWindow());
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StackTraceGroup_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                StackTraceDialogHost.DataContext = errorDataContext;
+                StackTraceDialogHost.IsOpen = true;
+            }));
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        private int CountNonQueuedRuns()
+        {
+            var count = 0;
+            foreach (SchedulerRunItemDisplayModel run in ScheduledRuns.Items)
+            {
+                if (run.IsRunStarted)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        public bool CanMoveQueueDown()
+        {
+            var runItem = ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel;
+            if (ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1 || runItem.IsRunStarted)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScheduledRunItemListItemContainer_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Down && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
+            {
+                if (CanMoveQueueDown())
+                {
+                    MoveQueueDown();
+                }
+            }
+            else if (e.Key == Key.Up && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
+            {
+                if (CanMoveQueueUp())
+                {
+                    MoveQueueUp();
+                }
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        public bool CanMoveQueueUp()
+        {
+            var nonQueue = CountNonQueuedRuns();
+            return !(ScheduledRuns.SelectedIndex == 0 || ScheduledRuns.SelectedIndex == nonQueue);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="fromIndex"></param>
+        /// <param name="toIndex"></param>
+        public void MoveQueueInsert(SchedulerRunItemDisplayModel item, int fromIndex, int toIndex)
+        {
+            var nonQueuedRuns = CountNonQueuedRuns();
+            ScheduledRuns.Items.RemoveAt(fromIndex);
+            ScheduledRuns.Items.Insert(toIndex, item);
+            item.RunWindow.ReorderRun(toIndex - nonQueuedRuns);
+            ScheduledRuns.SelectedIndex = toIndex;
+        }
+
+        /// <summary>
+        /// </summary>
+        public void MoveQueueDown()
+        {
+            MoveQueueInsert((SchedulerRunItemDisplayModel)ScheduledRuns.SelectedItem, ScheduledRuns.SelectedIndex,
+                ScheduledRuns.SelectedIndex + 1);
+        }
+
+        /// <summary>
+        ///     Move selected itemDisplayModel in list view
+        /// </summary>
+        public void MoveQueueUp()
+        {
+            MoveQueueInsert((SchedulerRunItemDisplayModel)ScheduledRuns.SelectedItem, ScheduledRuns.SelectedIndex,
+                ScheduledRuns.SelectedIndex - 1);
+        }
+
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StatusTextCopyMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            var source = e.Source as TextBlock;
+            if (source != null)
+            {
+                Clipboard.SetText(source.Text);
+            }
         }
 
         /// <summary>
         /// </summary>
         public class SchedulerRunItemDisplayModel : INotifyPropertyChanged
         {
+            private readonly SchedulerWindow _schedulerWindow;
             private string _elapsedTime = "--";
             private PackIconKind _icon = PackIconKind.TimerSand;
 
             private bool _isRunStarted;
 
             private float _progress;
-            private readonly SchedulerWindow _schedulerWindow;
             private string _startTime = "--";
-
+            public event PropertyChangedEventHandler PropertyChanged;
             private string _statusText = string.Empty;
 
-            public Action RunFinished;
-
-            public ObservableCollection<ModelSystemErrorDisplayModel> ModelSystemErrors { get; set; }
-
-            public bool HasError { get; set; } = false;
-
-            public Visibility RunErrorInformationVisibility
-            {
-                get => HasError ? Visibility.Visible : Visibility.Collapsed;
-            }
-
             /// <summary>
-            ///     Constructor of the ScheduleRunItem, takes in the RunWindow (run control) in the constructor.
+            /// 
             /// </summary>
             /// <param name="runWindow"></param>
+            /// <param name="schedulerWindow"></param>
             public SchedulerRunItemDisplayModel(RunWindow runWindow, SchedulerWindow schedulerWindow)
             {
                 Name = runWindow.Run.RunName;
@@ -305,22 +506,22 @@ namespace XTMF.Gui.UserControls
                 Progress = 0;
             }
 
+            public ObservableCollection<ModelSystemErrorDisplayModel> ModelSystemErrors { get; set; }
+
+            public bool HasError { get; set; }
+
             /// <summary>
-            /// 
             /// </summary>
-            private void OnRuntimeError()
+            public Visibility RunErrorInformationVisibility
             {
-                XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
-                    () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
-
-                Icon = PackIconKind.Exclamation;
-
-                HasError = true;
-
+                set => OnPropertyChanged(nameof(RunErrorInformationVisibility));
+                get => HasError ? Visibility.Visible : Visibility.Collapsed;
             }
 
             public RunWindow RunWindow { get; set; }
 
+            /// <summary>
+            /// </summary>
             public bool IsRunStarted
             {
                 get => _isRunStarted;
@@ -386,7 +587,19 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
+
+
+            /// <summary>
+            /// </summary>
+            private void OnRuntimeError()
+            {
+                XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
+                    () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
+
+                Icon = PackIconKind.Exclamation;
+
+                HasError = true;
+            }
 
             /// <summary>
             ///     This method is called when a runtime validation error occurs in the model system run.
@@ -416,6 +629,9 @@ namespace XTMF.Gui.UserControls
                 StartTime = $"{s:g}";
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
             private void OnRunStarted()
             {
                 Icon = PackIconKind.Run;
@@ -439,7 +655,6 @@ namespace XTMF.Gui.UserControls
                         () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
                     Icon = PackIconKind.CheckCircleOutline;
                 }
-
             }
 
             /// <summary>
@@ -447,7 +662,8 @@ namespace XTMF.Gui.UserControls
             /// <param name="errorWithPath"></param>
             private void RuntimeError(ErrorWithPath errorWithPath)
             {
-                StatusText = errorWithPath.Message;
+                StatusText = "Runtime exception occured.";
+                // StatusText = errorWithPath.Message;
             }
 
             /// <summary>
@@ -465,222 +681,6 @@ namespace XTMF.Gui.UserControls
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FinishedRuns_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
-            ActiveRunContent.DataContext = runWindow;
-            ActiveContent = runWindow;
-            runWindow?.ScrollToBottomOfConsole();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ScheduledRuns_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
-            ActiveRunContent.DataContext = runWindow;
-            ActiveContent = runWindow;
-            runWindow?.ScrollToBottomOfConsole();
-        }
-
-        /// <summary>
-        /// OnClick listener for the stack trace dialog close button / link.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CloseDialogHyperLink_OnClick(object sender, RoutedEventArgs e)
-        {
-            Dispatcher.BeginInvoke(new Action(() => { StackTraceDialogHost.IsOpen = false; }));
-        }
-
-        /// <summary>
-        /// Loads the ModelSystemDisplay editor with the passed module navigated to (and selected).
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemNameLink_OnClick(object sender, RoutedEventArgs e)
-        {
-            var runWindow = ((e.Source as FrameworkContentElement)?.DataContext as ModelSystemErrorDisplayModel)
-                ?.RunWindow;
-
-            runWindow.NavigateToModelSystemDisplay((sender as FrameworkContentElement)?.Tag);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void StackTraceLink_OnClick(object sender, RoutedEventArgs e)
-        {
-            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkContentElement)?.DataContext;
-            ShowTrackTraceError(errorDataContext);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="errorDataContext"></param>
-        public void ShowTrackTraceError(ModelSystemErrorDisplayModel errorDataContext)
-        {
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                this.StackTraceDialogHost.DataContext = errorDataContext;
-                this.StackTraceDialogHost.IsOpen = true;
-            }));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CopyErrorLink_OnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
-            Clipboard.SetText(errorDataContext?.StackTrace == "Unavailable"
-                ? $"Description: {errorDataContext.Description}"
-                : $"Module: {errorDataContext?.ModelSystemName}\r\n" +
-                  $"Description:\r\n {errorDataContext?.Description} " +
-                  $"\r\nStack Trace:\r\n{errorDataContext?.StackTrace}");
-            MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Error information copied to clipboard",
-                "SCHEDULER",
-                () => MainWindow.Us.ShowSchedulerWindow());
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void StackTraceGroup_OnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                this.StackTraceDialogHost.DataContext = errorDataContext;
-                this.StackTraceDialogHost.IsOpen = true;
-            }));
-        }
-
-        private int CountNonQueuedRuns()
-        {
-            var count = 0;
-            foreach (SchedulerRunItemDisplayModel run in ScheduledRuns.Items)
-            {
-                if (run.IsRunStarted)
-                {
-                    count++;
-                }
-            }
-
-            return count;
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public bool CanMoveQueueDown()
-        {
-            var runItem = ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel;
-            if (ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1 || runItem.IsRunStarted)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ScheduledRunItemListItemContainer_OnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Down && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
-            {
-                if (CanMoveQueueDown())
-                {
-                    MoveQueueDown();
-                }
-            }
-            else if (e.Key == Key.Up && e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
-            {
-                if (CanMoveQueueUp())
-                {
-                    MoveQueueUp();
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public bool CanMoveQueueUp()
-        {
-            var nonQueue = CountNonQueuedRuns();
-            return !(ScheduledRuns.SelectedIndex == 0 || ScheduledRuns.SelectedIndex == nonQueue);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="fromIndex"></param>
-        /// <param name="toIndex"></param>
-        public void MoveQueueInsert(SchedulerRunItemDisplayModel item, int fromIndex, int toIndex)
-        {
-            var nonQueuedRuns = this.CountNonQueuedRuns();
-            this.ScheduledRuns.Items.RemoveAt(fromIndex);
-            this.ScheduledRuns.Items.Insert(toIndex, item);
-            item.RunWindow.ReorderRun(toIndex - nonQueuedRuns);
-            this.ScheduledRuns.SelectedIndex = toIndex;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void MoveQueueDown()
-        {
-            this.MoveQueueInsert((SchedulerRunItemDisplayModel)ScheduledRuns.SelectedItem, ScheduledRuns.SelectedIndex, ScheduledRuns.SelectedIndex+1);
-            
-        }
-
-        /// <summary>
-        /// Move selected itemDisplayModel in list view 
-        /// </summary>
-        public void MoveQueueUp()
-        {
-            this.MoveQueueInsert((SchedulerRunItemDisplayModel)ScheduledRuns.SelectedItem, ScheduledRuns.SelectedIndex, ScheduledRuns.SelectedIndex - 1);
-        }
-
-      
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void StatusTextCopyMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            var source =  e.Source as TextBlock;
-            if (source != null)
-            {
-                Clipboard.SetText(source.Text);
             }
         }
     }
