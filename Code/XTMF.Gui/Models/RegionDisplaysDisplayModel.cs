@@ -101,6 +101,8 @@ namespace XTMF.Gui.Models
             foreach (var module in group.Modules)
             {
                 Modules.Add(module);
+               // ((ModelSystemStructureModel)module).PropertyChanged += RegionGroupDisplayModel_PropertyChanged1;
+              
             }
 
             ((RegionGroup)group).ModulesUpdated += OnModulesUpdated;
@@ -108,6 +110,18 @@ namespace XTMF.Gui.Models
 
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RegionGroupDisplayModel_PropertyChanged1(object sender, PropertyChangedEventArgs e)
+        {
+            return;
+        }
+
+
+
         /// <summary>
         /// 
         /// </summary>

@@ -283,6 +283,13 @@ namespace XTMF
                 ref error);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="buffer"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public bool Paste(ModelSystemEditingSession session, string buffer, ref string error)
         {
             // Get the data
@@ -339,6 +346,13 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <param name="copiedStructure"></param>
+        /// <param name="linkedParameters"></param>
+        /// <returns></returns>
         private bool Paste(ref string error, ModelSystemStructure copiedStructure,
             List<TempLinkedParameter> linkedParameters)
         {
@@ -594,12 +608,27 @@ namespace XTMF
                 }), ref error);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="temp"></param>
+        /// <param name="root"></param>
+        /// <param name="indexOffset"></param>
+        /// <returns></returns>
         private List<ParameterModel> GetParametersFromTemp(TempLinkedParameter temp, ModelSystemStructureModel root,
             int indexOffset)
         {
             return (from path in temp.Paths
                 select GetParametersFromTemp(path, root, indexOffset)).ToList();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="root"></param>
+        /// <param name="indexOffset"></param>
+        /// <returns></returns>
 
         private ParameterModel GetParametersFromTemp(string path, ModelSystemStructureModel root, int indexOffset)
         {
@@ -1314,6 +1343,13 @@ namespace XTMF
                     }
                 ), ref error);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newName"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
 
         public bool SetName(string newName, ref string error)
         {

@@ -46,6 +46,7 @@
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
             </Grid.ColumnDefinitions>
             <ComboBox SelectionChanged="RegionsComboBox_OnSelectionChanged" Margin="30 0 15 0" DockPanel.Dock="Left" IsEnabled="{Binding IsNewGroupButtonEnabled}"
                       Grid.Column="0" Name="RegionsComboBox" ItemsSource="{Binding Regions}"
@@ -61,12 +62,20 @@
                 <materialDesign:PackIcon Kind="PlusCircleOutline" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
             </Button>
-            <Button Grid.Column="2" Name="EditRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Rename current region display"
+            <Button Grid.Column="2"  Name="NewGroupButton" IsEnabled="{Binding IsNewGroupButtonEnabled}" ToolTip="Create new region group (requires active region display)"
+                    Click="NewGroupButton_OnClick" Style="{StaticResource MaterialDesignFlatButton}">
+             
+                    <materialDesign:PackIcon Kind="LibraryAdd" VerticalAlignment="Center" 
+                                         HorizontalAlignment="Center" />
+                
+
+            </Button>
+            <Button Grid.Column="3" Name="EditRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Rename current region display"
                     Click="EditRegionDisplayButton_Click"  Foreground="{DynamicResource SecondaryAccentBrush}" IsEnabled="False" >
                 <materialDesign:PackIcon Kind="RenameBox" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
             </Button>
-            <Button Grid.Column="3" Name="RemoveRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Remove current region display"
+            <Button Grid.Column="4" Name="RemoveRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Remove current region display"
                     Click="RemoveRegionDisplayButton_OnClick" Foreground="{DynamicResource SecondaryAccentBrush}" IsEnabled="False" >
                 <materialDesign:PackIcon Kind="TableRowRemove" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
@@ -163,6 +172,7 @@
                 </ListBox.ItemTemplate>
 
             </ListView>
+            <!--
             <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Name="NewGroupButton" IsEnabled="{Binding IsNewGroupButtonEnabled}"
                     Click="NewGroupButton_OnClick">
                 <StackPanel Orientation="Horizontal">
@@ -171,7 +181,7 @@
                     <TextBlock> New Group</TextBlock>
                 </StackPanel>
                
-            </Button>
+            </Button> -->
         </Grid>
 
 
