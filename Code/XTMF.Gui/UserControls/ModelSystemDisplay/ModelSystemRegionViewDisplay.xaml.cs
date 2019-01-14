@@ -24,7 +24,7 @@ namespace XTMF.Gui.UserControls
         private readonly ModelSystemDisplay _modelSystemDisplay;
 
         private ModelSystemEditingSession _modelSystemEditingSession;
-  
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private RegionDisplaysDisplayModel _regionDisplaysModel;
@@ -56,7 +56,7 @@ namespace XTMF.Gui.UserControls
         public bool IsNewGroupButtonEnabled
         {
             get
-            
+
             {
                 if (RegionsComboBox.Items.Count <= 0)
                 {
@@ -110,7 +110,7 @@ namespace XTMF.Gui.UserControls
 
             _regionDisplaysModel.Regions.CollectionChanged += RegionDisplaysOnCollectionChanged;
 
-           
+
         }
 
         /// <summary>
@@ -404,7 +404,7 @@ namespace XTMF.Gui.UserControls
             var item = ((sender as FrameworkElement)?.Tag as RegionGroupDisplayModel)?.Model;
             string error = "";
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Are sure want to delete the region group \"{item.Name}\"?",
-                "Confirm Deletion", System.Windows.MessageBoxButton.YesNoCancel);
+                "Confirm Deletion", System.Windows.MessageBoxButton.OKCancel);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 _regionDisplaysModel.Model.RemoveRegionGroup((RegionGroup)item, ref error);
@@ -529,6 +529,22 @@ namespace XTMF.Gui.UserControls
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if((bool)e.NewValue == true)
+            {
+
+                this.ViewItemsControl.Items.Refresh();
+            }
+
+            return;
         }
     }
 }

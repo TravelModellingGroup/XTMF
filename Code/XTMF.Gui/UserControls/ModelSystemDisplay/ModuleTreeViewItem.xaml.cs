@@ -95,7 +95,9 @@ namespace XTMF.Gui.UserControls
         public PackIconKind Icon { get; set; }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public ModuleTreeViewItem()
         {
             InitializeComponent();
@@ -410,6 +412,9 @@ namespace XTMF.Gui.UserControls
                     TitleText = BackingModel.BaseModel.Name;
                     SubText = BackingModel.BaseModel.Description;
                     UpdateIcon();
+                    break;
+                case "Name":
+                    TitleText = BackingModel.BaseModel.Name;
                     break;
             }
             Dispatcher.Invoke(() =>
