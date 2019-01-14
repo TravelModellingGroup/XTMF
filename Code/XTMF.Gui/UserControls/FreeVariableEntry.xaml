@@ -36,22 +36,20 @@
         <materialDesign:ColorZone Grid.Row="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                   Margin="12 12 12 12"
                                   materialDesign:ShadowAssist.ShadowDepth="Depth4">
-            <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Filter Modules... (Ctrl+E)" />
+            <my:FilterBox Grid.Row="0" x:Name="FilterBox" FilterWatermark="Filter Modules... (Ctrl+E)" />
         </materialDesign:ColorZone>
-        <!-- <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" Foreground="{DynamicResource MaterialDesignBody}"/> -->
-
         <ListView x:Name="Display" MouseDoubleClick="Display_OnMouseDoubleClick"
-                  Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}">
+                  Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource MaterialDesignPaper}"
+                  Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel></VirtualizingStackPanel>
-
+                    <VirtualizingStackPanel />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <local:ListViewControl x:Name="ListViewControl" TitleText="{Binding Name}" SubText="{Binding Text}"
-                                           MouseDoubleClick="Control_OnMouseDoubleClick" />
+                    <local:ListViewControl x:Name="ListViewControl" TitleText="{Binding Name}" SubText="{Binding Text}" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

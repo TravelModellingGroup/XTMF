@@ -98,7 +98,7 @@ namespace XTMF.Gui.UserControls
             base.OnKeyUp(e);
             if (e.Handled == false)
             {
-                switch(e.Key)
+                switch (e.Key)
                 {
                     case Key.Escape:
                         e.Handled = true;
@@ -125,7 +125,7 @@ namespace XTMF.Gui.UserControls
             {
                 SelectModel(selectedModel);
             }
-            else if(Display.Items.Count > 0 && Display.Items[0] is Model firstModel)
+            else if (Display.Items.Count > 0 && Display.Items[0] is Model firstModel)
             {
                 SelectModel(firstModel);
             }
@@ -136,9 +136,9 @@ namespace XTMF.Gui.UserControls
             if (model != null)
             {
                 SelectedType = model.Type;
-                if(SelectedType != null)
+                if (SelectedType != null)
                 {
-                    if(ContainsFreeVariables(SelectedType))
+                    if (ContainsFreeVariables(SelectedType))
                     {
                         // then we need to fill in the free parameters
                         List<Type> selectedForFreeVariables = new List<Type>();
@@ -176,9 +176,5 @@ namespace XTMF.Gui.UserControls
         private bool ContainsFreeVariables(Type selectedType) => selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
 
         private void Display_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
-
-        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
-
-        private void FilterBox_EnterPressed(object sender, EventArgs e) => Select();
     }
 }

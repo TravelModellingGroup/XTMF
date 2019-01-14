@@ -83,7 +83,7 @@ namespace XTMF.Gui.UserControls
 
             public PackIconKind IconKind { get; set; } = PackIconKind.Settings;
 
-            #pragma warning disable CS0067
+#pragma warning disable CS0067
             public event PropertyChangedEventHandler PropertyChanged;
         }
 
@@ -144,9 +144,9 @@ namespace XTMF.Gui.UserControls
             return ret;
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
+        protected override void OnKeyUp(KeyEventArgs e)
         {
-            base.OnKeyDown(e);
+            base.OnKeyUp(e);
             if (e.Handled == false)
             {
                 switch (e.Key)
@@ -170,12 +170,16 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         private void Select()
         {
-            var index = Display.SelectedItem;
-            if (index == null) return;
-            SelectModel(index as Model);
+            if (Display.SelectedItem is Model selectedModel)
+            {
+                SelectModel(selectedModel);
+            }
+            else if (Display.Items.Count > 0 && Display.Items[0] is Model firstModel)
+            {
+                SelectModel(firstModel);
+            }
         }
 
         /// <summary>
@@ -201,14 +205,9 @@ namespace XTMF.Gui.UserControls
                         selectedForFreeVariables.Add(dialog.SelectedType);
                     }
                     SelectedType = CreateConcreteType(SelectedType, selectedForFreeVariables);
-                    DialogResult = true;
-                    Close();
                 }
-                else
-                {
-                    DialogResult = true;
-                    Close();
-                }
+                DialogResult = true;
+                Close();
             }
         }
 
@@ -336,28 +335,6 @@ namespace XTMF.Gui.UserControls
             var htmlString =
                 $"<style>body{{ overflow: hidden;background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body></body>";
             ModuleDescriptionTextBlock.NavigateToString(htmlString);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FilterBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            switch (e.Key)
-            {
-
-                case Key.Enter:
-
-                    e.Handled = true; if (!(Display.SelectedItem is Model selected))
-                    {
-                        selected = GetFirstItem();
-                    }
-                    SelectModel(selected);
-                    // Select();
-                    break;
-            }
         }
     }
 }
