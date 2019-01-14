@@ -315,7 +315,7 @@
                                 </Grid.RowDefinitions>
 
                                 <Grid  Grid.Row="0">
-                                    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 10 5 10"  Name="ModuleParameterDisplaySearch" Opacity="0"  >
+                                    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 0 5 2"  Name="ModuleParameterDisplaySearch" Opacity="0"  >
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="30" />
                                             <ColumnDefinition Width="*" />
@@ -364,7 +364,7 @@
                                             <ToolBarTray Visibility="Collapsed"  IsLocked="True" Grid.Row="0" Height="52" Margin="0 0 0 0" VerticalAlignment="Center" >
                                                 <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" >
 
-                                                    <Grid  Width="250" VerticalAlignment="Center" HorizontalAlignment="Right"   Margin="12 4 12 12">
+                                                    <Grid Height="70"  Width="250" VerticalAlignment="Center" HorizontalAlignment="Right"   Margin="12 4 12 12">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
                                                             <ColumnDefinition Width="*" />
@@ -372,7 +372,7 @@
                                                         <Button Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                                             <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                                         </Button>
-                                                        <my:FilterBox Opacity="0.5"   Grid.Column="1" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="0.2cm,4,0.2cm,2"/>
+                                                        <my:FilterBox Height="60" Opacity="0.5"   Grid.Column="1" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="0.2cm,4,0.2cm,2"/>
                                                     </Grid>
                                                 </ToolBar>
                                             </ToolBarTray>
@@ -491,7 +491,7 @@
                                 </Grid.RowDefinitions>
 
                                 <Grid  Grid.Row="0">
-                                    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 10 5 10"  Name="QuickParameterDisplaySearch" Opacity="0"  >
+                                    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 0 5 2"  Name="QuickParameterDisplaySearch" Opacity="0"  >
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="30" />
                                             <ColumnDefinition Width="*" />
