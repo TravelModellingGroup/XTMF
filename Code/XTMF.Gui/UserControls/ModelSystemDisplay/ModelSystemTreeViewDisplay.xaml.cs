@@ -245,11 +245,25 @@ namespace XTMF.Gui.UserControls
             if (sender is ModuleTreeViewItem treeViewItem)
             {
                 var menu = treeViewItem.ContextMenu;
+
+             
                 foreach (var item in menu.Items)
                 {
                     if (item is MenuItem menuItem)
                     {
-                        if (menuItem.Name == "DisableModuleMenuItem")
+                        if (menuItem.Name == "BrowseModuleDocumentation")
+                        {
+                            if (treeViewItem.BackingModel.Type != null)
+                            {
+                                menuItem.IsEnabled = true;
+                            }
+                            else
+                            {
+                                menuItem.IsEnabled = false;
+                            }
+                        }
+
+                        else if (menuItem.Name == "DisableModuleMenuItem")
                         {
                             if (treeViewItem.BackingModel.BaseModel.CanDisable)
                             {
@@ -1217,11 +1231,27 @@ namespace XTMF.Gui.UserControls
             this.IsDragActive = false;
         }
 
-        private Point p = new Point();
+        Point p = new Point();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UserControl_MouseMove(object sender, MouseEventArgs e)
         {
             p = e.GetPosition(this);
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BrowseModuleDocumentation_Click(object sender, RoutedEventArgs e)
+        {
+            var module = (((sender as MenuItem)?.Parent as FrameworkElement).DataContext as ModelSystemStructureDisplayModel)?.BaseModel;
+            System.Diagnostics.Process.Start($"https://tmg.utoronto.ca/doc/1.5/modules/{module.Type}.html");
         }
     }
 }

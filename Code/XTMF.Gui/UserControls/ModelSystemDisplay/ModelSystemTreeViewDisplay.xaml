@@ -199,7 +199,7 @@
                         </ItemsPanelTemplate>
                     </TreeView.ItemsPanel>
                     <TreeView.ContextMenu>
-                        <ContextMenu>
+                        <ContextMenu ContextMenuOpening="ModuleTreeViewItem_OnContextMenuOpening">
                             <MenuItem Name="CopyMenuItem"  Header="Copy (Ctrl+C)" Click="CopyMenuItem_OnClick" >
                                 <MenuItem.Icon>
                                     <materialDesign:PackIcon Kind="ContentCopy" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -252,6 +252,11 @@
                             </MenuItem>
                             <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Expand all Modules" Click="ExpandAllMenuItem_Click"/>
                             <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Collapse all Modules" Click="CollapseAllMenuItem_Click"/>
+                            <MenuItem Header="Browse module documentation" Name="BrowseModuleDocumentation" StaysOpenOnClick="False" Click="BrowseModuleDocumentation_Click" >
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="HelpCircle" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
                         </ContextMenu>
                     </TreeView.ContextMenu>
                     <TreeView.ItemTemplate>

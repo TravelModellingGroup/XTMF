@@ -497,7 +497,6 @@ namespace XTMF.Gui.UserControls
             {
                 dialog.UserInput = display.Name;
                 var result = await dialog.ShowAsync(false);
-                var error = "";
                 display.Name = dialog.UserInput;
                 UpdateRegionDisplayList();
             }
