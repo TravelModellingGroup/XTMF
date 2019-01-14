@@ -38,31 +38,22 @@
         <materialDesign:ColorZone Grid.Row="0" Grid.Column="0" Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
         Margin="12 12 12 12"
         materialDesign:ShadowAssist.ShadowDepth="Depth4">
-            <my:FilterBox Grid.Row="0" x:Name="FilterBox"  FilterWatermark="Filter Modules... (Ctrl+E)" KeyDown="FilterBox_KeyDown" />
+            <my:FilterBox Grid.Row="0" x:Name="FilterBox"  FilterWatermark="Filter Modules... (Ctrl+E)" />
         </materialDesign:ColorZone>
 
         <ListView Grid.Column="0" x:Name="Display" MouseDoubleClick="Display_OnMouseDoubleClick" SelectionChanged="Display_OnSelectionChanged"
                       Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{x:Null}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel></VirtualizingStackPanel>
-
+                    <VirtualizingStackPanel />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-
-
                     <Border Padding="5">
                         <userControls:ListViewControl TitleText="{Binding Name}" IconKind="{Binding IconKind}" IsPathIcon="False" Margin="0 8 0 8"
-                                             SubText="{Binding Text}">
-
-
-
-                    </userControls:ListViewControl>
+                                             SubText="{Binding Text}" />
                     </Border>
-
-
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
