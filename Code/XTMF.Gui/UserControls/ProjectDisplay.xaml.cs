@@ -85,6 +85,8 @@ namespace XTMF.Gui.UserControls
             set => SetValue(ProjectModelProperty, value);
         }
 
+        public bool IsRenameActive { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
@@ -217,16 +219,24 @@ namespace XTMF.Gui.UserControls
 
                         break;
                     case Key.Enter:
-                    {
-                        LoadModelSystem();
-                        e.Handled = true;
-                    }
+                        {
+                            if (!IsRenameActive)
+                            {
+                                LoadModelSystem();
+                                e.Handled = true;
+                            }
+                            else
+                            {
+                                IsRenameActive = false;
+                            }
+                            
+                        }
                         break;
                     case Key.F2:
-                    {
-                        RenameCurrentModelSystem();
-                        e.Handled = true;
-                    }
+                        {
+                            RenameCurrentModelSystem();
+                            e.Handled = true;
+                        }
                         break;
                     case Key.C:
                         if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
@@ -303,7 +313,7 @@ namespace XTMF.Gui.UserControls
 
         private void OpenPreviousRun_Click(object sender, RoutedEventArgs e)
         {
-            var previousRun = (ProjectModel.PreviousRun) PastRunDisplay.SelectedItem;
+            var previousRun = (ProjectModel.PreviousRun)PastRunDisplay.SelectedItem;
             if (previousRun != null)
             {
                 var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name,
@@ -404,11 +414,16 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+
         private void RenameCurrentModelSystem()
         {
             if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
-                var container = ModelSystemsDataGrid.ItemContainerGenerator.ContainerFromItem(selected) as ListBoxItem;
+                var container = ModelSystemsDataGrid.ItemContainerGenerator.ContainerFromItem(selected) as DataGridRow;
+                // var container2 = ModelSystemsDataGrid.ItemContainerGenerator.ContainerFromItem(selected);
                 var layer = AdornerLayer.GetAdornerLayer(container);
                 var adorn = new TextboxAdorner("Rename", result =>
                 {
@@ -421,6 +436,7 @@ namespace XTMF.Gui.UserControls
                 }, container, selected.Name);
                 layer.Add(adorn);
                 adorn.Focus();
+                IsRenameActive = true;
             }
         }
 
@@ -447,7 +463,7 @@ namespace XTMF.Gui.UserControls
                 {
                     // save as a model system in an external file
                     var fileName = MainWindow.OpenFile(selected.Name,
-                        new[] {new KeyValuePair<string, string>("Model System File", "xml")}, false);
+                        new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
                     if (!string.IsNullOrWhiteSpace(fileName))
                     {
                         string error = null;
@@ -913,8 +929,8 @@ namespace XTMF.Gui.UserControls
                         }
 
                         PreviousRuns.AddRange(from entry in list
-                            orderby entry.Time descending
-                            select entry);
+                                              orderby entry.Time descending
+                                              select entry);
                     }
 
                     ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
@@ -940,8 +956,8 @@ namespace XTMF.Gui.UserControls
                     lock (ContainedModelSystems)
                     {
                         ContainedModelSystems.AddRange(from ms in Project.ModelSystemStructure
-                            orderby ms.Name
-                            select new ContainedModelSystemModel(Session, ms, Project));
+                                                       orderby ms.Name
+                                                       select new ContainedModelSystemModel(Session, ms, Project));
                     }
 
                     ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
@@ -964,7 +980,7 @@ namespace XTMF.Gui.UserControls
                     IProject project)
                 {
                     ModelSystemStructure = ms;
-                    RealIndex = ((Project) project).IndexOf(ms);
+                    RealIndex = ((Project)project).IndexOf(ms);
                     _project = project;
                     _session = session;
                     FindMissingModules(ms);
