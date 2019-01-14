@@ -121,9 +121,14 @@ namespace XTMF.Gui.UserControls
 
         private void Select()
         {
-            var index = Display.SelectedItem;
-            if (index == null) return;
-            SelectModel(index as Model);
+            if (Display.SelectedItem is Model selectedModel)
+            {
+                SelectModel(selectedModel);
+            }
+            else if(Display.Items.Count > 0 && Display.Items[0] is Model firstModel)
+            {
+                SelectModel(firstModel);
+            }
         }
 
         private void SelectModel(Model model)
@@ -171,5 +176,9 @@ namespace XTMF.Gui.UserControls
         private bool ContainsFreeVariables(Type selectedType) => selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
 
         private void Display_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e) => Select();
+
+        private void FilterBox_EnterPressed(object sender, EventArgs e) => Select();
     }
 }

@@ -776,8 +776,7 @@ namespace XTMF
                                 : child.Children.Count(
                                     gc =>
                                     {
-                                        var mss = gc as ModelSystemStructure;
-                                        return mss == null || !mss.IsDisabled;
+                                        return !(gc is ModelSystemStructure mss) || !mss.IsDisabled;
                                     }));
                         if (infoField != null)
                         {
