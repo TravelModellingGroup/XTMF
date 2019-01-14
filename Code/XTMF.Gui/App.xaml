@@ -383,7 +383,7 @@
                                     BorderBrush="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}"/>
 
                                     <Border x:Name="SelectedBorder"
-                                            BorderBrush="{DynamicResource Foreground}"
+                                            
                                             Opacity="0"
                                             
                                             BorderThickness="3"

@@ -551,7 +551,7 @@ namespace XTMF.Gui.UserControls
             set
             {
                 SetValue(TitleTextDependencyProperty, value);
-                Title.Content = value;
+                Title.Text = value;
             }
         }
 
