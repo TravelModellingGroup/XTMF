@@ -1,43 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Media;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using XTMF.Annotations;
+using XTMF.Editing;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using MahApps.Metro.Controls;
-using XTMF.Annotations;
-using XTMF.Editing;
-using Control = System.Windows.Forms.Control;
-using TreeView = System.Windows.Controls.TreeView;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for ModelSystemTreeViewDisplay.xaml
+    ///     Interaction logic for ModelSystemTreeViewDisplay.xaml
     /// </summary>
     public partial class ModelSystemTreeViewDisplay : UserControl, IModelSystemView, INotifyPropertyChanged
     {
+        private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
+            "IsSelectionChangeActive", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private ModelSystemDisplay _display;
+        private bool _disableMultipleSelectOnce;
+
+        private readonly ModelSystemDisplay _display;
 
 
-        private bool _isDragActive = false;
+        private bool _isDragActive;
+
+        private ModelSystemEditingSession _modelSystemEditingSession;
+
+        private RegionDisplaysModel _regionDisplaysModel;
+
+        private Point p;
 
         public bool IsDragActive
         {
@@ -49,58 +50,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private ModelSystemEditingSession Session
-        {
-            get { return this._display.Session; }
-        }
+        private ModelSystemEditingSession Session => _display.Session;
 
-        public ModelSystemStructureDisplayModel SelectedModule =>
-            ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-
-        public ItemsControl ViewItemsControl
-        {
-            get { return ModuleDisplay; }
-        }
-
-        private bool _disableMultipleSelectOnce;
-
-        private ModelSystemEditingSession _modelSystemEditingSession;
-
-        private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
-            "IsSelectionChangeActive", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        internal List<ModelSystemStructureDisplayModel> CurrentlySelected
-        {
-            get { return _display.CurrentlySelected; }
-        }
+        internal List<ModelSystemStructureDisplayModel> CurrentlySelected => _display.CurrentlySelected;
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="display"></param>
-        public ModelSystemTreeViewDisplay(ModelSystemDisplay display)
-        {
-            InitializeComponent();
-            this._display = display;
-            this.AllowMultiSelection(ModuleDisplay);
-
-            this.Loaded += this.ModelSystemDisplay_Loaded;
-
-            this.ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
-
-            this.ModuleContextControl.ModuleContextChanged += this.ModuleContextControlOnModuleContextChanged;
-
-            this._display.ModelSystemEditingSessionChanged += DisplayOnModelSystemEditingSessionChanged;
-
-            AllowDrop = true;
-
-
-        }
-
-        /// <summary>
-        /// 
         /// </summary>
         public Brush GridBackgroundBrush
         {
@@ -108,32 +62,53 @@ namespace XTMF.Gui.UserControls
             {
                 if (EditorController.Runtime.Configuration.IsDarkTheme)
                 {
-                    return (Brush)FindResource("GridTextureBrushDark");
+                    return (Brush) FindResource("GridTextureBrushDark");
                 }
-                else
-                {
-                    return (Brush)FindResource("GridTextureBrushLight");
-                }
+
+                return (Brush) FindResource("GridTextureBrushLight");
             }
         }
 
-        private RegionDisplaysModel _regionDisplaysModel;
+        /// <summary>
+        /// </summary>
+        /// <param name="display"></param>
+        public ModelSystemTreeViewDisplay(ModelSystemDisplay display)
+        {
+            InitializeComponent();
+            _display = display;
+            AllowMultiSelection(ModuleDisplay);
+
+            Loaded += ModelSystemDisplay_Loaded;
+
+            ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
+
+            ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
+
+            _display.ModelSystemEditingSessionChanged += DisplayOnModelSystemEditingSessionChanged;
+
+            AllowDrop = true;
+        }
+
+        public ModelSystemStructureDisplayModel SelectedModule =>
+            ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+
+        public ItemsControl ViewItemsControl => ModuleDisplay;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void DisplayOnModelSystemEditingSessionChanged(object sender,
             ModelSystemEditingSessionChangedEventArgs e)
         {
-            this._modelSystemEditingSession = e.Session;
+            _modelSystemEditingSession = e.Session;
 
             _regionDisplaysModel = _modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel;
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -141,36 +116,32 @@ namespace XTMF.Gui.UserControls
         {
             if (e.NewValue is ModelSystemStructureDisplayModel module)
             {
-                this._display.RefreshParameters();
+                _display.RefreshParameters();
                 //this._display.UpdateModuleCount();
-                if (!this._display.ModuleParameterDisplay.IsEnabled)
+                if (!_display.ModuleParameterDisplay.IsEnabled)
                 {
-                    this._display.ToggleModuleParameterDisplay();
+                    _display.ToggleModuleParameterDisplay();
                 }
 
                 //update the module context control
-                this.ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
+                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel) e.NewValue;
 
                 Dispatcher.Invoke(() =>
                 {
-                    if (this._display.CurrentlySelected.Count == 1)
+                    if (_display.CurrentlySelected.Count == 1)
                     {
-                        this._display.StatusBarModuleNameTextBlock.Text = $"{module.BaseModel.Type} [{module.Name}]";
+                        _display.StatusBarModuleNameTextBlock.Text = $"{module.BaseModel.Type} [{module.Name}]";
                     }
-                    else if (this._display.CurrentlySelected.Count > 1)
+                    else if (_display.CurrentlySelected.Count > 1)
                     {
-                        this._display.StatusBarModuleNameTextBlock.Text =
-                            $"{this._display.CurrentlySelected.Count} modules selected.";
+                        _display.StatusBarModuleNameTextBlock.Text =
+                            $"{_display.CurrentlySelected.Count} modules selected.";
                     }
-
-
                 });
-
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -178,15 +149,12 @@ namespace XTMF.Gui.UserControls
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
 
-            this._display.UpdateQuickParameters();
+            _display.UpdateQuickParameters();
 
             MainWindow.Us.ThemeChanged += Us_ThemeChanged;
-
-
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -194,10 +162,7 @@ namespace XTMF.Gui.UserControls
         {
             BackgroundGrid.UpdateLayout();
             OnPropertyChanged(nameof(GridBackgroundBrush));
-            return;
         }
-
-
 
 
         /// <summary>
@@ -220,7 +185,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Expands a module, tracing backwards until the root module is reached
+        ///     Expands a module, tracing backwards until the root module is reached
         /// </summary>
         /// <param name="module"></param>
         public void ExpandToRoot(ModelSystemStructureDisplayModel module)
@@ -235,7 +200,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Expand all menu itemDisplayModel click
+        ///     Expand all menu itemDisplayModel click
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -245,13 +210,12 @@ namespace XTMF.Gui.UserControls
             {
                 if (ModuleDisplay.Items.Count > 0)
                 {
-                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem);
+                    ExpandModule((ModelSystemStructureDisplayModel) ModuleDisplay.SelectedItem);
                 }
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -305,21 +269,21 @@ namespace XTMF.Gui.UserControls
                 var addRegionGroupMenuItem =
                     menu.Items.Cast<MenuItem>().FirstOrDefault(m => m.Name == "AddToRegionGroupMenuItem");
 
-                this.UpdateAddRegionGroupMenu(addRegionGroupMenuItem);
+                UpdateAddRegionGroupMenu(addRegionGroupMenuItem);
             }
         }
 
         /// <summary>
-        /// Updates the Add Region Group Sub Menu as part of the context menu
+        ///     Updates the Add Region Group Sub Menu as part of the context menu
         /// </summary>
         /// <param name="addRegionGroupMenuItem"></param>
         private void UpdateAddRegionGroupMenu(MenuItem addRegionGroupMenuItem)
         {
             addRegionGroupMenuItem.Items.Clear();
-            var regionDisplays = this._modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel.RegionDisplays;
+            var regionDisplays = _modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel.RegionDisplays;
             foreach (var regionDisplay in regionDisplays)
             {
-                var regionDisplayMenuItem = new MenuItem()
+                var regionDisplayMenuItem = new MenuItem
                 {
                     Header = regionDisplay.Name
                 };
@@ -327,38 +291,32 @@ namespace XTMF.Gui.UserControls
 
                 foreach (var regionGroup in regionDisplay.RegionGroups)
                 {
-                    MenuItem regionGroupMenuItem = new MenuItem()
+                    var regionGroupMenuItem = new MenuItem
                     {
                         Header = regionGroup.Name,
                         Tag = regionGroup
-
                     };
                     regionDisplayMenuItem.Items.Add(regionGroupMenuItem);
 
                     regionGroupMenuItem.Click += RegionGroupMenuItem_Click;
-
                 }
             }
-
-
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void RegionGroupMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            string error = "";
-            var group = (RegionGroup)((MenuItem)e.Source).Tag;
+            var error = "";
+            var group = (RegionGroup) ((MenuItem) e.Source).Tag;
             var module = SelectedModule.BaseModel.RealModelSystemStructure;
-            this._display.ModelSystemDisplayModelMap[SelectedModule.BaseModel.RealModelSystemStructure] = SelectedModule;
+            _display.ModelSystemDisplayModelMap[SelectedModule.BaseModel.RealModelSystemStructure] = SelectedModule;
             _regionDisplaysModel.AddModuleToGroup(group, module, ref error);
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -369,7 +327,7 @@ namespace XTMF.Gui.UserControls
                 var onlySelected = CurrentlySelected[0];
                 if (!onlySelected.IsCollection && onlySelected.Type == null)
                 {
-                    this._display.SelectReplacement();
+                    _display.SelectReplacement();
                     e.Handled = true;
                 }
             }
@@ -377,7 +335,6 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -390,7 +347,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Collapse all menu itemDisplayModel click
+        ///     Collapse all menu itemDisplayModel click
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -400,13 +357,13 @@ namespace XTMF.Gui.UserControls
             {
                 if (ModuleDisplay.Items.Count > 0)
                 {
-                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem, false);
+                    ExpandModule((ModelSystemStructureDisplayModel) ModuleDisplay.SelectedItem, false);
                 }
             }
         }
 
         /// <summary>
-        /// Expands or collapses a module and its children.
+        ///     Expands or collapses a module and its children.
         /// </summary>
         /// <param name="module"></param>
         /// <param name="collapse"></param>
@@ -429,7 +386,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="up"></param>
         private void MoveFocusNextModule(bool up)
@@ -439,7 +395,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Disables or re-enables the selected module
+        ///     Disables or re-enables the selected module
         /// </summary>
         private void ToggleDisableModule()
         {
@@ -477,13 +433,10 @@ namespace XTMF.Gui.UserControls
                         selected.IsDisabled ? "Unable to Enable" : "Unable to Disable", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
-
-
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -495,7 +448,7 @@ namespace XTMF.Gui.UserControls
             switch (e.Key)
             {
                 case Key.F2:
-                    this._display.RenameSelectedModule();
+                    _display.RenameSelectedModule();
                     break;
                 case Key.Up:
                     ModuleDisplayNavigateUp(item);
@@ -511,7 +464,7 @@ namespace XTMF.Gui.UserControls
                         e.Handled = true;
                         if (module.Type != null)
                         {
-                            System.Diagnostics.Process.Start(
+                            Process.Start(
                                 $"https://tmg.utoronto.ca/doc/1.5/modules/{module.Type}.html");
                         }
                     }
@@ -520,29 +473,23 @@ namespace XTMF.Gui.UserControls
                 case Key.D:
                     if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
                     {
-                        this.ToggleDisableModule();
+                        ToggleDisableModule();
                     }
 
                     break;
-
             }
-
-
-
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Help_Clicked(object sender, RoutedEventArgs e)
         {
-            this._display.ShowDocumentation();
+            _display.ShowDocumentation();
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -557,7 +504,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
@@ -569,7 +515,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="item"></param>
         private void ModuleDisplayNavigateUp(ModelSystemStructureDisplayModel item)
@@ -594,7 +539,6 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="item"></param>
         private void ModuleDisplayNavigateDown(ModelSystemStructureDisplayModel item)
@@ -615,7 +559,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
@@ -635,7 +578,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -645,7 +587,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -655,16 +596,16 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Moves the currently selected module by position the specified delta (negative is up, positive down)
+        ///     Moves the currently selected module by position the specified delta (negative is up, positive down)
         /// </summary>
         /// <param name="deltaPosition"></param>
         public void MoveCurrentModule(int deltaPosition)
         {
             if (CurrentlySelected.Count > 0)
             {
-                var parent = this._display.Session.GetParent(CurrentlySelected[0].BaseModel);
+                var parent = _display.Session.GetParent(CurrentlySelected[0].BaseModel);
                 // make sure they all have the same parent
-                if (CurrentlySelected.Any(m => this._display.Session.GetParent(m.BaseModel) != parent))
+                if (CurrentlySelected.Any(m => _display.Session.GetParent(m.BaseModel) != parent))
                 {
                     // if not ding and exit
                     SystemSounds.Asterisk.Play();
@@ -673,10 +614,10 @@ namespace XTMF.Gui.UserControls
 
                 var mul = deltaPosition < 0 ? 1 : -1;
                 var moveOrder = CurrentlySelected
-                    .Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) })
+                    .Select((c, i) => new {Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel)})
                     .OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
-                this._display.Session.ExecuteCombinedCommands(
+                _display.Session.ExecuteCombinedCommands(
                     "Move Selected Modules",
                     () =>
                     {
@@ -691,18 +632,17 @@ namespace XTMF.Gui.UserControls
                             }
                         }
                     });
-                this._display.BringSelectedIntoView(CurrentlySelected[first.Index]);
+                _display.BringSelectedIntoView(CurrentlySelected[first.Index]);
             }
         }
 
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="set"></param>
         private void SetMetaModuleStateForSelected(bool set)
         {
-            this._display.Session.ExecuteCombinedCommands(
+            _display.Session.ExecuteCombinedCommands(
                 set ? "Compose to Meta-Modules" : "Decompose Meta-Modules",
                 () =>
                 {
@@ -711,21 +651,17 @@ namespace XTMF.Gui.UserControls
                         string error = null;
                         if (!selected.SetMetaModule(set, ref error))
                         {
-                            MessageBox.Show(this._display.GetWindow(), error, "Failed to convert meta module.",
+                            MessageBox.Show(_display.GetWindow(), error, "Failed to convert meta module.",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Error);
                         }
                     }
                 });
-            this._display.RefreshParameters();
+            _display.RefreshParameters();
         }
 
 
-
-
-
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -735,7 +671,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -745,19 +680,16 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Module_Clicked(object sender, RoutedEventArgs e)
         {
-            this._display.SelectReplacement();
+            _display.SelectReplacement();
         }
 
 
-
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="e"></param>
         protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -787,13 +719,13 @@ namespace XTMF.Gui.UserControls
                         if (EditorController.IsControlDown() && EditorController.IsShiftDown() &&
                             !EditorController.IsAltDown())
                         {
-                            this.SetMetaModuleStateForSelected(true);
+                            SetMetaModuleStateForSelected(true);
                             e.Handled = true;
                         }
                         else if (EditorController.IsControlDown() && EditorController.IsShiftDown() &&
                                  EditorController.IsAltDown())
                         {
-                            this.SetMetaModuleStateForSelected(false);
+                            SetMetaModuleStateForSelected(false);
                             e.Handled = true;
                         }
 
@@ -804,7 +736,6 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -827,7 +758,7 @@ namespace XTMF.Gui.UserControls
             var selectedItems = new List<TreeViewItem>();
             treeView.SelectedItemChanged += (a, b) =>
             {
-                var module = this._display.GetCurrentlySelectedControl();
+                var module = _display.GetCurrentlySelectedControl();
                 if (module == null)
                 {
                     // disable the event to avoid recursion
@@ -921,7 +852,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
@@ -937,35 +867,31 @@ namespace XTMF.Gui.UserControls
 
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void DisableModuleMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            this.ToggleDisableModule();
+            ToggleDisableModule();
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void RemoveModuleMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            this._display.RemoveSelectedModules();
+            _display.RemoveSelectedModules();
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void LinkedParametersMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            this._display.ShowLinkedParameterDialog();
+            _display.ShowLinkedParameterDialog();
         }
-
 
 
         [NotifyPropertyChangedInvocator]
@@ -975,7 +901,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -985,59 +910,51 @@ namespace XTMF.Gui.UserControls
             {
                 MetaModuleConvertFrom.IsEnabled = CurrentlySelected[0].IsMetaModule;
                 MetaModuleConvertTo.IsEnabled = !CurrentlySelected[0].IsMetaModule;
-
             }
             else
             {
                 MetaModuleConvertFrom.IsEnabled = true;
                 MetaModuleConvertTo.IsEnabled = true;
             }
-
-
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void RenameMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            this._display.RenameSelectedModule();
+            _display.RenameSelectedModule();
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void EditDescriptionMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            this._display.RenameDescription();
+            _display.RenameDescription();
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void PastMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            this._display.PasteCurrentModule();
+            _display.PasteCurrentModule();
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void CopyMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            this._display.CopyCurrentModule();
+            _display.CopyCurrentModule();
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="e"></param>
         protected override void OnDrop(DragEventArgs e)
@@ -1045,7 +962,7 @@ namespace XTMF.Gui.UserControls
             base.OnDrop(e);
 
 
-            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("drag");
+            var module = (ModuleTreeViewItem) e.Data.GetData("drag");
 
             var siblings = module.GetSiblingModuleTreeViewItems();
 
@@ -1054,8 +971,7 @@ namespace XTMF.Gui.UserControls
 
             var newPosition = -1;
             var oldPosition = 0;
-            int idx = 0;
-
+            var idx = 0;
 
 
             foreach (var sibling in siblings)
@@ -1063,10 +979,9 @@ namespace XTMF.Gui.UserControls
                 var transform = sibling.TransformToVisual(siblings[0]);
                 var point = transform.Transform(new Point(0, 0));
 
-                if (position.Y - (sibling.RenderSize.Height / 2) < point.Y && newPosition < 0)
+                if (position.Y - sibling.RenderSize.Height / 2 < point.Y && newPosition < 0)
                 {
                     newPosition = idx;
-
                 }
 
                 if (sibling == module)
@@ -1080,9 +995,8 @@ namespace XTMF.Gui.UserControls
                 var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(DragDropAdorner));
                 if (moveAdorner != null)
                 {
-                    ((DragDropAdorner)moveAdorner).Visibility = Visibility.Collapsed;
+                    ((DragDropAdorner) moveAdorner).Visibility = Visibility.Collapsed;
                 }
-
             }
 
             //check end
@@ -1094,8 +1008,8 @@ namespace XTMF.Gui.UserControls
                 newPosition = siblings.Count - 1;
             }
 
-            int i2 = 0;
-            for (int i = 0; i < siblings.Count; i++)
+            var i2 = 0;
+            for (var i = 0; i < siblings.Count; i++)
             {
                 if (siblings[i] == module)
                 {
@@ -1106,37 +1020,32 @@ namespace XTMF.Gui.UserControls
 
             if (newPosition >= 0 && newPosition != oldPosition)
             {
-                this.MoveCurrentModule(newPosition - oldPosition);
+                MoveCurrentModule(newPosition - oldPosition);
             }
 
-            this.IsDragActive = false;
-
-            return;
+            IsDragActive = false;
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ModelSystemTreeViewDisplay_OnDragOver(object sender, DragEventArgs e)
         {
-            ModuleTreeViewItem module = (ModuleTreeViewItem)e.Data.GetData("drag");
+            var module = (ModuleTreeViewItem) e.Data.GetData("drag");
             if (module == null)
             {
                 return;
             }
+
             var siblings = module.GetSiblingModuleTreeViewItems();
 
-            bool isUp = IsModuleMoveOrderUp(module);
-            var dragOverTarget = this.GetDragOverItem(module, isUp, e);
+            var isUp = IsModuleMoveOrderUp(module);
+            var dragOverTarget = GetDragOverItem(module, isUp, e);
 
             if (dragOverTarget != module)
             {
-
-
                 ShowModuleMoveAdorner(dragOverTarget, isUp);
-
             }
 
             foreach (var sibling in siblings)
@@ -1146,21 +1055,18 @@ namespace XTMF.Gui.UserControls
                     HideModuleMoveAdorner(sibling);
                 }
             }
-
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="module"></param>
         private void ShowModuleMoveAdorner(ModuleTreeViewItem module, bool isOrderUp)
         {
             var layer = AdornerLayer.GetAdornerLayer(module);
-            DragDropAdorner moveAdorner = (DragDropAdorner)layer.GetAdorners(module)
+            var moveAdorner = (DragDropAdorner) layer.GetAdorners(module)
                 .First(t => t.GetType() == typeof(DragDropAdorner));
             if (moveAdorner != null)
             {
-
                 if (isOrderUp)
                 {
                     moveAdorner.SetMoveUpAdorner();
@@ -1169,19 +1075,19 @@ namespace XTMF.Gui.UserControls
                 {
                     moveAdorner.SetMoveDownAdorner();
                 }
+
                 moveAdorner.Visibility = Visibility.Visible;
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
         private bool IsModuleMoveOrderUp(ModuleTreeViewItem module)
         {
             var mousePosition = Mouse.GetPosition(module);
-            if (mousePosition.Y - (module.RenderSize.Height / 2) < 0)
+            if (mousePosition.Y - module.RenderSize.Height / 2 < 0)
             {
                 return true;
             }
@@ -1190,7 +1096,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="module"></param>
         private void HideModuleMoveAdorner(ModuleTreeViewItem module)
@@ -1200,12 +1105,11 @@ namespace XTMF.Gui.UserControls
                 .First(t => t.GetType() == typeof(DragDropAdorner));
             if (moveAdorner != null)
             {
-                ((DragDropAdorner)moveAdorner).Visibility = Visibility.Collapsed;
+                ((DragDropAdorner) moveAdorner).Visibility = Visibility.Collapsed;
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
@@ -1218,16 +1122,15 @@ namespace XTMF.Gui.UserControls
                 var mousePosition = e.GetPosition(moduleSibling);
 
 
-
-
                 if (isOrderUp)
                 {
-                    mousePosition.Y += (int)(moduleSibling.ActualHeight / 2.0);
+                    mousePosition.Y += (int) (moduleSibling.ActualHeight / 2.0);
                 }
                 else
                 {
-                    mousePosition.Y -= (int)(moduleSibling.ActualHeight / 2.0);
+                    mousePosition.Y -= (int) (moduleSibling.ActualHeight / 2.0);
                 }
+
                 if (mousePosition.Y >= 0 && mousePosition.Y <= moduleSibling.ActualHeight)
                 {
                     return moduleSibling;
@@ -1239,47 +1142,42 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ModelSystemTreeViewDisplay_OnDragEnter(object sender, DragEventArgs e)
         {
-            return;
         }
 
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ModelSystemTreeViewDisplay_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            this.IsDragActive = false;
+            IsDragActive = false;
         }
 
-        Point p = new Point();
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void UserControl_MouseMove(object sender, MouseEventArgs e)
         {
             p = e.GetPosition(this);
-
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void BrowseModuleDocumentation_Click(object sender, RoutedEventArgs e)
         {
-            var module = (((sender as MenuItem)?.Parent as FrameworkElement).DataContext as ModelSystemStructureDisplayModel)?.BaseModel;
-            System.Diagnostics.Process.Start($"https://tmg.utoronto.ca/doc/1.5/modules/{module.Type}.html");
+            var module =
+                (((sender as MenuItem)?.Parent as FrameworkElement).DataContext as ModelSystemStructureDisplayModel)
+                ?.BaseModel;
+            Process.Start($"https://tmg.utoronto.ca/doc/1.5/modules/{module.Type}.html");
         }
     }
 }
