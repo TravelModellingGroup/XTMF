@@ -252,7 +252,7 @@
                             </MenuItem>
                             <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Expand all Modules" Click="ExpandAllMenuItem_Click"/>
                             <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Collapse all Modules" Click="CollapseAllMenuItem_Click"/>
-                            <MenuItem Header="Browse module documentation" Name="BrowseModuleDocumentation" StaysOpenOnClick="False" Click="BrowseModuleDocumentation_Click" >
+                            <MenuItem Header="Browse module documentation (F1)" Name="BrowseModuleDocumentation" StaysOpenOnClick="False" Click="BrowseModuleDocumentation_Click" >
                                 <MenuItem.Icon>
                                     <materialDesign:PackIcon Kind="HelpCircle" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 </MenuItem.Icon>

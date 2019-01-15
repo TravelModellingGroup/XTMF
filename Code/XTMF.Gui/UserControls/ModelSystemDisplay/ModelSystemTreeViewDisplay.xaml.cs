@@ -246,7 +246,7 @@ namespace XTMF.Gui.UserControls
             {
                 var menu = treeViewItem.ContextMenu;
 
-             
+
                 foreach (var item in menu.Items)
                 {
                     if (item is MenuItem menuItem)
@@ -475,6 +475,7 @@ namespace XTMF.Gui.UserControls
         private void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            var module = item?.BaseModel;
             e.Handled = false;
             switch (e.Key)
             {
@@ -488,6 +489,18 @@ namespace XTMF.Gui.UserControls
                 case Key.Down:
                     ModuleDisplayNavigateDown(item);
                     e.Handled = true;
+                    break;
+                case Key.F1:
+                    if (module != null)
+                    {
+                        e.Handled = true;
+                        if (module.Type != null)
+                        {
+                            System.Diagnostics.Process.Start(
+                                $"https://tmg.utoronto.ca/doc/1.5/modules/{module.Type}.html");
+                        }
+                    }
+
                     break;
                 case Key.D:
                     if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
