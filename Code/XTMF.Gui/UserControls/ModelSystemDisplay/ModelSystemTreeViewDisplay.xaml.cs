@@ -180,8 +180,23 @@ namespace XTMF.Gui.UserControls
 
             this._display.UpdateQuickParameters();
 
+            MainWindow.Us.ThemeChanged += Us_ThemeChanged;
+
 
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Us_ThemeChanged(object sender, EventArgs e)
+        {
+            BackgroundGrid.UpdateLayout();
+            OnPropertyChanged(nameof(GridBackgroundBrush));
+            return;
+        }
+
 
 
 

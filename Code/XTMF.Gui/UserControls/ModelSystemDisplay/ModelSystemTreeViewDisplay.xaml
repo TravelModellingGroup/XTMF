@@ -177,7 +177,7 @@
 
     <Grid>
         <Border BorderBrush="Black" BorderThickness="3" Name="DropIndicator" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="3"></Border>
-        <Grid  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{Binding TreeViewDisplay.GridBackgroundBrush}" SnapsToDevicePixels="True">
+        <Grid Name="BackgroundGrid"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{Binding TreeViewDisplay.GridBackgroundBrush}" SnapsToDevicePixels="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>

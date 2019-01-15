@@ -34,6 +34,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
 using Dragablz;
+using MahApps.Metro;
 using MahApps.Metro.Controls;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
@@ -77,6 +78,8 @@ namespace XTMF.Gui
         private bool LaunchUpdate;
 
         private bool _isDialogOpen = false;
+
+        public event EventHandler<EventArgs> ThemeChanged; 
 
         public MainWindow()
         {
@@ -137,6 +140,11 @@ namespace XTMF.Gui
 
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF",
                 "Configuration.xml");
+        }
+
+        public void OnThemeChanged()
+        {
+            this.ThemeChanged?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
