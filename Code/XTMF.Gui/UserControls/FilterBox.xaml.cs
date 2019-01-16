@@ -100,7 +100,9 @@ namespace XTMF.Gui
             set
             {
                 _display = value;
+                Box.Text = "";
                 _itemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
+                _itemsSource.Refresh();
                 if (_filter != null)
                 {
                     Filter = _filter;
@@ -211,6 +213,9 @@ namespace XTMF.Gui
                 !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         internal void RefreshFilter()
         {
             if (Refresh != null)

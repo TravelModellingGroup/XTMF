@@ -169,6 +169,7 @@ namespace XTMF.Gui.Models
         /// <returns></returns>
         public bool SetValue(string value, out string error)
         {
+
             error = null;
             // only update if something changed
             if (value != RealParameter.Value)

@@ -1503,13 +1503,15 @@ namespace XTMF.Gui.UserControls
                         }
                     }
 
-                    Dispatcher.InvokeAsync(() =>
+                    Dispatcher.Invoke(() =>
                     {
+                        
                         CleanUpParameters();
+                        
                         ParameterDisplay.ItemsSource = source;
                         ParameterFilterBox.Display = ParameterDisplay;
                         ParameterFilterBox.Filter = FilterParameters;
-                        ParameterFilterBox.RefreshFilter();
+                       //  ParameterFilterBox.RefreshFilter();
 
 
                         var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
@@ -1547,6 +1549,7 @@ namespace XTMF.Gui.UserControls
                         }
 
                         ParameterDisplay.Opacity = 1.0;
+                        
                     }, DispatcherPriority.Render);
                 });
             }

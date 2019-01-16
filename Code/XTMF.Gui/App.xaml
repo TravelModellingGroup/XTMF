@@ -24,6 +24,7 @@
              xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
              xmlns:wpf="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:XTMF.Gui.Converters"
+              xmlns:converters2="clr-namespace:MaterialDesignThemes.Wpf.Converters"
               xmlns:local2="clr-namespace:Dragablz.Themes"
               xmlns:converters1="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
               Startup="App_OnStartup"
@@ -740,6 +741,12 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+  
+
+            <Style x:Key="XtmfMaterialDesignFloatingHintTextBox" TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignTextBox}">
+                <Setter Property="wpf:HintAssist.IsFloating" Value="True"/>
+            </Style>
+
 
 
         </ResourceDictionary>
