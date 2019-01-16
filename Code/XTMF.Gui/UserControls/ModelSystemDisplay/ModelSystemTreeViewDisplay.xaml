@@ -182,7 +182,9 @@
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
-            <local:ModuleContextControl Background="{DynamicResource MaterialDesignPaper}" Grid.Row="0" x:Name="ModuleContextControl" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  />
+            <Border Grid.Row="0" Background="{DynamicResource MaterialDesignToolBarBackground}" Margin="0">
+                <local:ModuleContextControl Height="29" Margin="0 0 0 0" Background="{DynamicResource MaterialDesignPaper}" Grid.Row="0" x:Name="ModuleContextControl" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  />
+            </Border>
             <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
 
 
