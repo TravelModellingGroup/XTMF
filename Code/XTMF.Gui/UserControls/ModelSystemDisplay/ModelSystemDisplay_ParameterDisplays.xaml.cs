@@ -87,18 +87,9 @@ namespace XTMF.Gui.UserControls
                 var menuItem = item as FrameworkElement;
                 if(menuItem.Name == "SelectFileMenuItem" || menuItem.Name == "SelectDirectoryMenuItem")
                 {
-                    if(SoftActiveParameterDisplay.IsEnumeration || SoftActiveParameterDisplay.ParameterType == typeof(bool))
-                    {
-                        menuItem.IsEnabled = false;
-                    }
-                    else
-                    {
-                        menuItem.IsEnabled = true;
-                    }
+                    menuItem.IsEnabled = !SoftActiveParameterDisplay.IsEnumeration && SoftActiveParameterDisplay.ParameterType != typeof(bool);
                 }
             }
-
-            return;
 
         }
 
@@ -117,18 +108,9 @@ namespace XTMF.Gui.UserControls
                 if (menuItem.Name == "PSelectFileMenuItem" || menuItem.Name == "PSelectDirectoryMenuItem" 
                     || menuItem.Name == "POpenFileMenuItem")
                 {
-                    if (SoftActiveParameterDisplay.IsEnumeration || SoftActiveParameterDisplay.ParameterType == typeof(bool))
-                    {
-                        menuItem.IsEnabled = false;
-                    }
-                    else
-                    {
-                        menuItem.IsEnabled = true;
-                    }
+                    menuItem.IsEnabled = !SoftActiveParameterDisplay.IsEnumeration && SoftActiveParameterDisplay.ParameterType != typeof(bool);
                 }
             }
-
-            return;
         }
 
         /// <summary>
