@@ -177,7 +177,7 @@
 
     <Grid>
         <Border BorderBrush="Black" BorderThickness="3" Name="DropIndicator" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="3"></Border>
-        <Grid  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{Binding TreeViewDisplay.GridBackgroundBrush}" SnapsToDevicePixels="True">
+        <Grid Name="BackgroundGrid"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{Binding TreeViewDisplay.GridBackgroundBrush}" SnapsToDevicePixels="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
@@ -254,7 +254,7 @@
                             </MenuItem>
                             <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Expand all Modules" Click="ExpandAllMenuItem_Click"/>
                             <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Collapse all Modules" Click="CollapseAllMenuItem_Click"/>
-                            <MenuItem Header="Browse module documentation" Name="BrowseModuleDocumentation" StaysOpenOnClick="False" Click="BrowseModuleDocumentation_Click" >
+                            <MenuItem Header="Browse module documentation (F1)" Name="BrowseModuleDocumentation" StaysOpenOnClick="False" Click="BrowseModuleDocumentation_Click" >
                                 <MenuItem.Icon>
                                     <materialDesign:PackIcon Kind="HelpCircle" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 </MenuItem.Icon>

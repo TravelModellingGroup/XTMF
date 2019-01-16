@@ -27,6 +27,7 @@ using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 using System.Collections.Generic;
 using System.Linq;
+using MahApps.Metro;
 using MaterialDesignColors;
 
 namespace XTMF.Gui.UserControls
@@ -323,6 +324,7 @@ namespace XTMF.Gui.UserControls
                     configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
                     Configuration.Save();
                 }
+                MainWindow.Us.OnThemeChanged();
             }
         }
 
@@ -340,7 +342,10 @@ namespace XTMF.Gui.UserControls
                 {
                     configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
                     Configuration.Save();
+
+                    
                 }
+                MainWindow.Us.OnThemeChanged();
             }
         }
 
