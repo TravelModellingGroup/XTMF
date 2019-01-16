@@ -81,6 +81,24 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterListView_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
             SoftActiveParameterDisplay = QuickParameterListView.SelectedItem as ParameterDisplayModel;
+            var listView = e.Source as ListView;
+            foreach(var item in listView.ContextMenu.Items)
+            {
+                var menuItem = item as FrameworkElement;
+                if(menuItem.Name == "SelectFileMenuItem" || menuItem.Name == "SelectDirectoryMenuItem")
+                {
+                    if(SoftActiveParameterDisplay.IsEnumeration || SoftActiveParameterDisplay.ParameterType == typeof(bool))
+                    {
+                        menuItem.IsEnabled = false;
+                    }
+                    else
+                    {
+                        menuItem.IsEnabled = true;
+                    }
+                }
+            }
+
+            return;
 
         }
 
@@ -92,6 +110,25 @@ namespace XTMF.Gui.UserControls
         private void ParameterDisplay_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
             SoftActiveParameterDisplay = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            var listView = e.Source as ListView;
+            foreach (var item in listView.ContextMenu.Items)
+            {
+                var menuItem = item as FrameworkElement;
+                if (menuItem.Name == "PSelectFileMenuItem" || menuItem.Name == "PSelectDirectoryMenuItem" 
+                    || menuItem.Name == "POpenFileMenuItem")
+                {
+                    if (SoftActiveParameterDisplay.IsEnumeration || SoftActiveParameterDisplay.ParameterType == typeof(bool))
+                    {
+                        menuItem.IsEnabled = false;
+                    }
+                    else
+                    {
+                        menuItem.IsEnabled = true;
+                    }
+                }
+            }
+
+            return;
         }
 
         /// <summary>

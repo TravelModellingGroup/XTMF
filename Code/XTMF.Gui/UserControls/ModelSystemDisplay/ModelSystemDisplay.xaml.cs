@@ -2853,7 +2853,17 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QuickParameterContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            return;
+        }
 
+     
     }
 
 

@@ -424,7 +424,7 @@
                                                     <MenuItem Header="Show Parameter(Ctrl+Shift+H)" Click="ShowParameter_Click"/>
                                                 </MenuItem>
                                                 <MenuItem Header="Open">
-                                                    <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
+                                                    <MenuItem Name="POpenFileMenuItem"  Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
                                                         <MenuItem.Icon>
                                                             <ContentControl Template="{DynamicResource OpenIcon}"/>
                                                         </MenuItem.Icon>
@@ -433,12 +433,12 @@
                                                     <MenuItem Header="Open File Location" Click="OpenFolder_Click"/>
                                                 </MenuItem>
                                                 <Separator/>
-                                                <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
+                                                <MenuItem Name="PSelectFileMenuItem" Header="Select File (Ctrl+F)" Click="SelectFile_Click">
                                                     <MenuItem.Icon>
                                                         <ContentControl Template="{DynamicResource EditIcon}"/>
                                                     </MenuItem.Icon>
                                                 </MenuItem>
-                                                <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
+                                                <MenuItem Name="PSelectDirectoryMenuItem" Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
                                                 </MenuItem>
                                                 <Separator/>
                                                 <MenuItem x:Name="ParameterLinkedParameterMenuItem" Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
@@ -535,7 +535,9 @@
                                             </ToolBar>
                                         </ToolBarTray>
                                     </Grid>
-                                    <ListView   materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterListView"
+                                    <ListView   
+                                        
+                                        materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterListView"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ContextMenuOpening="QuickParameterListView_OnContextMenuOpening"
@@ -551,7 +553,7 @@
                                             </ItemsPanelTemplate>
                                         </ListView.ItemsPanel>
                                         <ListView.ContextMenu>
-                                            <ContextMenu>
+                                            <ContextMenu Name="QuickParameterContextMenu" ContextMenuOpening="QuickParameterContextMenu_ContextMenuOpening">
                                                 <MenuItem Header="Copy Parameter Name (Ctrl+N)" Click="CopyParameterName_Click">
                                                     <MenuItem.Icon>
                                                         <ContentControl Template="{DynamicResource CopyIcon}"/>
@@ -569,12 +571,12 @@
                                                     <MenuItem Header="Open File Location" Click="OpenFolder_Click"/>
                                                 </MenuItem>
                                                 <Separator/>
-                                                <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
+                                                <MenuItem Name="SelectFileMenuItem" Header="Select File (Ctrl+F)" Click="SelectFile_Click">
                                                     <MenuItem.Icon>
                                                         <ContentControl Template="{DynamicResource EditIcon}"/>
                                                     </MenuItem.Icon>
                                                 </MenuItem>
-                                                <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click"/>
+                                                <MenuItem Name="SelectDirectoryMenuItem"  Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click"/>
                                                 <Separator/>
                                                 <MenuItem Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
                                                     <MenuItem.Icon>
