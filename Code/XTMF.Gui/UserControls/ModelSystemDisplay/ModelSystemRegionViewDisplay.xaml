@@ -82,8 +82,20 @@
             </Button>
         </Grid>
         <Grid Name="GroupDisplay" Grid.Row="1" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" ></ColumnDefinition>
+                <ColumnDefinition Width="1"></ColumnDefinition>
+                <ColumnDefinition Width="Auto" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
 
-            <ListView Name="GroupDisplayList" ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }"
+            <GridSplitter Grid.Column="1" Width="2" ResizeDirection="Columns"></GridSplitter>
+
+            <Grid Column="2">
+
+                <TextBlock Width="250">Description</TextBlock>
+            </Grid>
+
+            <ListView Grid.Column="0" Name="GroupDisplayList" ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }"
                       SelectionChanged="GroupDisplayList_OnSelectionChanged" >
 
                 <ListBox.ItemTemplate>
