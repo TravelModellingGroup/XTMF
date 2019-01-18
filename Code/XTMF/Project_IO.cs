@@ -352,7 +352,8 @@ namespace XTMF
             {
                 RegionDisplay regionDisplay = new RegionDisplay()
                 {
-                    Name = node.Attributes?["Name"].Value
+                    Name = node.Attributes?["Name"].Value,
+                    Description = node.Attributes?["Description"]?.Value
                 };
 
                 var xmlRegionGroupNodes = node.SelectNodes("RegionGroup");
@@ -486,6 +487,7 @@ namespace XTMF
             {
                 writer.WriteStartElement("RegionDisplay");
                 writer.WriteAttributeString("Name", regionDisplay.Name);
+                writer.WriteAttributeString("Description", regionDisplay.Description);
 
                 foreach (var regionGroup in regionDisplay.RegionGroups)
                 {
