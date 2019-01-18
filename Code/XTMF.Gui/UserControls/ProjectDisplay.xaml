@@ -204,7 +204,7 @@
 
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <xtmf:ListViewControl IconKind="CubeOutline" TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch" IsPathIcon="False" VerticalAlignment="Center" VerticalContentAlignment="Center"
+                                                <xtmf:ListViewControl Background="Transparent" IconKind="CubeOutline" TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch" IsPathIcon="False" VerticalAlignment="Center" VerticalContentAlignment="Center"
                                                           SubText="{Binding Description, Mode=OneWay}" StatusText="{Binding StatusText, Mode=OneWay}">
                                                     <xtmf:ListViewControl.ContextMenu>
                                                         <ContextMenu Tag="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}"  >
