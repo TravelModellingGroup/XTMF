@@ -78,7 +78,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Background,Mode=TwoWay}" BorderThickness="0,1,0,1" BorderBrush="{DynamicResource WindowBackgroundBrush4}">
+    <Border Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Background,Mode=TwoWay}" BorderThickness="0,1,0,1" BorderBrush="{DynamicResource MaterialDesignBackground}">
         <Grid Margin="0,0,0,10" HorizontalAlignment="Stretch" MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=local:ModelSystemDisplay}, Path=ParameterWidth}">
             <Grid.ColumnDefinitions>

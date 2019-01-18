@@ -125,7 +125,7 @@
                         </ListView.ContextMenu>
                     </ListView>
                 </Grid>
-                <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
+                <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource MaterialDesignPaper}" ShowsPreview="True" />
                 <Grid Grid.Column="2" Background="{DynamicResource MaterialDesignPaper}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />

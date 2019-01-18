@@ -174,14 +174,7 @@
                 </StackPanel>
                 </local:PopupBoxEx> 
             
-            <!--
-                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush3}">
-                <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="New Project" Width="170" Text="Create a new Project." Icon="/XTMF.Gui;component/Resources/ic_create_new_folder_white_18dp.png" Clicked="NewProject_Clicked"/>
-                <my:BorderIconButton x:Name="RenameProject" BorderThickness="0" Margin="5,12,5,12" Header="Rename Project" Width="170" Text="Change the name of the project." Icon="/XTMF.Gui;component/Resources/ic_refresh_white_18dp.png" Clicked="RenameProject_Clicked"/>
-                <my:BorderIconButton x:Name="CloneProject"  BorderThickness="0" Margin="5,12,5,12" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Resources/ic_content_copy_white_2x.png" Clicked="CloneProject_Clicked"/>
-                <my:BorderIconButton x:Name="DeleteProject" BorderThickness="0" Margin="5,12,5,12" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Resources/ic_cancel_white_18pt_2x.png"
-                                  Clicked="DeleteProject_Clicked"/>
-            </WrapPanel> -->
+
         </Grid>
     </Grid>
 </UserControl>

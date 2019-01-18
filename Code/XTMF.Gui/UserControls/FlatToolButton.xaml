@@ -72,8 +72,8 @@
                                 <Condition Value="True" Property="IsPressed"></Condition>
                             </MultiTrigger.Conditions>
                             <MultiTrigger.Setters>
-                                <Setter Property="Background" Value="{DynamicResource MaterialD}"></Setter>
-                                <Setter Property="BorderBrush" Value="{DynamicResource WindowBackgroundBrush1}"></Setter>
+                                <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}"></Setter>
+                                <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignBackground}"></Setter>
                             </MultiTrigger.Setters>
                         </MultiTrigger>
                         <MultiTrigger>
