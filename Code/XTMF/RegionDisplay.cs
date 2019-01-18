@@ -14,6 +14,10 @@ namespace XTMF
     /// </summary>
     public class RegionDisplay : IRegionDisplay, INotifyPropertyChanged
     {
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string Name
         {
             get
@@ -26,6 +30,14 @@ namespace XTMF
                 OnPropertyChanged(nameof(Name));
 
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Description
+        {
+            get;set;
         }
 
         private ObservableCollection<IRegionGroup> _regionGroups;

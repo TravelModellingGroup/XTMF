@@ -14,6 +14,8 @@ namespace XTMF.Interfaces
         /// </summary>
         string Name { get; set; }
 
+        string Description { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
