@@ -90,9 +90,17 @@
 
             <GridSplitter Grid.Column="1" Width="2" ResizeDirection="Columns"></GridSplitter>
 
-            <Grid Column="2">
+            <Grid Column="2" VerticalAlignment="Stretch">
+                <Grid VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBlock Height="35" Width="250" Grid.Row="0">Description</TextBlock>
+                    <TextBox Grid.Row="1" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" AcceptsReturn="True" AcceptsTab="True" Text="Region view descsription"></TextBox>
+                </Grid>
 
-                <TextBlock Width="250">Description</TextBlock>
+                
             </Grid>
 
             <ListView Grid.Column="0" Name="GroupDisplayList" ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }"
