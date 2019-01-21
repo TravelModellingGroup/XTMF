@@ -545,5 +545,15 @@ namespace XTMF.Gui.UserControls
 
             return;
         }
+
+        /// <summary>
+        /// Click action for editing the region view display description (located bottom of the description field).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditDescriptionButon_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
