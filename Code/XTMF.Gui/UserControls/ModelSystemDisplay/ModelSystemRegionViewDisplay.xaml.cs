@@ -50,6 +50,8 @@ namespace XTMF.Gui.UserControls
 
         public ItemsControl ViewItemsControl => GroupDisplayList;
 
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -553,18 +555,9 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void EditDescriptionButon_Click(object sender, RoutedEventArgs e)
         {
-
+            this.SetRegionViewDescriptionEditActive(true);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EditRegionViewDescriptionTextBox_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
 
         /// <summary>
         /// 
@@ -573,7 +566,37 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void EditRegionViewDescriptionTextBoxMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            this.SetRegionViewDescriptionEditActive(true);
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="active"></param>
+        private void SetRegionViewDescriptionEditActive(bool active)
+        {
+            if(active)
+            {
+                this.SaveDescriptionButon.Visibility = Visibility.Visible;
+                this.EditDescriptionButon.Visibility = Visibility.Collapsed;
+                this.RegionViewDescriptionTextBox.IsReadOnly = false;
+            }
+            else
+            {
+                this.SaveDescriptionButon.Visibility = Visibility.Collapsed;
+                this.EditDescriptionButon.Visibility = Visibility.Visible;
+                this.RegionViewDescriptionTextBox.IsReadOnly = true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SaveDescriptionButon_Click(object sender, RoutedEventArgs e)
+        {
+            this.SetRegionViewDescriptionEditActive(false);
         }
     }
 }

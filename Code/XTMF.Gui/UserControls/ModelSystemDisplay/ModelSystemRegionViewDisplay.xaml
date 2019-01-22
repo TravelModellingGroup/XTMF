@@ -111,9 +111,18 @@
                         </TextBox.ContextMenu>
                     </TextBox>
                     <Button Click="EditDescriptionButon_Click" Margin="0" Padding="0" Grid.Row="2"  Name="EditDescriptionButon"  ToolTip="Edit description for this region display."
-                    Style="{StaticResource MaterialDesignFlatButton}" VerticalAlignment="Top" VerticalContentAlignment="Center" Height="25">
+                    Style="{DynamicResource MaterialDesignFlatButton}" VerticalAlignment="Top" VerticalContentAlignment="Center" Height="25">
 
                         <materialDesign:PackIcon Kind="Edit" VerticalAlignment="Center" 
+                                         HorizontalAlignment="Center" />
+
+
+                    </Button>
+
+                    <Button Click="SaveDescriptionButon_Click" Margin="0" Padding="0" Grid.Row="2"  Name="SaveDescriptionButon"  ToolTip="Edit description for this region display."
+                    Style="{DynamicResource MaterialDesignRaisedButton}" VerticalAlignment="Top" VerticalContentAlignment="Center" Height="25" Visibility="Collapsed">
+
+                        <materialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" 
                                          HorizontalAlignment="Center" />
 
 
