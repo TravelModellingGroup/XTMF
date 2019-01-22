@@ -98,7 +98,18 @@
                         <RowDefinition Height="25"></RowDefinition>
                     </Grid.RowDefinitions>
                     <TextBlock Height="35" Width="250" Grid.Row="0">Description</TextBlock>
-                    <TextBox Name="RegionViewDescriptionTextBox" IsReadOnly="True" Grid.Row="1" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" AcceptsReturn="True" AcceptsTab="True" Text="Region view description"></TextBox>
+                    <TextBox Name="RegionViewDescriptionTextBox" IsReadOnly="True" Grid.Row="1" VerticalContentAlignment="Stretch"
+                             VerticalAlignment="Stretch" AcceptsReturn="True" AcceptsTab="True" Text="Region view description">
+                        <TextBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Name="EditRegionViewDescriptionTextBoxMenuItem" Click="EditRegionViewDescriptionTextBoxMenuItem_Click">
+                                    <materialDesign:PackIcon Kind="Edit" VerticalAlignment="Center" 
+                                         HorizontalAlignment="Center" />
+                                    <TextBlock>Edit description</TextBlock>
+                                </MenuItem>
+                            </ContextMenu>
+                        </TextBox.ContextMenu>
+                    </TextBox>
                     <Button Click="EditDescriptionButon_Click" Margin="0" Padding="0" Grid.Row="2"  Name="EditDescriptionButon"  ToolTip="Edit description for this region display."
                     Style="{StaticResource MaterialDesignFlatButton}" VerticalAlignment="Top" VerticalContentAlignment="Center" Height="25">
 

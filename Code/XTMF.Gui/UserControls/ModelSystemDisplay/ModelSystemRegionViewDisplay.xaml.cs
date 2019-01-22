@@ -555,5 +555,25 @@ namespace XTMF.Gui.UserControls
         {
 
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditRegionViewDescriptionTextBox_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditRegionViewDescriptionTextBoxMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
