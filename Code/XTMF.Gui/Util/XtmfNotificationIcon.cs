@@ -18,15 +18,25 @@ namespace XTMF.Gui.Util
 
         private static Action _clickCallbackAction;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static void InitializeNotificationIcon()
         {
 
-            _icon = new NotifyIcon
+            try
             {
-                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
-                Visible = true
-            };
-            _icon.BalloonTipClicked += _icon_BalloonTipClicked;
+                _icon = new NotifyIcon
+                {
+                    Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
+                    Visible = true
+                };
+                _icon.BalloonTipClicked += _icon_BalloonTipClicked;
+            }
+            catch
+            {
+                Console.WriteLine("Tray icon not loaded for network share.");
+            }
 
 
         }
