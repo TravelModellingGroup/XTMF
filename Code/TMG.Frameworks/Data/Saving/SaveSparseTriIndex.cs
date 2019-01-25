@@ -139,7 +139,21 @@ namespace TMG.Frameworks.Data.Saving
 
         private void SaveThirdNormalizedCSV(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
         {
-            throw new XTMFRuntimeException(this, "Not implemented!");
+            using (var writer = new StreamWriter(BuildFileName(layerIndex)))
+            {
+                writer.WriteLine("Origin,Destination,Value");
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    for (int j = 0; j < flatData[i].Length; j++)
+                    {
+                        writer.Write(origins[i]);
+                        writer.Write(',');
+                        writer.Write(destinations[j]);
+                        writer.Write(',');
+                        writer.WriteLine(flatData[i][j]);
+                    }
+                }
+            }
         }
 
         private void SaveMTX(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
