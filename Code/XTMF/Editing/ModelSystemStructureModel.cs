@@ -147,7 +147,11 @@ namespace XTMF
                         // right now we are using a clone
                         Dirty = true;
                         RealModelSystemStructure.Type = value;
-                        RealModelSystemStructure.Name = value.Name;
+
+                        if (value != null)
+                        {
+                            RealModelSystemStructure.Name = value.Name;
+                        }
                         UpdateChildren();
                         Parameters = new ParametersModel(this, _Session);
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
@@ -209,8 +213,8 @@ namespace XTMF
                 {
                     var name = realParmameter.Name;
                     realParmameter.Value = (from p in Parameters.Parameters
-                        where p.Name == name
-                        select p.Value).First();
+                                            where p.Name == name
+                                            select p.Value).First();
                 }
             }
         }
@@ -456,10 +460,10 @@ namespace XTMF
                     var linkedParameterModel = _Session.ModelSystemModel.LinkedParameters;
                     var realLinkedParameters = linkedParameterModel.GetLinkedParameters();
                     var missing = from lp in linkedParameters
-                        where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
-                        select lp;
+                                  where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
+                                  select lp;
                     var matching = linkedParameters.Join(realLinkedParameters, (p) => p.Name, (p) => p.Name,
-                        (t, r) => new {Real = r, Temp = t});
+                        (t, r) => new { Real = r, Temp = t });
                     // add links for the ones we've matched
                     foreach (var lp in matching)
                     {
@@ -619,7 +623,7 @@ namespace XTMF
             int indexOffset)
         {
             return (from path in temp.Paths
-                select GetParametersFromTemp(path, root, indexOffset)).ToList();
+                    select GetParametersFromTemp(path, root, indexOffset)).ToList();
         }
 
         /// <summary>
@@ -1011,8 +1015,8 @@ namespace XTMF
         private List<LinkedParameterModel> GetLinkedParameters(List<ModelSystemStructureModel> children)
         {
             return (from lp in _Session.ModelSystemModel.LinkedParameters.LinkedParameters
-                where children.Any(child => lp.HasContainedModule(child))
-                select lp).ToList();
+                    where children.Any(child => lp.HasContainedModule(child))
+                    select lp).ToList();
         }
 
 
@@ -1230,16 +1234,16 @@ namespace XTMF
                 else
                 {
                     var previousChildren = (from child in Children
-                        where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
-                        select child).ToList();
+                                            where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
+                                            select child).ToList();
                     foreach (var child in previousChildren)
                     {
                         ret.Remove(child);
                     }
 
                     foreach (var child in from child in realModelSystemStructure.Children
-                        where !Children.Any(c => c.RealModelSystemStructure == child)
-                        select child)
+                                          where !Children.Any(c => c.RealModelSystemStructure == child)
+                                          select child)
                     {
                         ret.Add(new ModelSystemStructureModel(session, child as ModelSystemStructure, this));
                     }
@@ -1249,7 +1253,7 @@ namespace XTMF
                     {
                         // now search for children that have moved indexes after adds and deleted have been performed
                         var indexes = (from child in Children
-                            select realModelSystemStructure.Children.IndexOf(child.RealModelSystemStructure)).ToArray();
+                                       select realModelSystemStructure.Children.IndexOf(child.RealModelSystemStructure)).ToArray();
                         for (var i = 0; i < indexes.Length; i++)
                         {
                             // if a child has moved
