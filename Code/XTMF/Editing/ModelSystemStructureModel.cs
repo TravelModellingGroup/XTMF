@@ -147,11 +147,6 @@ namespace XTMF
                         // right now we are using a clone
                         Dirty = true;
                         RealModelSystemStructure.Type = value;
-
-                        if (value != null)
-                        {
-                            RealModelSystemStructure.Name = value.Name;
-                        }
                         UpdateChildren();
                         Parameters = new ParametersModel(this, _Session);
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
