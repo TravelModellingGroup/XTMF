@@ -71,6 +71,9 @@ namespace TMG.Emme.NetworkAssignment
         [Parameter("Connector Logit Scale", 0.2f, "Scale parameter for logit model at origin connectors.")]
         public float ConnectorLogitScale;
 
+        [Parameter("Logit Scale at Critical Nodes", 1.0f, "This is the scale parameter for the logit model at critical nodes. Set it to 1 to turn it off logit. Set it to 0 to ensure equal proportion on all connected auxiliary transfer links. Critical nodes are defined as the non centroid end of centroid connectors and nodes that have transit lines from more than one agency")]
+        public float NodeLogitScale;
+
         [RunParameter("Apply Congestion", true, "Set this to false in order to not apply congestion during assignment.")]
         public bool ApplyCongestion;
 
@@ -159,7 +162,8 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("xtmf_CSVFile", GetFileLocationOrNone(IterationCSVFile)),
                 new ModellerControllerParameter("xtmf_SurfaceTransitSpeed", GetSurfaceSpeedModel()),
                 new ModellerControllerParameter("xtmf_WalkAllWayFlag", WalkAllWayFlag.ToString()),
-                new ModellerControllerParameter("xtmf_XRowTTFRange", XRowTTF.ToString())
+                new ModellerControllerParameter("xtmf_XRowTTFRange", XRowTTF.ToString()),
+                new ModellerControllerParameter("xtmf_NodeLogitScale",NodeLogitScale.ToString())
 
                 };
             }

@@ -131,6 +131,7 @@
     <Compile Include="NetworkAssignment\AuxiliaryTransitDistance.cs" />
     <Compile Include="NetworkAssignment\TmgTransitAssignmentTool.cs" />
     <Compile Include="NetworkAssignment\MulticlassFarebasedCongestedTransitAssignment.cs" />
+    <Compile Include="Tools\Analysis\Traffic\ExportCountpostResultsMulticlass.cs" />
     <Compile Include="Tools\Analysis\Transit\ExtractTransitMatrixResults.cs" />
     <Compile Include="Tools\Analysis\Transit\StrategyAnalysis\ExtractLinkTransfers.cs" />
     <Compile Include="ChainExecution.cs" />
