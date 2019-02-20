@@ -98,17 +98,10 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.D:
-                            if (ModuleParameterDisplay.IsKeyboardFocusWithin)
+                            if (ModuleParameterDisplay.IsKeyboardFocusWithin || QuickParameterDisplay2.IsKeyboardFocusWithin)
                             {
                                 SelectDirectoryForCurrentParameter();
                             }
-
-                            //TODO
-                            //if (ModuleDisplay.IsKeyboardFocusWithin)
-                            //{
-                            //    ToggleDisableModule();
-                            //}
-
                             e.Handled = true;
                             break;
                         case Key.Z:

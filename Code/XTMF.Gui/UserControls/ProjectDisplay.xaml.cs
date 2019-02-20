@@ -229,7 +229,7 @@ namespace XTMF.Gui.UserControls
                             {
                                 IsRenameActive = false;
                             }
-                            
+
                         }
                         break;
                     case Key.F2:
@@ -455,7 +455,7 @@ namespace XTMF.Gui.UserControls
             SaveCurrentAsModelSystem(true);
         }
 
-        private void SaveCurrentAsModelSystem(bool exportToFile)
+        private async void SaveCurrentAsModelSystem(bool exportToFile)
         {
             if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
@@ -476,17 +476,17 @@ namespace XTMF.Gui.UserControls
                 }
                 else
                 {
-                    // save as a model system within XTMF
-                    var sr = new StringRequest("Save Model System As?",
-                        newName => { return Session.ValidateModelSystemName(newName); })
-                    {
-                        Owner = GetWindow()
-                    };
-                    if (sr.ShowDialog() == true)
+
+
+                    var dialog = new StringRequestDialog("Save Model System As?",
+                    newName => { return Session.ValidateModelSystemName(newName); });
+                    var result = await dialog.ShowAsync(true);
+
+                    if (dialog.DidComplete)
                     {
                         string error = null;
 
-                        if (!selected.CloneModelSystem(Session, sr.Answer, ref error))
+                        if (!selected.CloneModelSystem(Session, dialog.UserInput, ref error))
                         {
                             MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK,
                                 MessageBoxImage.Error);

@@ -18,18 +18,43 @@ namespace XTMF.Gui.Util
 
         private static Action _clickCallbackAction;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hInst"></param>
+        /// <param name="lpIconPath"></param>
+        /// <param name="lpiIcon"></param>
+        /// <returns></returns>
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        static extern IntPtr ExtractAssociatedIcon(IntPtr hInst, StringBuilder lpIconPath, out ushort lpiIcon);
+
+        /// <summary>
+        /// Initializes the notification icon in the system tray area.
+        /// </summary>
         public static void InitializeNotificationIcon()
         {
 
-            _icon = new NotifyIcon
+            try
             {
-                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
-                Visible = true
-            };
-            _icon.BalloonTipClicked += _icon_BalloonTipClicked;
-
+                ushort uicon;
+                StringBuilder strB = new StringBuilder(260);
+                strB.Append(Application.ExecutablePath);
+                IntPtr handle = ExtractAssociatedIcon(IntPtr.Zero, strB, out uicon);
+                Icon ico = Icon.FromHandle(handle);
+                _icon = new NotifyIcon
+                {
+                    Icon = ico,
+                    Visible = true
+                };
+                _icon.BalloonTipClicked += _icon_BalloonTipClicked;
+            }
+            catch
+            {
+                Console.WriteLine("Tray icon not loaded for network share.");
+            }
 
         }
+
 
         /// <summary>
         /// 

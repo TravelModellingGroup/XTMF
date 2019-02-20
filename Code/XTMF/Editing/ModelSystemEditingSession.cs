@@ -337,7 +337,7 @@ namespace XTMF
                         else
                         {
                             run =
-                                /*Debugger.IsAttached ||*/ forceLocal ||
+                                Debugger.IsAttached || forceLocal ||
                                 !((Configuration)Configuration).RunInSeperateProcess
                                     ? XTMFRun.CreateLocalRun(cloneProject, _ModelSystemIndex, ModelSystemModel,
                                         Runtime.Configuration, runName, overwrite)

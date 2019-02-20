@@ -26,7 +26,7 @@ namespace XTMF.Testing
     [TestClass]
     public class CSVReaderTest
     {
-        private string[] TestCSVFileNames = new[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv" };
+        private string[] TestCSVFileNames = new[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv", "CSVTest6.csv" };
 
         [TestInitialize]
         public void CreateTestEnvironment()
@@ -177,6 +177,48 @@ namespace XTMF.Testing
                     numberOfLines++;
                 }
                 Assert.AreEqual(4, numberOfLines);
+            }
+        }
+
+        [TestMethod]
+        public void TestLineReadValue()
+        {
+            using (CsvReader reader = new CsvReader(TestCSVFileNames[2]))
+            {
+                float lastColumnValue = float.NaN;
+                while (reader.LoadLine(out int columns))
+                {
+                    if (columns > 0)
+                    {
+                        reader.Get(out lastColumnValue, 4);
+                    }
+                }
+                Assert.AreEqual(0.1314f, lastColumnValue);
+            }
+        }
+
+        [TestMethod]
+        public void TestNoEnterLastLineReadValue()
+        {
+            using (CsvReader reader = new CsvReader(TestCSVFileNames[3]))
+            {
+                int numberOfLines = 0;
+                float lastColumnValue = float.NaN;
+                while (reader.LoadLine(out int columns))
+                {
+                    if ((columns == 0) & (numberOfLines != 4))
+                    {
+                        Assert.Fail("There was a blank line besides at the end of the file!");
+                    }
+                    else if (columns > 0)
+                    {
+                        Assert.AreEqual(5, columns);
+                    }
+                    numberOfLines++;
+                    reader.Get(out lastColumnValue, 4);
+                }
+                Assert.AreEqual(4, numberOfLines);
+                Assert.AreEqual(0.1314f, lastColumnValue);
             }
         }
     }

@@ -64,10 +64,10 @@
             </Button>
             <Button Grid.Column="2"  Name="NewGroupButton" IsEnabled="{Binding IsNewGroupButtonEnabled}" ToolTip="Create new region group (requires active region display)"
                     Click="NewGroupButton_OnClick" Style="{StaticResource MaterialDesignFlatButton}">
-             
-                    <materialDesign:PackIcon Kind="LibraryAdd" VerticalAlignment="Center" 
+
+                <materialDesign:PackIcon Kind="LibraryAdd" VerticalAlignment="Center" 
                                          HorizontalAlignment="Center" />
-                
+
 
             </Button>
             <Button Grid.Column="3" Name="EditRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Rename current region display"
@@ -82,8 +82,57 @@
             </Button>
         </Grid>
         <Grid Name="GroupDisplay" Grid.Row="1" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" ></ColumnDefinition>
+                <ColumnDefinition Width="1"></ColumnDefinition>
+                <ColumnDefinition Width="Auto" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
 
-            <ListView Name="GroupDisplayList" ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }"
+            <GridSplitter Grid.Column="1" Width="2" ResizeDirection="Columns"></GridSplitter>
+
+            <Grid Column="2" VerticalAlignment="Stretch">
+                <Grid VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="25"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBlock Height="35" Width="250" Grid.Row="0">Description</TextBlock>
+                    <TextBox Name="RegionViewDescriptionTextBox" IsReadOnly="True" Grid.Row="1" VerticalContentAlignment="Stretch"
+                             VerticalAlignment="Stretch" AcceptsReturn="True" AcceptsTab="True" Text="Region view description">
+                        <TextBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Name="EditRegionViewDescriptionTextBoxMenuItem" Click="EditRegionViewDescriptionTextBoxMenuItem_Click">
+                                    <materialDesign:PackIcon Kind="Edit" VerticalAlignment="Center" 
+                                         HorizontalAlignment="Center" />
+                                    <TextBlock>Edit description</TextBlock>
+                                </MenuItem>
+                            </ContextMenu>
+                        </TextBox.ContextMenu>
+                    </TextBox>
+                    <Button Click="EditDescriptionButon_Click" Margin="0" Padding="0" Grid.Row="2"  Name="EditDescriptionButon"  ToolTip="Edit description for this region display."
+                    Style="{DynamicResource MaterialDesignFlatButton}" VerticalAlignment="Top" VerticalContentAlignment="Center" Height="25">
+
+                        <materialDesign:PackIcon Kind="Edit" VerticalAlignment="Center" 
+                                         HorizontalAlignment="Center" />
+
+
+                    </Button>
+
+                    <Button Click="SaveDescriptionButon_Click" Margin="0" Padding="0" Grid.Row="2"  Name="SaveDescriptionButon"  ToolTip="Edit description for this region display."
+                    Style="{DynamicResource MaterialDesignRaisedButton}" VerticalAlignment="Top" VerticalContentAlignment="Center" Height="25" Visibility="Collapsed">
+
+                        <materialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" 
+                                         HorizontalAlignment="Center" />
+
+
+                    </Button>
+                </Grid>
+
+
+            </Grid>
+
+            <ListView Grid.Column="0" Name="GroupDisplayList" ItemContainerStyle="{StaticResource RegionViewDisplayListBoxItem }"
                       SelectionChanged="GroupDisplayList_OnSelectionChanged" >
 
                 <ListBox.ItemTemplate>

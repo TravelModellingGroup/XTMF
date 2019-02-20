@@ -136,7 +136,7 @@
                         ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
                         Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" VerticalAlignment="Stretch" >
                             <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
-                            <DataGrid PreviewKeyDown="ModelSystemsDataGrid_OnPreviewKeyDown" KeyDown="ModelSystemsDataGrid_OnKeyDown" Focusable="True" VerticalContentAlignment="Center" Name="ModelSystemsDataGrid"  MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" VerticalAlignment="Stretch" 
+                            <DataGrid Background="Transparent" PreviewKeyDown="ModelSystemsDataGrid_OnPreviewKeyDown" KeyDown="ModelSystemsDataGrid_OnKeyDown" Focusable="True" VerticalContentAlignment="Center" Name="ModelSystemsDataGrid"  MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" VerticalAlignment="Stretch" 
                             PreviewMouseLeftButtonDown="ModelSystemDisplay_OnPreviewMouseLeftButtonDown"   Margin="0 8 0 0" ItemsSource="{Binding Items3}" CanUserSortColumns="True" CanUserAddRows="False" AutoGenerateColumns="False"
   
                                   materialDesign:DataGridAssist.CellPadding="13 8 8 8" materialDesign:DataGridAssist.ColumnHeaderPadding="8" Width="Auto" HorizontalContentAlignment="Stretch">
@@ -204,7 +204,7 @@
 
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <xtmf:ListViewControl IconKind="CubeOutline" TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch" IsPathIcon="False" VerticalAlignment="Center" VerticalContentAlignment="Center"
+                                                <xtmf:ListViewControl Background="Transparent" IconKind="CubeOutline" TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch" IsPathIcon="False" VerticalAlignment="Center" VerticalContentAlignment="Center"
                                                           SubText="{Binding Description, Mode=OneWay}" StatusText="{Binding StatusText, Mode=OneWay}">
                                                     <xtmf:ListViewControl.ContextMenu>
                                                         <ContextMenu Tag="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}"  >

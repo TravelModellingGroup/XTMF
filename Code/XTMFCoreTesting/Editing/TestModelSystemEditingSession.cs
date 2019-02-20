@@ -396,6 +396,42 @@ namespace XTMF.Testing.Editing
             }
         }
 
+        [TestMethod]
+        public void TestNotChangingSubmoduleNameOnTypeChange()
+        {
+            var runtime = TestXTMFCore.CreateRuntime();
+            var controller = runtime.ModelSystemController;
+            var msName = "TestModelSystem";
+            controller.Delete(msName);
+            var ms = controller.LoadOrCreate(msName);
+            Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
+            using (var session = controller.EditModelSystem(ms))
+            {
+                var model = session.ModelSystemModel;
+                Assert.IsNotNull(model, "No model system model was created!");
+                ModelSystemStructureModel root = model.Root;
+                Assert.IsNotNull(root, "No root object was made!");
+
+                root.Type = typeof(TestModelSystemTemplate);
+                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+
+                Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
+
+                var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+                Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
+
+                string error = null;
+                Assert.IsTrue(collection.AddCollectionMember(typeof(TestRequiredSubmodule), ref error), "We were unable to properly add a new collection member.");
+                Assert.AreEqual(1, collection.Children.Count, "The collection does not have 1 child!");
+                var parent = collection.Children[0];
+                Assert.AreEqual(1, parent.Children.Count, "TestRequiredSubmodule has more than one child!");
+                var childToRename = parent.Children[0];
+                var originalName = childToRename.Name;
+                childToRename.Type = typeof(TestRequiredSubmodule);
+                Assert.AreEqual(originalName, childToRename.Name, "The name changed when the type changed on a non collection member!");
+            }
+        }
+
         private ModelSystem CreateTestModelSystem(XTMFRuntime runtime)
         {
             var controller = runtime.ModelSystemController;
