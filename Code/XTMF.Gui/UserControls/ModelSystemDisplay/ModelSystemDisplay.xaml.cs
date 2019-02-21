@@ -103,7 +103,6 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             //AllowMultiSelection(ModuleDisplay);
             Loaded += ModelSystemDisplay_Loaded;
-
             DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
             //DisabledModulesList.ItemsSource = DisabledModules;
             FilterBox.Filter = (o, text) =>
@@ -122,8 +121,6 @@ namespace XTMF.Gui.UserControls
                 });
                 return true;
             };
-
-
             LinkedParameterDisplayOverlay = new LinkedParameterDisplay();
             LinkedParameterDisplayOverlay.GoToModule += module =>
             {
@@ -145,34 +142,23 @@ namespace XTMF.Gui.UserControls
                         {
                             RecentLinkedParameters.Remove(matched);
                         }
-
                         RecentLinkedParameters.Insert(0, new LinkedParameterDisplayModel(newLP));
                         if (RecentLinkedParameters.Count > 5)
                         {
                             RecentLinkedParameters.RemoveAt(5);
                         }
-
                         ParameterRecentLinkedParameters.IsEnabled = true;
                         QuickParameterRecentLinkedParameters.IsEnabled = true;
                     }
-
                     RefreshParameters();
                     _selectedParameterDisplayModel = null;
                 });
             };
-
             //initialize sub displays for the model system
             _regionViewDisplay = new ModelSystemRegionViewDisplay(this);
             TreeViewDisplay = new ModelSystemTreeViewDisplay(this);
-
-
             ActiveModelSystemView = TreeViewDisplay;
-
             ModelSystemDisplayModelMap = new Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel>();
-
-            // hide quick parameter display by default
-            // ContentDisplayGrid.ColumnDefinitions[2].Width = new GridLength(0);
-            // QuickParameterDisplay2.IsEnabled = false;
         }
 
         private ParameterDisplayModel SoftActiveParameterDisplay { get; set; }
@@ -206,7 +192,6 @@ namespace XTMF.Gui.UserControls
                     : "MaterialDesignBody")).Color
             };
 
-
         public bool CanRunModelSystem
         {
             get => (bool)GetValue(CanRunModelSystemDependencyProperty);
@@ -232,14 +217,12 @@ namespace XTMF.Gui.UserControls
                     _session.CommandExecuted += SessionOnCommandExecuted;
                     _session.Saved += _Session_Saved;
                 }
-
                 _session = value;
                 ModelSystemEditingSessionChanged?.Invoke(this, new ModelSystemEditingSessionChangedEventArgs(_session));
                 if (value != null)
                 {
                     value.ProjectWasExternallySaved += ProjectWasExternalSaved;
                 }
-
                 CanRunModelSystem = _session.ProjectEditingSession != null;
             }
         }
@@ -276,21 +259,9 @@ namespace XTMF.Gui.UserControls
 
         public ObservableCollection<ModelSystemStructureDisplayModel> DisabledModules { get; set; }
 
-
         /// <summary>
         /// </summary>
-        public string DisabledModulesCountText
-        {
-            get
-            {
-                if (DisabledModules != null)
-                {
-                    return $"{DisabledModules.Count}";
-                }
-
-                return "0";
-            }
-        }
+        public string DisabledModulesCountText => DisabledModules != null ? $"{DisabledModules.Count}" : "0";
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -348,6 +319,7 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public bool HandleTabClose()
         {
+            string error = null;
             var value = Session.CloseWillTerminate && CanSaveModelSystem;
             if (value)
             {
@@ -357,29 +329,21 @@ namespace XTMF.Gui.UserControls
                         MessageBoxImage.Question,
                         MessageBoxResult.Cancel) == MessageBoxResult.OK)
                 {
-                    string error = null;
                     if (!Session.Close(ref error))
                     {
                         MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
                             MessageBoxImage.Warning);
                     }
-
                     return true;
                 }
-
                 return false;
             }
-
+            if (!Session.Close(ref error))
             {
-                string error = null;
-                if (!Session.Close(ref error))
-                {
-                    MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                }
-
-                return true;
+                MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             }
+            return true;
         }
 
         public event EventHandler<ModelSystemEditingSessionChangedEventArgs> ModelSystemEditingSessionChanged;
@@ -485,13 +449,11 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-
             var show = thisParentPassed | childrenPassed | parentVisible;
             if (!string.IsNullOrWhiteSpace(filterText))
             {
                 module.IsExpanded = childrenPassed;
             }
-
             module.ModuleVisibility = thisParentPassed | childrenPassed | parentPassed
                 ? Visibility.Visible
                 : Visibility.Collapsed;
@@ -506,7 +468,6 @@ namespace XTMF.Gui.UserControls
             return GetCurrentlySelectedControl(DisplayRoot,
                 ActiveModelSystemView.SelectedModule);
         }
-
 
         /// <summary>
         /// </summary>
@@ -525,7 +486,6 @@ namespace XTMF.Gui.UserControls
             {
                 return container;
             }
-
             if (children != null)
             {
                 foreach (var child in children)
@@ -537,7 +497,6 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-
             return null;
         }
 
@@ -552,7 +511,6 @@ namespace XTMF.Gui.UserControls
                 EnumerateModules(m);
             }
         }
-
 
         /// <summary>
         /// </summary>
@@ -572,7 +530,6 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
 
         private bool FilterParameters(object arg1, string arg2)
         {
@@ -765,7 +722,7 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Sets, repalces, or adds a module to the currently selected module.
+        /// Sets, replaces, or adds a module to the currently selected module.
         /// </summary>
         internal void SelectReplacement()
         {
@@ -898,8 +855,6 @@ namespace XTMF.Gui.UserControls
             }
             else
             {
-                //POSSIBLY TODO
-                //us.ModuleDisplay.DataContext = null;
                 us.ModelSystemName = "No model loaded";
                 us.FilterBox.Display = null;
                 us.ParameterLinkedParameterMenuItem.ItemsSource = null;
@@ -914,7 +869,6 @@ namespace XTMF.Gui.UserControls
         {
             OnModelSystemChanged(source as ModelSystemDisplay, e.NewValue as ModelSystemModel);
         }
-
 
         /// <summary>
         /// </summary>
@@ -952,10 +906,8 @@ namespace XTMF.Gui.UserControls
             {
                 (DisplayRoot = new ModelSystemStructureDisplayModel(root, null, 0))
             };
-
             return s;
         }
-
 
         /// <summary>
         /// </summary>
@@ -1043,7 +995,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         public void Redo()
         {
             string error = null;
@@ -1063,9 +1014,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() => { RequestClose?.Invoke(this); }));
         }
 
-
         public event Action<object> RequestClose;
-
 
         /// <summary>
         /// </summary>
@@ -1109,7 +1058,6 @@ namespace XTMF.Gui.UserControls
             {
                 return null;
             }
-
             for (var i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
             {
                 var child = VisualTreeHelper.GetChild(depObj, i);
@@ -1119,7 +1067,6 @@ namespace XTMF.Gui.UserControls
                     return result;
                 }
             }
-
             return null;
         }
 
@@ -1203,7 +1150,6 @@ namespace XTMF.Gui.UserControls
                         {
                             MoveFocusNext(false);
                         }
-
                         e.Handled = true;
                         break;
                     case Key.L:
@@ -1216,16 +1162,13 @@ namespace XTMF.Gui.UserControls
                         {
                             e.Handled = false;
                         }
-
                         break;
-
                     default:
                         e.Handled = false;
                         break;
                 }
             }
         }
-
 
         /// <summary>
         /// </summary>
@@ -1326,7 +1269,6 @@ namespace XTMF.Gui.UserControls
                 {
                     return true;
                 }
-
                 foreach (var c in current.Children)
                 {
                     if (IsContainedWithin(c, toFind))
@@ -1334,10 +1276,8 @@ namespace XTMF.Gui.UserControls
                         return true;
                     }
                 }
-
                 return false;
             }
-
             ModelSystemStructureDisplayModel find(ModelSystemStructureDisplayModel current,
                 ModelSystemStructureModel toFind)
             {
@@ -1345,12 +1285,10 @@ namespace XTMF.Gui.UserControls
                 {
                     return current;
                 }
-
                 if (current.IsMetaModule)
                 {
                     return IsContainedWithin(current.BaseModel, toFind) ? current : null;
                 }
-
                 foreach (var c in current.Children)
                 {
                     var ret = find(c, toFind);
@@ -1359,10 +1297,8 @@ namespace XTMF.Gui.UserControls
                         return ret;
                     }
                 }
-
                 return null;
             }
-
             return find(DisplayRoot, model);
         }
 
@@ -1418,7 +1354,6 @@ namespace XTMF.Gui.UserControls
                         return;
                     }
                 }
-
                 current = VisualTreeHelper.GetParent(current);
             }
         }
@@ -1458,11 +1393,9 @@ namespace XTMF.Gui.UserControls
                             MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-
                     any = true;
                 }
             }
-
             if (any)
             {
                 UpdateParameters();
@@ -1480,7 +1413,6 @@ namespace XTMF.Gui.UserControls
         private void UpdateParameters()
         {
             var parameters = GetActiveParameters();
-
             if (parameters != null)
             {
                 Task.Factory.StartNew(() =>
@@ -1502,25 +1434,15 @@ namespace XTMF.Gui.UserControls
                             }
                         }
                     }
-
                     Dispatcher.Invoke(() =>
                     {
-                        
                         CleanUpParameters();
-                        
                         ParameterDisplay.ItemsSource = source;
                         ParameterFilterBox.Display = ParameterDisplay;
                         ParameterFilterBox.Filter = FilterParameters;
-                       //  ParameterFilterBox.RefreshFilter();
-
-
                         var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
                         if (type != null)
                         {
-                            //SelectedName.Text = CurrentlySelected.Count == 1
-                            //    ? CurrentlySelected[0].Name
-                            //   : "Multiple Modules Selected";
-                            //SelectedNamespace.Text = type.FullName;
                             var attr =
                                 (ModuleInformationAttribute)
                                 Attribute.GetCustomAttribute(type, typeof(ModuleInformationAttribute));
@@ -1549,7 +1471,7 @@ namespace XTMF.Gui.UserControls
                         }
 
                         ParameterDisplay.Opacity = 1.0;
-                        
+
                     }, DispatcherPriority.Render);
                 });
             }
@@ -1595,7 +1517,6 @@ namespace XTMF.Gui.UserControls
                 .ToList();
         }
 
-
         /// <summary>
         ///     Displays documentation for the currently selected module.
         /// </summary>
@@ -1606,7 +1527,6 @@ namespace XTMF.Gui.UserControls
                 MainWindow.Us.LaunchHelpWindow(selectedModule.BaseModel);
             }
         }
-
 
         /// <summary>
         ///     Renames the selected module
@@ -1675,7 +1595,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         /// <summary>
         ///     Brings the specified module into view
         /// </summary>
@@ -1702,7 +1621,6 @@ namespace XTMF.Gui.UserControls
                             {
                                 currentContainer.BringIntoView();
                             }
-
                             return;
                         }
                     }
@@ -1824,7 +1742,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         /// <summary>
         /// </summary>
         private void CopyParameterName()
@@ -1846,7 +1763,6 @@ namespace XTMF.Gui.UserControls
                 currentParameter.SetHidden(hidden, ref error);
             }
         }
-
 
         /// <summary>
         /// </summary>
@@ -1906,20 +1822,16 @@ namespace XTMF.Gui.UserControls
                 {
                     break;
                 }
-
                 // detect a loop
                 if (previousRoot == currentRoot)
                 {
                     return null;
                 }
-
                 previousRoot = currentRoot;
             } while (true);
-
             directory = GetInputDirectory(currentRoot, out var inputParameter);
             return inputParameter;
         }
-
 
         /// <summary>
         /// </summary>
@@ -1941,7 +1853,6 @@ namespace XTMF.Gui.UserControls
                     {
                         pathToFile = Path.GetDirectoryName(pathToFile);
                     }
-
                     try
                     {
                         var toRun = new Process();
@@ -1954,7 +1865,6 @@ namespace XTMF.Gui.UserControls
                         {
                             toRun.StartInfo.FileName = pathToFile;
                         }
-
                         toRun.Start();
                     }
                     catch
@@ -2013,7 +1923,6 @@ namespace XTMF.Gui.UserControls
                     {
                         return;
                     }
-
                     TransformToRelativePath(inputDirectory, ref fileName);
                     SetParameterValue(currentParameter, fileName);
                 }
@@ -2058,7 +1967,6 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-
             parameter = null;
             return null;
         }
@@ -2077,12 +1985,10 @@ namespace XTMF.Gui.UserControls
             {
                 return RemoveRelativeDirectories(parameterValue);
             }
-
             if (inputDirectoryRooted)
             {
                 return RemoveRelativeDirectories(Path.Combine(inputDirectory, parameterValue));
             }
-
             return RemoveRelativeDirectories(Path.Combine(Session.Configuration.ProjectDirectory,
                 Session.ProjectEditingSession.Name,
                 "RunDirectory", inputDirectory, isInputParameter ? "" : parameterValue));
@@ -2106,7 +2012,6 @@ namespace XTMF.Gui.UserControls
                     {
                         return null;
                     }
-
                     var previousString = currentlyOn.Pop();
                     var removeLength = previousString.Length + 1;
                     finalPath.Remove(finalPath.Length - removeLength, removeLength);
@@ -2122,7 +2027,6 @@ namespace XTMF.Gui.UserControls
                     currentlyOn.Push(parts[i]);
                 }
             }
-
             return finalPath.ToString(0, finalPath.Length - 1);
         }
 
@@ -2164,7 +2068,6 @@ namespace XTMF.Gui.UserControls
             SelectDirectoryForCurrentParameter();
         }
 
-
         /// <summary>
         /// </summary>
         public void UpdateQuickParameters()
@@ -2180,7 +2083,6 @@ namespace XTMF.Gui.UserControls
                 QuickParameterFilterBox.RefreshFilter();
             }
         }
-
 
         /// <summary>
         /// 
@@ -2220,7 +2122,6 @@ namespace XTMF.Gui.UserControls
             SetCurrentParameterHidden(false);
         }
 
-
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
@@ -2240,7 +2141,6 @@ namespace XTMF.Gui.UserControls
             ExecuteRun();
         }
 
-
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
@@ -2254,11 +2154,9 @@ namespace XTMF.Gui.UserControls
                 {
                     keyboardFocus.MoveFocus(tRequest);
                 }
-
                 e.Handled = true;
                 return;
             }
-
             if (e.Key == Key.Up)
             {
                 var tRequest = new TraversalRequest(FocusNavigationDirection.Previous);
@@ -2266,19 +2164,15 @@ namespace XTMF.Gui.UserControls
                 {
                     keyboardFocus.MoveFocus(tRequest);
                 }
-
                 e.Handled = true;
                 return;
             }
-
             if (e.Key == Key.Enter)
             {
                 MoveFocusNext(e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift));
             }
-
             OnPreviewKeyDown(e);
         }
-
 
         /// <summary>
         /// </summary>
@@ -2315,7 +2209,6 @@ namespace XTMF.Gui.UserControls
             GotoSelectedParameterModule();
         }
 
-
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
@@ -2348,7 +2241,6 @@ namespace XTMF.Gui.UserControls
             LinkedParameterDisplayOverlay.DialogOpenedEventArgs = eventargs;
             LinkedParameterDisplayOverlay.InitNewDisplay();
         }
-
 
         /// <summary>
         /// </summary>
@@ -2402,7 +2294,6 @@ namespace XTMF.Gui.UserControls
             SelectParameterChildControl(sender as UIElement);
         }
 
-
         /// <summary>
         /// </summary>
         /// <param name="display"></param>
@@ -2415,7 +2306,6 @@ namespace XTMF.Gui.UserControls
             {
                 return;
             }
-
             if (Keyboard.FocusedElement is UIElement current)
             {
                 current.MoveFocus(new TraversalRequest(oldIndex > newIndex
@@ -2481,7 +2371,6 @@ namespace XTMF.Gui.UserControls
                         cb.Text = parameter.Value;
                     }
                 }
-
                 ProcessParameterDisplayKeyDown(view, e);
                 e.Handled = true;
             }
@@ -2510,15 +2399,12 @@ namespace XTMF.Gui.UserControls
             {
                 return QuickParameterListView;
             }
-
             if (ParameterDisplay.IsKeyboardFocusWithin)
             {
                 return ParameterDisplay;
             }
-
             return null;
         }
-
 
         /// <summary>
         ///     When the module value textbox receives focus
@@ -2532,7 +2418,6 @@ namespace XTMF.Gui.UserControls
             {
                 (current as TextBox).SelectionStart = (current as TextBox).Text.Length;
             }
-
             while (current != null)
             {
                 if (current is ListViewItem lvi)
@@ -2540,7 +2425,6 @@ namespace XTMF.Gui.UserControls
                     lvi.IsSelected = true;
                     return;
                 }
-
                 current = VisualTreeHelper.GetParent(current) as UIElement;
             }
         }
@@ -2660,7 +2544,6 @@ namespace XTMF.Gui.UserControls
                         MessageBoxButton.OK, MessageBoxImage.Error)));
                 return false;
             }
-
             return true;
         }
 
@@ -2696,9 +2579,7 @@ namespace XTMF.Gui.UserControls
         public void ShowTreeViewDisplay()
         {
             TreeViewListBoxItem.IsSelected = true;
-
         }
-
 
         /// <summary>
         /// </summary>
@@ -2712,7 +2593,6 @@ namespace XTMF.Gui.UserControls
             double toWidth, Action postAnimateAction = null, int durationMs = -1)
         {
             var duration = new Duration(TimeSpan.FromMilliseconds(durationMs >= 0 ? durationMs : 200));
-
             var animation = new DoubleAnimation
             {
                 //animation.EasingFunction = ease;
@@ -2723,10 +2603,8 @@ namespace XTMF.Gui.UserControls
             Storyboard.SetTarget(animation, column);
             Storyboard.SetTargetName(animation, column.Name);
             Storyboard.SetTargetProperty(animation, new PropertyPath(ColumnDefinition.MaxWidthProperty));
-
             var storyboard = new Storyboard();
             storyboard.Children.Add(animation);
-
             animation.Completed += delegate
             {
                 display.IsEnabled = !display.IsEnabled;
@@ -2735,8 +2613,6 @@ namespace XTMF.Gui.UserControls
                 _isAnimationgToggle = false;
                 postAnimateAction?.Invoke();
             };
-
-
             storyboard.Begin(this);
         }
 
@@ -2749,7 +2625,6 @@ namespace XTMF.Gui.UserControls
         private void AnimateOpacity(FrameworkElement element, double from, double to, UIElement focusAfter = null)
         {
             var duration = new Duration(TimeSpan.FromMilliseconds(200));
-
             var animation = new DoubleAnimation
             {
                 //animation.EasingFunction = ease;
@@ -2760,10 +2635,8 @@ namespace XTMF.Gui.UserControls
             Storyboard.SetTarget(animation, element);
             Storyboard.SetTargetName(animation, element.Name);
             Storyboard.SetTargetProperty(animation, new PropertyPath(OpacityProperty));
-
             var storyboard = new Storyboard();
             storyboard.Children.Add(animation);
-
             animation.Completed += delegate
             {
                 if (element.Opacity == 0.0)
@@ -2781,11 +2654,8 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             };
-
-
             storyboard.Begin(this);
         }
-
 
         /// <summary>
         /// </summary>
@@ -2804,7 +2674,6 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
         }
-
 
         /// <summary>
         /// </summary>
@@ -2860,10 +2729,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QuickParameterContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-            return;
         }
-
-     
     }
 
 

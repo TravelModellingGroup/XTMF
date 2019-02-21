@@ -267,7 +267,6 @@ namespace XTMF.Gui
             StatusDisplay.Text = "Loading XTMF";
             Dispatcher.Invoke(() => { ExternalGrid.Focus(); });
             SetDisplayActive(new StartWindow(), "Start");
-           
         }
 
 
@@ -283,7 +282,6 @@ namespace XTMF.Gui
                 LoadProject(project);
                 return;
             }
-
             MessageBox.Show(this, "Unable to load project!", error);
         }
 
@@ -343,7 +341,6 @@ namespace XTMF.Gui
                             break;
                         }
                     }
-
                     if (!visible)
                     {
                         SetDisplayActive(projectContorl, "Project - " + project.Name);
@@ -351,7 +348,6 @@ namespace XTMF.Gui
                 }
             }
         }
-
 
         public void HideStatusLink()
         {
@@ -568,6 +564,20 @@ namespace XTMF.Gui
                                          modelSystemSession.ModelSystemModel.Name
                                        : "Model System - " + modelSystemSession.ModelSystemModel.Name);
                 SetDisplayActive(display, titleBarName);
+                if(modelSystemSession.EditingProject)
+                {
+                    modelSystemSession.NameChanged += (o, e) =>
+                    {
+                        foreach (TabItem tab in DockManager.Items)
+                        {
+                            if (tab.Content == display)
+                            {
+                                tab.Header = modelSystemSession.ProjectEditingSession.Name + " - " +
+                                         modelSystemSession.ModelSystemModel.Name;
+                            }
+                        }
+                    };
+                }
                 Keyboard.Focus(display);
                 display.Focus();
                 return display;
@@ -718,14 +728,12 @@ namespace XTMF.Gui
                         tab.IsSelected = true;
                     }
                 }
-
                 if (!exists)
                 {
                     if (ContentControl.DataContext is ViewModelBase)
                     {
                         ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
                     }
-
                     var tabItem = new TabItem
                     {
                         Content = display,
@@ -739,10 +747,8 @@ namespace XTMF.Gui
                             shortcutHandler.HandleKeyPreviewDown(sender,args);
                         };
                     }
-
                     tabItem.IsSelected = true;
                 }
-
                 display.Focus();
                 Keyboard.Focus(display);
             });

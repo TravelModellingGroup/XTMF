@@ -1277,7 +1277,6 @@ namespace XTMF
         private void Move(int start, int dest)
         {
             var real = RealModelSystemStructure.Children[start];
-            var model = Children[start];
             RealModelSystemStructure.Children.RemoveAt(start);
             RealModelSystemStructure.Children.Insert(dest, real);
             Children.Move(start, dest);
@@ -1476,10 +1475,8 @@ namespace XTMF
             if (Dirty)
             {
                 Dirty = false;
-
                 ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
             }
-
             return true;
         }
 

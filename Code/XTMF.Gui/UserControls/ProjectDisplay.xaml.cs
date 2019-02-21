@@ -112,7 +112,10 @@ namespace XTMF.Gui.UserControls
 
         private void RefreshModelSystems()
         {
-            Dispatcher.BeginInvoke(new Action(() => { Model.RefreshModelSystems(); }));
+            Dispatcher.BeginInvoke(new Action(() => 
+            {
+                Model.RefreshModelSystems();
+            }));
         }
 
         private void Session_ModelSystemSaved(object sender, EventArgs e)

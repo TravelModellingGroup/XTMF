@@ -116,5 +116,35 @@ namespace XTMF.Testing.Editing
             }
             return modelSystem;
         }
+
+        [TestMethod]
+        public void TestSettingModelSystemRootInAProject()
+        {
+            string error = null;
+            var runtime = TestXTMFCore.CreateRuntime();
+            var projectController = runtime.ProjectController;
+            var projectName = "TestProject";
+            var msName = "TestModelSystem";
+            var alternateName = "TestModelSystemName2";
+            Project project;
+            Assert.IsTrue(projectController.DeleteProject(projectName, ref error), error);
+            Assert.IsTrue((project = projectController.LoadOrCreate(projectName, ref error)) != null, error);
+            using (var projectSession = projectController.EditProject(project))
+            {
+                var testModelSystem = CreateTestModelSystem(runtime);
+                Assert.IsTrue(projectSession.AddModelSystem(testModelSystem, msName, ref error), error);
+                using (var session = projectSession.EditModelSystem(0))
+                {
+                    var model = session.ModelSystemModel;
+                    Assert.AreEqual(msName, model.Name, "The initial name of the model system was not set correctly.");
+                    Assert.IsTrue(model.Root.SetName(alternateName, ref error), error);
+                    Assert.AreEqual(alternateName, model.Name, "The assigned name of the model system was not updated.");
+                    Assert.IsTrue(session.Undo(ref error), error);
+                    Assert.AreEqual(msName, model.Name, "The undone name of the model system was not updated.");
+                    Assert.IsTrue(session.Redo(ref error), error);
+                    Assert.AreEqual(alternateName, model.Name, "The undone name of the model system was not updated.");
+                }
+            }
+        }
     }
 }
