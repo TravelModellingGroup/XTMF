@@ -245,15 +245,6 @@ namespace XTMF
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="newMSS"></param>
-        internal void SetRoot(ModelSystemStructure newMSS)
-        {
-            
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="quickParameters"></param>
         /// <param name="current"></param>
         private void AddQuickParameters(ObservableCollection<ParameterModel> quickParameters, ModelSystemStructureModel current)
@@ -370,6 +361,7 @@ namespace XTMF
             _Description = project.ModelSystemDescriptions[modelSystemIndex];
             Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters,
                 out List<IRegionDisplay> editingRegionDisplays, modelSystemIndex) as ModelSystemStructure));
+            Root.PropertyChanged += Root_PropertyChanged;
             _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
             RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays,Root);
@@ -384,6 +376,7 @@ namespace XTMF
         {
             Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters,
                             out List<IRegionDisplay> editingRegionDisplays) as ModelSystemStructure);
+            Root.PropertyChanged += Root_PropertyChanged;
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
             RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays,Root);
         }
@@ -397,8 +390,25 @@ namespace XTMF
         private void LoadModelSystemFromFile(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, string runFile)
         {
             Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
+            Root.PropertyChanged += Root_PropertyChanged;
             LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, new List<ILinkedParameter>());
             RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession, this, new List<IRegionDisplay>(),Root);
+        }
+
+        private void Root_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if(sender == Root)
+            {
+                if(e.PropertyName == nameof(Root.Name))
+                {
+                    // The root module's name has changed
+                    if(_Project != null)
+                    {
+                        // if we are in a project, update our model system's name
+                        Name = Root.Name;
+                    }
+                }
+            }
         }
 
         internal bool RevertToLastSave(ModelSystemEditingSession session, ref string error)
@@ -437,6 +447,7 @@ namespace XTMF
         private void UpdateAll()
         {
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Root));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(LinkedParameters));
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(RegionDisplaysModel));
         }
