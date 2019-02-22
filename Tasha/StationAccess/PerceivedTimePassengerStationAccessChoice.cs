@@ -9,6 +9,7 @@ using TMG.Functions;
 using Tasha.Common;
 using Datastructure;
 using TMG.Input;
+using System.Runtime.CompilerServices;
 
 namespace Tasha.StationAccess
 {
@@ -22,7 +23,7 @@ namespace Tasha.StationAccess
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         private SparseArray<IZone> _zones;
 
@@ -51,9 +52,22 @@ namespace Tasha.StationAccess
         internal ITripComponentCompleteData _transitNetwork;
 
         // The time periods will reference these
+
+        /// <summary>
+        /// The indexes mapping the stations into the full zone system (Size of Stations)
+        /// </summary>
         private int[] _stationIndexes;
+        /// <summary>
+        /// The log (cap + 1) for the stations (Size of zone system)
+        /// </summary>
         private float[] _logStationCapacity;
+        /// <summary>
+        /// An array of the zones that are valid stations (Size of Stations)
+        /// </summary>
         private IZone[] _stationZones;
+        /// <summary>
+        /// The index into the full zone system for the station that is closest (Size of Zones)
+        /// </summary>
         private int[] _closestStation;
 
         internal static int[] GetStationZones(RangeSet stationRanges, float[] capacity, IZone[] zones)
@@ -143,7 +157,6 @@ namespace Tasha.StationAccess
             public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
             private int[] _stationIndexes;
-            private float[] _logStationCapacity;
             private IZone[] _stationZones;
 
             /// <summary>
@@ -180,9 +193,10 @@ namespace Tasha.StationAccess
                 var auto = Parent._autoNetwork.GetTimePeriodData(StartTime);
                 var transit = Parent._transitNetwork.GetTimePeriodData(StartTime);
                 var zones = Root.ZoneSystem.ZoneArray;
+                var _logStationCapacity = Parent._logStationCapacity;
+                var _closestStation = Parent._closestStation;
                 _stationZones = Parent._stationZones;
-                _logStationCapacity = Parent._logStationCapacity;
-                _stationIndexes = Parent._stationIndexes;
+                _stationIndexes = Parent._stationIndexes;               
                 var numberOfZones = Parent._zones.Count;
                 AccessUtil = new float[numberOfZones][];
                 EgressUtil = new float[numberOfZones][];
@@ -201,7 +215,8 @@ namespace Tasha.StationAccess
                             var i = GetAutoDataIndex(o, stn, numberOfZones);
                             AccessUtil[o][s] = (float)Math.Exp(BAutoTime * auto[i]
                                                 + BCost * auto[i + 1]
-                                                + BCapacity * _logStationCapacity[stn]);
+                                                + BCapacity * _logStationCapacity[stn]
+                                                + (_closestStation[o] == stn ? BClosestStation : 0f));
                         }
                         for (int d = 0; d < EgressUtil.Length; d++)
                         {
@@ -217,7 +232,8 @@ namespace Tasha.StationAccess
                             var i = GetAutoDataIndex(o, stn, numberOfZones);
                             AccessUtil[o][s] = (float)Math.Exp(BTransitPerceivedTime * transit[i]
                                                + BCost * transit[i + 4]
-                                               + BCapacity * _logStationCapacity[stn]);
+                                               + BCapacity * _logStationCapacity[stn]
+                                               + (_closestStation[o] == stn ? BClosestStation : 0f));
                         }
                         for (int d = 0; d < EgressUtil.Length; d++)
                         {
@@ -229,20 +245,23 @@ namespace Tasha.StationAccess
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static int GetAutoDataIndex(int origin, int destination, int numberOfZones)
             {
                 return ((origin * numberOfZones + destination) * numberOfZones) * 2;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static int GetTransitDataIndex(int origin, int destination, int numberOfZones)
             {
                 return ((origin * numberOfZones + destination) * numberOfZones) * 5;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Pair<IZone[], float[]> ProduceResult(Time time, int origin, int destination)
             {
                 // return null if it is outside of our time period.
-                if(time < StartTime | time >= EndTime)
+                if (time < StartTime | time >= EndTime)
                 {
                     return null;
                 }
@@ -258,6 +277,8 @@ namespace Tasha.StationAccess
             {
                 AccessUtil = null;
                 EgressUtil = null;
+                _stationIndexes = null;
+                _stationZones = null;
             }
 
             public bool RuntimeValidation(ref string error)
@@ -274,7 +295,7 @@ namespace Tasha.StationAccess
             var o = _zones.GetFlatIndex(data.OriginalZone.ZoneNumber);
             var d = _zones.GetFlatIndex(data.DestinationZone.ZoneNumber);
             var time = data.ActivityStartTime;
-            foreach(var period in TimePeriods)
+            foreach (var period in TimePeriods)
             {
                 Pair<IZone[], float[]> ret;
                 if ((ret = period.ProduceResult(time, o, d)) != null)
@@ -287,7 +308,7 @@ namespace Tasha.StationAccess
 
         public bool RuntimeValidation(ref string error)
         {
-            if((_autoNetwork = Root.NetworkData.FirstOrDefault(n => n.NetworkType == AutoNetwork) as INetworkCompleteData) == null)
+            if ((_autoNetwork = Root.NetworkData.FirstOrDefault(n => n.NetworkType == AutoNetwork) as INetworkCompleteData) == null)
             {
                 error = $"Unable to find an auto network with the name {AutoNetwork}!";
                 return false;
@@ -306,7 +327,7 @@ namespace Tasha.StationAccess
             _logStationCapacity = null;
             _closestStation = null;
             _stationZones = null;
-            foreach(var timePeriod in TimePeriods)
+            foreach (var timePeriod in TimePeriods)
             {
                 timePeriod.Unload();
             }
