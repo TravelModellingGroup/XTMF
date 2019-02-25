@@ -238,6 +238,7 @@
     <Compile Include="Estimation\AccessStation\AccessStationChoiceEstimationModelSystemTemplate.cs" />
     <Compile Include="Estimation\AccessStation\AccessTourData.cs" />
     <Compile Include="Estimation\AccessStation\BlankTashaMode.cs" />
+    <Compile Include="Estimation\AccessStation\PassengerAccessStationChoiceModelSystemTemplate.cs" />
     <Compile Include="Estimation\AccessStation\TourLoader.cs" />
     <Compile Include="Estimation\EstimationHouseholdLoader.cs" />
     <Compile Include="Estimation\HostHouseholdLoader.cs" />
