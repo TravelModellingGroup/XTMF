@@ -190,6 +190,10 @@ namespace XTMF.Networking
                        catch (Exception e)
                        {
                            done = true;
+                           while(e.InnerException != null)
+                           {
+                               e = e.InnerException;
+                           }
                            Console.WriteLine("Client exception");
                            Console.WriteLine(e.Message);
                            Console.WriteLine(e.StackTrace);
@@ -342,6 +346,10 @@ namespace XTMF.Networking
             catch (Exception e)
             {
                 crashed = true;
+                while(e.InnerException != null)
+                {
+                    e = e.InnerException;
+                }
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
                 _Messages.Add(new Message(MessageType.WriteToHostConsole, $"Client has encountered an exception {e.Message}\r\n{e.StackTrace}"));
