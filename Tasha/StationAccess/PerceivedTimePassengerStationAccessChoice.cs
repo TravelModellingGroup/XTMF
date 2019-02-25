@@ -90,10 +90,11 @@ namespace Tasha.StationAccess
             LoadStationCapacity();
             _stationIndexes = GetStationZones(StationZoneRanges, _logStationCapacity, _zones.GetFlatData());
             _stationZones = _stationIndexes.Select(index => flatZones[index]).ToArray();
-            foreach (var timePeriod in TimePeriods)
+            AssignClosestStations();
+            Parallel.ForEach(TimePeriods, (timePeriod) =>
             {
                 timePeriod.Load();
-            }
+            });
         }
 
         private static double Distance(IZone origin, IZone accessZone)
@@ -184,14 +185,24 @@ namespace Tasha.StationAccess
             [RunParameter("Closest Station", 0f, "The scale to apply if the station is the closest to the access.")]
             public float BClosestStation;
 
+            [RunParameter("Start Time", "6:00", typeof(Time), "The start time (inclusive) of this time period.")]
             public Time StartTime;
 
+            [RunParameter("End Time", "6:00", typeof(Time), "The end time (exclusive) of this time period.")]
             public Time EndTime;
 
             public void Load()
             {
                 var auto = Parent._autoNetwork.GetTimePeriodData(StartTime);
                 var transit = Parent._transitNetwork.GetTimePeriodData(StartTime);
+                if(auto == null)
+                {
+                    throw new XTMFRuntimeException(this, $"The auto data was not available for the given time period {Name}!");
+                }
+                if(transit == null)
+                {
+                    throw new XTMFRuntimeException(this, $"The transit data was not available for the given time period {Name}!");
+                }
                 var zones = Root.ZoneSystem.ZoneArray;
                 var _logStationCapacity = Parent._logStationCapacity;
                 var _closestStation = Parent._closestStation;
@@ -205,7 +216,7 @@ namespace Tasha.StationAccess
                     AccessUtil[i] = new float[_stationZones.Length];
                     EgressUtil[i] = new float[_stationZones.Length];
                 }
-                for (int s = 0; s < _stationIndexes.Length; s++)
+                Parallel.For(0, _stationIndexes.Length, (s) =>
                 {
                     var stn = _stationIndexes[s];
                     if (Parent.AutoAccess)
@@ -242,19 +253,19 @@ namespace Tasha.StationAccess
                                                 + BCost * auto[i + 1]);
                         }
                     }
-                }
+                });
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static int GetAutoDataIndex(int origin, int destination, int numberOfZones)
             {
-                return ((origin * numberOfZones + destination) * numberOfZones) * 2;
+                return ((origin * numberOfZones + destination) * 2);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static int GetTransitDataIndex(int origin, int destination, int numberOfZones)
             {
-                return ((origin * numberOfZones + destination) * numberOfZones) * 5;
+                return ((origin * numberOfZones + destination) * 5);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -270,6 +281,7 @@ namespace Tasha.StationAccess
                 VectorHelper.Multiply(probs, 0, AccessUtil[origin], 0, EgressUtil[destination], 0, probs.Length);
                 // and normalize them to get the logit probability for each choice
                 VectorHelper.Multiply(probs, probs, 1f / VectorHelper.Sum(probs, 0, probs.Length));
+                VectorHelper.ReplaceIfNotFinite(probs, 0, 0f, probs.Length);
                 return new Pair<IZone[], float[]>(_stationZones, probs);
             }
 

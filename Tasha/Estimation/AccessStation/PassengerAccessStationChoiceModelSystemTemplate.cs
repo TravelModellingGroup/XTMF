@@ -16,13 +16,14 @@ namespace Tasha.Estimation.AccessStation
     [ModuleInformation(Description = "The model system template for estimating Passenger Access Transit and Passenger Egress Transit.")]
     public class PassengerAccessStationChoiceModelSystemTemplate : ITravelDemandModel
     {
+        [RunParameter("Input Base Directory", "../../Input", "The base directory for input.")]
         public string InputBaseDirectory { get; set; }
         public string OutputBaseDirectory { get; set; }
         public string Name { get; set; }
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         public IList<INetworkData> NetworkData { get; set; }
 
@@ -84,6 +85,9 @@ namespace Tasha.Estimation.AccessStation
         [SubModelInformation(Required = true, Description = "Access choice model to estimate")]
         public ICalculation<ITrip, Pair<IZone[], float[]>> PassengerAccessModel;
 
+        [RunParameter("Min Negative Value", -10.0f, "The minimum negative value for a record's fitness allowed.")]
+        public float MinNegativeValue;
+
         public void Start()
         {
             LoadDataIfNecessary();
@@ -94,11 +98,20 @@ namespace Tasha.Estimation.AccessStation
                 (int i, ParallelLoopState _, float local) =>
                 {
                     var record = _records[i];
-                    var probabilities = PassengerAccessModel.ProduceResult(record.Trip).Second;
-                    local += (float)Math.Log(probabilities[record.FlatTrueZone]);
+                    var probabilities = PassengerAccessModel.ProduceResult(record.Trip);
+                    // some trips will be outside of our allowed time periods
+                    if (probabilities != null)
+                    {
+                        var indexOfTruth = Array.IndexOf(probabilities.First, _zones.GetFlatData()[record.FlatTrueZone]);
+                        // some stations are considered invalid even if they are chosen by the TTS
+                        if (indexOfTruth >= 0)
+                        {
+                            local += (float)(Math.Max(Math.Log(probabilities.Second[indexOfTruth]) / _records.Count, MinNegativeValue));
+                        }
+                    }
                     return local;
                 },
-                (float local)=>
+                (float local) =>
                 {
                     lock (this)
                     {
@@ -117,14 +130,14 @@ namespace Tasha.Estimation.AccessStation
                 ZoneSystem.LoadData();
                 _zones = ZoneSystem.ZoneArray;
             }
-            Parallel.ForEach(NetworkData, (network) => 
+            Parallel.ForEach(NetworkData, (network) =>
             {
                 if (!network.Loaded)
                 {
                     network.LoadData();
                 }
             });
-            if(_records == null)
+            if (_records == null)
             {
                 LoadRecords();
             }
@@ -165,7 +178,7 @@ namespace Tasha.Estimation.AccessStation
                     }
                 }
             }
-            catch(IOException e)
+            catch (IOException e)
             {
                 throw new XTMFRuntimeException(this, e);
             }
@@ -174,7 +187,7 @@ namespace Tasha.Estimation.AccessStation
         private int GetFlatZoneIndex(int zoneNumber)
         {
             var index = _zones.GetFlatIndex(zoneNumber);
-            if (index <= 0)
+            if (index < 0)
             {
                 throw new XTMFRuntimeException(this, $"Unable to find a zone number {zoneNumber} within the zone system!");
             }
@@ -184,7 +197,7 @@ namespace Tasha.Estimation.AccessStation
         private IZone GetZone(int zoneNumber)
         {
             var index = _zones.GetFlatIndex(zoneNumber);
-            if(index <= 0)
+            if (index < 0)
             {
                 throw new XTMFRuntimeException(this, $"Unable to find a zone number {zoneNumber} within the zone system!");
             }
