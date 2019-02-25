@@ -34,7 +34,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         [RunParameter("Cost per Km", 0.153f, "What is the cost per km used in this model system?")]
         public float CostPerKm;
-        
+
         [SubModelInformation(Required = false, Description = "The different time periods you wish to calculate VKTs for")]
         public VKTPerTimePeriod[] TimePeriods;
 
@@ -73,7 +73,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
             public bool RuntimeValidation(ref string error)
             {
-                if(!ODFlatCostMatrix.CheckResourceType<SparseTwinIndex<float>>())
+                if (!ODFlatCostMatrix.CheckResourceType<SparseTwinIndex<float>>())
                 {
                     error = "In '" + Name + "' the ODDistanceMatrix was not of type SparseTwinIndex<float>!";
                     return false;
@@ -85,34 +85,41 @@ namespace Tasha.Validation.PerformanceMeasures
         public void Start()
         {
             var invCostPerKM = 1.0f / CostPerKm;
-            foreach(var timePeriod in TimePeriods)
+            foreach (var timePeriod in TimePeriods)
             {
                 var totalVKT = new Dictionary<int, float>();
                 var odCostMatrix = timePeriod.ODFlatCostMatrix.AcquireResource<SparseTwinIndex<float>>();
-                using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
+                try
                 {
-                    reader.LoadLine();
-                    while (reader.LoadLine(out int columns))
+                    using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
                     {
-                        if(columns >= 4)
+                        reader.LoadLine();
+                        while (reader.LoadLine(out int columns))
                         {
-                            reader.Get(out int homeZone, 0);
-                            reader.Get(out int origin, 1);
-                            reader.Get(out int destination, 2);
-                            reader.Get(out float numberOfTrips, 3);
-                            var distance = odCostMatrix[origin, destination] * invCostPerKM;
-                            totalVKT.TryGetValue(homeZone, out float vkt);
-                            totalVKT[homeZone] = vkt + numberOfTrips * distance;
+                            if (columns >= 4)
+                            {
+                                reader.Get(out int homeZone, 0);
+                                reader.Get(out int origin, 1);
+                                reader.Get(out int destination, 2);
+                                reader.Get(out float numberOfTrips, 3);
+                                var distance = odCostMatrix[origin, destination] * invCostPerKM;
+                                totalVKT.TryGetValue(homeZone, out float vkt);
+                                totalVKT[homeZone] = vkt + numberOfTrips * distance;
+                            }
+                        }
+                    }
+                    using (StreamWriter writer = new StreamWriter(timePeriod.VKTbyHomeZone))
+                    {
+                        writer.WriteLine("Home Zone, Total VKTs");
+                        foreach (var pair in totalVKT)
+                        {
+                            writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
                         }
                     }
                 }
-                using (StreamWriter writer = new StreamWriter(timePeriod.VKTbyHomeZone))
+                catch (IOException e)
                 {
-                    writer.WriteLine("Home Zone, Total VKTs");
-                    foreach(var pair in totalVKT)
-                    {
-                        writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
-                    }
+                    throw new XTMFRuntimeException(this, e);
                 }
             }
         }
