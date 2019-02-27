@@ -66,6 +66,10 @@ namespace Tasha.StationAccess
         /// </summary>
         private IZone[] _stationZones;
         /// <summary>
+        /// The distances between zones.
+        /// </summary>
+        private SparseTwinIndex<float> _distances;
+        /// <summary>
         /// The index into the full zone system for the station that is closest (Size of Zones)
         /// </summary>
         private int[] _closestStation;
@@ -86,6 +90,7 @@ namespace Tasha.StationAccess
         public void Load()
         {
             _zones = Root.ZoneSystem.ZoneArray;
+            _distances = Root.ZoneSystem.Distances;
             var flatZones = _zones.GetFlatData();
             LoadStationCapacity();
             _stationIndexes = GetStationZones(StationZoneRanges, _logStationCapacity, _zones.GetFlatData());
@@ -97,12 +102,9 @@ namespace Tasha.StationAccess
             });
         }
 
-        private static double Distance(IZone origin, IZone accessZone)
+        private double Distance(IZone origin, IZone destination)
         {
-            double originX = origin.X, originY = origin.Y;
-            double accessX = accessZone.X, accessY = accessZone.Y;
-            return Math.Sqrt((originX - accessX) * (originX - accessX)
-                            + (originY - accessY) * (originY - accessY));
+            return _distances[origin.ZoneNumber, destination.ZoneNumber];
         }
 
         private void LoadStationCapacity()
