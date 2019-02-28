@@ -35,6 +35,9 @@ namespace Tasha.Estimation.AccessStation
         [SubModelInformation(Required = true, Description = "(Origin,Destination,StartTime,AccessStation,ExpansionFactor)")]
         public FileLocation TruthData;
 
+        [SubModelInformation(Required = false, Description = "A square csv matrix with truth\\predicted.")]
+        public FileLocation CrossError;
+
         public bool ExitRequest()
         {
             return true;
@@ -93,6 +96,8 @@ namespace Tasha.Estimation.AccessStation
             LoadDataIfNecessary();
             PassengerAccessModel.Load();
             float result = 0.0f;
+            var errorMatrix = CrossError == null ? null : _zones.CreateSquareTwinArray<float>();
+            var flatErrorMatrix = errorMatrix.GetFlatData();
             Parallel.For(0, _records.Count,
                 () => 0f,
                 (int i, ParallelLoopState _, float local) =>
@@ -103,6 +108,16 @@ namespace Tasha.Estimation.AccessStation
                     if (probabilities != null)
                     {
                         var indexOfTruth = Array.IndexOf(probabilities.First, _zones.GetFlatData()[record.FlatTrueZone]);
+                        if (CrossError != null)
+                        {
+                            lock(flatErrorMatrix[record.FlatTrueZone])
+                            {
+                                for (int j = 0; j < probabilities.First.Length; j++)
+                                {
+                                    flatErrorMatrix[record.FlatTrueZone][_zones.GetFlatIndex(probabilities.First[j].ZoneNumber)] += probabilities.Second[j];
+                                }
+                            }
+                        }
                         // some stations are considered invalid even if they are chosen by the TTS
                         if (indexOfTruth >= 0)
                         {
@@ -119,6 +134,10 @@ namespace Tasha.Estimation.AccessStation
                     }
                 }
             );
+            if (CrossError != null)
+            {
+                TMG.Functions.SaveData.SaveMatrix(errorMatrix, CrossError);
+            }
             PassengerAccessModel.Unload();
             Root.RetrieveValue = () => result;
         }
