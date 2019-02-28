@@ -242,7 +242,7 @@ namespace Tasha.StationAccess
                     {
                         for (int o = 0; o < AccessUtil.Length; o++)
                         {
-                            var i = GetAutoDataIndex(o, stn, numberOfZones);
+                            var i = GetTransitDataIndex(o, stn, numberOfZones);
                             AccessUtil[o][s] = (float)Math.Exp(BTransitPerceivedTime * transit[i]
                                                + BCost * transit[i + 4]
                                                + BCapacity * _logStationCapacity[stn]
@@ -250,7 +250,7 @@ namespace Tasha.StationAccess
                         }
                         for (int d = 0; d < EgressUtil.Length; d++)
                         {
-                            var i = GetTransitDataIndex(stn, d, numberOfZones);
+                            var i = GetAutoDataIndex(stn, d, numberOfZones);
                             EgressUtil[d][s] = (float)Math.Exp(BAutoTime * auto[i]
                                                 + BCost * auto[i + 1]);
                         }
