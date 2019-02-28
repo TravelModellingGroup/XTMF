@@ -23,7 +23,7 @@ using TMG.Emme;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 
-namespace Tasha.Validation.PerformanceMeasures
+namespace TMG.Emme.Tools
 {
     public class MatrixCalculator : IEmmeTool
     {

@@ -171,6 +171,7 @@
     <Compile Include="Tools\ExportWorksheetTable.cs" />
     <Compile Include="Tools\FullNetworkSetGenerator.cs" />
     <Compile Include="Tools\ImportScenarios.cs" />
+    <Compile Include="Tools\MatrixCalculator.cs" />
     <Compile Include="Tools\NetworkEditing\RemoveExtraLinks.cs" />
     <Compile Include="TransitLines.cs" />
     <Compile Include="Utilities\ChainEMMETools.cs" />
