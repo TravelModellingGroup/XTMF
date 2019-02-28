@@ -179,8 +179,8 @@ namespace Tasha.Estimation.AccessStation
 
         private Time GetTimeFromColumn(CsvReader reader, int column)
         {
-            reader.Get(out string data, column);
-            return new Time(data);
+            reader.Get(out int data, column);
+            return new Time(data / 100f);
         }
 
         private IZone GetZoneFromColumn(SparseArray<IZone> zones, CsvReader reader, int column)
