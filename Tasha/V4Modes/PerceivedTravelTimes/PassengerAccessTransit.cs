@@ -90,7 +90,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [RunParameter("NonWorkerStudentTimeFactor-Transit", 0f, "The TimeFactor applied to the person type.")]
         public float NonWorkerStudentTimeFactorTransit;
 
-
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle => null;
 
         [RunParameter("Variance Scale", 1.0, "The factor applied to the error term.")]
