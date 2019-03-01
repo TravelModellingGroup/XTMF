@@ -157,12 +157,15 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         private bool HasAChoice(Pair<IZone[], float[]> choices)
         {
-            var p = choices.Second;
-            for (int i = 0; i < p.Length; i++)
+            if (choices != null)
             {
-                if(p[i] > 0f)
+                var p = choices.Second;
+                for (int i = 0; i < p.Length; i++)
                 {
-                    return true;
+                    if (p[i] > 0f)
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -410,7 +413,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
             _zones = Root.ZoneSystem.ZoneArray;
-            if (_stationChoiceLoaded)
+            if (!_stationChoiceLoaded)
             {
                 StationChoiceModel.Load();
                 _stationChoiceLoaded = true;

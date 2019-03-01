@@ -144,6 +144,10 @@ namespace Tasha.Estimation
                                                householdsRecieved = true;
                                            }
                                        }
+                                       catch(Exception e)
+                                       {
+                                           Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
+                                       }
                                        finally
                                        {
                                            memStream?.Dispose();
