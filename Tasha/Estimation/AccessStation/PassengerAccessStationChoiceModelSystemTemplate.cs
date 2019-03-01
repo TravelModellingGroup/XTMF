@@ -97,7 +97,7 @@ namespace Tasha.Estimation.AccessStation
             PassengerAccessModel.Load();
             float result = 0.0f;
             var errorMatrix = CrossError == null ? null : _zones.CreateSquareTwinArray<float>();
-            var flatErrorMatrix = errorMatrix.GetFlatData();
+            var flatErrorMatrix = errorMatrix?.GetFlatData();
             Parallel.For(0, _records.Count,
                 () => 0f,
                 (int i, ParallelLoopState _, float local) =>

@@ -234,7 +234,7 @@ namespace Tasha.StationAccess
                         for (int d = 0; d < EgressUtil.Length; d++)
                         {
                             var i = GetTransitDataIndex(stn, d, numberOfZones);
-                            EgressUtil[d][s] = (float)Math.Exp(BTransitPerceivedTime * transit[i]
+                            EgressUtil[d][s] = (float)Math.Exp(BTransitPerceivedTime * transit[i + 3]
                                                + BCost * transit[i + 4]);
                         }
                     }
@@ -243,7 +243,7 @@ namespace Tasha.StationAccess
                         for (int o = 0; o < AccessUtil.Length; o++)
                         {
                             var i = GetTransitDataIndex(o, stn, numberOfZones);
-                            AccessUtil[o][s] = (float)Math.Exp(BTransitPerceivedTime * transit[i]
+                            AccessUtil[o][s] = (float)Math.Exp(BTransitPerceivedTime * transit[i + 3]
                                                + BCost * transit[i + 4]
                                                + BCapacity * _logStationCapacity[stn]
                                                + (_closestStation[o] == stn ? BClosestStation : 0f));
