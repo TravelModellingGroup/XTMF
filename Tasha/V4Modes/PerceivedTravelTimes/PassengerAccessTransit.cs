@@ -195,8 +195,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     var aIndex = (o * zones.Length + s) * 2;
                     var tIndex = (s * zones.Length + d) * 5;
                     a += auto[aIndex] * stnProb[stn];
-                    t += transit[tIndex + 3] * stnProb[stn];
-                    c += (auto[aIndex + 1] + transit[tIndex + 4]) * stnProb[stn];
+                    t += transit[tIndex + 4] * stnProb[stn];
+                    c += (auto[aIndex + 1] + transit[tIndex + 3]) * stnProb[stn];
                 }
             }
             else
@@ -207,8 +207,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     var tIndex = (o * zones.Length + s) * 5;
                     var aIndex = (s * zones.Length + d) * 2;
                     a += auto[aIndex] * stnProb[stn];
-                    t += transit[tIndex + 3] * stnProb[stn];
-                    c += (auto[aIndex + 1] + transit[tIndex + 4]) * stnProb[stn];
+                    t += transit[tIndex + 4] * stnProb[stn];
+                    c += (auto[aIndex + 1] + transit[tIndex + 3]) * stnProb[stn];
                 }
             }
             autoTime = a;
