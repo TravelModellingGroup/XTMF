@@ -37,23 +37,32 @@ namespace TMG.Tasha
         [RunParameter("Calculate Joint Trips", true, "Set true if you want the loader to detect joint trips.")]
         public bool CalculateJointTrips;
 
-        [RunParameter("CarsCol", 6, "The 0 indexed column that the household's id is located at.")]
+        [RunParameter("IncomeCol", -1, "The 0 indexed column that the household's income level is located at.")]
+        public int IncomeCol;
+
+        [RunParameter("HouseholdID", 0, "The 0 indexed column that the household's id is located at.")]
+        public int HouseholdIDCol;
+
+        [RunParameter("ZoneCol", 1, "The 0 indexed column that the household's id is located at.")]
+        public int ZoneCol;
+
+        [RunParameter("ExpansionFactorCol", 2, "The 0 indexed column that the household's id is located at.")]
+        public int ExpansionFactorCol;
+
+        [RunParameter("PeopleCol", 3, "The 0 indexed column that the household's id is located at.")]
+        public int PeopleCol;
+
+        [RunParameter("DwellingTypeCol", 4, "The 0 indexed column that the household's id is located at.")]
+        public int DwellingTypeCol;
+
+        [RunParameter("CarsCol", 5, "The 0 indexed column that the household's id is located at.")]
         public int CarsCol;
 
         [RunParameter("Header", false, "True if the csv file contains a header.")]
         public bool ContainsHeader;
 
-        [RunParameter("DwellingTypeCol", 4, "The 0 indexed column that the household's id is located at.")]
-        public int DwellingTypeCol;
-
-        [RunParameter("ExpansionFactorCol", 3, "The 0 indexed column that the household's id is located at.")]
-        public int ExpansionFactorCol;
-
         [RunParameter("FileName", "Households/Households.csv", "The csv file containing all of the household information.")]
         public string FileName;
-
-        [RunParameter("HouseholdID", 0, "The 0 indexed column that the household's id is located at.")]
-        public int HouseholdIDCol;
 
         [RunParameter("Skip Single Trip Chain Households", false, "Should we continue loading households even if we find an invalid trip chain?")]
         public bool JustSkipSingleTripTripChainHouseholds;
@@ -70,9 +79,6 @@ namespace TMG.Tasha
         [RunParameter("Passenger Mode Name", "Passenger", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]
         public string PassengerModeName;
 
-        [RunParameter("PeopleCol", 5, "The 0 indexed column that the household's id is located at.")]
-        public int PeopleCol;
-
         [SubModelInformation(Description = "The next model that loads in person information for the household.", Required = true)]
         public IDatachainLoader<ITashaHousehold, ITashaPerson> PersonLoader;
 
@@ -87,9 +93,6 @@ namespace TMG.Tasha
 
         [RunParameter("Second Vehicle", -1, "The column number of secondary vehicle information. Set to '-1' to disable.")]
         public int SecondVehicleColumnNumber;
-
-        [RunParameter("ZoneCol", 2, "The 0 indexed column that the household's id is located at.")]
-        public int ZoneCol;
 
         private bool AllDataLoaded = true;
         private IVehicleType AutoType;
@@ -626,6 +629,11 @@ namespace TMG.Tasha
                     {
                         h.Vehicles[i] = tempVehicles[i];
                     }
+                }
+                if(IncomeCol >= 0)
+                {
+                    Reader.Get(out int incomeClass, IncomeCol);
+                    h.IncomeClass = incomeClass;
                 }
                 PersonLoader.Load(h);
                 AssertType(h);

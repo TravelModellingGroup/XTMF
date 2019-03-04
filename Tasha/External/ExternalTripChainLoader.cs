@@ -79,6 +79,8 @@ namespace Tasha.External
 
             public IVehicle[] Vehicles => null;
 
+            public int IncomeClass => throw new NotImplementedException();
+
             public ITashaHousehold Clone()
             {
                 throw new NotImplementedException();
