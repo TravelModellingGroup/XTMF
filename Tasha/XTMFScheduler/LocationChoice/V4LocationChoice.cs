@@ -347,6 +347,10 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
                 [RunParameter("Same PD", 0.0f, "The constant applied if the zone of interest is the same as both the previous and next planning districts.")]
                 public float SamePD;
+
+                [RunParameter("Travel Logsum Scale", 1.0f, "The scale term to apply to the logsum coming from the travel times.")]
+                public float TravelLogsumScale;
+
                 internal float ExpSamePD;
 
                 public string Name { get; set; }
@@ -450,7 +454,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     + Math.Exp(ivtt * AutoTime + cost * Cost));
             }
 
-            internal float[] GenerateEstimationLogsums(TimePeriod timePeriod, IZone[] zones)
+            internal float[] GenerateEstimationLogsums(TimePeriod timePeriod, IZone[] zones, TimePeriodParameters timePeriodParameters)
             {
                 var zones2 = zones.Length * zones.Length;
                 float[] autoSpace = timePeriod.EstimationTempSpace;
@@ -522,7 +526,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 });
                 Parallel.For(0, zones2, index =>
                 {
-                    autoSpace[index] = (float)(Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index]));
+                    autoSpace[index] = (float)Math.Pow((Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index])), timePeriodParameters.TravelLogsumScale);
                 });
                 return autoSpace;
             }
@@ -666,7 +670,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     for (int i = 0; i < Parent.TimePeriods.Length; i++)
                     {
-                        GenerateEstimationLogsums(Parent.TimePeriods[i], zones);
+                        GenerateEstimationLogsums(Parent.TimePeriods[i], zones, TimePeriod[i]);
                     }
                 }
                 var itterRoot = (Root as IIterativeModel);
@@ -678,6 +682,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var times = Parent.TimePeriods;
                     for (int time = 0; time < times.Length; time++)
                     {
+                        var timeParameters = TimePeriod[time];
                         Time timeOfDay = times[time].StartTime;
                         if (Parent.EstimationMode)
                         {
@@ -708,7 +713,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 for (int j = 0; j < zones.Length; j++)
                                 {
                                     var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                    var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, i, j, timeOfDay), timeParameters.TravelLogsumScale);
                                     // compute to
                                     To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
                                     // compute from
@@ -720,7 +725,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 for (int j = 0; j < zones.Length; j++)
                                 {
                                     var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                    var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, i, j, timeOfDay), timeParameters.TravelLogsumScale);
                                     // compute to
                                     To[time][i * zones.Length + j] = ((nonExpPDConstant * travelUtility) + To[time][i * zones.Length + j]) * 0.5f;
                                     // compute from
