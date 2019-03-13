@@ -52,6 +52,8 @@ namespace Tasha.Common
 
         int NumberOfChildren { get; }
 
+        int IncomeClass { get; }
+
         /// <summary>
         /// The people in this household
         /// </summary>

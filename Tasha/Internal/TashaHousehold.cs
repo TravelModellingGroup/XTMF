@@ -94,6 +94,8 @@ namespace Tasha.Internal
             set;
         }
 
+        public int IncomeClass { get; set; }
+
         public ITashaHousehold Clone()
         {
             TashaHousehold newH = (TashaHousehold)MemberwiseClone();
