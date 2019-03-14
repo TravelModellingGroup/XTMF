@@ -94,6 +94,9 @@ namespace TMG.Tasha
         [RunParameter("Second Vehicle", -1, "The column number of secondary vehicle information. Set to '-1' to disable.")]
         public int SecondVehicleColumnNumber;
 
+        [RunParameter("Load Once", false, "When loading all households, setting this to true will skip reloading households.")]
+        public bool LoadOnce;
+
         private bool AllDataLoaded = true;
         private IVehicleType AutoType;
         private ITashaHousehold[] Households;
@@ -254,9 +257,13 @@ namespace TMG.Tasha
 
         public void LoadData()
         {
-            List<ITashaHousehold> ourList = new List<ITashaHousehold>(100000);
-            LoadAll(ourList);
-            Households = ourList.ToArray();
+            if (!LoadOnce || Households == null)
+            {
+
+                List<ITashaHousehold> ourList = new List<ITashaHousehold>(100000);
+                LoadAll(ourList);
+                Households = ourList.ToArray();
+            }
         }
 
         public void Reset()
