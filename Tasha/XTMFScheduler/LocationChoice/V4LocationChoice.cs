@@ -636,17 +636,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
                         if (Parent.ValidDestinations[j])
                         {
-                            var jUtil = (float)
-                        Math.Exp(
-                             (Math.Log(1 + pf[j]) * ProfessionalFullTime
-                            + Math.Log(1 + pp[j]) * ProfessionalPartTime
-                            + Math.Log(1 + gf[j]) * GeneralFullTime
-                            + Math.Log(1 + gp[j]) * GeneralPartTime
-                            + Math.Log(1 + sf[j]) * RetailFullTime
-                            + Math.Log(1 + sp[j]) * RetailPartTime
-                            + Math.Log(1 + mf[j]) * ManufacturingFullTime
-                            + Math.Log(1 + mp[j]) * ManufacturingPartTime
-                            + Math.Log(1 + zones[j].Population) * Population));
 
 
                             var nonExpPDConstant = 0.0f;
@@ -658,7 +647,18 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                     break;
                                 }
                             }
-                            jSum[i][j] = jUtil * (float)Math.Exp(nonExpPDConstant);
+                            jSum[i][j] = (float)
+                                          Math.Exp(
+                                               (Math.Log(1 + pf[j]) * ProfessionalFullTime
+                                              + Math.Log(1 + pp[j]) * ProfessionalPartTime
+                                              + Math.Log(1 + gf[j]) * GeneralFullTime
+                                              + Math.Log(1 + gp[j]) * GeneralPartTime
+                                              + Math.Log(1 + sf[j]) * RetailFullTime
+                                              + Math.Log(1 + sp[j]) * RetailPartTime
+                                              + Math.Log(1 + mf[j]) * ManufacturingFullTime
+                                              + Math.Log(1 + mp[j]) * ManufacturingPartTime
+                                              + Math.Log(1 + zones[j].Population) * Population)) 
+                                              * (float)Math.Exp(nonExpPDConstant);
                         }
                         else
                         {
