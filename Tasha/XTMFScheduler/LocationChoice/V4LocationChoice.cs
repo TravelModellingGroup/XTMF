@@ -110,7 +110,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
         }
 
         private ConcurrentQueue<float[]> CalculationPool;
-        private int Cores = Environment.ProcessorCount;
+        private readonly int Cores = Environment.ProcessorCount;
 
         private IZone GetLocation(IEpisode ep, Random random, IEpisode previous, IEpisode next, Time startTime)
         {
@@ -254,9 +254,11 @@ namespace Tasha.XTMFScheduler.LocationChoice
             internal float[] EstimationTWAIT;
             internal float[] EstimationTBOARDING;
             internal float[] EstimationTFARE;
+            internal float[] EstimationDistance;
 
             internal float[] EstimationTempSpace;
             internal float[] EstimationTempSpace2;
+            internal float[] EstimationTempSpace3;
 
             public void Load()
             {
@@ -276,6 +278,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         EstimationTWAIT = new float[odPairs];
                         EstimationTBOARDING = new float[odPairs];
                         EstimationTFARE = new float[odPairs];
+                        EstimationDistance = new float[odPairs];
+                        var distances = Root.ZoneSystem.Distances.GetFlatData();
                         Parallel.For(0, size, i =>
                         {
                             var time = StartTime;
@@ -290,6 +294,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                     out EstimationTBOARDING[baseIndex + j],
                                     out EstimationTFARE[baseIndex + j]
                                     );
+                                EstimationDistance[baseIndex + j] = distances[i][j];
                             }
                         });
                     }
@@ -410,6 +415,10 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public float TransitBoarding;
             [RunParameter("Cost", "0.0", typeof(float), "The weight applied for the cost from origin to zone to final destination.")]
             public float Cost;
+            [RunParameter("Active Constant", float.NegativeInfinity, "The alternative specific constant for active.")]
+            public float ActiveConstant;
+            [RunParameter("Active Distance", float.NegativeInfinity, "The weight applied for the distance from origin to destination.")]
+            public float ActiveDistance;
             [RunParameter("Intra Zonal", 0.0f, "The constant to apply if the trip is within the same zone.")]
             public float IntraZonal
             {
@@ -444,14 +453,15 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     + Cost * cost);
             }
 
-            protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, int i, int j, Time time)
+            protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, float[][] distances, int i, int j, Time time)
             {
                 if (!autoNetwork.GetAllData(i, j, time, out float ivtt, out float cost))
                 {
                     return 0.0f;
                 }
                 return (float)(GetTransitUtility(transitNetwork, i, j, time)
-                    + Math.Exp(ivtt * AutoTime + cost * Cost));
+                    + Math.Exp(ivtt * AutoTime + cost * Cost)
+                    + Math.Exp(ActiveConstant + ActiveDistance * distances[i][j]));
             }
 
             internal float[] GenerateEstimationLogsums(TimePeriod timePeriod, IZone[] zones, TimePeriodParameters timePeriodParameters)
@@ -459,11 +469,13 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var zones2 = zones.Length * zones.Length;
                 float[] autoSpace = timePeriod.EstimationTempSpace;
                 float[] transitSpace = timePeriod.EstimationTempSpace2;
+                float[] activeSpace = timePeriod.EstimationTempSpace3;
 
                 if (autoSpace == null)
                 {
                     timePeriod.EstimationTempSpace = autoSpace = new float[zones2];
                     timePeriod.EstimationTempSpace2 = transitSpace = new float[zones2];
+                    timePeriod.EstimationTempSpace3 = activeSpace = new float[zones2];
                 }
                 Parallel.For(0, zones.Length, i =>
                 {
@@ -476,6 +488,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     Vector<float> vTransitWalk = new Vector<float>(TransitWalk);
                     Vector<float> vTransitWait = new Vector<float>(TransitWait);
                     Vector<float> vTransitBoarding = new Vector<float>(TransitBoarding);
+                    Vector<float> vActiveConstant = new Vector<float>(ActiveConstant);
+                    Vector<float> vActiveDistance = new Vector<float>(ActiveDistance);
                     Vector<float> vNegativeInfinity = new Vector<float>(float.NegativeInfinity);
                     int index = start;
                     // copy everything we can do inside of a vector
@@ -501,6 +515,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             + twait * vTransitWait
                             + tboarding * vTransitBoarding
                             + tFare * vCost), vNegativeInfinity).CopyTo(transitSpace, index);
+                        // compute active utility
+                        (vActiveConstant + vActiveDistance * new Vector<float>(timePeriod.EstimationDistance, index)).CopyTo(activeSpace, index);
                     }
                     // copy the remainder
                     for (; index < end; index++)
@@ -508,6 +524,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         autoSpace[index] =
                               timePeriod.EstimationAIVTT[index] * AutoTime
                             + timePeriod.EstimationACOST[index] * Cost;
+                        activeSpace[index] = ActiveConstant + timePeriod.EstimationDistance[index] * ActiveDistance;
                         if (timePeriod.EstimationTWALK[index] > 0)
                         {
                             transitSpace[index] =
@@ -526,7 +543,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 });
                 Parallel.For(0, zones2, index =>
                 {
-                    autoSpace[index] = (float)Math.Pow((Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index])), timePeriodParameters.TravelLogsumScale);
+                    autoSpace[index] = (float)Math.Pow(Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index]) 
+                        + Math.Exp(activeSpace[index]), timePeriodParameters.TravelLogsumScale);
                 });
                 return autoSpace;
             }
@@ -680,6 +698,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var network = Parent.AutoNetwork;
                     var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
+                    var distances = Root.ZoneSystem.Distances.GetFlatData();
                     for (int time = 0; time < times.Length; time++)
                     {
                         var timeParameters = TimePeriod[time];
@@ -713,7 +732,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 for (int j = 0; j < zones.Length; j++)
                                 {
                                     var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, i, j, timeOfDay), timeParameters.TravelLogsumScale);
+                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay), timeParameters.TravelLogsumScale);
                                     // compute to
                                     To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
                                     // compute from
@@ -725,7 +744,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 for (int j = 0; j < zones.Length; j++)
                                 {
                                     var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, i, j, timeOfDay), timeParameters.TravelLogsumScale);
+                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay), timeParameters.TravelLogsumScale);
                                     // compute to
                                     To[time][i * zones.Length + j] = ((nonExpPDConstant * travelUtility) + To[time][i * zones.Length + j]) * 0.5f;
                                     // compute from
