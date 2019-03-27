@@ -290,6 +290,7 @@
     <Compile Include="PopulationSynthesis\AssignWorkZonesFrom2DResourceProbabilities.cs" />
     <Compile Include="PopulationSynthesis\AssignWorkZonesFromResourceWithoutReplacement.cs" />
     <Compile Include="PopulationSynthesis\AutoOwnershipModel.cs" />
+    <Compile Include="PopulationSynthesis\CreateZonalResidenceFromPopulation.cs" />
     <Compile Include="PopulationSynthesis\DriverLicenseModel.cs" />
     <Compile Include="PopulationSynthesis\ExtractEmploymentData.cs" />
     <Compile Include="PopulationSynthesis\PerceivedTimeAggregatePoRPoW.cs" />
