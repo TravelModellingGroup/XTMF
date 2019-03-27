@@ -130,7 +130,7 @@ namespace Tasha.PopulationSynthesis
                 if(row[0] <= 0.0f)
                 {
                     throw new XTMFRuntimeException(this, $"We are trying to assign a work zone for a person living in" +
-                    $" zone number { Parent._zones.GetFlatData()[homeZone].ZoneNumber}, however there are no ");
+                    $" zone number { Parent._zones.GetFlatData()[homeZone].ZoneNumber}, however there are no jobs from this home zone!");
                 }
                 return 0;
             }
