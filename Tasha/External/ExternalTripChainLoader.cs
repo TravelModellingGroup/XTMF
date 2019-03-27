@@ -263,10 +263,20 @@ namespace Tasha.External
                             currentChain.Trips = new List<ITrip>(4);
                             chains.Add(currentChain);
                         }
+                        var oZone = zoneSystem[origin];
+                        var dZone = zoneSystem[destination];
+                        if(oZone == null)
+                        {
+                            throw new XTMFRuntimeException(this, $"Unable to find a zone #{origin}");
+                        }
+                        if (dZone == null)
+                        {
+                            throw new XTMFRuntimeException(this, $"Unable to find a zone #{destination}");
+                        }
                         currentChain?.Trips.Add(new Trip()
                         {
-                            OriginalZone = zoneSystem[origin],
-                            DestinationZone = zoneSystem[destination],
+                            OriginalZone = oZone,
+                            DestinationZone = dZone,
                             TripStartTime = ConvertStartTime(startTime),
                             Mode = ConvertMode(modeCode)
                         });
