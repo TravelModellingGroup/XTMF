@@ -287,6 +287,7 @@
     <Compile Include="Network\V4AutoNetwork.cs" />
     <Compile Include="Network\V4TransitData.cs" />
     <Compile Include="PopulationSynthesis\AssignWorkZonesByBucketRounding.cs" />
+    <Compile Include="PopulationSynthesis\AssignWorkZonesFrom2DResourceProbabilities.cs" />
     <Compile Include="PopulationSynthesis\AssignWorkZonesFromResourceWithoutReplacement.cs" />
     <Compile Include="PopulationSynthesis\ExtractEmploymentData.cs" />
     <Compile Include="PopulationSynthesis\PerceivedTimeAggregatePoRPoW.cs" />
