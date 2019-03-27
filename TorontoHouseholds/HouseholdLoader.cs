@@ -617,7 +617,7 @@ namespace TMG.Tasha
 
                 void AssignNumberOfVehicles(Household household, int numberOfAutos, int numberOfSecondaryVehcicles)
                 {
-                    IVehicle[] toAssign = household.Vehicles.Length == numberOfAutos + numberOfSecondaryVehcicles ?
+                    IVehicle[] toAssign = household.Vehicles != null && (household.Vehicles.Length == numberOfAutos + numberOfSecondaryVehcicles) ?
                         household.Vehicles :
                         new IVehicle[numberOfAutos + numberOfSecondaryVehcicles];
                     for (int i = 0; i < numberOfAutos; i++)
@@ -638,6 +638,10 @@ namespace TMG.Tasha
                     if (SecondVehicleColumnNumber >= 0)
                     {
                         Reader.Get(out tempInt, SecondVehicleColumnNumber);
+                    }
+                    else
+                    {
+                        tempInt = 0;
                     }
                     AssignNumberOfVehicles(h, numCars, tempInt);
                 }

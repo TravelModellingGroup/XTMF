@@ -156,13 +156,6 @@ namespace TMG.Tasha
                     personArray[i] = persons[i];
                 }
             }
-            if (DriverLicenseModel != null)
-            {
-                foreach (var p in personArray)
-                {
-                    ((Person)p).Licence = DriverLicenseModel.ProduceResult(p);
-                }
-            }
             // first assign school zones
             if(PlaceOfResidencePlaceOfSchool != null)
             {
@@ -188,6 +181,13 @@ namespace TMG.Tasha
                     }
                 }
             }
+            if (DriverLicenseModel != null)
+            {
+                foreach (var p in personArray)
+                {
+                    ((Person)p).Licence = DriverLicenseModel.ProduceResult(p);
+                }
+            }
         }
 
         public bool Load(ITashaHousehold household)
@@ -201,6 +201,10 @@ namespace TMG.Tasha
                 if(PlaceOfResidencePlaceOfWork != null)
                 {
                     PlaceOfResidencePlaceOfWork.Load();
+                }
+                if(DriverLicenseModel != null)
+                {
+                    DriverLicenseModel.Load();
                 }
                 Reader = new CsvReader(System.IO.Path.Combine(TashaRuntime.InputBaseDirectory, FileName));
                 if(Header)
