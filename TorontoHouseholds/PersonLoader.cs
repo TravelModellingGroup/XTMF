@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2019 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -87,6 +87,9 @@ namespace TMG.Tasha
         [RunParameter("Unknown Zone#", 9999, "The zone number representing a zone that we don't know about")]
         public int UnknownZoneNumber;
 
+        [SubModelInformation(Required = false, Description = "A model alternative to compute if the person should use a driver's license.")]
+        public ICalculation<ITashaPerson, bool> DriverLicenseModel;
+
         private bool ContainsData;
 
         private CsvReader Reader;
@@ -130,24 +133,13 @@ namespace TMG.Tasha
 
         public void Unload()
         {
-            if(Reader != null)
-            {
-                Reader.Close();
-                Reader = null;
-            }
+            Reader?.Close();
+            Reader = null;
+            PlaceOfResidencePlaceOfSchool?.Unload();
+            PlaceOfResidencePlaceOfWork?.Unload();
+            TripchainLoader?.Unload();
+            DriverLicenseModel?.Unload();
             Person.ReleasePersonPool();
-            if(PlaceOfResidencePlaceOfSchool != null)
-            {
-                PlaceOfResidencePlaceOfSchool.Unload();
-            }
-            if(PlaceOfResidencePlaceOfWork != null)
-            {
-                PlaceOfResidencePlaceOfWork.Unload();
-            }
-            if(TripchainLoader != null)
-            {
-                TripchainLoader.Unload();
-            }
         }
 
         private void FinishHousehold(ITashaHousehold household, List<ITashaPerson> persons)
@@ -162,6 +154,13 @@ namespace TMG.Tasha
                 for (int i = 0; i < personArray.Length; i++)
                 {
                     personArray[i] = persons[i];
+                }
+            }
+            if (DriverLicenseModel != null)
+            {
+                foreach (var p in personArray)
+                {
+                    ((Person)p).Licence = DriverLicenseModel.ProduceResult(p);
                 }
             }
             // first assign school zones
@@ -241,9 +240,8 @@ namespace TMG.Tasha
                 Reader.Get(out tempInt, PersonAgeCol);
                 p.Age = tempInt;
                 Reader.Get(out char tempChar, PersonGenderCol);
+                
                 p.Female = (tempChar == 'F') | (tempChar == 'f');
-                Reader.Get(out tempChar, PersonDriversLicenceCol);
-                p.Licence = (tempChar == 'Y');
                 Reader.Get(out tempChar, PersonTransitPassCol);
                 p.TransitPass = (TransitPass)tempChar;
 
@@ -296,6 +294,11 @@ namespace TMG.Tasha
                     Reader.Get(out float tempFloat, PersonExpansionFactorCol);
                     p.ExpansionFactor = tempFloat;
                 }
+                if (DriverLicenseModel == null)
+                {
+                    Reader.Get(out tempChar, PersonDriversLicenceCol);
+                    p.Licence = (tempChar == 'Y');
+                }
                 persons.Add(p);
                 if(Reader.LoadLine() == 0)
                 {
@@ -311,6 +314,11 @@ namespace TMG.Tasha
             if(TripchainLoader != null)
             {
                 TripchainLoader.Reset();
+            }
+            if(DriverLicenseModel != null)
+            {
+                DriverLicenseModel.Unload();
+                DriverLicenseModel.Load();
             }
             if (PlaceOfResidencePlaceOfSchool != null)
             {
