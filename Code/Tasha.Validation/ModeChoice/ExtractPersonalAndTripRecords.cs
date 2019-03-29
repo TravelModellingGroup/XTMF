@@ -81,6 +81,9 @@ namespace Tasha.Validation.ModeChoice
         [RootModule]
         public ITashaRuntime Root;
 
+        [SubModelInformation(Required = false, Description = "The location to store individual household records.")]
+        public FileLocation HouseholdRecords;
+
         [SubModelInformation(Required = true, Description = "The location to store individual person records.")]
         public FileLocation PersonRecords;
 
@@ -127,6 +130,33 @@ namespace Tasha.Validation.ModeChoice
         public float Progress => 0.0f;
 
         public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+
+        private struct HouseholdRecord
+        {
+            internal readonly int HouseholdID;
+            internal readonly int HomeZone;
+            internal readonly float ExpansionFactor;
+            internal readonly int NumberOfPersons;
+            internal readonly int DwellingType;
+            internal readonly int NumberOfVehicles;
+            internal readonly int IncomeClass;
+
+            public HouseholdRecord(int householdID, int homeZone, float expansionFactor, int numberOfPersons, int dwellingType, int numberOfVehicles, int incomeClass)
+            {
+                HouseholdID = householdID;
+                HomeZone = homeZone;
+                ExpansionFactor = expansionFactor;
+                NumberOfPersons = numberOfPersons;
+                DwellingType = dwellingType;
+                NumberOfVehicles = numberOfVehicles;
+                IncomeClass = incomeClass;
+            }
+        }
+
+        /// <summary>
+        /// This is the queue used to process person data to disk
+        /// </summary>
+        private BlockingCollection<HouseholdRecord> _householdRecordQueue;
 
         /// <summary>
         /// Contains the data that will need to be stored to disk for Person information
@@ -297,6 +327,11 @@ namespace Tasha.Validation.ModeChoice
         private BlockingCollection<FacilitatePassengerRecord> _facilitatePassengerRecordQueue;
 
         /// <summary>
+        /// The background task for processing the household queue to disk
+        /// </summary>
+        private Task _writeHouseholdOutput;
+
+        /// <summary>
         /// The background task for processing the person queue to disk
         /// </summary>
         private Task _writePersonOutput;
@@ -330,6 +365,7 @@ namespace Tasha.Validation.ModeChoice
                 _activeDATData.TryRemove(household, out var datdata);
                 _activePassengerData.TryRemove(household, out var passData);
                 var hhldID = household.HouseholdId;
+                StoreHouseholdRecord(household);
                 if (passData != null)
                 {
                     StorePassengerTrips(hhldID, passData);
@@ -454,6 +490,28 @@ namespace Tasha.Validation.ModeChoice
                     return "Home";
                 default:
                     return "UnkownActivity";
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void StoreHouseholdRecord(ITashaHousehold household)
+        {
+            _householdRecordQueue?.Add(new HouseholdRecord(household.HouseholdId, household.HomeZone?.ZoneNumber ?? 0, household.ExpansionFactor, household.Persons.Length,
+                GetDwellingInt(household.DwellingType), household.Vehicles.Length, household.IncomeClass));
+        }
+
+        private int GetDwellingInt(DwellingType dwellingType)
+        {
+            switch(dwellingType)
+            {
+                case DwellingType.House:
+                    return 1;
+                case DwellingType.Apartment:
+                    return 2;
+                case DwellingType.Townhouse:
+                    return 3;
+                default:
+                    return 9;
             }
         }
 
@@ -773,6 +831,11 @@ namespace Tasha.Validation.ModeChoice
                 _modeRecordQueue = new BlockingCollection<ModeRecord>();
                 _stationRecordQueue = new BlockingCollection<StationRecord>();
                 _facilitatePassengerRecordQueue = new BlockingCollection<FacilitatePassengerRecord>();
+                if(HouseholdRecords != null)
+                {
+                    _householdRecordQueue = new BlockingCollection<HouseholdRecord>();
+                    _writeHouseholdOutput = Task.Factory.StartNew(() => ProcessHouseholdRecords(), TaskCreationOptions.LongRunning);
+                }
                 _writePersonOutput = Task.Factory.StartNew(() => ProcessPersonRecords(), TaskCreationOptions.LongRunning);
                 _writeTripOutput = Task.Factory.StartNew(() => ProcessTripRecords(), TaskCreationOptions.LongRunning);
                 _writeModeOutput = Task.Factory.StartNew(() => ProcessModeRecords(), TaskCreationOptions.LongRunning);
@@ -805,6 +868,34 @@ namespace Tasha.Validation.ModeChoice
                 }
                 //delete the file once we've finished compressing it
                 fileToCompress.Delete();
+            }
+        }
+
+        private void ProcessHouseholdRecords()
+        {
+            using (var writer = new StreamWriter(HouseholdRecords))
+            {
+                writer.WriteLine("household_id,home_zone,weight,persons,dwelling_type,vehicles,income_class");
+                foreach(var household in _householdRecordQueue.GetConsumingEnumerable())
+                {
+                    writer.Write(household.HouseholdID);
+                    writer.Write(',');
+                    writer.Write(household.HomeZone);
+                    writer.Write(',');
+                    writer.Write(household.ExpansionFactor);
+                    writer.Write(',');
+                    writer.Write(household.NumberOfPersons);
+                    writer.Write(',');
+                    writer.Write(household.DwellingType);
+                    writer.Write(',');
+                    writer.Write(household.NumberOfVehicles);
+                    writer.Write(',');
+                    writer.WriteLine(household.IncomeClass);
+                }
+            }
+            if (CompressResults)
+            {
+                CompressAndRemove(HouseholdRecords);
             }
         }
 
@@ -974,22 +1065,32 @@ namespace Tasha.Validation.ModeChoice
             // on the last iteration wait for all of the storage tasks to finish before continuing on.
             if (_writeThisIteration)
             {
+                _householdRecordQueue?.CompleteAdding();
                 _personRecordQueue.CompleteAdding();
                 _tripRecordQueue.CompleteAdding();
                 _modeRecordQueue.CompleteAdding();
                 _stationRecordQueue.CompleteAdding();
                 _facilitatePassengerRecordQueue.CompleteAdding();
-                Task.WaitAll(new[] { _writePersonOutput, _writeTripOutput, _writeModeOutput, _writeStationOutput, _writeFacilitatePassengerOutput });
+                if (_writeHouseholdOutput != null)
+                {
+                    Task.WaitAll(new[] { _writeHouseholdOutput, _writePersonOutput, _writeTripOutput, _writeModeOutput, _writeStationOutput, _writeFacilitatePassengerOutput });
+                }
+                else
+                {
+                    Task.WaitAll(new[] { _writePersonOutput, _writeTripOutput, _writeModeOutput, _writeStationOutput, _writeFacilitatePassengerOutput });
+                }
                 _writePersonOutput = null;
                 _writeTripOutput = null;
                 _writeModeOutput = null;
                 _writeStationOutput = null;
                 _writeFacilitatePassengerOutput = null;
+                _householdRecordQueue?.Dispose();
                 _personRecordQueue.Dispose();
                 _tripRecordQueue.Dispose();
                 _modeRecordQueue.Dispose();
                 _stationRecordQueue.Dispose();
                 _facilitatePassengerRecordQueue.Dispose();
+                _householdRecordQueue = null;
                 _personRecordQueue = null;
                 _tripRecordQueue = null;
                 _modeRecordQueue = null;
@@ -1056,11 +1157,13 @@ namespace Tasha.Validation.ModeChoice
             {
                 GC.SuppressFinalize(this);
             }
+            _householdRecordQueue?.Dispose();
             _personRecordQueue?.Dispose();
             _tripRecordQueue?.Dispose();
             _modeRecordQueue?.Dispose();
             _stationRecordQueue?.Dispose();
             _facilitatePassengerRecordQueue?.Dispose();
+            _householdRecordQueue = null;
             _personRecordQueue = null;
             _tripRecordQueue = null;
             _modeRecordQueue = null;
