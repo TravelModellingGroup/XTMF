@@ -107,13 +107,13 @@ namespace Tasha.PopulationSynthesis
 
         [RunParameter("Income Category 2", 0.421f, "A term to add if the person belongs to a household within the TTS income category 2.")]
         public float Income2;
-        [RunParameter("Income Category 3", 0.687f, "A term to add if the person belongs to a household within the TTS income category 2.")]
+        [RunParameter("Income Category 3", 0.687f, "A term to add if the person belongs to a household within the TTS income category 3.")]
         public float Income3;
-        [RunParameter("Income Category 4", 0.821f, "A term to add if the person belongs to a household within the TTS income category 2.")]
+        [RunParameter("Income Category 4", 0.821f, "A term to add if the person belongs to a household within the TTS income category 4.")]
         public float Income4;
-        [RunParameter("Income Category 5", 0.964f, "A term to add if the person belongs to a household within the TTS income category 2.")]
+        [RunParameter("Income Category 5", 0.964f, "A term to add if the person belongs to a household within the TTS income category 5.")]
         public float Income5;
-        [RunParameter("Income Category 6", 1.274f, "A term to add if the person belongs to a household within the TTS income category 2.")]
+        [RunParameter("Income Category 6", 1.274f, "A term to add if the person belongs to a household within the TTS income category 6.")]
         public float Income6;
 
         [RunParameter("Population Density", -28.814f, "Applied against the population density for the home zone. (pop/m^2)")]
@@ -239,7 +239,9 @@ namespace Tasha.PopulationSynthesis
                  DistanceIfExists(distanceRow, data.EmploymentZone, _zones)
                 + DistanceIfExists(distanceRow, data.SchoolZone, _zones)
                 );
-            return true;
+            // Binary logit
+            var eToV = Math.Exp(v);
+            return _random.NextDouble() < (eToV / (1.0f + eToV));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -280,7 +282,7 @@ namespace Tasha.PopulationSynthesis
             {
                 error = (Root.NetworkData.FirstOrDefault(net => net.NetworkType == TransitNetworkName) != null) ?
                     $"The network specified {TransitNetworkName} is not a valid transit network!":
-                    $"There was not transit network with the name {TransitNetworkName} found!";
+                    $"There was no transit network with the name {TransitNetworkName} found!";
                 return false;
             }
             return true;
