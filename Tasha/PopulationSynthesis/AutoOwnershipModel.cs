@@ -160,7 +160,8 @@ namespace Tasha.PopulationSynthesis
                         _jobAverageAutoTime[i] += jobRatio * autoData[autoIndex];
                         // using perceived travel time
                         _jobAverageTransitTime[i] += jobRatio * transitData[transitIndex + 4];
-                        _jobAverageDistance[i] += jobRatio * distanceRow[j];
+                        // this variable is in km
+                        _jobAverageDistance[i] += jobRatio * (distanceRow[j] / 1000f);
                         autoIndex += 2;
                         transitIndex += 5;
                     }
