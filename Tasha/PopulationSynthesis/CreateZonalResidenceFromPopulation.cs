@@ -41,6 +41,9 @@ namespace Tasha.PopulationSynthesis
 
         private SparseArray<IZone> _zones;
 
+        [RunParameter("Exclude Zones", "6000-9999", typeof(RangeSet), "The set of employment zones to ignore people whom are employed within.")]
+        public RangeSet ExcludeZones;
+
         [RootModule]
         public ITashaRuntime Root;
 
@@ -74,7 +77,7 @@ namespace Tasha.PopulationSynthesis
             {
                 int occ = GetOccIndex(person);
                 int emp = GetEmpIndex(person);
-                if(occ >= 0 & emp >= 0)
+                if(occ >= 0 & emp >= 0 && (person.EmploymentZone == null || !ExcludeZones.Contains(person.EmploymentZone.ZoneNumber)))
                 {
                     _data[occ * 2 + emp][flatHomeZone] += person.ExpansionFactor;
                 }

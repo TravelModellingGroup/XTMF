@@ -73,54 +73,58 @@ namespace Tasha.PopulationSynthesis
 
         private ITripComponentData TransitNetwork;
 
-        [RunParameter("Constant", 0.183f, "The model's constant.")]
+        [RunParameter("Constant", -0.7586f, "The model's constant.")]
         public float Constant;
-        [RunParameter("Female", -0.746f, "Applied if the person is female.")]
+        [RunParameter("Female", -0.7775f, "Applied if the person is female.")]
         public float Female;
 
-        [RunParameter("Age16To20", -0.692f, "A term to add if the person is within the age range.")]
-        public float Age16To20;
-        [RunParameter("Age21To25", 0.395f, "A term to add if the person is within the age range.")]
+        [RunParameter("Age16To17", -0.3646f, "A term to add if the person is within the age range.")]
+        public float Age16To17;
+        [RunParameter("Age18To20", 0.9070f, "A term to add if the person is within the age range.")]
+        public float Age18To20;
+        [RunParameter("Age21To25", 1.3652f, "A term to add if the person is within the age range.")]
         public float Age21To25;
-        [RunParameter("Age26To35", 0.781f, "A term to add if the person is within the age range.")]
+        [RunParameter("Age26To35", 1.7433f, "A term to add if the person is within the age range.")]
         public float Age26To35;
-        [RunParameter("Age36To45", 1.145f, "A term to add if the person is within the age range.")]
+        [RunParameter("Age36To45", 2.1094f, "A term to add if the person is within the age range.")]
         public float Age36To45;
-        [RunParameter("Age46To55", 1.061f, "A term to add if the person is within the age range.")]
+        [RunParameter("Age46To55", 2.0226f, "A term to add if the person is within the age range.")]
         public float Age46To55;
-        [RunParameter("Age56To65", 1.026f, "A term to add if the person is within the age range.")]
+        [RunParameter("Age56To65", 1.9770f, "A term to add if the person is within the age range.")]
         public float Age56To65;
-        [RunParameter("Age66To75", 1.010f, "A term to add if the person is within the age range.")]
+        [RunParameter("Age66To75", 1.9461f, "A term to add if the person is within the age range.")]
         public float Age66To75;
+        [RunParameter("Age76To85", 1.2269f, "A term to add if the person is within the age range.")]
+        public float Age76To85;
 
-        [RunParameter("Occupation General", 0.611f, "A term to add if the person works in the occupation category.")]
+        [RunParameter("Occupation General", 0.5737f, "A term to add if the person works in the occupation category.")]
         public float OccGeneral;
-        [RunParameter("Occupation Manufacturing", 0.793f, "A term to add if the person works in the occupation category.")]
+        [RunParameter("Occupation Manufacturing", 0.7314f, "A term to add if the person works in the occupation category.")]
         public float OccManufacturing;
-        [RunParameter("Occupation Professional", 1.268f, "A term to add if the person works in the occupation category.")]
+        [RunParameter("Occupation Professional", 1.2349f, "A term to add if the person works in the occupation category.")]
         public float OccProfessional;
-        [RunParameter("Occupation Sales", 0.492f, "A term to add if the person works in the occupation category.")]
+        [RunParameter("Occupation Sales", 0.4507f, "A term to add if the person works in the occupation category.")]
         public float OccSales;
 
-        [RunParameter("Part Time", -0.324f, "A term to add if the person works part time outside of the home.")]
+        [RunParameter("Part Time", -0.3366f, "A term to add if the person works part time outside of the home.")]
         public float PartTime;
 
-        [RunParameter("Income Category 2", 0.421f, "A term to add if the person belongs to a household within the TTS income category 2.")]
+        [RunParameter("Income Category 2", 0.4493f, "A term to add if the person belongs to a household within the TTS income category 2.")]
         public float Income2;
-        [RunParameter("Income Category 3", 0.687f, "A term to add if the person belongs to a household within the TTS income category 3.")]
+        [RunParameter("Income Category 3", 0.7008f, "A term to add if the person belongs to a household within the TTS income category 3.")]
         public float Income3;
-        [RunParameter("Income Category 4", 0.821f, "A term to add if the person belongs to a household within the TTS income category 4.")]
+        [RunParameter("Income Category 4", 0.8689f, "A term to add if the person belongs to a household within the TTS income category 4.")]
         public float Income4;
-        [RunParameter("Income Category 5", 0.964f, "A term to add if the person belongs to a household within the TTS income category 5.")]
+        [RunParameter("Income Category 5", 1.0242f, "A term to add if the person belongs to a household within the TTS income category 5.")]
         public float Income5;
-        [RunParameter("Income Category 6", 1.274f, "A term to add if the person belongs to a household within the TTS income category 6.")]
+        [RunParameter("Income Category 6", 1.3385f, "A term to add if the person belongs to a household within the TTS income category 6.")]
         public float Income6;
 
-        [RunParameter("Population Density", -28.814f, "Applied against the population density for the home zone. (pop/m^2)")]
+        [RunParameter("Population Density", -29.0526f, "Applied against the population density for the home zone. (pop/m^2)")]
         public float PopulationDensityBeta;
-        [RunParameter("Transit Perceived Time", 0.002f, "Applied against the perceived travel time to work and school. (minutes)")]
+        [RunParameter("Transit Perceived Time", 0.0018f, "Applied against the perceived travel time to work and school. (minutes)")]
         public float TransitPerceivedTravelTime;
-        [RunParameter("Distance to Work and School", 0.020f, "Applied against the distance to work and school. (km)")]
+        [RunParameter("Distance to Work and School", 0.0200f, "Applied against the distance to work and school. (km)")]
         public float DistanceToWorkSchoolBeta;
 
         private Random _random;
@@ -153,7 +157,7 @@ namespace Tasha.PopulationSynthesis
             switch(ageClass)
             {
                 case 0:
-                    v += Age16To20;
+                    v += age < 18 ? Age16To17 : Age18To20;
                     break;
                 case 1:
                     v += Age21To25;
@@ -178,7 +182,11 @@ namespace Tasha.PopulationSynthesis
                 case 11:
                     v += Age66To75;
                     break;
-                // Do nothing for age classes for 76+
+                case 12:
+                case 13:
+                    v += Age76To85;
+                    break;
+                // Do nothing for age classes for 86+
                 default:
                     break;
             }
