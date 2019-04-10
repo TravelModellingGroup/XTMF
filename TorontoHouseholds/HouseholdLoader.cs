@@ -97,6 +97,9 @@ namespace TMG.Tasha
         [RunParameter("Load Once", false, "When loading all households, setting this to true will skip reloading households.")]
         public bool LoadOnce;
 
+        [SubModelInformation(Required = false, Description = "A model to compute the number of autos available for the household.")]
+        public ICalculation<ITashaHousehold, int> AutoOwnershipModel;
+
         private bool AllDataLoaded = true;
         private IVehicleType AutoType;
         private ITashaHousehold[] Households;
@@ -198,6 +201,10 @@ namespace TMG.Tasha
                     try
                     {
                         EnsureReader();
+                        if(AutoOwnershipModel != null)
+                        {
+                            AutoOwnershipModel.Load();
+                        }
                         if (SkipBadHouseholds)
                         {
                             do
@@ -287,11 +294,9 @@ namespace TMG.Tasha
         private void Unload()
         {
             PersonLoader.Unload();
-            if (Reader != null)
-            {
-                Reader.Close();
-                Reader = null;
-            }
+            Reader?.Close();
+            Reader = null;
+            AutoOwnershipModel?.Unload();
             NeedsReset = false;
         }
 
@@ -610,32 +615,35 @@ namespace TMG.Tasha
                 Reader.Get(out int dwellingType, DwellingTypeCol);
                 h.DwellingType = (DwellingType)dwellingType;
 
-                Reader.Get(out tempInt, CarsCol);
-                int numCars = tempInt;
-                var tempVehicles = new List<IVehicle>(numCars);
-                for (int i = 0; i < numCars; i++)
+                void AssignNumberOfVehicles(Household household, int numberOfAutos, int numberOfSecondaryVehcicles)
                 {
-                    tempVehicles.Add(Vehicle.MakeVehicle(AutoType));
-                }
-                if (SecondVehicleColumnNumber >= 0)
-                {
-                    Reader.Get(out tempInt, SecondVehicleColumnNumber);
-                    int numSecondaryVechiles = tempInt;
-                    for (int i = 0; i < numSecondaryVechiles; i++)
+                    IVehicle[] toAssign = household.Vehicles != null && (household.Vehicles.Length == numberOfAutos + numberOfSecondaryVehcicles) ?
+                        household.Vehicles :
+                        new IVehicle[numberOfAutos + numberOfSecondaryVehcicles];
+                    for (int i = 0; i < numberOfAutos; i++)
                     {
-                        tempVehicles.Add(Vehicle.MakeVehicle(SecondaryType));
+                        toAssign[i] = Vehicle.MakeVehicle(AutoType);
                     }
-                }
-                if (h.Vehicles == null || h.Vehicles.Length != tempVehicles.Count)
-                {
-                    h.Vehicles = tempVehicles.ToArray();
-                }
-                else
-                {
-                    for (int i = 0; i < h.Vehicles.Length; i++)
+                    for (int i = 0; i < numberOfSecondaryVehcicles; i++)
                     {
-                        h.Vehicles[i] = tempVehicles[i];
+                        toAssign[i + numberOfAutos] = Vehicle.MakeVehicle(SecondaryType);
                     }
+                    h.Vehicles = toAssign;
+                }
+
+                if (AutoOwnershipModel == null)
+                {
+                    Reader.Get(out tempInt, CarsCol);
+                    int numCars = tempInt;
+                    if (SecondVehicleColumnNumber >= 0)
+                    {
+                        Reader.Get(out tempInt, SecondVehicleColumnNumber);
+                    }
+                    else
+                    {
+                        tempInt = 0;
+                    }
+                    AssignNumberOfVehicles(h, numCars, tempInt);
                 }
                 if(IncomeCol >= 0)
                 {
@@ -689,6 +697,10 @@ namespace TMG.Tasha
                 if (loadnext)
                 {
                     h.Recycle();
+                }
+                if(AutoOwnershipModel != null)
+                {
+                    AssignNumberOfVehicles(h, AutoOwnershipModel.ProduceResult(h), 0);
                 }
             } while (loadnext);
             if (LoadedTripDump != null)

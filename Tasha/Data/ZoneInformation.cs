@@ -52,7 +52,25 @@ Data outside of the zones that are defined is trimmed off. Only the Origin from 
 
         public void LoadData()
         {
-            var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            var data = Root.ZoneSystem?.ZoneArray?.CreateSimilarArray<float>();
+            if (data == null)
+            {
+                if (Root.ZoneSystem == null)
+                {
+                    throw new XTMFRuntimeException(this, "There is no zone system defined!");
+                }
+                if(Root.ZoneSystem.Loaded)
+                {
+                    throw new XTMFRuntimeException(this, "The zone system was loaded however, there was no zone array to be accessed.");
+                }
+                // Load the zone system
+                Root.ZoneSystem.LoadData();
+                data = Root.ZoneSystem.ZoneArray?.CreateSimilarArray<float>();
+                if(data == null)
+                {
+                    throw new XTMFRuntimeException(this, "Even after reloading the zone system, there was no zone array to be accessed.");
+                }
+            }
             if (Reader != null)
             {
                 foreach (var point in Reader.Read())

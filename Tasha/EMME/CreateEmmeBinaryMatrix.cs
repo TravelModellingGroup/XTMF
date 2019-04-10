@@ -179,6 +179,9 @@ namespace Tasha.EMME
             [RunParameter("Access Tag Name", "AccessStation", "The tag used for storing the zone used for access.")]
             public string AccessZoneTagName;
 
+            [RunParameter("Tour Level Access StationChoice", true, "Is the access station choice done at a tour level (true) or at the trip level (false).")]
+            public bool TourLevelAccessStationChoice;
+
             internal ITashaMode Mode;
 
             public string Name { get; set; }
@@ -189,15 +192,33 @@ namespace Tasha.EMME
 
             public bool GetTranslatedOD(ITripChain chain, ITrip trip, bool access, out IZone origin, out IZone destination)
             {
-                if (CountAccess ^ (!access))
+                if (TourLevelAccessStationChoice)
                 {
-                    origin = trip.OriginalZone;
-                    destination = chain[AccessZoneTagName] as IZone;
-                    return destination != null;
+                    if (CountAccess ^ (!access))
+                    {
+                        origin = trip.OriginalZone;
+                        destination = chain[AccessZoneTagName] as IZone;
+                        return destination != null;
+                    }
+                    origin = chain[AccessZoneTagName] as IZone;
+                    destination = trip.DestinationZone;
+                    return origin != null;
                 }
-                origin = chain[AccessZoneTagName] as IZone;
-                destination = trip.DestinationZone;
-                return origin != null;
+                else
+                {
+                    var accessZone = trip[AccessZoneTagName] as IZone;
+                    if(CountAccess)
+                    {
+                        origin = trip.OriginalZone;
+                        destination = accessZone;
+                    }
+                    else
+                    {
+                        origin = accessZone;
+                        destination = trip.DestinationZone;
+                    }
+                    return accessZone != null;
+                }
             }
 
             public bool RuntimeValidation(ref string error)
