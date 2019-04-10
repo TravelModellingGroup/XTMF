@@ -451,15 +451,22 @@ namespace Tasha.Scheduler
                 {
                     if((trip.Purpose == Activity.Home) | (trip.Purpose == Activity.ReturnFromWork))
                     {
-                        var startTime = trip.OriginalZone == null || trip.DestinationZone == null ? trip.TripStartTime : trip.ActivityStartTime;
-                        if(startTime > workStartTime && startTime < workEndTime)
+                        try
                         {
-                            var id = Distribution.GetDistributionID(person, Activity.ReturnFromWork);
-                            if(id != -1)
+                            var startTime = trip.OriginalZone == null || trip.DestinationZone == null ? trip.TripStartTime : trip.ActivityStartTime;
+                            if (startTime > workStartTime && startTime < workEndTime)
                             {
-                                eventCount[id]++;
-                                lunchCount++;
+                                var id = Distribution.GetDistributionID(person, Activity.ReturnFromWork);
+                                if (id != -1)
+                                {
+                                    eventCount[id]++;
+                                    lunchCount++;
+                                }
                             }
+                        }
+                        catch(Exception)
+                        {
+                            throw new XTMFRuntimeException(this, $"Unable to get the lunch travel time for an activity between {trip.OriginalZone?.ZoneNumber ?? -2} to {trip.DestinationZone?.ZoneNumber ?? -2}!");
                         }
                     }
                 }
