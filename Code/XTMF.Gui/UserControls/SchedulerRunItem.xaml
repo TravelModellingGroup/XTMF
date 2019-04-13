@@ -34,9 +34,9 @@
             <Grid Background="Transparent" DockPanel.Dock="Right" HorizontalAlignment="Stretch"  ContextMenuOpening="ScheduledRunItem_ContextMenuOpening"  Name="ScheduledRunItemListItemContainer">
                 <Grid.ContextMenu>
                     <ContextMenu Name="RunContextMenu">
-                        <MenuItem Tag="{Binding .}"  Name="CancelRunMenuItem" Header="Cancel run" Click="CancelRunMenuItem_OnClick"></MenuItem>
-                        <MenuItem Tag="{Binding .}" Name="QueuePriorityUpMenuItem" Header="Move up in queue" Click="QueuePriorityUpMenuItem_OnClick"></MenuItem>
-                        <MenuItem Tag="{Binding .}" Name="QueuePriorityDownMenuItem" Header="Move down in queue" Click="QueuePriorityDownMenuItem_OnClick"></MenuItem>
+                        <MenuItem Tag="{Binding .}"  Name="CancelRunMenuItem" Header="Cancel run" Click="CancelRunMenuItem_OnClick"/>
+                        <MenuItem Tag="{Binding .}" Name="QueuePriorityUpMenuItem" Header="Move up in queue" Click="QueuePriorityUpMenuItem_OnClick"/>
+                        <MenuItem Tag="{Binding .}" Name="QueuePriorityDownMenuItem" Header="Move down in queue" Click="QueuePriorityDownMenuItem_OnClick"/>
                     </ContextMenu>
                 </Grid.ContextMenu>
                 <Grid.ColumnDefinitions>

@@ -43,7 +43,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for RunWindow.xaml
     /// </summary>
-    public partial class RunWindow : UserControl, INotifyPropertyChanged
+    public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposable
     {
         private static readonly Tuple<byte, byte, byte> ErrorColour;
 
@@ -72,13 +72,7 @@ namespace XTMF.Gui.UserControls
         private volatile bool _isActive;
         private volatile bool _isFinished;
 
-        public Visibility ProgressReportsVisibility
-        {
-            get
-            {
-                return _subProgressBars.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-            }
-        }
+        public Visibility ProgressReportsVisibility => _subProgressBars.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
 
         private ModelSystemDisplay _launchedFromModelSystemDisplay;
 
@@ -111,9 +105,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private ILog iLog;
 
-
-
-        private ConsoleOutputAppender _consoleAppener;
+        private ConsoleOutputAppender _consoleAppender;
 
         static RunWindow()
         {
@@ -180,18 +172,16 @@ namespace XTMF.Gui.UserControls
             }
             DetailsGroupBox.DataContext = this;
             ConfigureLogger();
-            var conc = new ConsoleOutputController(this, Run, iLog);
+            var conc = new ConsoleOutputController(Run, iLog);
             ConsoleOutput.DataContext = conc;
-            _consoleAppener.ConsoleOutputController = conc;
+            _consoleAppender.ConsoleOutputController = conc;
 
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             session.ExecuteRun(run, immediateRun);
             StartRunAsync();
             _timer.Start();
-
-
-
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -210,37 +200,47 @@ namespace XTMF.Gui.UserControls
             {
                 repo = LogManager.CreateRepository(Run.RunName);
             }
-            var logger = repo.GetLogger(Run.RunName);
-            var ilogger = repo.GetLogger(Run.RunName);
 
-
-            var appender = new log4net.Appender.RollingFileAppender();
-            appender.Name = "RollingFileAppender";
-            appender.File = Path.Combine(Run.RunDirectory, "XTMF.Console.log");
-            appender.StaticLogFileName = true;
-            appender.AppendToFile = false;
-            appender.RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Once;
-            appender.MaxSizeRollBackups = 10;
-            appender.MaximumFileSize = "10MB";
-            appender.PreserveLogFileNameExtension = true;
+            var appender = new log4net.Appender.RollingFileAppender
+            {
+                Name = "RollingFileAppender",
+                File = Path.Combine(Run.RunDirectory, "XTMF.Console.log"),
+                StaticLogFileName = true,
+                AppendToFile = false,
+                RollingStyle = log4net.Appender.RollingFileAppender.RollingMode.Once,
+                MaxSizeRollBackups = 10,
+                MaximumFileSize = "10MB",
+                PreserveLogFileNameExtension = true
+            };
             var layout = new log4net.Layout.PatternLayout()
             {
                 ConversionPattern = "%date %-5level %logger - %message%newline"
             };
             appender.Layout = layout;
             layout.ActivateOptions();
-
-            _consoleAppener = new ConsoleOutputAppender()
+            _consoleAppender = new ConsoleOutputAppender()
             {
                 Layout = layout
             };
-
-
             //Let log4net configure itself based on the values provided
             appender.ActivateOptions();
-            log4net.Config.BasicConfigurator.Configure(repo, appender, _consoleAppener);
+            log4net.Config.BasicConfigurator.Configure(repo, appender, _consoleAppender);
             iLog = LogManager.GetLogger(Run.RunName, Run.RunName);
+        }
 
+        ~RunWindow()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool managed)
+        {
+            LogManager.ShutdownRepository(Run.RunName);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         /// <summary>
@@ -309,9 +309,9 @@ namespace XTMF.Gui.UserControls
                 }
             }
             ConfigureLogger();
-            var conc = new ConsoleOutputController(this, Run, iLog);
+            var conc = new ConsoleOutputController(Run, iLog);
             ConsoleOutput.DataContext = conc;
-            _consoleAppener.ConsoleOutputController = conc;
+            _consoleAppender.ConsoleOutputController = conc;
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             session.ExecuteDelayedRun(run, delayedStartTime);
             DetailsGroupBox.DataContext = this;
@@ -425,15 +425,6 @@ namespace XTMF.Gui.UserControls
             _consoleLength = newTextLength;
         }
 
-        private static Window GetWindow(DependencyObject current)
-        {
-            while (current != null && !(current is Window))
-            {
-                current = VisualTreeHelper.GetParent(current);
-            }
-            return current as Window;
-        }
-
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
@@ -499,7 +490,7 @@ namespace XTMF.Gui.UserControls
                             try
                             {
                                 progress = _progressReports[i].GetProgress();
-                                progress = progress * 10000;
+                                progress *= 10000;
                                 if (progress > 10000)
                                 {
                                     progress = 10000;
@@ -720,8 +711,7 @@ namespace XTMF.Gui.UserControls
         private void CancelButton_Clicked(object sender, RoutedEventArgs e)
         {
             //Are you sure?
-            this.CancelRun();
-
+            CancelRun();
         }
 
         private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)
@@ -792,15 +782,24 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 OnPropertyChanged(nameof(ProgressReportsVisibility));
-                if (_subProgressBars.Count == 0)
-                {
-                    BaseGrid.RowDefinitions[1].Height = new GridLength(0);
-                }
-                else
-                {
-                    BaseGrid.RowDefinitions[1].Height = new GridLength(250);
-                }
+                BaseGrid.RowDefinitions[1].Height = _subProgressBars.Count == 0 ? new GridLength(0) : new GridLength(250);
             }));
+        }
+
+        internal void ClearRun()
+        {
+            StatusLabel.Text = string.Empty;
+            ProgressBar.Finished = false;
+            ProgressBar.Value = ProgressBar.Minimum;
+            IsRunClearable = false;
+            IsRunCancellable = false;
+            ElapsedTimeLabel.Content = string.Empty;
+            StartTimeLabel.Content = string.Empty;
+            _runDirectory = string.Empty;
+            OpenDirectoryButton.IsEnabled = false;
+            ConsoleOutput.Clear();
+            _consoleAppender.Close();
+            Dispose();
         }
 
         /// <summary>
@@ -808,20 +807,11 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ClearRunButton_Click(object sender, RoutedEventArgs e)
+        public void ClearRunButton_Click(object sender, RoutedEventArgs e)
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                StatusLabel.Text = string.Empty;
-                ProgressBar.Finished = false;
-                ProgressBar.Value = ProgressBar.Minimum;
-                IsRunClearable = false;
-                IsRunCancellable = false;
-                ElapsedTimeLabel.Content = string.Empty;
-                StartTimeLabel.Content = string.Empty;
-                _runDirectory = string.Empty;
-                OpenDirectoryButton.IsEnabled = false;
-                ConsoleOutput.Clear();
+                ClearRun();
             }));
         }
 
@@ -881,13 +871,15 @@ namespace XTMF.Gui.UserControls
             /// <param name="loggingEvent"></param>
             protected override void Append(LoggingEvent loggingEvent)
             {
-
                 ConsoleOutputController.ConsoleOutput += RenderLoggingEvent(loggingEvent);
             }
         }
 
-        public class ConsoleOutputController : AppenderSkeleton, INotifyPropertyChanged, IDisposable
+        public sealed class ConsoleOutputController : AppenderSkeleton, INotifyPropertyChanged, IDisposable
         {
+            private readonly ILog _log;
+            private string _output;
+
             /// <summary>
             /// 
             /// </summary>
@@ -895,13 +887,12 @@ namespace XTMF.Gui.UserControls
             /// <param name="run"></param>
             /// <param name="log"></param>
             /// <param name="memoryAppender"></param>
-            public ConsoleOutputController(RunWindow runWindow, XTMFRun run, ILog log = null)
+            public ConsoleOutputController(XTMFRun run, ILog log = null)
             {
                 run.RunMessage += Run_RunMessage;
-                this._log = log;
-
+                _log = log;
             }
-            private string _output;
+
             public string ConsoleOutput
             {
                 get
@@ -910,14 +901,10 @@ namespace XTMF.Gui.UserControls
                 }
                 set
                 {
-
                     _output = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
                 }
             }
-
-            private ILog _log;
-
 
             public void Dispose()
             {
@@ -937,7 +924,6 @@ namespace XTMF.Gui.UserControls
                 {
                     _log.Info(message);
                 }
-
             }
 
             /// <summary>

@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -48,12 +49,9 @@ namespace XTMF.Gui.UserControls
     {
         private FrameworkElement _activeContent;
 
-        private List<RunWindow> _runWindows;
-
         public SchedulerWindow()
         {
             InitializeComponent();
-            _runWindows = new List<RunWindow>();
             ActiveRunContent.DataContext = Resources["DefaultDisplay"];
         }
 
@@ -140,9 +138,11 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 ActiveContent = run;
-                var itemDisplayModel = new SchedulerRunItemDisplayModel(run, this);
-                itemDisplayModel.StatusText = "Delayed Run";
-                itemDisplayModel.StartTime = delayedStartTime.ToString("MM/dd/yyyy H:mm");
+                var itemDisplayModel = new SchedulerRunItemDisplayModel(run, this)
+                {
+                    StatusText = "Delayed Run",
+                    StartTime = delayedStartTime.ToString("MM/dd/yyyy H:mm")
+                };
                 ScheduledRuns.Items.Add(itemDisplayModel);
                 ActiveRunContent.DataContext = run;
             });
@@ -172,8 +172,11 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            var item = (sender as Button).Tag as SchedulerRunItemDisplayModel;
-            Dispatcher.Invoke(() => { FinishedRuns.Items.Remove(item); });
+            if ((sender as Button).Tag is SchedulerRunItemDisplayModel item)
+            {
+                item.ClearRun();
+                Dispatcher.Invoke(() => { FinishedRuns.Items.Remove(item); });
+            }
         }
 
         /// <summary>
@@ -218,6 +221,13 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(() =>
             {
+                foreach(var item in FinishedRuns.Items)
+                {
+                    if(item is SchedulerRunItemDisplayModel run)
+                    {
+                        run.RunWindow.ClearRun();
+                    }
+                }
                 FinishedRuns.Items.Clear();
                 ActiveRunContent.DataContext = FindResource("DefaultDisplay");
             });
@@ -233,8 +243,10 @@ namespace XTMF.Gui.UserControls
             var menu = listView?.ContextMenu;
             if (listView.SelectedItem != null)
             {
-                var menuItem = new MenuItem();
-                menuItem.Header = "Remove run from list";
+                var menuItem = new MenuItem
+                {
+                    Header = "Remove run from list"
+                };
                 Dispatcher.Invoke(() => { menu.Items.Clear(); });
                 menuItem.Click += (o, args) =>
                 {
@@ -363,18 +375,8 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         private int CountNonQueuedRuns()
         {
-            var count = 0;
-            foreach (SchedulerRunItemDisplayModel run in ScheduledRuns.Items)
-            {
-                if (run.IsRunStarted)
-                {
-                    count++;
-                }
-            }
-
-            return count;
+            return ScheduledRuns.Items.Cast<object>().Count(i => i is SchedulerRunItemDisplayModel item && item.IsRunStarted);
         }
-
 
         /// <summary>
         /// </summary>
@@ -382,12 +384,7 @@ namespace XTMF.Gui.UserControls
         public bool CanMoveQueueDown()
         {
             var runItem = ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel;
-            if (ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1 || runItem.IsRunStarted)
-            {
-                return false;
-            }
-
-            return true;
+            return !(ScheduledRuns.SelectedIndex == ScheduledRuns.Items.Count - 1 || runItem.IsRunStarted);
         }
 
         /// <summary>
@@ -459,8 +456,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void StatusTextCopyMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var source = e.Source as TextBlock;
-            if (source != null)
+            if (e.Source is TextBlock source)
             {
                 Clipboard.SetText(source.Text);
             }
@@ -681,6 +677,11 @@ namespace XTMF.Gui.UserControls
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+
+            internal void ClearRun()
+            {
+                RunWindow.ClearRun();
             }
         }
     }
