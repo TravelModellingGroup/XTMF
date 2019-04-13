@@ -177,12 +177,9 @@ namespace XTMF
                 switch (child.ChildNodes[i].Name)
                 {
                     case "LastModified":
-
                         {
                             var result = DateTime.TryParse(child.ChildNodes[i].Attributes?["Time"]?.InnerText, out var modified);
                             pms.LastModified = result ? modified : DateTime.Now;
-
-
                             break;
                         }
                     case "LinkedParameters":
@@ -197,8 +194,6 @@ namespace XTMF
                         break;
                 }
             }
-
-
             return true;
         }
 
@@ -321,11 +316,6 @@ namespace XTMF
                             }
                         }
                     }
-                }
-
-                for (int i = 0; i < this.ModelSystemStructure.Count; i++)
-                {
-                    this.ModelSystemStructure[i].LastModified = this._ProjectModelSystems[i].LastModified;
                 }
             }
             catch (Exception e)
@@ -643,10 +633,10 @@ namespace XTMF
 
 
 
-                                    if (ms.Root.LastModified.Year > 1)
+                                    if (ms.LastModified.Year > 1)
                                     {
                                         msWriter.WriteStartElement("LastModified");
-                                        msWriter.WriteAttributeString("Time", ms.Root.LastModified.ToString("F"));
+                                        msWriter.WriteAttributeString("Time", ms.LastModified.ToString("F"));
                                         msWriter.WriteEndElement();
                                     }
                                     else if (ms.LastModified.Year > 1)

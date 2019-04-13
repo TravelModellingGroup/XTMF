@@ -357,10 +357,7 @@ namespace XTMF
                     Name = modelSystemName,
                     Required = true,
                     Description = "The root of the model system",
-                    ParentFieldType = typeof(IModelSystemTemplate),
-                    LastModified = DateTime.Now
-
-              
+                    ParentFieldType = typeof(IModelSystemTemplate)
                 },
                 LinkedParameters = new List<ILinkedParameter>(),
                 Description = string.Empty,
@@ -447,7 +444,6 @@ namespace XTMF
             out List<IRegionDisplay> regionDisplays, int modelSystemIndex)
         {
             var ourClone = ModelSystemStructure[modelSystemIndex].Clone();
-            ourClone.LastModified = this._ProjectModelSystems[modelSystemIndex].LastModified;
             linkedParameters = LinkedParameters[modelSystemIndex].Count > 0
                 ? LinkedParameter.MapLinkedParameters(LinkedParameters[modelSystemIndex], ourClone,
                     ModelSystemStructure[modelSystemIndex])
@@ -991,6 +987,16 @@ namespace XTMF
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Gets the last modified time for the given model system structure root in the project.
+        /// </summary>
+        /// <param name="modelSystemStructure">The model system's root to get the last modified time for.</param>
+        /// <returns>The last time it was modified, null if the time was not recorded or if the model system structure was not found.</returns>
+        public DateTime? GetLastModified(IModelSystemStructure modelSystemStructure)
+        {
+            return _ProjectModelSystems.FirstOrDefault(pms => pms.Root == modelSystemStructure)?.LastModified;
         }
 
         private static bool AttachRootModelSystem(IModelSystemStructure iModelSystem, IModule root, List<int> path,

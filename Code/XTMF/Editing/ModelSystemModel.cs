@@ -225,7 +225,6 @@ namespace XTMF
                     Description);
                 // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
                 Name = ClonedModelSystemRoot.Name;
-                ClonedModelSystemRoot.LastModified = DateTime.Now;
                 return _Project.Save(ref error);
             }
             else

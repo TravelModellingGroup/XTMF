@@ -51,8 +51,6 @@ namespace XTMF
 
         public bool IsMetaModule { get; set; }
 
-        public DateTime LastModified { get; set; }
-
         public IList<IModelSystemStructure> Children { get; set; }
 
         public bool IsDisabled { get; set; }

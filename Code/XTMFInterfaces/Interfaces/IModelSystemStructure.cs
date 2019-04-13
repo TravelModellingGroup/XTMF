@@ -82,8 +82,6 @@ namespace XTMF
         /// </summary>
         Type Type { get; set; }
 
-        DateTime LastModified { get; set; }
-
         /// <summary>
         /// Notify if the model system structure
         /// should behave like a meta module
