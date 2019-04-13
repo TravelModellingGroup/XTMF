@@ -213,7 +213,6 @@ namespace XTMF
                 ModelSystem.ModelSystemStructure = ClonedModelSystemRoot;
                 ModelSystem.Description = Description;
                 ModelSystem.LinkedParameters = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
-
                 return ModelSystem.Save(ref error);
             }
             else if (_ModelSystemIndex >= 0)
@@ -225,6 +224,7 @@ namespace XTMF
                     Description);
                 // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
                 Name = ClonedModelSystemRoot.Name;
+                _Project.SetLastModifiedToNow(ClonedModelSystemRoot);
                 return _Project.Save(ref error);
             }
             else

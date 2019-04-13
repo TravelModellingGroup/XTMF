@@ -271,8 +271,6 @@ namespace XTMF
                             {
                                 var result = DateTime.TryParse(child.ChildNodes[i].Attributes?["Time"]?.InnerText, out var modified);
                                 pms.LastModified = result ? modified : DateTime.Now;
-
-
                                 break;
                             }
                         case "LinkedParameters":
@@ -304,7 +302,7 @@ namespace XTMF
                 {
                     using (XmlReader reader = XmlReader.Create(fileName))
                     {
-                        while (!reader.EOF && reader.Read())
+                        while (reader.Read())
                         {
                             if (reader.NodeType != XmlNodeType.Element) continue;
                             switch (reader.LocalName)
@@ -366,23 +364,16 @@ namespace XTMF
                                 //get reference to this module
                                 string reference = moduleNode.Attributes?["Reference"].Value;
                                 var modelSystemStructure = GetModuleFromReference(reference, mss);
-
                                 regionGroup.Modules.Add((IModelSystemStructure2)modelSystemStructure);
                             }
                         }
-
                         regionDisplay.RegionGroups.Add(regionGroup);
                     }
                 }
-
                 regionDisplays.Add(regionDisplay);
             }
-
             return regionDisplays;
         }
-
-
-
 
         /// <summary>
         /// 
@@ -452,7 +443,6 @@ namespace XTMF
                                         {
                                             lp.Add(param, ref error);
                                         }
-
                                         break;
                                     }
                                 }
@@ -461,7 +451,6 @@ namespace XTMF
                     }
                 }
             }
-
             return lpl;
         }
 
@@ -478,25 +467,19 @@ namespace XTMF
                 writer.WriteStartElement("RegionDisplay");
                 writer.WriteAttributeString("Name", regionDisplay.Name);
                 writer.WriteAttributeString("Description", regionDisplay.Description);
-
                 foreach (var regionGroup in regionDisplay.RegionGroups)
                 {
                     writer.WriteStartElement("RegionGroup");
                     writer.WriteAttributeString("Name", regionGroup.Name);
-
                     foreach (var module in regionGroup.Modules)
                     {
                         writer.WriteStartElement("Module");
                         var referencePath = this.GetModuleReferencePath(module, new List<string>());
                         writer.WriteAttributeString("Reference", referencePath);
-
                         writer.WriteEndElement();
                     }
-
-
                     writer.WriteEndElement();
                 }
-
                 writer.WriteEndElement();
             }
         }
@@ -513,9 +496,6 @@ namespace XTMF
             if (modelSystemStructure.Parent == null)
             {
                 referencePath?.Insert(0, modelSystemStructure.Name);
-
-
-
                 return string.Join(".", referencePath?.ToArray());
             }
             else
@@ -545,14 +525,12 @@ namespace XTMF
                 {
                     writer.WriteAttributeString("Value", lp.Value.ToString());
                 }
-
                 foreach (var reference in lp.Parameters)
                 {
                     writer.WriteStartElement("Reference");
                     writer.WriteAttributeString("Name", LookupName(reference, mss));
                     writer.WriteEndElement();
                 }
-
                 writer.WriteEndElement();
             }
         }
@@ -631,23 +609,12 @@ namespace XTMF
                                     msWriter.WriteStartElement("Root");
                                     ms.Root.Save(msWriter);
 
-
-
                                     if (ms.LastModified.Year > 1)
                                     {
                                         msWriter.WriteStartElement("LastModified");
                                         msWriter.WriteAttributeString("Time", ms.LastModified.ToString("F"));
                                         msWriter.WriteEndElement();
                                     }
-                                    else if (ms.LastModified.Year > 1)
-                                    {
-                                        msWriter.WriteStartElement("LastModified");
-                                        msWriter.WriteAttributeString("Time", ms.LastModified.ToString("F"));
-                                        msWriter.WriteEndElement();
-                                    }
-
-
-
 
                                     msWriter.WriteStartElement("LinkedParameters");
                                     WriteLinkedParameters(msWriter, ms.LinkedParameters, ms.Root);
@@ -657,8 +624,6 @@ namespace XTMF
                                     WriteRegions(msWriter, ms.RegionDisplays, ms.Root);
                                     msWriter.WriteEndElement();
                                     msWriter.WriteEndElement();
-
-
                                 }
 
                                 File.Copy(tempMSFileName,
@@ -667,10 +632,8 @@ namespace XTMF
                             }
                         }));
                     }
-
                     writer.WriteEndElement();
                 }
-
                 Task.WaitAll(writeTasks.ToArray());
             }
             catch (Exception e)

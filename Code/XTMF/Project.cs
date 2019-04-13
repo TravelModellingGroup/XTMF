@@ -999,6 +999,15 @@ namespace XTMF
             return _ProjectModelSystems.FirstOrDefault(pms => pms.Root == modelSystemStructure)?.LastModified;
         }
 
+        internal void SetLastModifiedToNow(ModelSystemStructure modelSystemStructure)
+        {
+            var modelSystem = _ProjectModelSystems.FirstOrDefault(pms => pms.Root == modelSystemStructure);
+            if (modelSystem != null)
+            {
+                modelSystem.LastModified = DateTime.Now;
+            }
+        }
+
         private static bool AttachRootModelSystem(IModelSystemStructure iModelSystem, IModule root, List<int> path,
             ref ErrorWithPath error)
         {
