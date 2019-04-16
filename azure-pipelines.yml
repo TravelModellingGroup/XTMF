@@ -15,7 +15,7 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@0
+
 
 - task: NuGetCommand@2
   inputs:
@@ -26,4 +26,9 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
+- task: DownloadBuildArtifacts@0
+  inputs:
+    artifactName: 'XTMF'
+- task: NuGetToolInstaller@0
 
