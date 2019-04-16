@@ -1199,6 +1199,33 @@ namespace XTMF.Testing.TMG.Data
             }, -1, -2, -4, -8);
         }
 
+        [TestMethod]
+        public void TestNormalize()
+        {
+            CompareMatrix("normalize(B)", new IDataSource[]
+            {
+                CreateData("B", 2, 4, 6, 8)
+            }, 0.1f, 0.2f, 0.3f, 0.4f);
+        }
+
+        [TestMethod]
+        public void TestNormalizeColumns()
+        {
+            CompareMatrix("normalizeColumns(B)", new IDataSource[]
+            {
+                CreateData("B", 2, 4, 6, 8)
+            }, 2f/8f, 4f / 12f, 6f / 8f, 8f / 12f);
+        }
+
+        [TestMethod]
+        public void TestNormalizeRows()
+        {
+            CompareMatrix("normalizeRows(B)", new IDataSource[]
+            {
+                CreateData("B", 2, 4, 6, 8)
+            }, 2f / 6f, 4f / 6f, 6f / 14f, 8f / 14f);
+        }
+
         /// <summary>
         /// Assert results
         /// </summary>

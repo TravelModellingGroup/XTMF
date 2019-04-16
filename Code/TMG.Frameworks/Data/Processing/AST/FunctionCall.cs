@@ -18,6 +18,7 @@
 */
 using Datastructure;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
@@ -50,7 +51,10 @@ namespace TMG.Frameworks.Data.Processing.AST
             IdentityMatrix,
             Log,
             If,
-            IfNaN
+            IfNaN,
+            Normalize,
+            NormalizeColumns,
+            NormalizeRows
         }
 
         private FunctionType Type;
@@ -155,6 +159,15 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "ifnan":
                     type = FunctionType.IfNaN;
+                    return true;
+                case "normalize":
+                    type = FunctionType.Normalize;
+                    return true;
+                case "normalizecolumns":
+                    type = FunctionType.NormalizeColumns;
+                    return true;
+                case "normalizerows":
+                    type = FunctionType.NormalizeRows;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -373,9 +386,127 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("IfNaN requires 2 parameters (original,replacement)!");
                     }
                     return ComputeIfNaN(values);
+                case FunctionType.Normalize:
+                    if(values.Length != 1)
+                    {
+                        return new ComputationResult("Normalize requires 1 parameter, a matrix to be normalized.");
+                    }
+                    return ComputeNormalize(values);
+                case FunctionType.NormalizeColumns:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("NormalizeColumns requires 1 parameter, a matrix to be normalized.");
+                    }
+                    return ComputeNormalizeColumns(values);
+                case FunctionType.NormalizeRows:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("NormalizeRows requires 1 parameter, a matrix to be normalized.");
+                    }
+                    return ComputeNormalizeRows(values);
+
 
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult ComputeNormalizeColumns(ComputationResult[] values)
+        {
+            var toNormalize = values[0];
+            if (toNormalize.IsValue)
+            {
+                return new ComputationResult($"{Start + 1}:Normalize requires its parameter to be of type Matrix, not a scalar.");
+            }
+            if (toNormalize.IsVectorResult)
+            {
+                return new ComputationResult($"{Start + 1}:Normalize requires its parameter to be of type Matrix, not a vector.");
+            }
+            var writeTo = toNormalize.Accumulator ? toNormalize.OdData : toNormalize.OdData.CreateSimilarArray<float>();
+            var flatWrite = writeTo.GetFlatData();
+            var flatRead = toNormalize.OdData.GetFlatData();
+            // This could be executed in parallel if proved to be more efficient
+            var columnTotals = new float[flatWrite.Length];
+            for (int i = 0; i < flatRead.Length; i++)
+            {
+                VectorHelper.Add(columnTotals, 0, columnTotals, 0, flatRead[i], 0, flatRead.Length);
+            }
+            System.Threading.Tasks.Parallel.For(0, flatRead.Length, (int i) =>
+            {
+                var writeRow = flatWrite[i];
+                var readRow = flatRead[i];
+                for (int j = 0; j < readRow.Length; j++)
+                {
+                    writeRow[j] = columnTotals[j] != 0f ? readRow[j] / columnTotals[j] : 0f;
+                }
+            });
+            return new ComputationResult(writeTo, true);
+        }
+
+        private ComputationResult ComputeNormalizeRows(ComputationResult[] values)
+        {
+            var toNormalize = values[0];
+            if (toNormalize.IsValue)
+            {
+                return new ComputationResult($"{Start + 1}:Normalize requires its parameter to be of type Matrix, not a scalar.");
+            }
+            if (toNormalize.IsVectorResult)
+            {
+                return new ComputationResult($"{Start + 1}:Normalize requires its parameter to be of type Matrix, not a vector.");
+            }
+            var writeTo = toNormalize.Accumulator ? toNormalize.OdData : toNormalize.OdData.CreateSimilarArray<float>();
+            var flatWrite = writeTo.GetFlatData();
+            var flatRead = toNormalize.OdData.GetFlatData();
+            System.Threading.Tasks.Parallel.For(0, flatRead.Length, (int i) =>
+            {
+                var denominator = VectorHelper.Sum(flatRead[i], 0, flatRead.Length);
+                if(denominator != 0f)
+                {
+                    VectorHelper.Divide(flatWrite[i], flatRead[i], denominator);
+                }
+                else if(flatRead == flatWrite)
+                {
+                    // we only need to accumulate if we are going to return a previously accumulated matrix.
+                    Array.Clear(flatWrite[i], 0, flatWrite.Length);
+                }
+            });
+            return new ComputationResult(writeTo, true);
+        }
+
+        private ComputationResult ComputeNormalize(ComputationResult[] values)
+        {
+            var toNormalize = values[0];
+            if(toNormalize.IsValue)
+            {
+                return new ComputationResult($"{Start + 1}:Normalize requires its parameter to be of type Matrix, not a scalar.");
+            }
+            if (toNormalize.IsVectorResult)
+            {
+                return new ComputationResult($"{Start + 1}:Normalize requires its parameter to be of type Matrix, not a vector.");
+            }
+            var writeTo = toNormalize.Accumulator ? toNormalize.OdData : toNormalize.OdData.CreateSimilarArray<float>();
+            var flatWrite = writeTo.GetFlatData();
+            var flatRead = toNormalize.OdData.GetFlatData();
+            // sum the whole matrix in parallel using SIMD for each array
+            var denominator = flatRead.AsParallel().AsOrdered().Sum(row => VectorHelper.Sum(row, 0, row.Length));
+            if(denominator == 0f)
+            {
+                // only clear the write array if it was an accumulator
+                if (flatRead == flatWrite)
+                {
+                    System.Threading.Tasks.Parallel.For(0, flatRead.Length, (int i) =>
+                    {
+                        Array.Clear(flatWrite[i], 0, flatRead.Length);
+                    });
+                }
+            }
+            else
+            {
+                System.Threading.Tasks.Parallel.For(0, flatRead.Length, (int i) =>
+                {
+                    VectorHelper.Divide(flatWrite[i], flatRead[i], denominator);
+                });
+            }
+            return new ComputationResult(writeTo, true);
         }
 
         private ComputationResult ComputeIfNaN(ComputationResult[] values)
