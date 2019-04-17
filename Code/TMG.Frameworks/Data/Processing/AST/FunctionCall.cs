@@ -466,7 +466,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                 else if(flatRead == flatWrite)
                 {
                     // we only need to accumulate if we are going to return a previously accumulated matrix.
-                    Array.Clear(flatWrite[i], 0, flatWrite.Length);
+                    Array.Clear(flatWrite[i], 0, flatWrite[i].Length);
                 }
             });
             return new ComputationResult(writeTo, true);
@@ -495,7 +495,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                 {
                     System.Threading.Tasks.Parallel.For(0, flatRead.Length, (int i) =>
                     {
-                        Array.Clear(flatWrite[i], 0, flatRead.Length);
+                        Array.Clear(flatWrite[i], 0, flatWrite[i].Length);
                     });
                 }
             }
