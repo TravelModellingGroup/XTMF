@@ -988,6 +988,7 @@ namespace XTMF.Gui
         private void OpenModelSystemGlobalMenuItem_Selected(object sender, MouseButtonEventArgs e)
         {
             OpenModelSystem();
+            MenuToggleButton.IsChecked = false;
         }
     }
 }
