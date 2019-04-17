@@ -42,7 +42,7 @@ namespace XTMF.Gui.UserControls
     public partial class StringRequestDialog : UserControl
     {
 
-        private Func<string, bool> _validation;
+        private readonly Func<string, bool> _validation;
 
         public string QuestionText { get; set; }
 

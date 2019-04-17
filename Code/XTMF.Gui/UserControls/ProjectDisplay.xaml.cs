@@ -431,7 +431,7 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename", result =>
                 {
                     string error = null;
-                    if (!selected.SetName(Session, result, ref error))
+                    if (!selected.SetName(result, ref error))
                     {
                         MessageBox.Show(error, "Unable to Rename Model System", MessageBoxButton.OK,
                             MessageBoxImage.Error);
@@ -470,7 +470,7 @@ namespace XTMF.Gui.UserControls
                     if (!string.IsNullOrWhiteSpace(fileName))
                     {
                         string error = null;
-                        if (!selected.ExportModelSystem(Session, fileName, ref error))
+                        if (!selected.ExportModelSystem(fileName, ref error))
                         {
                             MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System",
                                 MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
@@ -488,7 +488,7 @@ namespace XTMF.Gui.UserControls
                     {
                         string error = null;
 
-                        if (!selected.CloneModelSystem(Session, dialog.UserInput, ref error))
+                        if (!selected.CloneModelSystem(dialog.UserInput, ref error))
                         {
                             MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK,
                                 MessageBoxImage.Error);
@@ -567,12 +567,10 @@ namespace XTMF.Gui.UserControls
 
         private void FilterModelSystemsBox_EnterPressed(object sender, EventArgs e)
         {
-            var selected = ModelSystemsDataGrid.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            if (selected == null)
+            if (!(ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected))
             {
                 selected = GetFirstItem();
             }
-
             LoadModelSystem(selected);
         }
 
@@ -659,12 +657,10 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemDisplay_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var selected = ModelSystemsDataGrid.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            if (selected == null)
+            if (!(ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected))
             {
                 selected = GetFirstItem();
             }
-
             LoadModelSystem(selected);
         }
 
@@ -972,8 +968,8 @@ namespace XTMF.Gui.UserControls
             {
                 private bool _IsSelected;
 
-                private IProject _project;
-                private ProjectEditingSession _session;
+                private readonly IProject _project;
+                private readonly ProjectEditingSession _session;
 
                 public ContainedModelSystemModel(ProjectEditingSession session, IModelSystemStructure ms,
                     IProject project)
@@ -1084,27 +1080,27 @@ namespace XTMF.Gui.UserControls
                     }
                 }
 
-                internal bool SetName(ProjectEditingSession session, string newName, ref string error)
+                internal bool SetName(string newName, ref string error)
                 {
-                    var ret = session.RenameModelSystem(ModelSystemStructure, newName, ref error);
+                    var ret = _session.RenameModelSystem(ModelSystemStructure, newName, ref error);
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
                     return ret;
                 }
 
-                internal bool CloneModelSystem(ProjectEditingSession session, string name, ref string error)
+                internal bool CloneModelSystem(string name, ref string error)
                 {
-                    return session.CloneModelSystemAs(ModelSystemStructure, name, ref error);
+                    return _session.CloneModelSystemAs(ModelSystemStructure, name, ref error);
                 }
 
-                internal bool CloneModelSystemToProject(ProjectEditingSession session, string name, ref string error)
+                internal bool CloneModelSystemToProject(string name, ref string error)
                 {
-                    return session.CloneModelSystemToProjectAs(ModelSystemStructure, name, ref error);
+                    return _session.CloneModelSystemToProjectAs(ModelSystemStructure, name, ref error);
                 }
 
 
-                internal bool ExportModelSystem(ProjectEditingSession session, string fileName, ref string error)
+                internal bool ExportModelSystem(string fileName, ref string error)
                 {
-                    return session.ExportModelSystem(RealIndex, fileName, ref error);
+                    return _session.ExportModelSystem(RealIndex, fileName, ref error);
                 }
             }
 
