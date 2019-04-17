@@ -497,7 +497,7 @@ namespace XTMF.Gui
         /// </summary>
         public async void NewModelSystem()
         {
-            var dialog = new StringRequestDialog("Model System Name", ValidateName);
+            var dialog = new StringRequestDialog("Model System Name", ValidateName, null);
             var result = await dialog.ShowAsync();
             if (dialog.DidComplete)
             {
@@ -513,7 +513,7 @@ namespace XTMF.Gui
         /// </summary>
         public async void NewProject()
         {
-            var dialog = new StringRequestDialog("Project Name", ValidateName);
+            var dialog = new StringRequestDialog("Project Name", ValidateName, null);
             _isDialogOpen = true;
             var result = await dialog.ShowAsync();
             

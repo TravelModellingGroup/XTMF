@@ -264,7 +264,8 @@ namespace XTMF.Gui.UserControls
                     RefreshProjects();
                 } */
 
-                StringRequestDialog dialog = new StringRequestDialog("Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); });
+                StringRequestDialog dialog = 
+                    new StringRequestDialog("Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); }, null);
                 var result = await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {

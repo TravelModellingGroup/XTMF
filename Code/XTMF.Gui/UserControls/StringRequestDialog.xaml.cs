@@ -52,18 +52,14 @@ namespace XTMF.Gui.UserControls
 
         private DialogSession _dialogSession;
 
-        public StringRequestDialog(string question, Func<string, bool> validation)
+        public StringRequestDialog(string question, Func<string, bool> validation, string startingText)
         {
-            InitializeComponent();
             DataContext = this;
             _validation = validation;
             QuestionText = question;
             DidComplete = false;
-            UserInput = null;
-            if (validation != null)
-            {
-                //ValidationLabel.Visibility = validation(Answer) ? Visibility.Hidden : Visibility.Visible;
-            }
+            UserInput = startingText;
+            InitializeComponent();
         }
 
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
@@ -78,8 +74,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="eventArgs"></param>
         private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
         {
- 
-            Console.WriteLine(eventArgs);
         }
 
         /// <summary>
@@ -88,14 +82,9 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public async Task<object> ShowAsync(bool allowClickToClose = true)
         {
-
-            //DialogHost.
-
             MainWindow.Us.RootDialogHost.CloseOnClickAway = allowClickToClose;
             return await DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler);
         }
-
-
 
         /// <summary>
         /// 
@@ -121,7 +110,6 @@ namespace XTMF.Gui.UserControls
                 catch
                 {
                 }
-
             }
         }
 
