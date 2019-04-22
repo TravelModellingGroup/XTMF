@@ -113,6 +113,7 @@
     <Compile Include="Data\Processing\AST\Subtract.cs" />
     <Compile Include="Data\Processing\AST\Variable.cs" />
     <Compile Include="Data\Processing\ConvertLabeledDataToSparseArray.cs" />
+    <Compile Include="Data\Processing\ProcessKFactors.cs" />
     <Compile Include="Data\Processing\VectorMath.cs" />
     <Compile Include="Data\Processing\ScalarMath.cs" />
     <Compile Include="Data\Processing\ODMath.cs" />
