@@ -907,6 +907,101 @@ namespace TMG.Functions
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="destIndex"></param>
+        /// <param name="alternateValue"></param>
+        /// <param name="length"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ReplaceIfNotFinite(float[] destination, int destIndex, float[] source, int sourceIndex, float alternateValue, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                var altV = new Vector<float>(alternateValue);
+                if (destIndex == 0 && sourceIndex == 0)
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        (SelectIfFinite(new Vector<float>(source, i), altV)).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i] = float.IsNaN(source[i]) || float.IsInfinity(source[i]) ? alternateValue : source[i];
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        (SelectIfFinite(new Vector<float>(source, i + sourceIndex), altV)).CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = float.IsNaN(source[i + sourceIndex]) || float.IsInfinity(source[i + sourceIndex]) ? alternateValue : source[i + sourceIndex];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = float.IsNaN(source[i + sourceIndex]) || float.IsInfinity(source[i + sourceIndex]) ? alternateValue : source[i + sourceIndex];
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="destIndex"></param>
+        /// <param name="alternateValue"></param>
+        /// <param name="length"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ReplaceIfNotFinite(float[] destination, int destIndex, float[] source, int sourceIndex, float[] alternateValue, int altIndex, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                if (destIndex == 0 && sourceIndex == 0 && altIndex == 0)
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var altV = new Vector<float>(alternateValue, i);
+                        (SelectIfFinite(new Vector<float>(source, i), altV)).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i] = float.IsNaN(source[i]) || float.IsInfinity(source[i]) ? alternateValue[i] : source[i];
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var altV = new Vector<float>(alternateValue, i + altIndex);
+                        (SelectIfFinite(new Vector<float>(source, i + sourceIndex), altV)).CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = float.IsNaN(source[i + sourceIndex]) || float.IsInfinity(source[i + sourceIndex]) ? alternateValue[i + altIndex] : source[i + sourceIndex];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = float.IsNaN(source[i + sourceIndex]) || float.IsInfinity(source[i + sourceIndex]) ? alternateValue[i + altIndex] : source[i + sourceIndex];
+                }
+            }
+        }
+
         public static void ReplaceIfLessThanOrNotFinite(float[] destination, int destIndex, float alternateValue, float minimum, int length)
         {
             if (Vector.IsHardwareAccelerated)

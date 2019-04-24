@@ -521,7 +521,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             else if (condition.IsVectorResult && replacement.IsVectorResult)
             {
                 var saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
-                VectorHelper.ReplaceIfNaN(saveTo.GetFlatData(), condition.VectorData.GetFlatData(), replacement.VectorData.GetFlatData());
+                VectorHelper.ReplaceIfNotFinite(saveTo.GetFlatData(), 0, condition.VectorData.GetFlatData(), 0, replacement.VectorData.GetFlatData(), 0, condition.VectorData.GetFlatData().Length);
                 return new ComputationResult(saveTo, true, condition.Direction);
             }
             else if (condition.IsOdResult && replacement.IsOdResult)
@@ -532,7 +532,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                 var flatRep = replacement.OdData.GetFlatData();
                 System.Threading.Tasks.Parallel.For(0, flatCond.Length, (int i) =>
                 {
-                    VectorHelper.ReplaceIfNaN(flatSave[i], flatCond[i], flatRep[i]);
+                    VectorHelper.ReplaceIfNotFinite(flatSave[i], 0, flatCond[i], 0, flatRep[i], 0, flatRep[i].Length);
                 });
                 return new ComputationResult(saveTo, true);
             }
