@@ -26,6 +26,7 @@ using XTMF;
 using TMG.Functions;
 using System.Numerics;
 using System.Collections.Concurrent;
+using System.Threading;
 // ReSharper disable ParameterHidesMember
 // ReSharper disable AccessToModifiedClosure
 
@@ -459,9 +460,16 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     return 0.0f;
                 }
-                return (float)(GetTransitUtility(transitNetwork, i, j, time)
+                var active = Math.Exp(ActiveConstant + ActiveDistance * distances[i][j]);
+                // this is needed for backwards compatibility
+                if(double.IsNaN(active) | double.IsInfinity(active))
+                {
+                    active = 0.0;
+                }
+                var ret = (float)(GetTransitUtility(transitNetwork, i, j, time)
                     + Math.Exp(ivtt * AutoTime + cost * Cost)
-                    + Math.Exp(ActiveConstant + ActiveDistance * distances[i][j]));
+                    + active);
+                return ret;
             }
 
             internal float[] GenerateEstimationLogsums(TimePeriod timePeriod, IZone[] zones, TimePeriodParameters timePeriodParameters)
