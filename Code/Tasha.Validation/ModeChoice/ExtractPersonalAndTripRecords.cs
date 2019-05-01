@@ -103,7 +103,7 @@ namespace Tasha.Validation.ModeChoice
         [RunParameter("Compress Results", false, "Compress all of the result files.")]
         public bool CompressResults;
 
-        [RunParameter("DAT Mode Name", "DAT", "The name of the drive access transit mode to extract all of the data from.")]
+        [RunParameter("DAT Mode Name", "DAT", "The name of the drive access transit mode to extract all of the data from.  Set this to blank if there is not DAT mode in the model.")]
         public string DATModeName;
 
         [RunParameter("Passenger Mode Name", "Passenger", "The name of the passenger mode to extract all of the data from.")]
@@ -667,7 +667,7 @@ namespace Tasha.Validation.ModeChoice
                 var stnIndex = _zones.GetFlatIndex(accessStationZone.ZoneNumber);
                 foreach (var trip in chain.Trips)
                 {
-                    if (trip.Mode == dat)
+                    if (trip.Mode == dat && dat != null)
                     {
                         if (!_tripData.TryGetValue(trip, out TripData data))
                         {
@@ -1138,14 +1138,14 @@ namespace Tasha.Validation.ModeChoice
                     break;
                 }
             }
-            if (_dat == null)
+            if (_dat == null && !String.IsNullOrWhiteSpace(DATModeName))
             {
                 error = "In '" + Name + "' we were unable to find a DAT mode called '" + DATModeName + "'";
                 return false;
             }
             if (_passenger == null)
             {
-                error = "In '" + Name + "' we were unable to find a Passenger mode called '" + DATModeName + "'";
+                error = "In '" + Name + "' we were unable to find a Passenger mode called '" + PassengerModeName + "'";
                 return false;
             }
             return true;
