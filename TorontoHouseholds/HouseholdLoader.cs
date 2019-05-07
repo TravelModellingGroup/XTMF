@@ -100,6 +100,9 @@ namespace TMG.Tasha
         [SubModelInformation(Required = false, Description = "A model to compute the number of autos available for the household.")]
         public ICalculation<ITashaHousehold, int> AutoOwnershipModel;
 
+        [SubModelInformation(Required = false, Description = "An alternative way of specifying the household file location.")]
+        public FileLocation HouseholdFile;
+
         private bool AllDataLoaded = true;
         private IVehicleType AutoType;
         private ITashaHousehold[] Households;
@@ -521,7 +524,7 @@ namespace TMG.Tasha
                 {
                     if (Reader == null)
                     {
-                        Reader = new CsvReader(Path.Combine(Root.InputBaseDirectory, FileName));
+                        Reader = new CsvReader(HouseholdFile ?? Path.Combine(Root.InputBaseDirectory, FileName));
                         if (ContainsHeader)
                         {
                             Reader.LoadLine();

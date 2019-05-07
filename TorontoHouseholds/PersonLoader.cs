@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using Datastructure;
 using Tasha.Common;
+using TMG.Input;
 using XTMF;
 
 namespace TMG.Tasha
@@ -89,6 +90,9 @@ namespace TMG.Tasha
 
         [SubModelInformation(Required = false, Description = "A model alternative to compute if the person should use a driver's license.")]
         public ICalculation<ITashaPerson, bool> DriverLicenseModel;
+
+        [SubModelInformation(Required = false, Description = "An alternative way of specifying the person file location.")]
+        public FileLocation PersonFile;
 
         private bool ContainsData;
 
@@ -206,7 +210,7 @@ namespace TMG.Tasha
                 {
                     DriverLicenseModel.Load();
                 }
-                Reader = new CsvReader(System.IO.Path.Combine(TashaRuntime.InputBaseDirectory, FileName));
+                Reader = new CsvReader(PersonFile ?? System.IO.Path.Combine(TashaRuntime.InputBaseDirectory, FileName));
                 if(Header)
                 {
                     Reader.LoadLine();
