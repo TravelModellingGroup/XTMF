@@ -30,7 +30,7 @@ namespace TMG.Emme
         [SubModelInformation(Required = true, Description = "A link to the folder to output the subarea database")]
         public FileLocation SubareaOutputFolder;
 
-        [RunParameter("Extract Transit", true, "Whether or not the tool will extract out transit line and deamdn information from the scenario")]
+        [RunParameter("Extract Transit", true, "Whether or not the tool will extract out transit line and demand information from the scenario")]
         public bool ExtractTransit;
 
         [RunParameter("Subarea Node Attribute","None", "The node attribute that will be used to define the subarea. Can be specified along with a shapefile or by itself. One of the shapefile or an node attribute must be defined")]
@@ -193,7 +193,7 @@ namespace TMG.Emme
                 new ModellerControllerParameter("xtmf_brGap", _SOLA.BestRelativeGap.ToString()),
                 new ModellerControllerParameter("xtmf_normGap", _SOLA.NormalizedGap.ToString()),
                 new ModellerControllerParameter("xtmf_PerformanceFlag", _SOLA.PerformanceMode.ToString()),
-                new ModellerControllerParameter("xtmf_ExtractTransitFlag", _SOLA.PerformanceMode.ToString()),
+                new ModellerControllerParameter("xtmf_ExtractTransitFlag", ExtractTransit.ToString()),
                 new ModellerControllerParameter("xtmf_SubareaNodeAttribute", GetAttribute(SubareaNodeAttribute)),
                 new ModellerControllerParameter("xtmf_SubareaFolderPath", GetFileLocationOrNone(SubareaOutputFolder)),
                 new ModellerControllerParameter("xtmf_NodeNumberStarting", StartingNodeNumber.ToString()),
