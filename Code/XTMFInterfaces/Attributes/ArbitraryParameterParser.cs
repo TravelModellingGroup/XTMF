@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 
 namespace XTMF
@@ -43,11 +44,19 @@ namespace XTMF
                 error = "We are not able to parse the null type!";
                 return null;
             }
-            if (t == typeof(string))
+            else if (t == typeof(string))
             {
                 return input;
             }
-            if (t.IsEnum)
+            else if (t == typeof(float))
+            {
+                return ParseFloat(input, ref error);
+            }
+            else if (t == typeof(double))
+            {
+                return ParseDouble(input, ref error);
+            }
+            else if (t.IsEnum)
             {
                 if (!Enum.IsDefined(t, input))
                 {
@@ -56,51 +65,84 @@ namespace XTMF
                 }
                 return Enum.Parse(t, input);
             }
-            if (!ParserLookup.TryGetValue(t, out KeyValuePair<int, MethodInfo> info))
-            {
-                // If we are not a string to try find a try parse with an error first
-                string typeParse = "TryParse";
-                var errorTryParse = t.GetMethod(typeParse, new[] { typeof(string).MakeByRefType(), typeof(string), t.MakeByRefType() });
-                if (errorTryParse != null && errorTryParse.IsStatic)
-                {
-                    ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(3, errorTryParse));
-                    return ErrorTryParse(input, ref error, errorTryParse);
-                }
-                // if there is no error try parse, just try the TryParse
-                var regularTryParse = t.GetMethod(typeParse, new[] { typeof(string), t.MakeByRefType() });
-                if (regularTryParse != null && regularTryParse.IsStatic)
-                {
-                    ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(2, regularTryParse));
-                    return TryParse(input, ref error, regularTryParse);
-                }
-                // If there is no TryParse at all, fall back to the regular Parse method
-                var regularParse = t.GetMethod("Parse", new[] { typeof(string) });
-                if (regularParse != null && regularParse.IsStatic)
-                {
-                    ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(1, regularParse));
-                    return RegularParse(input, ref error, regularParse);
-                }
-                // If it doesn't have any parse method we need to return null and let them know that this type can not have a parameter
-                error = "Unable to find a static method to parse type " + t.FullName;
-                return null;
-            }
             else
             {
-                switch (info.Key)
+                if (!ParserLookup.TryGetValue(t, out KeyValuePair<int, MethodInfo> info))
                 {
-                    case 1:
-                        return RegularParse(input, ref error, info.Value);
+                    // If we are not a string to try find a try parse with an error first
+                    string typeParse = "TryParse";
+                    var errorTryParse = t.GetMethod(typeParse, new[] { typeof(string).MakeByRefType(), typeof(string), t.MakeByRefType() });
+                    if (errorTryParse != null && errorTryParse.IsStatic)
+                    {
+                        ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(3, errorTryParse));
+                        return ErrorTryParse(input, ref error, errorTryParse);
+                    }
+                    // if there is no error try parse, just try the TryParse
+                    var regularTryParse = t.GetMethod(typeParse, new[] { typeof(string), t.MakeByRefType() });
+                    if (regularTryParse != null && regularTryParse.IsStatic)
+                    {
+                        ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(2, regularTryParse));
+                        return TryParse(input, ref error, regularTryParse);
+                    }
+                    // If there is no TryParse at all, fall back to the regular Parse method
+                    var regularParse = t.GetMethod("Parse", new[] { typeof(string) });
+                    if (regularParse != null && regularParse.IsStatic)
+                    {
+                        ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(1, regularParse));
+                        return RegularParse(input, ref error, regularParse);
+                    }
+                    // If it doesn't have any parse method we need to return null and let them know that this type can not have a parameter
+                    error = "Unable to find a static method to parse type " + t.FullName;
+                    return null;
+                }
+                else
+                {
+                    switch (info.Key)
+                    {
+                        case 1:
+                            return RegularParse(input, ref error, info.Value);
 
-                    case 2:
-                        return TryParse(input, ref error, info.Value);
+                        case 2:
+                            return TryParse(input, ref error, info.Value);
 
-                    case 3:
-                        return ErrorTryParse(input, ref error, info.Value);
-                    // if we get here there is a new type of parse that we are not handling
-                    default:
-                        return null;
+                        case 3:
+                            return ErrorTryParse(input, ref error, info.Value);
+                        // if we get here there is a new type of parse that we are not handling
+                        default:
+                            return null;
+                    }
                 }
             }
+        }
+
+        private static readonly NumberFormatInfo _numberFormat = CultureInfo.InvariantCulture.NumberFormat;
+
+        private static object ParseFloat(string input, ref string error)
+        {
+            float ret;
+            if(!float.TryParse(input, out ret))
+            {
+                if(!float.TryParse(input, NumberStyles.Any, _numberFormat, out ret))
+                {
+                    error = $"Unable to parse '{input}' as a floating point number!";
+                    return null;
+                }
+            }
+            return ret;
+        }
+
+        private static object ParseDouble(string input, ref string error)
+        {
+            double ret;
+            if (!double.TryParse(input, out ret))
+            {
+                if (!double.TryParse(input, NumberStyles.Any, _numberFormat, out ret))
+                {
+                    error = $"Unable to parse '{input}' as a floating point number!";
+                    return null;
+                }
+            }
+            return ret;
         }
 
         /// <summary>
