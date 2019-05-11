@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using MaterialDesignColors;
@@ -28,64 +29,53 @@ namespace XTMF.Gui
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    var swatches = new SwatchesProvider().Swatches;
+                    var swatches = new SwatchesProvider().Swatches.ToList();
+                    var paletteHelper = new PaletteHelper();
 
                     if (EditorController.Runtime.Configuration.PrimaryColour != null)
                     {
-                        var swatch = swatches.First(s =>
-                            s.Name == EditorController.Runtime.Configuration.PrimaryColour);
-                        new PaletteHelper().ReplacePrimaryColor(swatch);
+                        var swatch = swatches.First(s => s.Name.Equals(EditorController.Runtime.Configuration.PrimaryColour, StringComparison.InvariantCultureIgnoreCase));
+                        paletteHelper.ReplacePrimaryColor(swatch);
                     }
                     else
                     {
-                        var swatch = new SwatchesProvider().Swatches.First(s => s.Name.ToLower() == "blue");
-                        new PaletteHelper().ReplacePrimaryColor(swatch);
+                        var swatch = swatches.First(s => s.Name.Equals("blue", StringComparison.InvariantCultureIgnoreCase));
+                        paletteHelper.ReplacePrimaryColor(swatch);
                         EditorController.Runtime.Configuration.PrimaryColour = swatch.Name;
                     }
 
 
                     if (EditorController.Runtime.Configuration.AccentColour != null)
                     {
-                        var swatch = swatches.First(s => s.Name == EditorController.Runtime.Configuration.AccentColour);
-                        new PaletteHelper().ReplaceAccentColor(swatch);
+                        var swatch = swatches.First(s => s.Name.Equals(EditorController.Runtime.Configuration.AccentColour, StringComparison.InvariantCultureIgnoreCase));
+                        paletteHelper.ReplaceAccentColor(swatch);
                         EditorController.Runtime.Configuration.AccentColour = swatch.Name;
                     }
                     else
                     {
-                        var swatch = swatches.First(s => s.Name.ToLower() == "amber");
-                        new PaletteHelper().ReplaceAccentColor(swatch);
+                        var swatch = swatches.First(s => s.Name.Equals("amber", StringComparison.InvariantCultureIgnoreCase));
+                        paletteHelper.ReplaceAccentColor(swatch);
                     }
+                    // Setting this to true enables the dark theme
+                    paletteHelper.SetLightDark(EditorController.Runtime.Configuration.IsDarkTheme);
 
-                    if (EditorController.Runtime.Configuration.IsDarkTheme)
-                    {
-                        new PaletteHelper().SetLightDark(true);
-
-                    }
-                    else
-                    {
-                       new PaletteHelper().SetLightDark(false);
-                    }
 
                     if (EditorController.Runtime.Configuration.IsDisableTransitionAnimations)
+                    {
                         TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, false);
-
-
-
+                    }
                     xtmfMainWindow.UpdateRecentProjectsMenu();
-
-                    if (EditorController.Runtime.Configuration.IsDarkTheme) new PaletteHelper().SetLightDark(true);
                     xtmfMainWindow.Show();
-                    /*if (args.Args.Contains("--remote-host"))
+                    Task.Run(() =>
                     {
-                        //use remote host even though a debugger may be attached. 
-                        EditorController.Runtime.Configuration.RemoteHost = true;
-
-                    } */
-
-                    EditorController.Runtime.Configuration.LoadModules(() =>
-                    {
-                        xtmfMainWindow.IsEnabled = true;
-                        xtmfMainWindow.StatusDisplay.Text = "Ready";
+                        EditorController.Runtime.Configuration.LoadModules(() =>
+                        {
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                xtmfMainWindow.IsEnabled = true;
+                                xtmfMainWindow.StatusDisplay.Text = "Ready";
+                            }));
+                        });
                     });
                 }));
             }, false);
