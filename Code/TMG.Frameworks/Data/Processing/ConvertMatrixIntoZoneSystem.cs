@@ -29,7 +29,7 @@ namespace TMG.Frameworks.Data.Processing
     [ModuleInformation(Description = "This module is designed to create a copy of the given source matrix converting" +
         " it into the model system's zone system.  Zones that don't exist in the current zone system will be ignored and zones" +
         " in the zone system but that are not present in the source matrix will return the default value, typically zero.")]
-    public sealed class ConvertMatrixIntoZoneSystem<T> : IDataSource<SparseTwinIndex<T>>
+    public sealed class ConvertMatrixIntoZoneSystem : IDataSource<SparseTwinIndex<float>>
     {
         [RootModule]
         public ITravelDemandModel Root;
@@ -43,11 +43,11 @@ namespace TMG.Frameworks.Data.Processing
         public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
 
         [SubModelInformation(Required = true, Description = "The matrix to convert into the model's zone system.")]
-        public IDataSource<SparseTwinIndex<T>> Source;
+        public IDataSource<SparseTwinIndex<float>> Source;
 
-        private SparseTwinIndex<T> _data;
+        private SparseTwinIndex<float> _data;
 
-        public SparseTwinIndex<T> GiveData()
+        public SparseTwinIndex<float> GiveData()
         {
             return _data;
         }
@@ -68,17 +68,19 @@ namespace TMG.Frameworks.Data.Processing
             {
                 Source.UnloadData();
             }
-            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<T>();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var flatRet = ret.GetFlatData();
             foreach(var oIndexSet in ret.Indexes.Indexes)
             {
                 foreach(var dIndexSet in oIndexSet.SubIndex.Indexes)
                 {
-                    for(int o = oIndexSet.Start; o <= oIndexSet.Stop; o++)
+                    var oRange = oIndexSet.Stop - oIndexSet.Start + 1;
+                    for (int o = 0; o < oRange; o++)
                     {
-                        for(int d = dIndexSet.Start; d <= dIndexSet.Stop; d++)
+                        var dRange = dIndexSet.Stop - dIndexSet.Start + 1;
+                        for (int d = 0; d < dRange; d++)
                         {
-                            flatRet[oIndexSet.BaseLocation + o][dIndexSet.BaseLocation + d] = sourceMatrix[o,d];
+                            flatRet[oIndexSet.BaseLocation + o][dIndexSet.BaseLocation + d] = sourceMatrix[oIndexSet.Start + o, dIndexSet.Start + d];
                         }
                     }
                 }
