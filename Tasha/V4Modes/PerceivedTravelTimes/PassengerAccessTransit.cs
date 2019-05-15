@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Tasha.Common;
@@ -122,6 +123,22 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             "a particular zone for access / egress.  This must be unique between access and egress passenger choice.")]
         public string StationChoiceProbabilityTag;
 
+        [SubModelInformation(Required = false, Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
+                }
+            }
+            return 0f;
+        }
+
         public double CalculateV(ITrip trip)
         {
             var choices = StationChoiceModel.ProduceResult(trip);
@@ -133,8 +150,10 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             GetPersonVariables(trip.TripChain.Person, out float constant);
             GetPersonVariables(trip.TripChain.Person, out float bAutoTime, out float bTransitTime, out float costFactor);
             var v = constant;
-            var o = _zones.GetFlatIndex(trip.OriginalZone.ZoneNumber);
-            var d = _zones.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+            IZone oZone = trip.OriginalZone;
+            var o = _zones.GetFlatIndex(oZone.ZoneNumber);
+            IZone dZone = trip.DestinationZone;
+            var d = _zones.GetFlatIndex(dZone.ZoneNumber);
             switch (trip.Purpose)
             {
                 case Activity.Market:
@@ -146,12 +165,14 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     v += OtherFlag;
                     break;
             }
-            if (!ComputeExpectedTravelTimes(choices, o, d, trip.ActivityStartTime, out float autoTime, out float tppt, out float cost))
+            Time activityStartTime = trip.ActivityStartTime;
+            if (!ComputeExpectedTravelTimes(choices, o, d, activityStartTime, out float autoTime, out float tppt, out float cost))
             {
                 return float.NegativeInfinity;
             }
             trip.Attach(StationChoiceProbabilityTag, choices);
             v += bAutoTime * (autoTime + costFactor * cost) + bTransitTime * tppt;
+            v += GetPlanningDistrictConstant(activityStartTime, oZone.PlanningDistrict, dZone.PlanningDistrict);
             return v;
         }
 
@@ -417,6 +438,11 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             {
                 StationChoiceModel.Load();
                 _stationChoiceLoaded = true;
+            }
+            //build the region constants
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                TimePeriodConstants[i].BuildMatrix();
             }
         }
 

@@ -457,7 +457,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                         var local = 0.0f;
                         TransitNetwork.GetAllData(stationIndex, fd, firstTime, out float trueTime, out float twalk, out float twait, out float perceivedTime, out float cost);
                         local += perceivedTime * ivttBeta + cost * costBeta;
-                        TransitNetwork.GetAllData(stationIndex, so, secondTime, out perceivedTime, out twalk, out twait, out perceivedTime, out cost);
+                        TransitNetwork.GetAllData(stationIndex, so, secondTime, out trueTime, out twalk, out twait, out perceivedTime, out cost);
                         local += perceivedTime * ivttBeta + cost * costBeta;
                         AutoNetwork.GetAllData(fo, stationIndex, firstTime, out perceivedTime, out cost);
                         local += perceivedTime * ivttBeta + costBeta * cost;

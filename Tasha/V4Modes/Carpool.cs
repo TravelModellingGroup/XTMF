@@ -28,9 +28,6 @@ namespace Tasha.V4Modes
         @"This module is designed to implement the Carpool mode for GTAModel V4.0+.")]
     public sealed class Carpool : ITashaMode, IIterationSensitive
     {
-        [RunParameter("Constant", 0f, "The mode constant.")]
-        public float Constant;
-
         [RunParameter("IntrazonalConstant", 0f, "The mode constant.")]
         public float IntrazonalConstant;
 
