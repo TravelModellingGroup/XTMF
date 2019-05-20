@@ -47,6 +47,53 @@ namespace Tasha.PopulationSynthesis
             LoadPopulationDensity();
             _zones = Root.ZoneSystem.ZoneArray;
             _distances = Root.ZoneSystem.Distances.GetFlatData();
+            LoadZonalConstants();
+        }
+
+        public sealed class PDConstants : IModule
+        {
+            public string Name { get; set; }
+
+            public float Progress => 0f;
+
+            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+
+            [RunParameter("Planning Districts", "0", typeof(RangeSet), "The planning districts to apply this constant to.")]
+            public RangeSet PlanningDistricts;
+
+            [RunParameter("Constant", 0.0f, "The constant to apply to the planning districts.")]
+            public float Constant;
+
+            internal void ApplyConstant(int[] zonePds, float[] zoneConstants)
+            {
+                for (int i = 0; i < zoneConstants.Length; i++)
+                {
+                    if(PlanningDistricts.Contains(zonePds[i]))
+                    {
+                        zoneConstants[i] += Constant;
+                    }
+                }
+            }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+        [SubModelInformation(Required = false, Description = "The spatial constants to apply at the planning district level")]
+        public PDConstants[] Constants;
+        
+
+        private void LoadZonalConstants()
+        {
+            var flatZones = _zones.GetFlatData();
+            _zonalConstants = new float[flatZones.Length];
+            var pds = _zones.GetFlatData().Select(zone => zone.PlanningDistrict).ToArray();
+            foreach(var constants in Constants)
+            {
+                constants.ApplyConstant(pds, _zonalConstants);
+            }
         }
 
         private void LoadPopulationDensity()
@@ -136,6 +183,7 @@ namespace Tasha.PopulationSynthesis
         public Time TimeToUse;
 
         private SparseArray<IZone> _zones;
+        private float[] _zonalConstants;
 
 
         public bool ProduceResult(ITashaPerson data)
@@ -149,7 +197,7 @@ namespace Tasha.PopulationSynthesis
                 return false;
             }
             var ageClass = (age - 16) / 5;
-            var v = Constant;
+            var v = Constant + _zonalConstants[flatHhldZone];
             if(data.Female)
             {
                 v += Female;
