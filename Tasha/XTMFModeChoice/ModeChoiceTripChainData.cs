@@ -107,7 +107,7 @@ namespace Tasha.XTMFModeChoice
             return PossibleAssignments.Count > 0;
         }
 
-        internal void Assign(int useVehicle, List<ITashaMode> modes)
+        internal void Assign(int useVehicle, ITashaMode[] modes)
         {
             var trips = TripChain.Trips;
             BestPossibleAssignmentForVehicleType[useVehicle].PickSolution(TripChain);
@@ -139,7 +139,7 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        internal void SelectBestPerVehicleType(List<ITashaMode> modes, List<IVehicleType> vehicleTypes)
+        internal void SelectBestPerVehicleType(ITashaMode[] modes, IVehicleType[] vehicleTypes)
         {
             for (int i = 0; i < BestPossibleAssignmentForVehicleType.Length; i++)
             {
@@ -149,7 +149,7 @@ namespace Tasha.XTMFModeChoice
             for (int i = 0; i < PossibleAssignments.Count; i++)
             {
                 var assignment = PossibleAssignments[i];
-                int vehicleType = vehicleTypes.IndexOf(modes[assignment.PickedModes[0]].RequiresVehicle);
+                int vehicleType = Array.IndexOf(vehicleTypes, modes[assignment.PickedModes[0]].RequiresVehicle);
                 var otherU = BestPossibleAssignmentForVehicleType[vehicleType + 1] != null ? BestPossibleAssignmentForVehicleType[vehicleType + 1].U : float.NegativeInfinity;
                 if (assignment.U > otherU)
                 {
