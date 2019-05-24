@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System;
 using Tasha.Common;
 
 namespace Tasha.XTMFModeChoice
@@ -30,10 +31,10 @@ namespace Tasha.XTMFModeChoice
 
         private TourData TourData;
 
-        internal PossibleTripChainSolution(ModeChoiceTripData[] baseTripData, int[] solution, TourData tourData)
+        internal PossibleTripChainSolution(ModeChoiceTripData[] baseTripData, byte[] solution, TourData tourData)
         {
             BaseData = baseTripData;
-            var modes = new int[solution.Length];
+            var modes = new byte[solution.Length];
             for (int i = 0; i < modes.Length; i++)
             {
                 modes[i] = solution[i];
@@ -47,17 +48,17 @@ namespace Tasha.XTMFModeChoice
             RegenerateU();
         }
 
-        internal void PickSolution(ITripChain chain)
+        internal void PickSolution(Random random, ITripChain chain)
         {
             if ( TourData == null ) return;
             var onSolution = TourData.OnSolution;
             for ( int i = 0; i < onSolution.Length; i++ )
             {
-                onSolution[i]?.Invoke(chain);
+                onSolution[i]?.Invoke(random, chain);
             }
         }
 
-        public int[] PickedModes;
+        public byte[] PickedModes;
 
         public void RegenerateU()
         {

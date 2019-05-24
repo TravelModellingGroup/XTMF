@@ -107,10 +107,10 @@ namespace Tasha.XTMFModeChoice
             return PossibleAssignments.Count > 0;
         }
 
-        internal void Assign(int useVehicle, ITashaMode[] modes)
+        internal void Assign(Random random, int useVehicle, ITashaMode[] modes)
         {
             var trips = TripChain.Trips;
-            BestPossibleAssignmentForVehicleType[useVehicle].PickSolution(TripChain);
+            BestPossibleAssignmentForVehicleType[useVehicle].PickSolution(random, TripChain);
             for (int i = 0; i < TripData.Length; i++)
             {
                 trips[i].Mode = modes[BestPossibleAssignmentForVehicleType[useVehicle].PickedModes[i]];
@@ -167,7 +167,7 @@ namespace Tasha.XTMFModeChoice
             var trips = TripChain.Trips;
             int chainLength = trips.Count;
             ITrip currentTrip = trips[0];
-            int[] possibleSolution = new int[chainLength];
+            byte[] possibleSolution = new byte[chainLength];
             ITourDependentMode[] tourDependentModes;
             tourDependentModes = new ITourDependentMode[modes.Length];
             PossibleAssignments.Capacity = ComputeEstimatedFeasibleCombinations();
@@ -186,7 +186,7 @@ namespace Tasha.XTMFModeChoice
                         // find the total utility
                         // store the mode into our set and chain
                         currentTrip.Mode = modes[mode];
-                        possibleSolution[level] = mode;
+                        possibleSolution[level] = (byte)mode;
                         // if we are at the end, store the set
                         if (level >= topLevel)
                         {
@@ -209,16 +209,16 @@ namespace Tasha.XTMFModeChoice
                                 {
                                     if (tourDependentModes[possibleSolution[i]] != null)
                                     {
-                                        if (tourDependentModes[possibleSolution[i]].CalculateTourDependentUtility(TripChain, i, out float tourUtility, out Action<ITripChain> onSelection))
+                                        if (tourDependentModes[possibleSolution[i]].CalculateTourDependentUtility(TripChain, i, out float tourUtility, out Action<Random, ITripChain> onSelection))
                                         {
 
                                             if (tourData == null)
                                             {
-                                                tourData = new TourData(tourUtility, new Action<ITripChain>[chainLength]);
+                                                tourData = new TourData(tourUtility, new Action<Random, ITripChain>[chainLength]);
                                             }
                                             else
                                             {
-                                                tourData.TourUtilityModifiers = tourData.TourUtilityModifiers + tourUtility;
+                                                tourData.TourUtilityModifiers += tourUtility;
                                             }
                                             tourData.OnSolution[i] = onSelection;
                                         }
@@ -256,20 +256,7 @@ namespace Tasha.XTMFModeChoice
 
         private int ComputeEstimatedFeasibleCombinations()
         {
-            uint capcacity = 1;
-            foreach(var data in TripData)
-            {
-                uint tripTotal = 0;
-                for (int i = 0; i < data.Feasible.Length; i++)
-                {
-                    if(data.Feasible[i])
-                    {
-                        tripTotal++;
-                    }
-                }
-                capcacity *= tripTotal;
-            }
-            return (int)Math.Min(capcacity, 1000000);
+            return 100;
         }
     }
 }

@@ -272,14 +272,36 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         public bool Feasible(ITrip trip)
         {
-            if (trip.OriginalZone.PlanningDistrict == trip.DestinationZone.PlanningDistrict) return false;
-            var person = trip.TripChain.Person;
+            if (trip.OriginalZone.PlanningDistrict == trip.DestinationZone.PlanningDistrict)
+            {
+                return false;
+            }
+            var chain = trip.TripChain;
+            var person = chain.Person;
             return person.Licence && person.Household.Vehicles.Length > 0;
         }
 
+
         public bool Feasible(ITripChain tripChain)
         {
-            return true;
+            int count = 0;
+            var trips = tripChain.Trips;
+            bool inDAT = false;
+            for (int i = 0; i < trips.Count; i++)
+            {
+                ITashaMode tripMode = trips[i].Mode;
+                if (tripMode == this)
+                {
+                    inDAT = !inDAT;
+                    count++;
+                }
+                // If you are in the DAT leg tour, it is not feasible to use the vehicle you have required.
+                else if(inDAT && tripMode.RequiresVehicle != null)
+                {
+                    return false;
+                }
+            }
+            return count <= 2;
         }
 
         public bool Feasible(IZone origin, IZone destination, Time time)
@@ -356,7 +378,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             return Time.Zero;
         }
 
-        public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection)
+        public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<Random, ITripChain> onSelection)
         {
             var trips = chain.Trips;
             int tripCount = CountTripsUsingThisMode(tripIndex, out bool first, out int otherIndex, trips);
@@ -380,13 +402,13 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     return false;
                 }
                 int householdIteration = 0;
-                onSelection = (tripChain) =>
+                onSelection = (rand, tripChain) =>
                 {
                     var person = tripChain.Person;
                     var household = person.Household;
                     householdIteration++;
                     tripChain.Attach("AccessStation", SelectAccessStation(
-                            new Random(household.HouseholdId * person.Id * person.TripChains.IndexOf(tripChain) * RandomSeed * householdIteration),
+                            rand,
                             accessData));
                 };
             }
@@ -617,11 +639,15 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     {
                         first = false;
                     }
-                    if (tripIndex != i)
+                    else if (tripIndex != i)
                     {
                         otherIndex = i;
                     }
                     tripCount++;
+                    if(tripCount > 2)
+                    {
+                        return 3;
+                    }
                 }
             }
             return tripCount;

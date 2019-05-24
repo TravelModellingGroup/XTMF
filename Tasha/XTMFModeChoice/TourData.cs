@@ -24,9 +24,9 @@ namespace Tasha.XTMFModeChoice
     internal sealed class TourData
     {
         internal float TourUtilityModifiers;
-        internal Action<ITripChain>[] OnSolution;
+        internal Action<Random, ITripChain>[] OnSolution;
 
-        public TourData(float tourUtility, Action<ITripChain>[] onSolution)
+        public TourData(float tourUtility, Action<Random, ITripChain>[] onSolution)
         {
             TourUtilityModifiers = tourUtility;
             OnSolution = onSolution;

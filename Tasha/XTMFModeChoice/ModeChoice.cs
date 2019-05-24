@@ -145,7 +145,7 @@ namespace Tasha.XTMFModeChoice
                     // failure
                     return false;
                 }
-                AssignModes(resolution, householdData);
+                AssignModes(random, resolution, householdData);
                 householdResourceAllocator.BuildVehicleAvailabilities(householdData, household.Vehicles);
                 // Start of Pass 2.5 ( rideshare )
                 ProcessRideshare(householdData);
@@ -261,7 +261,7 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        private void AssignModes(int[][] resolution, ModeChoiceHouseholdData householdData)
+        private void AssignModes(Random random, int[][] resolution, ModeChoiceHouseholdData householdData)
         {
             var modes = NonSharedModes;
             var numberOfPeople = resolution.Length;
@@ -273,7 +273,7 @@ namespace Tasha.XTMFModeChoice
                 {
                     if (!(tripChainData[j].TripChain.JointTrip && !tripChainData[j].TripChain.JointTripRep))
                     {
-                        tripChainData[j].Assign(resolution[i][j], modes);
+                        tripChainData[j].Assign(random, resolution[i][j], modes);
                     }
                 }
             }
