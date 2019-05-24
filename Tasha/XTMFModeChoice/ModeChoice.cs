@@ -253,7 +253,8 @@ namespace Tasha.XTMFModeChoice
                 for (int j = 0; j < person.TripChainData.Length; j++)
                 {
                     var tripChain = person.TripChainData[j];
-                    if (!(tripChain.TripChain.JointTrip && !tripChain.TripChain.JointTripRep))
+                    ITripChain tashaTripChain = tripChain.TripChain;
+                    if (!(tashaTripChain.JointTrip && !tashaTripChain.JointTripRep))
                     {
                         tripChain.SelectBestPerVehicleType(modes, list);
                     }

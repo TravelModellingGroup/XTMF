@@ -145,7 +145,37 @@ namespace Tasha.XTMFModeChoice
             {
                 BestPossibleAssignmentForVehicleType[i] = null;
             }
+            if (vehicleTypes.Length == 1)
+            {
+                for (int i = 0; i < PossibleAssignments.Count; i++)
+                {
+                    var assignment = PossibleAssignments[i];
+                    if (modes[assignment.PickedModes[0]].RequiresVehicle != null)
+                    {
+                        var otherU = BestPossibleAssignmentForVehicleType[1] != null ? BestPossibleAssignmentForVehicleType[1].U : float.NegativeInfinity;
+                        if (assignment.U > otherU)
+                        {
+                            BestPossibleAssignmentForVehicleType[1] = assignment;
+                        }
+                    }
+                    else
+                    {
+                        var otherU = BestPossibleAssignmentForVehicleType[0] != null ? BestPossibleAssignmentForVehicleType[0].U : float.NegativeInfinity;
+                        if (assignment.U > otherU)
+                        {
+                            BestPossibleAssignmentForVehicleType[0] = assignment;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                SelectBestPerVehicleTypeMultipleVehicles(modes, vehicleTypes);
+            }
+        }
 
+        private void SelectBestPerVehicleTypeMultipleVehicles(ITashaMode[] modes, IVehicleType[] vehicleTypes)
+        {
             for (int i = 0; i < PossibleAssignments.Count; i++)
             {
                 var assignment = PossibleAssignments[i];
