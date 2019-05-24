@@ -458,12 +458,12 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         {
             // Select the access station to use, the change in utility is always 0
             dependentUtility = 0f;
-            var probabilities = chain.Trips[tripIndex][StationChoiceProbabilityTag] as Pair<IZone[],float[]>;
             int householdIteration = 0;
             onSelection = (tripChain) =>
             {
                 var person = tripChain.Person;
                 var household = person.Household;
+                var probabilities = tripChain.Trips[tripIndex][StationChoiceProbabilityTag] as Pair<IZone[], float[]>;
                 householdIteration++;
                 tripChain.Attach(StationChoiceTag, SelectAccessStation(
                         new Random(household.HouseholdId * person.Id * person.TripChains.IndexOf(tripChain) * RandomSeed * householdIteration),
