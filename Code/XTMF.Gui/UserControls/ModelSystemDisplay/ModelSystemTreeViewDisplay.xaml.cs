@@ -62,10 +62,10 @@ namespace XTMF.Gui.UserControls
             {
                 if (EditorController.Runtime.Configuration.IsDarkTheme)
                 {
-                    return (Brush) FindResource("GridTextureBrushDark");
+                    return (Brush)FindResource("GridTextureBrushDark");
                 }
 
-                return (Brush) FindResource("GridTextureBrushLight");
+                return (Brush)FindResource("GridTextureBrushLight");
             }
         }
 
@@ -124,7 +124,7 @@ namespace XTMF.Gui.UserControls
                 }
 
                 //update the module context control
-                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel) e.NewValue;
+                ModuleContextControl.ActiveDisplayModule = (ModelSystemStructureDisplayModel)e.NewValue;
 
                 Dispatcher.Invoke(() =>
                 {
@@ -210,7 +210,7 @@ namespace XTMF.Gui.UserControls
             {
                 if (ModuleDisplay.Items.Count > 0)
                 {
-                    ExpandModule((ModelSystemStructureDisplayModel) ModuleDisplay.SelectedItem);
+                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem);
                 }
             }
         }
@@ -310,7 +310,7 @@ namespace XTMF.Gui.UserControls
         private void RegionGroupMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var error = "";
-            var group = (RegionGroup) ((MenuItem) e.Source).Tag;
+            var group = (RegionGroup)((MenuItem)e.Source).Tag;
             var module = SelectedModule.BaseModel.RealModelSystemStructure;
             _display.ModelSystemDisplayModelMap[SelectedModule.BaseModel.RealModelSystemStructure] = SelectedModule;
             _regionDisplaysModel.AddModuleToGroup(group, module, ref error);
@@ -357,7 +357,7 @@ namespace XTMF.Gui.UserControls
             {
                 if (ModuleDisplay.Items.Count > 0)
                 {
-                    ExpandModule((ModelSystemStructureDisplayModel) ModuleDisplay.SelectedItem, false);
+                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem, false);
                 }
             }
         }
@@ -436,6 +436,18 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private string GetDocumetnationURL(Type type)
+        {
+            if (type.GetCustomAttribute(typeof(ModuleInformationAttribute)) is ModuleInformationAttribute moduleInfo)
+            {
+                if (!String.IsNullOrWhiteSpace(moduleInfo.DocURL))
+                {
+                    return moduleInfo.DocURL;
+                }
+            }
+            return $"https://tmg.utoronto.ca/doc/1.6/modules/{type}.html";
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
@@ -464,8 +476,7 @@ namespace XTMF.Gui.UserControls
                         e.Handled = true;
                         if (module.Type != null)
                         {
-                            Process.Start(
-                                $"https://tmg.utoronto.ca/doc/1.5/modules/{module.Type}.html");
+                            Process.Start(GetDocumetnationURL(module.Type));
                         }
                     }
 
@@ -614,7 +625,7 @@ namespace XTMF.Gui.UserControls
 
                 var mul = deltaPosition < 0 ? 1 : -1;
                 var moveOrder = CurrentlySelected
-                    .Select((c, i) => new {Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel)})
+                    .Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) })
                     .OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
                 _display.Session.ExecuteCombinedCommands(
@@ -962,7 +973,7 @@ namespace XTMF.Gui.UserControls
             base.OnDrop(e);
 
 
-            var module = (ModuleTreeViewItem) e.Data.GetData("drag");
+            var module = (ModuleTreeViewItem)e.Data.GetData("drag");
 
             var siblings = module.GetSiblingModuleTreeViewItems();
 
@@ -995,7 +1006,7 @@ namespace XTMF.Gui.UserControls
                 var moveAdorner = layer.GetAdorners(sibling).First(t => t.GetType() == typeof(DragDropAdorner));
                 if (moveAdorner != null)
                 {
-                    ((DragDropAdorner) moveAdorner).Visibility = Visibility.Collapsed;
+                    ((DragDropAdorner)moveAdorner).Visibility = Visibility.Collapsed;
                 }
             }
 
@@ -1032,7 +1043,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModelSystemTreeViewDisplay_OnDragOver(object sender, DragEventArgs e)
         {
-            var module = (ModuleTreeViewItem) e.Data.GetData("drag");
+            var module = (ModuleTreeViewItem)e.Data.GetData("drag");
             if (module == null)
             {
                 return;
@@ -1063,7 +1074,7 @@ namespace XTMF.Gui.UserControls
         private void ShowModuleMoveAdorner(ModuleTreeViewItem module, bool isOrderUp)
         {
             var layer = AdornerLayer.GetAdornerLayer(module);
-            var moveAdorner = (DragDropAdorner) layer.GetAdorners(module)
+            var moveAdorner = (DragDropAdorner)layer.GetAdorners(module)
                 .First(t => t.GetType() == typeof(DragDropAdorner));
             if (moveAdorner != null)
             {
@@ -1105,7 +1116,7 @@ namespace XTMF.Gui.UserControls
                 .First(t => t.GetType() == typeof(DragDropAdorner));
             if (moveAdorner != null)
             {
-                ((DragDropAdorner) moveAdorner).Visibility = Visibility.Collapsed;
+                ((DragDropAdorner)moveAdorner).Visibility = Visibility.Collapsed;
             }
         }
 
@@ -1124,11 +1135,11 @@ namespace XTMF.Gui.UserControls
 
                 if (isOrderUp)
                 {
-                    mousePosition.Y += (int) (moduleSibling.ActualHeight / 2.0);
+                    mousePosition.Y += (int)(moduleSibling.ActualHeight / 2.0);
                 }
                 else
                 {
-                    mousePosition.Y -= (int) (moduleSibling.ActualHeight / 2.0);
+                    mousePosition.Y -= (int)(moduleSibling.ActualHeight / 2.0);
                 }
 
                 if (mousePosition.Y >= 0 && mousePosition.Y <= moduleSibling.ActualHeight)
