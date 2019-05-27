@@ -51,7 +51,18 @@ namespace TashaModes
         /// <returns>If they can use it or not</returns>
         public bool CanUse(ITashaPerson person)
         {
-            return person.Licence && person.Household.Vehicles.Count( n => n.VehicleType.Equals( this ) ) > 0;
+            if (person.Licence)
+            {
+                var vehicles = person.Household.Vehicles;
+                for (int i = 0; i < vehicles.Length; i++)
+                {
+                    if (vehicles[i].VehicleType == this)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         #endregion IVehicleType Members

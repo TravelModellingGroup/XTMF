@@ -30,6 +30,6 @@ namespace Tasha.Common
         /// <param name="dependentUtility">The utility to add to the independent portion of the utility</param>
         /// <param name="onSelection">A function that can act on the trip chain.  This will be executed before passenger mode is evaluated.</param>
         /// <returns>True if the tour is feasible</returns>
-        bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection);
+        bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<Random, ITripChain> onSelection);
     }
 }

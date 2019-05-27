@@ -189,11 +189,6 @@ namespace TMG.Frameworks.Data.Saving
 
         public bool RuntimeValidation(ref string error)
         {
-            if(FileFormat == FileFormats.CSVThirdNormalized)
-            {
-                error = $"In {Name}, currently the Third Normalized file format is not supported.";
-                return false;
-            }
             return true;
         }
     }

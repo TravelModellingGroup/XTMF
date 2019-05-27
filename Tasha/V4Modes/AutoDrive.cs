@@ -297,7 +297,10 @@ namespace Tasha.V4Modes
 
         public bool Feasible(ITrip trip)
         {
-            return RequiresVehicle != null & trip.TripChain.Person.Licence;
+            var chain = trip.TripChain;
+            var trips = chain.Trips;
+            var person = chain.Person;
+            return person.Licence && person.Household.Vehicles.Length > 0;
         }
 
         public bool Feasible(ITripChain tripChain)
@@ -308,10 +311,11 @@ namespace Tasha.V4Modes
             bool noAutoTrips = true;
             bool first = false;
             bool lastMadeWithAuto = false;
-            for(int i = 0; i < trips.Count; i++)
+            IVehicleType ourVehicle = RequiresVehicle;
+            for (int i = 0; i < trips.Count; i++)
             {
                 var trip = trips[i];
-                if(trip.Mode.RequiresVehicle == RequiresVehicle)
+                if (trip.Mode.RequiresVehicle == ourVehicle)
                 {
                     // it is only not feasible if we actually take the mode and we don't have a license
                     if((trip.OriginalZone != vehicleLeftAt))

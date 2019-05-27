@@ -95,6 +95,7 @@ namespace Tasha.PopulationSynthesis
         public int RandomSeed;
 
         private SparseArray<IZone> _zones;
+        private float[] _zonalConstants;
 
         [SubModelInformation(Required = true, Description = "The population density in pop/m^2")]
         public IDataSource<SparseArray<float>> PopulationDensity;
@@ -135,8 +136,53 @@ namespace Tasha.PopulationSynthesis
             LoadVector(out _jobDensity, JobDensity);
             LoadMatrix(out _jobLinkages, JobLinkages);
             ComputeAccessibility();
+            LoadZonalConstants();
         }
 
+        public sealed class PDConstants : IModule
+        {
+            public string Name { get; set; }
+
+            public float Progress => 0f;
+
+            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+
+            [RunParameter("Planning Districts", "0", typeof(RangeSet), "The planning districts to apply this constant to.")]
+            public RangeSet PlanningDistricts;
+
+            [RunParameter("Constant", 0.0f, "The constant to apply to the planning districts.")]
+            public float Constant;
+
+            internal void ApplyConstant(int[] zonePds, float[] zoneConstants)
+            {
+                for (int i = 0; i < zoneConstants.Length; i++)
+                {
+                    if (PlanningDistricts.Contains(zonePds[i]))
+                    {
+                        zoneConstants[i] += Constant;
+                    }
+                }
+            }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+        private void LoadZonalConstants()
+        {
+            var flatZones = _zones.GetFlatData();
+            _zonalConstants = new float[flatZones.Length];
+            var pds = _zones.GetFlatData().Select(zone => zone.PlanningDistrict).ToArray();
+            foreach (var constants in Constants)
+            {
+                constants.ApplyConstant(pds, _zonalConstants);
+            }
+        }
+
+        [SubModelInformation(Required = false, Description = "The spatial constants to apply at the planning district level")]
+        public PDConstants[] Constants;
         private void ComputeAccessibility()
         {
             int numberOfZones = _zones.Count;
@@ -201,7 +247,7 @@ namespace Tasha.PopulationSynthesis
         {
             var persons = data.Persons;
             var flathomeZone = _zones.GetFlatIndex(data.HomeZone.ZoneNumber);
-            var v = NumberOfAdults * persons.Count(p => p.Age >= 18);
+            var v = NumberOfAdults * persons.Count(p => p.Age >= 18) + _zonalConstants[flathomeZone];
             v += NumberOfKids * persons.Count(p => p.Age < 16);
             v += NumberOfFTWorkers * persons.Count(p => p.EmploymentStatus == TTSEmploymentStatus.FullTime);
             switch(persons.Count(p => p.Licence))

@@ -134,7 +134,7 @@ namespace Tasha.XTMFModeChoice
                     RegenerateErrorTerms(householdData, random);
                 }
                 // Start of Pass 2
-                AssignBestPerVehicle(Root.VehicleTypes, householdData);
+                AssignBestPerVehicle(VehicleTypes, householdData);
                 var resolution = householdResourceAllocator.Resolve(householdData, VehicleTypes, householdIteration);
                 if (resolution == null)
                 {
@@ -145,7 +145,7 @@ namespace Tasha.XTMFModeChoice
                     // failure
                     return false;
                 }
-                AssignModes(resolution, householdData);
+                AssignModes(random, resolution, householdData);
                 householdResourceAllocator.BuildVehicleAvailabilities(householdData, household.Vehicles);
                 // Start of Pass 2.5 ( rideshare )
                 ProcessRideshare(householdData);
@@ -243,9 +243,9 @@ namespace Tasha.XTMFModeChoice
             return true;
         }
 
-        private void AssignBestPerVehicle(List<IVehicleType> list, ModeChoiceHouseholdData householdData)
+        private void AssignBestPerVehicle(IVehicleType[] list, ModeChoiceHouseholdData householdData)
         {
-            var modes = Root.NonSharedModes;
+            var modes = NonSharedModes;
             // Go through all of the possible assignments and get the best one per vehicle
             for (int i = 0; i < householdData.PersonData.Length; i++)
             {
@@ -253,7 +253,8 @@ namespace Tasha.XTMFModeChoice
                 for (int j = 0; j < person.TripChainData.Length; j++)
                 {
                     var tripChain = person.TripChainData[j];
-                    if (!(tripChain.TripChain.JointTrip && !tripChain.TripChain.JointTripRep))
+                    ITripChain tashaTripChain = tripChain.TripChain;
+                    if (!(tashaTripChain.JointTrip && !tashaTripChain.JointTripRep))
                     {
                         tripChain.SelectBestPerVehicleType(modes, list);
                     }
@@ -261,9 +262,9 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        private void AssignModes(int[][] resolution, ModeChoiceHouseholdData householdData)
+        private void AssignModes(Random random, int[][] resolution, ModeChoiceHouseholdData householdData)
         {
-            var modes = Root.NonSharedModes;
+            var modes = NonSharedModes;
             var numberOfPeople = resolution.Length;
             for (int i = 0; i < numberOfPeople; i++)
             {
@@ -273,7 +274,7 @@ namespace Tasha.XTMFModeChoice
                 {
                     if (!(tripChainData[j].TripChain.JointTrip && !tripChainData[j].TripChain.JointTripRep))
                     {
-                        tripChainData[j].Assign(resolution[i][j], modes);
+                        tripChainData[j].Assign(random, resolution[i][j], modes);
                     }
                 }
             }
@@ -323,8 +324,8 @@ namespace Tasha.XTMFModeChoice
                 return;
             }
             var numberOfPeople = householdData.PersonData.Length;
-            var autoIndex = Root.AllModes.IndexOf(AutoMode);
-            var rideshareIndex = Root.AllModes.IndexOf(Rideshare);
+            var autoIndex = Array.IndexOf(AllModes, AutoMode);
+            var rideshareIndex = Array.IndexOf(AllModes, Rideshare);
             for (int i = 0; i < numberOfPeople; i++)
             {
                 var tripChainData = householdData.PersonData[i].TripChainData;

@@ -367,7 +367,7 @@ namespace Tasha.V4Modes
             return Time.Zero;
         }
 
-        public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection)
+        public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<Random, ITripChain> onSelection)
         {
             var trips = chain.Trips;
             int tripCount = CountTripsUsingThisMode(tripIndex, out bool first, out int otherIndex, trips);
@@ -391,13 +391,13 @@ namespace Tasha.V4Modes
                     return false;
                 }
                 int householdIteration = 0;
-                onSelection = (tripChain) =>
+                onSelection = (rand, tripChain) =>
                 {
                     var person = tripChain.Person;
                     var household = person.Household;
                     householdIteration++;
                     tripChain.Attach("AccessStation", SelectAccessStation(
-                            new Random(household.HouseholdId * person.Id * person.TripChains.IndexOf(tripChain) * RandomSeed * householdIteration),
+                            rand,
                             accessData));
                 };
             }

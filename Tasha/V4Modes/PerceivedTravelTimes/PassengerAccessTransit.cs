@@ -454,19 +454,17 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [RunParameter("Random Seed", 12345, "A fixed seed to control the randomness of the station selection process.")]
         public int RandomSeed;
 
-        public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection)
+        public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<Random, ITripChain> onSelection)
         {
             // Select the access station to use, the change in utility is always 0
             dependentUtility = 0f;
-            var probabilities = chain.Trips[tripIndex][StationChoiceProbabilityTag] as Pair<IZone[],float[]>;
-            int householdIteration = 0;
-            onSelection = (tripChain) =>
+            onSelection = (rand, tripChain) =>
             {
                 var person = tripChain.Person;
                 var household = person.Household;
-                householdIteration++;
+                var probabilities = tripChain.Trips[tripIndex][StationChoiceProbabilityTag] as Pair<IZone[], float[]>;
                 tripChain.Attach(StationChoiceTag, SelectAccessStation(
-                        new Random(household.HouseholdId * person.Id * person.TripChains.IndexOf(tripChain) * RandomSeed * householdIteration),
+                        rand,
                         probabilities));
             };
             return true;
