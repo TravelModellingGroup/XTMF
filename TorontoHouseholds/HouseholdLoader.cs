@@ -319,7 +319,11 @@ namespace TMG.Tasha
                 return false;
             }
             AutoType = Root.AutoType;
-
+            if(AutoType == null)
+            {
+                error = "There was no AutoType loaded by the TashaRuntime.";
+                return false;
+            }
             if (SecondVehicleColumnNumber >= 0)
             {
                 if (Root.VehicleTypes == null)
