@@ -96,6 +96,10 @@ namespace Tasha.PopulationSynthesis
 
         private SparseArray<IZone> _zones;
         private float[] _zonalConstants;
+        private float[] _thresholdOffset1;
+        private float[] _thresholdOffset2;
+        private float[] _thresholdOffset3;
+        private float[] _thresholdOffset4;
 
         [SubModelInformation(Required = true, Description = "The population density in pop/m^2")]
         public IDataSource<SparseArray<float>> PopulationDensity;
@@ -153,13 +157,29 @@ namespace Tasha.PopulationSynthesis
             [RunParameter("Constant", 0.0f, "The constant to apply to the planning districts.")]
             public float Constant;
 
-            internal void ApplyConstant(int[] zonePds, float[] zoneConstants)
+            [RunParameter("Threshold1 Offset", 0.0f, "The offset for the first threshold to apply to the planning districts.")]
+            public float ThresholdOffset1;
+
+            [RunParameter("Threshold2 Offset", 0.0f, "The offset for the second threshold to apply to the planning districts.")]
+            public float ThresholdOffset2;
+
+            [RunParameter("Threshold3 Offset", 0.0f, "The offset for the third threshold to apply to the planning districts.")]
+            public float ThresholdOffset3;
+
+            [RunParameter("Threshold4 Offset", 0.0f, "The offset for the fourth threshold to apply to the planning districts.")]
+            public float ThresholdOffset4;
+
+            internal void ApplyConstant(int[] zonePds, float[] zoneConstants, float[] thresholdOffset1, float[] thresholdOffset2, float[] thresholdOffset3, float[] thresholdOffset4)
             {
                 for (int i = 0; i < zoneConstants.Length; i++)
                 {
                     if (PlanningDistricts.Contains(zonePds[i]))
                     {
                         zoneConstants[i] += Constant;
+                        thresholdOffset1[i] += ThresholdOffset1;
+                        thresholdOffset2[i] += ThresholdOffset2;
+                        thresholdOffset3[i] += ThresholdOffset3;
+                        thresholdOffset4[i] += ThresholdOffset4;
                     }
                 }
             }
@@ -174,10 +194,14 @@ namespace Tasha.PopulationSynthesis
         {
             var flatZones = _zones.GetFlatData();
             _zonalConstants = new float[flatZones.Length];
+            _thresholdOffset1 = new float[flatZones.Length];
+            _thresholdOffset2 = new float[flatZones.Length];
+            _thresholdOffset3 = new float[flatZones.Length];
+            _thresholdOffset4 = new float[flatZones.Length];
             var pds = _zones.GetFlatData().Select(zone => zone.PlanningDistrict).ToArray();
             foreach (var constants in Constants)
             {
-                constants.ApplyConstant(pds, _zonalConstants);
+                constants.ApplyConstant(pds, _zonalConstants, _thresholdOffset1, _thresholdOffset2, _thresholdOffset3, _thresholdOffset4);
             }
         }
 
@@ -295,19 +319,19 @@ namespace Tasha.PopulationSynthesis
             v += AverageDistanceToWork * _jobAverageDistance[flathomeZone];
             // now that we have our utility go through them and test against the thresholds.
             var pop = _random.NextDouble();
-            if(pop < LogitCDF(v, Threshold1))
+            if(pop < LogitCDF(v, Threshold1 + _thresholdOffset1[flathomeZone]))
             {
                 return 0;
             }
-            if(pop < LogitCDF(v, Threshold2))
+            if(pop < LogitCDF(v, Threshold2 + _thresholdOffset2[flathomeZone]))
             {
                 return 1;
             }
-            if(pop < LogitCDF(v, Threshold3))
+            if(pop < LogitCDF(v, Threshold3 + _thresholdOffset3[flathomeZone]))
             {
                 return 2;
             }
-            if(pop < LogitCDF(v, Threshold4))
+            if(pop < LogitCDF(v, Threshold4 + _thresholdOffset4[flathomeZone]))
             {
                 return 3;
             }
