@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.IO;
 using TMG.Input;
 using XTMF;
 
@@ -55,7 +56,24 @@ namespace TMG.Emme.Tools.Analysis.Traffic
             {
                 throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
             }
+            EnsureDirectoryExists(SaveTo);
             return modeller.Run(this, ToolName, GetParameters());
+        }
+
+        private void EnsureDirectoryExists(FileLocation saveTo)
+        {
+            try
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(saveTo);
+                if(!directoryInfo.Exists)
+                {
+                    directoryInfo.Create();
+                }
+            }
+            catch(IOException e)
+            {
+                throw new XTMFRuntimeException(this, e, e.Message);
+            }
         }
 
         private string GetParameters()
