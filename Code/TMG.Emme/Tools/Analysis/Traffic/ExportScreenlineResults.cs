@@ -64,7 +64,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         {
             try
             {
-                DirectoryInfo directoryInfo = new DirectoryInfo(saveTo);
+                DirectoryInfo directoryInfo = new DirectoryInfo(Path.GetDirectoryName(saveTo));
                 if(!directoryInfo.Exists)
                 {
                     directoryInfo.Create();
