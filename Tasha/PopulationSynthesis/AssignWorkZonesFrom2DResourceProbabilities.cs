@@ -19,6 +19,7 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -40,7 +41,7 @@ namespace Tasha.PopulationSynthesis
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         public SparseArray<IZone> _zones;
 
@@ -54,7 +55,7 @@ namespace Tasha.PopulationSynthesis
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
             private float[][] _workCDF;
 
@@ -80,7 +81,8 @@ namespace Tasha.PopulationSynthesis
                         var acc = 0.0f;
                         for (int j = 0; j < row.Length; j++)
                         {
-                            acc += (row[j] = acc + modelRow[j] * invTotal);
+                            acc += modelRow[j] * invTotal;
+                            row[j] = acc;
                         }
                     }
                 });
@@ -98,22 +100,22 @@ namespace Tasha.PopulationSynthesis
                 Vector<float> vPop = new Vector<float>(pop);
                 int i = 0;
                 // find the first entry with a cdf that is greater than or equal to our pop.
-                for (; i < row.Length - Vector<float>.Count; i+=Vector<float>.Count)
+                for (; i < row.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
-                    if(Vector.LessThanOrEqualAny(vPop, new Vector<float>(row, i)))
+                    if (Vector.LessThanOrEqualAny(vPop, new Vector<float>(row, i)))
                     {
                         for (int j = 0; j < Vector<float>.Count; j++)
                         {
-                            if(pop <= row[i + j])
+                            if (pop <= row[i + j])
                             {
                                 return i + j;
                             }
                         }
                     }
                 }
-                for(; i < row.Length; i++)
+                for (; i < row.Length; i++)
                 {
-                    if(pop <= row[i])
+                    if (pop <= row[i])
                     {
                         return i;
                     }
@@ -121,13 +123,13 @@ namespace Tasha.PopulationSynthesis
                 // If we ended up popping a value greater than everything find the last element with a value
                 for (i = row.Length - 2; i >= 0; i--)
                 {
-                    if(row[i] < row[i + 1])
+                    if (row[i] < row[i + 1])
                     {
                         return i + 1;
                     }
                 }
                 // Check to see if the first zone has any probability, if not then we have an exception.
-                if(row[0] <= 0.0f)
+                if (row[0] <= 0.0f)
                 {
                     throw new XTMFRuntimeException(this, $"We are trying to assign a work zone for a person living in" +
                     $" zone number { Parent._zones.GetFlatData()[homeZone].ZoneNumber}, however there are no jobs from this home zone!");
@@ -177,19 +179,22 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Random Seed", 45646132, "The random seed to use to fix the random number generator.")]
         public int RandomSeed;
 
+        [RunParameter("Passthrough Zones", "6000-6999,8888", typeof(RangeSet), "The set of zones to pass through the model instead of assigning a work zone.")]
+        public RangeSet PassthroughZones;
+
         public IZone ProduceResult(ITashaPerson person)
         {
             ITashaHousehold household = person.Household;
             var random = new Random(RandomSeed * household.HouseholdId);
             int flatHomeZone = _zones.GetFlatIndex(household.HomeZone.ZoneNumber);
-            if(person.EmploymentZone != null)
+            if (person.EmploymentZone != null && PassthroughZones.Contains(person.EmploymentZone.ZoneNumber))
             {
                 return person.EmploymentZone;
             }
             switch (person.EmploymentStatus)
             {
                 case TTSEmploymentStatus.FullTime:
-                    
+
                     switch (person.Occupation)
                     {
                         case Occupation.Professional:
