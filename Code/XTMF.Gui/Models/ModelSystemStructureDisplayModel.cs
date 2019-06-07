@@ -187,8 +187,16 @@ namespace XTMF.Gui.Models
                     throw new NotImplementedException("An unknown action was performed!");
             }
 
-
+            UpdateIndices();
             ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+        }
+
+        private void UpdateIndices()
+        {
+            for(int i = 0; i < Children.Count;i++)
+            {
+                Children[i].Index = i;
+            }
         }
 
         /// <summary>
