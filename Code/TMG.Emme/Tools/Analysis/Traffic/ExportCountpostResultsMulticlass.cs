@@ -62,7 +62,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
               new ModellerControllerParameter("CountpostAttributeId", CountpostAttributeFlag),
               new ModellerControllerParameter("AlternateCountpostAttributeId", AlternateCountpostAttributeFlag),
               new ModellerControllerParameter("TrafficClassAttributeId", TrafficClassAttributeId),
-              new ModellerControllerParameter("SumPostFile", SumPostFile.GetFilePath()),
+              new ModellerControllerParameter("SumPostFile", SumPostFile?.GetFilePath() ?? "none"),
               new ModellerControllerParameter("ExportFile", SaveTo.GetFilePath()),
             });
             return true;
