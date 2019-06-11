@@ -98,6 +98,7 @@ namespace TMG.Emme.Utilities
                     () => LoadRegions(),
                     () => LoadPDs(),
                     () => LoadIntrazonalDistance(),
+                    () => LoadParkingCosts(),
                     () => LoadPopulation());
                 // Distances requires Intrazonal distances
                 LoadDistances();
@@ -343,6 +344,8 @@ namespace TMG.Emme.Utilities
             }
         }
 
+
+
         [SubModelInformation(Required = false, Description = "A CSV File with Zone,Region.")]
         public FileLocation IntrazonalDistanceFile;
 
@@ -374,6 +377,44 @@ namespace TMG.Emme.Utilities
                         else
                         {
                             throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the intrazonal distances that does not exist in the zone system!");
+                        }
+                    }
+                }
+            }
+        }
+
+
+        [SubModelInformation(Required = false, Description = "A CSV File with Zone,ParkingCost.")]
+        public FileLocation ParkingCostFile;
+
+        private void LoadParkingCosts()
+        {
+            if (ParkingCostFile != null)
+            {
+                var zoneArray = ZoneArray;
+                var zones = zoneArray.GetFlatData();
+                if (!File.Exists(ParkingCostFile))
+                {
+                    throw new XTMFRuntimeException(this, $"The file containing parking cost information was not found '{ParkingCostFile.GetFilePath()}'!");
+                }
+                using (CsvReader reader = new CsvReader(IntrazonalDistanceFile))
+                {
+                    // burn header
+                    reader.LoadLine(out int columns);
+                    // read the rest
+                    while (reader.LoadLine(out columns))
+                    {
+                        if (columns < 2) continue;
+                        reader.Get(out int zoneNumber, 0);
+                        reader.Get(out float parkingCost, 1);
+                        int index = zoneArray.GetFlatIndex(zoneNumber);
+                        if (index >= 0)
+                        {
+                            zones[index].ParkingCost = (int)parkingCost;
+                        }
+                        else
+                        {
+                            throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the parking costs that does not exist in the zone system!");
                         }
                     }
                 }
