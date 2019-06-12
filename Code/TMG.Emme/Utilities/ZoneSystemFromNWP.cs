@@ -397,7 +397,7 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing parking cost information was not found '{ParkingCostFile.GetFilePath()}'!");
                 }
-                using (CsvReader reader = new CsvReader(IntrazonalDistanceFile))
+                using (CsvReader reader = new CsvReader(ParkingCostFile))
                 {
                     // burn header
                     reader.LoadLine(out int columns);
