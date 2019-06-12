@@ -266,6 +266,32 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        private void DisabledModulesStatusBar_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            List<ModelSystemStructureDisplayModel> modules = DisabledModules.ToList();
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (modules.Count > 0)
+                {
+                    // this.UnassignedModulesList.ItemsSource = modules;
+
+                    this.DisabledModulesPopupList.ItemsSource = modules;
+                    DisabledModulesPopup.IsOpen = true;
+                }
+            }));
+
+            e.Handled = true;
+
+            return;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UnassignedModuleLabel_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var model = ((FrameworkElement)e.Source).Tag as ModelSystemStructureDisplayModel;
@@ -280,6 +306,7 @@ namespace XTMF.Gui.UserControls
                     }
                     UnassignedModulesPopup.IsOpen = false;
                     NoUnassignedModulesPopup.IsOpen = false;
+                    DisabledModulesPopup.IsOpen = false;
 
 
 

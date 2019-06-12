@@ -2493,6 +2493,10 @@ namespace XTMF.Gui.UserControls
             {
                 MessageBox.Show(GetWindow(), error, "Unable to revert", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
+            this.DisabledModules.Clear();
+
+            this.EnumerateDisabled(DisplayRoot);
         }
 
 
@@ -2730,6 +2734,8 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
         }
+
+
     }
 
 
