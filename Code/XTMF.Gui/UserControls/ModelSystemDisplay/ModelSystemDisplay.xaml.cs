@@ -844,6 +844,7 @@ namespace XTMF.Gui.UserControls
 
                         us.StatusBarModuleCountTextBlock.Text = $"{us.ModelSystemDisplayModelMap.Count} Modules";
 
+                        us.DisabledModules.Clear();
                         us.EnumerateDisabled(display.DisplayRoot);
                         us.UpdateDisableModuleCount(us.DisabledModules.Count);
 
@@ -2493,9 +2494,6 @@ namespace XTMF.Gui.UserControls
             {
                 MessageBox.Show(GetWindow(), error, "Unable to revert", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            this.DisabledModules.Clear();
-
             this.EnumerateDisabled(DisplayRoot);
         }
 
