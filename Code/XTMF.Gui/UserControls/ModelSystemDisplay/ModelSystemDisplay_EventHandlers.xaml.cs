@@ -61,14 +61,9 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.R:
-                            //ParameterTabControl.SelectedIndex = 2;
-                            //Mo.Focus();
-                            // Keyboard.Focus(ParameterFilterBox);
                             e.Handled = true;
                             break;
                         case Key.P:
-                            //ParameterTabControl.SelectedIndex = 1;
-                            //ModuleParameterTab.Focus();
                             ModuleParameterDisplay.Focus();
                             Keyboard.Focus(ParameterFilterBox);
                             e.Handled = true;
@@ -134,8 +129,6 @@ namespace XTMF.Gui.UserControls
                                 e.Handled = true;
                                 break;
                             }
-
-
                             break;
                     }
                 }
@@ -179,7 +172,6 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
 
 
         /// <summary>
@@ -238,13 +230,11 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void UnassignedModulesStatusBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
             List<ModelSystemStructureDisplayModel> modules = new List<ModelSystemStructureDisplayModel>();
 
             Dispatcher.BeginInvoke(new Action(() =>
               {
                   this.EnumerateUnassignedRequiredModules(DisplayRoot, modules);
-
                   if (modules.Count > 0)
                   {
                       this.UnassignedModulesList.ItemsSource = modules;
@@ -257,7 +247,6 @@ namespace XTMF.Gui.UserControls
               }));
 
             e.Handled = true;
-
             return;
         }
 
@@ -274,15 +263,12 @@ namespace XTMF.Gui.UserControls
             {
                 if (modules.Count > 0)
                 {
-                    // this.UnassignedModulesList.ItemsSource = modules;
-
                     this.DisabledModulesPopupList.ItemsSource = modules;
                     DisabledModulesPopup.IsOpen = true;
                 }
             }));
 
             e.Handled = true;
-
             return;
         }
 
@@ -307,9 +293,6 @@ namespace XTMF.Gui.UserControls
                     UnassignedModulesPopup.IsOpen = false;
                     NoUnassignedModulesPopup.IsOpen = false;
                     DisabledModulesPopup.IsOpen = false;
-
-
-
                 }));
             }
             return;
