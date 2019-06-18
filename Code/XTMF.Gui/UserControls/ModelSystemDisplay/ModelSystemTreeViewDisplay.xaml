@@ -192,11 +192,11 @@
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                               PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown"
-                                  PreviewMouseDoubleClick="ModuleDisplay_PreviewMouseDoubleClick" 
+                                  PreviewMouseDoubleClick="ModuleDisplay_PreviewMouseDoubleClick"  
                               TreeViewItem.Selected="ModuleDisplay_Selected" Grid.ColumnSpan="2" ItemContainerStyle="{DynamicResource TreeViewItemStyle}" ContextMenuOpening="ModuleDisplay_ContextMenuOpening">
                     <TreeView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling"
+                            <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" 
                                                         Orientation="Vertical" CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
                         </ItemsPanelTemplate>
                     </TreeView.ItemsPanel>

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Media;
 using System.Reflection;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -94,6 +95,8 @@ namespace XTMF.Gui.UserControls
 
         public ItemsControl ViewItemsControl => ModuleDisplay;
 
+        private string _xtmfMajorVersion;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
@@ -148,10 +151,9 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
-
             _display.UpdateQuickParameters();
-
             MainWindow.Us.ThemeChanged += Us_ThemeChanged;
+            _xtmfMajorVersion = Properties.Resources.Xtmf_Major_Version;
         }
 
         /// <summary>
@@ -445,7 +447,7 @@ namespace XTMF.Gui.UserControls
                     return moduleInfo.DocURL;
                 }
             }
-            return $"https://tmg.utoronto.ca/doc/1.6/modules/{type}.html";
+            return $"https://tmg.utoronto.ca/doc/{_xtmfMajorVersion}/modules/{type}.html";
         }
 
         /// <summary>
@@ -1188,7 +1190,7 @@ namespace XTMF.Gui.UserControls
             var module =
                 (((sender as MenuItem)?.Parent as FrameworkElement).DataContext as ModelSystemStructureDisplayModel)
                 ?.BaseModel;
-            Process.Start($"https://tmg.utoronto.ca/doc/1.5/modules/{module.Type}.html");
+            Process.Start($"https://tmg.utoronto.ca/doc/{_xtmfMajorVersion}/modules/{module.Type}.html");
         }
     }
 }
