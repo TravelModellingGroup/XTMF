@@ -2479,22 +2479,22 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RevertModelSystemToolbarButton_Click(object sender, RoutedEventArgs e)
+        private void ReloadModelSystemToolbarButton_Click(object sender, RoutedEventArgs e)
         {
-            RevertModelSystem();
+            ReloadModelSystem();
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private void RevertModelSystem()
+        private void ReloadModelSystem()
         {
             string error = null;
-            if (!Session.RevertToLastSave(ref error))
+            if (!Session.ReloadModelSystem(ref error))
             {
                 MessageBox.Show(GetWindow(), error, "Unable to revert", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            this.EnumerateDisabled(DisplayRoot);
+            EnumerateDisabled(DisplayRoot);
         }
 
 
@@ -2732,8 +2732,6 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
         }
-
-
     }
 
 
