@@ -72,6 +72,53 @@ namespace TMG.Functions
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Divide(float[] destination, int destIndex, float[] first, int firstIndex, float denominator, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                var s = new Vector<float>(denominator);
+                if ((destIndex | firstIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(first, i);
+                        
+                        (f / s).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = first[i] / denominator;
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(first, i + firstIndex);
+                        (f / s).CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i + destIndex] = first[i + firstIndex] / denominator;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[destIndex + i] = first[firstIndex + i] / denominator;
+                }
+            }
+        }
+
         public static void Divide(float[][] destination, float numerator, float[][] denominator)
         {
             if (Vector.IsHardwareAccelerated)
