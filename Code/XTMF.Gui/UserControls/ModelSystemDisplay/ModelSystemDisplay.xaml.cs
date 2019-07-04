@@ -1550,6 +1550,7 @@ namespace XTMF.Gui.UserControls
                             {
                                 throw new Exception(error);
                             }
+                            CanSaveModelSystem = true;
                         });
                 }, selectedModuleControl, selected.Name, true);
                 layer.Add(adorn);
@@ -1585,6 +1586,7 @@ namespace XTMF.Gui.UserControls
                                     throw new Exception(error);
                                 }
                             }
+                            CanSaveModelSystem = true;
                         });
                 }, selectedModuleControl, selected.Description);
                 layer.Add(adorn);
@@ -1740,6 +1742,10 @@ namespace XTMF.Gui.UserControls
                     MessageBox.Show(GetWindow(), error, "Unable to reset parameter", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
+                else
+                {
+                    CanSaveModelSystem = true;
+                }
             }
         }
 
@@ -1762,6 +1768,7 @@ namespace XTMF.Gui.UserControls
             {
                 string error = null;
                 currentParameter.SetHidden(hidden, ref error);
+                CanSaveModelSystem = true;
             }
         }
 
@@ -1787,6 +1794,7 @@ namespace XTMF.Gui.UserControls
                         else
                         {
                             RefreshParameters();
+                            CanSaveModelSystem = true;
                         }
                     }, selectedContainer, currentParameter.GetBaseName(), true);
                     layer.Add(adorn);
@@ -1804,6 +1812,7 @@ namespace XTMF.Gui.UserControls
                 string error = null;
                 currentParameter.RevertNameToDefault(ref error);
                 UpdateParameters();
+                CanSaveModelSystem = true;
             }
         }
 

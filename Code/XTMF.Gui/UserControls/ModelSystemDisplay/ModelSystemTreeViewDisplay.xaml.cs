@@ -39,8 +39,6 @@ namespace XTMF.Gui.UserControls
 
         private RegionDisplaysModel _regionDisplaysModel;
 
-        private Point p;
-
         public bool IsDragActive
         {
             get => _isDragActive;
@@ -427,6 +425,10 @@ namespace XTMF.Gui.UserControls
                         {
                             _display.DisabledModules.Remove(sel);
                         }
+                    }
+                    if (CurrentlySelected.Count > 0)
+                    {
+                        _display.CanSaveModelSystem = true;
                     }
                 });
                 if (error != null)
@@ -1104,7 +1106,6 @@ namespace XTMF.Gui.UserControls
             {
                 return true;
             }
-
             return false;
         }
 
@@ -1170,15 +1171,6 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemTreeViewDisplay_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             IsDragActive = false;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void UserControl_MouseMove(object sender, MouseEventArgs e)
-        {
-            p = e.GetPosition(this);
         }
 
         /// <summary>
