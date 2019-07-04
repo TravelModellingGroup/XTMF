@@ -1001,6 +1001,7 @@ namespace XTMF.Gui.UserControls
             string error = null;
             Session.Redo(ref error);
             UpdateParameters();
+            UpdateQuickParameters();
         }
 
         public void Undo()
@@ -1008,6 +1009,7 @@ namespace XTMF.Gui.UserControls
             string error = null;
             Session.Undo(ref error);
             UpdateParameters();
+            UpdateQuickParameters();
         }
 
         public void Close()
@@ -2083,7 +2085,6 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public void UpdateQuickParameters()
         {
-            //DisplayRoot.
             if (QuickParameterDisplay2 != null)
             {
                 QuickParameterListView.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel

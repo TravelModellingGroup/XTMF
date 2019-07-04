@@ -149,7 +149,6 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
-            _display.UpdateQuickParameters();
             MainWindow.Us.ThemeChanged += Us_ThemeChanged;
             _xtmfMajorVersion = Properties.Resources.Xtmf_Major_Version;
         }

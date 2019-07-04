@@ -288,7 +288,7 @@ namespace XTMF.Gui.Models
         /// <param name="parameterModel">The parameters in the model</param>
         /// <returns>An observable collection of the parameters using the display model</returns>
         internal static ObservableCollection<ParameterDisplayModel> CreateParameters(
-            IOrderedEnumerable<ParameterModel> parameterModel, bool multipleSelected = false)
+            IEnumerable<ParameterModel> parameterModel, bool multipleSelected = false)
         {
             return new ObservableCollection<ParameterDisplayModel>(parameterModel.Select(p =>
                 new ParameterDisplayModel(p, multipleSelected)));
