@@ -662,8 +662,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
                         if (Parent.ValidDestinations[j])
                         {
-
-
                             var nonExpPDConstant = 0.0f;
                             for (int seg = 0; seg < TimePeriod[i].PDConstant.Length; seg++)
                             {
@@ -731,7 +729,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 }
                             }
                         }
-
                         else
                         {
                             // if we are on anything besides the first iteration do a blended assignment for the utility to help converge.
@@ -772,7 +769,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     return calculationSpace;
                 }
-                VectorHelper.Multiply(calculationSpace, 0, calculationSpace, 0, 1.0f / total, calculationSpace.Length);
+                VectorHelper.Divide(calculationSpace, 0, calculationSpace, 0, total, calculationSpace.Length);
                 return calculationSpace;
             }
 
