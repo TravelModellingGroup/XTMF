@@ -1794,6 +1794,7 @@ namespace XTMF.Gui.UserControls
                         else
                         {
                             RefreshParameters();
+                            UpdateQuickParameters();
                             CanSaveModelSystem = true;
                         }
                     }, selectedContainer, currentParameter.GetBaseName(), true);
