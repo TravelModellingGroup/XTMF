@@ -25,6 +25,11 @@
             <ComboBox Grid.Column="0" MinWidth="300" x:Name="StringInputTextBox"
                       materialDesign:HintAssist.Hint="Run Name" VerticalAlignment="Top"
                       IsEditable="True">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding .}"></TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
                 <ComboBox.Text>
                     <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
                         <Binding.ValidationRules>
