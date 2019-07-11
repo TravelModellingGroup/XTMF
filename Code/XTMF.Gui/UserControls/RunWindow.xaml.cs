@@ -107,6 +107,8 @@ namespace XTMF.Gui.UserControls
 
         private ConsoleOutputAppender _consoleAppender;
 
+        private FileAppender _fileAppender;
+
         static RunWindow()
         {
             ErrorColour = new Tuple<byte, byte, byte>(200, 20, 30);
@@ -201,7 +203,7 @@ namespace XTMF.Gui.UserControls
                 repo = LogManager.CreateRepository(Run.RunName);
             }
 
-            var appender = new log4net.Appender.RollingFileAppender
+            _fileAppender = new log4net.Appender.RollingFileAppender
             {
                 Name = "RollingFileAppender",
                 File = Path.Combine(Run.RunDirectory, "XTMF.Console.log"),
@@ -216,15 +218,15 @@ namespace XTMF.Gui.UserControls
             {
                 ConversionPattern = "%date %-5level %logger - %message%newline"
             };
-            appender.Layout = layout;
+            _fileAppender.Layout = layout;
             layout.ActivateOptions();
             _consoleAppender = new ConsoleOutputAppender()
             {
                 Layout = layout
             };
             //Let log4net configure itself based on the values provided
-            appender.ActivateOptions();
-            log4net.Config.BasicConfigurator.Configure(repo, appender, _consoleAppender);
+            _fileAppender.ActivateOptions();
+            log4net.Config.BasicConfigurator.Configure(repo, _fileAppender, _consoleAppender);
             iLog = LogManager.GetLogger(Run.RunName, Run.RunName);
             
         }
@@ -602,6 +604,7 @@ namespace XTMF.Gui.UserControls
                         new Action(() => { _taskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
                 });
             }
+            _fileAppender.Close();
             _consoleAppender.Close();
             _isFinished = true;
             MainWindow.Us.Closing -= MainWindowClosing;
