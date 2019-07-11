@@ -226,6 +226,7 @@ namespace XTMF.Gui.UserControls
             appender.ActivateOptions();
             log4net.Config.BasicConfigurator.Configure(repo, appender, _consoleAppender);
             iLog = LogManager.GetLogger(Run.RunName, Run.RunName);
+            
         }
 
         ~RunWindow()
@@ -382,6 +383,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished(false);
+                _consoleAppender.Close();
                 ShowErrorMessages(errorWithPaths.ToArray());
                 OnValidationError?.Invoke(errorWithPaths);
             });
@@ -600,7 +602,7 @@ namespace XTMF.Gui.UserControls
                         new Action(() => { _taskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
                 });
             }
-
+            _consoleAppender.Close();
             _isFinished = true;
             MainWindow.Us.Closing -= MainWindowClosing;
             Dispatcher.Invoke(() =>
