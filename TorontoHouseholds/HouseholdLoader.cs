@@ -221,6 +221,14 @@ namespace TMG.Tasha
                                     }
                                     blockingBuffer.Add(next);
                                 }
+                                catch (IOException e)
+                                {
+                                    // treat IO exceptions separately to avoid the
+                                    // case where a files doesn't exist (or a network goes down)
+                                    // and we hang.
+                                    terminalException = e;
+                                    break;
+                                }
                                 catch (XTMFRuntimeException)
                                 {
 
