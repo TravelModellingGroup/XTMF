@@ -257,7 +257,9 @@ namespace TMG.Tasha
                         blockingBuffer.CompleteAdding();
                         if (RefreshHouseholdData)
                         {
-                            Unload();
+                            var hasException = _Unload();
+                            // set the exception to the one caused by unloading if there was no exception already.
+                            terminalException = terminalException ?? hasException;
                         }
                     }
                 });
@@ -304,11 +306,24 @@ namespace TMG.Tasha
 
         private void Unload()
         {
-            PersonLoader.Unload();
-            Reader?.Close();
-            Reader = null;
-            AutoOwnershipModel?.Unload();
-            NeedsReset = false;
+            _Unload();
+        }
+
+        private Exception _Unload()
+        {
+            try
+            {
+                PersonLoader.Unload();
+                Reader?.Close();
+                Reader = null;
+                AutoOwnershipModel?.Unload();
+                NeedsReset = false;
+                return null;
+            }
+            catch (IOException e)
+            {
+                return e;
+            }
         }
 
         /// <summary>
