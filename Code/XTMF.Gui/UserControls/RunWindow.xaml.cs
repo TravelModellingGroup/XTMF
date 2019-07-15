@@ -514,12 +514,15 @@ namespace XTMF.Gui.UserControls
                         }
 
                         var elapsedTime = DateTime.Now - StartTime;
-                        var days = elapsedTime.Days;
+                        
                         elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
+                        var days = elapsedTime.Days;
                         ElapsedTimeLabel.Content = days < 1
-                            ? $"Elapsed Time: {elapsedTime:g}"
-                            : $"Elapsed Time: {elapsedTime} Day(s), {days:g}";
-                        UpdateElapsedTime?.Invoke(days < 1 ? $"{elapsedTime:g}" : $"{elapsedTime} Day(s), {days:g}");
+                            ? $"{elapsedTime:g}"
+                            : $"{days} Day(s), {elapsedTime.ToString("hh\\:mm\\:ss")}";
+                        UpdateElapsedTime?.Invoke(days < 1
+                            ? $"{elapsedTime:g}"
+                            : $"{days} Day(s), {elapsedTime.ToString("hh\\:mm\\:ss")}");
                     }
                     else
                     {
