@@ -91,6 +91,12 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [RunParameter("NonWorkerStudentTimeFactor-Transit", 0f, "The TimeFactor applied to the person type.")]
         public float NonWorkerStudentTimeFactorTransit;
 
+        [RunParameter("ToActivityDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
+        public float ToActivityDensityFactor;
+
+        [RunParameter("ToHomeDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
+        public float ToHomeDensityFactor;
+
         [DoNotAutomate]
         public IVehicleType RequiresVehicle => null;
 
@@ -158,11 +164,17 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             {
                 case Activity.Market:
                 case Activity.JointMarket:
-                    v += MarketFlag;
+                    v += MarketFlag + ZonalDensityForActivitiesArray[d];
                     break;
                 case Activity.IndividualOther:
                 case Activity.JointOther:
-                    v += OtherFlag;
+                    v += OtherFlag + ZonalDensityForActivitiesArray[d];
+                    break;
+                case Activity.Home:
+                    v += ZonalDensityForHomeArray[d];
+                    break;
+                default:
+                    v += ZonalDensityForActivitiesArray[d];
                     break;
             }
             Time activityStartTime = trip.ActivityStartTime;
@@ -359,22 +371,22 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     case Occupation.Professional:
                         autoTimeFactor = ProfessionalTimeFactorAuto;
                         transitTimeFactor = ProfessionalTimeFactorTransit;
-                        costFactor = ProfessionalCostFactor;
+                        costFactor = ProfessionalCost;
                         return;
                     case Occupation.Office:
                         autoTimeFactor = GeneralTimeFactorAuto;
                         transitTimeFactor = GeneralTimeFactorTransit;
-                        costFactor = GeneralCostFactor;
+                        costFactor = GeneralCost;
                         return;
                     case Occupation.Retail:
                         autoTimeFactor = SalesTimeFactorAuto;
                         transitTimeFactor = SalesTimeFactorTransit;
-                        costFactor = SalesCostFactor;
+                        costFactor = SalesCost;
                         return;
                     case Occupation.Manufacturing:
                         autoTimeFactor = ManufacturingTimeFactorAuto;
                         transitTimeFactor = ManufacturingTimeFactorTransit;
-                        costFactor = ManufacturingCostFactor;
+                        costFactor = ManufacturingCost;
                         return;
                 }
             }
@@ -384,7 +396,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                 case StudentStatus.PartTime:
                     autoTimeFactor = StudentTimeFactorAuto;
                     transitTimeFactor = StudentTimeFactorTransit;
-                    costFactor = StudentCostFactor;
+                    costFactor = StudentCost;
                     return;
             }
             if (empStat == TTSEmploymentStatus.PartTime)
@@ -394,28 +406,28 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     case Occupation.Professional:
                         autoTimeFactor = ProfessionalTimeFactorAuto;
                         transitTimeFactor = ProfessionalTimeFactorTransit;
-                        costFactor = ProfessionalCostFactor;
+                        costFactor = ProfessionalCost;
                         return;
                     case Occupation.Office:
                         autoTimeFactor = GeneralTimeFactorAuto;
                         transitTimeFactor = GeneralTimeFactorTransit;
-                        costFactor = GeneralCostFactor;
+                        costFactor = GeneralCost;
                         return;
                     case Occupation.Retail:
                         autoTimeFactor = SalesTimeFactorAuto;
                         transitTimeFactor = SalesTimeFactorTransit;
-                        costFactor = SalesCostFactor;
+                        costFactor = SalesCost;
                         return;
                     case Occupation.Manufacturing:
                         autoTimeFactor = ManufacturingTimeFactorAuto;
                         transitTimeFactor = ManufacturingTimeFactorTransit;
-                        costFactor = ManufacturingCostFactor;
+                        costFactor = ManufacturingCost;
                         return;
                 }
             }
             autoTimeFactor = NonWorkerStudentTimeFactorAuto;
             transitTimeFactor = NonWorkerStudentTimeFactorTransit;
-            costFactor = NonWorkerStudentCostFactor;
+            costFactor = NonWorkerStudentCost;
         }
 
         public void IterationEnding(int iterationNumber, int maxIterations)
@@ -431,6 +443,25 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [SubModelInformation(Required = true, Description = "Output must be probability per zone.")]
         public ICalculation<ITrip, Pair<IZone[], float[]>> StationChoiceModel;
 
+        private float[] ZonalDensityForActivitiesArray;
+        private float[] ZonalDensityForHomeArray;
+
+        [SubModelInformation(Required = false, Description = "The density of zones for activities")]
+        public IResource ZonalDensityForActivities;
+
+        [SubModelInformation(Required = false, Description = "The density of zones for home")]
+        public IResource ZonalDensityForHome;
+
+        private float ProfessionalCost;
+        private float GeneralCost;
+        private float SalesCost;
+        private float ManufacturingCost;
+        private float StudentCost;
+        private float NonWorkerStudentCost;
+
+        [RunParameter("ApplyCostFactors", false, "Should the cost factor applied to the ratio of the travel times.")]
+        public bool ApplyCostFactors;
+
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
             _zones = Root.ZoneSystem.ZoneArray;
@@ -444,6 +475,42 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             {
                 TimePeriodConstants[i].BuildMatrix();
             }
+            ZonalDensityForActivitiesArray = (float[])ZonalDensityForActivities?.AcquireResource<SparseArray<float>>()?.GetFlatData()?.Clone() ?? new float[_zones.Count];
+            ZonalDensityForHomeArray = (float[])ZonalDensityForHome?.AcquireResource<SparseArray<float>>()?.GetFlatData()?.Clone() ?? new float[_zones.Count];
+            for (int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
+            {
+                ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
+                ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
+            }
+
+            if (ApplyCostFactors)
+            {
+                ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, (ProfessionalTimeFactorAuto + ProfessionalTimeFactorTransit) / 2.0f);
+                GeneralCost = ConvertCostFactor(GeneralCostFactor, (GeneralTimeFactorAuto + GeneralTimeFactorTransit) / 2.0f);
+                SalesCost = ConvertCostFactor(SalesCostFactor, (SalesTimeFactorAuto + SalesTimeFactorTransit) / 2.0f);
+                ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, (ManufacturingTimeFactorAuto + ManufacturingTimeFactorTransit) / 2.0f);
+                StudentCost = ConvertCostFactor(StudentCostFactor, (StudentTimeFactorAuto + StudentTimeFactorTransit) / 2.0f);
+                NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, (NonWorkerStudentTimeFactorAuto + NonWorkerStudentTimeFactorTransit) / 2.0f);
+            }
+            else
+            {
+                ProfessionalCost = ProfessionalCostFactor;
+                GeneralCost = GeneralCostFactor;
+                SalesCost = SalesCostFactor;
+                ManufacturingCost = ManufacturingCostFactor;
+                StudentCost = StudentCostFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor;
+            }
+        }
+
+        private float ConvertCostFactor(float costFactor, float timeFactor)
+        {
+            var ret = costFactor * timeFactor;
+            if (ret > 0)
+            {
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
+            }
+            return ret;
         }
 
         [RunParameter("Unload Access Station Per Iteration", true, "Should we unload the access station choice model or keep it between iterations?")]
