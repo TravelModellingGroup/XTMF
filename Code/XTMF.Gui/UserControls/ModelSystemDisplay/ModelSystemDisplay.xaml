@@ -734,6 +734,7 @@
                                             <ControlTemplate TargetType="StatusBarItem">
                                                 <Border>
 
+
                                                     <Grid HorizontalAlignment="Left">
                                                         <Rectangle Name="bg" Fill="{DynamicResource SecondaryAccentForegroundBrush}"></Rectangle>
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"></ContentPresenter>
