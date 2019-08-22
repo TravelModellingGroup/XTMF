@@ -155,9 +155,16 @@ namespace XTMF.Gui.UserControls
         private void ScheduledRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
-            ActiveRunContent.DataContext = runWindow;
-            ActiveContent = runWindow;
-            runWindow?.ScrollToBottomOfConsole();
+            if (runWindow != null)
+            {
+                ActiveRunContent.DataContext = runWindow;
+                ActiveContent = runWindow;
+                runWindow?.ScrollToBottomOfConsole();
+            }
+            else
+            {
+                ActiveRunContent.DataContext = Resources["DefaultDisplay"];
+            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -264,10 +271,12 @@ namespace XTMF.Gui.UserControls
         private void FinishedRuns_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
-
-            ActiveRunContent.DataContext = runWindow;
-            ActiveContent = runWindow;
-            runWindow?.ScrollToBottomOfConsole();
+            if (runWindow != null)
+            {
+                ActiveRunContent.DataContext = runWindow;
+                ActiveContent = runWindow;
+                runWindow?.ScrollToBottomOfConsole();
+            }
         }
 
         /// <summary>
@@ -277,9 +286,12 @@ namespace XTMF.Gui.UserControls
         private void FinishedRuns_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             var runWindow = (FinishedRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
-            ActiveRunContent.DataContext = runWindow;
-            ActiveContent = runWindow;
-            runWindow?.ScrollToBottomOfConsole();
+            if (runWindow != null)
+            {
+                ActiveRunContent.DataContext = runWindow;
+                ActiveContent = runWindow;
+                runWindow?.ScrollToBottomOfConsole();
+            }
         }
 
         /// <summary>
@@ -289,9 +301,12 @@ namespace XTMF.Gui.UserControls
         private void ScheduledRuns_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             var runWindow = (ScheduledRuns.SelectedItem as SchedulerRunItemDisplayModel)?.RunWindow;
-            ActiveRunContent.DataContext = runWindow;
-            ActiveContent = runWindow;
-            runWindow?.ScrollToBottomOfConsole();
+            if (runWindow != null)
+            {
+                ActiveRunContent.DataContext = runWindow;
+                ActiveContent = runWindow;
+                runWindow?.ScrollToBottomOfConsole();
+            }
         }
 
         /// <summary>

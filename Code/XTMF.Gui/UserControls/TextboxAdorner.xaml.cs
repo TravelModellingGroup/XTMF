@@ -84,7 +84,7 @@ namespace XTMF.Gui.UserControls
             _textbox.CaretIndex = initialValue.Length;
             _textbox.Foreground = (Brush)Application.Current.TryFindResource("PrimaryHueMidForegroundBrush");
             _textbox.Background = (Brush)Application.Current.TryFindResource("PrimaryHueMidBrush");
-            _textbox.CaretBrush = (Brush)Application.Current.TryFindResource("PrimaryHueMidForegroundBrush");
+            _textbox.CaretBrush = (Brush)Application.Current.TryFindResource("SecondaryAccentBrush");
 
             _textbox.SelectAll();
             Grid.Children.Add(TextBlock);

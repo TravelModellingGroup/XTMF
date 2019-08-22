@@ -1123,5 +1123,17 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        private void ContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if(ModelSystemsDataGrid.SelectedItem == null)
+            {
+                e.Handled = true;
+                if(e.Source is FrameworkElement fe)
+                {
+                    fe.ContextMenu.IsOpen = false;
+                }
+            }
+        }
     }
 }

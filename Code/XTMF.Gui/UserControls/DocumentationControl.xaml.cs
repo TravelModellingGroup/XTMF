@@ -45,7 +45,7 @@ namespace XTMF.Gui.UserControls
             set => SetValue(TypeProperty, value);
         }
 
-        public  const string DOC_URL_ROOT = "https://tmg.utoronto.ca/doc/1.5/modules/";
+        public static string DOC_URL_ROOT = "https://tmg.utoronto.ca/doc/";
 
         public string TypeNameText { get { var t = Type; return t == null ? "No Type!" : t.Name; } }
 
@@ -179,6 +179,20 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnInitialized(EventArgs e)
+        {
+            DOC_URL_ROOT += Properties.Resources.Xtmf_Major_Version + "/modules";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private static Parameter[] GetParameters(Type type)
         {
             var list = Project.GetParameters(type);

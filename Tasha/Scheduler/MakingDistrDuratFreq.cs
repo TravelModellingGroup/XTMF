@@ -280,6 +280,11 @@ namespace Tasha.Scheduler
                         Thread.MemoryBarrier();
                     }
                 }
+                if(startTime < 0 || startTime >= eventCount[id].Length)
+                {
+                    return;
+                    //throw new XTMFRuntimeException(this, $"An invalid start time was attempted to be used for id {id} at start time {startTime}!");
+                }
                 // check to see if we have an array for this start time
                 if (eventCount[id][startTime] == null)
                 {

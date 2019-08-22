@@ -29,7 +29,7 @@ namespace XTMF.Gui
     /// </summary>
     public partial class StartWindow : UserControl
     {
-        private List<Label> _RecentProjectLabels = new List<Label>();
+
 
         public StartWindow()
         {
@@ -41,24 +41,28 @@ namespace XTMF.Gui
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Us_RecentProjectsUpdated(object sender, EventArgs e)
         {
             var k = Application.Current.FindResource("HoverLabel");
-            if (RecentProjectsStackPanel.Children.Count != MainWindow.Us.RecentProjects.Count)
+
+            RecentProjectsStackPanel.Children.Clear();
+            foreach (var recentProject in MainWindow.Us.RecentProjects)
             {
-                RecentProjectsStackPanel.Children.Clear();
-                foreach (var recentProject in MainWindow.Us.RecentProjects)
+                Button b = new Button
                 {
-                    Button b = new Button
-                    {
-                        Content = recentProject,
-                        HorizontalContentAlignment = HorizontalAlignment.Left,
-                        Style = (Style)FindResource("MaterialDesignFlatButton")
-                    };
-                    b.Click += (senderx, EventArgs) => MainWindow.Us.LoadProjectByName(recentProject);
-                    RecentProjectsStackPanel.Children.Add(b);
-                }
+                    Content = recentProject,
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
+                    Style = (Style)FindResource("MaterialDesignFlatButton")
+                };
+                b.Click += (senderx, EventArgs) => MainWindow.Us.LoadProjectByName(recentProject);
+                RecentProjectsStackPanel.Children.Add(b);
             }
+
         }
 
         /// <summary>

@@ -410,7 +410,7 @@ namespace XTMF
             }
         }
 
-        internal bool RevertToLastSave(ModelSystemEditingSession session, ref string error)
+        internal bool ReloadModelSystem(ModelSystemEditingSession session, ref string error)
         {
             if(_Project != null)
             {

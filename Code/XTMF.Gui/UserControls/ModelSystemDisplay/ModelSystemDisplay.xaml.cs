@@ -1001,6 +1001,7 @@ namespace XTMF.Gui.UserControls
             string error = null;
             Session.Redo(ref error);
             UpdateParameters();
+            UpdateQuickParameters();
         }
 
         public void Undo()
@@ -1008,6 +1009,7 @@ namespace XTMF.Gui.UserControls
             string error = null;
             Session.Undo(ref error);
             UpdateParameters();
+            UpdateQuickParameters();
         }
 
         public void Close()
@@ -1550,6 +1552,7 @@ namespace XTMF.Gui.UserControls
                             {
                                 throw new Exception(error);
                             }
+                            CanSaveModelSystem = true;
                         });
                 }, selectedModuleControl, selected.Name, true);
                 layer.Add(adorn);
@@ -1585,6 +1588,7 @@ namespace XTMF.Gui.UserControls
                                     throw new Exception(error);
                                 }
                             }
+                            CanSaveModelSystem = true;
                         });
                 }, selectedModuleControl, selected.Description);
                 layer.Add(adorn);
@@ -1740,6 +1744,10 @@ namespace XTMF.Gui.UserControls
                     MessageBox.Show(GetWindow(), error, "Unable to reset parameter", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
+                else
+                {
+                    CanSaveModelSystem = true;
+                }
             }
         }
 
@@ -1762,6 +1770,7 @@ namespace XTMF.Gui.UserControls
             {
                 string error = null;
                 currentParameter.SetHidden(hidden, ref error);
+                CanSaveModelSystem = true;
             }
         }
 
@@ -1787,6 +1796,8 @@ namespace XTMF.Gui.UserControls
                         else
                         {
                             RefreshParameters();
+                            UpdateQuickParameters();
+                            CanSaveModelSystem = true;
                         }
                     }, selectedContainer, currentParameter.GetBaseName(), true);
                     layer.Add(adorn);
@@ -1804,6 +1815,7 @@ namespace XTMF.Gui.UserControls
                 string error = null;
                 currentParameter.RevertNameToDefault(ref error);
                 UpdateParameters();
+                CanSaveModelSystem = true;
             }
         }
 
@@ -2073,7 +2085,6 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public void UpdateQuickParameters()
         {
-            //DisplayRoot.
             if (QuickParameterDisplay2 != null)
             {
                 QuickParameterListView.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel
@@ -2479,22 +2490,22 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RevertModelSystemToolbarButton_Click(object sender, RoutedEventArgs e)
+        private void ReloadModelSystemToolbarButton_Click(object sender, RoutedEventArgs e)
         {
-            RevertModelSystem();
+            ReloadModelSystem();
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private void RevertModelSystem()
+        private void ReloadModelSystem()
         {
             string error = null;
-            if (!Session.RevertToLastSave(ref error))
+            if (!Session.ReloadModelSystem(ref error))
             {
                 MessageBox.Show(GetWindow(), error, "Unable to revert", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            this.EnumerateDisabled(DisplayRoot);
+            EnumerateDisabled(DisplayRoot);
         }
 
 

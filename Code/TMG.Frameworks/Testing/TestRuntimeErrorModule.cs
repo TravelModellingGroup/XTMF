@@ -36,6 +36,9 @@ namespace TMG.Frameworks.Testing
         public float Progress { get => _progress; }
         public Tuple<byte, byte, byte> ProgressColour { get; }
 
+        [RunParameter("XTMF Runtime exception", false, "Should the runtime exception be an XTMF Runtime exception?")]
+        public bool ThrowXTMFRuntimeException;
+
         /// <summary>
         /// 
         /// </summary>
@@ -53,8 +56,15 @@ namespace TMG.Frameworks.Testing
         public void Start()
         {
             //throw new dummy exception
-            var p = 0;
-            var s = 10 / p;
+            if (ThrowXTMFRuntimeException)
+            {
+                throw new XTMFRuntimeException(this, "The requested runtime exception has been generatied!");
+            }
+            else
+            {
+                var p = 0;
+                var s = 10 / p;
+            }
         }
     }
 

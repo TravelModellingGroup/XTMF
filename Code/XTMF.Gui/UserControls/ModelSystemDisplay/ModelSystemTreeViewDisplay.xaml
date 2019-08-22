@@ -25,7 +25,7 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" DragEnter="ModelSystemTreeViewDisplay_OnDragEnter"
              mc:Ignorable="d" AllowDrop="True" DragOver="ModelSystemTreeViewDisplay_OnDragOver" PreviewMouseLeftButtonUp="ModelSystemTreeViewDisplay_OnPreviewMouseLeftButtonUp"
-             d:DesignHeight="450" d:DesignWidth="800" MouseMove="UserControl_MouseMove" >
+             d:DesignHeight="450" d:DesignWidth="800" >
 
     <UserControl.Resources>
         <DrawingBrush TileMode="Tile" Stretch="None" x:Key="GridTextureBrushLight"  
@@ -192,11 +192,11 @@
                               x:Name="ModuleDisplay" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                               PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown"
-                                  PreviewMouseDoubleClick="ModuleDisplay_PreviewMouseDoubleClick" 
+                                  PreviewMouseDoubleClick="ModuleDisplay_PreviewMouseDoubleClick"  
                               TreeViewItem.Selected="ModuleDisplay_Selected" Grid.ColumnSpan="2" ItemContainerStyle="{DynamicResource TreeViewItemStyle}" ContextMenuOpening="ModuleDisplay_ContextMenuOpening">
                     <TreeView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling"
+                            <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" 
                                                         Orientation="Vertical" CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
                         </ItemsPanelTemplate>
                     </TreeView.ItemsPanel>

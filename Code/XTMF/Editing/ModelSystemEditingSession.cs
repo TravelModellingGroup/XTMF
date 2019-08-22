@@ -737,12 +737,12 @@ namespace XTMF
             Runtime.RunController.CancelRun(run);
         }
 
-        public bool RevertToLastSave(ref string error)
+        public bool ReloadModelSystem(ref string error)
         {
             error = null;
             lock (_SessionLock)
             {
-                if (ModelSystemModel.RevertToLastSave(this, ref error))
+                if (ModelSystemModel.ReloadModelSystem(this, ref error))
                 {
                     _UndoStack.Clear();
                     _RedoStack.Clear();

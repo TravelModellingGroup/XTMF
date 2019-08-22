@@ -107,6 +107,8 @@ namespace XTMF.Gui.UserControls
 
         private ConsoleOutputAppender _consoleAppender;
 
+        private FileAppender _fileAppender;
+
         static RunWindow()
         {
             ErrorColour = new Tuple<byte, byte, byte>(200, 20, 30);
@@ -201,7 +203,7 @@ namespace XTMF.Gui.UserControls
                 repo = LogManager.CreateRepository(Run.RunName);
             }
 
-            var appender = new log4net.Appender.RollingFileAppender
+            _fileAppender = new log4net.Appender.RollingFileAppender
             {
                 Name = "RollingFileAppender",
                 File = Path.Combine(Run.RunDirectory, "XTMF.Console.log"),
@@ -216,16 +218,17 @@ namespace XTMF.Gui.UserControls
             {
                 ConversionPattern = "%date %-5level %logger - %message%newline"
             };
-            appender.Layout = layout;
+            _fileAppender.Layout = layout;
             layout.ActivateOptions();
             _consoleAppender = new ConsoleOutputAppender()
             {
                 Layout = layout
             };
             //Let log4net configure itself based on the values provided
-            appender.ActivateOptions();
-            log4net.Config.BasicConfigurator.Configure(repo, appender, _consoleAppender);
+            _fileAppender.ActivateOptions();
+            log4net.Config.BasicConfigurator.Configure(repo, _fileAppender, _consoleAppender);
             iLog = LogManager.GetLogger(Run.RunName, Run.RunName);
+            
         }
 
         ~RunWindow()
@@ -382,6 +385,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 SetRunFinished(false);
+                _consoleAppender.Close();
                 ShowErrorMessages(errorWithPaths.ToArray());
                 OnValidationError?.Invoke(errorWithPaths);
             });
@@ -510,12 +514,15 @@ namespace XTMF.Gui.UserControls
                         }
 
                         var elapsedTime = DateTime.Now - StartTime;
-                        var days = elapsedTime.Days;
+                        
                         elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
+                        var days = elapsedTime.Days;
                         ElapsedTimeLabel.Content = days < 1
-                            ? $"Elapsed Time: {elapsedTime:g}"
-                            : $"Elapsed Time: {elapsedTime} Day(s), {days:g}";
-                        UpdateElapsedTime?.Invoke(days < 1 ? $"{elapsedTime:g}" : $"{elapsedTime} Day(s), {days:g}");
+                            ? $"{elapsedTime:g}"
+                            : $"{days} Day(s), {elapsedTime.ToString("hh\\:mm\\:ss")}";
+                        UpdateElapsedTime?.Invoke(days < 1
+                            ? $"{elapsedTime:g}"
+                            : $"{days} Day(s), {elapsedTime.ToString("hh\\:mm\\:ss")}");
                     }
                     else
                     {
@@ -600,7 +607,8 @@ namespace XTMF.Gui.UserControls
                         new Action(() => { _taskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
                 });
             }
-
+            _fileAppender.Close();
+            _consoleAppender.Close();
             _isFinished = true;
             MainWindow.Us.Closing -= MainWindowClosing;
             Dispatcher.Invoke(() =>
