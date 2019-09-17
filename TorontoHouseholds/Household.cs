@@ -129,7 +129,6 @@ namespace Tasha.Common
                 {
                     return h;
                 }
-                Thread.Sleep(0);
             }
             HouseholdsMade++;
             return new Household();
