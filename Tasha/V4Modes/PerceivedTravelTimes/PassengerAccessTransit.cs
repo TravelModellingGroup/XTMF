@@ -459,9 +459,6 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         private float StudentCost;
         private float NonWorkerStudentCost;
 
-        [RunParameter("ApplyCostFactors", false, "Should the cost factor applied to the ratio of the travel times.")]
-        public bool ApplyCostFactors;
-
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
             _zones = Root.ZoneSystem.ZoneArray;
@@ -483,24 +480,12 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                 ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
             }
 
-            if (ApplyCostFactors)
-            {
-                ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, (ProfessionalTimeFactorAuto + ProfessionalTimeFactorTransit) / 2.0f);
-                GeneralCost = ConvertCostFactor(GeneralCostFactor, (GeneralTimeFactorAuto + GeneralTimeFactorTransit) / 2.0f);
-                SalesCost = ConvertCostFactor(SalesCostFactor, (SalesTimeFactorAuto + SalesTimeFactorTransit) / 2.0f);
-                ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, (ManufacturingTimeFactorAuto + ManufacturingTimeFactorTransit) / 2.0f);
-                StudentCost = ConvertCostFactor(StudentCostFactor, (StudentTimeFactorAuto + StudentTimeFactorTransit) / 2.0f);
-                NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, (NonWorkerStudentTimeFactorAuto + NonWorkerStudentTimeFactorTransit) / 2.0f);
-            }
-            else
-            {
-                ProfessionalCost = ProfessionalCostFactor;
-                GeneralCost = GeneralCostFactor;
-                SalesCost = SalesCostFactor;
-                ManufacturingCost = ManufacturingCostFactor;
-                StudentCost = StudentCostFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor;
-            }
+            ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, (ProfessionalTimeFactorAuto + ProfessionalTimeFactorTransit) / 2.0f);
+            GeneralCost = ConvertCostFactor(GeneralCostFactor, (GeneralTimeFactorAuto + GeneralTimeFactorTransit) / 2.0f);
+            SalesCost = ConvertCostFactor(SalesCostFactor, (SalesTimeFactorAuto + SalesTimeFactorTransit) / 2.0f);
+            ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, (ManufacturingTimeFactorAuto + ManufacturingTimeFactorTransit) / 2.0f);
+            StudentCost = ConvertCostFactor(StudentCostFactor, (StudentTimeFactorAuto + StudentTimeFactorTransit) / 2.0f);
+            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, (NonWorkerStudentTimeFactorAuto + NonWorkerStudentTimeFactorTransit) / 2.0f);
         }
 
         private float ConvertCostFactor(float costFactor, float timeFactor)
