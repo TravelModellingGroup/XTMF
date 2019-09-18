@@ -117,7 +117,15 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         public float CurrentlyFeasible { get; set; }
 
         [Parameter("Mode Name", "DAT", "The name of the mode.")]
-        public string ModeName { get; set; }
+        public string ModeName { get => _ModeName;
+            set
+            {
+                _ModeName = value;
+                _CacheName = value + "_cache";
+            }
+        }
+        private string _ModeName;
+        private string _CacheName;
 
         public string Name { get; set; }
 
@@ -378,12 +386,24 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             return Time.Zero;
         }
 
+        struct StationTripPair
+        {
+            byte FirstIndex;
+            byte SecondIndex;
+
+            public StationTripPair(byte firstIndex, byte secondIndex)
+            {
+                FirstIndex = firstIndex;
+                SecondIndex = secondIndex;
+            }
+        }
+
         public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<Random, ITripChain> onSelection)
         {
             var trips = chain.Trips;
             int tripCount = CountTripsUsingThisMode(tripIndex, out bool first, out int otherIndex, trips);
 
-            if (tripCount > 2)
+            if (tripCount != 2)
             {
                 dependentUtility = float.NaN;
                 onSelection = null;
@@ -391,7 +411,19 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             }
             if (first)
             {
-                var accessData = AccessStationModel.ProduceResult(chain);
+                // Try to access the cache to see if this pair
+                Dictionary<StationTripPair, Pair<IZone[], float[]>> cache = null;
+                if((cache = chain.GetVariable(_CacheName) as Dictionary<StationTripPair, Pair<IZone[], float[]>>) == null)
+                {
+                    cache = new Dictionary<StationTripPair, Pair<IZone[], float[]>>(1);
+                    trips[tripIndex].Attach(_CacheName, cache);
+                }
+                var pair = new StationTripPair((byte)tripIndex, (byte)otherIndex);
+                if (!cache.TryGetValue(pair, out Pair<IZone[], float[]> accessData))
+                {
+                    accessData = AccessStationModel.ProduceResult(chain);
+                    cache.Add(pair, accessData);
+                }
                 if (accessData == null || !BuildUtility(trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
                     accessData,
                     trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, chain.Person, trips[tripIndex].ActivityStartTime, trips[otherIndex].ActivityStartTime,
@@ -399,6 +431,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                 {
                     onSelection = null;
                     dependentUtility = float.NegativeInfinity;
+                    cache.Remove(pair);
                     return false;
                 }
                 int householdIteration = 0;
