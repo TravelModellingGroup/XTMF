@@ -412,45 +412,50 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             if (first)
             {
                 // Try to access the cache to see if this pair
-                Dictionary<StationTripPair, Pair<IZone[], float[]>> cache = null;
-                if((cache = chain.GetVariable(_CacheName) as Dictionary<StationTripPair, Pair<IZone[], float[]>>) == null)
+                Dictionary<StationTripPair, Pair<float, Action<Random, ITripChain>>> cache = null;
+                if((cache = chain.GetVariable(_CacheName) as Dictionary<StationTripPair, Pair<float, Action<Random, ITripChain>>>) == null)
                 {
-                    cache = new Dictionary<StationTripPair, Pair<IZone[], float[]>>(1);
+                    cache = new Dictionary<StationTripPair, Pair<float, Action<Random, ITripChain>>>(1);
                     trips[tripIndex].Attach(_CacheName, cache);
                 }
                 var pair = new StationTripPair((byte)tripIndex, (byte)otherIndex);
-                if (!cache.TryGetValue(pair, out Pair<IZone[], float[]> accessData))
+                
+                if (!cache.TryGetValue(pair, out var cached))
                 {
-                    accessData = AccessStationModel.ProduceResult(chain);
-                    cache.Add(pair, accessData);
+                    var accessData = AccessStationModel.ProduceResult(chain);
+                    if (accessData == null || !BuildUtility(trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
+                        accessData,
+                        trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, chain.Person, trips[tripIndex].ActivityStartTime, trips[otherIndex].ActivityStartTime,
+                        out dependentUtility))
+                    {
+                        onSelection = null;
+                        dependentUtility = float.NegativeInfinity;
+                        cache.Add(pair, new Pair<float, Action<Random, ITripChain>>(float.NegativeInfinity, onSelection));
+                        return false;
+                    }
+                    int householdIteration = 0;
+                    onSelection = (rand, tripChain) =>
+                    {
+                        var person = tripChain.Person;
+                        var household = person.Household;
+                        householdIteration++;
+                        tripChain.Attach("AccessStation", SelectAccessStation(
+                                rand,
+                                accessData));
+                    };
+                    cached = new Pair<float, Action<Random, ITripChain>>(dependentUtility, onSelection);
+                    cache.Add(pair, cached);
                 }
-                if (accessData == null || !BuildUtility(trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
-                    accessData,
-                    trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, chain.Person, trips[tripIndex].ActivityStartTime, trips[otherIndex].ActivityStartTime,
-                    out dependentUtility))
-                {
-                    onSelection = null;
-                    dependentUtility = float.NegativeInfinity;
-                    cache.Remove(pair);
-                    return false;
-                }
-                int householdIteration = 0;
-                onSelection = (rand, tripChain) =>
-                {
-                    var person = tripChain.Person;
-                    var household = person.Household;
-                    householdIteration++;
-                    tripChain.Attach("AccessStation", SelectAccessStation(
-                            rand,
-                            accessData));
-                };
+                dependentUtility = cached.First;
+                onSelection = cached.Second;
+                return true;
             }
             else
             {
                 dependentUtility = 0.0f;
                 onSelection = null;
+                return true;
             }
-            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
