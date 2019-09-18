@@ -39,8 +39,8 @@ namespace Datastructure
         /// The segments set when we read in a line
         /// </summary>
         private CsvPartition[] Data = new CsvPartition[50];
-
-        private char[] DataBuffer = new char[0x4000];
+        private const int _bufferSize = 0x40000;
+        private char[] DataBuffer = new char[_bufferSize];
         private char[] DataBuffer2;
 
         private int DataBufferLength;
@@ -386,7 +386,7 @@ namespace Datastructure
         {
             if (DataBuffer2 == null)
             {
-                DataBuffer2 = new char[0x4000];
+                DataBuffer2 = new char[_bufferSize];
                 NextDataBufferLength = Reader.Read(DataBuffer2, 0, DataBuffer.Length);
                 NextDataReady = true;
             }
