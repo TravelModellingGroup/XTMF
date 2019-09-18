@@ -110,7 +110,17 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         public float CurrentlyFeasible { get; set; }
 
         [Parameter("Mode Name", "PAT", "The name of the mode.")]
-        public string ModeName { get; set; }
+        public string ModeName
+        {
+            get => _ModeName;
+            set
+            {
+                _ModeName = value;
+                _CacheName = value + "_cache";
+            }
+        }
+        private string _ModeName;
+        private string _CacheName;
 
         public string Name { get; set; }
 
@@ -510,15 +520,22 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         {
             // Select the access station to use, the change in utility is always 0
             dependentUtility = 0f;
-            onSelection = (rand, tripChain) =>
+            Action<Random, ITripChain> cache;
+            ITrip thisTrip = chain.Trips[tripIndex];
+            if ((cache = thisTrip.GetVariable(_CacheName) as Action<Random, ITripChain>) == null)
             {
-                var person = tripChain.Person;
-                var household = person.Household;
-                var probabilities = tripChain.Trips[tripIndex][StationChoiceProbabilityTag] as Pair<IZone[], float[]>;
-                tripChain.Attach(StationChoiceTag, SelectAccessStation(
-                        rand,
-                        probabilities));
-            };
+                cache = (rand, tripChain) =>
+                {
+                    var person = tripChain.Person;
+                    var household = person.Household;
+                    var probabilities = tripChain.Trips[tripIndex][StationChoiceProbabilityTag] as Pair<IZone[], float[]>;
+                    tripChain.Attach(StationChoiceTag, SelectAccessStation(
+                            rand,
+                            probabilities));
+                };
+                thisTrip.Attach(_CacheName, cache);
+            }
+            onSelection = cache;
             return true;
         }
 
