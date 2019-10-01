@@ -94,6 +94,10 @@ namespace Tasha.StationAccess
             var flatZones = _zones.GetFlatData();
             LoadStationCapacity();
             _stationIndexes = GetStationZones(StationZoneRanges, _logStationCapacity, _zones.GetFlatData());
+            if(_stationIndexes.Length <= 0)
+            {
+                throw new XTMFRuntimeException(this, "No access station zones found!");
+            }
             _stationZones = _stationIndexes.Select(index => flatZones[index]).ToArray();
             AssignClosestStations();
             Parallel.ForEach(TimePeriods, (timePeriod) =>

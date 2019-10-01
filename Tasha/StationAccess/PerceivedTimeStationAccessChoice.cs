@@ -420,6 +420,10 @@ namespace Tasha.StationAccess
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var indexes = GetStationZones(StationZoneRanges, Capacity.GetFlatData(), zones);
+            if (indexes.Length <= 0)
+            {
+                throw new XTMFRuntimeException(this, "No access stations were found.");
+            }
             AccessZones = new IZone[indexes.Length];
             for (int i = 0; i < indexes.Length; i++)
             {
