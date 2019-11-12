@@ -46,7 +46,7 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
             int totalParameters = parameters.Sum(p => p.Names.Length);
             using ( CsvReader reader = new CsvReader( ResultFile.GetFilePath() ) )
             {
-                reader.LoadLine();
+                int[] headerToParameterIndex = ProcessHeader(parameters, reader, reader.LoadLine());
                 while (reader.LoadLine(out int columns))
                 {
                     //+2 for generation and value
@@ -61,7 +61,6 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
                             Value = float.NaN,
                             Parameters = jobParameters
                         };
-                        var columnIndex = 2;
                         for (int i = 0; i < parameters.Length; i++)
                         {
                             jobParameters[i] = new ParameterSetting()
@@ -70,8 +69,13 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
                                 Minimum = parameters[i].Minimum,
                                 Maximum = parameters[i].Maximum
                             };
-                            reader.Get(out jobParameters[i].Current, columnIndex);
-                            columnIndex += parameters[i].Names.Length;
+                        }
+                        for (int i = 0; i < headerToParameterIndex.Length; i++)
+                        {
+                            if(headerToParameterIndex[i] >= 0)
+                            {
+                                reader.Get(out jobParameters[headerToParameterIndex[i]].Current, i + 2);
+                            }
                         }
                         ret.Add(job);
                         if (NumberOfRows > 0 & ret.Count >= NumberOfRows)
@@ -84,6 +88,31 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
             return ret;
         }
 
+        private int[] ProcessHeader(ParameterSetting[] parameters, CsvReader reader, int numberOfColumns)
+        {
+            if(numberOfColumns <= 2)
+            {
+                throw new XTMFRuntimeException(this, "There are no parameters found in the header of the parameter file!");
+            }
+            var ret = new int[numberOfColumns - 2];
+            for (int i = 0; i < ret.Length; i++)
+            {
+                ret[i] = -1;
+            }
+            for (int i = 2; i < numberOfColumns; i++)
+            {
+                reader.Get(out string header, i);
+                for (int j = 0; j < parameters.Length; j++)
+                {
+                    if(parameters[j].Names.Contains(header))
+                    {
+                        ret[i - 2] = j;
+                        break;
+                    }
+                }
+            }
+            return ret;
+        }
 
         public void IterationComplete()
         {
