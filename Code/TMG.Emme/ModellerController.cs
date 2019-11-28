@@ -159,6 +159,7 @@ namespace TMG.Emme
             Emme = new Process();
             var startInfo = new ProcessStartInfo(pythonPath, "-u " + argumentString);
             startInfo.EnvironmentVariables["PATH"] = pythonLib + ";" + Path.Combine(emmePath, "programs") + ";" + startInfo.EnvironmentVariables["PATH"];
+            startInfo.EnvironmentVariables["EMMEPATH"] = emmePath;
             Emme.StartInfo = startInfo;
             Emme.StartInfo.CreateNoWindow = true;
             Emme.StartInfo.UseShellExecute = false;
