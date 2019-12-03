@@ -68,7 +68,7 @@ namespace Tasha.PopulationSynthesis
             public ExpandedHousehold(ITashaHousehold household)
             {
                 Household = household;
-                _originalExpansionFactor = ExpansionFactor = household.ExpansionFactor;
+                _originalExpansionFactor = ExpansionFactor = (household.Persons.Sum(p => p.ExpansionFactor) / household.Persons.Length);
                 // Normalize person expansion factors
                 var inv = 1.0f / ExpansionFactor;
                 foreach (var person in household.Persons)
