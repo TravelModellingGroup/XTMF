@@ -239,7 +239,7 @@ namespace Tasha.Common
             get;
             set;
         }
-        public int IncomeClass { get; internal set; }
+        public int IncomeClass { get; set; }
 
         #endregion IHousehold Members
 

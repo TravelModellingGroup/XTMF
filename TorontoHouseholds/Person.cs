@@ -227,7 +227,7 @@ namespace Tasha.Common
             set;
         }
 
-        internal static Person GetPerson()
+        public static Person GetPerson()
         {
             if (People.TryTake(out Person p))
             {
