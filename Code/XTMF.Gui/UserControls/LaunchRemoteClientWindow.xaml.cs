@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -140,8 +141,11 @@ namespace XTMF.Gui.UserControls
         {
             var address = Server.Text;
             var port = Port.Text;
-            var xtmfDirectory = GetXTMFDirectory();
-            Process.Start(Path.Combine(GetXTMFDirectory(), "XTMF.RemoteClient.exe"), AddQuotes(address) + " " + port);
+            // Create the process on another thread to speed up the UI
+            Task.Run(() =>
+            {
+                Process.Start(Path.Combine(GetXTMFDirectory(), "XTMF.RemoteClient.exe"), AddQuotes(address) + " " + port);
+            });
         }
     }
 }
