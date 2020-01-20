@@ -111,7 +111,7 @@ namespace TMG.Tasha
 
         ~HouseholdLoader()
         {
-            Household.ReleaseHouseholdPool();
+            Dispose();
         }
 
         public int Count
@@ -812,6 +812,7 @@ namespace TMG.Tasha
                 TripDump.Dispose();
                 TripDump = null;
             }
+            Household.ReleaseHouseholdPool();
         }
     }
 }

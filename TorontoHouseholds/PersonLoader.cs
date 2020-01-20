@@ -100,7 +100,7 @@ namespace TMG.Tasha
 
         ~PersonLoader()
         {
-            Dispose(true);
+            Dispose(false);
         }
 
         public string Name
