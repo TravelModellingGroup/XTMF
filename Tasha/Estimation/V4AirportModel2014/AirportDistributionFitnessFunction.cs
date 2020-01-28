@@ -102,7 +102,7 @@ namespace Tasha.Estimation.V4AirportModel2014
             var zones = zoneSystem.GetFlatData();
             ObservedDistribution = new float[zones.Length];
             TotalTrips = new float[zones.Length];
-            using (CsvReader reader = new CsvReader(ObservedDistributionFile))
+            using (var reader = new CsvReader(ObservedDistributionFile))
             {
                 // burn header
                 reader.LoadLine();

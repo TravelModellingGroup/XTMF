@@ -203,7 +203,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
         private void ComputeModeSplitForZone(int zone, ModeSplitUtilities[] utilities)
         {
             AutoNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out float aivtt, out float acost);
-            bool transit = TransitNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out float tivtt, out float twalk, out float twait, out float railTime, out float tfare);
+            bool transit = TransitNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out float tivtt, out float twalk, out float twait, out _, out float tfare);
             // Second compute the utilities for each mode
             utilities[zone].Auto = (float)Math.Exp(BetaAutoTime * aivtt + BetaAutoCost * acost);
             if(transit && (tivtt > 0 | twalk > 0))
@@ -267,20 +267,13 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
                 }
             }
             // get the reciprocal of the total utility
-            var sumOfDistributions = distributions.Sum();
+            var sumOfDistributions = TMG.Functions.VectorHelper.Sum(distributions, 0, distributions.Length);
             if(sumOfDistributions <= 0)
             {
                 throw new XTMFRuntimeException(this, "In '" + Name + "' there was a total of 0 for the distributions!");
             }
-            var total = 1.0f / sumOfDistributions;
-            if(float.IsNaN(total))
-            {
-            }
             // use the reciprocal of the total to convert the utilities into probabilities
-            for(int i = 0; i < distributions.Length; i++)
-            {
-                distributions[i] *= total;
-            }
+            TMG.Functions.VectorHelper.Multiply(distributions, distributions, 1.0f / sumOfDistributions);
             return distributions;
         }
 

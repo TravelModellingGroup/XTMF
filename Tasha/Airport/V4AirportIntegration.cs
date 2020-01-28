@@ -60,8 +60,8 @@ and then apply that against the Emplanings and Deplainings for the time period."
             var modeProbability = ModeProbabilityArray.AcquireResource<SparseArray<float>>().GetFlatData();
             var distribution = DistributionProbabilityArray.AcquireResource<SparseArray<float>>().GetFlatData();
             var airportZone = Root.ZoneSystem.ZoneArray.GetFlatIndex(PearsonZone);
-            var effectiveEmplainings = Emplainings * (1.0f / PassengersPerTrip);
-            var effectiveDeplainings = Deplainings * (1.0f / PassengersPerTrip);
+            var effectiveEmplainings = Emplainings / PassengersPerTrip;
+            var effectiveDeplainings = Deplainings / PassengersPerTrip;
             for(int i = 0; i < distribution.Length; i++)
             {
                 if(distribution[i] > 0)
@@ -71,7 +71,6 @@ and then apply that against the Emplanings and Deplainings for the time period."
                     {
                         throw new XTMFRuntimeException(this, "In '" + Name + "' when trying to produce the probability of a zone being selected we found an invalid probability!\r\n"
                             + "at index = " + i + " the modeProbability was " + modeProbability[i] + " and the distribution was " + distribution[i]);
-
                     }
                     currentTally[i][airportZone] += probability * effectiveEmplainings;
                     currentTally[airportZone][i] += probability * effectiveDeplainings;
