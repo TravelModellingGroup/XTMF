@@ -40,10 +40,17 @@ namespace XTMFUpdateServer
         private string CodeDirectory;
         private Thread ServerThread;
         private int SocketAddress;
+        private string _saveDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "XTMFUpdateServer");
 
         public UpdateServer()
         {
-            using (StreamWriter writer = new StreamWriter(@"C:\XTMFUpdateServerTest.txt"))
+            
+            if(!Directory.Exists(_saveDirectory))
+            {
+                Directory.CreateDirectory(_saveDirectory);
+            }
+            using (StreamWriter writer = new StreamWriter(Path.Combine(_saveDirectory, "XTMFUpdateServerTest.txt")))
             {
                 writer.WriteLine("Starting!");
                 InitializeComponent();
@@ -88,7 +95,7 @@ namespace XTMFUpdateServer
                     writer.WriteLine("About to load Settings");
                     LoadSettings();
                     writer.WriteLine("Loaded Settings");
-                    eventLog1.WriteEntry("Spawning Listenner");
+                    eventLog1.WriteEntry("Spawning Listener");
                     SpawnListenner();
                     eventLog1.WriteEntry("Setup Complete!");
                     writer.WriteLine("Setup Complete");
