@@ -114,10 +114,10 @@ namespace TMG.GTAModel.NetworkAssignment
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if(mc == null)
+            if (mc == null)
                 throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
-            if(Tallies.Count > 0)
+            if (Tallies.Count > 0)
             {
                 PassMatrixIntoEmme(mc);
             }
@@ -151,8 +151,14 @@ namespace TMG.GTAModel.NetworkAssignment
              *
             */
             string result = "";
-            if(UseTransitBackground)
+            if (UseTransitBackground)
             {
+                // Add the logic for the new path analysis flag
+                /* PathAnalysisFlag, LinkComponent, TurnComponent, OperatorForPathAnaysis, 
+                 LowerBound, UpperBound, PathToODAggregation, AnalyzedDemandMatrix, ODValueResults, LinkVolResults, TurnVolResults */
+                args = string.Join(" ", args, 
+                    false, "None", "None", "None",
+                    0, 0, "None", "mf0", "mf0", "None", "None");
                 return mc.Run(this, ToolNameWithBgTraffic, args, (p => Progress = p), ref result);
             }
             return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
@@ -171,36 +177,36 @@ namespace TMG.GTAModel.NetworkAssignment
             var useTempFile = string.IsNullOrWhiteSpace(DemandFileName);
             string outputFileName = useTempFile ? Path.GetTempFileName() : DemandFileName;
             float[][] tally = new float[numberOfZones][];
-            for(int i = 0; i < numberOfZones; i++)
+            for (int i = 0; i < numberOfZones; i++)
             {
                 tally[i] = new float[numberOfZones];
             }
-            for(int i = Tallies.Count - 1; i >= 0; i--)
+            for (int i = Tallies.Count - 1; i >= 0; i--)
             {
                 Tallies[i].IncludeTally(tally);
             }
             var dir = Path.GetDirectoryName(outputFileName);
-            if(!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
+            if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
             }
-            using(StreamWriter writer = new StreamWriter(outputFileName))
+            using (StreamWriter writer = new StreamWriter(outputFileName))
             {
                 writer.WriteLine("t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=from_xtmf", DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
-                Parallel.For(0, numberOfZones, delegate(int o)
+                Parallel.For(0, numberOfZones, delegate (int o)
                 {
                     var build = builders[o] = new StringBuilder();
                     var strBuilder = new StringBuilder(10);
                     var convertedO = flatZones[o].ZoneNumber;
-                    for(int d = 0; d < numberOfZones; d++)
+                    for (int d = 0; d < numberOfZones; d++)
                     {
                         Controller.ToEmmeFloat(tally[o][d], strBuilder);
                         build.AppendFormat("{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder);
                     }
                 });
-                for(int i = 0; i < numberOfZones; i++)
+                for (int i = 0; i < numberOfZones; i++)
                 {
                     writer.Write(builders[i]);
                 }
@@ -208,7 +214,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                if(mc.CheckToolExists(this, ImportToolName))
+                if (mc.CheckToolExists(this, ImportToolName))
                 {
                     mc.Run(this, ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
@@ -219,7 +225,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
             finally
             {
-                if(useTempFile)
+                if (useTempFile)
                 {
                     File.Delete(outputFileName);
                 }
