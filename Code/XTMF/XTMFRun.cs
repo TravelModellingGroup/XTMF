@@ -121,9 +121,9 @@ namespace XTMF
                 overwrite);
         }
 
-        public static XTMFRun CreateLocalRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName, bool overwrite = false)
+        public static XTMFRun CreateLocalRun(Project project, ModelSystemModel model, Configuration configuration, string runName, bool overwrite = false)
         {
-            return new XTMFRunLocal(project, root, configuration, runName, overwrite);
+            return new XTMFRunLocal(project, model, configuration, runName, overwrite);
         }
 
         public static XTMFRun CreateRemoteHost(Project project, ModelSystemStructureModel root, Configuration config, string runName, bool overwrite = false)

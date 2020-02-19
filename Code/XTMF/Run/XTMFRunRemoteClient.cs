@@ -35,6 +35,8 @@ namespace XTMF.Run
 
         private ModelSystemStructure _Root;
 
+        private readonly List<ILinkedParameter> _linkedParameters;
+
         public XTMFRunRemoteClient(Configuration configuration, string runName, string runDirectory, string modelSystemString)
             : base(runName, runDirectory, configuration)
         {
@@ -54,7 +56,8 @@ namespace XTMF.Run
                     var mss = ModelSystemStructure.Load(memStream, configuration);
                     memStream.Position = 0;
                     _Root = (ModelSystemStructure)mss;
-                    temp.AddModelSystem(_Root, LoadLinkedParameters(_Root, memStream), String.Empty);
+                    _linkedParameters = LoadLinkedParameters(_Root, memStream);
+                    temp.AddModelSystem(_Root, _linkedParameters, String.Empty);
                 }
                 catch (Exception e)
                 {
@@ -279,7 +282,8 @@ namespace XTMF.Run
                         // The call will already signal the errors.
                         return;
                     }
-                    _Root.Save(Path.Combine(RunDirectory, "RunParameters.xml"));
+                    string error = null;
+                    ModelSystem.Save(Path.Combine(RunDirectory, "RunParameters.xml"), _Root, string.Empty, _linkedParameters, ref error);
                     ModelSystemStructureModelRoot = new ModelSystemStructureModel(null, _Root);
                     MST.Start();
                     InvokeRunCompleted();

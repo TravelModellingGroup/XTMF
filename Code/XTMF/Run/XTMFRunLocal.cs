@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using XTMF.Interfaces;
 
 namespace XTMF.Run
@@ -46,6 +47,8 @@ namespace XTMF.Run
         /// </summary>
         private IProject _Project;
 
+        private readonly ModelSystemModel _model;
+
         public override bool RunsRemotely => false;
 
 
@@ -56,9 +59,10 @@ namespace XTMF.Run
             ModelSystemStructureModelRoot = root.Root;
             RunName = runName;
             _ModelSystemIndex = modelSystemIndex;
-            if(_Project is Project p)
+            _model = root;
+            if (_Project is Project p)
             {
-                p.SetModelSystem(_ModelSystemIndex, root.ClonedModelSystemRoot, root.LinkedParameters.GetRealLinkedParameters(),
+                p.SetModelSystem(_ModelSystemIndex, root.ClonedModelSystemRoot, _model.LinkedParameters.GetRealLinkedParameters(),
                     new List<IRegionDisplay>(), root.Description ?? String.Empty);
             }
             if (overwrite)
@@ -67,13 +71,14 @@ namespace XTMF.Run
             }
         }
 
-        public XTMFRunLocal(Project project, ModelSystemStructureModel root, Configuration configuration, string runName, bool overwrite)
+        public XTMFRunLocal(Project project, ModelSystemModel model, Configuration configuration, string runName, bool overwrite)
             : base(runName, Path.Combine(configuration.ProjectDirectory, project.Name, runName),
-                  (project.IndexOf(root.RealModelSystemStructure) >= 0 ? (IConfiguration)new ConfigurationProxy(configuration, project) : configuration))
+                  (project.IndexOf(model.Root.RealModelSystemStructure) >= 0 ? (IConfiguration)new ConfigurationProxy(configuration, project) : configuration))
         {
             // we don't make a clone for this type of run
             _Project = project;
-            ModelSystemStructureModelRoot = root;
+            ModelSystemStructureModelRoot = model.Root;
+            _model = model;
             RunName = runName;
             if (overwrite)
             {
@@ -243,7 +248,7 @@ namespace XTMF.Run
                 info.Create();
             }
             Directory.SetCurrentDirectory(RunDirectory);
-            mstStructure.Save(Path.GetFullPath("RunParameters.xml"));
+            SaveRunParameters();   
 
             if (!RunTimeValidation(new List<int>(), errors, mstStructure))
             {
@@ -254,6 +259,13 @@ namespace XTMF.Run
                 SetStatusToRunning();
                 _MST.Start();
             }
+        }
+
+        private void SaveRunParameters()
+        {
+            var runParametersPath = Path.GetFullPath("RunParameters.xml");
+            string error = null;
+            ModelSystem.Save(runParametersPath, _model.Root.RealModelSystemStructure, _model.Description, _model.LinkedParameters.GetRealLinkedParameters(), ref error);
         }
 
         private IModelSystemStructure CreateModelSystem(ref ErrorWithPath error)

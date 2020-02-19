@@ -355,7 +355,7 @@ namespace XTMF
                     }
                     else
                     {
-                        run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel.Root,
+                        run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel,
                             Runtime.Configuration, runName, overwrite);
                     }
                     return run;
