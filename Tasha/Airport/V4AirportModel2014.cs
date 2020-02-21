@@ -217,7 +217,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
             else
             {
                 utilities[zone].Logsum = (float)Math.Log(utilities[zone].Auto);
-                utilities[zone].Auto /= 1f;
+                utilities[zone].Auto = 1f;
                 utilities[zone].Transit = 0f;
             }
 
