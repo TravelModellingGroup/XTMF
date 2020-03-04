@@ -38,7 +38,7 @@ namespace Tasha.Modes
         [RootModule]
         public ITashaRuntime Root;
 
-        [RunParameter( "Expansion Factor Flag", true, "Set to 'true' to report the weighted sum of observations; 'false' to enumerrate number of observed records." )]
+        [RunParameter( "Expansion Factor Flag", true, "Set to 'true' to report the weighted sum of observations; 'false' to enumerate number of observed records." )]
         public bool UseExpansionFactor;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
@@ -61,75 +61,56 @@ namespace Tasha.Modes
             get { return _ProgressColour; }
         }
 
+        private StringBuilder _builder = new StringBuilder();
+
         public void Execute(ITashaHousehold household, int iteration)
         {
             lock ( this )
             {
+                _builder.Clear();
                 foreach ( var p in household.Persons )
                 {
                     if ( p.TripChains.Count < 1 )
+                    {
                         continue; //Skip people with no trips
-
-                    var sb = new StringBuilder();
+                    }
                     if ( string.IsNullOrEmpty( HomeAnchorOverrideName ) )
                     {
-                        sb.Append( Activity.Home );
+                        _builder.Append( Activity.Home );
                     }
                     else
                     {
                         var x = p.TripChains[0].GetVariable( HomeAnchorOverrideName );
-                        if ( x != null ) sb.Append( x );
-                        else sb.Append( Activity.Home );
+                        if ( x != null ) _builder.Append( x );
+                        else _builder.Append( Activity.Home );
                     }
 
                     foreach ( var trip in p.TripChains[0].Trips )
                     {
-                        sb.AppendFormat( ",{0}", trip.Purpose );
+                        _builder.Append(',');
+                        _builder.Append(trip.Purpose);
                     }
-
-                    var key = sb.ToString();
-                    if ( Data.ContainsKey( key ) )
+                    var key = _builder.ToString();
+                    if(!Data.TryGetValue(key, out var value))
                     {
-                        if ( UseExpansionFactor )
-                        {
-                            Data[key] += household.ExpansionFactor;
-                        }
-                        else
-                        {
-                            Data[key]++;
-                        }
+                        value = 0.0;
                     }
-                    else
-                    {
-                        if ( UseExpansionFactor )
-                        {
-                            Data.Add( key, household.ExpansionFactor );
-                        }
-                        else
-                        {
-                            Data.Add( key, 1 );
-                        }
-                    }
+                    Data[key] = UseExpansionFactor ? value + household.ExpansionFactor : 1.0;
                 }
             }
         }
 
         public void IterationFinished(int iteration)
         {
-            var path = ResultsFile;
-            using ( StreamWriter sw = new StreamWriter( path ) )
+            using var sw = new StreamWriter(ResultsFile);
+            sw.WriteLine("TOUR ENUMERATION");
+            sw.WriteLine();
+            sw.WriteLine("Frequency,[List of activities]");
+            foreach (var e in Data)
             {
-                sw.WriteLine( "TOUR ENUMERATION" );
-                sw.WriteLine();
-                sw.WriteLine( "Frequency,[List of activities]" );
-
-                foreach ( var e in Data )
-                {
-                    sw.WriteLine( e.Value + "," + e.Key );
-                }
+                sw.WriteLine(e.Value + "," + e.Key);
             }
-
-            //throw new NotImplementedException();
+            Data.Clear();
         }
 
         public void Load(int maxIterations)
@@ -144,6 +125,7 @@ namespace Tasha.Modes
 
         public void IterationStarting(int iteration)
         {
+            
         }
     }
 }
