@@ -90,7 +90,7 @@ namespace TMG.Frameworks.Data.Saving
             {
                 return;
             }
-            var destinations = data.ValidIndexes(origins[0]).ToArray();
+            var destinations = data.ValidIndexes(layerIndex, origins[0]).ToArray();
             switch (FileFormat)
             {
                 case FileFormats.MTX:
