@@ -592,9 +592,7 @@ namespace Tasha.PopulationSynthesis
                                 writer.Write('0');
                             }
                             writer.Write(',');
-                            writer.Write(persons[j].ExpansionFactor);
-                            writer.Write(',');
-                            writer.WriteLine(households[record.Value].Household.IncomeClass);
+                            writer.WriteLine(persons[j].ExpansionFactor);
                         }
                         householdID++;
                     }
@@ -650,7 +648,9 @@ namespace Tasha.PopulationSynthesis
                         writer.Write(',');
                         writer.Write(household.Persons.Length);
                         writer.Write(',');
-                        writer.WriteLine(household.Vehicles.Length);
+                        writer.Write(household.Vehicles.Length);
+                        writer.Write(',');
+                        writer.WriteLine(household.IncomeClass);
                         householdID++;
                     }
                 }
