@@ -423,7 +423,7 @@ namespace Tasha.PopulationSynthesis
             using (var writer = new StreamWriter(PersonFile))
             {
                 householdID = 1;
-                writer.WriteLine("HouseholdID,PersonNumber,Age,Sex,License,TransitPass,EmploymentStatus,Occupation,FreeParking,StudentStatus,EmploymentZone,SchoolZone,ExpansionFactor,Income");
+                writer.WriteLine("HouseholdID,PersonNumber,Age,Sex,License,TransitPass,EmploymentStatus,Occupation,FreeParking,StudentStatus,EmploymentZone,SchoolZone,ExpansionFactor");
                 for (int i = 0; i < results.Length; i++)
                 {
                     var households = pds[i].Households;
@@ -630,7 +630,7 @@ namespace Tasha.PopulationSynthesis
             int householdID = 1;
             using (var writer = new StreamWriter(HouseholdFile))
             {
-                writer.WriteLine("HouseholdID,Zone,ExpansionFactor,DwellingType,NumberOfPersons,NumberOfVehicles");
+                writer.WriteLine("HouseholdID,Zone,ExpansionFactor,DwellingType,NumberOfPersons,NumberOfVehicles,IncomeLevel");
                 for (int i = 0; i < results.Length; i++)
                 {
                     var households = pds[i].Households;
