@@ -11,7 +11,7 @@ using XTMF;
 
 namespace Tasha.V4Modes.PerceivedTravelTimes
 {
-    public class PassengerAccessTransit : ITashaMode, IIterationSensitive, ITourDependentMode
+    public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, ITourDependentMode
     {
 
         [RootModule]
@@ -528,8 +528,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                 {
                     var person = tripChain.Person;
                     var household = person.Household;
-                    var probabilities = tripChain.Trips[tripIndex][StationChoiceProbabilityTag] as Pair<IZone[], float[]>;
-                    tripChain.Attach(StationChoiceTag, SelectAccessStation(
+                    var probabilities = thisTrip[StationChoiceProbabilityTag] as Pair<IZone[], float[]>;
+                    thisTrip.Attach(StationChoiceTag, SelectAccessStation(
                             rand,
                             probabilities));
                 };
