@@ -430,6 +430,7 @@ namespace Tasha.Validation.ModeChoice
                         group mc by mc into g
                         select new { Mode = g.Key, Count = g.Count() };
             DATIterationInformation chainData = null;
+            PATIterationInformation data;
             datData?.TryGetValue(new PersonChain(person, chain), out chainData);
             bool storedPassengerTransit = false;
             if (trip.Purpose == Activity.Home)
@@ -446,14 +447,9 @@ namespace Tasha.Validation.ModeChoice
                         modeChoice.Count));
                         chainData.StoreStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, trip, chainData);
                     }
-                    else if(mode == _pat)
+                    else if(mode == _pat && patData.TryGetValue(trip, out data))
                     {
                         // compute the pat time
-                        if (!patData.TryGetValue(trip, out var data))
-                        {
-                            // If we are in this case we are not the chain's representative
-                            continue;
-                        }
                         if (!storedPassengerTransit)
                         {
                             data.CreateStationRecords(_stationRecordQueue);
@@ -464,14 +460,8 @@ namespace Tasha.Validation.ModeChoice
                         trip.TripStartTime, trip.TripStartTime + Time.FromMinutes(travelTime),
                         modeChoice.Count));
                     }
-                    else if(mode == _pet)
+                    else if(mode == _pet && patData.TryGetValue(trip, out data))
                     {
-                        // compute the pet time
-                        if (!patData.TryGetValue(trip, out var data))
-                        {
-                            // If we are in this case we are not the chain's representative
-                            continue;
-                        }
                         if (!storedPassengerTransit)
                         {
                             data.CreateStationRecords(_stationRecordQueue);
@@ -503,14 +493,9 @@ namespace Tasha.Validation.ModeChoice
                         modeChoice.Count));
                         chainData.StoreStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, trip, chainData);
                     }
-                    else if(mode == _pat)
+                    else if(mode == _pat && patData.TryGetValue(trip, out data))
                     {
                         // compute the pat time
-                        if(!patData.TryGetValue(trip, out var data))
-                        {
-                            // If we are in this case we are not the chain's representative
-                            continue;
-                        }
                         if (!storedPassengerTransit)
                         {
                             data.CreateStationRecords(_stationRecordQueue);
@@ -521,14 +506,9 @@ namespace Tasha.Validation.ModeChoice
                         trip.ActivityStartTime - Time.FromMinutes(travelTime), trip.ActivityStartTime,
                         modeChoice.Count));
                     }
-                    else if(mode == _pet)
+                    else if(mode == _pet && patData.TryGetValue(trip, out data))
                     {
                         // compute the pet time
-                        if (!patData.TryGetValue(trip, out var data))
-                        {
-                            // If we are in this case we are not the chain's representative
-                            continue;
-                        }
                         if (!storedPassengerTransit)
                         {
                             data.CreateStationRecords(_stationRecordQueue);
@@ -539,7 +519,7 @@ namespace Tasha.Validation.ModeChoice
                         trip.ActivityStartTime - Time.FromMinutes(travelTime), trip.ActivityStartTime,
                         modeChoice.Count));
                     }
-                    else if (chainData != null)
+                    else
                     {
                         _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
                         trip.ActivityStartTime - mode.TravelTime(trip.OriginalZone, trip.DestinationZone, trip.TripStartTime), trip.ActivityStartTime,
