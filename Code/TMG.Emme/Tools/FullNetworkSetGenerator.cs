@@ -58,7 +58,7 @@ namespace TMG.Emme.Tools
         public string ConnectorFilterAttribute;
         [RunParameter("Attribute Aggregator", "", "The formatted string to aggregate attributes.")]
         public string AttributeAggregator;
-        [RunParameter("Line Filter Expression", "", "The formatted string to use as an expression to filter lines.")]
+        [RunParameter("Line Filter Expression", "", "The formatted string to use as an expression to filter lines.  Leave blank to skip prorating transit speeds.")]
         public string LineFilterExpression;
         [RunParameter("Transfer Modes", "tuy", "A string of the transfer mode IDs.")]
         public string TransferModeString;
