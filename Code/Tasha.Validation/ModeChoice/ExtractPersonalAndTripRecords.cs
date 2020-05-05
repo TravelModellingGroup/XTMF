@@ -947,8 +947,16 @@ namespace Tasha.Validation.ModeChoice
 
             internal float ExpectedTravelTime(bool access)
             {
-                float time = access ? _totalAccessTime / _stationChoices.Count(r => r.Access == true)
-                                    : _totalEgressTime / _stationChoices.Count(r => r.Access == false);
+                var numerator = access ? _totalAccessTime : _totalEgressTime;
+                var denominator = 0;
+                for (int i = 0; i < _stationChoices.Count; i++)
+                {
+                    if(_stationChoices[i].Access == access)
+                    {
+                        denominator += _stationChoices[i].Count;
+                    }
+                }
+                float time = numerator / denominator;
                 return float.IsNaN(time) ? 0 : time;
             }
         }
