@@ -522,7 +522,7 @@ namespace Tasha.Validation.ModeChoice
                     else
                     {
                         _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
-                        trip.ActivityStartTime - mode.TravelTime(trip.OriginalZone, trip.DestinationZone, trip.TripStartTime), trip.ActivityStartTime,
+                        trip.ActivityStartTime - mode.TravelTime(trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime), trip.ActivityStartTime,
                         modeChoice.Count));
                     }
                 }
