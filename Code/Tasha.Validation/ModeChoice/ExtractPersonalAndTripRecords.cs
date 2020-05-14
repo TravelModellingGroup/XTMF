@@ -398,12 +398,14 @@ namespace Tasha.Validation.ModeChoice
                     foreach (var tc in person.TripChains)
                     {
                         var previousActivity = Activity.Home;
+                        int tripIndex = 0;
                         foreach (var trip in tc.Trips)
                         {
                             StoreTripRecord(hhldID, person, expFactor, tripID, previousActivity, trip);
-                            StoreTripModeRecords(hhldID, datdata, patData, person, expFactor, tripID, tc, trip);
+                            StoreTripModeRecords(hhldID, datdata, patData, person, expFactor, tripID, tc, trip, tripIndex);
                             previousActivity = trip.Purpose;
                             ++tripID;
+                            ++tripIndex;
                         }
                     }
                 }
@@ -424,31 +426,53 @@ namespace Tasha.Validation.ModeChoice
         private void StoreTripModeRecords(int hhldID,
             Dictionary<PersonChain, DATIterationInformation> datData,
             Dictionary<ITrip, PATIterationInformation> patData,
-            ITashaPerson person, float expFactor, int tripID, ITripChain chain, ITrip trip)
+            ITashaPerson person, float expFactor, int tripID, ITripChain chain, ITrip trip, int tripIndex)
         {
             var query = from mc in trip.ModesChosen
                         group mc by mc into g
                         select new { Mode = g.Key, Count = g.Count() };
             DATIterationInformation chainData = null;
             PATIterationInformation data;
-            datData?.TryGetValue(new PersonChain(person, chain), out chainData);
+            ITripChain repChain;
+            if (chain.JointTrip && !chain.JointTripRep)
+            {
+                repChain = chain.GetRepTripChain;
+                datData?.TryGetValue(new PersonChain(repChain.Person, repChain), out chainData);
+            }
+            else
+            {
+                repChain = chain;
+                datData?.TryGetValue(new PersonChain(person, chain), out chainData);
+            }
             bool storedPassengerTransit = false;
             if (trip.Purpose == Activity.Home)
             {
                 foreach (var modeChoice in query)
                 {
                     var mode = modeChoice.Mode;
-                    if (mode == _dat && chainData != null)
+                    if (mode == _dat)
                     {
+                        if (chainData == null)
+                        {
+                            throw new XTMFRuntimeException(this, "Unable to find chain data for a DAT Trip.");
+                        }
                         // we need that defensive check in case of edge cases
-                        var travelTime = chainData.ExpectedDATTravelTime(trip);
+                        var travelTime = chainData.ExpectedDATTravelTime(repChain.Trips[tripIndex]);
+                        if (travelTime <= 0)
+                        {
+                            Console.WriteLine();
+                        }
                         _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
                         trip.TripStartTime, trip.TripStartTime + Time.FromMinutes(travelTime),
                         modeChoice.Count));
                         chainData.StoreStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, trip, chainData);
                     }
-                    else if(mode == _pat && patData.TryGetValue(trip, out data))
+                    else if (mode == _pat)
                     {
+                        if (!patData.TryGetValue(repChain.Trips[tripIndex], out data))
+                        {
+                            throw new XTMFRuntimeException(this, "Failed to find pat data for a PET trip!");
+                        }
                         // compute the pat time
                         if (!storedPassengerTransit)
                         {
@@ -460,8 +484,12 @@ namespace Tasha.Validation.ModeChoice
                         trip.TripStartTime, trip.TripStartTime + Time.FromMinutes(travelTime),
                         modeChoice.Count));
                     }
-                    else if(mode == _pet && patData.TryGetValue(trip, out data))
+                    else if (mode == _pet)
                     {
+                        if (!patData.TryGetValue(repChain.Trips[tripIndex], out data))
+                        {
+                            throw new XTMFRuntimeException(this, "Failed to find pat data for a PET trip!");
+                        }
                         if (!storedPassengerTransit)
                         {
                             data.CreateStationRecords(_stationRecordQueue);
@@ -485,16 +513,29 @@ namespace Tasha.Validation.ModeChoice
                 foreach (var modeChoice in query)
                 {
                     var mode = modeChoice.Mode;
-                    if (mode == _dat && chainData != null)
+                    if (mode == _dat)
                     {
-                        var travelTime = chainData.ExpectedDATTravelTime(trip);
+                        if (chainData == null)
+                        {
+                            throw new XTMFRuntimeException(this, "Unable to find chain data for a DAT Trip.");
+                        }
+                        var travelTime = chainData.ExpectedDATTravelTime(repChain.Trips[tripIndex]);
+                        if (travelTime <= 0)
+                        {
+                            Console.WriteLine();
+                        }
                         _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
                         trip.ActivityStartTime - Time.FromMinutes(travelTime), trip.ActivityStartTime,
                         modeChoice.Count));
                         chainData.StoreStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, trip, chainData);
                     }
-                    else if(mode == _pat && patData.TryGetValue(trip, out data))
+                    else if (mode == _pat)
                     {
+                        // Get the data from the representative tour
+                        if (!patData.TryGetValue(repChain.Trips[tripIndex], out data))
+                        {
+                            throw new XTMFRuntimeException(this, "Failed to find pat data for a PET trip!");
+                        }
                         // compute the pat time
                         if (!storedPassengerTransit)
                         {
@@ -506,8 +547,12 @@ namespace Tasha.Validation.ModeChoice
                         trip.ActivityStartTime - Time.FromMinutes(travelTime), trip.ActivityStartTime,
                         modeChoice.Count));
                     }
-                    else if(mode == _pet && patData.TryGetValue(trip, out data))
+                    else if (mode == _pet)
                     {
+                        if (!patData.TryGetValue(repChain.Trips[tripIndex], out data))
+                        {
+                            throw new XTMFRuntimeException(this, "Failed to find pat data for a PET trip!");
+                        }
                         // compute the pet time
                         if (!storedPassengerTransit)
                         {
@@ -576,7 +621,7 @@ namespace Tasha.Validation.ModeChoice
 
         private int GetDwellingInt(DwellingType dwellingType)
         {
-            switch(dwellingType)
+            switch (dwellingType)
             {
                 case DwellingType.House:
                     return 1;
@@ -661,7 +706,7 @@ namespace Tasha.Validation.ModeChoice
                 {
                     foreach (var tc in person.TripChains)
                     {
-                        if(tc.JointTrip && !tc.JointTripRep)
+                        if (tc.JointTrip && !tc.JointTripRep)
                         {
                             continue;
                         }
@@ -703,24 +748,24 @@ namespace Tasha.Validation.ModeChoice
                                     tripData.Add(driverTrip, this);
                                 }
                             }
-                            else if(mode == _pat || mode == _pet)
+                            else if (mode == _pat || mode == _pet)
                             {
-                                if(patData == null)
+                                if (patData == null)
                                 {
                                     _activePATData[household] = patData = new Dictionary<ITrip, PATIterationInformation>();
                                 }
-                                if(!patData.TryGetValue(trip, out var currentTripData))
+                                if (!patData.TryGetValue(trip, out var currentTripData))
                                 {
                                     patData[trip] = (currentTripData = new PATIterationInformation(household.HouseholdId, person.Id, trip.TripNumber));
                                 }
                                 if (mode == _pat)
                                 {
-                                    currentTripData.AddTripData(_zoneSystem, _autoNetwork, _transitNetwork, trip, true, (trip[PATModeStationTag] as IZone)?.ZoneNumber 
+                                    currentTripData.AddTripData(_zoneSystem, _autoNetwork, _transitNetwork, trip, true, (trip[PATModeStationTag] as IZone)?.ZoneNumber
                                         ?? throw new XTMFRuntimeException(this, "Unable to get the zone number for the station used for passenger access transit"));
                                 }
                                 else
                                 {
-                                    currentTripData.AddTripData(_zoneSystem, _autoNetwork, _transitNetwork, trip, false, (trip[PETModeStationTag] as IZone)?.ZoneNumber 
+                                    currentTripData.AddTripData(_zoneSystem, _autoNetwork, _transitNetwork, trip, false, (trip[PETModeStationTag] as IZone)?.ZoneNumber
                                         ?? throw new XTMFRuntimeException(this, "Unable to get the zone number for the station used for passenger egress transit"));
                                 }
                             }
@@ -869,13 +914,13 @@ namespace Tasha.Validation.ModeChoice
             internal void AddTripData(SparseArray<IZone> zoneSystem, INetworkData autoNetwork, ITripComponentData transitNetwork, ITrip trip, bool access, int stationZone)
             {
                 int i;
-                for(i = 0; i < _stationChoices.Count; i++)
+                for (i = 0; i < _stationChoices.Count; i++)
                 {
                     var record = _stationChoices[i];
                     if (record.StationZone == stationZone & record.Access == access)
                     {
                         record.Count++;
-                        if(access)
+                        if (access)
                         {
                             _totalAccessTime += record.Time;
                         }
@@ -888,7 +933,7 @@ namespace Tasha.Validation.ModeChoice
                     }
                 }
                 // if we did not find a record already
-                if(i == _stationChoices.Count)
+                if (i == _stationChoices.Count)
                 {
                     var time = CalculateTime(zoneSystem, autoNetwork, transitNetwork, (trip.Purpose == Activity.Home ? trip.TripStartTime : trip.ActivityStartTime), trip.OriginalZone,
                             zoneSystem.GetFlatIndex(stationZone), trip.DestinationZone, access);
@@ -951,7 +996,7 @@ namespace Tasha.Validation.ModeChoice
                 var denominator = 0;
                 for (int i = 0; i < _stationChoices.Count; i++)
                 {
-                    if(_stationChoices[i].Access == access)
+                    if (_stationChoices[i].Access == access)
                     {
                         denominator += _stationChoices[i].Count;
                     }
@@ -1054,7 +1099,7 @@ namespace Tasha.Validation.ModeChoice
                 _modeRecordQueue = new BlockingCollection<ModeRecord>();
                 _stationRecordQueue = new BlockingCollection<StationRecord>();
                 _facilitatePassengerRecordQueue = new BlockingCollection<FacilitatePassengerRecord>();
-                if(HouseholdRecords != null)
+                if (HouseholdRecords != null)
                 {
                     _householdRecordQueue = new BlockingCollection<HouseholdRecord>();
                     _writeHouseholdOutput = Task.Factory.StartNew(() => ProcessHouseholdRecords(), TaskCreationOptions.LongRunning);
@@ -1099,7 +1144,7 @@ namespace Tasha.Validation.ModeChoice
             using (var writer = new StreamWriter(HouseholdRecords))
             {
                 writer.WriteLine("household_id,home_zone,weight,persons,dwelling_type,vehicles,income_class");
-                foreach(var household in _householdRecordQueue.GetConsumingEnumerable())
+                foreach (var household in _householdRecordQueue.GetConsumingEnumerable())
                 {
                     writer.Write(household.HouseholdID);
                     writer.Write(',');
