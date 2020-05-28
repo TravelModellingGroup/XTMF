@@ -297,8 +297,9 @@ namespace Tasha.Validation.ModeChoice
             public readonly bool ToTransit;
             // The number of discrete selections of this station for the given trip
             public readonly int Weight;
+            public readonly string Mode;
 
-            public StationRecord(int householdID, int personID, int tripID, int stationID, bool toTransit, int weight)
+            public StationRecord(int householdID, int personID, int tripID, int stationID, bool toTransit, int weight, string mode)
             {
                 HouseholdID = householdID;
                 PersonID = personID;
@@ -306,6 +307,7 @@ namespace Tasha.Validation.ModeChoice
                 StationID = stationID;
                 ToTransit = toTransit;
                 Weight = weight;
+                Mode = mode;
             }
         }
 
@@ -450,6 +452,7 @@ namespace Tasha.Validation.ModeChoice
                 foreach (var modeChoice in query)
                 {
                     var mode = modeChoice.Mode;
+                    string modeName = mode.ModeName;
                     if (mode == _dat)
                     {
                         if (chainData == null)
@@ -458,14 +461,10 @@ namespace Tasha.Validation.ModeChoice
                         }
                         // we need that defensive check in case of edge cases
                         var travelTime = chainData.ExpectedDATTravelTime(repChain.Trips[tripIndex]);
-                        if (travelTime <= 0)
-                        {
-                            Console.WriteLine();
-                        }
-                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
+                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, modeName,
                         trip.TripStartTime, trip.TripStartTime + Time.FromMinutes(travelTime),
                         modeChoice.Count));
-                        chainData.StoreStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, trip, chainData);
+                        chainData.StoreStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, trip, chainData, modeName);
                     }
                     else if (mode == _pat)
                     {
@@ -476,11 +475,11 @@ namespace Tasha.Validation.ModeChoice
                         // compute the pat time
                         if (!storedPassengerTransit)
                         {
-                            data.CreateStationRecords(_stationRecordQueue);
+                            data.CreateStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, PATModeName, PETModeName);
                             storedPassengerTransit = true;
                         }
                         var travelTime = data.ExpectedTravelTime(true);
-                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
+                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, modeName,
                         trip.TripStartTime, trip.TripStartTime + Time.FromMinutes(travelTime),
                         modeChoice.Count));
                     }
@@ -492,17 +491,17 @@ namespace Tasha.Validation.ModeChoice
                         }
                         if (!storedPassengerTransit)
                         {
-                            data.CreateStationRecords(_stationRecordQueue);
+                            data.CreateStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, PATModeName, PETModeName);
                             storedPassengerTransit = true;
                         }
                         var travelTime = data.ExpectedTravelTime(false);
-                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
+                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, modeName,
                         trip.TripStartTime, trip.TripStartTime + Time.FromMinutes(travelTime),
                         modeChoice.Count));
                     }
                     else
                     {
-                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
+                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, modeName,
                         trip.TripStartTime, trip.TripStartTime + mode.TravelTime(trip.OriginalZone, trip.DestinationZone, trip.TripStartTime),
                         modeChoice.Count));
                     }
@@ -513,6 +512,7 @@ namespace Tasha.Validation.ModeChoice
                 foreach (var modeChoice in query)
                 {
                     var mode = modeChoice.Mode;
+                    string modeName = mode.ModeName;
                     if (mode == _dat)
                     {
                         if (chainData == null)
@@ -520,14 +520,10 @@ namespace Tasha.Validation.ModeChoice
                             throw new XTMFRuntimeException(this, "Unable to find chain data for a DAT Trip.");
                         }
                         var travelTime = chainData.ExpectedDATTravelTime(repChain.Trips[tripIndex]);
-                        if (travelTime <= 0)
-                        {
-                            Console.WriteLine();
-                        }
-                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
+                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, modeName,
                         trip.ActivityStartTime - Time.FromMinutes(travelTime), trip.ActivityStartTime,
                         modeChoice.Count));
-                        chainData.StoreStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, trip, chainData);
+                        chainData.StoreStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, trip, chainData, modeName);
                     }
                     else if (mode == _pat)
                     {
@@ -539,11 +535,11 @@ namespace Tasha.Validation.ModeChoice
                         // compute the pat time
                         if (!storedPassengerTransit)
                         {
-                            data.CreateStationRecords(_stationRecordQueue);
+                            data.CreateStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, PATModeName, PETModeName);
                             storedPassengerTransit = true;
                         }
                         var travelTime = data.ExpectedTravelTime(true);
-                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
+                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, modeName,
                         trip.ActivityStartTime - Time.FromMinutes(travelTime), trip.ActivityStartTime,
                         modeChoice.Count));
                     }
@@ -556,17 +552,17 @@ namespace Tasha.Validation.ModeChoice
                         // compute the pet time
                         if (!storedPassengerTransit)
                         {
-                            data.CreateStationRecords(_stationRecordQueue);
+                            data.CreateStationRecords(_stationRecordQueue, hhldID, person.Id, tripID, PATModeName, PETModeName);
                             storedPassengerTransit = true;
                         }
                         var travelTime = data.ExpectedTravelTime(false);
-                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
+                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, modeName,
                         trip.ActivityStartTime - Time.FromMinutes(travelTime), trip.ActivityStartTime,
                         modeChoice.Count));
                     }
                     else
                     {
-                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, mode.ModeName,
+                        _modeRecordQueue.Add(new ModeRecord(hhldID, person.Id, tripID, modeName,
                         trip.ActivityStartTime - mode.TravelTime(trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime), trip.ActivityStartTime,
                         modeChoice.Count));
                     }
@@ -756,7 +752,7 @@ namespace Tasha.Validation.ModeChoice
                                 }
                                 if (!patData.TryGetValue(trip, out var currentTripData))
                                 {
-                                    patData[trip] = (currentTripData = new PATIterationInformation(household.HouseholdId, person.Id, trip.TripNumber));
+                                    patData[trip] = (currentTripData = new PATIterationInformation());
                                 }
                                 if (mode == _pat)
                                 {
@@ -856,7 +852,7 @@ namespace Tasha.Validation.ModeChoice
             }
 
             internal void StoreStationRecords(BlockingCollection<StationRecord> stationRecordQueue,
-                int hhldID, int personID, int tripID, ITrip trip, DATIterationInformation chainData)
+                int hhldID, int personID, int tripID, ITrip trip, DATIterationInformation chainData, string modeName)
             {
                 // for each trip that we have stored
                 if (_tripData.TryGetValue(trip, out var tripData))
@@ -874,11 +870,11 @@ namespace Tasha.Validation.ModeChoice
                     {
                         if (stn.TimesAccessed > 0)
                         {
-                            stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, stn.StationIndex, true, stn.TimesAccessed));
+                            stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, stn.StationIndex, true, stn.TimesAccessed, modeName));
                         }
                         if (stn.TimesEgressed > 0)
                         {
-                            stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, stn.StationIndex, false, stn.TimesEgressed));
+                            stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, stn.StationIndex, false, stn.TimesEgressed, modeName));
                         }
                     }
                 }
@@ -896,20 +892,10 @@ namespace Tasha.Validation.ModeChoice
             }
 
             private readonly List<PassengerTransitTrip> _stationChoices = new List<PassengerTransitTrip>();
-            private readonly int _householdId;
-            private readonly int _personId;
-            private readonly int _tripId;
 
             private float _totalAccessTime;
             private float _totalEgressTime;
 
-
-            public PATIterationInformation(int householdId, int personId, int tripId)
-            {
-                _householdId = householdId;
-                _personId = personId;
-                _tripId = tripId;
-            }
 
             internal void AddTripData(SparseArray<IZone> zoneSystem, INetworkData autoNetwork, ITripComponentData transitNetwork, ITrip trip, bool access, int stationZone)
             {
@@ -973,7 +959,7 @@ namespace Tasha.Validation.ModeChoice
                 }
             }
 
-            internal void CreateStationRecords(BlockingCollection<StationRecord> stationRecordQueue)
+            internal void CreateStationRecords(BlockingCollection<StationRecord> stationRecordQueue, int hhldID, int personID, int tripID, string pat, string pet)
             {
                 foreach (var stn in from rec in _stationChoices
                                     group rec by rec.StationZone into g
@@ -981,11 +967,11 @@ namespace Tasha.Validation.ModeChoice
                 {
                     if (stn.Accesses > 0)
                     {
-                        stationRecordQueue.Add(new StationRecord(_householdId, _personId, _tripId, stn.StationIndex, true, stn.Accesses));
+                        stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, stn.StationIndex, true, stn.Accesses, pat));
                     }
                     if (stn.Egresses > 0)
                     {
-                        stationRecordQueue.Add(new StationRecord(_householdId, _personId, _tripId, stn.StationIndex, false, stn.Egresses));
+                        stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, stn.StationIndex, false, stn.Egresses, pet));
                     }
                 }
             }
@@ -1280,7 +1266,7 @@ namespace Tasha.Validation.ModeChoice
         {
             using (var writer = new StreamWriter(TripStationRecords))
             {
-                writer.WriteLine("household_id,person_id,trip_id,station,direction,weight");
+                writer.WriteLine("household_id,person_id,trip_id,station,direction,weight,mode");
                 foreach (var station in _stationRecordQueue.GetConsumingEnumerable())
                 {
                     writer.Write(station.HouseholdID);
@@ -1293,7 +1279,9 @@ namespace Tasha.Validation.ModeChoice
                     writer.Write(',');
                     writer.Write(station.ToTransit ? "auto2transit" : "transit2auto");
                     writer.Write(',');
-                    writer.WriteLine(station.Weight);
+                    writer.Write(station.Weight);
+                    writer.Write(',');
+                    writer.WriteLine(station.Mode);
                 }
             }
             if (CompressResults)
