@@ -31,7 +31,7 @@ namespace Tasha.Scheduler
                         "TASHA. As an input it loads household and trip data, and it computes and " +
                         "records the frequency of each specific DistributionID. It calculates the frequency for work trips " +
                         "separately from all other trips. Furthermore, the process also records any zero-frequency " +
-                        "situations in which a person is eligible for an activity, but decides not to participate. As an ouput, the " +
+                        "situations in which a person is eligible for an activity, but decides not to participate. As an output, the " +
                         "module produces a .csv file which has three columns: DistributionID, Frequency, Expansion Factor. " +
                         "This is the necessary format for running TASHA."
         )]
