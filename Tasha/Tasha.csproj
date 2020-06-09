@@ -171,6 +171,7 @@
     <Compile Include="Airport\GTAModelAirportModel.cs" />
     <Compile Include="Airport\V4AirportIntegration.cs" />
     <Compile Include="Airport\V4AirportModel2014.cs" />
+    <Compile Include="Airport\V4AirportModel2020.cs" />
     <Compile Include="Analysis\BuildODTable.cs" />
     <Compile Include="Common\DefaultActivityConverter.cs" />
     <Compile Include="Common\ArrayFunctions.cs" />
