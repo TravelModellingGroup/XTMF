@@ -1341,11 +1341,10 @@ namespace XTMF
             //find the child node of MSS that has the same name as reference [0]
             var structure = mss.Children.SingleOrDefault(m => m.Name == modules[0]);
 
-            if (modules.Length == 1)
+            if ((structure == null) | (modules.Length == 1))
             {
                 return structure;
             }
-
             return GetModuleFromReference(modules.Skip(1).ToArray(), structure);
         }
 

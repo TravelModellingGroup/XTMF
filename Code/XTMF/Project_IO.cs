@@ -364,7 +364,10 @@ namespace XTMF
                                 //get reference to this module
                                 string reference = moduleNode.Attributes?["Reference"].Value;
                                 var modelSystemStructure = GetModuleFromReference(reference, mss);
-                                regionGroup.Modules.Add((IModelSystemStructure2)modelSystemStructure);
+                                if (modelSystemStructure != null)
+                                {
+                                    regionGroup.Modules.Add((IModelSystemStructure2)modelSystemStructure);
+                                }
                             }
                         }
                         regionDisplay.RegionGroups.Add(regionGroup);
