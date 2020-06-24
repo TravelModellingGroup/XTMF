@@ -437,6 +437,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             private float ExpIntraZonal;
 
+            [RunParameter("Use Employment Ratios", false, "Instead of taking the log for each occemp, it will take the ratio of the log of the total emp.")]
+            public bool UseEmploymentRatios;
+
             private int[][][][] PDCube;
 
             private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
@@ -462,7 +465,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 var active = Math.Exp(ActiveConstant + ActiveDistance * distances[i][j]);
                 // this is needed for backwards compatibility
-                if(double.IsNaN(active) | double.IsInfinity(active))
+                if (double.IsNaN(active) | double.IsInfinity(active))
                 {
                     active = 0.0;
                 }
@@ -551,7 +554,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 });
                 Parallel.For(0, zones2, index =>
                 {
-                    autoSpace[index] = (float)Math.Pow(Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index]) 
+                    autoSpace[index] = (float)Math.Pow(Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index])
                         + Math.Exp(activeSpace[index]), timePeriodParameters.TravelLogsumScale);
                 });
                 return autoSpace;
@@ -671,9 +674,27 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                     break;
                                 }
                             }
-                            jSum[i][j] = (float)
-                                          Math.Exp(
-                                               (Math.Log(1 + pf[j]) * ProfessionalFullTime
+                            double empTerm;
+                            if (UseEmploymentRatios)
+                            {
+                                var totalEmp = ((pf[i] + pp[i]) + (gf[i] + gp[i])) + ((sf[i] + sp[i]) + (mf[i] + mp[i]));
+                                var logOfEmp = Math.Log(totalEmp + 1);
+                                empTerm = Math.Exp(
+                                    (ProfessionalFullTime * pf[i]  +
+                                    ProfessionalPartTime * pp[i] +
+                                    GeneralFullTime * gf[i] +
+                                    GeneralPartTime * gp[i] +
+                                    RetailFullTime * sf[i] +
+                                    RetailPartTime * sp[i] +
+                                    ManufacturingPartTime * mf[i] +
+                                    ProfessionalFullTime * mp[i]) * logOfEmp / Math.Max(totalEmp, 1) +
+                                    Math.Log(1 + zones[j].Population) * Population
+                                    );
+
+                            }
+                            else
+                            {
+                                empTerm = Math.Exp((Math.Log(1 + pf[j]) * ProfessionalFullTime
                                               + Math.Log(1 + pp[j]) * ProfessionalPartTime
                                               + Math.Log(1 + gf[j]) * GeneralFullTime
                                               + Math.Log(1 + gp[j]) * GeneralPartTime
@@ -681,8 +702,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                               + Math.Log(1 + sp[j]) * RetailPartTime
                                               + Math.Log(1 + mf[j]) * ManufacturingFullTime
                                               + Math.Log(1 + mp[j]) * ManufacturingPartTime
-                                              + Math.Log(1 + zones[j].Population) * Population)) 
-                                              * (float)Math.Exp(nonExpPDConstant);
+                                              + Math.Log(1 + zones[j].Population) * Population));
+                            }
+                            jSum[i][j] = (float)(empTerm * Math.Exp(nonExpPDConstant));
                         }
                         else
                         {
