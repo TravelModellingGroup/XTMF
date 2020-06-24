@@ -60,6 +60,11 @@ namespace Tasha.StationAccess
 
         private SparseArray<float> Capacity;
 
+        [SubModelInformation(Required = false, Description = "An optional source to gather parking costs from.")]
+        public IDataSource<IParkingCost> ParkingModel;
+
+        private IParkingCost _parkingModel;
+
         public sealed class TimePeriod : IModule
         {
             [Parameter("StartTime", "6:00AM", typeof(Time), "The start of the time period inclusive")]
@@ -121,19 +126,19 @@ namespace Tasha.StationAccess
             [RunParameter("Reload Capacity Factors", true, "Set this to false during estimation to help increase performance.")]
             public bool ReloadCapacityFactors;
 
-            internal void Load(RangeSet stationRanges, RangeSet spatialZones, SparseArray<float> capacity, int[] closestStation)
+            internal void Load(RangeSet stationRanges, RangeSet spatialZones, SparseArray<float> capacity, int[] closestStation, IParkingCost parkingModel)
             {
                 if (CapacityFactor == null || ReloadCapacityFactors)
                 {
                     LoadCapacityFactors();
                 }
-                CalculateUtilities(stationRanges, spatialZones, capacity.GetFlatData(), closestStation);
+                CalculateUtilities(stationRanges, spatialZones, capacity.GetFlatData(), closestStation, parkingModel);
             }
 
             [RunParameter("CapacityFactorScale", 1.0f, "A scale on the congestion computed by the capacity factor.")]
             public float CapacityFactorScale;
 
-            private void CalculateUtilities(RangeSet stationRanges, RangeSet spatialZones, float[] capacity, int[] closestStation)
+            private void CalculateUtilities(RangeSet stationRanges, RangeSet spatialZones, float[] capacity, int[] closestStation, IParkingCost parkingModel)
             {
                 INetworkData autoNetwork = GetNetwork(AutoNetworkName);
                 ITripComponentData transitNetwork = GetNetwork(TransitNetworkName) as ITripComponentData;
@@ -155,7 +160,8 @@ namespace Tasha.StationAccess
                 for (int i = 0; i < stationZones.Length; i++)
                 {
                     invStationFactor[i] = 1.0f / (((ComputeCapacityFactor(flatCapacityFactor[stationZones[i]], Alpha) - 1.0f) * CapacityFactorScale) + 1.0f);
-                    parkingUtil[i] = ParkingCost * zones[stationZones[i]].ParkingCost;
+                    // If we are using the parking model we will need to compute the costs per trip instead of here.
+                    parkingUtil[i] = parkingModel == null ? ParkingCost * zones[stationZones[i]].ParkingCost : 0.0f;
                 }
 
                 var fastAuto = autoNetwork as INetworkCompleteData;
@@ -364,6 +370,15 @@ namespace Tasha.StationAccess
                 GetAccessZones();
                 AssignClosestStations();
                 FirstLoad = false;
+                if(ParkingModel != null)
+                {
+                    if (!ParkingModel.Loaded)
+                    {
+                        ParkingModel.LoadData();
+                    }
+                    _parkingModel = ParkingModel.GiveData();
+                }
+                
             }
             LoadTimePeriods();
             if (NotifiyStatus)
@@ -436,7 +451,7 @@ namespace Tasha.StationAccess
         {
             Parallel.For(0, TimePeriods.Length, i =>
             {
-                TimePeriods[i].Load(StationZoneRanges, SpatialZones, Capacity, ClosestStation);
+                TimePeriods[i].Load(StationZoneRanges, SpatialZones, Capacity, ClosestStation, _parkingModel);
             });
         }
 
@@ -474,6 +489,15 @@ namespace Tasha.StationAccess
                     secondTimePeriod.TransitFromDestinationToAccessStation, secondOrigin,
                     secondTimePeriod.AutoFromAccessStationToDestination, secondDestination, utilities.Length);
                 VectorHelper.ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
+                if(_parkingModel != null)
+                {
+                    var parkingStart = first.ActivityStartTime;
+                    var parkingEnd = second.ActivityStartTime;
+                    for (int i = 0; i < utilities.Length; i++)
+                    {
+                        utilities[i] *= (float)Math.Exp(firstTimePeriod.ParkingCost * _parkingModel.ComputeParkingCost(parkingStart, parkingEnd, AccessZoneIndexes[i]));
+                    }
+                }
                 return new Pair<IZone[], float[]>(AccessZones, utilities);
             }
             return null;
