@@ -228,6 +228,11 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         private SparseArray<IZone> ZoneSystem;
         private float[][] ZoneDistances;
 
+        [SubModelInformation(Required = false, Description = "An optional source to gather parking costs from.")]
+        public IDataSource<IParkingCost> ParkingModel;
+
+        private IParkingCost _parkingModel;
+
         private bool FastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
             var numberOfZones = ZoneSystem.Count;
@@ -281,11 +286,13 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             // apply the travel times (don't worry if we have intrazonals because they will be 0's).
             v += (toPassengerOrigin + toPassengerDestination + toDriverDestination + toPassengerDestination) * timeFactor;
             // Add in the travel cost
+            var timeToNextTrip = TimeToNextTrip(driverOriginalTrip);
             v += (
                  (autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones) + 1]
                 + autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones) + 1]
                 + autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones) + 1])
-                + driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip))
+                + (_parkingModel == null ? driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
+                 : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverDestination))
                 ) * costFactor;
             switch(passengerTrip.Purpose)
             {
@@ -372,11 +379,13 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             // apply the travel times (don't worry if we have intrazonals because they will be 0's).
             v += ((toPassengerOrigin + toPassengerDestination + toDriverDestination) + toPassengerDestination).ToMinutes() * timeFactor;
             // Add in the travel cost
+            var timeToNextTrip = TimeToNextTrip(driverOriginalTrip);
             v += (
                 (AutoData.TravelCost(driverOrigin, passengerOrigin, passengerTrip.ActivityStartTime)
                 + AutoData.TravelCost(passengerOrigin, passengerDestination, passengerTrip.ActivityStartTime)
                 + AutoData.TravelCost(passengerDestination, driverOriginalTrip.DestinationZone, passengerTrip.ActivityStartTime))
-                + driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip))
+                + (_parkingModel == null ? driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
+                 : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverOriginalTrip.DestinationZone))
                 ) * costFactor;
             switch(passengerTrip.Purpose)
             {

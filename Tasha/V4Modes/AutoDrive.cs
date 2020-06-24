@@ -149,6 +149,11 @@ namespace Tasha.V4Modes
         [RunParameter("Variance Scale", 1.0, "The factor applied to the error term.")]
         public double VarianceScale { get; set; }
 
+        [SubModelInformation(Required = false, Description = "An optional source to gather parking costs from.")]
+        public IDataSource<IParkingCost> ParkingModel;
+
+        private IParkingCost _parkingModel;
+
         public double CalculateV(ITrip trip)
         {
             // compute the non human factors
@@ -168,7 +173,9 @@ namespace Tasha.V4Modes
             }
             else
             {
-                var parkingCosts = zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(trip));
+                var timeToNextTrip = TimeToNextTrip(trip);
+                var parkingCosts = _parkingModel == null ? zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
+                    : _parkingModel.ComputeParkingCost(trip.ActivityStartTime, trip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), d);
                 Network.GetAllData(o, d, trip.TripStartTime, out float ivtt, out float cost);
                 v += timeFactor * ivtt + costParameter * (cost + parkingCosts);
             }
@@ -438,6 +445,14 @@ namespace Tasha.V4Modes
             ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
             StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
             NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+            if (ParkingModel != null)
+            {
+                if (!ParkingModel.Loaded)
+                {
+                    ParkingModel.LoadData();
+                }
+                _parkingModel = ParkingModel.GiveData();
+            }
         }
 
         private float ConvertCostFactor(float costFactor, float timeFactor)
