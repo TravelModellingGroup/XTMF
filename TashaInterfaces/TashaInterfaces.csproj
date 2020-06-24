@@ -154,6 +154,7 @@
     <Compile Include="Common\IActivityConverter.cs" />
     <Compile Include="Common\IAttachable.cs" />
     <Compile Include="Common\IEpisode.cs" />
+    <Compile Include="Common\IParkingCost.cs" />
     <Compile Include="Common\ITashaHousehold.cs" />
     <Compile Include="Common\ILocationChoiceModel.cs" />
     <Compile Include="Common\IMode.cs" />

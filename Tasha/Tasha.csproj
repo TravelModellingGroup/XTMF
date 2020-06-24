@@ -181,6 +181,7 @@
     <Compile Include="Common\HouseholdExtender.cs" />
     <Compile Include="Common\IterationConditional.cs" />
     <Compile Include="Common\IterationConditionals\IterationConditionalPostIteration.cs" />
+    <Compile Include="Common\ParkingModel.cs" />
     <Compile Include="Common\PreIterationMSIntegration.cs" />
     <Compile Include="Common\PostIterationMSIntegration.cs" />
     <Compile Include="Common\Resource.cs" />
