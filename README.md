@@ -12,7 +12,7 @@ The current module library largely supports the creation of travel-demand relate
 
 XTMF includes an SDK for the development of your own custom modules. Custom modules are written in C# that provide custom executable logic and pre-defined module information (such as input properties).
 
-A guide for writing your own XTMF modules is available [here](https://tmg.utoronto.ca/documentation/Documentation/1.4_docfx/_site/articles/programming/modules.html 'Writing Custom Modules').
+A guide for writing your own XTMF modules is available [here](http://tmg.utoronto.ca/doc/1.6/xtmf/programming/modules.html 'Writing Custom Modules').
 
 ## Installation
 
