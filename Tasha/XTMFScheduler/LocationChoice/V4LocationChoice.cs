@@ -357,6 +357,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 [RunParameter("Travel Logsum Scale", 1.0f, "The scale term to apply to the logsum coming from the travel times.")]
                 public float TravelLogsumScale;
 
+                [RunParameter("Travel Logsum Denominator", 1.0f, "The scale term to apply to the logsum coming from the travel times.")]
+                public float TravelLogsumDenominator;
+
                 internal float ExpSamePD;
 
                 public string Name { get; set; }
@@ -442,35 +445,37 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             private int[][][][] PDCube;
 
-            private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
+            private double GetTransitUtility(ITripComponentData network, int i, int j, Time time,
+                float scaleFactor)
             {
                 if (!network.GetAllData(i, j, time, out float ivtt, out float walk, out float wait, out float boarding, out float cost))
                 {
                     return 0f;
                 }
-                return Math.Exp(
+                return Math.Exp((
                       TransitConstant
                     + TransitTime * ivtt
                     + TransitWalk * walk
                     + TransitWait * wait
                     + TransitBoarding * boarding
-                    + Cost * cost);
+                    + Cost * cost)/scaleFactor);
             }
 
-            protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, float[][] distances, int i, int j, Time time)
+            protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, float[][] distances, int i, int j, Time time,
+                float scaleFactor)
             {
                 if (!autoNetwork.GetAllData(i, j, time, out float ivtt, out float cost))
                 {
                     return 0.0f;
                 }
-                var active = Math.Exp(ActiveConstant + ActiveDistance * distances[i][j]);
+                var active = Math.Exp((ActiveConstant + ActiveDistance * distances[i][j]) / scaleFactor);
                 // this is needed for backwards compatibility
                 if (double.IsNaN(active) | double.IsInfinity(active))
                 {
                     active = 0.0;
                 }
-                var ret = (float)(GetTransitUtility(transitNetwork, i, j, time)
-                    + Math.Exp(ivtt * AutoTime + cost * Cost)
+                var ret = (float)(GetTransitUtility(transitNetwork, i, j, time, scaleFactor)
+                    + Math.Exp((ivtt * AutoTime + cost * Cost) / scaleFactor)
                     + active);
                 return ret;
             }
@@ -554,8 +559,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 });
                 Parallel.For(0, zones2, index =>
                 {
-                    autoSpace[index] = (float)Math.Pow(Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index])
-                        + Math.Exp(activeSpace[index]), timePeriodParameters.TravelLogsumScale);
+                    autoSpace[index] = (float)Math.Pow(Math.Exp(autoSpace[index]/ timePeriodParameters.TravelLogsumDenominator) + Math.Exp(transitSpace[index]/ timePeriodParameters.TravelLogsumDenominator)
+                        + Math.Exp(activeSpace[index]/ timePeriodParameters.TravelLogsumDenominator), timePeriodParameters.TravelLogsumScale);
                 });
                 return autoSpace;
             }
@@ -759,7 +764,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 for (int j = 0; j < zones.Length; j++)
                                 {
                                     var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay), timeParameters.TravelLogsumScale);
+                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay, timeParameters.TravelLogsumDenominator), timeParameters.TravelLogsumScale);
                                     // compute to
                                     To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
                                     // compute from
@@ -771,7 +776,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 for (int j = 0; j < zones.Length; j++)
                                 {
                                     var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay), timeParameters.TravelLogsumScale);
+                                    var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay, timeParameters.TravelLogsumDenominator), timeParameters.TravelLogsumScale);
                                     // compute to
                                     To[time][i * zones.Length + j] = ((nonExpPDConstant * travelUtility) + To[time][i * zones.Length + j]) * 0.5f;
                                     // compute from
