@@ -66,7 +66,7 @@ namespace XTMF.Networking
                    Thread.Sleep(100);
                    try
                    {
-                       _Progress = _CurrentRunningModelSystem.Progress;
+                       _Progress = _CurrentRunningModelSystem?.Progress ?? 0;
                        NotifyProgress();
                    }
                    catch
