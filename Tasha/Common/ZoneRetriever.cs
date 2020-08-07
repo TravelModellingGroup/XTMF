@@ -205,26 +205,33 @@ namespace Tasha.Common
             {
                 var zoneArray = ZoneArray;
                 var zones = zoneArray.GetFlatData();
-                using (CsvReader reader = new CsvReader(RegionFile))
+                try
                 {
-                    // burn header
-                    reader.LoadLine(out int columns);
-                    // read the rest
-                    while (reader.LoadLine(out columns))
+                    using (CsvReader reader = new CsvReader(RegionFile))
                     {
-                        if (columns < 2) continue;
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out int regionNumber, 1);
-                        int index = zoneArray.GetFlatIndex(zoneNumber);
-                        if (index >= 0)
+                        // burn header
+                        reader.LoadLine(out int columns);
+                        // read the rest
+                        while (reader.LoadLine(out columns))
                         {
-                            zones[index].RegionNumber = regionNumber;
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the regions that does not exist in the zone system!");
+                            if (columns < 2) continue;
+                            reader.Get(out int zoneNumber, 0);
+                            reader.Get(out int regionNumber, 1);
+                            int index = zoneArray.GetFlatIndex(zoneNumber);
+                            if (index >= 0)
+                            {
+                                zones[index].RegionNumber = regionNumber;
+                            }
+                            else
+                            {
+                                throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the regions that does not exist in the zone system!");
+                            }
                         }
                     }
+                }
+                catch(IOException e)
+                {
+                    throw new XTMFRuntimeException(this, e);
                 }
             }
         }
