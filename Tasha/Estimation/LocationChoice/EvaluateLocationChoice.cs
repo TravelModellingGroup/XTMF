@@ -158,27 +158,34 @@ namespace Tasha.Estimation.LocationChoice
                                             switch (activtiyType)
                                             {
                                                 case Activity.WorkBasedBusiness:
-                                                    ModelWork[i][revieldChoice] += choices[i];
+                                                    if (ModelWork != null)
+                                                    {
+                                                        ModelWork[i][revieldChoice] += choices[i];
+                                                    }
                                                     break;
                                                 case Activity.Market:
                                                 case Activity.JointMarket:
-                                                    ModelMarket[i][revieldChoice] += choices[i];
+                                                    if (ModelMarket != null)
+                                                    {
+                                                        ModelMarket[i][revieldChoice] += choices[i];
+                                                    }
                                                     break;
                                                 case Activity.IndividualOther:
                                                 case Activity.JointOther:
-                                                    ModelOther[i][revieldChoice] += choices[i];
+                                                    if (ModelOther != null)
+                                                    {
+                                                        ModelOther[i][revieldChoice] += choices[i];
+                                                    }
                                                     break;
                                             }
                                         }
                                         switch (activtiyType)
                                         {
                                             case Activity.WorkBasedBusiness:
-
                                                 AddIfExists(ObservedWork, origin, revieldChoice);
                                                 break;
                                             case Activity.Market:
                                             case Activity.JointMarket:
-
                                                 AddIfExists(ObservedMarket, origin, revieldChoice);
                                                 break;
                                             case Activity.IndividualOther:
