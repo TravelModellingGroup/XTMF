@@ -28,11 +28,13 @@ namespace Tasha.Airport
 
         private INetworkCompleteData _autoNetwork;
 
-
         [RunParameter("Transit Network Name", "Transit", "The name of the network data to use for the transit utilities.")]
         public string TransitNetworkName;
 
         private ITripComponentCompleteData _transitNetwork;
+
+        [RunParameter("Valid Zones", "1-5999", typeof(RangeSet), "Zones that are included in this model.")]
+        public RangeSet ValidZones;
 
         public string Name { get; set; }
 
@@ -95,7 +97,6 @@ namespace Tasha.Airport
             [RunParameter("AutoValueOfTime", 50.99, "The value of time to use for the auto mode.  This should match the road assignment.")]
             public float AutoVoT;
 
-
             [RunParameter("BLogPopulation", 0.0f, "The factor applied to the log of the population for the attraction zone")]
             public float BLogPopulation;
 
@@ -129,7 +130,6 @@ namespace Tasha.Airport
             [SubModelInformation(Required = true, Description = "The location to save the transit demand for this segment.")]
             public FileLocation TransitDemand;
 
-
             [RootModule]
             public ITravelDemandModel Root;
 
@@ -140,7 +140,7 @@ namespace Tasha.Airport
             public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
             /// <summary>
-            /// 
+            /// Generates the demand for the given segment.
             /// </summary>
             /// <param name="validZones"></param>
             /// <param name="autoNetwork"></param>
@@ -171,16 +171,16 @@ namespace Tasha.Airport
                 {
                     if (validZones[i])
                     {
-                        var zoneOffset = i * validZones.Length + airportIndex;
+                        var zoneOffset = (i * validZones.Length) + airportIndex;
                         // +1 is cost, +0 is aivtt
-                        var autil = AutoVoT * autoNetworkData[zoneOffset * 2 + 1] + autoNetworkData[zoneOffset * 2];
+                        var autil = (AutoVoT * autoNetworkData[(zoneOffset * 2) + 1]) + autoNetworkData[zoneOffset * 2];
                         // +4 is boarding
-                        var tutil = transitNetworkData[zoneOffset * 5 + 4];
+                        var tutil = transitNetworkData[(zoneOffset * 5) + 4];
                         auto[i] = (float)Math.Exp(BAutoUtil * autil);
-                        passengerOutOfParty[i] = (float)Math.Exp(ASCPassengerOutOfParty + BAutoUtil * autil);
-                        publicTransit[i] = (float)Math.Exp(ASCTransit + BTransitUtil * tutil);
-                        rideshare[i] = (float)Math.Exp(ASCRideshare + BAutoUtilRideshare * autil);
-                        other[i] = (float)Math.Exp(ASCOther + BDistance * distance[i][airportIndex]);
+                        passengerOutOfParty[i] = (float)Math.Exp(ASCPassengerOutOfParty + (BAutoUtil * autil));
+                        publicTransit[i] = (float)Math.Exp(ASCTransit + (BTransitUtil * tutil));
+                        rideshare[i] = (float)Math.Exp(ASCRideshare + (BAutoUtilRideshare * autil));
+                        other[i] = (float)Math.Exp(ASCOther + (BDistance * distance[i][airportIndex]));
                         distribution[i] = auto[i] + passengerOutOfParty[i] + publicTransit[i] + rideshare[i] + other[i];
                     }
                 }
@@ -198,12 +198,12 @@ namespace Tasha.Airport
                 var pd1 = attraction[5];
                 for (int i = 0; i < distribution.Length; i++)
                 {
-                    var local = BProfessionalEmployment * professional[i]
-                        + BGeneralEmployment * general[i]
-                        + BSalesEmployment * sales[i]
-                        + BManufactruingEmployment * manufacturing[i]
-                        + BLogPopulation * population[i]
-                        + BPD1 * pd1[i];
+                    var local = (BProfessionalEmployment * professional[i])
+                        + (BGeneralEmployment * general[i])
+                        + (BSalesEmployment * sales[i])
+                        + (BManufactruingEmployment * manufacturing[i])
+                        + (BLogPopulation * population[i])
+                        + (BPD1 * pd1[i]);
                     sum += (distribution[i] = (float)(Math.Exp(local) * Math.Pow(distribution[i], BLogsum)));
                 }
 
@@ -227,12 +227,12 @@ namespace Tasha.Airport
                          * Other is ignored.
                          */
                         var distributionRate = (distribution[i] / sum);
-                        var direct = (auto[i] + rideshare[i] / denominator) * distributionRate;
+                        var direct = (auto[i] + (rideshare[i] / denominator)) * distributionRate;
                         var bothWays = (TerminatingPassengers + OriginatingPassengers)
                             * (passengerOutOfParty[i] / denominator)
                             * distributionRate;
-                        autoDemandMatrix[i][airportIndex] = direct * OriginatingPassengers + bothWays;
-                        autoDemandMatrix[airportIndex][i] = direct * TerminatingPassengers + bothWays;
+                        autoDemandMatrix[i][airportIndex] = (direct * OriginatingPassengers) + bothWays;
+                        autoDemandMatrix[airportIndex][i] = (direct * TerminatingPassengers) + bothWays;
                         transitDemandMatrix[i][airportIndex] = OriginatingPassengers * distributionRate * (publicTransit[i] / denominator);
                         transitDemandMatrix[airportIndex][i] = TerminatingPassengers * distributionRate * (publicTransit[i] / denominator);
                     }
@@ -241,18 +241,23 @@ namespace Tasha.Airport
                 SaveMatrix(transitDemandMatrix, zones, TransitDemand);
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void SaveMatrix(float[][] demandMatrix, SparseArray<IZone> zones, FileLocation autoDemand)
+            private void SaveMatrix(float[][] demandMatrix, SparseArray<IZone> zones, string fileName)
             {
                 try
                 {
                     new TMG.Emme.EmmeMatrix(zones, demandMatrix)
-                        .Save(autoDemand, false);
+                        .Save(fileName, false);
                 }
                 catch (IOException e)
                 {
                     throw new XTMFRuntimeException(this, e, "Error when trying to save demand matrix: " + e.Message);
                 }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private void SaveMatrix(float[][] demandMatrix, SparseArray<IZone> zones, FileLocation autoDemand)
+            {
+                SaveMatrix(demandMatrix, zones, autoDemand.GetFilePath());
             }
 
             private static float[][] CreateMatrix(float[] vector)
@@ -293,9 +298,13 @@ namespace Tasha.Airport
         [RunParameter("CBD Range", "1", typeof(RangeSet), "The range of planning districts to consider a CBD.")]
         public RangeSet CBDRange;
 
+        [RunParameter("Airport Zone", 0, "The zone number of the airport.")]
+        public int AirportZone;
+
         public void Start()
         {
-            bool[] availableZones = null;
+            bool[] availableZones = Root.ZoneSystem.ZoneArray.GetFlatData()
+                .Select(z => ValidZones.Contains(z.ZoneNumber)).ToArray();
             float[][] attractionTerms = new float[][]
                 {
                     SumResources(PFEmployment, PPEmployment),
@@ -306,7 +315,11 @@ namespace Tasha.Airport
                     Root.ZoneSystem.ZoneArray.GetFlatData().Select(z => CBDRange.Contains(z.PlanningDistrict) ? 1.0f : 0.0f).ToArray()
                 };
             ProcessAttractionTerms(attractionTerms);
-            int pearsonZoneIndex = -1;
+            int pearsonZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(AirportZone);
+            if(pearsonZoneIndex < 0)
+            {
+                throw new XTMFRuntimeException(this, $"The airport zone number {AirportZone} was not found in the zone system!");
+            }
             Parallel.ForEach(TimePeriods, (timePeriod) =>
             {
                 timePeriod.GenerateDemand(availableZones, _autoNetwork, _transitNetwork, Root.ZoneSystem.Distances.GetFlatData(),
