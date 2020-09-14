@@ -153,6 +153,14 @@ namespace Tasha.Airport
             {
                 var autoNetworkData = autoNetwork.GetTimePeriodData(StartTime);
                 var transitNetworkData = transitNetwork.GetTimePeriodData(StartTime);
+                if(autoNetworkData == null)
+                {
+                    throw new XTMFRuntimeException(this, $"We were unable to get the auto network time period data starting at {StartTime}!");
+                }
+                if (transitNetworkData == null)
+                {
+                    throw new XTMFRuntimeException(this, $"We were unable to get the transit network time period data starting at {StartTime}!");
+                }
                 var distribution = new float[validZones.Length];
                 var auto = new float[validZones.Length];
                 var publicTransit = new float[validZones.Length];
@@ -167,13 +175,14 @@ namespace Tasha.Airport
 
             private void ModeChoice(bool[] validZones, float[][] distance, int airportIndex, float[] autoNetworkData, float[] transitNetworkData, float[] distribution, float[] auto, float[] publicTransit, float[] passengerOutOfParty, float[] rideshare, float[] other)
             {
+                var votPerMinute = AutoVoT / 60;
                 for (int i = 0; i < validZones.Length; i++)
                 {
                     if (validZones[i])
                     {
                         var zoneOffset = (i * validZones.Length) + airportIndex;
                         // +1 is cost, +0 is aivtt
-                        var autil = (AutoVoT * autoNetworkData[(zoneOffset * 2) + 1]) + autoNetworkData[zoneOffset * 2];
+                        var autil = (votPerMinute * autoNetworkData[(zoneOffset * 2) + 1]) + autoNetworkData[zoneOffset * 2];
                         // +4 is boarding
                         var tutil = transitNetworkData[(zoneOffset * 5) + 4];
                         auto[i] = (float)Math.Exp(BAutoUtil * autil);
@@ -206,7 +215,6 @@ namespace Tasha.Airport
                         + (BPD1 * pd1[i]);
                     sum += (distribution[i] = (float)(Math.Exp(local) * Math.Pow(distribution[i], BLogsum)));
                 }
-
                 return sum;
             }
 
@@ -339,13 +347,13 @@ namespace Tasha.Airport
                 var total = p[i] + g[i] + s[i] + m[i];
                 if(total > 0)
                 {
-                    var logTotal = (float)Math.Log(total);
+                    var logTotal = (float)Math.Log(total + 1);
                     p[i] = logTotal * (p[i] / total);
                     g[i] = logTotal * (g[i] / total);
                     s[i] = logTotal * (s[i] / total);
                     m[i] = logTotal * (m[i] / total);
                 }
-                pop[i] = (float)Math.Log(pop[i]);
+                pop[i] = (float)Math.Log(pop[i] + 1);
             }
         }
 
