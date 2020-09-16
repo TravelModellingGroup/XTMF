@@ -326,11 +326,14 @@ namespace XTMF
             {
                 // search the parameters
                 var parameters = current.Parameters;
-                foreach (var p in parameters)
+                if (parameters != null)
                 {
-                    if (p.Name == variableLink[index])
+                    foreach (var p in parameters)
                     {
-                        return p;
+                        if (p.Name == variableLink[index])
+                        {
+                            return p;
+                        }
                     }
                 }
             }
