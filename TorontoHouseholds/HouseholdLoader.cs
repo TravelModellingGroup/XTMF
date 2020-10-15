@@ -254,6 +254,11 @@ namespace TMG.Tasha
                     }
                     finally
                     {
+                        if(TripDump != null)
+                        {
+                            TripDump.Dispose();
+                            TripDump = null;
+                        }
                         blockingBuffer.CompleteAdding();
                         if (RefreshHouseholdData)
                         {
