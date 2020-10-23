@@ -36,7 +36,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         public int ScenarioNumber;
 
         [RunParameter("Class Name", "Professional", "The name of the assignment class to analyze")]
-        public int ClassName;
+        public string ClassName;
 
         [RunParameter("Export Transfer Matrix Flag", true, "Did you want to export the transfer matrix?")]
         public bool ExportTransferMatrixFlag;
