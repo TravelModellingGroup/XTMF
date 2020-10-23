@@ -35,6 +35,9 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         [RunParameter("Scenario Number", 1, "The scenario to interact with")]
         public int ScenarioNumber;
 
+        [RunParameter("Class Name", "Professional", "The name of the assignment class to analyze")]
+        public int ClassName;
+
         [RunParameter("Export Transfer Matrix Flag", true, "Did you want to export the transfer matrix?")]
         public bool ExportTransferMatrixFlag;
 
@@ -70,6 +73,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
             return new[]
             {
                 new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+                new ModellerControllerParameter("xtmf_ClassName", ClassName),
                 new ModellerControllerParameter("ExportTransferMatrixFlag", ExportTransferMatrixFlag.ToString()),
                 new ModellerControllerParameter("ExportWalkAllWayMatrixFlag",ExportWalkAllWayMatrixFlag.ToString()),
                 new ModellerControllerParameter("TransferMatrixFile",TransferMatrixFile.GetFilePath()),
