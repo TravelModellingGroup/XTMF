@@ -242,6 +242,7 @@
     <Compile Include="Estimation\AccessStation\BlankTashaMode.cs" />
     <Compile Include="Estimation\AccessStation\PassengerAccessStationChoiceModelSystemTemplate.cs" />
     <Compile Include="Estimation\AccessStation\TourLoader.cs" />
+    <Compile Include="Estimation\EstimateMississaugaAO.cs" />
     <Compile Include="Estimation\EstimationHouseholdLoader.cs" />
     <Compile Include="Estimation\HostHouseholdLoader.cs" />
     <Compile Include="Estimation\IntegrateIntoEstimationFramework.cs" />
@@ -295,6 +296,7 @@
     <Compile Include="PopulationSynthesis\CreateZonalResidenceFromPopulation.cs" />
     <Compile Include="PopulationSynthesis\DriverLicenseModel.cs" />
     <Compile Include="PopulationSynthesis\ExtractEmploymentData.cs" />
+    <Compile Include="PopulationSynthesis\MississaugaAOModel.cs" />
     <Compile Include="PopulationSynthesis\PerceivedTimeAggregatePoRPoW.cs" />
     <Compile Include="PopulationSynthesis\AggregatePoRPoW.cs" />
     <Compile Include="PopulationSynthesis\ApplyOccupationRates.cs" />
@@ -353,6 +355,7 @@
     <Compile Include="StationAccess\StationAccessChoice.cs" />
     <Compile Include="TashaRuntime.cs" />
     <Compile Include="Utilities\BasicTravelDemandModel.cs" />
+    <Compile Include="Utilities\SaveHouseholdsToCSV.cs" />
     <Compile Include="Utilities\SaveSparseArrayToCSV.cs" />
     <Compile Include="V4Modes\AutoDrive.cs" />
     <Compile Include="V4Modes\Bicycle.cs" />

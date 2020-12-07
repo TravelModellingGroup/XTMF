@@ -573,7 +573,10 @@ namespace TMG.Tasha
             {
                 if (Reader == null)
                 {
-                    Reader = new CsvReader(Path.Combine(Root.InputBaseDirectory, FileName));
+                    Reader = new CsvReader(
+                        HouseholdFile != null?
+                        HouseholdFile.GetFilePath()
+                        : Path.Combine(Root.InputBaseDirectory, FileName));
                 }
                 Reset();
                 if (ContainsHeader)
