@@ -355,6 +355,7 @@
     <Compile Include="StationAccess\StationAccessChoice.cs" />
     <Compile Include="TashaRuntime.cs" />
     <Compile Include="Utilities\BasicTravelDemandModel.cs" />
+    <Compile Include="Utilities\SaveHouseholdsToCSV.cs" />
     <Compile Include="Utilities\SaveSparseArrayToCSV.cs" />
     <Compile Include="V4Modes\AutoDrive.cs" />
     <Compile Include="V4Modes\Bicycle.cs" />

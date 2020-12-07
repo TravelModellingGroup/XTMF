@@ -146,15 +146,56 @@ namespace Tasha.PopulationSynthesis
             ComputeThresholds();
         }
 
+        public sealed class Offset : IModule
+        {
+            [RunParameter("PDs", "0", typeof(RangeSet), "Range of planning districts to assign to.")]
+            public RangeSet PDs;
+
+            [RunParameter("Threshold Offset 1", 0.0f, "")]
+            public float ThresholdOffset1;
+            [RunParameter("Threshold Offset 2", 0.0f, "")]
+            public float ThresholdOffset2;
+            [RunParameter("Threshold Offset 3", 0.0f, "")]
+            public float ThresholdOffset3;
+            [RunParameter("Threshold Offset 4", 0.0f, "")]
+            public float ThresholdOffset4;
+
+            public string Name { get; set; }
+
+            public float Progress => 0f;
+
+            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+        [SubModelInformation(Required = false, Description = "Offsets for thresholds for given planning districts")]
+        public Offset[] Offsets;
+
         private void ComputeThresholds()
         {
             _thresholdOffset1 = new float[_zoneSystem.Count];
             _thresholdOffset2 = new float[_thresholdOffset1.Length];
             _thresholdOffset3 = new float[_thresholdOffset1.Length];
             _thresholdOffset4 = new float[_thresholdOffset1.Length];
+            var pds = _zoneSystem.GetFlatData().Select(z => z.PlanningDistrict).ToArray();
 
-            //TODO: If we need to have some sort of PD shifting for our thresholds that will happen here.
-
+            foreach (var offset in Offsets)
+            {
+                for (int i = 0; i < pds.Length; i++)
+                {
+                    if(offset.PDs.Contains(pds[i]))
+                    {
+                        _thresholdOffset1[i] += offset.ThresholdOffset1;
+                        _thresholdOffset2[i] += offset.ThresholdOffset2;
+                        _thresholdOffset3[i] += offset.ThresholdOffset3;
+                        _thresholdOffset4[i] += offset.ThresholdOffset4;
+                    }
+                }
+            }
         }
 
         private void ComputeHouseholdZoneUtilities(float[][] features)
