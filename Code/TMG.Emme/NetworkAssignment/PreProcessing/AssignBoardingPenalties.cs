@@ -66,8 +66,11 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
             [RunParameter("Mode Filter", "", "Apply a mode filter for this boarding penalty.")]
             public string ModeFilter;
 
-            [RunParameter("Penalty", 0.0f, "The boarding penalty to apply for this filter.")]
+            [RunParameter("Penalty", 0.0f, "The initial boarding penalty to apply for this filter.")]
             public float Penalty;
+
+            [RunParameter("Transfer Penalty", -1.0f, "The boarding penalty to apply on transfers, negative values will apply the initial penalty instead.")]
+            public float TransferPenalty;
 
             [RunParameter("In Vehicle Time Perception", 1.0f, "The perceived time ratio compared to true time.")]
             // ReSharper disable once InconsistentNaming
@@ -80,6 +83,7 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
                     + (!String.IsNullOrWhiteSpace(LineFilter) && !String.IsNullOrWhiteSpace(ModeFilter) ? " and " : "")
                     + (!String.IsNullOrWhiteSpace(ModeFilter) ? "mode=" + (ModeFilter == "\"" ? "'" : ModeFilter) : "")
                     + ": " + Controller.ToEmmeFloat(Penalty)
+                    + ": " + Controller.ToEmmeFloat(TransferPenalty >= 0.0f ? TransferPenalty : Penalty)
                     + ": " + Controller.ToEmmeFloat(IVTTPerception);
             }
 
