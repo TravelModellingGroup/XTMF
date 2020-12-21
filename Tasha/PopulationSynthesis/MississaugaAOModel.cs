@@ -13,7 +13,7 @@ using TMG.Functions;
 
 namespace Tasha.PopulationSynthesis
 {
-    public class MississaugaAOModel : ICalculation<ITashaHousehold, int>
+    public class MississaugaAOModel : IEstimableCalculation<ITashaHousehold, int>
     {
         public string Name { get; set; }
 

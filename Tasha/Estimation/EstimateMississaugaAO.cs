@@ -77,7 +77,7 @@ namespace Tasha.Estimation
         private ITashaHousehold[] _households;
 
         [SubModelInformation(Required = true, Description = "The model to estimate")]
-        public MississaugaAOModel Model;
+        public IEstimableCalculation<ITashaHousehold, int> Model;
 
         [RootModule]
         public IEstimationClientModelSystem Root;
@@ -87,7 +87,7 @@ namespace Tasha.Estimation
         public void Start()
         {
             if(_households == null)
-            { 
+            {
                 Console.WriteLine("Loading one time data");
                 ZoneSystem.LoadData();
                 foreach(var network in NetworkData)

@@ -134,6 +134,7 @@
     <Compile Include="IDemographicAssignment.cs" />
     <Compile Include="IDemographicCategory.cs" />
     <Compile Include="Generation\IDemographicCategoryGeneration.cs" />
+    <Compile Include="IEstimableCalculation.cs" />
     <Compile Include="IIterationSensitive.cs" />
     <Compile Include="IModeAggregationTally.cs" />
     <Compile Include="ICalculation.cs" />

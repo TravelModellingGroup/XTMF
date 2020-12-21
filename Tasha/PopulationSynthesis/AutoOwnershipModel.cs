@@ -31,7 +31,7 @@ using XTMF;
 namespace Tasha.PopulationSynthesis
 {
     [ModuleInformation(Description = "The Auto Ownership model for GTAModel V4.1.0.")]
-    public sealed class AutoOwnershipModel : ICalculation<ITashaHousehold, int>
+    public sealed class AutoOwnershipModel : IEstimableCalculation<ITashaHousehold, int>
     {
         [RootModule]
         public ITravelDemandModel Root;
@@ -79,6 +79,8 @@ namespace Tasha.PopulationSynthesis
         public float AveragePerceivedTransitTimeToWork;
         [RunParameter("Avg Auto Time To Work", -0.069f, "Applied to the auto travel time to work.")]
         public float AverageAutoTravelTimeToWork;
+        [RunParameter("Apartment", 0.0f, "Applied to the utility if the household is in an apartment dwelling.")]
+        public float Apartment;
 
         [RunParameter("Threshold 1", 5.186f, "")]
         public float Threshold1;
@@ -95,7 +97,6 @@ namespace Tasha.PopulationSynthesis
         public int RandomSeed;
 
         private SparseArray<IZone> _zones;
-        private float[] _zonalConstants;
         private float[] _thresholdOffset1;
         private float[] _thresholdOffset2;
         private float[] _thresholdOffset3;
@@ -103,20 +104,12 @@ namespace Tasha.PopulationSynthesis
 
         [SubModelInformation(Required = true, Description = "The population density in pop/m^2")]
         public IDataSource<SparseArray<float>> PopulationDensity;
-        private float[] _populationDensity;
-        private float[][] _distances;
 
         [SubModelInformation(Required = true, Description = "The job density in pop/m^2")]
         public IDataSource<SparseArray<float>> JobDensity;
-        private float[] _jobDensity;
 
         [SubModelInformation(Required = true, Description = "The aggregate number of job linkages.")]
         public IDataSource<SparseTwinIndex<float>> JobLinkages;
-        private float[][] _jobLinkages;
-
-        private float[] _jobAverageAutoTime;
-        private float[] _jobAverageDistance;
-        private float[] _jobAverageTransitTime;
 
         [RunParameter("Auto Network", "Auto", "The auto network to use for travel times.")]
         public string AutoNetwork;
@@ -130,17 +123,66 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Time To Use", "7:00", typeof(Time), "The time of day to use for computing travel times.")]
         public Time TimeToUse;
 
+        /// <summary>
+        /// The pre-computed utility to apply for the household zones
+        /// </summary>
+        private float[] _preComputedHouseholdZoneUtilities;
 
         public void Load()
         {
             _random = new Random(RandomSeed);
             _zones = Root.ZoneSystem.ZoneArray;
-            _distances = Root.ZoneSystem.Distances.GetFlatData();
-            LoadVector(out _populationDensity, PopulationDensity);
-            LoadVector(out _jobDensity, JobDensity);
-            LoadMatrix(out _jobLinkages, JobLinkages);
+            ComputeHouseholdZoneUtilities();
+        }
+
+        private void ComputeHouseholdZoneUtilities()
+        {
             ComputeAccessibility();
-            LoadZonalConstants();
+            LoadThresholdOffsets();
+        }
+
+        private void ComputeAccessibility()
+        {
+            var distances = Root.ZoneSystem.Distances.GetFlatData();
+            int numberOfZones = _zones.Count;
+            _preComputedHouseholdZoneUtilities = new float[distances.Length];
+            var jobAverageAutoTime = new float[numberOfZones];
+            var jobAverageDistance = new float[numberOfZones];
+            var jobAverageTransitTime = new float[numberOfZones];
+            LoadVector(out var populationDensity, PopulationDensity);
+            LoadVector(out var jobDensity, JobDensity);
+            LoadMatrix(out var jobLinkages, JobLinkages);
+            var autoData = _autoNetwork.GetTimePeriodData(TimeToUse);
+            var transitData = _transitNetwork.GetTimePeriodData(TimeToUse);
+            for (int i = 0; i < jobLinkages.Length; i++)
+            {
+                var totalJobs = VectorHelper.Sum(jobLinkages[i], 0, jobLinkages[i].Length);
+                // only compute the data if the zone has employment, otherwise keep it zero.
+                if (totalJobs > 0)
+                {
+                    var distanceRow = distances[i];
+                    var autoIndex = (numberOfZones * i) * 2;
+                    var transitIndex = (numberOfZones * i) * 5;
+                    for (int j = 0; j < jobLinkages[i].Length; j++)
+                    {
+                        var jobRatio = (jobLinkages[i][j] / totalJobs);
+                        jobAverageAutoTime[i] += jobRatio * autoData[autoIndex];
+                        // using perceived travel time
+                        jobAverageTransitTime[i] += jobRatio * transitData[transitIndex + 4];
+                        // this variable is in km
+                        jobAverageDistance[i] += jobRatio * (distanceRow[j] / 1000f);
+                        autoIndex += 2;
+                        transitIndex += 5;
+                    }
+                }
+                  
+                var v = PopulationDensityBeta * populationDensity[i];
+                v += JobDensityBeta * jobDensity[i];
+                v += AverageAutoTravelTimeToWork * jobAverageAutoTime[i];
+                v += AveragePerceivedTransitTimeToWork * jobAverageTransitTime[i];
+                v += AverageDistanceToWork * jobAverageDistance[i];
+                _preComputedHouseholdZoneUtilities[i] = v;
+            }
         }
 
         public sealed class PDConstants : IModule
@@ -190,10 +232,9 @@ namespace Tasha.PopulationSynthesis
             }
         }
 
-        private void LoadZonalConstants()
+        private void LoadThresholdOffsets()
         {
             var flatZones = _zones.GetFlatData();
-            _zonalConstants = new float[flatZones.Length];
             _thresholdOffset1 = new float[flatZones.Length];
             _thresholdOffset2 = new float[flatZones.Length];
             _thresholdOffset3 = new float[flatZones.Length];
@@ -201,43 +242,12 @@ namespace Tasha.PopulationSynthesis
             var pds = _zones.GetFlatData().Select(zone => zone.PlanningDistrict).ToArray();
             foreach (var constants in Constants)
             {
-                constants.ApplyConstant(pds, _zonalConstants, _thresholdOffset1, _thresholdOffset2, _thresholdOffset3, _thresholdOffset4);
+                constants.ApplyConstant(pds, _preComputedHouseholdZoneUtilities, _thresholdOffset1, _thresholdOffset2, _thresholdOffset3, _thresholdOffset4);
             }
         }
 
         [SubModelInformation(Required = false, Description = "The spatial constants to apply at the planning district level")]
         public PDConstants[] Constants;
-        private void ComputeAccessibility()
-        {
-            int numberOfZones = _zones.Count;
-            _jobAverageAutoTime = new float[numberOfZones];
-            _jobAverageDistance = new float[numberOfZones];
-            _jobAverageTransitTime = new float[numberOfZones];
-            var autoData = _autoNetwork.GetTimePeriodData(TimeToUse);
-            var transitData = _transitNetwork.GetTimePeriodData(TimeToUse);
-            for (int i = 0; i < _jobLinkages.Length; i++)
-            {
-                var totalJobs = VectorHelper.Sum(_jobLinkages[i], 0, _jobLinkages[i].Length);
-                // only compute the data if the zone has employment, otherwise keep it zero.
-                if (totalJobs > 0)
-                {
-                    var distanceRow = _distances[i];
-                    var autoIndex = (numberOfZones * i) * 2;
-                    var transitIndex = (numberOfZones * i) * 5;
-                    for (int j = 0; j < _jobLinkages[i].Length; j++)
-                    {
-                        var jobRatio = (_jobLinkages[i][j] / totalJobs);
-                        _jobAverageAutoTime[i] += jobRatio * autoData[autoIndex];
-                        // using perceived travel time
-                        _jobAverageTransitTime[i] += jobRatio * transitData[transitIndex + 4];
-                        // this variable is in km
-                        _jobAverageDistance[i] += jobRatio * (distanceRow[j] / 1000f);
-                        autoIndex += 2;
-                        transitIndex += 5;
-                    }
-                }
-            }
-        }
 
         private void LoadVector(out float[] data, IDataSource<SparseArray<float>> source)
         {
@@ -269,12 +279,77 @@ namespace Tasha.PopulationSynthesis
 
         public int ProduceResult(ITashaHousehold data)
         {
+            int flathomeZone = _zones.GetFlatIndex(data.HomeZone.ZoneNumber);
+            float v = ComputeUtility(data, flathomeZone);
+            // now that we have our utility go through them and test against the thresholds.
+            var pop = _random.NextDouble();
+            if (pop < LogitCDF(v, Threshold1 + _thresholdOffset1[flathomeZone]))
+            {
+                return 0;
+            }
+            if (pop < LogitCDF(v, Threshold2 + _thresholdOffset2[flathomeZone]))
+            {
+                return 1;
+            }
+            if (pop < LogitCDF(v, Threshold3 + _thresholdOffset3[flathomeZone]))
+            {
+                return 2;
+            }
+            if (pop < LogitCDF(v, Threshold4 + _thresholdOffset4[flathomeZone]))
+            {
+                return 3;
+            }
+            //TODO: Replace this with a 4+ distribution?
+            return 4;
+        }
+
+        public float Estimate(ITashaHousehold input, int expectedResult)
+        {
+            int flathomeZone = _zones.GetFlatIndex(input.HomeZone.ZoneNumber);
+            float v = ComputeUtility(input, flathomeZone);
+            switch(expectedResult)
+            {
+                case 0:
+                    return LogitCDF(v, Threshold1 + _thresholdOffset1[flathomeZone]);
+                case 1:
+                    return LogitCDF(v, Threshold2 + _thresholdOffset2[flathomeZone])
+                        - LogitCDF(v, Threshold1 + _thresholdOffset1[flathomeZone]);
+                case 2:
+                    return LogitCDF(v, Threshold3 + _thresholdOffset3[flathomeZone])
+                        - LogitCDF(v, Threshold2 + _thresholdOffset2[flathomeZone]);
+                case 3:
+                    return LogitCDF(v, Threshold4 + _thresholdOffset4[flathomeZone])
+                        - LogitCDF(v, Threshold3 + _thresholdOffset3[flathomeZone]);
+                default:
+                    return 1.0f
+                        - LogitCDF(v, Threshold4 + _thresholdOffset4[flathomeZone]);
+            }
+        }
+
+        private float ComputeUtility(ITashaHousehold data, int flathomeZone)
+        {
+            var v = _preComputedHouseholdZoneUtilities[flathomeZone];
             var persons = data.Persons;
-            var flathomeZone = _zones.GetFlatIndex(data.HomeZone.ZoneNumber);
-            var v = NumberOfAdults * persons.Count(p => p.Age >= 18) + _zonalConstants[flathomeZone];
-            v += NumberOfKids * persons.Count(p => p.Age < 16);
-            v += NumberOfFTWorkers * persons.Count(p => p.EmploymentStatus == TTSEmploymentStatus.FullTime);
-            switch(persons.Count(p => p.Licence))
+            int adults = 0, kids = 0, ftWorkers = 0;
+            for (int i = 0; i < persons.Length; i++)
+            {
+                if(persons[i].Age >= 18)
+                {
+                    adults++;
+                }
+                else if(persons[i].Age < 16)
+                {
+                    kids++;
+                }
+                if(persons[i].EmploymentStatus == TTSEmploymentStatus.FullTime)
+                {
+                    ftWorkers++;
+                }
+            }
+            v += NumberOfAdults * adults;
+            v += NumberOfKids * kids;
+            v += NumberOfFTWorkers * ftWorkers;
+            switch (persons.Count(p => p.Licence))
             {
                 case 0:
                     // there is nothing to add if there is no driver's license
@@ -285,12 +360,12 @@ namespace Tasha.PopulationSynthesis
                 case 2:
                     v += DriverLicense2;
                     break;
-                    // 3+
+                // 3+
                 default:
                     v += DriverLicense3Plus;
                     break;
             }
-            switch(data.IncomeClass)
+            switch (data.IncomeClass)
             {
                 case 2:
                     v += Income2;
@@ -307,36 +382,15 @@ namespace Tasha.PopulationSynthesis
                 case 6:
                     v += Income6;
                     break;
-                    // case 1 (base) or case 7 (invalid)
+                // case 1 (base) or case 7 (invalid)
                 default:
                     break;
             }
-            v += PopulationDensityBeta * _populationDensity[flathomeZone];
-            v += JobDensityBeta * _jobDensity[flathomeZone];
-
-            v += AverageAutoTravelTimeToWork * _jobAverageAutoTime[flathomeZone];
-            v += AveragePerceivedTransitTimeToWork * _jobAverageTransitTime[flathomeZone];
-            v += AverageDistanceToWork * _jobAverageDistance[flathomeZone];
-            // now that we have our utility go through them and test against the thresholds.
-            var pop = _random.NextDouble();
-            if(pop < LogitCDF(v, Threshold1 + _thresholdOffset1[flathomeZone]))
+            if (data.DwellingType == DwellingType.Apartment)
             {
-                return 0;
+                v += Apartment;
             }
-            if(pop < LogitCDF(v, Threshold2 + _thresholdOffset2[flathomeZone]))
-            {
-                return 1;
-            }
-            if(pop < LogitCDF(v, Threshold3 + _thresholdOffset3[flathomeZone]))
-            {
-                return 2;
-            }
-            if(pop < LogitCDF(v, Threshold4 + _thresholdOffset4[flathomeZone]))
-            {
-                return 3;
-            }
-            //TODO: Replace this with a 4+ distribution?
-            return 4;
+            return v;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -347,12 +401,7 @@ namespace Tasha.PopulationSynthesis
 
         public void Unload()
         {
-            _distances = null;
-            _jobDensity = null;
-            _jobAverageAutoTime = null;
-            _jobAverageDistance = null;
-            _jobAverageTransitTime = null;
-            _populationDensity = null;
+            _preComputedHouseholdZoneUtilities = null;
         }
 
         public bool RuntimeValidation(ref string error)
