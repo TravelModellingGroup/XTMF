@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from __future__ import print_function
 import sys
 import os
 import glob
@@ -33,6 +34,7 @@ from threading import Thread
 import threading
 import time
 from contextlib import contextmanager
+import six
 
 class ProgressTimer(Thread):
     def __init__(self, delegateFunction, XtmfBridge):
@@ -64,6 +66,9 @@ class NullStream:
      def write(self, data): 
          pass
 
+     def flush(self):
+        pass
+
 # A Stream which redirects print statements to XTMF Console
 class RedirectToXTMFConsole:
     def __init__(self, xtmfBridge):
@@ -71,6 +76,9 @@ class RedirectToXTMFConsole:
     
     def write(self, data):
         self.bridge.SendPrintSignal(str(data))
+
+    def flush(self):
+        pass
 
 def RedirectLogbookWrite(name, attributes=None, value=None):
     pass
@@ -134,11 +142,17 @@ class XTMFBridge:
         sys.stdin.close()
         self.ToXTMF = open('\\\\.\\pipe\\' + pipeName, 'wb', 0)
         self.FromXTMF = os.fdopen(0, "rb")
-        #sys.stdout = NullStream()
+        sys.stdout = NullStream()
         self.IOLock = threading.Lock()
         sys.stdin = None
         sys.stdout = RedirectToXTMFConsole(self)
         return
+
+    def GetToolParameters(self, tool):
+        if six.PY3:
+            return inspect.getfullargspec(tool.__call__)[0][1:]
+        else:
+            return inspect.getargspec(tool.__call__)[0][1:]
     
     def ReadLEB(self):
         ret = 0
@@ -148,7 +162,7 @@ class XTMFBridge:
         while Continue:
             #unsigned array
             byteArray = array.array('B')
-            byteArray.read(self.FromXTMF, 1)
+            byteArray.fromfile(self.FromXTMF, 1)
             current = byteArray.pop()
             if current < 128:
                 Continue = False
@@ -161,17 +175,21 @@ class XTMFBridge:
         return ret
         
     def ReadString(self):
-        length = self.ReadLEB()
+        # The byte length will be twice the number of characters
+        stringArray = array.array('u')
+        length = self.ReadLEB() >> (stringArray.itemsize >> 1)
         try:
-            stringArray = array.array('c')
-            stringArray.read(self.FromXTMF, length)
-            return stringArray.tostring() 
-        except:
-            return stringArray.tostring()
+            stringArray.fromfile(self.FromXTMF, length)
+            ret = stringArray.tounicode()
+            return ret
+        except Exception as e:
+            print(str(stringArray))
+            print(str(e))
+            return stringArray.tounicode()
     
     def ReadInt(self):
         intArray = array.array('l')
-        intArray.read(self.FromXTMF, 1)
+        intArray.fromfile(self.FromXTMF, 1)
         return intArray.pop()
     
     def IsWhitespace(self, c):
@@ -182,7 +200,7 @@ class XTMFBridge:
     
     def GetToolParameterTypes(self, tool):
         # get the names of the parameters
-        parameterNames = inspect.getargspec(tool.__call__)[0][1:]
+        parameterNames = self.GetToolParameters(tool)
         ret = []
         for param in parameterNames:
             try:
@@ -298,7 +316,8 @@ class XTMFBridge:
         return string
     
     def SendString(self, stringToSend):
-        length = len(stringToSend)
+        msg = array.array('u', six.text_type(stringToSend))
+        length = len(msg) * msg.itemsize
         tempLength = length
         bytes = 0
         #figure out how many bytes we are going to need to store the length
@@ -320,9 +339,8 @@ class XTMFBridge:
                 else:
                     lengthArray.append(diff + 128)
                 tempLength = tempLength >> 7
-        lengthArray.write(self.ToXTMF)
-        msg = array.array('c', str(stringToSend))
-        msg.write(self.ToXTMF)       
+        lengthArray.tofile(self.ToXTMF)
+        msg.tofile(self.ToXTMF)
         return
     
     def SendToolDoesNotExistError(self, namespace):
@@ -353,7 +371,7 @@ class XTMFBridge:
         self.IOLock.acquire()
         intArray = array.array('l')
         intArray.append(self.SignalRunComplete)
-        intArray.write(self.ToXTMF)
+        intArray.tofile(self.ToXTMF)
         self.ToXTMF.flush()
         self.IOLock.release()
         return
@@ -369,7 +387,7 @@ class XTMFBridge:
     def SendSignal(self, signal):
         intArray = array.array('l')
         intArray.append(signal)
-        intArray.write(self.ToXTMF)
+        intArray.tofile(self.ToXTMF)
         return
     
     def SendPrintSignal(self, stringToPrint):
@@ -385,7 +403,7 @@ class XTMFBridge:
         self.SendSignal(self.SignalProgressReport)
         floatArray = array.array('f')
         floatArray.append(float(progress))
-        floatArray.write(self.ToXTMF)
+        floatArray.tofile(self.ToXTMF)
         self.ToXTMF.flush()
         self.IOLock.release()   
         return
@@ -453,7 +471,7 @@ class XTMFBridge:
                 numberOfParameters = int(self.ReadString())
                 sentParameterNames = [self.ReadString() for p in range(0, numberOfParameters)]
                 parameterList = [self.ReadString() for p in range(0, numberOfParameters)]
-                expectedParameterNames = inspect.getargspec(tool.__call__)[0][1:]
+                expectedParameterNames = self.GetToolParameters(tool)
                 if not self.ReorderParametersToMatch(macroName, expectedParameterNames, sentParameterNames, parameterList):
                     return
                 parameterString = str.join(',', ['{%s:%s}' %(sentParameterNames[p], parameterList[p]) for p in range(0, numberOfParameters)])
@@ -466,15 +484,15 @@ class XTMFBridge:
                 _m.logbook_write("The parameter string was \r\n" + parameterString)
                 self.SendParameterError("The module \"" + macroName + "\" was executed with the wrong number of arguments or of invalid types.")
                 return
-            parameterNames = inspect.getargspec(tool.__call__)[0][1:]
+            parameterNames = self.GetToolParameters(tool)
             #Do the exec in another namespace
             nameSpace = {'tool':tool, 'parameterNames':parameterNames, 'parameterList':parameterList}
             for i in range(len(parameterList)):
                 if toolParameterTypes[i] == "string":
                     toExecute = "tool." + parameterNames[i] + "='" + str(parameterList[i]).replace("\\","\\\\").replace("'","\\'").replace("\"","\\\"") + "'"
-                    exec toExecute in nameSpace
                 else:
-                    exec "tool." + parameterNames[i] + "=" + str(parameterList[i]) in nameSpace
+                    toExecute = "tool." + parameterNames[i] + "=" + str(parameterList[i])
+                exec(toExecute, nameSpace, {})
             callString = self.BuildCallString("tool", "parameterList", len(parameterList))
             #Now that everything is ready, attach an instance of ourselves into
             #the tool so they can send progress reports
@@ -485,7 +503,6 @@ class XTMFBridge:
                 timer.start()
             #Execute the tool, getting the return value
             ret = eval(callString, nameSpace, None)
-            
             if timer != None:
                 timer.stop()
             
@@ -494,7 +511,7 @@ class XTMFBridge:
                 self.SendSuccess()
             else:
                 self.SendReturnSuccess(ret)
-        except Exception, inst:
+        except Exception as inst:
             if timer != None:
                 timer.stop()
             _m.logbook_write("We are in the exception code for ExecuteModule")
@@ -507,7 +524,6 @@ class XTMFBridge:
             else:
                 _m.logbook_write("Parameter : None")
             _m.logbook_write(str(inst))
-            _m.logbook_write("Finished dumping exception")
 
             etype, evalue, etb = sys.exc_info()
             stackList = _traceback.extract_tb(etb)
@@ -539,7 +555,7 @@ class XTMFBridge:
             self.emmeApplication = _app.start_dedicated(visible=False, user_initials="XTMF", project=projectFile)
             self.Modeller = inro.modeller.Modeller(self.emmeApplication)
             self.SendSuccess()
-        except Exception, inst:
+        except Exception as inst:
             self.SendRuntimeError(str(inst))
         return
             
@@ -565,7 +581,11 @@ class XTMFBridge:
         self.ToXTMF.flush()
         exit = False
         while(not exit):
-            input = self.ReadInt()
+            try:
+                input = self.ReadInt()
+            except  Exception as inst:
+                # this is because the bridge was closed on the XTMF side
+                return
             if input == self.SignalTermination:
                 _m.logbook_write("Exiting on termination signal from XTMF")
                 exit = True
@@ -624,13 +644,13 @@ databank = None
 if len(args) > 5:
     databank = args[5]
 #sys.stderr.write(args)
-print userInitials
-print projectFile
+print(userInitials)
+print(projectFile)
 try:
     TheEmmeEnvironmentXMTF = _app.start_dedicated(visible=False, user_initials=userInitials, project=projectFile)
     XTMFBridge().Run(TheEmmeEnvironmentXMTF, databank, performancFlag)
     TheEmmeEnvironmentXMTF.close()
 except Exception as e:
-    print dir(e).__class__
-    print e.message
-    print e.args
+    print(dir(e).__class__)
+    print(e.message)
+    print(e.args)
