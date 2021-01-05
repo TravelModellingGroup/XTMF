@@ -462,22 +462,32 @@ class XTMFBridge:
             macroName = self.ReadString()
             if not self.EnsureModellerToolExists(macroName):
                 return
-            tool = self.CreateTool(macroName)
-            toolParameterTypes = self.GetToolParameterTypes(tool)
-            if toolParameterTypes == None:
-                return
+
+            # Read in the parameters from XTMF (This needs to happen first so we don't get out of sync).
             if useBinaryParameters:
                 #Read in the number of strings, one for each parameter
                 numberOfParameters = int(self.ReadString())
                 sentParameterNames = [self.ReadString() for p in range(0, numberOfParameters)]
                 parameterList = [self.ReadString() for p in range(0, numberOfParameters)]
+            else:
+                parameterString = self.ReadString()
+                
+            
+            # Now we can create the tool
+            tool = self.CreateTool(macroName)
+            toolParameterTypes = self.GetToolParameterTypes(tool)
+            if toolParameterTypes == None:
+                return
+
+            # Parse the parameters
+            if useBinaryParameters:
                 expectedParameterNames = self.GetToolParameters(tool)
                 if not self.ReorderParametersToMatch(macroName, expectedParameterNames, sentParameterNames, parameterList):
                     return
                 parameterString = str.join(',', ['{%s:%s}' %(sentParameterNames[p], parameterList[p]) for p in range(0, numberOfParameters)])
             else:
-                parameterString = self.ReadString()
                 parameterList = self.BreakIntoParametersStrings(parameterString)
+            
             parameterList = self.ConvertIntoTypes(parameterList, toolParameterTypes)
             if parameterList == None:
                 _m.logbook_write("We were unable to create the parameters to their given types, or there was the wrong number of arguments for the tool " + macroName + ".")
@@ -584,11 +594,14 @@ class XTMFBridge:
             try:
                 input = self.ReadInt()
             except  Exception as inst:
+                sys.stdout = NullStream()
                 # this is because the bridge was closed on the XTMF side
                 return
             if input == self.SignalTermination:
                 _m.logbook_write("Exiting on termination signal from XTMF")
                 exit = True
+                sys.stdout = NullStream()
+                return
             elif input == self.SignalStartModule:
                 if performanceMode:
                     t = timeit.Timer(self.ExecuteModule).timeit(1)
@@ -612,8 +625,12 @@ class XTMFBridge:
             else:
                 #If we do not understand what XTMF is saying quietly die
                 exit = True
-                _m.logbook_write("Exiting on bad input \"" + input + "\"")
-                self.SendSignal(self.SignalTermination)
+                _m.logbook_write("Exiting on bad input \"" + str(input) + "\"")
+                try:
+                    self.SendSignal(self.SignalTermination)
+                except Exception as e:
+                    pass
+                sys.stdout = NullStream()
         return
 
     def CheckToolExists(self):
