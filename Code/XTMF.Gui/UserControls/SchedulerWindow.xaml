@@ -258,13 +258,14 @@
                                                                         </Hyperlink.Inlines>
                                                                     </Hyperlink>
                                                         </TextBlock>
-                                                        <ScrollViewer Grid.Column="1" MaxHeight="150" Margin="2,0,2,0" IsHitTestVisible="False"
+                                                        <ScrollViewer Grid.Column="1" MaxHeight="150" Margin="2,0,2,0" IsHitTestVisible="True"
                                                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                                    ScrollViewer.CanContentScroll="True"
                                                                    HorizontalScrollBarVisibility="Disabled">
-                                                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap">
-                                                                
-                                                            </TextBlock>
+                                                            <TextBox Text="{Binding Description}" TextWrapping="Wrap"
+                                                                     BorderThickness="0"
+                                                                     IsReadOnly="True"
+                                                                     Background="Transparent"/>
                                                         </ScrollViewer>
                                                         <StackPanel Grid.Column="2" Margin="2,0,2,0" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Hand"
                                                                             Tag="{Binding .}" Name="StackTraceGroup"
