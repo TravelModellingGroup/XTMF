@@ -244,6 +244,7 @@
     <Compile Include="Estimation\AccessStation\TourLoader.cs" />
     <Compile Include="Estimation\EstimateMississaugaAO.cs" />
     <Compile Include="Estimation\EstimationHouseholdLoader.cs" />
+    <Compile Include="Estimation\EstimationTrip.cs" />
     <Compile Include="Estimation\HostHouseholdLoader.cs" />
     <Compile Include="Estimation\IntegrateIntoEstimationFramework.cs" />
     <Compile Include="Estimation\KFactors.cs" />

@@ -164,7 +164,7 @@ namespace Tasha.Estimation.AccessStation
 
         private ITrip CreateTrip(IZone origin, IZone destination, Time time)
         {
-            var trip = Scheduler.SchedulerHomeTrip.GetTrip(0);
+            var trip = new EstimationTrip();
             trip.OriginalZone = origin ?? throw new XTMFRuntimeException(this, "Origin was null");
             trip.DestinationZone = destination ?? throw new XTMFRuntimeException(this, "Destination was null");
             trip.TripStartTime = time;
