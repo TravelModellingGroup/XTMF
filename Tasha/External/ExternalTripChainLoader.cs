@@ -251,9 +251,14 @@ namespace Tasha.External
                         // check for the start of a new person
                         if (personNumber != previousPerson)
                         {
+                            var homeZoneIndex = zoneSystem.GetFlatIndex(homeZone);
+                            if(homeZoneIndex < 0)
+                            {
+                                throw new XTMFRuntimeException(this, $"An unknown household zone number was found {homeZone}!");
+                            }
                             currentPerson = new Person()
                             {
-                                Household = households[zoneSystem.GetFlatIndex(homeZone)],
+                                Household = households[homeZoneIndex],
                                 ExpansionFactor = expFactor
                             };
                             currentChain = new TripChain()
