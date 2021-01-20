@@ -74,12 +74,16 @@ namespace Tasha.StationAccess
         /// </summary>
         private int[] _closestStation;
 
-        internal static int[] GetStationZones(RangeSet stationRanges, float[] capacity, IZone[] zones)
+        [RunParameter("Allow Zero Capacity Stations", false, "Allow stations that are included in the station range but" +
+            " have no capacity to be used as access/egress stations.")]
+        public bool AllowZeroCapacityStations;
+
+        internal int[] GetStationZones(RangeSet stationRanges, float[] capacity, IZone[] zones)
         {
             List<int> validStationIndexes = new List<int>();
             for (int i = 0; i < zones.Length; i++)
             {
-                if (capacity[i] > 0 && stationRanges.Contains(zones[i].ZoneNumber))
+                if ((AllowZeroCapacityStations || capacity[i] > 0) && stationRanges.Contains(zones[i].ZoneNumber))
                 {
                     validStationIndexes.Add(i);
                 }
