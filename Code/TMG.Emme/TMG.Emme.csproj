@@ -185,6 +185,7 @@
     <Compile Include="Utilities\ZoneSystemFromNWP.cs" />
     <Compile Include="XTMF_Internal\CopyScenario.cs" />
     <Compile Include="XTMF_Internal\DeleteScenario.cs" />
+    <Compile Include="XTMF_Internal\ImportFunctionBatchFile.cs" />
     <Compile Include="XTMF_Internal\ReturnBoardingsMulticlass.cs" />
   </ItemGroup>
   <ItemGroup>
