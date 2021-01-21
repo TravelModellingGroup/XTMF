@@ -122,6 +122,7 @@
     <Compile Include="Data\Resources\ForwardLookup.cs" />
     <Compile Include="Data\Saving\SaveHistogramData.cs" />
     <Compile Include="Data\Saving\SaveLabeledDataToCSV.cs" />
+    <Compile Include="Data\Saving\SaveODToESRIMatrix.cs" />
     <Compile Include="Data\Saving\SaveODToThirdNormalizedCSV.cs" />
     <Compile Include="Data\Saving\SaveSparseTriIndex.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Aggregation.cs" />
