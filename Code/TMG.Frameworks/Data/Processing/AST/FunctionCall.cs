@@ -50,6 +50,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             Matrix,
             IdentityMatrix,
             Log,
+            Sqrt,
             If,
             IfNaN,
             Normalize,
@@ -153,6 +154,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "log":
                     type = FunctionType.Log;
+                    return true;
+                case "sqrt":
+                    type = FunctionType.Sqrt;
                     return true;
                 case "if":
                     type = FunctionType.If;
@@ -374,6 +378,12 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("Log must be executed with one parameter!");
                     }
                     return Log(values);
+                case FunctionType.Sqrt:
+                    if(values.Length != 1)
+                    {
+                        return new ComputationResult("Sqrt must be executed with one parameter!");
+                    }
+                    return Sqrt(values);
                 case FunctionType.If:
                     if (values.Length != 3)
                     {
@@ -678,6 +688,35 @@ namespace TMG.Frameworks.Data.Processing.AST
                 System.Threading.Tasks.Parallel.For(0, flat.Length, (int i) =>
                 {
                     VectorHelper.Log(flat[i], 0, source[i], 0, source[i].Length);
+                });
+                return new ComputationResult(saveTo, true);
+            }
+        }
+
+        private ComputationResult Sqrt(ComputationResult[] values)
+        {
+            if (values[0].IsValue)
+            {
+                return new ComputationResult((float)Math.Sqrt(values[0].LiteralValue));
+            }
+            else if (values[0].IsVectorResult)
+            {
+                SparseArray<float> saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
+                var source = values[0].VectorData.GetFlatData();
+                var flat = saveTo.GetFlatData();
+                // x^0.5 is sqrt
+                VectorHelper.Pow(flat, source, 0.5f);
+                return new ComputationResult(saveTo, true);
+            }
+            else
+            {
+                SparseTwinIndex<float> saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
+                var source = values[0].OdData.GetFlatData();
+                var flat = saveTo.GetFlatData();
+                System.Threading.Tasks.Parallel.For(0, flat.Length, (int i) =>
+                {
+                    // x^0.5 is sqrt
+                    VectorHelper.Pow(flat[i],source[i], 0.5f);
                 });
                 return new ComputationResult(saveTo, true);
             }
