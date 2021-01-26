@@ -719,35 +719,37 @@ namespace XTMF.Gui
         {
             Dispatcher.Invoke(() =>
             {
-                var exists = false;
-                foreach (TabItem tab in DockManager.Items)
-                {
-                    if (tab.Content == display)
-                    {
-                        exists = true;
-                        tab.IsSelected = true;
-                    }
-                }
-                if (!exists)
+                if (display.Parent == null || !display.IsLoaded)
                 {
                     if (ContentControl.DataContext is ViewModelBase)
                     {
                         ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
                     }
-                    var tabItem = new TabItem
+                    var newTabItem = new TabItem
                     {
                         Content = display,
                         Header = title
                     };
-                    DockManager.Items.Add(tabItem);
+                    DockManager.Items.Add(newTabItem);
                     if (display is IKeyShortcutHandler shortcutHandler)
                     {
-                        tabItem.PreviewKeyDown += delegate (object sender, KeyEventArgs args)
+                        newTabItem.PreviewKeyDown += delegate (object sender, KeyEventArgs args)
                         {
                             shortcutHandler.HandleKeyPreviewDown(sender,args);
                         };
                     }
+                }
+                if (display.Parent is TabItem tabItem)
+                {
                     tabItem.IsSelected = true;
+                    tabItem.Focus();
+                }
+                foreach(var item in display.GetAncestors())
+                {
+                    if(item is Window window)
+                    {
+                        window.Activate();
+                    }
                 }
                 display.Focus();
                 Keyboard.Focus(display);
