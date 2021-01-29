@@ -989,7 +989,7 @@ namespace XTMF.Gui.UserControls
                     else
                     {
                         MessageBox.Show(
-                            "Unable to start run.\r\n" + error,
+                            "Unable to start run.\r\n" + error ?? "UNKNOWN ERROR",
                             "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                 }
