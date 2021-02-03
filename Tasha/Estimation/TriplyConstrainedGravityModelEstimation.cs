@@ -137,13 +137,13 @@ namespace Tasha.Estimation
                         VectorHelper.Multiply(modelRow, 0, modelRow, 0, 1.0f / modelTotalByCategory[category], modelRow.Length);
                     });
             }
-            float fitness = 0.0f;
+            double fitness = 0.0;
             for (int category = 0; category < truth.Length; category++)
             {
                 Parallel.For(0, truth[category].Length,
                     () =>
                 {
-                    return new float[truth[category].Length];
+                    return new double[truth[category].Length];
                 },
                 (i, _, errorForHomeZone) =>
                 {
@@ -152,10 +152,10 @@ namespace Tasha.Estimation
                     var modelRow = model[category][i];
                     if (observedLinkagesForZone > 0.0f)
                     {
-                        var local = 0.0f;
+                        var local = 0.0;
                         for (int j = 0; j < truthRow.Length; j++)
                         {
-                            local += (truthRow[j] * (float)Math.Max(Math.Log(modelRow[j]), MaximumError));
+                            local += (truthRow[j] * Math.Max(Math.Log(modelRow[j]), MaximumError));
                         }
                         errorForHomeZone[i] += observedLinkagesForZone * local;
                     }
@@ -163,7 +163,7 @@ namespace Tasha.Estimation
                 },
                 errorData =>
                 {
-                    var sumOfError = VectorHelper.Sum(errorData, 0, errorData.Length);
+                    var sumOfError = errorData.Sum();
                     lock (this)
                     {
                         fitness += sumOfError;
@@ -171,7 +171,7 @@ namespace Tasha.Estimation
                 });
 
             }
-            Root.RetrieveValue = () => fitness;
+            Root.RetrieveValue = () => (float)fitness;
         }
     }
 
