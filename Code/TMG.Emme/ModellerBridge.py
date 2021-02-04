@@ -448,11 +448,11 @@ class XTMFBridge:
                     index = expectedParameterNames.index(sentParameterNames[i])
                     #then we know there is a miss ordering for this parameter we can just swap
                     temp = sentParameterNames[i]
-                    #temp2 = parameterList[i]
+                    temp2 = parameterList[i]
                     sentParameterNames[i] = sentParameterNames[index]
-                    #parameterList[i] = parameterList[index]
+                    parameterList[i] = parameterList[index]
                     sentParameterNames[index] = temp
-                    #parameterList[index] = temp2
+                    parameterList[index] = temp2
         return True
     
     def ExecuteModule(self, useBinaryParameters):
