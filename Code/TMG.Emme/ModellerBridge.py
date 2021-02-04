@@ -448,8 +448,11 @@ class XTMFBridge:
                     index = expectedParameterNames.index(sentParameterNames[i])
                     #then we know there is a miss ordering for this parameter we can just swap
                     temp = sentParameterNames[i]
+                    #temp2 = parameterList[i]
                     sentParameterNames[i] = sentParameterNames[index]
+                    #parameterList[i] = parameterList[index]
                     sentParameterNames[index] = temp
+                    #parameterList[index] = temp2
         return True
     
     def ExecuteModule(self, useBinaryParameters):
@@ -594,6 +597,7 @@ class XTMFBridge:
             try:
                 input = self.ReadInt()
             except  Exception as inst:
+                exit = True
                 sys.stdout = NullStream()
                 # this is because the bridge was closed on the XTMF side
                 return
@@ -666,8 +670,8 @@ print(projectFile)
 try:
     TheEmmeEnvironmentXMTF = _app.start_dedicated(visible=False, user_initials=userInitials, project=projectFile)
     XTMFBridge().Run(TheEmmeEnvironmentXMTF, databank, performancFlag)
-    TheEmmeEnvironmentXMTF.close()
-except Exception as e:
+except Exception as e:   
     print(dir(e).__class__)
     print(e.message)
     print(e.args)
+TheEmmeEnvironmentXMTF.close()

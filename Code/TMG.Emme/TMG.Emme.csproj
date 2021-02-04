@@ -134,6 +134,7 @@
     <Compile Include="Tools\Analysis\Traffic\ExportCountpostResultsMulticlass.cs" />
     <Compile Include="Tools\Analysis\Transit\EstimateTransitOperatingCosts.cs" />
     <Compile Include="Tools\Analysis\Transit\ExtractTransitMatrixResults.cs" />
+    <Compile Include="Tools\Analysis\Transit\StrategyAnalysis\ExtractFlaggedLineDemandMatrix.cs" />
     <Compile Include="Tools\Analysis\Transit\StrategyAnalysis\ExtractLinkTransfers.cs" />
     <Compile Include="ChainExecution.cs" />
     <Compile Include="Controller.cs" />
