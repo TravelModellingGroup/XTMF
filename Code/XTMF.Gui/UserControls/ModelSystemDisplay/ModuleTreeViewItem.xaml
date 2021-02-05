@@ -93,8 +93,8 @@
                         <Condition  Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
-                        <Setter Property="CustomBackground" Value="{DynamicResource MaterialDesignBody}"/>
-                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBackground}"/>
+                        <Setter Property="CustomBackground" Value="{DynamicResource MaterialDesignPaper}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
             </Style.Triggers>

@@ -46,8 +46,6 @@ namespace XTMF.Gui.UserControls
         private DialogSession _dialogSession;
 
         public bool DidComplete { get; set; }
-
-
     
         public SelectRunDateTimeDialog(ModelSystemEditingSession session)
         {
@@ -180,8 +178,6 @@ namespace XTMF.Gui.UserControls
 
         private bool _useAdvanced = false;
 
-        private string _userInput = "";
-
         public bool UseAdvanced
         {
             get => _useAdvanced;
@@ -192,16 +188,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public string UserInput
-        {
-            get => _userInput;
-            set
-            {
-                _userInput = value;
-                OnPropertyChanged(nameof(UserInput));
-                OnPropertyChanged(nameof(IsRunEnabled));
-            }
-        }
+        public string UserInput { get; set; }
 
         public DateTime ScheduleTime { get; set; } = DateTime.Now;
 
@@ -216,15 +203,12 @@ namespace XTMF.Gui.UserControls
                 OnPropertyChanged(nameof(SelectScheduleEnabled));
             }
         }
-        public bool IsRunEnabled => UserInput != "" && UserInput.Length > 0;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-
         {
-            
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }

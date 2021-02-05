@@ -51,7 +51,7 @@
                     </Grid.RowDefinitions>
                     <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"
                                                            Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4" />
-                    <ProgressBar Foreground="{DynamicResource AccentBaseColorBrush}"
+                    <ProgressBar Foreground="{DynamicResource SecondaryAccentBrush}"
                                                              Grid.Row="1" HorizontalAlignment="Stretch" Minimum="0"
                                                              Maximum="10000" Value="{Binding Progress}" Height="4" />
                     <TextBlock TextWrapping="Wrap"

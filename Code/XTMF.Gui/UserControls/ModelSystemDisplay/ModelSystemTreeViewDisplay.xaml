@@ -34,7 +34,7 @@
             <DrawingBrush.Drawing>
                 <DrawingGroup>
 
-                    <GeometryDrawing Brush="Transparent">
+                    <GeometryDrawing Brush="WhiteSmoke">
 
                         <GeometryDrawing.Geometry>
                             <GeometryGroup>
@@ -113,7 +113,7 @@
                         <GeometryDrawing.Pen>
                             <Pen Thickness="0.3">
                                 <Pen.Brush>
-                                    <SolidColorBrush Color="{DynamicResource Primary600Foreground}" Opacity="0.8"></SolidColorBrush>
+                                    <SolidColorBrush Color="{DynamicResource Primary600Foreground}" Opacity="0.5"></SolidColorBrush>
 
                                 </Pen.Brush>
                             </Pen>
@@ -149,7 +149,7 @@
                         <GeometryDrawing.Pen>
                             <Pen  Thickness="2" >
                                 <Pen.Brush>
-                                    <SolidColorBrush Color="{DynamicResource MaterialDesignBody}" Opacity="0.3"></SolidColorBrush>
+                                    <SolidColorBrush Color="{DynamicResource Primary100Foreground}" Opacity="0.5"></SolidColorBrush>
 
                                 </Pen.Brush>
 
@@ -182,7 +182,7 @@
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
-            <Border Grid.Row="0" Background="{DynamicResource MaterialDesignBody}" Margin="0">
+            <Border Grid.Row="0" Background="{DynamicResource MaterialDesignToolBarBackground}" Margin="0">
                 <local:ModuleContextControl Height="29" Margin="0 0 0 0" Background="{DynamicResource MaterialDesignPaper}" Grid.Row="0" x:Name="ModuleContextControl" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  />
             </Border>
             <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
