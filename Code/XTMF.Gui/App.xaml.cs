@@ -34,8 +34,16 @@ namespace XTMF.Gui
                     var colourOptions = ThemeHelper.ColourOptions;
                     if (EditorController.Runtime.Configuration.PrimaryColour != null)
                     {
-                        var swatch = colourOptions.First(s => s.Name.Equals(EditorController.Runtime.Configuration.PrimaryColour, StringComparison.InvariantCultureIgnoreCase));
-                        ThemeHelper.SetThemePrimaryColour(new PaletteHelper(),swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
+                        var swatch = colourOptions.FirstOrDefault(s => s.Name.Equals(EditorController.Runtime.Configuration.PrimaryColour, StringComparison.InvariantCultureIgnoreCase));
+                        if(swatch != null )
+                        {
+                            ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
+                        }
+                        else
+                        {
+                            ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), colourOptions.First().Name, EditorController.Runtime.Configuration.IsDarkTheme);;
+                        }
+                        
                     }
                     else
                     {
@@ -47,7 +55,15 @@ namespace XTMF.Gui
 
                     if (EditorController.Runtime.Configuration.AccentColour != null)
                     {
-                        var swatch = colourOptions.First(s => s.Name.Equals(EditorController.Runtime.Configuration.AccentColour, StringComparison.InvariantCultureIgnoreCase));
+                        var swatch = colourOptions.FirstOrDefault(s => s.Name.Equals(EditorController.Runtime.Configuration.AccentColour, StringComparison.InvariantCultureIgnoreCase));
+                        if(swatch != null)
+                        {
+                            ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
+                        }
+                        else
+                        {
+                            ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), colourOptions.First().Name, EditorController.Runtime.Configuration.IsDarkTheme);
+                        }
                         ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
                         EditorController.Runtime.Configuration.AccentColour = swatch.Name;
                     }
