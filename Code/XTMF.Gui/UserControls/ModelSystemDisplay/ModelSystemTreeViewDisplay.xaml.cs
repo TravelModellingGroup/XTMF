@@ -61,7 +61,8 @@ namespace XTMF.Gui.UserControls
             {
                 if (EditorController.Runtime.Configuration.IsDarkTheme)
                 {
-                    return (Brush)FindResource("GridTextureBrushDark");
+                    var brush = (Brush)FindResource("GridTextureBrushDark");
+                    return brush;
                 }
 
                 return (Brush)FindResource("GridTextureBrushLight");
