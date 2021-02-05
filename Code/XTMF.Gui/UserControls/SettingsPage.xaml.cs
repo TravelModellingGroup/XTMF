@@ -433,7 +433,7 @@ namespace XTMF.Gui.UserControls
                     string colourName = ((ColourOption)PrimaryColourComboBox.SelectedItem).Name;
                     configuration.PrimaryColour = colourName;
                     ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), colourName, configuration.IsDarkTheme);
-                    // Configuration.Save();
+                    Configuration.Save();
                 }
             }
         }
