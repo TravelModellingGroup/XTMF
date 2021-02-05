@@ -318,9 +318,9 @@
                                             <ColumnDefinition Width="25"></ColumnDefinition>
 
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Module Parameters</TextBlock>
-                                        <materialDesign:PackIcon  Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterSearchButton" MouseUp="ModuleParameterSearchButton_OnMouseUp" />
-                                        <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterDisplayClose" MouseUp="ModuleParameterDisplayClose_OnMouseUp" />
+                                        <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignBody1TextBlock}" Foreground="{DynamicResource MaterialDesignBody}">Module Parameters</TextBlock>
+                                        <materialDesign:PackIcon  Foreground="{DynamicResource MaterialDesignBody}" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterSearchButton" MouseUp="ModuleParameterSearchButton_OnMouseUp" />
+                                        <materialDesign:PackIcon Foreground="{DynamicResource MaterialDesignBody}" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="ModuleParameterDisplayClose" MouseUp="ModuleParameterDisplayClose_OnMouseUp" />
                                     </Grid>
                                 </Grid>
 
@@ -489,9 +489,9 @@
                                             <ColumnDefinition Width="25"></ColumnDefinition>
 
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignTitleTextBlock}">Quick Parameters</TextBlock>
-                                        <materialDesign:PackIcon  Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterSearchButton" MouseUp="QuickParameterSearchButton_OnMouseUp" />
-                                        <materialDesign:PackIcon Background="Transparent" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterDisplayClose" MouseUp="QuickParameterDisplayClose_MouseUp" />
+                                        <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignBody1TextBlock}" Foreground="{DynamicResource MaterialDesignBody}">Quick Parameters</TextBlock>
+                                        <materialDesign:PackIcon  Foreground="{DynamicResource MaterialDesignBody}" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterSearchButton" MouseUp="QuickParameterSearchButton_OnMouseUp" />
+                                        <materialDesign:PackIcon Foreground="{DynamicResource MaterialDesignBody}" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterDisplayClose" MouseUp="QuickParameterDisplayClose_MouseUp" />
                                     </Grid>
                                 </Grid>
                                 <Grid  HorizontalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1">
