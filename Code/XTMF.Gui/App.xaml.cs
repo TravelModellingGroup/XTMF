@@ -7,6 +7,7 @@ using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using MaterialDesignThemes.Wpf.Transitions;
 using XTMF.Gui.Controllers;
+using XTMF.Gui.Helpers;
 
 namespace XTMF.Gui
 {
@@ -29,37 +30,34 @@ namespace XTMF.Gui
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    var swatches = new SwatchesProvider().Swatches.ToList();
-                    var paletteHelper = new PaletteHelper();
 
+                    var colourOptions = ThemeHelper.ColourOptions;
                     if (EditorController.Runtime.Configuration.PrimaryColour != null)
                     {
-                        var swatch = swatches.First(s => s.Name.Equals(EditorController.Runtime.Configuration.PrimaryColour, StringComparison.InvariantCultureIgnoreCase));
-                        paletteHelper.ReplacePrimaryColor(swatch);
+                        var swatch = colourOptions.First(s => s.Name.Equals(EditorController.Runtime.Configuration.PrimaryColour, StringComparison.InvariantCultureIgnoreCase));
+                        ThemeHelper.SetThemePrimaryColour(new PaletteHelper(),swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
                     }
                     else
                     {
-                        var swatch = swatches.First(s => s.Name.Equals("blue", StringComparison.InvariantCultureIgnoreCase));
-                        paletteHelper.ReplacePrimaryColor(swatch);
+                        var swatch = colourOptions.First(s => s.Name.Equals("blue", StringComparison.InvariantCultureIgnoreCase));
+                        ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
                         EditorController.Runtime.Configuration.PrimaryColour = swatch.Name;
                     }
 
 
                     if (EditorController.Runtime.Configuration.AccentColour != null)
                     {
-                        var swatch = swatches.First(s => s.Name.Equals(EditorController.Runtime.Configuration.AccentColour, StringComparison.InvariantCultureIgnoreCase));
-                        paletteHelper.ReplaceAccentColor(swatch);
+                        var swatch = colourOptions.First(s => s.Name.Equals(EditorController.Runtime.Configuration.AccentColour, StringComparison.InvariantCultureIgnoreCase));
+                        ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
                         EditorController.Runtime.Configuration.AccentColour = swatch.Name;
                     }
                     else
                     {
-                        var swatch = swatches.First(s => s.Name.Equals("amber", StringComparison.InvariantCultureIgnoreCase));
-                        paletteHelper.ReplaceAccentColor(swatch);
+                        var swatch = colourOptions.First(s => s.Name.Equals("amber", StringComparison.InvariantCultureIgnoreCase));
+                        ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
+
                     }
-                    // Setting this to true enables the dark theme
-                    paletteHelper.SetLightDark(EditorController.Runtime.Configuration.IsDarkTheme);
-
-
+                    
                     if (EditorController.Runtime.Configuration.IsDisableTransitionAnimations)
                     {
                         TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, false);
