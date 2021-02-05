@@ -113,7 +113,7 @@
                         <GeometryDrawing.Pen>
                             <Pen Thickness="0.3">
                                 <Pen.Brush>
-                                    <SolidColorBrush Color="{DynamicResource Primary600Foreground}" Opacity="0.8"></SolidColorBrush>
+                                    <SolidColorBrush Color="#DDAAAAAA" Opacity="0.8"></SolidColorBrush>
 
                                 </Pen.Brush>
                             </Pen>
@@ -149,7 +149,7 @@
                         <GeometryDrawing.Pen>
                             <Pen  Thickness="2" >
                                 <Pen.Brush>
-                                    <SolidColorBrush Color="{DynamicResource MaterialDesignBody}" Opacity="0.3"></SolidColorBrush>
+                                    <SolidColorBrush Color="#DD222222" Opacity="1.0"></SolidColorBrush>
 
                                 </Pen.Brush>
 
