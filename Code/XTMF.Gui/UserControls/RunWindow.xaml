@@ -48,13 +48,13 @@
                     <Button  x:Name="OpenDirectoryButton" Click="OpenDirectoryButton_Clicked" ToolTip="Open run output folder" >
                         <materialDesign:PackIcon Kind="FolderOutline" />
                     </Button>
-                    <Button Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButtonXtmf}"  Width="24" Height="24"
-                            materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
-                            materialDesign:ButtonProgressAssist.Value="-1" 
-                            materialDesign:ButtonProgressAssist.IsIndeterminate="True"
-                            x:Name="CancelButton" Click="CancelButton_Clicked"  ToolTip="Stop Run" >
+                    <Button  x:Name="CancelButton"  
+                             materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
+                            materialDesign:ButtonProgressAssist.Value="-1"  Click="CancelButton_Clicked"
+                            materialDesign:ButtonProgressAssist.IsIndeterminate="True" ToolTip="Stop Run" >
                         <materialDesign:PackIcon Kind="Stop" />
                     </Button>
+                   
                     <Button x:Name="ClearRunButton"  Click="ClearRunButton_Click" ToolTip="Clear Run Display" Visibility="Collapsed">
                         <materialDesign:PackIcon Kind="NotificationClearAll" />
                     </Button>
