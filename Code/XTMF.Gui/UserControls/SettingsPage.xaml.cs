@@ -32,9 +32,11 @@ using MaterialDesignColors;
 
 namespace XTMF.Gui.UserControls
 {
+    using ControlzEx.Theming;
     using Dragablz.Themes;
 
     using MaterialDesignThemes.Wpf.Transitions;
+    using XTMF.Gui.Helpers;
 
     /// <summary>
     /// Interaction logic for SettingsPage.xaml
@@ -60,60 +62,24 @@ namespace XTMF.Gui.UserControls
 
             private string _projectDirectory;
 
-            public Swatch PrimarySwatch { get; set; }
 
-            public Swatch AccentSwatch { get; set; }
+            public ColourOption PrimaryColor { get; set; }
+
+            public ColourOption SecondaryColor { get; set; }
 
             public IEnumerable<Swatch> Swatches { get; }
 
             public IEnumerable<Swatch> AccentSwatches { get; }
+
+            public IEnumerable<string> Colors { get; }
+
+            public List<ColourOption> ColourOptions { get;  }
 
             public bool IsDarkTheme { get; set; }
 
             public string LocalHostButtonName => Configuration.IsLocalConfiguration ?
                 "Delete Local XTMF Configuration" :
                 "Create Local XTMF Configuration";
-
-            public void UpdateButtons()
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
-            }
-
-            private void UpdateAll()
-            {
-                _projectDirectory = Configuration.ProjectDirectory;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProjectDirectory)));
-                _modelSystemDirectory = Configuration.ModelSystemDirectory;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModelSystemDirectory)));
-                _hostPort = Configuration.HostPort;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HostPort)));
-                if (Configuration.PrimaryColour != null)
-                {
-                    PrimarySwatch = Swatches.First((s) => s.Name == Configuration.PrimaryColour);
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PrimarySwatch)));
-                }
-                if (Configuration.AccentColour != null)
-                {
-                    AccentSwatch = AccentSwatches.First((s) => s.Name == Configuration.AccentColour);
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentSwatch)));
-                }
-                IsDarkTheme = Configuration.IsDarkTheme;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDarkTheme)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
-            }
-
-            public void Save(string configurationFileName = null)
-            {
-                if (configurationFileName == null)
-                {
-                    Configuration.Save();
-                }
-                else
-                {
-                    Configuration.Save(configurationFileName, true);
-                }
-                UpdateButtons();
-            }
 
             public string ProjectDirectory
             {
@@ -180,25 +146,77 @@ namespace XTMF.Gui.UserControls
 
             private Configuration Configuration => EditorController.Runtime.Configuration;
 
+            /// <summary>
+            /// 
+            /// </summary>
+            public void UpdateButtons()
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            private void UpdateAll()
+            {
+                _projectDirectory = Configuration.ProjectDirectory;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProjectDirectory)));
+                _modelSystemDirectory = Configuration.ModelSystemDirectory;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModelSystemDirectory)));
+                _hostPort = Configuration.HostPort;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HostPort)));
+                if (Configuration.PrimaryColour != null)
+                {
+                    PrimaryColor = ColourOptions.First((s) => s.Name == Configuration.PrimaryColour);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PrimaryColor)));
+                }
+                if (Configuration.AccentColour != null)
+                {
+                    SecondaryColor = ColourOptions.First((s) => s.Name == Configuration.AccentColour);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SecondaryColor)));
+                }
+                IsDarkTheme = Configuration.IsDarkTheme;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDarkTheme)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
             public SettingsModel()
             {
                 Swatches = new SwatchesProvider().Swatches;
+                Colors = ThemeManager.Current.ColorSchemes;
                 AccentSwatches = new SwatchesProvider().Swatches.Where((swatch) => swatch.IsAccented);
+                ColourOptions = new List<ColourOption>(); 
+                foreach(var colour in ThemeManager.Current.ColorSchemes)
+                {
+                    ColourOptions.Add(new ColourOption()
+                    {
+                        Name = colour,
+                        Colour = ThemeHelper.GetThemeColor(colour)
+                    }); ;
+                }
                 _projectDirectory = Configuration.ProjectDirectory;
                 _modelSystemDirectory = Configuration.ModelSystemDirectory;
                 _hostPort = Configuration.HostPort;
                 Configuration.PropertyChanged += Configuration_PropertyChanged;
                 if (Configuration.PrimaryColour != null)
                 {
-                    PrimarySwatch = Swatches.First((s) => s.Name == Configuration.PrimaryColour);
+                    PrimaryColor = ColourOptions.FirstOrDefault((s) => s.Name == Configuration.PrimaryColour);
                 }
                 if (Configuration.AccentColour != null)
                 {
-                    AccentSwatch = AccentSwatches.First((s) => s.Name == Configuration.AccentColour);
+                    SecondaryColor = ColourOptions.FirstOrDefault((s) => s.Name == Configuration.AccentColour);
                 }
                 IsDarkTheme = Configuration.IsDarkTheme;
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             private void Configuration_PropertyChanged(object sender, PropertyChangedEventArgs e)
             {
                 ProjectDirectory = Configuration.ProjectDirectory;
@@ -206,8 +224,31 @@ namespace XTMF.Gui.UserControls
                 HostPort = Configuration.HostPort;
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="configurationFileName"></param>
+            public void Save(string configurationFileName = null)
+            {
+                if (configurationFileName == null)
+                {
+                    Configuration.Save();
+                }
+                else
+                {
+                    Configuration.Save(configurationFileName, true);
+                }
+                UpdateButtons();
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
             internal void Unbind() => Configuration.PropertyChanged -= Configuration_PropertyChanged;
 
+            /// <summary>
+            /// 
+            /// </summary>
             internal void DeleteLocalConfiguration()
             {
                 var result = MessageBox.Show(MainWindow.Us,
@@ -222,6 +263,9 @@ namespace XTMF.Gui.UserControls
                 UpdateAll();
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
             internal void CreateLocalConfiguration()
             {
                 /* Reload the entire UI overriding the configuration file to be loaded */
@@ -236,6 +280,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HintedTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
@@ -245,6 +294,7 @@ namespace XTMF.Gui.UserControls
                     switch (e.Key)
                     {
                         case Key.Down:
+                            break;
                         case Key.Enter:
                             element.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
                             e.Handled = true;
@@ -258,6 +308,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Select_ModelSystemDirectory(object sender, RoutedEventArgs e)
         {
             var dir = MainWindow.OpenDirectory();
@@ -273,6 +328,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+        /// <summary>
+        ///  
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Select_ProjectDirectory(object sender, RoutedEventArgs e)
         {
             var dir = MainWindow.OpenDirectory();
@@ -289,10 +350,20 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CreateLocalConfigButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SwitchLocalConfigButton_Click(object sender, RoutedEventArgs e)
         {
             var context = (SettingsModel)DataContext;
@@ -308,7 +379,6 @@ namespace XTMF.Gui.UserControls
             context.UpdateButtons();
         }
 
-
         /// <summary>
         /// 
         /// </summary>
@@ -318,7 +388,7 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
+                //new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
                 if (Configuration is Configuration configuration)
                 {
                     configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
@@ -337,7 +407,7 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
+                //new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
                 if (Configuration is Configuration configuration)
                 {
                     configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
@@ -360,9 +430,10 @@ namespace XTMF.Gui.UserControls
             {
                 if (Configuration is Configuration configuration)
                 {
-                    new PaletteHelper().ReplacePrimaryColor((Swatch)PrimaryColourComboBox.SelectedItem);
-                    configuration.PrimaryColour = ((Swatch)PrimaryColourComboBox.SelectedItem).Name;
-                    Configuration.Save();
+                    string colourName = ((ColourOption)PrimaryColourComboBox.SelectedItem).Name;
+                    configuration.PrimaryColour = colourName;
+                    ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), colourName, configuration.IsDarkTheme);
+                    // Configuration.Save();
                 }
             }
         }
@@ -378,8 +449,9 @@ namespace XTMF.Gui.UserControls
             {
                 if (Configuration is Configuration configuration)
                 {
-                    new PaletteHelper().ReplaceAccentColor((Swatch)AccentColourComboBox.SelectedItem);
-                    configuration.AccentColour = ((Swatch)AccentColourComboBox.SelectedItem).Name;
+                    string colourName = ((ColourOption)AccentColourComboBox.SelectedItem).Name;
+                    ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), colourName, configuration.IsDarkTheme);
+                    configuration.AccentColour = colourName;
                     Configuration.Save();
                 }
             }
@@ -394,7 +466,6 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                //MainWindow.Us.SetValue(MaterialDesignAssist.)
                 TransitionAssist.SetDisableTransitions(MainWindow.Us, true);
 
                 if (Configuration is Configuration configuration)
@@ -414,7 +485,6 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-
                 TransitionAssist.SetDisableTransitions(MainWindow.Us, false);
                 if (Configuration is Configuration configuration)
                 {

@@ -90,42 +90,40 @@
 
 
                         <TextBlock Grid.Row="0" Grid.Column="0">Primary Colour</TextBlock>
-                        <ComboBox Grid.Row="0" Grid.Column="1" SelectedValue="{Binding PrimarySwatch}" SelectionChanged="PrimaryColourComboBox_OnSelectionChanged" Name="PrimaryColourComboBox"  ItemsSource="{Binding Swatches, Mode=OneTime}">
+                        <ComboBox Grid.Row="0" Grid.Column="1" SelectedValue="{Binding PrimaryColor}" SelectionChanged="PrimaryColourComboBox_OnSelectionChanged" Name="PrimaryColourComboBox"  ItemsSource="{Binding ColourOptions, Mode=OneTime}">
                             <ComboBox.ItemTemplate>
-                                <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
-                                    <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
-                                        <Border.Background>
-                                            <SolidColorBrush Color="{Binding ExemplarHue.Color, Mode=OneTime}" />
-                                        </Border.Background>
-                                        <Label Content="{Binding Name, Mode=OneTime}">
-                                            <Label.Foreground >
-                                                <SolidColorBrush Color="{Binding ExemplarHue.Foreground, Mode=OneTime}" >
+                                <DataTemplate DataType="{x:Type local:ColourOption}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Grid.Row="1" Grid.Column="0" MinHeight="20"  MinWidth="20">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{Binding Colour, Mode=OneTime}" />
+                                            </Border.Background>
 
-                                                </SolidColorBrush>
-                                            </Label.Foreground>
+                                        </Border>
+                                        <Label Content="{Binding Name, Mode=OneTime}">
                                         </Label>
-                                    </Border>
+                                    </StackPanel>
+
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
 
                         </ComboBox>
 
                         <TextBlock Margin="0 15 0 0"  Grid.Row="1" Grid.Column="0">Accent Colour</TextBlock>
-                        <ComboBox Margin="0 15 0 0"  Grid.Row="1" Grid.Column="1"  SelectedValue="{Binding AccentSwatch}"  SelectionChanged="AccentColourComboBox_OnSelectionChanged" Name="AccentColourComboBox"  ItemsSource="{Binding AccentSwatches, Mode=OneTime}">
+                        <ComboBox Margin="0 15 0 0"  Grid.Row="1" Grid.Column="1"  SelectedValue="{Binding SecondaryColor}"  SelectionChanged="AccentColourComboBox_OnSelectionChanged" Name="AccentColourComboBox"  ItemsSource="{Binding ColourOptions, Mode=OneTime}">
                             <ComboBox.ItemTemplate>
-                                <DataTemplate DataType="{x:Type materialDesignColors:Swatch}">
-                                    <Border Grid.Row="1" Grid.Column="0" MinWidth="120">
-                                        <Border.Background>
-                                            <SolidColorBrush Color="{Binding AccentExemplarHue.Color, Mode=OneTime}" />
-                                        </Border.Background>
+                                <DataTemplate DataType="{x:Type local:ColourOption}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Grid.Row="1" Grid.Column="0" MinHeight="20"  MinWidth="20">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{Binding Colour, Mode=OneTime}" />
+                                            </Border.Background>
+  
+                                        </Border>
                                         <Label Content="{Binding Name, Mode=OneTime}">
-                                            <Label.Foreground >
-                                                <SolidColorBrush Color="{Binding AccentExemplarHue.Foreground, Mode=OneTime}" >
-
-                                                </SolidColorBrush>
-                                            </Label.Foreground>
                                         </Label>
-                                    </Border>
+                                    </StackPanel>
+                                    
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
 
