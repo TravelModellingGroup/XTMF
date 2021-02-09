@@ -77,6 +77,8 @@ namespace XTMF.Gui.UserControls
 
             public bool IsDarkTheme { get; set; }
 
+            public bool DisableTransitions { get; set; }
+
             public string LocalHostButtonName => Configuration.IsLocalConfiguration ?
                 "Delete Local XTMF Configuration" :
                 "Create Local XTMF Configuration";
@@ -210,6 +212,7 @@ namespace XTMF.Gui.UserControls
                     SecondaryColor = ColourOptions.FirstOrDefault((s) => s.Name == Configuration.AccentColour);
                 }
                 IsDarkTheme = Configuration.IsDarkTheme;
+                DisableTransitions = Configuration.IsDisableTransitionAnimations;
             }
 
             /// <summary>
@@ -412,8 +415,6 @@ namespace XTMF.Gui.UserControls
                 {
                     configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
                     Configuration.Save();
-
-                    
                 }
                 MainWindow.Us.OnThemeChanged();
             }
@@ -466,11 +467,10 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                TransitionAssist.SetDisableTransitions(MainWindow.Us, true);
-
                 if (Configuration is Configuration configuration)
                 {
                     configuration.IsDisableTransitionAnimations = (bool)DisableTransitionsToggleButton.IsChecked;
+                    TransitionAssist.SetDisableTransitions(MainWindow.Us, configuration.IsDisableTransitionAnimations);
                     Configuration.Save();
                 }
             }
@@ -485,10 +485,10 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                TransitionAssist.SetDisableTransitions(MainWindow.Us, false);
                 if (Configuration is Configuration configuration)
                 {
                     configuration.IsDisableTransitionAnimations = (bool)DisableTransitionsToggleButton.IsChecked;
+                    TransitionAssist.SetDisableTransitions(MainWindow.Us, configuration.IsDisableTransitionAnimations);
                     Configuration.Save();
                 }
             }

@@ -73,11 +73,7 @@ namespace XTMF.Gui
                         ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
 
                     }
-                    
-                    if (EditorController.Runtime.Configuration.IsDisableTransitionAnimations)
-                    {
-                        TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, false);
-                    }
+                    TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, EditorController.Runtime.Configuration.IsDisableTransitionAnimations);
                     xtmfMainWindow.UpdateRecentProjectsMenu();
                     xtmfMainWindow.Show();
                     Task.Run(() =>

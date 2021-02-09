@@ -135,7 +135,7 @@
 
                         <TextBlock Margin="0 15 0 0"  Grid.Column="0" Grid.Row="3" Text="Disable Animation Transitions"></TextBlock>
 
-                        <ToggleButton Margin="0 15 0 0"  HorizontalAlignment="Left" Grid.Column="1" Grid.Row="3"  Name="DisableTransitionsToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}" Checked="DisableTransitionsToggleButton_Checked" Unchecked="DisableTransitionsToggleButton_Unchecked" ></ToggleButton>
+                        <ToggleButton Margin="0 15 0 0"  HorizontalAlignment="Left" Grid.Column="1" Grid.Row="3" IsChecked="{Binding DisableTransitions}" Name="DisableTransitionsToggleButton"  Style="{DynamicResource MaterialDesignSwitchToggleButton}" Checked="DisableTransitionsToggleButton_Checked" Unchecked="DisableTransitionsToggleButton_Unchecked" ></ToggleButton>
 
 
                     </Grid>
