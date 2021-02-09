@@ -698,8 +698,9 @@
         <Setter Property="Padding"
           Value="1,0,0,0" />
         <Setter Property="Foreground"
-          Value="{DynamicResource MaterialDesignBody}" />
-    
+          Value="{DynamicResource MahApps.Brushes.Text}" />
+
+      
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TreeViewItem}">
