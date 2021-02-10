@@ -255,7 +255,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         }
                 }
             }
-            // try to extract + and -
+            // try to extract +
             for (int i = start; i < endPlusOne; i++)
             {
                 switch (buffer[i])
@@ -271,9 +271,36 @@ namespace TMG.Frameworks.Data.Processing.AST
                         }
                         break;
                     case '+':
+                        {
+                            BinaryExpression toReturn = new Add(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error))
+                            {
+                                return false;
+                            }
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
+                            ex = toReturn;
+                            return true;
+                        }
+                }
+            }
+            // try to extract -
+            for (int i = start; i < endPlusOne; i++)
+            {
+                switch (buffer[i])
+                {
+                    case '(':
+                        {
+                            int endIndex = FindEndOfBracket(buffer, i + 1, endPlusOne - (i + 1), ref error);
+                            if (endIndex < 0)
+                            {
+                                return false;
+                            }
+                            i = endIndex;
+                        }
+                        break;
                     case '-':
                         {
-                            BinaryExpression toReturn = buffer[i] == '+' ? new Add(i) : (BinaryExpression)new Subtract(i);
+                            BinaryExpression toReturn = new Subtract(i);
                             if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error))
                             {
                                 // check to see if it is negate

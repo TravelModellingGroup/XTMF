@@ -1293,6 +1293,17 @@ namespace XTMF.Testing.TMG.Data
             }, 2f / 6f, 4f / 6f, 6f / 14f, 8f / 14f);
         }
 
+        [TestMethod]
+        public void TestSubtractionOrder()
+        {
+            string error = null;
+            var equation = "2 + 3 - 1 + 2";
+            Assert.IsTrue(Compiler.Compile(equation, out Expression ex, ref error), $"Unable to compile '{equation}'\r\n{error}");
+            var result = ex.Evaluate(new IDataSource[0]);
+            Assert.IsTrue(result.IsValue, "The result was not a scalar!");
+            Assert.AreEqual(6.0f, result.LiteralValue, 0.000001f);
+        }
+
         /// <summary>
         /// Assert results
         /// </summary>
