@@ -34,7 +34,7 @@
         Name="XtmfWindow"
         PreviewKeyDown="MainWindow_OnPreviewKeyDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" 
-        TextElement.Foreground="{DynamicResource {DynamicResource MahApps.Brushes.Foreground}}"
+        TextElement.Foreground="{DynamicResource {DynamicResource MahApps.Brushes.Text}}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="12"
         TextOptions.TextFormattingMode="Ideal" 
@@ -45,7 +45,7 @@
         <metro:WindowCommands BorderThickness="0" >
             <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right" >
                 <materialDesign:PopupBox.ToggleContent>
-                    <materialDesign:PackIcon Kind="DotsHorizontal" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"></materialDesign:PackIcon>
+                    <materialDesign:PackIcon Kind="DotsHorizontal" Foreground="{DynamicResource MahApps.Brushes.Text}"></materialDesign:PackIcon>
                 </materialDesign:PopupBox.ToggleContent>
                 <StackPanel>
                     <Button Name="CloseTabButton" Content="Close Tab" Click="CloseTabButton_OnClick"></Button>
@@ -93,15 +93,12 @@
                             <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" SnapsToDevicePixels="True">
                                 <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager" ConsolidateOrphanedItems="True" Background="{DynamicResource MahApps.Brushes.ThemeBackground}" SnapsToDevicePixels="True">
 
-                                    
-                                    
-                                
                                     <dragablz:TabablzControl.InterTabController>
                                     <dragablz:InterTabController SnapsToDevicePixels="True"  />
                                     </dragablz:TabablzControl.InterTabController>
                                 </dragablz:TabablzControl>
                             </dockablz:Layout>
-                            <StatusBar Background="{DynamicResource {DynamicResource MahApps.Brushes.ThemeBackground}}" HorizontalAlignment="Stretch"
+                            <StatusBar Background="{DynamicResource  MahApps.Brushes.ThemeBackground}" HorizontalAlignment="Stretch"
                        Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
                                 <StatusBarItem HorizontalAlignment="Left">
                                     <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource MaterialDesignBody}" />
