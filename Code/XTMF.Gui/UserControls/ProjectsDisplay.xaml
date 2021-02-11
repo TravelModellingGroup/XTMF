@@ -26,7 +26,6 @@
               xmlns:xtmfp="clr-namespace:XTMF.Gui.CustomProperties"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:models="clr-namespace:XTMF.Gui.Models"
-             TextElement.Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
     
@@ -39,16 +38,16 @@
             </models:ViewModelBase.ContentPresenter>
         </models:ViewModelBase>
     </UserControl.DataContext>
+   
 
-
-    <Grid Background="{DynamicResource MahApps.Brushes.Theme.Background}">
+        <Grid Background="{DynamicResource MaterialDesignPaper}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-
-        <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1" Background="{DynamicResource MahApps.Brushes.Theme.Background}"
+       
+        <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                   Margin="12 12 12 12"
                                   materialDesign:ShadowAssist.ShadowDepth="Depth4">
             <Grid>
@@ -70,8 +69,6 @@
                 </Button>
             </Grid>
         </materialDesign:ColorZone>
-          
-        
         <ListView MouseDoubleClick="Control_OnMouseDoubleClick" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}">
             <ListView.ContextMenu>
                 <ContextMenu>
@@ -111,10 +108,13 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
 
-                    <local:ListViewControl Margin="0" IsPathIcon="False"  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" IconKind="FolderOutline" Foreground="{DynamicResource 	MahApps.Brushes.Text}" >
+                    <local:ListViewControl Margin="0" IsPathIcon="False"  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" IconKind="FolderOutline" >
+
+                      
 
                     </local:ListViewControl>
                     
+                 
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

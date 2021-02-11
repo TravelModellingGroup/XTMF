@@ -30,17 +30,8 @@ namespace XTMF.Gui.Helpers
             {
                 schemeName = "Blue";
             }
-            if (isDark)
-            {
-                ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Dark." + schemeName);
-            }
-            else
-            {
-                ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Light." + schemeName);
-            }
-
-
             paletteHelper.SetTheme(theme);
+            SetDarkTheme(isDark, schemeName);
         }
 
         /// <summary>
@@ -52,7 +43,7 @@ namespace XTMF.Gui.Helpers
         {
             if (isDarkTheme)
             {
-                ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Dark." + schemeName);
+               ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Dark." + schemeName);
                 PaletteHelper _paletteHelper = new PaletteHelper();
                 ITheme theme = _paletteHelper.GetTheme();
                 IBaseTheme baseTheme = new MaterialDesignDarkTheme();
@@ -81,7 +72,6 @@ namespace XTMF.Gui.Helpers
             theme.SecondaryLight = new ColorPair(color.Lighten());
             theme.SecondaryMid = new ColorPair(color);
             theme.SecondaryDark = new ColorPair(color.Darken());
-
             paletteHelper.SetTheme(theme);
         }
 
