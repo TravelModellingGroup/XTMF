@@ -58,7 +58,7 @@
                     <Button x:Name="ClearRunButton"  Click="ClearRunButton_Click" ToolTip="Clear Run Display" Visibility="Collapsed">
                         <materialDesign:PackIcon Kind="NotificationClearAll" />
                     </Button>
-                    <TextBlock x:Name="RunNameText" Text="Run Name" Style="{DynamicResource MaterialDesignHeadlineTextBlock}" VerticalAlignment="Center" Margin="18 0 0 0"></TextBlock>
+                    <TextBlock x:Name="RunNameText" Text="Run Name" Style="{DynamicResource MaterialDesignHeadlineTextBlock}" VerticalAlignment="Center" Margin="24 0 0 0" FontSize="22"></TextBlock>
                 </ToolBar>
             </ToolBarTray>
         </Grid>

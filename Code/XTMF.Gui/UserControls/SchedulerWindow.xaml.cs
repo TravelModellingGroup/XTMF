@@ -665,6 +665,7 @@ namespace XTMF.Gui.UserControls
                     XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
                         () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
                     Icon = PackIconKind.CheckCircleOutline;
+                    StatusText = "Run finished succesfully.";
                 }
             }
 
