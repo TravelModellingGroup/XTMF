@@ -395,6 +395,7 @@ namespace XTMF.Gui.UserControls
                 {
                     configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
                     ThemeHelper.SetDarkTheme((bool)ThemeBaseToggleButton.IsChecked, ((SettingsModel)DataContext).PrimaryColor.Name);
+                    
                     Configuration.Save();
                 }
                 MainWindow.Us.OnThemeChanged();

@@ -53,10 +53,20 @@ namespace XTMF.Gui.Helpers
             if (isDarkTheme)
             {
                 ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Dark." + schemeName);
+                PaletteHelper _paletteHelper = new PaletteHelper();
+                ITheme theme = _paletteHelper.GetTheme();
+                IBaseTheme baseTheme = new MaterialDesignDarkTheme();
+                theme.SetBaseTheme(baseTheme);
+                _paletteHelper.SetTheme(theme);
             }
             else
             {
                 ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Light." + schemeName);
+                PaletteHelper _paletteHelper = new PaletteHelper();
+                ITheme theme = _paletteHelper.GetTheme();
+                IBaseTheme baseTheme = new MaterialDesignLightTheme();
+                theme.SetBaseTheme(baseTheme);
+                _paletteHelper.SetTheme(theme);
             }
         }
 
