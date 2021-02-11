@@ -42,11 +42,11 @@
         TextOptions.TextRenderingMode="Auto" BorderThickness="0"        
         FontFamily="{DynamicResource MaterialDesignFont}" Closing="XtmfWindow_Closing" Initialized="XtmfWindow_Initialized">
     <metro:MetroWindow.RightWindowCommands>
-        
+
         <metro:WindowCommands BorderThickness="0" >
             <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" HorizontalAlignment="Right" >
                 <materialDesign:PopupBox.ToggleContent>
-                    <materialDesign:PackIcon Kind="DotsHorizontal" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"></materialDesign:PackIcon>
+                    <materialDesign:PackIcon Kind="DotsHorizontal" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}"></materialDesign:PackIcon>
                 </materialDesign:PopupBox.ToggleContent>
                 <StackPanel>
                     <Button Name="CloseTabButton" Content="Close Tab" Click="CloseTabButton_OnClick"></Button>
@@ -56,7 +56,7 @@
     </metro:MetroWindow.RightWindowCommands>
     <metro:MetroWindow.LeftWindowCommands>
         <metro:WindowCommands BorderThickness="0">
-            <ToggleButton IsChecked="True" Background="Transparent" Name="MenuToggleButton" Style="{StaticResource MaterialDesignActionToggleButton}"
+            <ToggleButton IsChecked="True" Background="Transparent" Name="MenuToggleButton" Style="{StaticResource MaterialDesignActionToggleButton}" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}"
                           ToolTip="MaterialDesignActionLightToggleButton">
                 <ToggleButton.Content>
                     <materialDesign:PackIcon Kind="Menu" />
@@ -80,7 +80,8 @@
                         <Grid Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="837*" />
+                                <ColumnDefinition Width="41*" />
+                                <ColumnDefinition Width="467*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="AUTO" />
@@ -88,22 +89,19 @@
                                 <RowDefinition Height="1" />
                                 <RowDefinition Height="AUTO" />
                             </Grid.RowDefinitions>
-                            <DockPanel Name="ViewDockPanel" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                            <DockPanel Name="ViewDockPanel" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
                                 <ContentControl DockPanel.Dock="Bottom"  Name="ContentControl"  Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0"></ContentControl >
                             </DockPanel>
-                            <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" SnapsToDevicePixels="True">
+                            <dockablz:Layout   Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" SnapsToDevicePixels="True">
                                 <dragablz:TabablzControl ShowDefaultCloseButton="True"   x:Name="DockManager" ConsolidateOrphanedItems="True" Background="{DynamicResource MaterialDesignBackground}" SnapsToDevicePixels="True">
 
-                                    
-                                    
-                                
                                     <dragablz:TabablzControl.InterTabController>
-                                    <dragablz:InterTabController SnapsToDevicePixels="True"  />
+                                        <dragablz:InterTabController SnapsToDevicePixels="True"  />
                                     </dragablz:TabablzControl.InterTabController>
                                 </dragablz:TabablzControl>
                             </dockablz:Layout>
                             <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
-                       Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
+                       Grid.Row="2" Grid.ColumnSpan="3" Grid.Column="0">
                                 <StatusBarItem HorizontalAlignment="Left">
                                     <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource MaterialDesignBody}" />
                                 </StatusBarItem>
@@ -119,8 +117,8 @@
                                     </StackPanel>
                                 </StatusBarItem>
                             </StatusBar>
-                            <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1"
-                          VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" Grid.Column="0" />
+                            <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="93.953,138,0,0" Grid.Row="1"
+                          VerticalAlignment="Top" Width="100" Grid.Column="2" />
                         </Grid>
                     </Grid>
                     <materialDesign:DrawerHost.LeftDrawerContent >
@@ -166,7 +164,7 @@
 
                                         <materialDesign:PackIcon Kind="Download" VerticalAlignment="Center" HorizontalAlignment="Center"
                                                          Width="16" Height="16" Margin="0 0 8 0" />
-                                
+
                                         <TextBlock>Update XTMF</TextBlock>
                                     </StackPanel>
                                 </ListBoxItem>
@@ -174,7 +172,7 @@
                                     <StackPanel Orientation="Horizontal">
 
                                         <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16"   Margin="0 0 8 0" />                                                    
+                                                         Width="16" Height="16"   Margin="0 0 8 0" />
                                         <TextBlock>Help</TextBlock>
                                     </StackPanel>
                                 </ListBoxItem>
@@ -190,12 +188,12 @@
                                     <StackPanel Orientation="Horizontal">
 
                                         <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0" />                                                     
+                                                         Width="16" Height="16" Margin="0 0 8 0" />
                                         <TextBlock>About XTMF</TextBlock>
                                     </StackPanel>
                                 </ListBoxItem>
                             </ListBox>
-                          
+
                         </StackPanel>
                     </materialDesign:DrawerHost.LeftDrawerContent>
                 </materialDesign:DrawerHost>

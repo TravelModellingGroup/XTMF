@@ -391,10 +391,11 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                //new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
                 if (Configuration is Configuration configuration)
                 {
                     configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
+                    ThemeHelper.SetDarkTheme((bool)ThemeBaseToggleButton.IsChecked, ((SettingsModel)DataContext).PrimaryColor.Name);
+                    
                     Configuration.Save();
                 }
                 MainWindow.Us.OnThemeChanged();
@@ -410,10 +411,10 @@ namespace XTMF.Gui.UserControls
         {
             if (IsLoaded)
             {
-                //new PaletteHelper().SetLightDark((bool)ThemeBaseToggleButton.IsChecked);
                 if (Configuration is Configuration configuration)
                 {
                     configuration.IsDarkTheme = (bool)ThemeBaseToggleButton.IsChecked;
+                    ThemeHelper.SetDarkTheme((bool)ThemeBaseToggleButton.IsChecked, ((SettingsModel)DataContext).PrimaryColor.Name);
                     Configuration.Save();
                 }
                 MainWindow.Us.OnThemeChanged();

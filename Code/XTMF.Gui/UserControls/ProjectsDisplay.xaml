@@ -38,9 +38,7 @@
             </models:ViewModelBase.ContentPresenter>
         </models:ViewModelBase>
     </UserControl.DataContext>
-    
-
-
+   
 
         <Grid Background="{DynamicResource MaterialDesignPaper}">
         <Grid.RowDefinitions>
@@ -71,8 +69,6 @@
                 </Button>
             </Grid>
         </materialDesign:ColorZone>
-          
-        
         <ListView MouseDoubleClick="Control_OnMouseDoubleClick" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}">
             <ListView.ContextMenu>
                 <ContextMenu>
