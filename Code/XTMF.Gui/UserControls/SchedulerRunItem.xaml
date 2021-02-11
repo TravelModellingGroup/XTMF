@@ -74,7 +74,7 @@
                                 <TextBlock Text="Start Time"
                                                                        Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
                                 <TextBlock Text="{Binding StartTime}"
-                                                                       Style="{DynamicResource MaterialDesignBody1TextBlock}" />
+                                                                       Style="{DynamicResource MaterialDesignBody1TextBlock}"  FontSize="12" />
                             </StackPanel>
                         </Border>
                         <Border BorderBrush="{DynamicResource MaterialDesignDivider}"
@@ -84,7 +84,7 @@
                                 <TextBlock Text="Elapsed Time"
                                                                        Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
                                 <TextBlock Text="{Binding ElapsedTime}"
-                                                                       Style="{DynamicResource MaterialDesignBody1TextBlock}" />
+                                                                       Style="{DynamicResource MaterialDesignBody1TextBlock}" FontSize="12" />
                             </StackPanel>
                         </Border>
                     </Grid>
