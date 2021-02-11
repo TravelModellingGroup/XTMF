@@ -146,18 +146,17 @@
                                                 </Grid.ColumnDefinitions>
                                                 <Grid Grid.Column="0">
                                                     <Grid.RowDefinitions>
-                                                        <RowDefinition Height="25" />
-                                                        <RowDefinition Height="4" />
+                                                        <RowDefinition Height="30" />
                                                         <RowDefinition Height="25" />
                                                     </Grid.RowDefinitions>
-                                                    <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                                               Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4" />
-                                                    <ProgressBar Foreground="{DynamicResource SecondaryHueMidBrush}"
+                                                    <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}" FontSize="18"
+                                                               Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 6" FontWeight="Bold" />
+                                                    <!--<ProgressBar Foreground="{DynamicResource SecondaryHueMidBrush}"
                                                                  Grid.Row="1" HorizontalAlignment="Stretch" Minimum="0"
-                                                                 Maximum="10000" Value="{Binding Progress}" Height="4" />
+                                                                 Maximum="10000" Value="{Binding Progress}" Height="4" /> -->
                                                     <TextBlock TextWrapping="Wrap"
                                                                Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                                               Grid.Row="2" 
+                                                               Grid.Row="1" 
                                                                ToolTip="{Binding StatusText}"
                                                                Text="{Binding StatusText}"
                                                                TextTrimming="CharacterEllipsis" Margin="0 4 0 0"
@@ -210,7 +209,7 @@
                                                                 <Button
                                                                     Style="{DynamicResource MaterialDesignFlatButton}"
                                                                     Name="OpenOutput" Click="OpenOutput_OnClick"
-                                                                    Tag="{Binding .}" Height="32">
+                                                                    Tag="{Binding .}" >
                                                                     <materialDesign:PackIcon Kind="FolderOpen" />
                                                                 </Button>
                                                             </StackPanel>
@@ -224,7 +223,7 @@
                                                                 <Button
                                                                     Style="{DynamicResource MaterialDesignFlatButton}"
                                                                     Name="CloseRunButton" Click="ButtonBase_OnClick"
-                                                                    Tag="{Binding .}" Height="32">
+                                                                    Tag="{Binding .}" >
                                                                     <materialDesign:PackIcon Kind="Cancel" />
                                                                 </Button>
                                                             </StackPanel>

@@ -24,7 +24,7 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls" MouseDown="SchedulerRunItem_OnMouseDown" MouseMove="SchedulerRunItem_OnMouseMove"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Initialized="SchedulerRunItem_OnInitialized" Loaded="SchedulerRunItem_OnLoaded" >
+             d:DesignHeight="200" d:DesignWidth="800" Initialized="SchedulerRunItem_OnInitialized" Loaded="SchedulerRunItem_OnLoaded" >
     <Grid>
         <DockPanel LastChildFill="True" HorizontalAlignment="Stretch">
             <materialDesign:PackIcon Kind="{Binding Icon}" Height="24" Width="24"
@@ -45,13 +45,13 @@
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="25" />
+                        <RowDefinition Height="30" />
                         <RowDefinition Height="4" />
                         <RowDefinition Height="25" />
                     </Grid.RowDefinitions>
-                    <TextBlock Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                                           Grid.Row="0" Text="{Binding Name}" Margin="0 0 0 4" />
-                    <ProgressBar Foreground="{DynamicResource AccentBaseColorBrush}"
+                    <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}" FontSize="18"
+                                                           Grid.Row="0" Text="{Binding Name}" Margin="0,0,0,6" FontWeight="Bold" />
+                    <ProgressBar Foreground="{DynamicResource SecondaryHueMidBrush}"
                                                              Grid.Row="1" HorizontalAlignment="Stretch" Minimum="0"
                                                              Maximum="10000" Value="{Binding Progress}" Height="4" />
                     <TextBlock TextWrapping="Wrap"
