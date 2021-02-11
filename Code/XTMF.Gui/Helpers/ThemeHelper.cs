@@ -46,6 +46,23 @@ namespace XTMF.Gui.Helpers
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="isDarkTheme"></param>
+        /// <param name="schemeName"></param>
+        public static void SetDarkTheme(bool isDarkTheme, string schemeName)
+        {
+            if (isDarkTheme)
+            {
+                ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Dark." + schemeName);
+            }
+            else
+            {
+                ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Light." + schemeName);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="color"></param>
         public static void SetThemeSecondaryColour(PaletteHelper paletteHelper, string schemeName, bool isDark)
         {
