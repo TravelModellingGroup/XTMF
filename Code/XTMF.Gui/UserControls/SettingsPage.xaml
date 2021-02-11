@@ -7,16 +7,16 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
-             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
              mc:Ignorable="d"  BorderThickness="0"
              d:DesignHeight="917.725" d:DesignWidth="800.902">
-    <Grid Background="{DynamicResource MaterialDesignPaper}" >
+    <Grid Background="{DynamicResource MahApps.Brushes.Theme.Background}" >
 
-        <StackPanel  MaxWidth="1000" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{DynamicResource MaterialDesignPaper}">
+        <StackPanel  MaxWidth="1000" VerticalAlignment="Center" HorizontalAlignment="Center" Background="Transparent">
 
-            <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left">Directory Settings
+            <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left" Background="Transparent">Directory Settings
             </TextBlock>
-            <materialDesign:Card Padding="5 5 5 5" Width="700" Background="{DynamicResource MaterialDesignCardBackground}">
+            <materialDesign:Card Padding="5 5 5 5" Width="700" Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}">
                 <StackPanel Orientation="Vertical">
 
 
@@ -46,7 +46,7 @@
                 </StackPanel>
             </materialDesign:Card>
             <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left">Network Settings</TextBlock>
-            <materialDesign:Card Padding="5 5 5 5" Width="700">
+            <materialDesign:Card Padding="5 5 5 5" Width="700" Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}">
                 <StackPanel Orientation="Vertical">
 
 
@@ -71,7 +71,7 @@
                 </StackPanel>
             </materialDesign:Card>
             <TextBlock Margin="16 16 12 8" FontSize="14" HorizontalAlignment="Left">Appearance</TextBlock>
-            <materialDesign:Card Padding="5 5 5 5" Width="700">
+            <materialDesign:Card Padding="5 5 5 5" Width="700" Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}">
                 <StackPanel Orientation="Vertical">
 
 
@@ -142,7 +142,7 @@
                 </StackPanel>
             </materialDesign:Card>
             <TextBlock Margin="16 16 12 8" FontSize="14" >Advanced</TextBlock>
-            <materialDesign:Card Margin="0 0  0 0"  Padding="5 5 5 5" Width="700">
+            <materialDesign:Card Margin="0 0  0 0"  Padding="5 5 5 5" Width="700" Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}">
                 <StackPanel>
                     <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" FontSize="12" Margin="9.4,0" Foreground="{DynamicResource MaterialDesignBody}"/>
                     <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}"  Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0" Foreground="{DynamicResource MaterialDesignBody}"/>
