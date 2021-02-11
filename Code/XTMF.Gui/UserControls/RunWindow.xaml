@@ -48,7 +48,7 @@
                     <Button  x:Name="OpenDirectoryButton" Click="OpenDirectoryButton_Clicked" ToolTip="Open run output folder" >
                         <materialDesign:PackIcon Kind="FolderOutline" />
                     </Button>
-                    <Button  x:Name="CancelButton"  
+                    <Button  x:Name="CancelButton" Style="{StaticResource MaterialDesignFloatingActionButton}" Width="30" Height="30"
                              materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
                             materialDesign:ButtonProgressAssist.Value="-1"  Click="CancelButton_Clicked"
                             materialDesign:ButtonProgressAssist.IsIndeterminate="True" ToolTip="Stop Run" >
