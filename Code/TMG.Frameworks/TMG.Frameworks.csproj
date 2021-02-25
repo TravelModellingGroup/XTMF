@@ -134,6 +134,7 @@
     <Compile Include="Data\Synthesis\Gibbs\PoolSegment.cs" />
     <Compile Include="Data\Testing\IncrementOnLoad.cs" />
     <Compile Include="Extensibility\ExecuteInParallel.cs" />
+    <Compile Include="Extensibility\ExecuteModelSystemWithRandomSeeds.cs" />
     <Compile Include="Extensibility\Iteration.cs" />
     <Compile Include="Extensibility\LaunchProgram.cs" />
     <Compile Include="FileManagement\DeleteFilesOfType.cs" />

@@ -50,7 +50,15 @@ namespace TMG.Frameworks.Data.Processing
 
         public bool RuntimeValidation(ref string error)
         {
-            _parameter = Functions.ModelSystemReflection.FindParameter(_config, this, ParameterPath);
+            try
+            {
+                _parameter = Functions.ModelSystemReflection.FindParameter(_config, this, ParameterPath);
+            }
+            catch(XTMFRuntimeException e)
+            {
+                // re-wrap the error so we know which module actually caused the issue.
+                throw new XTMFRuntimeException(this, e);
+            }
             if (_parameter == null)
             {
                 error = "In '" + Name + "' we were unable to find a parameter with the path '" + ParameterPath + "'!";
