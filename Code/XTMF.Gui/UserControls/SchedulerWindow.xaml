@@ -261,10 +261,10 @@
                                                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                                    ScrollViewer.CanContentScroll="True"
                                                                    HorizontalScrollBarVisibility="Disabled">
-                                                                <TextBox Text="{Binding Description}" TextWrapping="Wrap"
-                                                                     BorderThickness="0"
+                                                                <TextBox Text="{Binding Description}" TextWrapping="Wrap" HorizontalContentAlignment="Left"
+                                                                     BorderThickness="0" 
                                                                      IsReadOnly="True"
-                                                                     Background="Transparent"/>
+                                                                     Background="Transparent" HorizontalAlignment="Left"/>
                                                             </ScrollViewer>
                                                         </StackPanel>
 

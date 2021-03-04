@@ -50,7 +50,7 @@
                         <RowDefinition Height="25" />
                     </Grid.RowDefinitions>
                     <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}" FontSize="18"
-                                                           Grid.Row="0" Text="{Binding Name}" Margin="0,0,0,6" FontWeight="Bold" />
+                                                           Grid.Row="0" Text="{Binding Name}" Margin="0,0,0,6" FontWeight="Bold" ToolTip="{Binding Name}"  TextTrimming="CharacterEllipsis"/>
                     <ProgressBar Foreground="{DynamicResource SecondaryHueMidBrush}"
                                                              Grid.Row="1" HorizontalAlignment="Stretch" Minimum="0"
                                                              Maximum="10000" Value="{Binding Progress}" Height="4" />
