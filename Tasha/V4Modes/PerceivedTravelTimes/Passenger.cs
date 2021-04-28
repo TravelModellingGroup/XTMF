@@ -140,6 +140,9 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [RunParameter("Maximum Hours For Parking", 4.0f, "The maximum hours to calculate the parking cost for.")]
         public float MaximumHoursForParking;
 
+        [SubModelInformation(Required = false, Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
         [DoNotAutomate]
         public ITashaMode AssociatedMode
         {
@@ -233,6 +236,18 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         private IParkingCost _parkingModel;
 
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
+                }
+            }
+            return 0f;
+        }
+
         private bool FastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
             var numberOfZones = ZoneSystem.Count;
@@ -251,7 +266,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                 return false;
             }
             // Since this is going to be valid, start building a real utility!
-            v = 0f;
+            v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerTrip.OriginalZone.PlanningDistrict, passengerTrip.DestinationZone.PlanningDistrict);
             var sameOrigin = passengerOrigin == driverOrigin;
             var sameDestination = passengerDestination == driverDestination;
             var passenger = passengerTrip.TripChain.Person;
@@ -337,13 +352,13 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             }
             var zoneDistances = Root.ZoneSystem.Distances;
             // Since this is going to be valid, start building a real utility!
-            v = 0f;
             IZone passengerOrigin = passengerTrip.OriginalZone;
             IZone driverOrigin = driverOriginalTrip.OriginalZone;
             var sameOrigin = passengerOrigin == driverOrigin;
             IZone passengerDestination = passengerTrip.DestinationZone;
             var sameDestination = passengerDestination == driverOriginalTrip.DestinationZone;
             var passenger = passengerTrip.TripChain.Person;
+            v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerOrigin.PlanningDistrict, passengerDestination.PlanningDistrict);
             // we are going to add in the time of the to passenger destination twice
             var zeroTime = Time.Zero;
             int same = 0;
@@ -714,6 +729,19 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
             StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
             NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                TimePeriodConstants[i].BuildMatrix();
+            }
+            if(ParkingModel != null)
+            {
+                if(!ParkingModel.Loaded)
+                {
+                    ParkingModel.LoadData();
+                }
+                _parkingModel = ParkingModel.GiveData();
+            }
         }
 
         private float ConvertCostFactor(float costFactor, float timeFactor)

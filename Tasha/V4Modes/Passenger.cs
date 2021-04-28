@@ -140,6 +140,14 @@ namespace Tasha.V4Modes
         [RunParameter("Maximum Hours For Parking", 4.0f, "The maximum hours to calculate the parking cost for.")]
         public float MaximumHoursForParking;
 
+        [SubModelInformation(Required = false, Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
+        [SubModelInformation(Required = false, Description = "An optional source to gather parking costs from.")]
+        public IDataSource<IParkingCost> ParkingModel;
+
+        private IParkingCost _parkingModel;
+
         [DoNotAutomate]
         public ITashaMode AssociatedMode
         {
@@ -246,7 +254,7 @@ namespace Tasha.V4Modes
                 return false;
             }
             // Since this is going to be valid, start building a real utility!
-            v = 0f;
+            v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerTrip.OriginalZone.PlanningDistrict, passengerTrip.DestinationZone.PlanningDistrict);
             var sameOrigin = passengerOrigin == driverOrigin;
             var sameDestination = passengerDestination == driverDestination;
             var passenger = passengerTrip.TripChain.Person;
@@ -281,11 +289,13 @@ namespace Tasha.V4Modes
             // apply the travel times (don't worry if we have intrazonals because they will be 0's).
             v += (toPassengerOrigin + toPassengerDestination + toDriverDestination + toPassengerDestination) * timeFactor;
             // Add in the travel cost
+            var timeToNextTrip = TimeToNextTrip(driverOriginalTrip);
             v += (
                  (autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones) + 1]
                 + autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones) + 1]
                 + autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones) + 1])
-                + driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip))
+                + (_parkingModel == null ? driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
+                 : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverDestination))
                 ) * costFactor;
             switch(passengerTrip.Purpose)
             {
@@ -321,6 +331,18 @@ namespace Tasha.V4Modes
             return true;
         }
 
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
+                }
+            }
+            return 0f;
+        }
+
         private bool NonFastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
             v = float.NegativeInfinity;
@@ -330,16 +352,17 @@ namespace Tasha.V4Modes
             }
             var zoneDistances = Root.ZoneSystem.Distances;
             // Since this is going to be valid, start building a real utility!
-            v = 0f;
             IZone passengerOrigin = passengerTrip.OriginalZone;
             IZone driverOrigin = driverOriginalTrip.OriginalZone;
             var sameOrigin = passengerOrigin == driverOrigin;
             IZone passengerDestination = passengerTrip.DestinationZone;
             var sameDestination = passengerDestination == driverOriginalTrip.DestinationZone;
             var passenger = passengerTrip.TripChain.Person;
+            v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerOrigin.PlanningDistrict, passengerDestination.PlanningDistrict);
             // we are going to add in the time of the to passenger destination twice
             var zeroTime = Time.Zero;
             int same = 0;
+
             // from driver's origin to passenger's origin
             if(toPassengerOrigin == zeroTime)
             {
@@ -372,11 +395,13 @@ namespace Tasha.V4Modes
             // apply the travel times (don't worry if we have intrazonals because they will be 0's).
             v += ((toPassengerOrigin + toPassengerDestination + toDriverDestination) + toPassengerDestination).ToMinutes() * timeFactor;
             // Add in the travel cost
+            var timeToNextTrip = TimeToNextTrip(driverOriginalTrip);
             v += (
                 (AutoData.TravelCost(driverOrigin, passengerOrigin, passengerTrip.ActivityStartTime)
                 + AutoData.TravelCost(passengerOrigin, passengerDestination, passengerTrip.ActivityStartTime)
                 + AutoData.TravelCost(passengerDestination, driverOriginalTrip.DestinationZone, passengerTrip.ActivityStartTime))
-                + driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip))
+                + (_parkingModel == null ? driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
+                 : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverOriginalTrip.DestinationZone))
                 ) * costFactor;
             switch(passengerTrip.Purpose)
             {
@@ -714,6 +739,19 @@ namespace Tasha.V4Modes
             ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
             StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
             NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                TimePeriodConstants[i].BuildMatrix();
+            }
+            if (ParkingModel != null)
+            {
+                if (!ParkingModel.Loaded)
+                {
+                    ParkingModel.LoadData();
+                }
+                _parkingModel = ParkingModel.GiveData();
+            }
         }
 
         private float ConvertCostFactor(float costFactor, float timeFactor)
