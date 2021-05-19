@@ -126,7 +126,8 @@ namespace Tasha.PopulationSynthesis
         /// <summary>
         /// The pre-computed utility to apply for the household zones
         /// </summary>
-        private float[] _preComputedHouseholdZoneUtilities;
+        private float[] _preComputedHouseholdZoneUtilitiesGround;
+        private float[] _preComputedHouseholdZoneUtilitiesApt;
 
         public void Load()
         {
@@ -145,7 +146,8 @@ namespace Tasha.PopulationSynthesis
         {
             var distances = Root.ZoneSystem.Distances.GetFlatData();
             int numberOfZones = _zones.Count;
-            _preComputedHouseholdZoneUtilities = new float[distances.Length];
+            _preComputedHouseholdZoneUtilitiesGround = new float[distances.Length];
+            _preComputedHouseholdZoneUtilitiesApt = new float[distances.Length];
             var jobAverageAutoTime = new float[numberOfZones];
             var jobAverageDistance = new float[numberOfZones];
             var jobAverageTransitTime = new float[numberOfZones];
@@ -181,7 +183,8 @@ namespace Tasha.PopulationSynthesis
                 v += AverageAutoTravelTimeToWork * jobAverageAutoTime[i];
                 v += AveragePerceivedTransitTimeToWork * jobAverageTransitTime[i];
                 v += AverageDistanceToWork * jobAverageDistance[i];
-                _preComputedHouseholdZoneUtilities[i] = v;
+                _preComputedHouseholdZoneUtilitiesGround[i] = v;
+                _preComputedHouseholdZoneUtilitiesApt[i] = v;
             }
         }
 
@@ -211,13 +214,17 @@ namespace Tasha.PopulationSynthesis
             [RunParameter("Threshold4 Offset", 0.0f, "The offset for the fourth threshold to apply to the planning districts.")]
             public float ThresholdOffset4;
 
-            internal void ApplyConstant(int[] zonePds, float[] zoneConstants, float[] thresholdOffset1, float[] thresholdOffset2, float[] thresholdOffset3, float[] thresholdOffset4)
+            [RunParameter("Apartment Offset", 0.0f, "Applied to the utility if the household is in an apartment dwelling.")]
+            public float ApartmentOffset;
+
+            internal void ApplyConstant(int[] zonePds, float[] zoneConstantsGround, float[] zoneConstantsApt, float[] thresholdOffset1, float[] thresholdOffset2, float[] thresholdOffset3, float[] thresholdOffset4)
             {
-                for (int i = 0; i < zoneConstants.Length; i++)
+                for (int i = 0; i < zoneConstantsGround.Length; i++)
                 {
                     if (PlanningDistricts.Contains(zonePds[i]))
                     {
-                        zoneConstants[i] += Constant;
+                        zoneConstantsGround[i] += Constant;
+                        zoneConstantsApt[i] += Constant + ApartmentOffset;
                         thresholdOffset1[i] += ThresholdOffset1;
                         thresholdOffset2[i] += ThresholdOffset2;
                         thresholdOffset3[i] += ThresholdOffset3;
@@ -242,7 +249,7 @@ namespace Tasha.PopulationSynthesis
             var pds = _zones.GetFlatData().Select(zone => zone.PlanningDistrict).ToArray();
             foreach (var constants in Constants)
             {
-                constants.ApplyConstant(pds, _preComputedHouseholdZoneUtilities, _thresholdOffset1, _thresholdOffset2, _thresholdOffset3, _thresholdOffset4);
+                constants.ApplyConstant(pds, _preComputedHouseholdZoneUtilitiesGround, _preComputedHouseholdZoneUtilitiesApt, _thresholdOffset1, _thresholdOffset2, _thresholdOffset3, _thresholdOffset4);
             }
         }
 
@@ -328,7 +335,15 @@ namespace Tasha.PopulationSynthesis
 
         private float ComputeUtility(ITashaHousehold data, int flathomeZone)
         {
-            var v = _preComputedHouseholdZoneUtilities[flathomeZone];
+            float v;
+            if(data.DwellingType == DwellingType.Apartment)
+            {
+                v = _preComputedHouseholdZoneUtilitiesApt[flathomeZone] + Apartment;
+            }
+            else
+            {
+                v = _preComputedHouseholdZoneUtilitiesGround[flathomeZone];
+            }
             var persons = data.Persons;
             int adults = 0, kids = 0, ftWorkers = 0;
             for (int i = 0; i < persons.Length; i++)
@@ -386,10 +401,6 @@ namespace Tasha.PopulationSynthesis
                 default:
                     break;
             }
-            if (data.DwellingType == DwellingType.Apartment)
-            {
-                v += Apartment;
-            }
             return v;
         }
 
@@ -401,7 +412,8 @@ namespace Tasha.PopulationSynthesis
 
         public void Unload()
         {
-            _preComputedHouseholdZoneUtilities = null;
+            _preComputedHouseholdZoneUtilitiesGround = null;
+            _preComputedHouseholdZoneUtilitiesApt = null;
         }
 
         public bool RuntimeValidation(ref string error)

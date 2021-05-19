@@ -49,6 +49,9 @@ namespace TMG.Frameworks.Data.Loading
         [SubModelInformation(Required = true, Description = "The loader of PD data")]
         public IReadODData<float> Input;
 
+        [RunParameter("Continue After Invalid ODPair", false, "Should the model system continue after an invalid value has been read in?")]
+        public bool ContinueAfterInvalidODPair;
+
         public SparseTwinIndex<float> GiveData()
         {
             return _data;
@@ -68,16 +71,19 @@ namespace TMG.Frameworks.Data.Loading
                 var pdD = entry.D;
                 for (int i = 0; i < flatData.Length; i++)
                 {
-                    for (int j = 0; j < flatData[i].Length; j++)
+                    if (pdMap[i] == pdO)
                     {
-                        if(pdMap[i] == pdO && pdMap[j] == pdD)
+                        for (int j = 0; j < flatData[i].Length; j++)
                         {
-                            flatData[i][j] = entry.Data;
-                            any = true;
+                            if (pdMap[j] == pdD)
+                            {
+                                flatData[i][j] = entry.Data;
+                                any = true;
+                            }
                         }
                     }
                 }
-                if (!any)
+                if (!any && !ContinueAfterInvalidODPair)
                 {
                     throw new XTMFRuntimeException(this, $"Read in a record of PD {pdO} to PD {pdD} that has no zone in our zone system!");
                 }
