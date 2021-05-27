@@ -103,6 +103,11 @@ namespace TMG.Emme
         private NamedPipeServerStream PipeFromEMME;
 
         /// <summary>
+        /// This lock is used for ensuring that only one Modeller Controller can be initialized at the same time.
+        /// </summary>
+        private static object _loadLock = new object();
+
+        /// <summary>
         /// </summary>
         /// <param name="projectFile"></param>
         /// <param name="performanceAnalysis"></param>
@@ -167,20 +172,25 @@ namespace TMG.Emme
             Emme.StartInfo.RedirectStandardOutput = true;
             Emme.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
-            //Start the new process
-            try
+            // This will limit us to starting up a single copy of EMME at the same time so we won't run
+            // into issues where the toolboxes fail to load as they get locked as modeller initializes.
+            lock (_loadLock)
             {
-                Emme.Start();
+                //Start the new process
+                try
+                {
+                    Emme.Start();
+                }
+                catch (Exception e)
+                {
+                    throw new XTMFRuntimeException(module, e, "Unable to create a bridge to EMME to '" + AddQuotes(projectFile) + "'!");
+                }
+                // Give some short names for the streams that we will be using
+                ToEmme = Emme.StandardInput;
+                // no more standard out
+                PipeFromEMME.WaitForConnection();
+                //this.FromEmme = this.Emme.StandardOutput;
             }
-            catch(Exception e)
-            {
-                throw new XTMFRuntimeException(module, e, "Unable to create a bridge to EMME to '" + AddQuotes(projectFile) + "'!");
-            }
-            // Give some short names for the streams that we will be using
-            ToEmme = Emme.StandardInput;
-            // no more standard out
-            PipeFromEMME.WaitForConnection();
-            //this.FromEmme = this.Emme.StandardOutput;
         }
 
         ~ModellerController()

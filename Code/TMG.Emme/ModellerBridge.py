@@ -133,19 +133,33 @@ class XTMFBridge:
     SignalStartModuleBinaryParameters = 14
         
     """Initialize the bridge so that the tools that we run will not accidentally access the standard I/O"""
-    def __init__(self):
+    def __init__(self, emmeApplication, databankName):
         self.CachedLogbookWrite = _m.logbook_write
         self.CachedLogbookTrace = _m.logbook_trace
         self.previous_level = None
-        
+
         # Redirect sys.stdout
         sys.stdin.close()
+        terminate = False
+        # Load up Modeller before continuing on
+        try:
+            self.emmeApplication = emmeApplication
+            if databankName is not None:
+                self.SwitchToDatabank(emmeApplication, databankName)
+            self.Modeller = inro.modeller.Modeller(emmeApplication)
+            _m.logbook_write("Activated modeller from ModellerBridge for XTMF")
+        except:
+            #Terminate the bridge if we are unable to
+            terminate = True
+
         self.ToXTMF = open('\\\\.\\pipe\\' + pipeName, 'wb', 0)
         self.FromXTMF = os.fdopen(0, "rb")
         sys.stdout = NullStream()
         self.IOLock = threading.Lock()
         sys.stdin = None
         sys.stdout = RedirectToXTMFConsole(self)
+        if terminate:
+            exit(-1)
         return
 
     def GetToolParameters(self, tool):
@@ -580,12 +594,7 @@ class XTMFBridge:
                 return
         self.SendRuntimeError("The databank " + databankName + " does not exist!")
 
-    def Run(self, emmeApplication, databankName, performanceMode):
-        self.emmeApplication = emmeApplication
-        if databankName is not None:
-            self.SwitchToDatabank(emmeApplication, databankName)
-        self.Modeller = inro.modeller.Modeller(emmeApplication)
-        _m.logbook_write("Activated modeller from ModellerBridge for XTMF")
+    def Run(self, performanceMode):
         if performanceMode:
             _m.logbook_write("Performance Testing Activated")
         # now that everything has been redirected we can
@@ -669,7 +678,7 @@ print(userInitials)
 print(projectFile)
 try:
     TheEmmeEnvironmentXMTF = _app.start_dedicated(visible=False, user_initials=userInitials, project=projectFile)
-    XTMFBridge().Run(TheEmmeEnvironmentXMTF, databank, performancFlag)
+    XTMFBridge(TheEmmeEnvironmentXMTF, databank,).Run(performancFlag)
 except Exception as e:   
     print(dir(e).__class__)
     print(e.message)
