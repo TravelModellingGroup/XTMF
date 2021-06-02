@@ -12,7 +12,7 @@ namespace TMG.Frameworks.Extensibility
     [ModuleInformation(
         Description = "This module is designed to allow given modules to be executed a specific amount of times."
     )]
-    public class Iteration : ISelfContainedModule
+    public class Iteration : ISelfContainedModule, IIterativeModel
     {
         [RunParameter("Execution Iterations", 1, "The number of iterations that will be performed.")]
         public int ExecutionIterations = 1;
@@ -26,6 +26,10 @@ namespace TMG.Frameworks.Extensibility
         public string Name { get; set; }
         public float Progress { get; }
         public Tuple<byte, byte, byte> ProgressColour { get; }
+
+        public int CurrentIteration => _currentIteration;
+
+        public int TotalIterations => ExecutionIterations;
 
         public bool RuntimeValidation(ref string error)
         {

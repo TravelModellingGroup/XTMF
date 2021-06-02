@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,36 +16,36 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using XTMF;
+using TMG;
 
 namespace Tasha.Common.IterationConditionals
 {
-    [ModuleInformation(Description = "This module is designed to allow the model system to have conditional execution based upon the provided information and the model system's current iteration.")]
-    public class IterationConditionalPostIteration : IterationConditional, IPostIteration
+    [ModuleInformation(Description = "This module is designed to allow a conditional flow when executing")]
+    public sealed class BasicIterationConditional : IterationConditional, ISelfContainedModule
     {
-        [SubModelInformation(Required = true, Description = "Executed if true")]
-        public IPostIteration[] IfTrue;
+        [SubModelInformation(Required = false, Description = "Executed if true")]
+        public ISelfContainedModule[] IfTrue;
 
         [SubModelInformation(Required = false, Description = "Executed if false")]
-        public IPostIteration[] IfFalse;
+        public ISelfContainedModule[] IfFalse;
 
-        public void Execute(int iterationNumber, int totalIterations)
+        public void Start()
         {
             var toExecute = DoesIterationPass() ? IfTrue : IfFalse;
 
-            if(toExecute != null)
+            if (toExecute != null)
             {
                 foreach (var child in toExecute)
                 {
-                    child.Execute(iterationNumber, totalIterations);
+                    child.Start();
                 }
             }
-        }
-
-        public void Load(IConfiguration config, int totalIterations)
-        {
-            
         }
     }
 }

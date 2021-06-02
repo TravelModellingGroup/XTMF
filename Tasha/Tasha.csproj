@@ -180,6 +180,7 @@
     <Compile Include="Common\AuxiliaryTripChain.cs" />
     <Compile Include="Common\HouseholdExtender.cs" />
     <Compile Include="Common\IterationConditional.cs" />
+    <Compile Include="Common\IterationConditionals\BasicIterationConditional.cs" />
     <Compile Include="Common\IterationConditionals\IterationConditionalPostIteration.cs" />
     <Compile Include="Common\ParkingModel.cs" />
     <Compile Include="Common\PreIterationMSIntegration.cs" />
