@@ -73,9 +73,9 @@ namespace TMG.Frameworks.Extensibility
             {
                 threads[i].Join();
             }
-            if (errorList.Count > 0)
+            if (errorList.TryDequeue(out var firstError))
             {
-                throw new AggregateException(errorList.ToArray());
+                throw new XTMFRuntimeException(this, firstError);
             }
         }
     }
