@@ -47,6 +47,9 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("High School Ages", "0-11", typeof(RangeSet), "The valid ages to use for High school.")]
         public RangeSet HighschoolRange;
 
+        [RunParameter("External Zones", "", typeof(RangeSet), "Exclude persons who already have a place of school in this range.")]
+        public RangeSet ExternalZones;
+
 
         private SparseTwinIndex<float> ElementarySchoolProbabilities;
         private SparseTwinIndex<float> HighSchoolProbabilities;
@@ -113,6 +116,10 @@ namespace Tasha.PopulationSynthesis
 
         public IZone ProduceResult(ITashaPerson person)
         {
+            if(AlreadyHasExternalZone(person))
+            {
+                return person.SchoolZone;
+            }
             // Gather the base data and create our random generator
             var household = person.Household;
             var random = new Random(RandomSeed * household.HouseholdId);
@@ -127,6 +134,12 @@ namespace Tasha.PopulationSynthesis
             if (ret != null) return ret;
             // If we couldn't find a zone we need to use our backup plan and just generate out of the original distribution
             return GenerateFromOriginalDistribution(person, random, householdZone);
+        }
+
+        private bool AlreadyHasExternalZone(ITashaPerson person)
+        {
+            var zone = person.SchoolZone;
+            return zone != null && ExternalZones.Contains(zone.ZoneNumber);
         }
 
         /// <summary>
