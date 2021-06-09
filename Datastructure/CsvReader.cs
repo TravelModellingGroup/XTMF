@@ -193,15 +193,13 @@ namespace Datastructure
                     c = DataBuffer[DataBufferPosition++];
                     if ((c == '\n') | (c == '\0'))
                     {
-                        if (prevC != '\r')
+                        if (Data.Length <= numberOfColumns)
                         {
-                            if (Data.Length <= numberOfColumns)
-                            {
-                                ExpandDataSections();
-                            }
-                            Data[numberOfColumns].Start = prevEnd + 1;
-                            Data[numberOfColumns++].End = i;
+                            ExpandDataSections();
                         }
+                        Data[numberOfColumns].Start = prevEnd + 1;
+                        Data[numberOfColumns++].End = i;
+                        addOne = false;
                         break;
                     }
                     if ((c == '"'))
@@ -237,25 +235,27 @@ namespace Datastructure
                     {
                         Array.Resize(ref LineBuffer, LineBuffer.Length * 2);
                     }
-                    LineBuffer[LinePosition++] = c;
-                    // if a comma or an end quote followed by a comma
-                    if ((!quote && (c == ',' || c == '\t' || (prevC != ' ' && c == ' ')))
-                        || c == '\r')
+                    if (c != '\r')
                     {
-                        addOne = false;
-                        if (Data.Length <= numberOfColumns)
+                        LineBuffer[LinePosition++] = c;
+                        // if a comma or an end quote followed by a comma
+                        if ((!quote && (c == ',' || c == '\t' || (prevC != ' ' && c == ' '))))
                         {
-                            ExpandDataSections();
+                            addOne = false;
+                            if (Data.Length <= numberOfColumns)
+                            {
+                                ExpandDataSections();
+                            }
+                            Data[numberOfColumns].Start = prevEnd + 1;
+                            Data[numberOfColumns++].End = prevEnd = i;
                         }
-                        Data[numberOfColumns].Start = prevEnd + 1;
-                        Data[numberOfColumns++].End = prevEnd = i;
+                        else
+                        {
+                            addOne = true;
+                        }
+                        prevC = c;
+                        i++;
                     }
-                    else
-                    {
-                        addOne = true;
-                    }
-                    prevC = c;
-                    i++;
                 }
             }
             else
@@ -282,15 +282,13 @@ namespace Datastructure
                     c = DataBuffer[DataBufferPosition++];
                     if ((c == '\n') | (c == '\0'))
                     {
-                        if (prevC != '\r')
+                        if (Data.Length <= numberOfColumns)
                         {
-                            if (Data.Length <= numberOfColumns)
-                            {
-                                ExpandDataSections();
-                            }
-                            Data[numberOfColumns].Start = prevEnd + 1;
-                            Data[numberOfColumns++].End = i;
+                            ExpandDataSections();
                         }
+                        Data[numberOfColumns].Start = prevEnd + 1;
+                        Data[numberOfColumns++].End = i;
+                        addOne = false;
                         break;
                     }
                     if ((c == '"'))
@@ -326,25 +324,29 @@ namespace Datastructure
                     {
                         Array.Resize(ref LineBuffer, LineBuffer.Length * 2);
                     }
-                    LineBuffer[LinePosition++] = c;
-                    // if a comma or an end quote followed by a comma
-                    if ((!quote && (c == ',' || c == '\t'))
-                        || c == '\r')
+                    if (c != '\r')
                     {
-                        addOne = false;
-                        if (Data.Length <= numberOfColumns)
+                        LineBuffer[LinePosition++] = c;
+                    
+                        // if a comma or an end quote followed by a comma
+                        if ((!quote && (c == ',' || c == '\t'))
+                            || c == '\r')
                         {
-                            ExpandDataSections();
+                            addOne = false;
+                            if (Data.Length <= numberOfColumns)
+                            {
+                                ExpandDataSections();
+                            }
+                            Data[numberOfColumns].Start = prevEnd + 1;
+                            Data[numberOfColumns++].End = prevEnd = i;
                         }
-                        Data[numberOfColumns].Start = prevEnd + 1;
-                        Data[numberOfColumns++].End = prevEnd = i;
+                        else
+                        {
+                            addOne = true;
+                        }
+                        prevC = c;
+                        i++;
                     }
-                    else
-                    {
-                        addOne = true;
-                    }
-                    prevC = c;
-                    i++;
                 }
             }
             // check to see if there was actually no data

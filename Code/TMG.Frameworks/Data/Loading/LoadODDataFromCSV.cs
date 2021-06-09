@@ -39,10 +39,20 @@ namespace TMG.Frameworks.Data.Loading
         [RunParameter("Format", FileType.ThirdNormalized, "The format to read the data from.")]
         public FileType CSVFormat;
 
+        [RunParameter("Read Type", ReadType.AutoDetect, "Either auto detect if we are reading a vector or a matrix or specify this manually.  This only applies to ThirdNormalized.")]
+        public ReadType ThirdNormalizedType;
+
         public enum FileType
         {
             ThirdNormalized,
             SquareMatrix
+        }
+
+        public enum ReadType
+        {
+            AutoDetect,
+            Vector,
+            Matrix
         }
 
         public string Name { get; set; }
@@ -53,7 +63,7 @@ namespace TMG.Frameworks.Data.Loading
 
         public IEnumerable<ODData<float>> Read()
         {
-            switch(CSVFormat)
+            switch (CSVFormat)
             {
                 case FileType.ThirdNormalized:
                     return ReadThirdNormalized();
@@ -62,14 +72,14 @@ namespace TMG.Frameworks.Data.Loading
                 default:
                     throw new XTMFRuntimeException(this, $"Unknown file format option {Enum.GetName(typeof(FileType), CSVFormat)}!");
             }
-            
+
         }
 
         private IEnumerable<ODData<float>> ReadSquareMatrix()
         {
             var anyLinesRead = false;
             // Spaces are not delimiters
-            if(!File.Exists(LoadFrom))
+            if (!File.Exists(LoadFrom))
             {
                 throw new XTMFRuntimeException(this, $"In {Name} the file '{LoadFrom.GetFilePath()}' does not exist!");
             }
@@ -89,7 +99,7 @@ namespace TMG.Frameworks.Data.Loading
                         anyLinesRead = true;
                         ODData<float> data = new ODData<float>();
                         reader.Get(out data.O, 0);
-                        for(int i = 0; i < destinations.Length; i++)
+                        for (int i = 0; i < destinations.Length; i++)
                         {
                             data.D = destinations[i];
                             reader.Get(out data.Data, i + 1);
@@ -116,24 +126,55 @@ namespace TMG.Frameworks.Data.Loading
                 {
                     reader.LoadLine();
                 }
-                while (reader.LoadLine(out int columns))
+                switch (ThirdNormalizedType)
                 {
-                    if (columns >= 2)
-                    {
-                        ODData<float> data = new ODData<float>();
-                        reader.Get(out data.O, 0);
-                        if (columns >= 3)
+                    case ReadType.AutoDetect:
+                        while (reader.LoadLine(out int columns))
                         {
-                            reader.Get(out data.D, 1);
-                            reader.Get(out data.Data, 2);
+                            if (columns >= 2)
+                            {
+                                ODData<float> data = new ODData<float>();
+                                reader.Get(out data.O, 0);
+                                if (columns >= 3)
+                                {
+                                    reader.Get(out data.D, 1);
+                                    reader.Get(out data.Data, 2);
+                                }
+                                else
+                                {
+                                    reader.Get(out data.Data, 1);
+                                }
+                                yield return data;
+                            }
                         }
-                        else
+                        break;
+                    case ReadType.Matrix:
+                        while (reader.LoadLine(out int columns))
                         {
-                            reader.Get(out data.Data, 1);
+                            if (columns >= 3)
+                            {
+                                ODData<float> data = new ODData<float>();
+                                reader.Get(out data.O, 0);
+                                reader.Get(out data.D, 1);
+                                reader.Get(out data.Data, 2);
+                                yield return data;
+                            }
                         }
-                        yield return data;
-                    }
+                        break;
+                    case ReadType.Vector:
+                        while (reader.LoadLine(out int columns))
+                        {
+                            if (columns >= 2)
+                            {
+                                ODData<float> data = new ODData<float>();
+                                reader.Get(out data.O, 0);
+                                reader.Get(out data.Data, 1);
+                                yield return data;
+                            }
+                        }
+                        break;
                 }
+
             }
         }
 
