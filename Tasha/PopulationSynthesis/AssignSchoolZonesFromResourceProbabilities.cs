@@ -114,6 +114,9 @@ namespace Tasha.PopulationSynthesis
             return ret;
         }
 
+        [RunParameter("With Replacement", false, "Should the distributions be sampled with, or without replacement.")]
+        public bool WithReplacement;
+
         public IZone ProduceResult(ITashaPerson person)
         {
             if(AlreadyHasExternalZone(person))
@@ -129,9 +132,12 @@ namespace Tasha.PopulationSynthesis
             {
                 throw new XTMFRuntimeException(this, "In '" + Name + "' we found a person with an invalid household zone! ['" + householdZone + "']");
             }
-            IZone ret = PickSchoolZone(householdZone, probabilities, random, person.ExpansionFactor);
-            // If a zone is successfully found, return it
-            if (ret != null) return ret;
+            if (!WithReplacement)
+            {
+                IZone ret = PickSchoolZone(householdZone, probabilities, random, person.ExpansionFactor);
+                // If a zone is successfully found, return it
+                if (ret != null) return ret;
+            }
             // If we couldn't find a zone we need to use our backup plan and just generate out of the original distribution
             return GenerateFromOriginalDistribution(person, random, householdZone);
         }
