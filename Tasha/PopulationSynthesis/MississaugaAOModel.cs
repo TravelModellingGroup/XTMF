@@ -42,9 +42,6 @@ namespace Tasha.PopulationSynthesis
         [SubModelInformation(Required = true, Description = "The scenario to draw the employment from.")]
         public FileLocation EmploymentDirectory;
 
-        [SubModelInformation(Required = true, Description = "The scenario to draw the population from.")]
-        public FileLocation PopulationDirectory;
-
         [RunParameter("Time", "7:00", typeof(Time), "The time to use for computing the accessibility terms.")]
         public Time Time;
 
