@@ -181,7 +181,7 @@ namespace XTMF.Run
                                     AddProgressReport(reader);
                                     break;
                                 case ToHost.ClientRemovedProgressReport:
-                                    RemoveProgressRport(reader);
+                                    RemoveProgressReport(reader);
                                     break;
                                 case ToHost.ClientClearedProgressReports:
                                     ClearProgressReports();
@@ -238,7 +238,7 @@ namespace XTMF.Run
             Configuration.ProgressReports.Add(new ProgressReport(reader.ReadString(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
         }
 
-        private void RemoveProgressRport(BinaryReader reader)
+        private void RemoveProgressReport(BinaryReader reader)
         {
             var name = reader.ReadString();
             var toRemove = Configuration.ProgressReports.FirstOrDefault(rep => rep.Name == name);
