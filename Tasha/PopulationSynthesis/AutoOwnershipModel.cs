@@ -91,6 +91,9 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Threshold 4", 14.570f, "")]
         public float Threshold4;
 
+        [RunParameter("Sufficient Licenses", 0.0f, "This will be applied if the number of licenses in the household is equal to the number of people who can possibly have one.")]
+        public float SufficientLicenses;
+
         private Random _random;
 
         [RunParameter("Random Seed", 4564616, "The fixed seed to start the pseudo-random number generator with.")]
@@ -361,10 +364,13 @@ namespace Tasha.PopulationSynthesis
                     ftWorkers++;
                 }
             }
+            var licenses = persons.Count(p => p.Licence);
+            // kids are under 16, so the number of persons 16+ is length - kids
+            v += licenses == (persons.Length - kids) ? SufficientLicenses : 0;
             v += NumberOfAdults * adults;
             v += NumberOfKids * kids;
             v += NumberOfFTWorkers * ftWorkers;
-            switch (persons.Count(p => p.Licence))
+            switch (licenses)
             {
                 case 0:
                     // there is nothing to add if there is no driver's license

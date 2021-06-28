@@ -159,14 +159,17 @@ namespace Tasha.V4Modes
             // compute the non human factors
             var zoneSystem = Root.ZoneSystem;
             var zoneArray = zoneSystem.ZoneArray;
-            var o = zoneArray.GetFlatIndex(trip.OriginalZone.ZoneNumber);
-            var d = zoneArray.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+            IZone originalZone = trip.OriginalZone;
+            var o = zoneArray.GetFlatIndex(originalZone.ZoneNumber);
+            IZone destinationZone = trip.DestinationZone;
+            var d = zoneArray.GetFlatIndex(destinationZone.ZoneNumber);
             var chain = trip.TripChain;
             var p = chain.Person;
             GetPersonVariables(p, out float timeFactor, out float constant, out float costParameter);
             float v = constant;
             // if Intrazonal
-            if(o == d)
+            Time tripStartTime = trip.TripStartTime;
+            if (o == d)
             {
                 v += IntrazonalConstant;
                 v += IntrazonalTripDistanceFactor * zoneSystem.Distances.GetFlatData()[o][d] * 0.001f;
@@ -176,7 +179,7 @@ namespace Tasha.V4Modes
                 var timeToNextTrip = TimeToNextTrip(trip);
                 var parkingCosts = _parkingModel == null ? zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
                     : _parkingModel.ComputeParkingCost(trip.ActivityStartTime, trip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), d);
-                Network.GetAllData(o, d, trip.TripStartTime, out float ivtt, out float cost);
+                Network.GetAllData(o, d, tripStartTime, out float ivtt, out float cost);
                 v += timeFactor * ivtt + costParameter * (cost + parkingCosts);
             }
             // Apply personal factors
@@ -207,7 +210,23 @@ namespace Tasha.V4Modes
                     v += SchoolFlag;
                     break;
             }
+            v += GetPlanningDistrictConstant(tripStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
             return v;
+        }
+
+        [SubModelInformation(Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
+                }
+            }
+            return 0f;
         }
 
         private float TimeToNextTrip(ITrip trip)
