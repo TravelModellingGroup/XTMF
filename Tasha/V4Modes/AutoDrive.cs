@@ -457,7 +457,10 @@ namespace Tasha.V4Modes
             {
                 AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
             }
-
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                TimePeriodConstants[i].BuildMatrix();
+            }
             ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, ProfessionalTimeFactor);
             GeneralCost = ConvertCostFactor(GeneralCostFactor, GeneralTimeFactor);
             SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
