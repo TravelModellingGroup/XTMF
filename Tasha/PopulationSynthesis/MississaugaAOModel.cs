@@ -106,6 +106,9 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("BIntraZonalDistance", 0.0f, "")]
         public float BIntraZonalDistance;
 
+        [RunParameter("BDensity", 0.0f, "")]
+        public float BDensity;
+
         [RunParameter("BLicenses", 0.0f, "")]
         public float BLicenses;
 
@@ -224,6 +227,7 @@ namespace Tasha.PopulationSynthesis
             VectorHelper.FusedMultiplyAdd(_preComputedUtilities, features[21], BTransitPopulation45, _preComputedUtilities);
 
             VectorHelper.FusedMultiplyAdd(_preComputedUtilities, features[22], BIntraZonalDistance, _preComputedUtilities);
+            VectorHelper.FusedMultiplyAdd(_preComputedUtilities, features[23], BDensity, _preComputedUtilities);
         }
 
         private Random _random;
@@ -459,29 +463,30 @@ namespace Tasha.PopulationSynthesis
             }
             var ret = new float[][]
             {
-               TakeLog(employment),
-               TakeLog(population),
-               TakeLog(autoEmp5),
-               TakeLog(autoPop5),
-               TakeLog(autoEmp10),
-               TakeLog(autoPop10),
-               TakeLog(autoEmp15),
-               TakeLog(autoPop15),
-               TakeLog(autoEmp30),
-               TakeLog(autoPop30),
-               TakeLog(autoEmp45),
-               TakeLog(autoPop45),
-               TakeLog(transitEmp5),
-               TakeLog(transitPop5),
-               TakeLog(transitEmp10),
-               TakeLog(transitPop10),
-               TakeLog(transitEmp15),
-               TakeLog(transitPop15),
-               TakeLog(transitEmp30),
-               TakeLog(transitPop30),
-               TakeLog(transitEmp45),
-               TakeLog(transitPop45),
-               intraZonalDistance
+               TakeLogP1(employment),
+               TakeLogP1(population),
+               TakeLogP1(autoEmp5),
+               TakeLogP1(autoPop5),
+               TakeLogP1(autoEmp10),
+               TakeLogP1(autoPop10),
+               TakeLogP1(autoEmp15),
+               TakeLogP1(autoPop15),
+               TakeLogP1(autoEmp30),
+               TakeLogP1(autoPop30),
+               TakeLogP1(autoEmp45),
+               TakeLogP1(autoPop45),
+               TakeLogP1(transitEmp5),
+               TakeLogP1(transitPop5),
+               TakeLogP1(transitEmp10),
+               TakeLogP1(transitPop10),
+               TakeLogP1(transitEmp15),
+               TakeLogP1(transitPop15),
+               TakeLogP1(transitEmp30),
+               TakeLogP1(transitPop30),
+               TakeLogP1(transitEmp45),
+               TakeLogP1(transitPop45),
+               intraZonalDistance,
+               TakeLogP1(Divide(Add(employment,population), intraZonalDistance))
             };
             if(EstimationMode)
             {
@@ -490,7 +495,27 @@ namespace Tasha.PopulationSynthesis
             return ret;
         }
 
-        private static float[] TakeLog(float[] array)
+        private static float[] Add(float[] first, float[] second)
+        {
+            var ret = new float[first.Length];
+            for (int i = 0; i < first.Length; i++)
+            {
+                ret[i] = first[i] + second[i];
+            }
+            return ret;
+        }
+
+        private static float[] Divide(float[] lhs, float[] rhs)
+        {
+            var ret = new float[lhs.Length];
+            for (int i = 0; i < lhs.Length; i++)
+            {
+                ret[i] = lhs[i] / rhs[i];
+            }
+            return ret;
+        }
+
+        private static float[] TakeLogP1(float[] array)
         {
             var ret = new float[array.Length];
             for (int i = 0; i < array.Length; i++)
