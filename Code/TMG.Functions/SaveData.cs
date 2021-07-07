@@ -97,7 +97,7 @@ namespace TMG.Functions
         {
             var flatData = data.GetFlatData();
             var indexes = data.ValidIndexArray().Select(index => index.ToString()).ToArray();
-            using (StreamWriter writer = new StreamWriter(saveTo))
+            using (StreamWriter writer = new StreamWriter(saveTo, false, Encoding.UTF8))
             {
                 writer.WriteLine("Zone,Value");
                 for (int i = 0; i < flatData.Length; i++)
@@ -112,7 +112,7 @@ namespace TMG.Functions
         public static void SaveMatrixThirdNormalized(IZone[] zones, float[][] data, string saveLocation)
         {
             var zoneNumbers = zones.Select(z => z.ZoneNumber.ToString()).ToArray();
-            using (StreamWriter writer = new StreamWriter(saveLocation))
+            using (StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8))
             {
                 writer.WriteLine("Origin,Destination,Data");
                 for (int i = 0; i < data.Length; i++)
@@ -132,7 +132,7 @@ namespace TMG.Functions
 
         public static void SaveMatrixThirdNormalized(SparseTwinIndex<float> matrix, FileLocation saveLocation)
         {
-            using (StreamWriter writer = new StreamWriter(saveLocation))
+            using (StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8))
             {
                 writer.WriteLine("Origin,Destination,Data");
                 foreach (var o in matrix.ValidIndexes())
@@ -165,7 +165,7 @@ namespace TMG.Functions
                     Directory.CreateDirectory(dir);
                 }
             }
-            using (StreamWriter writer = new StreamWriter(fileName))
+            using (StreamWriter writer = new StreamWriter(fileName, false, Encoding.UTF8))
             {
                 BlockingCollection<SaveTask> toWrite = new BlockingCollection<SaveTask>();
                 var saveTask = Task.Run(() =>
