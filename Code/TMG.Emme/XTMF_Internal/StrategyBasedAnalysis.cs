@@ -40,11 +40,20 @@ namespace TMG.Emme.XTMF_Internal
         [RunParameter("SubPathCombinartionOperator", "+", "The operator to use when combining the different paths.")]
         public string SubPathCombinationOperator;
 
-        [RunParameter("Strategy Values Matrix Number", 0, "The matrix number to store the results to for the strategy values.")]
+        [RunParameter("Strategy Values Matrix Number", 0, "The matrix number to store the results to for the strategy values, leave zero to ignore.")]
         public int StrategyValuesMatrixNumber;
 
-        [RunParameter("In-Vehicle Trip Component", "", "The attribute or calculation to perform when building the strategy values.")]
+        [RunParameter("In-Vehicle Trip Component", "", "The attribute or calculation to perform when building the strategy values.  Leave blank to ignore")]
         public string InVehicleTripComponent;
+
+        [RunParameter("Transit Volumes", "", "The transit segment attribute to store the in-vehicle calculation to.  Leave blank to ignore.")]
+        public string TransitVolumesAttribute;
+
+        [RunParameter("Aux Transit", "", "The link attribute to use for the auxiliary transit calculation to.  Leave blank to ignore.")]
+        public string AuxTransitAttribute;
+
+        [RunParameter("Aux Transit Volumes Attribute", "", "The link attribute to store the auxiliary transit calculation to.  Leave blank to ignore.")]
+        public string AuxTransitVolumesAttribute;
 
         public const string ToolName = "tmg.XTMF_internal.strategy_based_analysis";
         
@@ -70,7 +79,10 @@ namespace TMG.Emme.XTMF_Internal
                     new ModellerControllerParameter("xtmf_DemandMatrixNumber", DemandMatrix.ToString()),
                     new ModellerControllerParameter("xtmf_sub_path_combination_operator", SubPathCombinationOperator),
                     new ModellerControllerParameter("xtmf_StrategyValuesMatrixNumber", StrategyValuesMatrixNumber.ToString()),
-                    new ModellerControllerParameter("xtmf_in_vehicle_trip_component", InVehicleTripComponent)
+                    new ModellerControllerParameter("xtmf_in_vehicle_trip_component", InVehicleTripComponent),
+                    new ModellerControllerParameter("xtmf_transit_volumes_attribute", TransitVolumesAttribute),
+                    new ModellerControllerParameter("xtmf_aux_transit_attribute", AuxTransitAttribute),
+                    new ModellerControllerParameter("xtmf_aux_transit_volumes_attribute", AuxTransitVolumesAttribute)
                 });
         }
 
@@ -88,7 +100,7 @@ namespace TMG.Emme.XTMF_Internal
                     + "' is an invalid demand matrix number!";
                 return false;
             }
-            if (StrategyValuesMatrixNumber <= 0)
+            if (StrategyValuesMatrixNumber < 0)
             {
                 error = "The matrix number '" + StrategyValuesMatrixNumber
                     + "' to store the results to is an invalid matrix number!";
