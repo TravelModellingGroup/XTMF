@@ -44,6 +44,9 @@ namespace Tasha.XTMFModeChoice
         [RunParameter("Rideshare Mode Name", "", "The name of the rideshare mode, leave blank to not process.")]
         public string RideshareModeName;
 
+        [RunParameter("Apply RideShare Bug", true, "Keep this set to true for backwards compatibility where rideshare was assigned to both the driver and passenger during a joint tour.")]
+        public bool ApplyRideshareBug;
+
         [RootModule]
         public ITashaRuntime Root;
 
@@ -147,8 +150,6 @@ namespace Tasha.XTMFModeChoice
                 }
                 AssignModes(random, resolution, householdData);
                 householdResourceAllocator.BuildVehicleAvailabilities(householdData, household.Vehicles);
-                // Start of Pass 2.5 ( rideshare )
-                ProcessRideshare(householdData);
 
                 // Start of Pass 3 (Passenger attaching to trip chains)
                 if (passengerMatchingAlgorithm != null)
@@ -288,7 +289,7 @@ namespace Tasha.XTMFModeChoice
                 var tripChainData = personData[i].TripChainData;
                 for (int j = 0; j < tripChainData.Length; j++)
                 {
-                    tripChainData[j].FinalAssignment(householdIteration);
+                    tripChainData[j].FinalAssignment(householdIteration, AutoMode, Rideshare ?? AutoMode, ApplyRideshareBug);
                 }
             }
         }
@@ -315,41 +316,6 @@ namespace Tasha.XTMFModeChoice
                 }
             }
             return true;
-        }
-
-        private void ProcessRideshare(ModeChoiceHouseholdData householdData)
-        {
-            if (Rideshare == null)
-            {
-                return;
-            }
-            var numberOfPeople = householdData.PersonData.Length;
-            var autoIndex = Array.IndexOf(AllModes, AutoMode);
-            var rideshareIndex = Array.IndexOf(AllModes, Rideshare);
-            for (int i = 0; i < numberOfPeople; i++)
-            {
-                var tripChainData = householdData.PersonData[i].TripChainData;
-                var numberOfTripChains = tripChainData.Length;
-                for (int j = 0; j < numberOfTripChains; j++)
-                {
-                    if (tripChainData[j].TripChain.JointTripRep)
-                    {
-                        var trips = tripChainData[j].TripChain.Trips;
-                        var numberOfTrips = trips.Count;
-                        for (int k = 0; k < numberOfTrips; k++)
-                        {
-                            if (trips[k].Mode == AutoMode)
-                            {
-                                trips[k].Mode = Rideshare;
-                                householdData.PersonData[i].TripChainData[j].TripData[k].V[rideshareIndex]
-                                    = householdData.PersonData[i].TripChainData[j].TripData[k].V[autoIndex];
-                                householdData.PersonData[i].TripChainData[j].TripData[k].Error[rideshareIndex]
-                                    = householdData.PersonData[i].TripChainData[j].TripData[k].Error[autoIndex];
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         private void RegenerateErrorTerms(ModeChoiceHouseholdData householdData, Random random)

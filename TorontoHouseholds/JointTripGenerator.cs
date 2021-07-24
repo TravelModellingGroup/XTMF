@@ -33,37 +33,37 @@ namespace TMG.Tasha
         {
             int jointTourNumber = 1;
             // we don't need to look at the last person
-            for ( int person = 0; person < house.Persons.Length - 1; person++ )
+            for (int person = 0; person < house.Persons.Length - 1; person++)
             {
-                foreach ( var chain in house.Persons[person].TripChains )
+                foreach (var chain in house.Persons[person].TripChains)
                 {
-                    if ( chain.JointTrip )
+                    if (chain.JointTrip)
                     {
                         continue;
                     }
-                    for ( int otherPerson = person + 1; otherPerson < house.Persons.Length; otherPerson++ )
+                    for (int otherPerson = person + 1; otherPerson < house.Persons.Length; otherPerson++)
                     {
-                        foreach ( var otherChain in house.Persons[otherPerson].TripChains )
+                        foreach (var otherChain in house.Persons[otherPerson].TripChains)
                         {
-                            if ( otherChain.JointTrip )
+                            if (otherChain.JointTrip)
                             {
                                 continue;
                             }
-                            if ( AreTogether( chain, otherChain ) )
+                            if (AreTogether(chain, otherChain))
                             {
                                 int tourNum = jointTourNumber;
-                                if ( !chain.JointTrip )
+                                if (!chain.JointTrip)
                                 {
-                                    ReAssignPurpose( chain );
-                                    ( (TripChain)chain ).JointTripID = ( (TripChain)otherChain ).JointTripID = tourNum;
-                                    ( (TripChain)chain ).JointTripRep = true;
-                                    ReassignObservedModes( chain );
+                                    ReAssignPurpose(chain);
+                                    ((TripChain)chain).JointTripID = ((TripChain)otherChain).JointTripID = tourNum;
+                                    ((TripChain)chain).JointTripRep = true;
+                                    ReassignObservedModes(chain);
                                     jointTourNumber++;
                                 }
-                                ( (TripChain)otherChain ).JointTripID = chain.JointTripID;
-                                ( (TripChain)otherChain ).GetRepTripChain = chain;
-                                ReAssignPurpose( otherChain );
-                                ReassignObservedModes( otherChain );
+                                ((TripChain)otherChain).JointTripID = chain.JointTripID;
+                                ((TripChain)otherChain).GetRepTripChain = chain;
+                                ReAssignPurpose(otherChain);
+                                ReassignObservedModes(otherChain);
                             }
                         }
                     }
@@ -88,28 +88,46 @@ namespace TMG.Tasha
 
         private static bool AreTogether(ITrip f, ITrip s)
         {
-            return ( f.TripStartTime == s.TripStartTime )
-                 & ( f.Purpose == s.Purpose )
-                 & ( f.Purpose == Activity.IndividualOther | f.Purpose == Activity.Market | f.Purpose == Activity.Home )
-                 & ( f.OriginalZone.ZoneNumber == s.OriginalZone.ZoneNumber )
-                 & ( f.DestinationZone.ZoneNumber == s.DestinationZone.ZoneNumber );
+            return (f.TripStartTime == s.TripStartTime)
+                 & (f.Purpose == s.Purpose)
+                 & (f.Purpose == Activity.IndividualOther | f.Purpose == Activity.Market | f.Purpose == Activity.Home)
+                 & (f.OriginalZone.ZoneNumber == s.OriginalZone.ZoneNumber)
+                 & (f.DestinationZone.ZoneNumber == s.DestinationZone.ZoneNumber);
         }
 
         private static void ReassignObservedModes(ITripChain chain)
         {
-            if ( RideShare == null )
+            if (RideShare == null)
             {
                 return;
             }
-            var trips = chain.Trips;
-            var numberOfTrips = trips.Count;
-            for ( int i = 0; i < numberOfTrips; i++ )
+            if (chain.JointTripRep)
             {
-                if (trips[i][ObsMode] is IMode obsMode)
+                var trips = chain.Trips;
+                var numberOfTrips = trips.Count;
+                for (int i = 0; i < numberOfTrips; i++)
                 {
-                    if (obsMode.ModeName == Auto.ModeName || obsMode.ModeName == Passenger.ModeName)
+                    if (trips[i][ObsMode] is IMode obsMode)
                     {
-                        trips[i].Attach(ObsMode, RideShare);
+                        if (obsMode.ModeName == RideShare.ModeName || obsMode.ModeName == Passenger.ModeName)
+                        {
+                            trips[i].Attach(ObsMode, Auto);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var trips = chain.Trips;
+                var numberOfTrips = trips.Count;
+                for (int i = 0; i < numberOfTrips; i++)
+                {
+                    if (trips[i][ObsMode] is IMode obsMode)
+                    {
+                        if (obsMode.ModeName == Auto.ModeName || obsMode.ModeName == Passenger.ModeName)
+                        {
+                            trips[i].Attach(ObsMode, RideShare);
+                        }
                     }
                 }
             }
@@ -117,9 +135,9 @@ namespace TMG.Tasha
 
         private static void ReAssignPurpose(ITripChain chain)
         {
-            foreach ( var t in chain.Trips )
+            foreach (var t in chain.Trips)
             {
-                switch ( t.Purpose )
+                switch (t.Purpose)
                 {
                     case Activity.IndividualOther:
                         t.Purpose = Activity.JointOther;

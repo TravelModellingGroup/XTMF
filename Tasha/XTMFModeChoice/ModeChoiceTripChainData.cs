@@ -117,16 +117,28 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        internal void FinalAssignment(int householdIteration)
+        internal void FinalAssignment(int householdIteration, ITashaMode autoMode, ITashaMode rideshare, bool applyRideshareBug)
         {
             var trips = TripChain.Trips;
             if (TripChain.JointTrip && !TripChain.JointTripRep)
             {
-                var otherTripChain = TripChain.GetRepTripChain.Trips;
+                var repTripChain = TripChain.GetRepTripChain.Trips;
                 for (int i = 0; i < TripData.Length; i++)
                 {
-                    trips[i].Mode = otherTripChain[i].Mode;
-                    trips[i].ModesChosen[householdIteration] = otherTripChain[i].Mode;
+                    var repMode = repTripChain[i].Mode;
+                    var assignedMode = repMode == autoMode ? rideshare : repMode;
+                    trips[i].Mode = assignedMode;
+                    trips[i].ModesChosen[householdIteration] = assignedMode;
+                }
+
+            }
+            else if (applyRideshareBug && TripChain.JointTrip)
+            {
+                for (int i = 0; i < TripData.Length; i++)
+                {
+                    var mode = trips[i].Mode;
+                    mode = mode == autoMode ? rideshare : mode;
+                    trips[i].ModesChosen[householdIteration] = mode;
                 }
 
             }
