@@ -186,19 +186,20 @@ namespace XTMF.Gui.UserControls.Help
         {
             var us = d as HelpDialog;
             var newContent = e.NewValue as ContentReference;
-            us.ContentPresenter.Children.Clear();
+            us.ContentPresenter.Content = null;
             if (newContent == null) return;
             if (!String.IsNullOrWhiteSpace(newContent.DocURL))
             {
                 var browser = new WebBrowser();
                 browser.Navigate(newContent.DocURL);
-                us.ContentPresenter.Children.Add(browser);
+                us.ContentPresenter.Content = browser;
             }
             else
             {
-                if (newContent != null && newContent.Content != null)
+                if (newContent != null)
                 {
-                    us.ContentPresenter.Children.Add(newContent.Content);
+                    var content = newContent.Content;
+                    us.ContentPresenter.Content = content;
                 }
             }
         }
@@ -208,7 +209,7 @@ namespace XTMF.Gui.UserControls.Help
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ResultBox_Selected(object sender, RoutedEventArgs e)
+        private void ResultBox_Selected(object sender, SelectionChangedEventArgs e)
         {
             if (ResultBox.SelectedItem is ContentReference cr)
             {

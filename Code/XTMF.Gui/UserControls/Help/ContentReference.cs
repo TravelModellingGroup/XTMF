@@ -73,7 +73,16 @@ namespace XTMF.Gui.UserControls.Help
 
         private UIElement GenerateContent()
         {
-            return new DocumentationControl { Type = Module, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+            if(string.IsNullOrWhiteSpace(DocURL))
+            {
+                return new DocumentationControl() { Type = Module, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+            }
+            else
+            {
+                var ret = new System.Windows.Controls.WebBrowser() { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+                ret.Navigate(DocURL);
+                return ret;
+            }
         }
 
         public override string ToString()

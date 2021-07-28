@@ -39,26 +39,12 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class DocumentationControl : UserControl
     {
+
         public Type Type
         {
             get => (Type)GetValue(TypeProperty);
             set => SetValue(TypeProperty, value);
         }
-
-        public static string DOC_URL_ROOT = "https://tmg.utoronto.ca/doc/";
-
-        public string TypeNameText { get { var t = Type; return t == null ? "No Type!" : t.Name; } }
-
-        // Using a DependencyProperty as the backing store for Type.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TypeProperty =
-            DependencyProperty.Register("Type", typeof(Type), typeof(DocumentationControl), new PropertyMetadata(null, OnTypeChanged));
-
-        public static readonly DependencyProperty ModuleSubmodulesProperty = DependencyProperty.Register("ModuleSubmodules", typeof(SubModule[]), typeof(DocumentationControl),
-    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public static readonly DependencyProperty ModuleParametersProperty = DependencyProperty.Register("ModuleParameters", typeof(Parameter[]), typeof(DocumentationControl),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
-
 
         public string ModuleName
         {
@@ -66,19 +52,11 @@ namespace XTMF.Gui.UserControls
             set => SetValue(ModuleNameProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ModuleNameProperty =
-            DependencyProperty.Register("ModuleName", typeof(string), typeof(DocumentationControl), new PropertyMetadata(""));
-
         public string ModuleNamespace
         {
             get => (string)GetValue(ModuleNamespaceProperty);
             set => SetValue(ModuleNamespaceProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ModuleNamespaceProperty =
-            DependencyProperty.Register("ModuleNamespace", typeof(string), typeof(DocumentationControl), new PropertyMetadata(""));
 
         public string ModuleDescription
         {
@@ -98,15 +76,36 @@ namespace XTMF.Gui.UserControls
             set => SetValue(ModuleSubmodulesProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty TypeProperty =
+            DependencyProperty.Register("Type", typeof(Type), typeof(DocumentationControl), new PropertyMetadata(null, OnTypeChanged));
+
+        public static readonly DependencyProperty ModuleNameProperty =
+            DependencyProperty.Register("ModuleName", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static readonly DependencyProperty ModuleNamespaceProperty =
+            DependencyProperty.Register("ModuleNamespace", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
+
         public static readonly DependencyProperty ModuleDescriptionProperty =
-            DependencyProperty.Register("ModuleDescription", typeof(string), typeof(DocumentationControl), new PropertyMetadata(""));
+            DependencyProperty.Register("ModuleDescription", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static readonly DependencyProperty ModuleParametersProperty = 
+            DependencyProperty.Register("ModuleParameters", typeof(Parameter[]), typeof(DocumentationControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static readonly DependencyProperty ModuleSubmodulesProperty =
+            DependencyProperty.Register("ModuleSubmodules", typeof(SubModule[]), typeof(DocumentationControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public string TypeNameText { get { var t = Type; return t == null ? "No Type!" : t.Name; } }
+        public DocumentationControl()
+        {
+            DataContext = this;
+            InitializeComponent();
+        }
 
         private static void OnTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var newType = e.NewValue as Type;
             var us = d as DocumentationControl;
-            if(newType == null)
+            if (newType == null)
             {
                 us.ModuleName = "No Type Loaded";
                 us.ModuleNamespace = string.Empty;
@@ -128,7 +127,7 @@ namespace XTMF.Gui.UserControls
         {
             var attributes = type.GetCustomAttributes(true);
             string description = "No Description";
-            foreach(var at in attributes)
+            foreach (var at in attributes)
             {
                 if (at is ModuleInformationAttribute info)
                 {
@@ -141,51 +140,7 @@ namespace XTMF.Gui.UserControls
 
         private static void SetDescription(DocumentationControl window, string description, Type module)
         {
-            StringBuilder builder = new StringBuilder();
-            window.Browser.Visibility = Visibility.Collapsed;
-
-            SolidColorBrush background = (SolidColorBrush)window.FindResource("MaterialDesignPaper");
- 
-            builder.Append(@"<!DOCTYPE html>
-<html>
-<head><meta http-equiv='X-UA-Compatible' content='IE=edge' /> </head><body style='background-color: "+
-                ColorTranslator.ToHtml(System.Drawing.Color.FromArgb(background.Color.A, background.Color.R,background.Color.G,background.Color.B))+"; color:#fff;'>");
-            builder.Append(description);
-            builder.Append("</body></html>");
-            window.ModuleDescription = builder.ToString();
-            var docUrl = DocumentationControl.DOC_URL_ROOT + module.FullName + ".html";
-            window.Browser.Navigate(DocumentationControl.DOC_URL_ROOT + module.FullName + ".html?fromXtmf=true");
-            window.Browser.Visibility = Visibility.Visible;
-        }
-
-        public event Action<object> RequestClose;
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if(!e.Handled)
-            {
-                if(e.Key == Key.W)
-                {
-                    RequestClose?.Invoke(this);
-                    e.Handled = true;
-                }
-            }
-            base.OnKeyDown(e);
-        }
-
-        public DocumentationControl()
-        {
-            DataContext = this;
-            InitializeComponent();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            DOC_URL_ROOT += Properties.Resources.Xtmf_Major_Version + "/modules";
+            window.ModuleDescription = description;
         }
 
         /// <summary>
@@ -196,13 +151,13 @@ namespace XTMF.Gui.UserControls
         private static Parameter[] GetParameters(Type type)
         {
             var list = Project.GetParameters(type);
-            if(list == null)
+            if (list == null)
             {
                 return null;
             }
             var length = list.Parameters.Count;
             Parameter[] ret = new Parameter[length];
-            for(int i = 0; i < length; i++)
+            for (int i = 0; i < length; i++)
             {
                 ret[i] = new Parameter
                 {
@@ -218,23 +173,27 @@ namespace XTMF.Gui.UserControls
         {
             List<SubModule> submodules = new List<SubModule>();
             var fields = type.GetFields();
-            foreach(var f in fields)
+            foreach (var f in fields)
             {
                 var attributes = f.GetCustomAttributes(true);
                 submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
                 {
-                    Name = f.Name, Description = param.Description, Type = ConvertTypeName(f.FieldType)
+                    Name = f.Name,
+                    Description = param.Description,
+                    Type = ConvertTypeName(f.FieldType)
                 }));
             }
             var properties = type.GetProperties();
-            foreach(var f in properties)
+            foreach (var f in properties)
             {
                 var attributes = f.GetCustomAttributes(true);
-                if(attributes != null)
+                if (attributes != null)
                 {
                     submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
                     {
-                        Name = f.Name, Description = param.Description, Type = ConvertTypeName(f.PropertyType)
+                        Name = f.Name,
+                        Description = param.Description,
+                        Type = ConvertTypeName(f.PropertyType)
                     }));
                 }
             }
@@ -243,7 +202,7 @@ namespace XTMF.Gui.UserControls
 
         private static string ConvertTypeName(Type type)
         {
-            if(!type.IsGenericType)
+            if (!type.IsGenericType)
             {
                 return type.Name;
             }
@@ -252,9 +211,9 @@ namespace XTMF.Gui.UserControls
             builder.Append('<');
             var inside = type.GetGenericArguments();
             var first = true;
-            foreach(var t in inside)
+            foreach (var t in inside)
             {
-                if(!first)
+                if (!first)
                 {
                     builder.Append(',');
                 }
@@ -263,31 +222,8 @@ namespace XTMF.Gui.UserControls
             }
             builder.Append('>');
             return builder.ToString();
-        }
-
-        private static SubModule[] GetSubmodules(IModelSystemStructure mss)
-        {
-            var list = mss.Children;
-            if(list == null)
-            {
-                return null;
-            }
-            var length = list.Count;
-            SubModule[] ret = new SubModule[length];
-            for(int i = 0; i < length; i++)
-            {
-                ret[i] = new SubModule
-                {
-                    Type = list[i].ParentFieldType == null ? "Unknown" : ConvertTypeName(list[i].ParentFieldType),
-                    Name = list[i].ParentFieldName,
-                    Description = list[i].Description,
-                    Required = list[i].Required
-                };
-            }
-            return ret;
-        }
+        }   
     }
-
     public class Parameter : INotifyPropertyChanged
     {
         public string Description { get; internal set; }

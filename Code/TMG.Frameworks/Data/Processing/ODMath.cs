@@ -28,7 +28,7 @@ namespace TMG.Frameworks.Data.Processing
  @"This module is designed to execute optimized matrix math on the given data sources.  The available operations are add +, subtract -, multiply *, and divide /. 
 You can also use brackets () to order the operations.  Math using literals will be optimized and no data source will be altered.  A valid expression could be 
 '(A + B * C) / D' where you have the data sources A, B, C, and D defined with their Module names matching.  The result of this will be an OD matrix.  If only literals are used the size 
-of the matrix will match the zone system otherwise the size of the matrices are loaded in from the data sources."
+of the matrix will match the zone system otherwise the size of the matrices are loaded in from the data sources.UInt16", DocURL = "http://tmg.utoronto.ca/doc/1.6/xtmf/frameworks/od_math/od_math.html"
         )]
     // ReSharper disable once InconsistentNaming
     public class ODMath : IDataSource<SparseTwinIndex<float>>

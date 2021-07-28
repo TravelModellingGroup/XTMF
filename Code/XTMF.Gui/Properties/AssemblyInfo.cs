@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("XTMF.Gui.1.6")]
+[assembly: AssemblyTitle("XTMF.Gui.1.8")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("University of Toronto")]
-[assembly: AssemblyProduct("XTMF.Gui.1.6")]
-[assembly: AssemblyCopyright("Copyright © University of Toronto 2011-2019")]
+[assembly: AssemblyProduct("XTMF.Gui.1.8")]
+[assembly: AssemblyCopyright("Copyright © University of Toronto 2011-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
