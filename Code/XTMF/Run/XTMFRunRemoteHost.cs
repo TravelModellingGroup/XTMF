@@ -448,6 +448,10 @@ namespace XTMF.Run
 
         public override void Start()
         {
+            if (!File.Exists(GetXTMFRunFileName()))
+            {
+                throw new Exception($"Unable to find the program '{GetXTMFRunFileName()}' to run the model system!  Please close XTMF and reset it up.");
+            }
             Task.Run(() =>
             {
                 StartupHost();

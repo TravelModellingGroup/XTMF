@@ -93,7 +93,15 @@ namespace XTMF.Controller
                 if (executeNow || _CurrentlyExecuting.Count == 0)
                 {
                     _CurrentlyExecuting.Add(run);
-                    run.Start();
+                    try
+                    {
+                        run.Start();
+                    }
+                    catch(Exception e)
+                    {
+                        ErrorLaunchingModel?.Invoke(e.Message);
+                        TerminateRun(run);
+                    }
                 }
                 else
                 {
@@ -101,6 +109,11 @@ namespace XTMF.Controller
                 }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<string> ErrorLaunchingModel;
 
         /// <summary>
         /// Reinserts (moves) the specified run into the new queue position
@@ -225,30 +238,44 @@ namespace XTMF.Controller
         /// <param name="run"></param>
         private void TerminateRun(XTMFRun run)
         {
+            void RemoveDelayedRun(XTMFRun run)
+            {
+                for (int i = 0; i < _DelayedRuns.Count; i++)
+                {
+                    if (_DelayedRuns[i].run == run)
+                    {
+                        _DelayedRuns.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
             lock (_Lock)
             {
                 if(!_CurrentlyExecuting.Remove(run))
                 {
                     if(!_Backlog.Remove(run))
                     {
-                        for (int i = 0; i < _DelayedRuns.Count; i++)
-                        {
-                            if(_DelayedRuns[i].run == run)
-                            {
-                                _DelayedRuns.RemoveAt(i);
-                                break;
-                            }
-                        }
+                        RemoveDelayedRun(run);
                     }
                 }
-                if (_CurrentlyExecuting.Count == 0)
+                while (_CurrentlyExecuting.Count == 0 && _Backlog.Count > 0)
                 {
                     if (_Backlog.Count > 0)
                     {
                         var _backlogRun = _Backlog[0];
                         _Backlog.RemoveAt(0);
                         _CurrentlyExecuting.Add(_backlogRun);
-                        _backlogRun.Start();
+                        try
+                        {
+                            _backlogRun.Start();
+   
+                        }
+                        catch (Exception e)
+                        {
+                            _CurrentlyExecuting.Remove(_backlogRun);
+                            RemoveDelayedRun(_backlogRun);
+                            ErrorLaunchingModel?.Invoke(e.Message);
+                        }
                     }
                 }
                 // make sure the run was not in the backlog or the delayed runs

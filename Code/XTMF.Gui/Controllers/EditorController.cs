@@ -45,6 +45,13 @@ namespace XTMF.Gui.Controllers
                    if (Runtime == null)
                    {
                        Runtime = new XTMFRuntime();
+                       Runtime.RunController.ErrorLaunchingModel += (errorMessage) =>
+                       {
+                           window.Dispatcher.Invoke(() =>
+                           {
+                               MessageBox.Show(window, errorMessage, "Error running Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                           });
+                       };
                        var loadError = ((Configuration)Runtime.Configuration).LoadError;
                        window.Dispatcher.BeginInvoke(new Action(() =>
                      {
