@@ -124,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConversionBuffer.cs" />
+    <Compile Include="GravityModelAStar.cs" />
     <Compile Include="GravityModelAccessibility.cs" />
     <Compile Include="GravityModel3D.cs" />
     <Compile Include="BinaryHelpers.cs" />

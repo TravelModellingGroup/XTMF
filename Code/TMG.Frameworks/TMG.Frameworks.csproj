@@ -115,6 +115,7 @@
     <Compile Include="Data\Processing\AST\Subtract.cs" />
     <Compile Include="Data\Processing\AST\Variable.cs" />
     <Compile Include="Data\Processing\ConvertLabeledDataToSparseArray.cs" />
+    <Compile Include="Data\Processing\GravityModel2DAStar.cs" />
     <Compile Include="Data\Processing\GravityModel2DAccessibility.cs" />
     <Compile Include="Data\Processing\ProcessKFactors.cs" />
     <Compile Include="Data\Processing\VectorMath.cs" />
