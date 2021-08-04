@@ -28,9 +28,9 @@
              d:DesignHeight="300" d:DesignWidth="600">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource MaterialDesignPaper}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition  MinWidth="150" />
+            <ColumnDefinition  MinWidth="150" Width="*" />
             <ColumnDefinition Width="3" />
-            <ColumnDefinition  MinWidth="300"/>
+            <ColumnDefinition  MinWidth="300" Width="3*"/>
         </Grid.ColumnDefinitions>
         <Grid  VerticalAlignment="Stretch"  Grid.Column="0" HorizontalAlignment="Stretch">
             <Grid HorizontalAlignment="Stretch" >
