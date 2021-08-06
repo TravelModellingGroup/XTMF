@@ -62,16 +62,23 @@ namespace TMG.Input
 
         public override string GetFilePath()
         {
-            var directoryName = DirectoryName.GetFileName(Root.InputBaseDirectory);
-            if(String.IsNullOrEmpty(directoryName))
+            try
             {
-                return FileName;
+                var directoryName = DirectoryName.GetFileName(Root.InputBaseDirectory);
+                if (String.IsNullOrEmpty(directoryName))
+                {
+                    return FileName;
+                }
+                if (!Directory.Exists(directoryName))
+                {
+                    Directory.CreateDirectory(directoryName);
+                }
+                return Path.Combine(directoryName, FileName);
             }
-            if(!Directory.Exists(directoryName))
+            catch (Exception e)
             {
-                Directory.CreateDirectory(directoryName);
+                throw new XTMFRuntimeException(this, e);
             }
-            return Path.Combine(directoryName, FileName);
         }
 
         public override bool IsPathEmpty()
@@ -118,16 +125,23 @@ namespace TMG.Input
 
         public override string GetFilePath()
         {
-            var name = DirectoryName.GetFileName();
-            if(!String.IsNullOrEmpty(name))
+            try
             {
-                if(!Directory.Exists(name))
+                var name = DirectoryName.GetFileName();
+                if (!String.IsNullOrWhiteSpace(name))
                 {
-                    Directory.CreateDirectory(name);
+                    if (!Directory.Exists(name))
+                    {
+                        Directory.CreateDirectory(name);
+                    }
+                    return Path.Combine(name, FileName);
                 }
-                return Path.Combine(name, FileName);
+                return FileName;
             }
-            return FileName;
+            catch (Exception e)
+            {
+                throw new XTMFRuntimeException(this, e);
+            }
         }
 
         public override bool IsPathEmpty()

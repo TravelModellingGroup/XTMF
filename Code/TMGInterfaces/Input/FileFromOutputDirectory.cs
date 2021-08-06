@@ -29,12 +29,12 @@ namespace TMG.Input
         {
             var length = input.Length;
             var invalidCharacters = Path.GetInvalidPathChars();
-            for ( int i = 0; i < length; i++ )
+            for (int i = 0; i < length; i++)
             {
                 var c = input[i];
-                for ( int j = 0; j < invalidCharacters.Length; j++ )
+                for (int j = 0; j < invalidCharacters.Length; j++)
                 {
-                    if ( c == invalidCharacters[j] )
+                    if (c == invalidCharacters[j])
                     {
                         error = "At position " + i + ", we found an invalid character '" + invalidCharacters[j] + "'!";
                         output = null;
@@ -49,15 +49,18 @@ namespace TMG.Input
 
         public bool ContainsFileName()
         {
-            return !String.IsNullOrWhiteSpace( FileName );
+            return !String.IsNullOrWhiteSpace(FileName);
         }
 
         public string GetFileName()
         {
-            var dir = Path.GetDirectoryName( FileName );
-            if ( !String.IsNullOrWhiteSpace( dir ) )
+            if (!String.IsNullOrWhiteSpace(FileName))
             {
-                Directory.CreateDirectory( dir );
+                var dir = Path.GetDirectoryName(FileName);
+                if (!String.IsNullOrWhiteSpace(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
             }
             return FileName;
         }
