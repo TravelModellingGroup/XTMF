@@ -478,19 +478,14 @@ namespace XTMF.Gui.UserControls
                     if (module != null)
                     {
                         e.Handled = true;
-                        if (module.Type != null)
-                        {
-                            Process.Start(GetDocumetnationURL(module.Type));
-                        }
+                        MainWindow.Us.LaunchHelpWindow(item.BaseModel);
                     }
-
                     break;
                 case Key.D:
                     if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
                     {
                         ToggleDisableModule();
                     }
-
                     break;
             }
         }

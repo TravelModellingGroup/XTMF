@@ -705,7 +705,6 @@ namespace XTMF.Gui
             {
                 helpUI.SelectModuleContent(getHelpFor);
             }
-
             SetDisplayActive(helpUI, "Help");
             Keyboard.Focus(helpUI);
         }
