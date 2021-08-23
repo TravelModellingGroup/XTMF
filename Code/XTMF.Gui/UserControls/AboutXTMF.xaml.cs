@@ -37,7 +37,7 @@ namespace XTMF.Gui.UserControls
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
-            VersionBlock.Text = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            VersionBlock.Text = EditorController.Runtime.Configuration.XTMFVersion.ToString();
             BuildBlock.Text = EditorController.Runtime.Configuration.BuildDate;
             NumberOfModules.Text = EditorController.Runtime.Configuration.ModelRepository.Modules.Count.ToString();
         }

@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("XTMF.Gui.1.8")]
+[assembly: AssemblyTitle("XTMF.Gui.1.9")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("University of Toronto")]
-[assembly: AssemblyProduct("XTMF.Gui.1.8")]
+[assembly: AssemblyProduct("XTMF.Gui.1.9")]
 [assembly: AssemblyCopyright("Copyright © University of Toronto 2011-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.8.0")]
-[assembly: AssemblyFileVersion("1.8.0")]
+[assembly: AssemblyVersion("1.9.0")]
+[assembly: AssemblyFileVersion("1.9.0")]
