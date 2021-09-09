@@ -45,9 +45,6 @@ namespace Tasha
         private const string Initializing = "Initializing Model";
         private IModelSystemStructure ClientStructure;
 
-        [RunParameter("Activity Level File", "ActivityLevel.zfc", "The location of the Activity Level file.")]
-        public string ActivityLevelFile;
-
         [RunParameter("Load All Households", false, "Load all of the households before running (uses more RAM)")]
         public bool LoadAllHouseholds;
 
