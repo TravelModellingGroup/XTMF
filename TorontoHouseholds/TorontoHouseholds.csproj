@@ -161,6 +161,7 @@
     <Compile Include="MicrosimLoader\MicrosimHousehold.cs" />
     <Compile Include="MicrosimLoader\MicrosimPerson.cs" />
     <Compile Include="MicrosimLoader\MicrosimTrip.cs" />
+    <Compile Include="MicrosimLoader\MicrosimTripMode.cs" />
     <Compile Include="TTSCleaner.cs" />
     <Compile Include="Household.cs" />
     <Compile Include="HouseholdLoader.cs" />

@@ -31,7 +31,7 @@ namespace TMG.Tasha.MicrosimLoader
     /// <summary>
     /// A record storing the results of the Trip data from Microsim
     /// </summary>
-    internal sealed class MicrosimTrip
+    internal sealed class MicrosimTripMode
     {
         /// <summary>
         /// The unique id for the household
@@ -46,65 +46,63 @@ namespace TMG.Tasha.MicrosimLoader
         /// </summary>
         internal readonly int TripID;
         /// <summary>
-        /// A string representation of the purpose of the trip they are leaving from
+        /// The mode that was selected for this trip
         /// </summary>
-        internal readonly string OriginPurpose;
+        internal readonly string Mode;
         /// <summary>
-        /// The zone number of where the trip starts
+        /// The time in minutes from midnight when the trip starts
         /// </summary>
-        internal readonly int OriginZone;
+        internal readonly float DepartureTime;
         /// <summary>
-        /// A string representation of the purpose that the trip is going to.
+        /// The time in minutes from midnight when the activity starts
         /// </summary>
-        internal readonly string DestinationPurpose;
+        internal readonly float ActivityTime;
         /// <summary>
-        /// The zone number of where the trip ends
+        /// The number of times that this mode was selected.
         /// </summary>
-        internal readonly int DestinationZone;
-        // Ignore weight
+        internal readonly int Weight;
 
-        private MicrosimTrip(int householdID, int personID, int tripID, string originPurpose, int originZone, string destinationPurpose, int destinationZone)
+        private MicrosimTripMode(int householdID, int personID, int tripID, string mode, float departureTime, float activityTime, int weight)
         {
             HouseholdID = householdID;
             PersonID = personID;
             TripID = tripID;
-            OriginPurpose = originPurpose;
-            OriginZone = originZone;
-            DestinationPurpose = destinationPurpose;
-            DestinationZone = destinationZone;
+            Mode = mode;
+            DepartureTime = departureTime;
+            ActivityTime = activityTime;
+            Weight = weight;
         }
 
         /// <summary>
-        /// Read in a dictionary of trip records from the given Microsim file
+        /// Read in a dictionary of mode records from the given Microsim file
         /// </summary>
         /// <param name="callingModule">The module invoking the call</param>
         /// <param name="tripFile">The location of the trips file to load.</param>
-        /// <returns>A dictionary of all of the loaded trips indexed by the combination of the household, person, and trip ids.</returns>
-        internal static Dictionary<(int householdID, int personID, int tripID), MicrosimTrip> LoadTrips(IModule callingModule, FileLocation tripFile)
+        /// <returns>A dictionary of all of the loaded trips indexed by the combination of the household, person, trip, and mode ids.</returns>
+        internal static Dictionary<(int householdID, int personID, int tripID, string mode), MicrosimTripMode> LoadTrips(IModule callingModule, FileLocation modesFile)
         {
-            var fileInfo = new FileInfo(tripFile.GetFilePath());
+            var fileInfo = new FileInfo(modesFile.GetFilePath());
             if (!fileInfo.Exists)
             {
                 throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
             }
-            var ret = new Dictionary<(int householdID, int personID, int tripID), MicrosimTrip>(10000000);
-            using(var reader = new CsvReader(fileInfo))
+            var ret = new Dictionary<(int householdID, int personID, int tripID, string mode), MicrosimTripMode>(10000000);
+            using (var reader = new CsvReader(fileInfo))
             {
                 // burn the header
                 reader.LoadLine();
-                while(reader.LoadLine(out int columns))
+                while (reader.LoadLine(out int columns))
                 {
                     if (columns >= 7)
                     {
                         reader.Get(out int householdID, 0);
                         reader.Get(out int personID, 1);
                         reader.Get(out int tripID, 2);
-                        reader.Get(out string originPurpose, 3);
-                        reader.Get(out int originZone, 4);
-                        reader.Get(out string destinationPurpose, 5);
-                        reader.Get(out int destinationZone, 6);
-                        ret[(householdID, personID, tripID)] = new MicrosimTrip(householdID, personID, tripID, originPurpose, originZone,
-                            destinationPurpose, destinationZone);
+                        reader.Get(out string mode, 3);
+                        reader.Get(out float departureTime, 4);
+                        reader.Get(out float arrivalTime, 5);
+                        reader.Get(out int weight, 6);
+                        ret[(householdID, personID, tripID, mode)] = new MicrosimTripMode(householdID, personID, tripID, mode, departureTime, arrivalTime, weight);
                     }
                 }
             }
