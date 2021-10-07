@@ -79,14 +79,14 @@ namespace TMG.Tasha.MicrosimLoader
         /// <param name="callingModule">The module requesting this read.</param>
         /// <param name="householdsFile">The location to read from.</param>
         /// <returns>A mapping based on household number to get the record.</returns>
-        internal static Dictionary<int, MicrosimHousehold> ReadHouseholds(IModule callingModule, FileLocation householdsFile)
+        internal static HashSet<MicrosimHousehold> LoadHouseholds(IModule callingModule, FileLocation householdsFile)
         {
             var fileInfo = new FileInfo(householdsFile.GetFilePath());
             if (!fileInfo.Exists)
             {
                 throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
             }
-            var ret = new Dictionary<int, MicrosimHousehold>(100000);
+            var ret = new HashSet<MicrosimHousehold>();
             using (var reader = new CsvReader(fileInfo))
             {
                 // burn the header
@@ -95,7 +95,7 @@ namespace TMG.Tasha.MicrosimLoader
                 {
                     while (reader.LoadLine(out var columns))
                     {
-                        if (columns >= 8)
+                        if (columns >= 7)
                         {
                             reader.Get(out int householdID, 0);
                             reader.Get(out int homeZone, 1);
@@ -103,7 +103,7 @@ namespace TMG.Tasha.MicrosimLoader
                             reader.Get(out int dwellingType, 4);
                             reader.Get(out int vehicles, 5);
                             reader.Get(out int incomeClass, 6);
-                            ret[householdID] = new MicrosimHousehold(householdID, homeZone, weight, dwellingType, vehicles, incomeClass);
+                            ret.Add(new MicrosimHousehold(householdID, homeZone, weight, dwellingType, vehicles, incomeClass));
                         }
                     }
                 }

@@ -80,14 +80,14 @@ namespace TMG.Tasha.MicrosimLoader
         /// <param name="callingModule">The module invoking the call</param>
         /// <param name="tripFile">The location of the trips file to load.</param>
         /// <returns>A dictionary of all of the loaded trips indexed by the combination of the household, person, and trip ids.</returns>
-        internal static Dictionary<(int householdID, int personID, int tripID), MicrosimTrip> LoadTrips(IModule callingModule, FileLocation tripFile)
+        internal static Dictionary<(int householdID, int personID), List<MicrosimTrip>> LoadTrips(IModule callingModule, FileLocation tripFile)
         {
             var fileInfo = new FileInfo(tripFile.GetFilePath());
             if (!fileInfo.Exists)
             {
                 throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
             }
-            var ret = new Dictionary<(int householdID, int personID, int tripID), MicrosimTrip>(10000000);
+            var ret = new Dictionary<(int householdID, int personID), List<MicrosimTrip>>(10000000);
             using(var reader = new CsvReader(fileInfo))
             {
                 // burn the header
@@ -103,8 +103,12 @@ namespace TMG.Tasha.MicrosimLoader
                         reader.Get(out int originZone, 4);
                         reader.Get(out string destinationPurpose, 5);
                         reader.Get(out int destinationZone, 6);
-                        ret[(householdID, personID, tripID)] = new MicrosimTrip(householdID, personID, tripID, originPurpose, originZone,
-                            destinationPurpose, destinationZone);
+                        if (!ret.TryGetValue((householdID, personID), out var trips))
+                        {
+                            ret[(householdID, personID)] = trips = new List<MicrosimTrip>(4);
+                        }
+                        trips.Add(new MicrosimTrip(householdID, personID, tripID, originPurpose, originZone,
+                            destinationPurpose, destinationZone));
                     }
                 }
             }

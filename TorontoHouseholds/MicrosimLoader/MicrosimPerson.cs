@@ -109,14 +109,14 @@ namespace TMG.Tasha.MicrosimLoader
         /// <param name="callingModule">The module invoking the call</param>
         /// <param name="personsFile">The location of the persons file to load.</param>
         /// <returns>A dictionary of all of the loaded persons indexed by the combination of the household and person ids.</returns>
-        internal static Dictionary<(int householdID, int personID), MicrosimPerson> LoadPersons(IModule callingModule, FileLocation personsFile)
+        internal static Dictionary<int, List<MicrosimPerson>> LoadPersons(IModule callingModule, FileLocation personsFile)
         {
             var fileInfo = new FileInfo(personsFile.GetFilePath());
             if (!fileInfo.Exists)
             {
                 throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
             }
-            var ret = new Dictionary<(int householdID, int personID), MicrosimPerson>(100000);
+            var ret = new Dictionary<int, List<MicrosimPerson>>(100000);
             using(var reader = new CsvReader(fileInfo))
             {
                 // burn header
@@ -138,8 +138,12 @@ namespace TMG.Tasha.MicrosimLoader
                         reader.Get(out int workZone, 10);
                         reader.Get(out int schoolZone, 11);
                         reader.Get(out float weight, 12);
-                        ret[(householdID, personID)] = new MicrosimPerson(householdID, personID, age, sex,license,transitPass,employmentStatus,occupation,
-                            freeParking, studentStatus, workZone, schoolZone, weight);
+                        if (!ret.TryGetValue(householdID, out var persons))
+                        {
+                            ret[householdID] = persons = new List<MicrosimPerson>(4);
+                        }
+                        persons.Add(new MicrosimPerson(householdID, personID, age, sex, license, transitPass, employmentStatus, occupation,
+                            freeParking, studentStatus, workZone, schoolZone, weight));
                     }
                 }
             }

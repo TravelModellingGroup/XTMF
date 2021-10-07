@@ -157,6 +157,8 @@
     <Compile Include="ActivityConverter.cs" />
     <Compile Include="Attachable.cs" />
     <Compile Include="AutoType.cs" />
+    <Compile Include="MicrosimLoader\ActivityPurposeTrip.cs" />
+    <Compile Include="MicrosimLoader\HouseholdPurposeTrip.cs" />
     <Compile Include="MicrosimLoader\LoadHouseholdsFromMicrosim.cs" />
     <Compile Include="MicrosimLoader\MicrosimHousehold.cs" />
     <Compile Include="MicrosimLoader\MicrosimPerson.cs" />
