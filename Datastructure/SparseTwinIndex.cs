@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -593,6 +593,20 @@ namespace Datastructure
                 }
                 return 1;
             }
+        }
+
+        /// <summary>
+        /// Creates a shallow clone of the matrix.
+        /// </summary>
+        /// <returns>A new matrix that contains a shallow clone of the data.</returns>
+        public SparseTwinIndex<T> Clone()
+        {
+            var clone = new SparseTwinIndex<T>(Indexes);
+            for (int i = 0; i < Data.Length; i++)
+            {
+                Array.Copy(Data[i], clone.Data[i], Data[i].Length);
+            }
+            return clone;
         }
     }
 }

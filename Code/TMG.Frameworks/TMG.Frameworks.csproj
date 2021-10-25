@@ -117,6 +117,7 @@
     <Compile Include="Data\Processing\ConvertLabeledDataToSparseArray.cs" />
     <Compile Include="Data\Processing\GravityModel2DAStar.cs" />
     <Compile Include="Data\Processing\GravityModel2DAccessibility.cs" />
+    <Compile Include="Data\Processing\IntegerizeMatrix.cs" />
     <Compile Include="Data\Processing\ProcessKFactors.cs" />
     <Compile Include="Data\Processing\VectorMath.cs" />
     <Compile Include="Data\Processing\ScalarMath.cs" />
