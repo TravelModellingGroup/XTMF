@@ -106,10 +106,12 @@ namespace XTMF.Gui
             var shadowRect = new Rect( 0, 0, ActualWidth * percent + 1, ActualHeight );
             var typeFace = new Typeface( FontFamily, FontStyle, FontWeight, FontStretch );
             var percentText = ( percent ).ToString( "0.##%" );
+#pragma warning disable CS0618 // Type or member is obsolete
             var PercentText = new FormattedText( percentText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                 typeFace, FontSize, Brushes.White );
             var ShadowText = new FormattedText( percentText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                 typeFace, FontSize, Brushes.Black );
+#pragma warning restore CS0618 // Type or member is obsolete
             var textX = ( ActualWidth - PercentText.Width ) / 2;
             var textY = ( ActualHeight - PercentText.Height ) / 2;
             var now = DateTime.Now - StartTime;

@@ -113,8 +113,10 @@ namespace XTMF.Gui.UserControls
             }
             else
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 HintTextImage = new FormattedText(_hintText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                     new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), FontSize, Brushes.Gray);
+#pragma warning restore CS0618 // Type or member is obsolete
                 int constantBorder = 8;
                 if (ActualWidth > 0)
                 {
