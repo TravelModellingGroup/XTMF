@@ -115,6 +115,9 @@ namespace Tasha.V4Modes
         [RunParameter("Maximum Hours For Parking", 4.0f, "The maximum hours to calculate the parking cost for.")]
         public float MaximumHoursForParking;
 
+        [RunParameter("AddIntrazonalParkingCosts", false, "Set this to true to include parking costs for intrazonal auto trips.")]
+        public bool AddIntrazonalParkingCosts;
+
         private INetworkData Network;
 
         [Parameter("Feasible", 1f, "Is the mode feasible?(1)")]
@@ -173,6 +176,13 @@ namespace Tasha.V4Modes
             {
                 v += IntrazonalConstant;
                 v += IntrazonalTripDistanceFactor * zoneSystem.Distances.GetFlatData()[o][d] * 0.001f;
+                if (AddIntrazonalParkingCosts)
+                {
+                    var timeToNextTrip = TimeToNextTrip(trip);
+                    var parkingCosts = _parkingModel == null ? zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
+                        : _parkingModel.ComputeParkingCost(trip.ActivityStartTime, trip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), d);
+                    v += costParameter * parkingCosts;
+                }
             }
             else
             {
