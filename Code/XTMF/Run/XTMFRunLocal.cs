@@ -116,7 +116,7 @@ namespace XTMF.Run
             }
             catch (Exception e)
             {
-                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message,exception:e)));
+                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, exception: e)));
                 return;
             }
             if (_MST == null)
@@ -188,7 +188,7 @@ namespace XTMF.Run
             {
                 if (caughtError is XTMFRuntimeException runError)
                 {
-                    InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, runError.StackTrace, runError?.Module?.Name,caughtError));
+                    InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, CombineStackTrace(runError), runError?.Module?.Name, caughtError));
                 }
                 else
                 {
@@ -201,6 +201,18 @@ namespace XTMF.Run
             }
             Directory.SetCurrentDirectory(originalCWD);
             return mstStructure;
+        }
+
+        private string CombineStackTrace(XTMFRuntimeException runError)
+        {
+            if(runError.InnerException != null)
+            {
+                return string.Concat(runError.InnerException, Environment.NewLine, runError.StackTrace);
+            }
+            else
+            {
+                return runError.StackTrace;
+            }
         }
 
         /// <summary>
@@ -248,7 +260,7 @@ namespace XTMF.Run
                 info.Create();
             }
             Directory.SetCurrentDirectory(RunDirectory);
-            SaveRunParameters();   
+            SaveRunParameters();
 
             if (!RunTimeValidation(new List<int>(), errors, mstStructure))
             {
