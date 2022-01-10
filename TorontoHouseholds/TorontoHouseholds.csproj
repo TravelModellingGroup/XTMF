@@ -158,12 +158,15 @@
     <Compile Include="Attachable.cs" />
     <Compile Include="AutoType.cs" />
     <Compile Include="MicrosimLoader\ActivityPurposeTrip.cs" />
+    <Compile Include="MicrosimLoader\Episode.cs" />
     <Compile Include="MicrosimLoader\HouseholdPurposeTrip.cs" />
     <Compile Include="MicrosimLoader\LoadHouseholdsFromMicrosim.cs" />
     <Compile Include="MicrosimLoader\MicrosimHousehold.cs" />
     <Compile Include="MicrosimLoader\MicrosimPerson.cs" />
     <Compile Include="MicrosimLoader\MicrosimTrip.cs" />
     <Compile Include="MicrosimLoader\MicrosimTripMode.cs" />
+    <Compile Include="MicrosimLoader\RemoveActivities.cs" />
+    <Compile Include="MicrosimLoader\Schedule.cs" />
     <Compile Include="TTSCleaner.cs" />
     <Compile Include="Household.cs" />
     <Compile Include="HouseholdLoader.cs" />

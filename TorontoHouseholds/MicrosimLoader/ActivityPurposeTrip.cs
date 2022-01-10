@@ -31,8 +31,6 @@ namespace TMG.Tasha.MicrosimLoader
 
         #region ITrip Members
 
-        internal IMode ObservedMode;
-
         private ActivityPurposeTrip(int householdIterations)
         {
             Mode = null;
