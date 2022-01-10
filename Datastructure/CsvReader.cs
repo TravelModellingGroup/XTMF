@@ -19,8 +19,10 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace Datastructure
 {
@@ -35,7 +37,7 @@ namespace Datastructure
         /// <summary>
         /// The reader we use to get the IO data
         /// </summary>
-        private BinaryReader Reader;
+        private readonly BinaryReader Reader;
 
         /// <summary>
         /// The segments set when we read in a line
@@ -61,7 +63,17 @@ namespace Datastructure
         public CsvReader(string fileName, bool spacesAsSeperator = false)
         {
             FileName = fileName;
-            Reader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+            // Check to see if the CSV is compressed
+            if (Path.GetExtension(fileName)?.Equals(".gz", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                var innerStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                var decompressionStream = new GZipStream(innerStream, CompressionMode.Decompress, false);
+                Reader = new BinaryReader(decompressionStream);
+            }
+            else
+            {
+                Reader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+            }
             BaseStream = Reader.BaseStream;
             LoadedFromStream = false;
             DataBufferLength = -1;
@@ -368,7 +380,6 @@ namespace Datastructure
                         {
                             addOne = true;
                         }
-                        prevC = c;
                         i++;
                     }
                 }

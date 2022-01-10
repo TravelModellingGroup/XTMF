@@ -18,6 +18,7 @@
 */
 using System;
 using System.IO;
+using System.IO.Compression;
 using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -26,7 +27,7 @@ namespace XTMF.Testing
     [TestClass]
     public class CSVReaderTest
     {
-        private string[] TestCSVFileNames = new[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv", "CSVTest6.csv" };
+        private string[] TestCSVFileNames = new[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv", "CSVTest6.csv.gz" };
 
         [TestInitialize]
         public void CreateTestEnvironment()
@@ -65,6 +66,13 @@ namespace XTMF.Testing
                 {
                     writer.WriteLine("A,B,C,D,E");
                     writer.WriteLine("\"abc\"\"1\",2,3,4,5");
+                }
+                using (StreamWriter writer = new StreamWriter(new GZipStream(File.Open(TestCSVFileNames[5], FileMode.Create, FileAccess.Write), CompressionMode.Compress)))
+                {
+                    writer.WriteLine("A,B,C,D,E");
+                    writer.WriteLine("1,2,3,4,5");
+                    writer.WriteLine("3,1,4,5,2");
+                    writer.WriteLine("1.23,4.56,7.89,10.1112,0.1314");
                 }
             }
         }
@@ -219,6 +227,21 @@ namespace XTMF.Testing
                 }
                 Assert.AreEqual(4, numberOfLines);
                 Assert.AreEqual(0.1314f, lastColumnValue);
+            }
+        }
+
+        [TestMethod]
+        public void TestReadingCompressedStream()
+        {
+            using (CsvReader reader = new CsvReader(TestCSVFileNames[5]))
+            {
+                reader.LoadLine();
+                //"A,B,C,D,E"
+                for (int i = 0; i < 5; i++)
+                {
+                    reader.Get(out string s, i);
+                    Assert.AreEqual(new String((char)('A' + i), 1), s);
+                }
             }
         }
     }
