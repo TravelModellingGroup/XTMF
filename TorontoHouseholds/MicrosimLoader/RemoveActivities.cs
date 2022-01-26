@@ -237,6 +237,13 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Removes non-household based trips
+        /// </summary>
+        /// <param name="random">The random number generator to decide if the trips remain.</param>
+        /// <param name="person">The person who's schedule is being altered.</param>
+        /// <param name="homeZoneIndex">The flat index to the person's home.</param>
+        /// <param name="workZoneIndex">The flat index to the person's work.</param>
         private void RemoveIndividualTrips(Random random, ITashaPerson person, int homeZoneIndex, int workZoneIndex)
         {
             Predicate<ITrip> testIfWeShouldRemove = 
@@ -255,6 +262,12 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Removes the joint trips across household members.
+        /// </summary>
+        /// <param name="random">A random number generator to decide if a trip should be removed.</param>
+        /// <param name="household">The household to process.</param>
+        /// <param name="homeZoneIndex">The household's zone's flat index.</param>
         private void RemoveJointTrips(Random random, ITashaHousehold household, int homeZoneIndex)
         {
             List<ITrip> toRemove = null;
@@ -262,6 +275,14 @@ namespace TMG.Tasha
             RemoveSelectedJointTrips(household, toRemove);
         }
 
+        /// <summary>
+        /// Goes through the household's joint activities and adds them to the list of trips to remove if
+        /// we randomly pop them to be removed.
+        /// </summary>
+        /// <param name="random">The random number generator.</param>
+        /// <param name="household">The household to process.</param>
+        /// <param name="homeZoneIndex">The household's zone's flat index.</param>
+        /// <param name="toRemove">A reference to the list of trips to later remove, typically is null to start.</param>
         private void AccumulateJointTripsToRemove(Random random, ITashaHousehold household, int homeZoneIndex, ref List<ITrip> toRemove)
         {
             foreach (var person in household.Persons)
@@ -294,6 +315,13 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Add a joint trip to the list to remove.
+        /// </summary>
+        /// <param name="toRemove">A reference to the list of trips to later remove.</param>
+        /// <param name="trip">The representative's trip to remove.</param>
+        /// <param name="otherchains">The other trip chains on this joint tour.</param>
+        /// <param name="index">The index into the trip chain to remove.</param>
         private static void AddToRemove(ref List<ITrip> toRemove, ITrip trip, List<ITripChain> otherchains, int index)
         {
             toRemove = toRemove ?? new List<ITrip>(4);
@@ -304,6 +332,11 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Removes the selected trips from the household.
+        /// </summary>
+        /// <param name="household">The household to process.</param>
+        /// <param name="toRemove">The list of trips to remove.</param>
         private static void RemoveSelectedJointTrips(ITashaHousehold household, List<ITrip> toRemove)
         {
             if (toRemove != null)
@@ -325,12 +358,22 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Removes trip chains that have no activities left.
+        /// </summary>
+        /// <param name="person">The person to clean the trip chains for.</param>
         private static void CleanupTripChains(ITashaPerson person)
         {
             // Remove all of the empty trip chains
             person.TripChains.RemoveAll(tc => tc.Trips.Count <= 1);
         }
 
+        /// <summary>
+        /// Updates the activity locations for NWS activities.
+        /// </summary>
+        /// <param nam0e="person">The person to process.</param>
+        /// <param name="schedule">The pooled schedule to reconstruct the person's schedule from trips into.</param>
+        /// <param name="random">The random number generator.</param>
         private void UpdateIndividualLocationChoices(ITashaPerson person, Schedule schedule, Random random)
         {
             int currentEpisode = 0;
@@ -375,6 +418,12 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Rebuilds a schedule from a person's trip chains.
+        /// </summary>
+        /// <param name="schedule">The schedule that will contain the rebuilt structure.</param>
+        /// <param name="tripChains">The trip chains to include in the new schedule.</param>
+        /// <param name="person">The person this reconstruct is being done for.</param>
         private void BuildScheduleFromTripChains(Schedule schedule, List<ITripChain> tripChains, ITashaPerson person)
         {
             var episodes = schedule.Episodes;
@@ -405,6 +454,10 @@ namespace TMG.Tasha
             Array.Clear(episodes, position, episodes.Length - position);
         }
 
+        /// <summary>
+        /// Ensure that the origin and destination between trip episodes are consistent.
+        /// </summary>
+        /// <param name="person">The person whom we are reconstructing their tours for.</param>
         private static void RebuildTours(ITashaPerson person)
         {
             // Stitch the remaining trip chains back together
@@ -417,6 +470,12 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Modify the side of the schedule in case we require more space.
+        /// </summary>
+        /// <param name="schedule">The schedule to update.</param>
+        /// <param name="episodes">The original episodes array, updated with a doubled size.</param>
+        /// <param name="currentPosition">Used to test if we need to update the schedule's length.</param>
         private static void UpdateArrayLength(Schedule schedule, ref IEpisode[] episodes, int currentPosition)
         {
             if (currentPosition >= episodes.Length)
