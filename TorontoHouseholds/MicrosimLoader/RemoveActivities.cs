@@ -40,8 +40,18 @@ namespace TMG.Tasha
         public IDataLoader<ITashaHousehold> MainLoader;
 
         [SubModelInformation(Required = true, Description = "Survival Rates for activity.")]
-        public IDataSource<SparseArray<float>> PrimaryWorkRates;
-        private SparseArray<float> _primaryWork;
+        public IDataSource<SparseArray<float>> PrimaryWorkProfessionalRates;
+
+        [SubModelInformation(Required = true, Description = "Survival Rates for activity.")]
+        public IDataSource<SparseArray<float>> PrimaryWorkGeneralRates;
+
+        [SubModelInformation(Required = true, Description = "Survival Rates for activity.")]
+        public IDataSource<SparseArray<float>> PrimaryWorkSalesRates;
+
+        [SubModelInformation(Required = true, Description = "Survival Rates for activity.")]
+        public IDataSource<SparseArray<float>> PrimaryWorkManufacturingRates;
+        
+        private SparseArray<float>[] _primaryWork;
 
         [SubModelInformation(Required = true, Description = "Survival Rates for activity.")]
         public IDataSource<SparseArray<float>> SecondaryWorkRates;
@@ -103,6 +113,10 @@ namespace TMG.Tasha
 
         IEnumerator IEnumerable.GetEnumerator() => ProcessHouseholds();
 
+        /// <summary>
+        /// Stream each processed household
+        /// </summary>
+        /// <returns>An enumerable stream of processed households.</returns>
         private IEnumerator<ITashaHousehold> ProcessHouseholds()
         {
             Random random = new Random(RandomSeed);
@@ -115,9 +129,16 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Load in the episode survival rates
+        /// </summary>
         private void LoadRates()
         {
-            _primaryWork = LoadRates(PrimaryWorkRates);
+            _primaryWork = new SparseArray<float>[4];
+            _primaryWork[0] = LoadRates(PrimaryWorkProfessionalRates);
+            _primaryWork[1] = LoadRates(PrimaryWorkGeneralRates);
+            _primaryWork[2] = LoadRates(PrimaryWorkSalesRates);
+            _primaryWork[3] = LoadRates(PrimaryWorkManufacturingRates);
             _secondaryWork = LoadRates(SecondaryWorkRates);
             _workBasedBusiness = LoadRates(WorkBasedBusinessRates);
             _school = LoadRates(SchoolRates);
@@ -125,6 +146,11 @@ namespace TMG.Tasha
             _market = LoadRates(MarketRates);
         }
 
+        /// <summary>
+        /// Get the survival rates from the given data source.
+        /// </summary>
+        /// <param name="dataSource">The data source to extract from.</param>
+        /// <returns>A sparse array with the survival rates.</returns>
         private SparseArray<float> LoadRates(IDataSource<SparseArray<float>> dataSource)
         {
             dataSource.LoadData();
@@ -136,6 +162,12 @@ namespace TMG.Tasha
         [SubModelInformation(Required = true, Description = "The model for choosing the activity destinations.")]
         public ILocationChoiceModel LocationChoice;
 
+        /// <summary>
+        /// Process the household removing activities that do not survive and rebuilding its tours.
+        /// </summary>
+        /// <param name="household">The household to process.</param>
+        /// <param name="random">Our random number generator.</param>
+        /// <param name="zoneSystem">The zone system for the model.</param>
         private void ProcessHousehold(ITashaHousehold household, Random random, SparseArray<IZone> zoneSystem)
         {
             var schedule = new Schedule();
@@ -144,7 +176,7 @@ namespace TMG.Tasha
             RemoveJointTrips(random, household, homeZoneIndex);
             foreach (var person in household.Persons)
             {
-                RemoveIndividualTrips(random, person, homeZoneIndex);
+                RemoveIndividualTrips(random, person, homeZoneIndex, GetWorkZoneIndex(zoneSystem, person, homeZoneIndex));
                 CleanupTripChains(person);
                 BuildScheduleFromTripChains(schedule, person.TripChains, person);
                 UpdateIndividualLocationChoices(person, schedule, random);
@@ -156,16 +188,62 @@ namespace TMG.Tasha
             }
         }
 
+        /// <summary>
+        /// Gets the index of work activity rates to use.
+        /// </summary>
+        /// <param name="occ">The occupation of the person to lookup.</param>
+        /// <returns>The index of work activity rates.</returns>
+        private static int GetWorkIndex(Occupation occ)
+        {
+            switch (occ)
+            {
+                case Occupation.Office:
+                    return 1;
+                case Occupation.Retail:
+                    return 2;
+                case Occupation.Manufacturing:
+                    return 3;
+                default:
+                    return 0;
+            }
+        }
+
+        /// <summary>
+        /// Gets the flat index for the household's zone.
+        /// </summary>
+        /// <param name="zoneSystem">The model's zone system.</param>
+        /// <param name="household">The household to get the index for.</param>
+        /// <returns>The flat index of where the household lives.</returns>
         private static int GetHomeZoneIndex(SparseArray<IZone> zoneSystem, ITashaHousehold household)
             => zoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
 
-        private void RemoveIndividualTrips(Random random, ITashaPerson person, int homeZoneIndex)
+        /// <summary>
+        /// Gets the work zone's flat index for the given person, or returns the home zone index if unavailable.
+        /// </summary>
+        /// <param name="zoneSystem">The zone system to reference</param>
+        /// <param name="person">The person to explore.</param>
+        /// <param name="homeZoneIndex">The person's home zone index.</param>
+        /// <returns>The index of the person's work zone if available.</returns>
+        private static int GetWorkZoneIndex(SparseArray<IZone> zoneSystem, ITashaPerson person, int homeZoneIndex)
+        {
+            if (person.EmploymentZone?.ZoneNumber is int zone)
+            {
+                var workIndex = zoneSystem.GetFlatIndex(zone);
+                return workIndex >= 0 ? workIndex : homeZoneIndex;
+            }
+            else
+            {
+                return homeZoneIndex;
+            }
+        }
+
+        private void RemoveIndividualTrips(Random random, ITashaPerson person, int homeZoneIndex, int workZoneIndex)
         {
             Predicate<ITrip> testIfWeShouldRemove = 
                 (trip => 
-                   (trip.Purpose == Activity.PrimaryWork && random.NextDouble() >= _primaryWork.GetFlatData()[homeZoneIndex])
+                   (trip.Purpose == Activity.PrimaryWork && random.NextDouble() >= _primaryWork[GetWorkIndex(person.Occupation)].GetFlatData()[workZoneIndex])
                 || (trip.Purpose == Activity.SecondaryWork && random.NextDouble() >= _secondaryWork.GetFlatData()[homeZoneIndex])
-                || (trip.Purpose == Activity.WorkBasedBusiness && random.NextDouble() >= _workBasedBusiness.GetFlatData()[homeZoneIndex])
+                || (trip.Purpose == Activity.WorkBasedBusiness && random.NextDouble() >= _workBasedBusiness.GetFlatData()[workZoneIndex])
                 || (trip.Purpose == Activity.School && random.NextDouble() >= _school.GetFlatData()[homeZoneIndex])
                 || (trip.Purpose == Activity.IndividualOther && random.NextDouble() >= _other.GetFlatData()[homeZoneIndex])
                 || (trip.Purpose == Activity.Market && random.NextDouble() >= _market.GetFlatData()[homeZoneIndex])
@@ -180,20 +258,15 @@ namespace TMG.Tasha
         private void RemoveJointTrips(Random random, ITashaHousehold household, int homeZoneIndex)
         {
             List<ITrip> toRemove = null;
+            AccumulateJointTripsToRemove(random, household, homeZoneIndex, ref toRemove);
+            RemoveSelectedJointTrips(household, toRemove);
+        }
 
-            void AddToRemove(ITrip trip, List<ITripChain> otherchains, int index)
+        private void AccumulateJointTripsToRemove(Random random, ITashaHousehold household, int homeZoneIndex, ref List<ITrip> toRemove)
+        {
+            foreach (var person in household.Persons)
             {
-                toRemove = toRemove ?? new List<ITrip>(4);
-                toRemove.Add(trip);
-                foreach(var chain in otherchains)
-                {
-                    toRemove.Add(chain.Trips[index]);
-                }
-            }
-
-            foreach(var person in household.Persons)
-            {
-                foreach(var tripChain in person.TripChains)
+                foreach (var tripChain in person.TripChains)
                 {
                     if (tripChain.JointTrip && tripChain.JointTripRep)
                     {
@@ -201,30 +274,43 @@ namespace TMG.Tasha
                         var trips = tripChain.Trips;
                         for (int i = 0; i < trips.Count; i++)
                         {
-                            if(trips[i].Purpose == Activity.JointOther)
+                            if (trips[i].Purpose == Activity.JointOther)
                             {
                                 if (random.NextDouble() >= _other.GetFlatData()[homeZoneIndex])
                                 {
-                                    AddToRemove(trips[i], otherTours, i);
+                                    AddToRemove(ref toRemove, trips[i], otherTours, i);
                                 }
                             }
-                            else if(trips[i].Purpose == Activity.JointMarket)
+                            else if (trips[i].Purpose == Activity.JointMarket)
                             {
                                 if (random.NextDouble() >= _market.GetFlatData()[homeZoneIndex])
                                 {
-                                    AddToRemove(trips[i], otherTours, i);
+                                    AddToRemove(ref toRemove, trips[i], otherTours, i);
                                 }
                             }
                         }
                     }
                 }
             }
+        }
 
-            if(toRemove != null)
+        private static void AddToRemove(ref List<ITrip> toRemove, ITrip trip, List<ITripChain> otherchains, int index)
+        {
+            toRemove = toRemove ?? new List<ITrip>(4);
+            toRemove.Add(trip);
+            foreach (var chain in otherchains)
+            {
+                toRemove.Add(chain.Trips[index]);
+            }
+        }
+
+        private static void RemoveSelectedJointTrips(ITashaHousehold household, List<ITrip> toRemove)
+        {
+            if (toRemove != null)
             {
                 foreach (var person in household.Persons)
                 {
-                    foreach(var tripChain in person.TripChains)
+                    foreach (var tripChain in person.TripChains)
                     {
                         var trips = tripChain.Trips;
                         for (int i = 0; i < trips.Count; i++)
