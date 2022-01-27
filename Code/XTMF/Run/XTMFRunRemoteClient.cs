@@ -310,8 +310,20 @@ namespace XTMF.Run
                             moduleName = "Null Module";
                         }
                     }
-                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, e.StackTrace, moduleName,e));
+                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, CombineStackTrace(e), moduleName,e));
                 }
+            }
+        }
+
+        private string CombineStackTrace(Exception runtimeException)
+        {
+            if (runtimeException.InnerException != null)
+            {
+                return string.Concat(runtimeException.InnerException, Environment.NewLine, runtimeException.StackTrace);
+            }
+            else
+            {
+                return runtimeException.StackTrace;
             }
         }
 

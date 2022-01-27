@@ -28,6 +28,8 @@ namespace Datastructure
 {
     public sealed class CsvReader : IDisposable
     {
+        public long LineNumber { get; private set; } = 0;
+
         internal char[] LineBuffer = new char[512];
 
         internal int LinePosition;
@@ -72,6 +74,16 @@ namespace Datastructure
             {
                 Reader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
             }
+            BaseStream = Reader.BaseStream;
+            LoadedFromStream = false;
+            DataBufferLength = -1;
+            SpacesAsSeperator = spacesAsSeperator;
+        }
+
+        public CsvReader(FileInfo fileInfo, bool spacesAsSeperator = false)
+        {
+            FileName = fileInfo.FullName;
+            Reader = new BinaryReader(fileInfo.Open(FileMode.Open, FileAccess.Read));
             BaseStream = Reader.BaseStream;
             LoadedFromStream = false;
             DataBufferLength = -1;
@@ -151,6 +163,17 @@ namespace Datastructure
         }
 
         /// <summary>
+        /// Get a bool out
+        /// </summary>
+        /// <param name="item">Where to put the data</param>
+        /// <param name="pos">Which column to read from, 0 indexed</param>
+        public void Get(out bool item, int pos)
+        {
+            var data = Data[pos];
+            bool.TryParse(new string(LineBuffer, data.Start, data.End - data.Start), out item);
+        }
+
+        /// <summary>
         /// Reads in a line and gives the number of columns
         /// </summary>
         /// <returns>The number of columns returned</returns>
@@ -167,6 +190,7 @@ namespace Datastructure
         /// <returns>True if data was read. (Not end of file)</returns>
         public bool LoadLine(out int columns)
         {
+            LineNumber++;
             var numberOfColumns = 0;
             LinePosition = 0;
             if (Reader == null) throw new IOException("No file has been loaded!");
@@ -380,6 +404,7 @@ namespace Datastructure
             Reader.BaseStream.Seek(0, SeekOrigin.Begin);
             DataBuffer2 = null;
             DataBufferLength = -1;
+            LineNumber = 0;
         }
 
         private void ExpandDataSections()

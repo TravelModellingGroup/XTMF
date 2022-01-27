@@ -257,7 +257,14 @@ namespace Tasha.Common
                 Passengers.Clear();
             }
             GetRepTripChain = null;
-            TripChains.Enqueue(this );
+            JointTripRep = false;
+            JointTripID = 0;
+            if (JointTripChains != null)
+            {
+                JointTripChains.Clear();
+            }
+            GetRepTripChain = null;
+            TripChains.Enqueue(this);
         }
 
         internal static void ReleaseChainPool()

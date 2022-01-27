@@ -75,6 +75,14 @@ namespace TMG.Frameworks.Extensibility
             }
             if (errorList.TryDequeue(out var firstError))
             {
+                if(firstError is AggregateException agg)
+                {
+                    firstError = agg?.InnerException ?? firstError;
+                }
+                if(firstError is XTMFRuntimeException)
+                {
+                    throw firstError;
+                }
                 throw new XTMFRuntimeException(this, firstError);
             }
         }

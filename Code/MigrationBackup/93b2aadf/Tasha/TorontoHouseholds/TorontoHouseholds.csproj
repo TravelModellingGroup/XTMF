@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TMG.Tasha</RootNamespace>
     <AssemblyName>TorontoHouseholds</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -136,13 +136,13 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\Code\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -157,16 +157,10 @@
     <Compile Include="ActivityConverter.cs" />
     <Compile Include="Attachable.cs" />
     <Compile Include="AutoType.cs" />
-    <Compile Include="MicrosimLoader\ActivityPurposeTrip.cs" />
-    <Compile Include="MicrosimLoader\Episode.cs" />
-    <Compile Include="MicrosimLoader\HouseholdPurposeTrip.cs" />
     <Compile Include="MicrosimLoader\LoadHouseholdsFromMicrosim.cs" />
     <Compile Include="MicrosimLoader\MicrosimHousehold.cs" />
     <Compile Include="MicrosimLoader\MicrosimPerson.cs" />
     <Compile Include="MicrosimLoader\MicrosimTrip.cs" />
-    <Compile Include="MicrosimLoader\MicrosimTripMode.cs" />
-    <Compile Include="MicrosimLoader\RemoveActivities.cs" />
-    <Compile Include="MicrosimLoader\Schedule.cs" />
     <Compile Include="TTSCleaner.cs" />
     <Compile Include="Household.cs" />
     <Compile Include="HouseholdLoader.cs" />
@@ -220,9 +214,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.ValueTuple">
-      <Version>4.4.0</Version>
-    </PackageReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
