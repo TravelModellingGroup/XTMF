@@ -716,7 +716,7 @@ namespace XTMF.Gui.UserControls
                     MessageBox.Show(GetWindow(), error, "Failed to remove from Linked Parameter", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
-
+                UpdateParameters();
                 UpdateQuickParameterEquivalent(currentParameter);
             }
         }
