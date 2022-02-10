@@ -91,8 +91,6 @@ namespace XTMF.Gui.UserControls
 
         private ModelSystemStructureDisplayModel DisplayRoot;
 
-        private bool _isAnimationgToggle = false;
-
         public Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel> ModelSystemDisplayModelMap;
 
         /// <summary>
@@ -159,6 +157,7 @@ namespace XTMF.Gui.UserControls
             TreeViewDisplay = new ModelSystemTreeViewDisplay(this);
             ActiveModelSystemView = TreeViewDisplay;
             ModelSystemDisplayModelMap = new Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel>();
+            ToggleQuickParameterDisplay(0);
         }
 
         private ParameterDisplayModel SoftActiveParameterDisplay { get; set; }
@@ -363,11 +362,9 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
-
             UpdateQuickParameters();
             ToggleModuleParameterDisplay(0);
             ToggleQuickParameterDisplay(0);
-
             DisabledModules.CollectionChanged += DisabledModulesOnCollectionChanged;
         }
 
@@ -564,18 +561,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="postToggleAction">An action to be performed after the display has been toggled.</param>
         public void ToggleQuickParameterDisplay(int duration = -1, Action postToggleAction = null)
         {
-            if (_isAnimationgToggle)
-            {
-                return;
-            }
-
-            _isAnimationgToggle = true;
             var column = ContentDisplayGrid.ColumnDefinitions[2];
-
-            Dispatcher.BeginInvoke(new Action(() =>
+            QuickParameterDisplay2.IsEnabled = !QuickParameterDisplay2.IsEnabled;
+            Dispatcher.Invoke(new Action(() =>
             {
                 AnimateGridColumnWidth(column, QuickParameterDisplay2, column.ActualWidth,
-                    column.ActualWidth > 0 ? 0 : 400, postToggleAction, duration);
+                    QuickParameterDisplay2.IsEnabled ? 400 : 0, postToggleAction, duration);
             }));
         }
 
@@ -585,16 +576,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="postToggleAction"></param>
         public void ToggleModuleParameterDisplay(int duration = -1, Action postToggleAction = null)
         {
-            if (_isAnimationgToggle)
-            {
-                return;
-            }
-            _isAnimationgToggle = true;
             var column = ContentDisplayGrid.ColumnDefinitions[4];
-            Dispatcher.BeginInvoke(new Action(() =>
+            ModuleParameterDisplay.IsEnabled = !ModuleParameterDisplay.IsEnabled;
+            Dispatcher.Invoke(new Action(() =>
             {
                 AnimateGridColumnWidth(column, ModuleParameterDisplay, column.ActualWidth,
-                    column.ActualWidth > 0 ? 0 : 400, postToggleAction, duration);
+                    ModuleParameterDisplay.IsEnabled ? 400 : 0, postToggleAction, duration);
             }));
         }
 
@@ -1439,7 +1426,6 @@ namespace XTMF.Gui.UserControls
                     }
                     Dispatcher.Invoke(() =>
                     {
-                        CleanUpParameters();
                         ParameterDisplay.ItemsSource = source;
                         ParameterFilterBox.Display = ParameterDisplay;
                         ParameterFilterBox.Filter = FilterParameters;
@@ -1472,9 +1458,7 @@ namespace XTMF.Gui.UserControls
                             SelectedDescription.Visibility = Visibility.Collapsed;
                             DescriptionExpander.Visibility = Visibility.Collapsed;
                         }
-
                         ParameterDisplay.Opacity = 1.0;
-
                     }, DispatcherPriority.Render);
                 });
             }
@@ -1713,11 +1697,6 @@ namespace XTMF.Gui.UserControls
                         }
                     }
                 });
-        }
-
-        private void CleanUpParameters()
-        {
-            // ParameterDisplay.BeginAnimation(OpacityProperty, null);
         }
 
         private void AssignLinkedParameters_Click(object sender, RoutedEventArgs e)
@@ -2620,10 +2599,8 @@ namespace XTMF.Gui.UserControls
             storyboard.Children.Add(animation);
             animation.Completed += delegate
             {
-                display.IsEnabled = !display.IsEnabled;
                 OnPropertyChanged(nameof(QuickParameterToolBarForeground));
                 OnPropertyChanged(nameof(ModuleParameterToolBarForeground));
-                _isAnimationgToggle = false;
                 postAnimateAction?.Invoke();
             };
             storyboard.Begin(this);
