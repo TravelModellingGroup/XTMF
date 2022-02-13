@@ -277,6 +277,54 @@ namespace XTMF
             return Save(fileName, ref error);
         }
 
+        /// <summary>
+        /// Save the quick parameters to the run directory.
+        /// </summary>
+        /// <param name="quickParamterPath">The path to the file to save the quick parameters to.</param>
+        /// <param name="root">The root of the model system to save the quick parameters to.</param>
+        internal static void SaveQuickParameters(string quickParamterPath, ModelSystemStructure root)
+        {
+            var parameters = new List<(string name, string value)>();
+            void AddParameters(IModuleParameters moduleParameters)
+            {
+                if (moduleParameters is not null)
+                {
+                    foreach (var parameter in moduleParameters)
+                    {
+                        if (parameter.QuickParameter)
+                        {
+                            parameters.Add((parameter.Name, parameter.Value.ToString()));
+                        }
+                    }
+                }
+
+            }
+            void Explore(IModelSystemStructure current)
+            {
+                AddParameters(current.Parameters);
+                if (current.Children is not null)
+                {
+                    foreach (var child in current.Children)
+                    {
+                        Explore(child);
+                    }
+                }
+            }
+            Explore(root);
+            using var stream = new FileStream(quickParamterPath, FileMode.Create, FileAccess.Write);
+            using var writer = XmlWriter.Create(stream, new XmlWriterSettings() { Indent = true, Encoding = Encoding.Unicode });
+            writer.WriteStartDocument();
+            writer.WriteStartElement("QuickParameters");
+            foreach(var parameter in parameters)
+            {
+                writer.WriteStartElement("Parameter");
+                writer.WriteAttributeString("Name", parameter.name);
+                writer.WriteAttributeString("Value", parameter.value);
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
+        }
+
         public override string ToString() => Name;
 
         /// <summary>
