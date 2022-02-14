@@ -87,11 +87,10 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public void InitNewDisplay()
         {
-
+            _currentlySelected = null;
+            SelectedLinkParameter = null;
             LinkedParameterFilterBox.RetriveFocus();
-
             FocusManager.SetFocusedElement(this,LinkedParameterFilterBox);
-
         }
 
         /// <summary>

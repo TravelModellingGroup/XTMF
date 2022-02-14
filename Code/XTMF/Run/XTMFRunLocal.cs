@@ -276,8 +276,10 @@ namespace XTMF.Run
         private void SaveRunParameters()
         {
             var runParametersPath = Path.GetFullPath("RunParameters.xml");
+            var quickParametersPath = Path.GetFullPath("QuickParameters.xml");
             string error = null;
             ModelSystem.Save(runParametersPath, _model.Root.RealModelSystemStructure, _model.Description, _model.LinkedParameters.GetRealLinkedParameters(), ref error);
+            ModelSystem.SaveQuickParameters(quickParametersPath, _model.Root.RealModelSystemStructure);
         }
 
         private IModelSystemStructure CreateModelSystem(ref ErrorWithPath error)
