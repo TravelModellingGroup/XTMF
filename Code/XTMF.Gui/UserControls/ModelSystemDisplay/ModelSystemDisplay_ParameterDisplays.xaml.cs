@@ -150,9 +150,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void QuickParameterToolbarToggle_OnClick(object sender, RoutedEventArgs e)
         {
-
             this.ToggleQuickParameterDisplay();
-
         }
 
         /// <summary>
