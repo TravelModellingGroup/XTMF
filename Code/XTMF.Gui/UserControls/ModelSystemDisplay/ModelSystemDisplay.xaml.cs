@@ -894,6 +894,7 @@ namespace XTMF.Gui.UserControls
             {
                 (DisplayRoot = new ModelSystemStructureDisplayModel(root, null, 0))
             };
+            DisplayRoot.IsExpanded = true;
             return s;
         }
 
