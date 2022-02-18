@@ -287,6 +287,7 @@ namespace XTMF.Run
                     ModelSystem.SaveQuickParameters(Path.Combine(RunDirectory, "QuickParameters.xml"), _Root);
                     ModelSystemStructureModelRoot = new ModelSystemStructureModel(null, _Root);
                     MST.Start();
+                    Console.WriteLine("Model run complete!");
                     InvokeRunCompleted();
                 }
                 catch (ThreadAbortException)
