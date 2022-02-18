@@ -75,16 +75,52 @@ namespace Tasha
         [DoNotAutomate]
         public List<ITashaMode> AllModes { get; private set; }
 
-        [SubModelInformation(Description = "The Auto mode to use for Tasha", Required = true)]
-        public ITashaMode AutoMode { get; set; }
+        [SubModelInformation(Description = "The model that will load all of our zones", Required = true, Index = 0)]
+        public IZoneSystem ZoneSystem { get; set; }
 
-        [SubModelInformation(Description = "The type of vehicle used for auto trips", Required = true)]
+        [SubModelInformation(Description = "A Collection of models that will run before the Tasha Method.", Required = false, Index = 1)]
+        public List<ISelfContainedModule> PreRun { get; set; }
+
+        [SubModelInformation(Description = "All of the network information for the Tasha Model System", Required = false, Index = 2)]
+        public IList<INetworkData> NetworkData { get; set; }
+
+        [SubModelInformation(Description = "A Collection of models that will run before the Tasha Method.", Required = false, Index = 3)]
+        public List<IPreIteration> PreIteration { get; set; }
+
+        [SubModelInformation(Description = "The model that will load our household", Required = true, Index = 4)]
+        public IDataLoader<ITashaHousehold> HouseholdLoader { get; set; }
+
+        [SubModelInformation(Description = "The Scheduler Module", Required = false, Index = 5)]
+        public ITashaScheduler Scheduler { get; set; }
+
+        [SubModelInformation(Description = "A collection of modules to run after the scheduler has finished on a household", Required = false, Index = 6)]
+        public List<IPostScheduler> PostScheduler { get; set; }
+
+        [SubModelInformation(Description = "The ModeChoice Module", Required = false, Index = 7)]
+        public ITashaModeChoice ModeChoice { get; set; }
+
+        [SubModelInformation(Description = "A collection of modules to run after a household has been completed", Required = false, Index = 8)]
+        public List<IPostHousehold> PostHousehold { get; set; }
+
+        [SubModelInformation(Description = "A collection of modules to run after an iteration has completed", Required = false, Index = 9)]
+        public List<IPostIteration> PostIteration { get; set; }
+
+        [SubModelInformation(Description = "A Collection of models that will run after the Tasha Method.", Required = false, Index = 10)]
+        public List<ISelfContainedModule> PostRun { get; set; }
+
+        [SubModelInformation(Description = "The type of vehicle used for auto trips", Required = true, Index = 11)]
         public IVehicleType AutoType { get; set; }
 
-        public Time EndOfDay { get; set; }
+        [SubModelInformation(Description = "The Auto mode to use for Tasha", Required = true, Index = 12)]
+        public ITashaMode AutoMode { get; set; }
 
-        [SubModelInformation(Description = "The model that will load our household", Required = true)]
-        public IDataLoader<ITashaHousehold> HouseholdLoader { get; set; }
+        [SubModelInformation(Description = "A collection of modes other than shared modes and auto", Required = false, Index = 13)]
+        public List<ITashaMode> OtherModes { get; set; }
+
+        [SubModelInformation(Description = "A collection of modes that can be shared.", Required = false, Index = 14)]
+        public List<ISharedMode> SharedModes { get; set; }
+
+        public Time EndOfDay { get; set; }
 
         [RunParameter("Input Base Directory", "../../Input", "The base directory for input.")]
         public string InputBaseDirectory { get; set; }
@@ -94,43 +130,16 @@ namespace Tasha
 
         int ITashaRuntime.TotalIterations { get { return TotalIterations; } set { } }
 
-        [SubModelInformation(Description = "The ModeChoice Module", Required = false)]
-        public ITashaModeChoice ModeChoice { get; set; }
-
         public string Name { get; set; }
-
-        [SubModelInformation(Description = "All of the network information for the Tasha Model System", Required = false)]
-        public IList<INetworkData> NetworkData { get; set; }
 
         [DoNotAutomate]
         public List<ITashaMode> NonSharedModes { get; set; }
-
-        [SubModelInformation(Description = "A collection of modes other than shared modes and auto", Required = false)]
-        public List<ITashaMode> OtherModes { get; set; }
 
         [RunParameter("Output Base Directory", "Output", "The base directory for output.")]
         public string OutputBaseDirectory { get; set; }
 
         [RunParameter("Parallel", true, "Run in parallel (Results will not be deterministic")]
         public bool Parallel { get; set; }
-
-        [SubModelInformation(Description = "A collection of modules to run after a household has been completed", Required = false)]
-        public List<IPostHousehold> PostHousehold { get; set; }
-
-        [SubModelInformation(Description = "A collection of modules to run after an iteration has completed", Required = false)]
-        public List<IPostIteration> PostIteration { get; set; }
-
-        [SubModelInformation(Description = "A Collection of models that will run after the Tasha Method.", Required = false)]
-        public List<ISelfContainedModule> PostRun { get; set; }
-
-        [SubModelInformation(Description = "A collection of modules to run after the scheduler has finished on a household", Required = false)]
-        public List<IPostScheduler> PostScheduler { get; set; }
-
-        [SubModelInformation(Description = "A Collection of models that will run before the Tasha Method.", Required = false)]
-        public List<IPreIteration> PreIteration { get; set; }
-
-        [SubModelInformation(Description = "A Collection of models that will run before the Tasha Method.", Required = false)]
-        public List<ISelfContainedModule> PreRun { get; set; }
 
         private Func<float> _Progress = () => 0f;
         public float Progress
@@ -149,19 +158,10 @@ namespace Tasha
         [SubModelInformation(Description = "The available resources for this model system.", Required = false)]
         public List<IResource> Resources { get; set; }
 
-        [SubModelInformation(Description = "The Scheduler Module", Required = false)]
-        public ITashaScheduler Scheduler { get; set; }
-
-        [SubModelInformation(Description = "A collection of modes that can be shared.", Required = false)]
-        public List<ISharedMode> SharedModes { get; set; }
-
         public Time StartOfDay { get; set; }
 
         [SubModelInformation(Description = "A collection of vehicles that are used by the modes", Required = false)]
         public List<IVehicleType> VehicleTypes { get; set; }
-
-        [SubModelInformation(Description = "The model that will load all of our zones", Required = true)]
-        public IZoneSystem ZoneSystem { get; set; }
         public int CurrentIteration { get; private set; }
 
         public ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime)

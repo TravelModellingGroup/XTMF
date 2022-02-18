@@ -71,8 +71,11 @@ namespace XTMF
 
         public IModelSystemStructure Parent { get; set; }
 
-        public Type ParentFieldType { get;
-            set; }
+        public Type ParentFieldType
+        {
+            get;
+            set;
+        }
 
         public bool Required { get; set; }
 
@@ -238,10 +241,12 @@ namespace XTMF
         public static void GenerateChildren(IConfiguration config, IModelSystemStructure element)
         {
             if (element?.Type == null) return;
+            List<int> indexes = new();
+            int index;
             foreach (var field in element.Type.GetFields())
             {
                 IModelSystemStructure child;
-                if ((child = GenerateChildren(field.FieldType, field.GetCustomAttributes(true), config)) != null)
+                if (((child, index) = GenerateChildren(field.FieldType, field.GetCustomAttributes(true), config)).child != null)
                 {
                     // set the name
                     child.ParentFieldName = field.Name;
@@ -254,26 +259,27 @@ namespace XTMF
                     {
                         child.ParentFieldType = field.FieldType;
                     }
-
                     child.Parent = element;
                     element.Add(child);
+                    indexes.Add(index);
                 }
             }
             foreach (var property in element.Type.GetProperties())
             {
                 IModelSystemStructure child;
-                if ((child = GenerateChildren(property.PropertyType, property.GetCustomAttributes(true), config)) != null)
+                if (((child, index) = GenerateChildren(property.PropertyType, property.GetCustomAttributes(true), config)).child != null)
                 {
                     child.ParentFieldName = property.Name;
                     child.Name = CreateModuleName(property.Name);
                     child.ParentFieldType = property.PropertyType;
                     child.Parent = element;
                     element.Add(child);
+                    indexes.Add(index);
                 }
             }
             if (element.Children != null & !element.IsCollection)
             {
-                SortChildren(element.Children);
+                SortChildren(indexes, element.Children);
             }
         }
 
@@ -392,7 +398,7 @@ namespace XTMF
             {
                 Type = type,
                 Parent = this
-               
+
             };
             Children.Add(newChild);
         }
@@ -887,9 +893,10 @@ namespace XTMF
             }
         }
 
-        private static IModelSystemStructure GenerateChildren(Type type, object[] attributes, IConfiguration config)
+        private static (IModelSystemStructure mss, int index) GenerateChildren(Type type, object[] attributes, IConfiguration config)
         {
             Type iModel = typeof(IModule);
+            int index = int.MaxValue;
             if (type.IsArray)
             {
                 var argument = type.GetElementType();
@@ -904,13 +911,14 @@ namespace XTMF
                     {
                         if (at is DoNotAutomate)
                         {
-                            return null;
+                            return (null, int.MaxValue);
                         }
                         else if (at is SubModelInformation)
                         {
                             SubModelInformation info = at as SubModelInformation;
                             child.Description = info.Description;
                             child.Required = info.Required;
+                            index = info.Index;
                         }
                         if (child.Description == null)
                         {
@@ -918,7 +926,7 @@ namespace XTMF
                             child.Required = false;
                         }
                     }
-                    return child;
+                    return (child, index);
                 }
             }
             if (type.IsGenericType)
@@ -941,13 +949,14 @@ namespace XTMF
                             {
                                 if (at is DoNotAutomate)
                                 {
-                                    return null;
+                                    return (null, int.MaxValue);
                                 }
                                 else if (at is SubModelInformation)
                                 {
                                     SubModelInformation info = at as SubModelInformation;
                                     child.Description = info.Description;
                                     child.Required = info.Required;
+                                    index = info.Index;
                                 }
                                 if (child.Description == null)
                                 {
@@ -955,7 +964,7 @@ namespace XTMF
                                     child.Required = false;
                                 }
                             }
-                            return child;
+                            return (child, index);
                         }
                     }
                 }
@@ -967,13 +976,14 @@ namespace XTMF
                 {
                     if (at is ParentModel || at is DoNotAutomate || at is RootModule)
                     {
-                        return null;
+                        return (null, int.MaxValue);
                     }
                     if (at is SubModelInformation)
                     {
                         SubModelInformation info = at as SubModelInformation;
                         child.Description = info.Description;
                         child.Required = info.Required;
+                        index = info.Index;
                     }
                 }
                 if (child.Description == null)
@@ -981,9 +991,9 @@ namespace XTMF
                     child.Description = "No description available";
                     child.Required = false;
                 }
-                return child;
+                return (child, index);
             }
-            return null;
+            return (null, index);
         }
 
         /// <summary>
@@ -1139,11 +1149,6 @@ namespace XTMF
                 {
                     LoadChildNode(projectStructure, child, config, lookup);
                 }
-                //Organize in alphabetical order
-                if (!projectStructure.IsCollection & projectStructure.Children != null)
-                {
-                    SortChildren(projectStructure.Children);
-                }
             }
         }
 
@@ -1196,24 +1201,29 @@ namespace XTMF
             return String.Empty;
         }
 
-
+        private static void Swap<T>(IList<T> list, int firstIndex, int secondIndex)
+        {
+            var temp = list[firstIndex];
+            list[firstIndex] = list[secondIndex];
+            list[secondIndex] = temp;
+        }
 
         /// <summary>
         /// Sort the list of model system structures based upon their name.
         /// </summary>
         /// <param name="list">The list of model system structures to sort.</param>
-        private static void SortChildren(IList<IModelSystemStructure> list)
+        private static void SortChildren(List<int> indexes, IList<IModelSystemStructure> list)
         {
             for (int i = 0; i < list.Count; i++)
             {
                 bool anyChanges = false;
                 for (int j = 0; j < list.Count - 1 - i; j++)
                 {
-                    if (String.Compare(list[j].Name, list[j + 1].Name, StringComparison.InvariantCulture) > 0)
+                    if (indexes[j] > indexes[j + 1] ||
+                        (indexes[j] == indexes[j + 1] && String.Compare(list[j].Name, list[j + 1].Name, StringComparison.InvariantCulture) > 0))
                     {
-                        var temp = list[j];
-                        list[j] = list[j + 1];
-                        list[j + 1] = temp;
+                        Swap(indexes, j, j + 1);
+                        Swap(list, j, j + 1);
                         anyChanges = true;
                     }
                 }
