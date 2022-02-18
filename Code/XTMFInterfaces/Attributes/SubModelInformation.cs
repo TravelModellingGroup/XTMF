@@ -40,5 +40,14 @@ namespace XTMF
         /// Is this model required to execute?
         /// </summary>
         public bool Required { get; set; }
+
+        /// <summary>
+        /// Provides a hint for the order in which sub-models should be ordered
+        /// when being displayed to the user.
+        /// </summary>
+        /// <remarks><
+        /// If multiple submodules have the same index they will be ordered in alphabetical order.
+        /// </remarks>
+        public int Index { get; set; } = int.MaxValue;
     }
 }
