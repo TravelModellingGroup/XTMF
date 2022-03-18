@@ -39,7 +39,7 @@ namespace Tasha.PopulationSynthesis
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         public void Load()
         {
@@ -56,7 +56,7 @@ namespace Tasha.PopulationSynthesis
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
             [RunParameter("Planning Districts", "0", typeof(RangeSet), "The planning districts to apply this constant to.")]
             public RangeSet PlanningDistricts;
@@ -68,7 +68,7 @@ namespace Tasha.PopulationSynthesis
             {
                 for (int i = 0; i < zoneConstants.Length; i++)
                 {
-                    if(PlanningDistricts.Contains(zonePds[i]))
+                    if (PlanningDistricts.Contains(zonePds[i]))
                     {
                         zoneConstants[i] += Constant;
                     }
@@ -83,14 +83,14 @@ namespace Tasha.PopulationSynthesis
 
         [SubModelInformation(Required = false, Description = "The spatial constants to apply at the planning district level")]
         public PDConstants[] Constants;
-        
+
 
         private void LoadZonalConstants()
         {
             var flatZones = _zones.GetFlatData();
             _zonalConstants = new float[flatZones.Length];
             var pds = _zones.GetFlatData().Select(zone => zone.PlanningDistrict).ToArray();
-            foreach(var constants in Constants)
+            foreach (var constants in Constants)
             {
                 constants.ApplyConstant(pds, _zonalConstants);
             }
@@ -192,17 +192,17 @@ namespace Tasha.PopulationSynthesis
             var flatHhldZone = _zones.GetFlatIndex(household.HomeZone.ZoneNumber);
             var age = data.Age;
             // you have to be older than 16 to drive
-            if(age < 16)
+            if (age < 16)
             {
                 return false;
             }
             var ageClass = (age - 16) / 5;
             var v = Constant + _zonalConstants[flatHhldZone];
-            if(data.Female)
+            if (data.Female)
             {
                 v += Female;
             }
-            switch(ageClass)
+            switch (ageClass)
             {
                 case 0:
                     v += age < 18 ? Age16To17 : Age18To20;
@@ -238,7 +238,7 @@ namespace Tasha.PopulationSynthesis
                 default:
                     break;
             }
-            switch(data.Occupation)
+            switch (data.Occupation)
             {
                 case Occupation.Office:
                     v += OccGeneral;
@@ -252,16 +252,16 @@ namespace Tasha.PopulationSynthesis
                 case Occupation.Retail:
                     v += OccSales;
                     break;
-                    // Do nothing for the rest
+                // Do nothing for the rest
                 default:
                     break;
-                        
+
             }
-            if(data.EmploymentStatus == TTSEmploymentStatus.PartTime)
+            if (data.EmploymentStatus == TTSEmploymentStatus.PartTime)
             {
                 v += PartTime;
             }
-            switch(household.IncomeClass)
+            switch (household.IncomeClass)
             {
                 case 2:
                     v += Income2;
@@ -278,7 +278,7 @@ namespace Tasha.PopulationSynthesis
                 case 6:
                     v += Income6;
                     break;
-                    // Income class 1 is our base
+                // Income class 1 is our base
                 default:
                     break;
             }
@@ -295,9 +295,28 @@ namespace Tasha.PopulationSynthesis
                  DistanceIfExists(distanceRow, data.EmploymentZone, _zones)
                 + DistanceIfExists(distanceRow, data.SchoolZone, _zones)
                 );
+            // check for a non-sensible result.
+            if (float.IsInfinity(v) | float.IsNaN(v))
+            {
+                Debug(flatHhldZone, data);
+            }
             // Binary logit
             var eToV = Math.Exp(v);
             return _random.NextDouble() < (eToV / (1.0f + eToV));
+        }
+
+        private void Debug(int flatHhldZone, ITashaPerson person)
+        {
+            if (float.IsInfinity(_populationDensity[flatHhldZone]) | float.IsNaN(_populationDensity[flatHhldZone]))
+            {
+                throw new XTMFRuntimeException(this, $"The population density for the zone {Root.ZoneSystem.ZoneArray.GetFlatData()[flatHhldZone].ZoneNumber} was NaN." +
+                    $" Please check to make sure that the distance matrix is Non-Zero for intra-zonals.");
+            }
+            else
+            {
+                throw new XTMFRuntimeException(this, $"An unknown error has caused the driver license model to produce an invalid utility for a household in the zone {Root.ZoneSystem.ZoneArray.GetFlatData()[flatHhldZone].ZoneNumber} was NaN." +
+                    $" HouseholdID:{person.Household.HouseholdId}, PersonID:{Array.IndexOf(person.Household.Persons, person) + 1}");
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -308,7 +327,7 @@ namespace Tasha.PopulationSynthesis
                 return 0f;
             }
             int index = zones.GetFlatIndex(zone.ZoneNumber);
-            if(index < 0)
+            if (index < 0)
             {
                 return 0f;
             }
@@ -323,7 +342,7 @@ namespace Tasha.PopulationSynthesis
                 return 0f;
             }
             int index = zones.GetFlatIndex(zone.ZoneNumber);
-            if(index < 0)
+            if (index < 0)
             {
                 return 0f;
             }
@@ -334,10 +353,10 @@ namespace Tasha.PopulationSynthesis
         public bool RuntimeValidation(ref string error)
         {
             TransitNetwork = Root.NetworkData.FirstOrDefault(net => net.NetworkType == TransitNetworkName) as ITripComponentData;
-            if(TransitNetwork == null)
+            if (TransitNetwork == null)
             {
                 error = (Root.NetworkData.FirstOrDefault(net => net.NetworkType == TransitNetworkName) != null) ?
-                    $"The network specified {TransitNetworkName} is not a valid transit network!":
+                    $"The network specified {TransitNetworkName} is not a valid transit network!" :
                     $"There was no transit network with the name {TransitNetworkName} found!";
                 return false;
             }
