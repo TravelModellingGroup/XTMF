@@ -22,6 +22,7 @@ using Datastructure;
 using XTMF;
 using TMG.Functions;
 using System.Linq;
+using System.IO.Compression;
 
 namespace TMG.Emme
 {
@@ -140,51 +141,13 @@ namespace TMG.Emme
             try
             {
                 file = new FileStream(fileLocation, FileMode.Create);
-                using (var writer = new BinaryWriter(file))
+                Stream throughStream = (Path.GetExtension(fileLocation)
+                    ?.Equals(".gz", StringComparison.OrdinalIgnoreCase) == true) ?
+                    (Stream)new GZipStream(file, CompressionMode.Compress, false) : file;
+                using (var writer = new BinaryWriter(throughStream))
                 {
                     file = null;
-                    writer.Write(MagicNumber);
-                    writer.Write(Version);
-                    writer.Write((int)Type);
-                    writer.Write(Dimensions);
-                    byte[] temp = null;
-                    for (int i = 0; i < Indexes.Length; i++)
-                    {
-                        writer.Write(Indexes[i].Length);
-                    }
-                    for (int i = 0; i < Indexes.Length; i++)
-                    {
-                        if (temp == null || temp.Length != Indexes[i].Length)
-                        {
-                            temp = new byte[sizeof(int) * Indexes[i].Length];
-                        }
-                        Buffer.BlockCopy(Indexes[i], 0, temp, 0, temp.Length);
-                        writer.Write(temp, 0, temp.Length);
-                    }
-                    switch (Type)
-                    {
-                        case DataType.Float:
-                            temp = new byte[FloatData.Length * sizeof(float)];
-                            Buffer.BlockCopy(FloatData, 0, temp, 0, temp.Length);
-                            break;
-                        case DataType.Double:
-                            temp = new byte[FloatData.Length * sizeof(double)];
-                            Buffer.BlockCopy(DoubleData, 0, temp, 0, temp.Length);
-                            break;
-                        case DataType.SignedInteger:
-                            temp = new byte[FloatData.Length * sizeof(int)];
-                            Buffer.BlockCopy(SignedIntData, 0, temp, 0, temp.Length);
-                            break;
-                        case DataType.UnsignedInteger:
-                            temp = new byte[FloatData.Length * sizeof(uint)];
-                            Buffer.BlockCopy(UnsignedIntData, 0, temp, 0, temp.Length);
-                            break;
-                    }
-                    if (temp == null)
-                    {
-                        throw new XTMFRuntimeException(null, $"When saving an EMME matrix to {fileLocation} we tried had no data to write!");
-                    }
-                    writer.Write(temp);
+                    SaveToStream(fileLocation, writer);
                 }
             }
             finally
@@ -193,7 +156,51 @@ namespace TMG.Emme
             }
         }
 
-
+        private void SaveToStream(string fileLocation, BinaryWriter writer)
+        {
+            writer.Write(MagicNumber);
+            writer.Write(Version);
+            writer.Write((int)Type);
+            writer.Write(Dimensions);
+            byte[] temp = null;
+            for (int i = 0; i < Indexes.Length; i++)
+            {
+                writer.Write(Indexes[i].Length);
+            }
+            for (int i = 0; i < Indexes.Length; i++)
+            {
+                if (temp == null || temp.Length != Indexes[i].Length)
+                {
+                    temp = new byte[sizeof(int) * Indexes[i].Length];
+                }
+                Buffer.BlockCopy(Indexes[i], 0, temp, 0, temp.Length);
+                writer.Write(temp, 0, temp.Length);
+            }
+            switch (Type)
+            {
+                case DataType.Float:
+                    temp = new byte[FloatData.Length * sizeof(float)];
+                    Buffer.BlockCopy(FloatData, 0, temp, 0, temp.Length);
+                    break;
+                case DataType.Double:
+                    temp = new byte[FloatData.Length * sizeof(double)];
+                    Buffer.BlockCopy(DoubleData, 0, temp, 0, temp.Length);
+                    break;
+                case DataType.SignedInteger:
+                    temp = new byte[FloatData.Length * sizeof(int)];
+                    Buffer.BlockCopy(SignedIntData, 0, temp, 0, temp.Length);
+                    break;
+                case DataType.UnsignedInteger:
+                    temp = new byte[FloatData.Length * sizeof(uint)];
+                    Buffer.BlockCopy(UnsignedIntData, 0, temp, 0, temp.Length);
+                    break;
+            }
+            if (temp == null)
+            {
+                throw new XTMFRuntimeException(null, $"When saving an EMME matrix to {fileLocation} we tried had no data to write!");
+            }
+            writer.Write(temp);
+        }
 
         private void LoadData(Stream baseStream)
         {

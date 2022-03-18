@@ -152,6 +152,7 @@
     <Compile Include="TMG\Data\TestCompiler.cs" />
     <Compile Include="TMG\Data\TestLabeledData.cs" />
     <Compile Include="TMG\Data\TestZoneMap.cs" />
+    <Compile Include="TMG\Emme\TestEmmeMatrix.cs" />
     <Compile Include="TMG\Parallel\ParallelWorkSerialRecombination.cs" />
     <Compile Include="XTMFPerformance.cs" />
     <Compile Include="XTMFTestBase.cs" />
@@ -168,6 +169,10 @@
     <ProjectReference Include="..\..\TashaInterfaces\TashaInterfaces.csproj">
       <Project>{ff44241d-1070-4391-9a3c-b19b8f96a583}</Project>
       <Name>TashaInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.Emme\TMG.Emme.csproj">
+      <Project>{9423a82c-0120-4d8f-aac0-c9c37966b3a8}</Project>
+      <Name>TMG.Emme</Name>
     </ProjectReference>
     <ProjectReference Include="..\TMG.Frameworks\TMG.Frameworks.csproj">
       <Project>{6c534cc4-e0dc-4613-9358-678834c55776}</Project>

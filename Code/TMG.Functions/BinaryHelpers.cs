@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.IO;
+using System.IO.Compression;
 using XTMF;
 
 namespace TMG.Functions
@@ -47,11 +48,25 @@ namespace TMG.Functions
             Stream file = null;
             try
             {
-                file = File.OpenRead(fileName);
-                using (var reader = new BinaryReader(file))
+                // Check to see if the binary file is compressed
+                if (Path.GetExtension(fileName)?.Equals(".gz", StringComparison.OrdinalIgnoreCase) == true)
                 {
-                    file = null;
-                    toRun(reader);
+                    file = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using (var decompressionStream = new GZipStream(file, CompressionMode.Decompress, false))
+                    using (var reader = new BinaryReader(decompressionStream))
+                    {
+                        file = null;
+                        toRun(reader);
+                    }
+                }
+                else
+                {
+                    file = File.OpenRead(fileName);
+                    using (var reader = new BinaryReader(file))
+                    {
+                        file = null;
+                        toRun(reader);
+                    }
                 }
             }
             catch (IOException e)
