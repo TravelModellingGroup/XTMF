@@ -311,6 +311,8 @@ namespace XTMF
                 }
             }
             Explore(root);
+            // Sort the quick parameters by name
+            parameters.Sort((first, second) => first.name.CompareTo(second.name));
             using var stream = new FileStream(quickParamterPath, FileMode.Create, FileAccess.Write);
             using var writer = XmlWriter.Create(stream, new XmlWriterSettings() { Indent = true, Encoding = Encoding.Unicode });
             writer.WriteStartDocument();
