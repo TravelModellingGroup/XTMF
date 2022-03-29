@@ -32,6 +32,9 @@ namespace Tasha.DataExtraction
         [SubModelInformation(Required = false, Description = "A data-source of zone based ODMatrix of the zone system.")]
         public IDataSource<SparseTwinIndex<float>> ODMatixRaw;
 
+        [RunParameter("Skip Zeros", false, "Skip zero valued entries when processing a third normalized matrix.")]
+        public bool SkipZeros;
+
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -86,7 +89,7 @@ namespace Tasha.DataExtraction
             }
             if(ThirdNormalized)
             {
-                TMG.Functions.SaveData.SaveMatrixThirdNormalized(matrix, SaveLocation);
+                TMG.Functions.SaveData.SaveMatrixThirdNormalized(matrix, SaveLocation, SkipZeros);
             }
             else
             {

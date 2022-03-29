@@ -95,36 +95,80 @@ namespace TMG.Functions
 
         public static void SaveVector(SparseArray<float> data, string saveTo)
         {
+            SaveVector(data, saveTo, false);
+        }
+
+        public static void SaveVector(SparseArray<float> data, string saveTo, bool skipZeros)
+        {
             var flatData = data.GetFlatData();
             var indexes = data.ValidIndexArray().Select(index => index.ToString()).ToArray();
             using (StreamWriter writer = new StreamWriter(saveTo, false, Encoding.UTF8))
             {
-                writer.WriteLine("Zone,Value");
-                for (int i = 0; i < flatData.Length; i++)
+                void WriteRecord(string zone, float value)
                 {
-                    writer.Write(indexes[i]);
+                    writer.Write(zone);
                     writer.Write(',');
-                    writer.WriteLine(flatData[i]);
+                    writer.WriteLine(value);
+                }
+                writer.WriteLine("Zone,Value");
+                if (skipZeros)
+                {
+                    for (int i = 0; i < flatData.Length; i++)
+                    {
+                        if (flatData[i] != 0)
+                        {
+                            WriteRecord(indexes[i], flatData[i]);
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < flatData.Length; i++)
+                    {
+                        WriteRecord(indexes[i], flatData[i]);
+                    }
                 }
             }
         }
 
         public static void SaveMatrixThirdNormalized(IZone[] zones, float[][] data, string saveLocation)
         {
+            SaveMatrixThirdNormalized(zones, data, saveLocation, false);
+        }
+
+        public static void SaveMatrixThirdNormalized(IZone[] zones, float[][] data, string saveLocation, bool skipZeros)
+        {
             var zoneNumbers = zones.Select(z => z.ZoneNumber.ToString()).ToArray();
             using (StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8))
             {
+                void WriteRecord(string origin, string destination, float value)
+                {
+                    writer.Write(origin);
+                    writer.Write(',');
+                    writer.Write(destination);
+                    writer.Write(',');
+                    writer.WriteLine(value);
+                }
                 writer.WriteLine("Origin,Destination,Data");
                 for (int i = 0; i < data.Length; i++)
                 {
                     var row = data[i];
-                    for (int j = 0; j < row.Length; j++)
+                    if (skipZeros)
                     {
-                        writer.Write(zoneNumbers[i]);
-                        writer.Write(',');
-                        writer.Write(zoneNumbers[j]);
-                        writer.Write(',');
-                        writer.WriteLine(row[j]);
+                        for (int j = 0; j < row.Length; j++)
+                        {
+                            if (row[j] != 0)
+                            {
+                                WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int j = 0; j < row.Length; j++)
+                        {
+                            WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j]);
+                        }
                     }
                 }
             }
@@ -132,18 +176,41 @@ namespace TMG.Functions
 
         public static void SaveMatrixThirdNormalized(SparseTwinIndex<float> matrix, FileLocation saveLocation)
         {
+            SaveMatrixThirdNormalized(matrix, saveLocation, false);
+        }
+
+        public static void SaveMatrixThirdNormalized(SparseTwinIndex<float> matrix, FileLocation saveLocation, bool skipZeros)
+        {
             using (StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8))
             {
                 writer.WriteLine("Origin,Destination,Data");
+                void WriteRecord(int origin, int destination, float value)
+                {
+                    writer.Write(origin);
+                    writer.Write(',');
+                    writer.Write(destination);
+                    writer.Write(',');
+                    writer.WriteLine(value);
+                }
                 foreach (var o in matrix.ValidIndexes())
                 {
-                    foreach (var d in matrix.ValidIndexes(o))
+                    if (skipZeros)
                     {
-                        writer.Write(o);
-                        writer.Write(',');
-                        writer.Write(d);
-                        writer.Write(',');
-                        writer.WriteLine(matrix[o, d]);
+                        foreach (var d in matrix.ValidIndexes(o))
+                        {
+                            var entry = matrix[o, d];
+                            if (entry != 0.0)
+                            {
+                                WriteRecord(o, d, entry);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var d in matrix.ValidIndexes(o))
+                        {
+                            WriteRecord(o, d, matrix[o, d]);
+                        }
                     }
                 }
             }
