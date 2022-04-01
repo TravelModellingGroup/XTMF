@@ -67,6 +67,12 @@ namespace XTMF
                 error = "The parameter '" + parameter.Name + "' already exists within the linked parameter '" + Name + "'.";
                 return false;
             }
+            // If the linked parameter does not already have a value and this is the only thing added, use the parameters value
+            // for the linked parameter.
+            if (String.IsNullOrWhiteSpace(Value) && Parameters.Count == 0)
+            {
+                Value = parameter.Value?.ToString() ?? String.Empty;
+            }
             var value = ArbitraryParameterParser.ArbitraryParameterParse( parameter.Type, Value, ref error );
             if ( value == null )
             {
