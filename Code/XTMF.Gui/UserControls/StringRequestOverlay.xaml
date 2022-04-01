@@ -23,37 +23,46 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              xmlns:gui="clr-namespace:XTMF.Gui"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"  
              d:DesignHeight="300" d:DesignWidth="300" IsVisibleChanged="UserControl_IsVisibleChanged">
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center"  Background="{DynamicResource MaterialDesignBackground}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Right" Width="20" ToolTip="Cancel" MouseLeftButtonDown="OnClose_Clicked">
+            <Border.Style>
+                <Style TargetType="{x:Type Border}">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
 
-    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-
-
-        <Border  Background="{DynamicResource MaterialDesignBackground}" Padding="10,5,10,10">
-
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Opacity" Value="1.0"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"/>
+        </Border>
+        <Border Grid.Row="1" Padding="5,0,5,0">
             <StackPanel Orientation="Vertical">
-
                 <Label Name="DescriptionLabel" Content="{Binding RelativeSource=
     {RelativeSource FindAncestor, AncestorType={x:Type local:StringRequestOverlay}}, 
-    Path=Description}" Foreground="{DynamicResource MaterialDesignBody}" Opacity="0.8"></Label>
-
-
+    Path=Description}" Foreground="{DynamicResource MaterialDesignBody}" Opacity="0.8"/>
                 <StackPanel Orientation="Vertical">
                     <Label Foreground="{DynamicResource MaterialDesignBody}" Opacity="0.8" Name="ExtraInfoLabel" Content="{Binding RelativeSource=
     {RelativeSource FindAncestor, AncestorType={x:Type local:StringRequestOverlay}}, 
-    Path=ExtraInfo}" Visibility="Collapsed" Margin="0,-4,0,0"></Label>
-                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
-
-                        <TextBox   Margin="0,0,0,0" Name="StringInput" KeyDown="StringInput_OnKeyDown"
-                Width="500" Height="25" VerticalContentAlignment="Center" Foreground="{DynamicResource MaterialDesignBody}" Background="{DynamicResource MaterialDesignPaper}">
-
-                        </TextBox>
-                        <local:FlatButton Width="30" VerticalAlignment="Stretch"   ToolText="OK" Click="FlatButton_OnClick">
-
-                        </local:FlatButton>
+    Path=ExtraInfo}" Visibility="Collapsed" Margin="0,-4,0,0"/>
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBox Margin="0,0,0,0" Name="StringInput" KeyDown="StringInput_OnKeyDown"
+                                Width="500" Height="25" VerticalContentAlignment="Center"
+                                Foreground="{DynamicResource MaterialDesignBody}" Background="{DynamicResource MaterialDesignPaper}"/>
+                        <local:FlatButton Width="30" VerticalAlignment="Stretch" ToolText="OK" Click="FlatButton_OnClick" />
                     </StackPanel>
-
-
                 </StackPanel>
             </StackPanel>
         </Border>

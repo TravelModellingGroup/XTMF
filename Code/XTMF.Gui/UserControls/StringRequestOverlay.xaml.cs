@@ -158,5 +158,11 @@ namespace XTMF.Gui.UserControls
                 }, DispatcherPriority.Render);
             }
         }
+
+        private void OnClose_Clicked(object sender, MouseButtonEventArgs e)
+        {
+            Reset();
+            e.Handled = true;
+        }
     }
 }
