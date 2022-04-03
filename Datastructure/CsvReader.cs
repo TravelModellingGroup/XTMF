@@ -66,13 +66,13 @@ namespace Datastructure
             // Check to see if the CSV is compressed
             if (Path.GetExtension(fileName)?.Equals(".gz", StringComparison.OrdinalIgnoreCase) == true)
             {
-                var innerStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                var innerStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
                 var decompressionStream = new GZipStream(innerStream, CompressionMode.Decompress, false);
                 Reader = new BinaryReader(decompressionStream);
             }
             else
             {
-                Reader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                Reader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read));
             }
             BaseStream = Reader.BaseStream;
             LoadedFromStream = false;
@@ -83,7 +83,7 @@ namespace Datastructure
         public CsvReader(FileInfo fileInfo, bool spacesAsSeperator = false)
         {
             FileName = fileInfo.FullName;
-            Reader = new BinaryReader(fileInfo.Open(FileMode.Open, FileAccess.Read));
+            Reader = new BinaryReader(fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
             BaseStream = Reader.BaseStream;
             LoadedFromStream = false;
             DataBufferLength = -1;
