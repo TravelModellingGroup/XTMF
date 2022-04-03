@@ -677,7 +677,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ControlzEx">
-      <Version>4.4.0</Version>
+      <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="Dragablz">
       <Version>0.0.3.223</Version>
