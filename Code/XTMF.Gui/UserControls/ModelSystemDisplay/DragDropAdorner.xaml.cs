@@ -34,7 +34,7 @@ namespace XTMF.Gui.UserControls
            
             Border.Width = adornedElement.RenderSize.Width + 20;
             Border.Margin = new Thickness(-10, -5,0,0);
-            Border.BorderBrush = (Brush)Application.Current.TryFindResource("SecondaryAccentBrush");
+            Border.BorderBrush = (Brush)Application.Current.TryFindResource("SecondaryHueMidBrush");
             Border.BorderThickness = new Thickness(0,5,0,0);
             Border.Height = adornedElement.RenderSize.Height;
 

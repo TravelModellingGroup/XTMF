@@ -101,7 +101,7 @@
                         <TextBox   PreviewDragOver="StandardParameterTemplateTextBox_OnPreviewDragOver" Name="StandardParameterTemplateTextBox"  AllowDrop="True" LostFocus="TextBox_OnLostFocus"
                                    TextChanged="TextBox_OnTextChanged" materialDesign:TransitionAssist.DisableTransitions="True"  HorizontalContentAlignment="Left" Tag="{Binding .}" Grid.Column="2"
                                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
-                                           GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus" CaretBrush="{DynamicResource SecondaryAccentBrush}"
+                                           GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus" CaretBrush="{DynamicResource SecondaryHueDarkBrush}"
                                           Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}" FocusManager.IsFocusScope="True"
                                           PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}" Drop="StandardParameterTemplateTextBox_OnDrop"
                                           SelectionOpacity="0.6" MinHeight="15" Padding="5" LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
@@ -110,7 +110,7 @@
                         <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                             <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
-                            <materialDesign:PackIcon Kind="DoNotDisturb"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
+                            <materialDesign:PackIcon Kind="Abc"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
                         </StackPanel>
                     </Grid>
 
@@ -156,7 +156,7 @@
 
                             <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                             <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
-                            <materialDesign:PackIcon Kind="DoNotDisturb"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
+                            <materialDesign:PackIcon Kind="Abc"  ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
                         </StackPanel>
                     </Grid>
 
@@ -641,7 +641,7 @@
                         </Border>
                     </Popup>
                 </Grid>
-                <StatusBar  Name="StatusBar" Grid.Row="2" Grid.Column="0"   Background="{DynamicResource SecondaryAccentBrush}" Height="24">
+                <StatusBar  Name="StatusBar" Grid.Row="2" Grid.Column="0" Background="{DynamicResource SecondaryHueDarkBrush}" Height="24">
                     <StatusBar.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Grid >
@@ -681,7 +681,7 @@
                                                 <Border>
 
                                                     <Grid>
-                                                        <Rectangle Name="bg" Fill="{DynamicResource SecondaryAccentForegroundBrush}"></Rectangle>
+                                                        <Rectangle Name="bg" Fill="{DynamicResource SecondaryHueDarkBrush}"></Rectangle>
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"></ContentPresenter>
                                                     </Grid>
                                                 </Border>
@@ -738,7 +738,7 @@
 
 
                                                     <Grid HorizontalAlignment="Left">
-                                                        <Rectangle Name="bg" Fill="{DynamicResource SecondaryAccentForegroundBrush}"></Rectangle>
+                                                        <Rectangle Name="bg" Fill="{DynamicResource SecondaryHueLightBrush}"></Rectangle>
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"></ContentPresenter>
                                                     </Grid>
                                                 </Border>
@@ -764,7 +764,7 @@
                             </Style>
                         </StatusBarItem.Style>
                         <StackPanel Margin="5 0 5 0" Orientation="Horizontal" VerticalAlignment="Top" >
-                            <materialDesign:PackIcon Kind="DoNotDisturb" Height="16" ToolTip="Disabled Modules" />
+                            <materialDesign:PackIcon Kind="Abc" Height="16" ToolTip="Disabled Modules" />
                             <TextBlock Name="StatusBarDisabledModulesText"  Text="{Binding Path=DisabledModulesCountTextBlock, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" FontSize="10" VerticalAlignment="Stretch" Margin="2 0 0 0"  FontWeight="Bold"></TextBlock>
 
                         </StackPanel>

@@ -71,12 +71,12 @@
 
             </Button>
             <Button Grid.Column="3" Name="EditRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Rename current region display"
-                    Click="EditRegionDisplayButton_Click"  Foreground="{DynamicResource SecondaryAccentBrush}" IsEnabled="False" >
+                    Click="EditRegionDisplayButton_Click"  Foreground="{DynamicResource SecondaryHueMidBrush}" IsEnabled="False" >
                 <materialDesign:PackIcon Kind="RenameBox" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
             </Button>
             <Button Grid.Column="4" Name="RemoveRegionDisplayButton" Style="{StaticResource MaterialDesignFlatButton}" ToolTip="Remove current region display"
-                    Click="RemoveRegionDisplayButton_OnClick" Foreground="{DynamicResource SecondaryAccentBrush}" IsEnabled="False" >
+                    Click="RemoveRegionDisplayButton_OnClick" Foreground="{DynamicResource SecondaryHueMidBrush}" IsEnabled="False" >
                 <materialDesign:PackIcon Kind="TableRowRemove" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
             </Button>

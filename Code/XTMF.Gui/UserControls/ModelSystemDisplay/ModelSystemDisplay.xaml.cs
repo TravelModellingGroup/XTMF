@@ -171,11 +171,11 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// </summary>
         public Brush QuickParameterToolBarForeground => QuickParameterDisplay2 == null
-            ? (SolidColorBrush)TryFindResource("SecondaryAccentBrush")
+            ? (SolidColorBrush)TryFindResource("SecondaryHueMidBrush")
             : QuickParameterDisplay2.IsEnabled
                 ? new SolidColorBrush
                 {
-                    Color = ((SolidColorBrush)TryFindResource("SecondaryAccentBrush")).Color
+                    Color = ((SolidColorBrush)TryFindResource("SecondaryHueMidBrush")).Color
                 }
                 : new SolidColorBrush
                 {
@@ -183,11 +183,11 @@ namespace XTMF.Gui.UserControls
                 };
 
         public Brush ModuleParameterToolBarForeground => ModuleParameterDisplay == null
-            ? (SolidColorBrush)TryFindResource("SecondaryAccentBrush")
+            ? (SolidColorBrush)TryFindResource("SecondaryHueMidBrush")
             : new SolidColorBrush
             {
                 Color = ((SolidColorBrush)TryFindResource(ModuleParameterDisplay.IsEnabled
-                    ? "SecondaryAccentBrush"
+                    ? "SecondaryHueMidBrush"
                     : "MaterialDesignBody")).Color
             };
 
@@ -1203,7 +1203,7 @@ namespace XTMF.Gui.UserControls
                     ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton,
                         (Brush)FindResource("MaterialDesignPaper"));
                     ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton,
-                        (Brush)FindResource("SecondaryAccentBrush"));
+                        (Brush)FindResource("SecondaryHueMidBrush"));
                     SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
                 });
                 MainWindow.SetStatusText("Saving...");
