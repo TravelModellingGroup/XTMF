@@ -1,6 +1,26 @@
-﻿using Datastructure;
+﻿/*
+    Copyright 2021-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using Datastructure;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -99,30 +119,37 @@ namespace Tasha.Common
         {
             _zoneSystem = Root.ZoneSystem.ZoneArray;
             _parkingInformation = new ParkingInformation[_zoneSystem.Count];
-            using(CsvReader reader = new CsvReader(ParkingData))
+            try
             {
-                reader.LoadLine();
-                while(reader.LoadLine(out var columns))
+                using (CsvReader reader = new CsvReader(ParkingData))
                 {
-                    if (columns >= 8)
+                    reader.LoadLine();
+                    while (reader.LoadLine(out var columns))
                     {
-                        ParkingInformation data;
-                        reader.Get(out int zoneNumber, 0);
-                        var index = _zoneSystem.GetFlatIndex(zoneNumber);
-                        if (index < 0)
+                        if (columns >= 8)
                         {
-                            throw new XTMFRuntimeException(this, $"Unknown zone number {zoneNumber} when reading parking data!");
+                            ParkingInformation data;
+                            reader.Get(out int zoneNumber, 0);
+                            var index = _zoneSystem.GetFlatIndex(zoneNumber);
+                            if (index < 0)
+                            {
+                                throw new XTMFRuntimeException(this, $"Unknown zone number {zoneNumber} when reading parking data!");
+                            }
+                            reader.Get(out data.Daily.StartOfPeriod, 1);
+                            reader.Get(out data.Daily.Hourly, 2);
+                            reader.Get(out data.Daily.Max, 3);
+                            reader.Get(out data.Nightly.StartOfPeriod, 4);
+                            reader.Get(out data.Nightly.Hourly, 5);
+                            reader.Get(out data.Nightly.Max, 6);
+                            reader.Get(out data.FullDayMax, 7);
+                            _parkingInformation[index] = data;
                         }
-                        reader.Get(out data.Daily.StartOfPeriod, 1);
-                        reader.Get(out data.Daily.Hourly, 2);
-                        reader.Get(out data.Daily.Max, 3);
-                        reader.Get(out data.Nightly.StartOfPeriod, 4);
-                        reader.Get(out data.Nightly.Hourly, 5);
-                        reader.Get(out data.Nightly.Max, 6);
-                        reader.Get(out data.FullDayMax, 7);
-                        _parkingInformation[index] = data;
                     }
                 }
+            }
+            catch (IOException ex)
+            {
+                throw new XTMFRuntimeException(this, ex);
             }
             Loaded = true;
         }
