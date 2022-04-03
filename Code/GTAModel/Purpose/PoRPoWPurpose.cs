@@ -113,7 +113,7 @@ namespace TMG.GTAModel.Purpose
                 {
                     Directory.CreateDirectory( dirName );
                 }
-                BinaryHelpers.ExecuteWriter( writer =>
+                BinaryHelpers.ExecuteWriter(this, writer =>
                     {
                         for ( int i = 0; i < ret.Length; i++ )
                         {

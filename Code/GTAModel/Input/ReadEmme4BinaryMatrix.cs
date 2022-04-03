@@ -59,7 +59,7 @@ namespace TMG.GTAModel.Input
             {
                 throw new XTMFRuntimeException(this, $"Unable to read an EMME Binary Matrix located at {InputFile.GetFilePath()}");
             }
-            using (BinaryReader reader = new BinaryReader(new FileStream(InputFile, FileMode.Open, FileAccess.Read)))
+            using (BinaryReader reader = TMG.Functions.BinaryHelpers.CreateReader(this, InputFile))
             {
                 EmmeMatrix matrix = new EmmeMatrix(reader);
                 if (!matrix.IsValidHeader())
