@@ -186,7 +186,7 @@ namespace TMG.GTAModel
                 {
                     Directory.CreateDirectory( dir );
                 }
-                BinaryHelpers.ExecuteWriter( writer =>
+                BinaryHelpers.ExecuteWriter(this, writer =>
                     {
                         foreach ( var tree in value )
                         {
