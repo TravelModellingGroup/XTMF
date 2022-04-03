@@ -79,7 +79,7 @@
                                 <DataTemplate>
 
                                     <local:SchedulerRunItem DataContext="{Binding .}" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                             AncestorType=local:SchedulerWindow}}"></local:SchedulerRunItem>
+                             AncestorType=local:SchedulerWindow}}"/>
 
                                 </DataTemplate>
                             </ListView.ItemTemplate>
@@ -102,7 +102,8 @@
                                     Click="ClearAllRunsButton_OnClick">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock>Clear Runs</TextBlock>
-                                    <materialDesign:PackIcon Kind="NotificationClearAll" />
+                                    <materialDesign:PackIcon Foreground="{DynamicResource SecondaryHueMidBrush}" 
+                                        Kind="NotificationClearAll" />
                                 </StackPanel>
                             </Button>
                         </DockPanel>
@@ -151,9 +152,6 @@
                                                     </Grid.RowDefinitions>
                                                     <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}" FontSize="18"
                                                                Grid.Row="0" Text="{Binding Name, Mode=OneTime}" ToolTip="{Binding Name, Mode=OneTime}" Margin="0 0 0 6" FontWeight="Bold" />
-                                                    <!--<ProgressBar Foreground="{DynamicResource SecondaryHueMidBrush}"
-                                                                 Grid.Row="1" HorizontalAlignment="Stretch" Minimum="0"
-                                                                 Maximum="10000" Value="{Binding Progress}" Height="4" /> -->
                                                     <TextBlock TextWrapping="Wrap"
                                                                Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                                                Grid.Row="1" 
@@ -163,13 +161,9 @@
                                                                HorizontalAlignment="Stretch">
                                                         <TextBlock.ContextMenu>
                                                             <ContextMenu>
-                                                                <MenuItem  Header="Copy" Name="StatusTextCopyMenuItem" Click="StatusTextCopyMenuItem_OnClick">
-
-                                                                </MenuItem>
+                                                                <MenuItem  Header="Copy" Name="StatusTextCopyMenuItem" Click="StatusTextCopyMenuItem_OnClick"/>
                                                             </ContextMenu>
                                                         </TextBlock.ContextMenu>
-
-
                                                     </TextBlock>
                                                 </Grid>
                                                 <Grid Grid.Column="1">
@@ -210,7 +204,9 @@
                                                                     Style="{DynamicResource MaterialDesignFlatButton}"
                                                                     Name="OpenOutput" Click="OpenOutput_OnClick"
                                                                     Tag="{Binding .}" >
-                                                                    <materialDesign:PackIcon Kind="FolderOpen" />
+                                                                    <materialDesign:PackIcon Kind="FolderOpen"
+                                                                                             Foreground="{DynamicResource SecondaryHueMidBrush}" 
+                                                                                             />
                                                                 </Button>
                                                             </StackPanel>
                                                         </Border>
@@ -224,7 +220,9 @@
                                                                     Style="{DynamicResource MaterialDesignFlatButton}"
                                                                     Name="CloseRunButton" Click="ButtonBase_OnClick"
                                                                     Tag="{Binding .}" >
-                                                                    <materialDesign:PackIcon Kind="Cancel" />
+                                                                    <materialDesign:PackIcon 
+                                                                        Foreground="{DynamicResource SecondaryHueMidBrush}" 
+                                                                        Kind="Cancel" />
                                                                 </Button>
                                                             </StackPanel>
                                                         </Border>
@@ -267,31 +265,39 @@
                                                                      Background="Transparent" HorizontalAlignment="Left"/>
                                                             </ScrollViewer>
                                                         </StackPanel>
-
-                                                        <StackPanel Grid.Column="1" Margin="2,0,2,0" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Hand"
-                                                                            Tag="{Binding .}" Name="StackTraceGroup" 
-                                                                            MouseUp="StackTraceGroup_OnMouseDown">
-                                                            <TextBlock Margin="0 0 8 0" Cursor="Hand"
-                                                                               Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                                        <Button Grid.Column="1" Margin="2,0,2,0"
+                                                                    Style="{DynamicResource MaterialDesignFlatButton}"
+                                                                    Click="StackTraceGroup_OnMouseDown"
+                                                                    Tag="{Binding .}" VerticalAlignment="Center" >
+                                                            <StackPanel Orientation="Horizontal"
+                                                                            Tag="{Binding .}" Name="StackTraceGroup" >
+                                                                <TextBlock Cursor="Hand"
                                                                                HorizontalAlignment="Left"
                                                                                VerticalAlignment="Center">
                                                                         Show Stacktrace
-                                                            </TextBlock>
-                                                            <materialDesign:PackIcon Kind="Magnify"
+                                                                </TextBlock>
+                                                                <materialDesign:PackIcon Margin="2,0,0,0" Kind="Magnify"
+                                                                                     Foreground="{DynamicResource SecondaryHueMidBrush}"
                                                                                              VerticalAlignment="Top"
                                                                                              Background="Transparent" />
-                                                        </StackPanel>
-                                                        <StackPanel Grid.Column="2" Margin="2,0,2,0" VerticalAlignment="Center" Orientation="Horizontal" Cursor="Hand"
-                                                                            Tag="{Binding .}" 
-                                                                            MouseUp="CopyErrorLink_OnMouseDown">
-                                                            <TextBlock Margin="0 0 8 0" Cursor="Hand"
-                                                                               Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                                            </StackPanel>
+                                                        </Button>
+
+                                                        <Button Grid.Column="2" Margin="2,0,2,0" VerticalAlignment="Center"
+                                                                    Style="{DynamicResource MaterialDesignFlatButton}"
+                                                                    Tag="{Binding .}"
+                                                                Click="CopyErrorLink_OnMouseDown">
+                                                            <StackPanel Orientation="Horizontal"
+                                                                            Tag="{Binding .}">
+                                                                <TextBlock Cursor="Hand"
                                                                                x:Name="CopyErrorLink">
                                                                         Copy
-                                                            </TextBlock>
-                                                            <materialDesign:PackIcon Kind="ContentCopy"
+                                                                </TextBlock>
+                                                                <materialDesign:PackIcon Kind="ContentCopy" Margin="2,0,0,0"
+                                                                                     Foreground="{DynamicResource SecondaryHueMidBrush}"
                                                                                              Background="Transparent" />
-                                                        </StackPanel>
+                                                            </StackPanel>
+                                                        </Button>
                                                     </Grid>
                                                 </ItemContainerTemplate>
                                             </ItemsControl.ItemTemplate>

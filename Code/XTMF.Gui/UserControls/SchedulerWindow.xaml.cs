@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -358,7 +358,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void CopyErrorLink_OnMouseDown(object sender, MouseButtonEventArgs e)
+        private void CopyErrorLink_OnMouseDown(object sender, RoutedEventArgs e)
         {
             var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
             Clipboard.SetText(errorDataContext?.StackTrace == "Unavailable"
@@ -371,11 +371,7 @@ namespace XTMF.Gui.UserControls
                 () => MainWindow.Us.ShowSchedulerWindow());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void StackTraceGroup_OnMouseDown(object sender, MouseButtonEventArgs e)
+        private void StackTraceGroup_OnMouseDown(object sender, RoutedEventArgs e)
         {
             var errorDataContext = (ModelSystemErrorDisplayModel)(sender as FrameworkElement)?.Tag;
             Dispatcher.BeginInvoke(new Action(() =>
@@ -665,7 +661,7 @@ namespace XTMF.Gui.UserControls
                     XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
                         () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
                     Icon = PackIconKind.CheckCircleOutline;
-                    StatusText = "Run finished succesfully.";
+                    StatusText = "Run finished successfully.";
                 }
             }
 
@@ -674,7 +670,7 @@ namespace XTMF.Gui.UserControls
             /// <param name="errorWithPath"></param>
             private void RuntimeError(ErrorWithPath errorWithPath)
             {
-                StatusText = "Runtime exception occured.";
+                StatusText = "Runtime exception occurred.";
                 // StatusText = errorWithPath.Message;
             }
 
