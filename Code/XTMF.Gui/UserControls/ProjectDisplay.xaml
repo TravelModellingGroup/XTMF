@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -29,11 +29,6 @@
              Focusable="True" SnapsToDevicePixels="True"
              Background="{DynamicResource MaterialDesignPaper}"
              d:DesignHeight="400" d:DesignWidth="800">
-    <UserControl.Resources>
-        <ResourceDictionary>
-
-        </ResourceDictionary>
-    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -48,48 +43,51 @@
                 <StackPanel>
                     <StackPanel Name="CreateNewModelSystemStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="CreateNewModelSystemStackPanel_MouseLeftButtonUp">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" 
+                                   VerticalAlignment="Center" Opacity="1.0"/>
                         </Border>
                         <Button Click="NewModelSystem_Click"  >
-                            <xtmf:PackIconOverlap Width="32" Height="32"  IconKind="CubeOutline" IconKindMinor="Plus"></xtmf:PackIconOverlap>
+                            <xtmf:PackIconOverlap Width="32" Height="32"  IconKind="CubeOutline" IconKindMinor="Plus" Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
                         </Button>
                     </StackPanel>
                     <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
 
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Open Project Directory" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Open Project Directory" 
+                                   VerticalAlignment="Center" Opacity="1.0"/>
                         </Border>
                         <Button Click="ButtonBase_OnClick" >
-                            <materialDesign:PackIcon Kind="Folder" />
+                            <materialDesign:PackIcon Kind="Folder" Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
                         </Button>
                     </StackPanel>
 
                     <StackPanel Name="ImportModelSystemStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemStackPanel_MouseLeftButtonUp">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System" 
+                                   VerticalAlignment="Center" Opacity="1.0"/>
                         </Border>
                         <Button   Name="ImportButton" Click="ImportButton_OnClick" >
-                            <xtmf:PackIconOverlap IconKind="CubeOutline" IconKindMinor="Import" Width="32" Height="32"></xtmf:PackIconOverlap>
+                            <xtmf:PackIconOverlap IconKind="CubeOutline" IconKindMinor="Import" Width="32" Height="32" Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
                         </Button>
                     </StackPanel>
 
                     <StackPanel Name="ImportModelSystemFileStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemFileStackPanel_MouseLeftButtonUp">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System From File" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System From File" 
+                                   VerticalAlignment="Center" Opacity="1.0"/>
                         </Border>
                         <Button  Name="ImportFromFileButton" Click="ImportFromFileButton_OnClick" >
-                            <xtmf:PackIconOverlap IconKind="CubeOutline" IconKindMinor="FileImport" Width="32" Height="32"></xtmf:PackIconOverlap>
+                            <xtmf:PackIconOverlap IconKind="CubeOutline" IconKindMinor="FileImport" Width="32" Height="32" Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
                         </Button>
                     </StackPanel>
 
-
-
                     <StackPanel Name="RefreshRunsStackPanel"  HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="RefreshRunsStackPanel_MouseLeftButtonUp" >
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Refresh previous runs" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Refresh previous runs" 
+                                   VerticalAlignment="Center" Opacity="1.0"/>
                         </Border>
                         <Button Name="RefreshPastRunsButton" Click="RefreshPastRunsButton_OnClick" >
-                            <xtmf:PackIconOverlap Width="32" Height="32"  IconKind="Run" IconKindMinor="Refresh"></xtmf:PackIconOverlap>
+                            <xtmf:PackIconOverlap Width="32" Height="32"  IconKind="Run" IconKindMinor="Refresh" Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
                         </Button>
                     </StackPanel>
                 </StackPanel>
@@ -103,15 +101,15 @@
             </Grid.RowDefinitions>
             <Grid VerticalAlignment="Stretch" Grid.Row="1" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="2" ></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" HorizontalAlignment="Stretch">
                     <Grid Grid.Column="0" HorizontalAlignment="Stretch">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="AUTO"></RowDefinition>
-                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="AUTO"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <materialDesign:ColorZone Width="Auto"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                               Margin="12 12 12 12"
@@ -184,7 +182,7 @@
                                     <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
 
                                         <Setter Property="Background" Value="Transparent"></Setter>
-                                        
+
                                         <Style.Triggers>
                                             <Trigger Property="IsSelected" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource MaterialDesignSelection}" />
@@ -259,69 +257,6 @@
                                     </ContextMenu>
                                 </DataGrid.ContextMenu>
                             </DataGrid>
-
-                            <!--
-                                <xtmf:ModelSystemListView PreviewMouseLeftButtonDown="ModelSystemDisplay_OnPreviewMouseLeftButtonDown"  BorderBrush="{x:Null}" MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource XtmfListBoxItemNoDuration}">
-                                    <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <xtmf:ModelSystemListView.Style>
-                                <Style TargetType="{x:Type ListView}" BasedOn="{StaticResource MaterialDesignListView}"/>
-
-                            </xtmf:ModelSystemListView.Style>
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <xtmf:ListViewControl IconKind="CubeOutline" TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch" IsPathIcon="False"
-                                                          SubText="{Binding Description, Mode=OneWay}" StatusText="{Binding StatusText, Mode=OneWay}">
-                                        <xtmf:ListViewControl.ContextMenu>
-                                            <ContextMenu Tag="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}"  >
-                                                <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
-                                                    <MenuItem.Icon>
-                                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
-                                                    </MenuItem.Icon>
-                                                </MenuItem>
-                                                <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
-                                                    <MenuItem.Icon>
-                                                        <ContentControl Template="{DynamicResource CancelIcon}" />
-                                                    </MenuItem.Icon>
-                                                </MenuItem>
-                                                <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
-                                                    <MenuItem.Icon>
-                                                        <ContentControl Template="{DynamicResource SaveIcon}" />
-                                                    </MenuItem.Icon>
-                                                </MenuItem>
-                                                <MenuItem Header="Export Model System As (Ctrl+S)" Click="ExportModelSystemAs_Click">
-                                                    <MenuItem.Icon>
-                                                        <ContentControl Template="{DynamicResource SaveIcon}" />
-                                                    </MenuItem.Icon>
-                                                </MenuItem>
-                                                <MenuItem Header="Copy Model System (Ctrl+C)" Click="CopyModelSystem_Click">
-                                                    <MenuItem.Icon>
-                                                        <ContentControl Template="{DynamicResource CopyIcon}" />
-                                                    </MenuItem.Icon>
-                                                </MenuItem>
-                                                <MenuItem Header="Paste As New Model System (Ctrl+V)" Click="PasteModelSystem_OnClick"
-                                                    IsEnabled="{Binding DataContext.IsCanPasteModelSystem, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                                    <MenuItem.Icon>
-                                                        <ContentControl Template="{DynamicResource PasteIcon}" />
-                                                    </MenuItem.Icon>
-                                                </MenuItem>
-                                            </ContextMenu>
-                                        </xtmf:ListViewControl.ContextMenu>
-                                        <xtmf:ListViewControl.IconPath>
-                                            <Path Data="{DynamicResource ModelSystemIconPath}"/>
-                                        </xtmf:ListViewControl.IconPath>
-                                    </xtmf:ListViewControl>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </xtmf:ModelSystemListView> -->
                         </DockPanel>
                     </Grid>
                 </Grid>
@@ -371,7 +306,7 @@
                             <DataTemplate>
                                 <xtmf:ListViewControl TitleText="{Binding Name}" SubText="{Binding TimeStamp}" IsPackIconOverlap="True" MouseDoubleClick="PastRuns_MouseButton" IconKind="Timelapse" IsPathIcon="False">
                                     <xtmf:ListViewControl.PackIconOverlap>
-                                        <xtmf:PackIconOverlap IconKind="Run" IconKindMinor="AvTimer" Width="32" Height="32"></xtmf:PackIconOverlap>
+                                        <xtmf:PackIconOverlap IconKind="Run" IconKindMinor="AvTimer" Width="32" Height="32"/>
                                     </xtmf:ListViewControl.PackIconOverlap>
 
                                 </xtmf:ListViewControl >

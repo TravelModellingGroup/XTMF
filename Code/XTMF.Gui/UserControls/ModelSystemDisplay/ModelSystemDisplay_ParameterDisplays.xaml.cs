@@ -28,7 +28,6 @@ namespace XTMF.Gui.UserControls
             if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
-    
             }
         }
 
@@ -42,8 +41,6 @@ namespace XTMF.Gui.UserControls
             if (((ListView)sender).SelectedItem is ParameterDisplayModel s)
             {
                 _selectedParameterDisplayModel = s;
-              
-
             }
         }
 
@@ -90,7 +87,6 @@ namespace XTMF.Gui.UserControls
                     menuItem.IsEnabled = !SoftActiveParameterDisplay.IsEnumeration && SoftActiveParameterDisplay.ParameterType != typeof(bool);
                 }
             }
-
         }
 
         /// <summary>
@@ -160,7 +156,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void ModuleParametersToolbarToggle_OnClick(object sender, RoutedEventArgs e)
         {
-
             this.ToggleModuleParameterDisplay();
         }
 
@@ -182,7 +177,6 @@ namespace XTMF.Gui.UserControls
         private void ModuleParameterDisplayClose_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
             this.ToggleModuleParameterDisplay();
-
         }
 
         /// <summary>
@@ -222,7 +216,6 @@ namespace XTMF.Gui.UserControls
             {
                 localAction.Invoke();
             }
-
         }
 
         /// <summary>
@@ -251,7 +244,6 @@ namespace XTMF.Gui.UserControls
                 this.AnimateOpacity(ModuleParameterDisplaySearch, 1.0, 0.0);
                 this.AnimateOpacity(ModuleParameterDisplayHeader, 0.0, 1.0);
                 ParameterFilterBox.Box.Text = "";
-
             }
         }
 
@@ -279,8 +271,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -304,9 +294,6 @@ namespace XTMF.Gui.UserControls
         
                     TransformToRelativePath(inputDirectoryString, ref path);
                     SetParameterValue(parameterDisplayModel, path);
-
-                   // ((TextBox) sender).Text = path;
-                    
                 }
             }
         }
@@ -321,16 +308,12 @@ namespace XTMF.Gui.UserControls
             if (!e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 return;
-
             }
             var parameterDisplayModel = ((TextBox)sender).Tag as ParameterDisplayModel;
             if (parameterDisplayModel?.ParameterType != typeof(int))
             {
                 e.Handled = true;
             }
-
-
-
         }
     }
 }

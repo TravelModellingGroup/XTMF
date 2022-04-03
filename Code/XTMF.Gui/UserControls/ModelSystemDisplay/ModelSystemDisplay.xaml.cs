@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -109,12 +109,16 @@ namespace XTMF.Gui.UserControls
                 Task.Run(() =>
                 {
                     var ourNumber = Interlocked.Increment(ref FilterNumber);
-                    var waitTask = Task.Delay(400);
+                    var waitTask = Task.Delay(200);
                     waitTask.Wait();
                     Thread.MemoryBarrier();
                     if (ourNumber == FilterNumber)
                     {
-                        CheckFilterRec(module, text);
+                        // Lock the refreshing of the items until we have finished modifying everything
+                        using (var lockRender = this.TreeViewDisplay.ModuleDisplay.Items.DeferRefresh())
+                        {
+                            CheckFilterRec(module, text);   
+                        }
                     }
                 });
                 return true;
@@ -924,10 +928,6 @@ namespace XTMF.Gui.UserControls
             {
                 Console.Error.WriteLine(e);
             }
-
-
-
-            //LinkedParametersDialogHost.DialogContent = dialog;
             if (dialog.DidComplete)
             {
                 runName = (dialog.DataContext as RunConfigurationDisplayModel)?.UserInput;
@@ -957,10 +957,6 @@ namespace XTMF.Gui.UserControls
                         false);
                     if (run != null)
                     {
-                        //ModuleValidationErrorListView.Items.Clear();
-                        //ModuleRuntimeValidationErrorListView.Items.Clear();
-                        //ModuleRuntimeErrorListView.Items.Clear();
-                        //pass this as launchedFrom display in case model system run encounters an error
                         if (isDelayed)
                         {
                             MainWindow.Us.AddDelayedRunToSchedulerWindow(
@@ -2701,7 +2697,6 @@ namespace XTMF.Gui.UserControls
         {
             if (model.BaseModel.Type == null && model.BaseModel.IsOptional == false && !model.IsCollection)
             {
-
                 modules.Add(model);
             }
             if (model.Children != null)
@@ -2721,8 +2716,6 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
         }
-
-
     }
 
 

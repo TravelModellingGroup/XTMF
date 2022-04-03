@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -46,8 +46,6 @@ namespace XTMF.Gui.UserControls
         private DialogSession _dialogSession;
 
         public bool DidComplete { get; set; }
-
-
     
         public SelectRunDateTimeDialog(ModelSystemEditingSession session)
         {
@@ -187,7 +185,7 @@ namespace XTMF.Gui.UserControls
             get => _useAdvanced;
             set
             {
-                _useAdvanced = true;
+                _useAdvanced = value;
                 OnPropertyChanged(nameof(UseAdvanced));
             }
         }
@@ -224,7 +222,6 @@ namespace XTMF.Gui.UserControls
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
 
         {
-            
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }

@@ -33,15 +33,8 @@
 
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-              
-                <!--<ResourceDictionary Source="Resources/ComboBoxStyle.xaml"/> -->
-                <!--<ResourceDictionary Source="UserControls/MenuStyles.xaml"/> -->
-
-
-
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
- 
 
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Dark.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
@@ -61,28 +54,37 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
                 <ResourceDictionary Source="Resources/ControlStyles.xaml"/>
                 <ResourceDictionary Source="Resources/XtmfMaterialStyles.xaml"/>
-
             </ResourceDictionary.MergedDictionaries>
 
+            <Style TargetType="ContextMenu" BasedOn="{StaticResource MaterialDesignContextMenu}">
+                <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}" />
+            </Style>
 
+            <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+
+            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                <Setter Property="Foreground" Value="{DynamicResource SecondaryHueMidBrush}" />
+            </Style>
+
+            <Style TargetType="ListView" BasedOn="{StaticResource MaterialDesignListView}" />
 
             <Style x:Key="MaterialDesignXtmfDragableTabItemStyle" TargetType="{x:Type dragablz:DragablzItem}" BasedOn="{StaticResource MaterialDesignDragableTabItemStyle}">
                 <Style.Setters>
                     <Setter Property="Height" Value="30"/>
-                    <Setter Property="Padding" Value="8 0 8 0"/>
+                    <Setter Property="Padding" Value="8,0,0,0"/>
                 </Style.Setters>
                 <Style.Triggers>
                     <MultiTrigger>
                         <MultiTrigger.Conditions>
                             <Condition Property="IsMouseOver" Value="True" />
                         </MultiTrigger.Conditions>
-                        <Setter  Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
+                        <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
                     </MultiTrigger>
                     <MultiTrigger>
                         <MultiTrigger.Conditions>
                             <Condition Property="IsSelected" Value="True" />
                         </MultiTrigger.Conditions>
-                        <Setter  Property="Background" Value="{DynamicResource SecondaryHueDarkBrush}" />
+                        <Setter Property="Background" Value="{DynamicResource SecondaryHueDarkBrush}" />
                     </MultiTrigger>
                 </Style.Triggers>
             </Style>
@@ -106,7 +108,7 @@
                                 </Border>
                                 <Grid Grid.Column="0" Grid.Row="0" x:Name="HeaderContainerGrid" Visibility="{TemplateBinding IsHeaderPanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Grid.Resources>
-                                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource StandardEmbeddedButtonStyle}"></Style>
+                                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource StandardEmbeddedButtonStyle}"/>
                                     </Grid.Resources>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -271,7 +273,7 @@
             </Style>
 
             <Style TargetType="{x:Type dragablz:TabablzControl}" x:Key="MaterialDesignXtmfTabablzControlStyle" BasedOn="{StaticResource MaterialDesignXtmfRootTabablzControlStyle}">
-               <!-- <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignPaper}" /> -->
+                <!-- <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignPaper}" /> -->
                 <Setter Property="ItemContainerStyle" Value="{StaticResource MaterialDesignXtmfDragableTabItemStyle}" />
                 <Style.Triggers>
                     <Trigger Property="TabStripPlacement" Value="Left">
@@ -342,9 +344,6 @@
                                         <VisualState Name="Normal"/>
                                         <VisualState Name="MouseOver">
                                             <Storyboard>
-                                                <!--<DoubleAnimation Storyboard.TargetName="MouseOverBorder" Storyboard.TargetProperty="Opacity"
-                                                             To="0.1" Duration="0"/> -->
-
                                                 <DoubleAnimation Storyboard.TargetName="MouseOverBorder"
                                                                  Storyboard.TargetProperty="Opacity"
                                                                  To="0.4" Duration="0:0:0.1"/>
@@ -355,21 +354,13 @@
                                     <VisualStateGroup Name="SelectionStates">
                                         <VisualStateGroup.Transitions>
                                             <VisualTransition GeneratedDuration="0:0:0.0"/>
-
                                         </VisualStateGroup.Transitions>
                                         <VisualState Name="Selected">
-
-                                           
                                             <Storyboard>
-                                                
                                                 <DoubleAnimation Storyboard.TargetName="SelectedBorder"
                                                          Storyboard.TargetProperty="Opacity"
                                                          To="0.7" Duration="0:0:0.1"/>
-                                                <!--<DoubleAnimation Storyboard.TargetName="SelectedBorder" Storyboard.TargetProperty="BorderBrush"
-                                                    
-                                                To="0.18" Duration="0"/> -->
                                             </Storyboard>
-
                                         </VisualState>
                                         <VisualState Name="Unselected"/>
                                         <VisualState Name="SelectedUnfocused">
@@ -383,17 +374,12 @@
                                 </VisualStateManager.VisualStateGroups>
                                 <Grid>
                                     <Border x:Name="MouseOverBorder"
-                                    Opacity="0" BorderThickness="3"
-
-                                    BorderBrush="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}"/>
-
+                                        Opacity="0" BorderThickness="3"
+                                        BorderBrush="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}"/>
                                     <Border x:Name="SelectedBorder"
-                                            
                                             Opacity="0"
-                                            
                                             BorderThickness="3"
-                       
-                                    RenderTransformOrigin="0.5,0.5">
+                                            RenderTransformOrigin="0.5,0.5">
                                         <Border.RenderTransform>
                                             <ScaleTransform ScaleX="1"/>
                                         </Border.RenderTransform>
@@ -422,13 +408,11 @@
             <Style TargetType="{x:Type TextBlock}" x:Key="MaterialDesignBody1Custom" >
                 <Setter Property="Cursor" Value="Hand"></Setter>
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}"></Setter>
-
             </Style>
 
             <Style TargetType="{x:Type Hyperlink}" x:Key="MaterialDesignBody1HyperlinkCustom" BasedOn="{StaticResource MaterialDesignBody1Hyperlink}">
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="Foreground" Value="{DynamicResource SecondaryHueMidBrush}"/>
-
             </Style>
 
             <Style x:Key="MaterialDesignFloatingActionMiniDarkButtonXtmf" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignFloatingActionMiniButton}">
@@ -656,8 +640,6 @@
                 </Setter>
             </Style>
 
-
-
             <Style x:Key="XtmfListBoxItemNoDuration" TargetType="{x:Type ListBoxItem}">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -745,14 +727,10 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-  
 
             <Style x:Key="XtmfMaterialDesignFloatingHintTextBox" TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignTextBox}">
                 <Setter Property="wpf:HintAssist.IsFloating" Value="True"/>
             </Style>
-
-
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

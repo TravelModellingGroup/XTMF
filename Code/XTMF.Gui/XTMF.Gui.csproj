@@ -220,7 +220,6 @@
     <Compile Include="Models\ViewModelBase.cs" />
     <Compile Include="UserControls\ColourOption.cs" />
     <Compile Include="UserControls\DialogHostEx.cs" />
-    <Compile Include="UserControls\DragDropListView.cs" />
     <Compile Include="UserControls\FlatButton.xaml.cs">
       <DependentUpon>FlatButton.xaml</DependentUpon>
     </Compile>
@@ -268,6 +267,7 @@
     <Compile Include="UserControls\TabHostWindow.xaml.cs">
       <DependentUpon>TabHostWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\TitledTextbox.xaml.cs" />
     <Compile Include="UserControls\ValidationErrorListControl.xaml.cs">
       <DependentUpon>ValidationErrorListControl.xaml</DependentUpon>
     </Compile>
@@ -291,7 +291,7 @@
     <Compile Include="UserControls\ColourSelector.xaml.cs">
       <DependentUpon>ColourSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\DocumentationControl.xaml.cs">
+    <Compile Include="UserControls\Help\DocumentationControl.xaml.cs">
       <DependentUpon>DocumentationControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ErrorWindow.xaml.cs">
@@ -367,9 +367,6 @@
     </Compile>
     <Compile Include="UserControls\TextboxAdorner.xaml.cs">
       <DependentUpon>TextboxAdorner.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\TitledTextbox.xaml.cs">
-      <DependentUpon>TitledTextbox.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\TMGProgressBar.xaml.cs">
       <DependentUpon>TMGProgressBar.xaml</DependentUpon>
@@ -457,6 +454,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControls\TitledTextbox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="UserControls\ValidationErrorListControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -489,7 +490,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\DocumentationControl.xaml">
+    <Page Include="UserControls\Help\DocumentationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -518,10 +519,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\ListViewControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\MenuStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -592,10 +589,6 @@
     <Page Include="UserControls\TextboxAdorner.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\TitledTextbox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\TMGProgressBar.xaml">
       <Generator>MSBuild:Compile</Generator>

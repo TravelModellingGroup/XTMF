@@ -28,15 +28,12 @@
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
              xmlns:this2="clr-namespace:XTMF.Gui.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:controlzEx="clr-namespace:ControlzEx;assembly=MaterialDesignThemes.Wpf"
              xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" Name="MDisplay" PreviewKeyDown="ModelSystemDisplay_OnPreviewKeyDown"
              d:DesignHeight="500" d:DesignWidth="2000" Background="{DynamicResource MaterialDesignPaper}" Unloaded="MDisplay_Unloaded" MouseMove="MDisplay_MouseMove">
     <UserControl.Resources>
-
-
         <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20" Viewbox="0,0,14,14" ViewportUnits="Absolute" ViewboxUnits="Absolute">
             <VisualBrush.Visual>
                 <Rectangle SnapsToDevicePixels="True" Opacity="0.2" Stroke="{DynamicResource PrimaryHueLightForegroundBrush}" StrokeThickness="0.8" Width="20" Height="20"/>
@@ -130,10 +127,8 @@
                                 <TextBlock Text="-" />
                                 <TextBlock Text="{Binding OwnerModuleName, Mode=OneTime}" FontWeight="Light" Margin="3 0 0 0" />
                             </StackPanel>
-
                             <TextBlock Text="{Binding Description, Mode=OneTime}" />
                         </StackPanel>
-
                     </StackPanel.ToolTip>
 
                     <Grid materialDesign:TransitionAssist.DisableTransitions="True" >
@@ -170,12 +165,10 @@
     <Grid x:Name="LayoutRoot" Background="{DynamicResource MaterialDesignPaper}">
         <materialDesign:DialogHost Name="RunHost" CloseOnClickAway="True">
             <materialDesign:DialogHost.DialogContent >
-                <Label></Label>
+                <Label/>
             </materialDesign:DialogHost.DialogContent>
-
         </materialDesign:DialogHost>
         <materialDesign:DialogHost Name="LinkedParametersDialogHost" DialogOpened="LinkedParametersDialogHost_OnDialogOpened" >
-
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="55"/>
@@ -354,7 +347,7 @@
                                                     </Grid>
                                                 </ToolBar>
                                             </ToolBarTray>
-                                            <Expander materialDesign:TransitionAssist.DisableTransitions="True"  Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
+                                            <Expander materialDesign:TransitionAssist.DisableTransitions="True" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="False" Padding="0" Header="Module Description"
                                           Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                             AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
@@ -373,18 +366,14 @@
                                     <ListView AllowDrop="False" materialDesign:TransitionAssist.DisableTransitions="True"   materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" ContextMenuOpening="ParameterDisplay_OnContextMenuOpening"
-                                  ItemTemplateSelector="{StaticResource ParameterSelector}"  SelectionChanged="ParameterDisplay_SelectionChanged">
+                                  ItemTemplateSelector="{StaticResource ParameterSelector}"  SelectionChanged="ParameterDisplay_SelectionChanged"
+                                              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
 
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
-                                                <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
+                                                <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"/>
                                             </Style>
                                         </ListView.ItemContainerStyle>
-                                        <ListView.ItemsPanel>
-                                            <ItemsPanelTemplate >
-                                                <VirtualizingStackPanel materialDesign:RippleAssist.IsDisabled="True" />
-                                            </ItemsPanelTemplate>
-                                        </ListView.ItemsPanel>
                                         <ListView.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="Parameter">
@@ -453,7 +442,8 @@
                         </materialDesign:DialogHost>
                     </Grid>
                     <Grid Name="QuickParameterDisplay2"  Grid.Column="2" IsEnabled="True" PreviewKeyDown="QuickParameterDisplay2_OnPreviewKeyDown" >
-                        <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened" PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown" >
+                        <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened"
+                                                   PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown">
                             <materialDesign:DialogHost.DialogContent >
                                 <Grid Width="200" />
                             </materialDesign:DialogHost.DialogContent>
@@ -464,7 +454,7 @@
                                 </Grid.RowDefinitions>
 
                                 <Grid  Grid.Row="0">
-                                    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 0 5 2"  Name="QuickParameterDisplaySearch" Opacity="0"  >
+                                    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0 0 5 2"  Name="QuickParameterDisplaySearch" Opacity="0"  >
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="30" />
                                             <ColumnDefinition Width="*" />
@@ -503,29 +493,24 @@
                                     </Grid.RowDefinitions>
                                     <Grid Grid.Row="0" HorizontalAlignment="Center" >
                                         <ToolBarTray  Visibility="Collapsed"   IsLocked="True"  Height="52" Margin="0 0 0 0" VerticalAlignment="Top" Background="Transparent" HorizontalAlignment="Stretch" >
-                                            <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" Background="Transparent" ClipToBounds="True" VerticalAlignment="Center" HorizontalContentAlignment="Center" >
-
-
-                                            </ToolBar>
+                                            <ToolBar  OverflowMode="Never"  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" 
+                                                      Background="Transparent" ClipToBounds="True" VerticalAlignment="Center" 
+                                                      HorizontalContentAlignment="Center" />
                                         </ToolBarTray>
                                     </Grid>
                                     <ListView   
-                                        
                                         materialDesign:RippleAssist.IsDisabled="True" Grid.Row="1" x:Name="QuickParameterListView"
                                   HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                                   VerticalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="Single"
                                   HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ContextMenuOpening="QuickParameterListView_OnContextMenuOpening"
-                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelector}">
+                                  Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle"
+                                        ItemTemplateSelector="{StaticResource ParameterSelector}"
+                                        VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
                                                 <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
                                             </Style>
                                         </ListView.ItemContainerStyle>
-                                        <ListView.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <VirtualizingStackPanel/>
-                                            </ItemsPanelTemplate>
-                                        </ListView.ItemsPanel>
                                         <ListView.ContextMenu>
                                             <ContextMenu Name="QuickParameterContextMenu" ContextMenuOpening="QuickParameterContextMenu_ContextMenuOpening">
                                                 <MenuItem Header="Copy Parameter Name (Ctrl+N)" Click="CopyParameterName_Click">
@@ -591,11 +576,7 @@
                         <Border BorderBrush="{DynamicResource MaterialDesignTextBoxBorder}" BorderThickness="1">
                             <Grid Background="{DynamicResource MaterialDesignBackground}" MaxHeight="100">
                                 <Label Padding="10" Foreground="{DynamicResource MaterialDesignColumnHeader}">No required modules missing.</Label>
-
                             </Grid>
-
-
-
                         </Border>
                     </Popup>
                     <Popup StaysOpen="False" Name="UnassignedModulesPopup" Width="200" Height="Auto" Placement="Top" PlacementTarget="{Binding ElementName=UnassignedModulesStatusBar}" PopupAnimation="Slide">
@@ -612,10 +593,7 @@
                                             <Label Tag="{Binding .}" MouseDown="UnassignedModuleLabel_MouseDown" Content="{Binding Name}"></Label>
                                         </DataTemplate>
                                     </ListView.ItemTemplate>
-
                                 </ListView>
-
-
                             </Grid>
                         </Border>
                     </Popup>

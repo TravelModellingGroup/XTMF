@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -48,16 +48,12 @@
                 </Button>
 
                 <my:FilterBox Grid.Column="1" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
-                <!--<TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Build a search bar" 
-                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                         MinWidth="200" VerticalAlignment="Center" />-->
-                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2">
-
-                </Button>
+                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2"/>
             </Grid>
         </materialDesign:ColorZone>
        
-        <ListView MouseDoubleClick="ListViewControl_MouseDoubleClick" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" BorderThickness="0">
+        <ListView MouseDoubleClick="ListViewControl_MouseDoubleClick" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" BorderThickness="0">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename ModelSystem (F2)" Click="Rename_Click">
@@ -94,122 +90,79 @@
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate DataType="{x:Type xtmf:ModelSystem}">
-
                     <local:ListViewControl Height="50" TitleText="{Binding Name}" SubText="{Binding Description}" >
-
                         <local:ListViewControl.IconPath>
-
-
-
-                            <Path Data="{DynamicResource ModelSystemIconPath}">
-                            </Path>
+                            <Path Data="{DynamicResource ModelSystemIconPath}"/>
                         </local:ListViewControl.IconPath>
-
                     </local:ListViewControl>
-
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
         <Border SnapsToDevicePixels="True" BorderThickness="0" Grid.Row="2" HorizontalAlignment="Right" Margin="10 10 30 30">
-
             <local:PopupBoxEx 
-
                 xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
                 UnfurlOrientation="Vertical"
                 PopupMode="Click"
-                ToolTipService.Placement="Left"
-            >
+                ToolTipService.Placement="Left">
                 <StackPanel>
-                 
-
                     <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}"  Name="NewModelSystemStackPanel" MouseLeftButtonUp="NewModelSystemStackPanel_OnMouseLeftButtonUp">
-
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="New Model System" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="New Model System"/>
                         </Border>
                         <Button Name="NewModelSystemButton" Click="NewModelSystemButton_OnClick">
-
-                            <materialDesign:PackIcon Kind="Import" />
+                            <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Import" />
                         </Button>
                     </StackPanel>
-
                     <StackPanel Name="ImportModelSystemStackPanel" HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemStackPanel_OnMouseLeftButtonUp" >
-
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Import Model System" Opacity="1.0"/>
                         </Border>
                         <Button Name="ImportModelSystemButton" Click="ImportModelSystemButton_OnClick"  >
-
-                            <materialDesign:PackIcon Kind="Import" />
+                            <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Import" />
                         </Button>
                     </StackPanel>
 
                     <StackPanel Name="RenameModelSystemStackPanel" HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="RenameModelSystemStackPanel_OnMouseLeftButtonUp"  >
-
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Rename Model System" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Rename Model System" Opacity="1.0"/>
                         </Border>
-                        <Button Name="RenameModelSystemButton" Click="RenameModelSystemButton_OnClick"  >
-
-                            <materialDesign:PackIcon Kind="Refresh" />
+                        <Button Name="RenameModelSystemButton" Click="RenameModelSystemButton_OnClick" >
+                            <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Refresh" />
                         </Button>
                     </StackPanel>
 
-
-                    <StackPanel Name="CloneModelSystemStackPanel" HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="CloneModelSystemStackPanel_OnMouseLeftButtonUp"   >
-
+                    <StackPanel Name="CloneModelSystemStackPanel" HorizontalAlignment="Right"  Orientation="Horizontal" 
+                                Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="CloneModelSystemStackPanel_OnMouseLeftButtonUp">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Clone Model System" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Clone Model System" Opacity="1.0"/>
                         </Border>
                         <Button Name="CloneModelSystemButton" Click="CloneModelSystemButton_OnClick"  >
-
-                            <materialDesign:PackIcon Kind="ContentCopy" />
+                            <materialDesign:PackIcon 
+                                Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="ContentCopy" />
                         </Button>
                     </StackPanel>
 
-                    <StackPanel Name="DeleteModelSystemStackPanel" HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="DeleteModelSystemStackPanel_OnMouseLeftButtonUp"   >
-
+                    <StackPanel Name="DeleteModelSystemStackPanel" HorizontalAlignment="Right" Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="DeleteModelSystemStackPanel_OnMouseLeftButtonUp"   >
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Delete Model System" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Delete Model System" Opacity="1.0"/>
                         </Border>
-                        <Button Name="DeleteModelSystemButon" Click="DeleteModelSystemButon_OnClick"  >
-
-                            <materialDesign:PackIcon Kind="Delete" />
+                        <Button Name="DeleteModelSystemButon" Click="DeleteModelSystemButon_OnClick">
+                            <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Delete" />
                         </Button>
                     </StackPanel>
 
-                    <StackPanel Name="ExportModelSystemStackPanel" HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ExportModelSystemStackPanel_OnMouseLeftButtonUp"   >
-
+                    <StackPanel Name="ExportModelSystemStackPanel" HorizontalAlignment="Right" Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ExportModelSystemStackPanel_OnMouseLeftButtonUp">
                         <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Export Model System" Opacity="1.0"></Label>
+                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Export Model System" Opacity="1.0"/>
                         </Border>
                         <Button Name="ExportModelSystemButton" Click="ExportModelSystemButton_OnClick"  >
-
-                            <materialDesign:PackIcon Kind="Delete" />
+                            <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Delete" />
                         </Button>
                     </StackPanel>
-
                 </StackPanel>
-                </local:PopupBoxEx>
-
-            <!--
-                    <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource MaterialDesignPaper}">
-                <Button Name="NewModelSystemButton" Click="NewModelSystemButton_OnClick">Create a new Model System</Button>
-                <Button Name="ImportModelSystemButton" Click="ImportModelSystemButton_OnClick">Import Model System</Button>
-
-
-                <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="Rename" Width="170" Text="Change the name of the model system."  
-                                     Clicked="RenameModelSystem_Clicked"/>
-                <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="Clone" Width="170" Text="Create a copy of the model system."
-                                     Clicked="CloneModelSystem_Clicked"/>
-                <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="Delete" Width="170" Text="Delete model system" 
-                                     Clicked="DeleteModelSystem_Clicked"/>
-                <Button Content="Export model system" Name="ExportModelSystemButton" Click="ExportModelSystemButton_OnClick"></Button>
-                <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="Export" Width="170" Text="Export model system" 
-                                     Clicked="Export_Clicked"/>
-            </WrapPanel> -->
+            </local:PopupBoxEx>
         </Border>
     </Grid>
 </UserControl>

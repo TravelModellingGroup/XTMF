@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -35,7 +33,6 @@ namespace XTMF.Gui.UserControls
                             {
                                 ModuleParameterDialogHost.IsOpen = true;
                             }
-
                             break;
                     }
                 }
@@ -116,7 +113,6 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.Q:
-
                             if (EditorController.IsShiftDown())
                             {
                                 ToggleQuickParameterDisplay();
@@ -145,7 +141,6 @@ namespace XTMF.Gui.UserControls
                             {
                                 RenameParameter();
                             }
-
                             break;
                         case Key.F1:
                             ShowDocumentation();
@@ -157,13 +152,11 @@ namespace XTMF.Gui.UserControls
                                 RemoveSelectedModules();
                                 e.Handled = true;
                             }
-
                             break;
                         case Key.F5:
                             e.Handled = true;
                             SaveCurrentlySelectedParameters();
                             ExecuteRun();
-
                             break;
                         case Key.Escape:
                             FilterBox.Box.Text = string.Empty;
@@ -172,7 +165,6 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
 
         /// <summary>
         /// 
@@ -269,9 +261,7 @@ namespace XTMF.Gui.UserControls
             }));
 
             e.Handled = true;
-            return;
         }
-
 
         /// <summary>
         /// 
@@ -280,13 +270,12 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void UnassignedModuleLabel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            var model = ((FrameworkElement)e.Source).Tag as ModelSystemStructureDisplayModel;
-            if (model != null)
+            if (((FrameworkElement)e.Source).Tag is ModelSystemStructureDisplayModel model)
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     model.IsSelected = true;
-                    if(ActiveModelSystemView is ModelSystemTreeViewDisplay view)
+                    if (ActiveModelSystemView is ModelSystemTreeViewDisplay view)
                     {
                         view.ExpandToRoot(model);
                     }
@@ -295,7 +284,6 @@ namespace XTMF.Gui.UserControls
                     DisabledModulesPopup.IsOpen = false;
                 }));
             }
-            return;
         }
     }
 }

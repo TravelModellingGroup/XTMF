@@ -31,7 +31,8 @@
         <StackPanel Margin="5,5,5,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Label Name="HeaderContent" Foreground="White" FontWeight="Bold"
                        Content="{Binding ElementName=Self, Path=HeaderText}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-            <userControls:HintedTextBox x:Name="InputTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextChanged="InputTextBox_TextChanged" />
+            <userControls:HintedTextBox x:Name="InputTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextChanged="InputTextBox_TextChanged" 
+                                        CaretBrush="{DynamicResource SecondaryHueMidBrush}"/>
         </StackPanel>
     </Border>
 </UserControl>

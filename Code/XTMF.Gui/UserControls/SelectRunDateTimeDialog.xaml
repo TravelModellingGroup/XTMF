@@ -7,27 +7,22 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" Background="{DynamicResource MaterialDesignPaper}"
              d:DesignHeight="400" d:DesignWidth="500" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
-
-    <UserControl.Resources>
-
-    </UserControl.Resources>
-
     <UserControl.DataContext>
-        <local:RunConfigurationDisplayModel></local:RunConfigurationDisplayModel>
+        <local:RunConfigurationDisplayModel/>
     </UserControl.DataContext>
     <StackPanel Orientation="Vertical" PreviewKeyDown="SelectRunDateTimeDialog_OnPreviewKeyDown">
         <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0 10 0 15" HorizontalAlignment="Center">Run Configuration</TextBlock>
         <Grid MinHeight="60"  MinWidth="300" Margin="10 0 10 5" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="300"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition MinWidth="300"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <ComboBox Grid.Column="0" MinWidth="300" x:Name="StringInputTextBox"
                       materialDesign:HintAssist.Hint="Run Name" VerticalAlignment="Top"
-                      IsEditable="True">
+                      IsEditable="True" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding .}"></TextBlock>
+                        <TextBlock Text="{Binding .}"/>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
                 <ComboBox.Text>
@@ -39,7 +34,7 @@
                 </ComboBox.Text>
             </ComboBox>
         </Grid>
-        <Expander IsExpanded="True">
+        <Expander IsExpanded="False">
             <Expander.Header>
                 <TextBlock FontSize="14" Text="Advanced run options"/>
             </Expander.Header>
@@ -76,8 +71,11 @@
             </Expander.Content>
         </Expander>
         <StackPanel Margin="0 15 0 15" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Name="RunButton"  Margin="5 5 7 5" Click="RunButton_OnClick" IsEnabled="{Binding IsRunEnabled}" >Run</Button>
-            <Button Name="CancelButton"  Margin="5 5 7 5" Click="CancelButton_OnClick" Style="{StaticResource MaterialDesignFlatButton}">Cancel</Button>
+
+            <Button Name="RunButton" Style="{DynamicResource MaterialDesignFlatButton}" Click="RunButton_OnClick" IsEnabled="{Binding IsRunEnabled}"
+                    Foreground="{DynamicResource SecondaryHueMidBrush}">Run</Button>
+            <Button Name="CancelButton" Style="{DynamicResource MaterialDesignFlatButton}" Click="CancelButton_OnClick"
+                    Foreground="{DynamicResource SecondaryHueMidBrush}">Cancel</Button>
         </StackPanel>
     </StackPanel>
 </UserControl>
