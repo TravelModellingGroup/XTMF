@@ -578,13 +578,9 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(() =>
             {
-                CancelButton.IsEnabled = false;
-                ButtonProgressAssist.SetIsIndeterminate(CancelButton, false);
-                ButtonProgressAssist.SetIsIndicatorVisible(CancelButton, false);
-                //SetRunFinished(false);
                 ShowErrorMessages(new[] { error });
-                UpdateRunStatus?.Invoke("Runtime Error");
-                _runtimeValidationErrorOccured = true;
+                SetRunFinished(false);
+                UpdateRunStatus?.Invoke("Runtime Error");                
                 RuntimeError?.Invoke(error);
                 OnRuntimeError?.Invoke();
             });

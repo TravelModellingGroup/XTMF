@@ -671,7 +671,9 @@ namespace XTMF.Gui.UserControls
             private void RuntimeError(ErrorWithPath errorWithPath)
             {
                 StatusText = "Runtime exception occurred.";
-                // StatusText = errorWithPath.Message;
+                _schedulerWindow.RemoveFromActiveRuns(this);
+                Icon = PackIconKind.Alert;
+                HasError = true;
             }
 
             /// <summary>
