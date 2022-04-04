@@ -33,7 +33,6 @@ namespace XTMF.Gui.Util
         /// </summary>
         public static void InitializeNotificationIcon()
         {
-
             try
             {
                 ushort uicon;

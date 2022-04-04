@@ -47,8 +47,6 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
         }
 
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -58,7 +56,6 @@ namespace XTMF.Gui.UserControls
         {
             var item = (SchedulerWindow.SchedulerRunItemDisplayModel)_schedulerWindow.ScheduledRuns.SelectedItem;
             item.RunWindow.CancelRun();
-
         }
 
         /// <summary>
@@ -148,13 +145,10 @@ namespace XTMF.Gui.UserControls
         {
             base.OnDrop(e);
             this.HideDragAdorner();
-
             SchedulerWindow.SchedulerRunItemDisplayModel item = e.Data.GetData("RunItem") as SchedulerWindow.SchedulerRunItemDisplayModel;
             int draggedIndex = (int)e.Data.GetData("Index");
             var thisIndex = this._schedulerWindow.ScheduledRuns.Items.IndexOf(this.DataContext);
             this._schedulerWindow.MoveQueueInsert((SchedulerWindow.SchedulerRunItemDisplayModel)item,draggedIndex,thisIndex);
-
-
         }
 
         /// <summary>
@@ -188,7 +182,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         protected override void OnDragOver(DragEventArgs e)
         {
-
             base.OnDragOver(e);
             var model = DataContext as SchedulerWindow.SchedulerRunItemDisplayModel;
             if (model.IsRunStarted)
@@ -204,7 +197,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         protected override void OnDragEnter(DragEventArgs e)
         {
-
             base.OnDragEnter(e);
             SchedulerWindow.SchedulerRunItemDisplayModel model = e.Data.GetData("RunItem") as SchedulerWindow.SchedulerRunItemDisplayModel;
             int draggedIndex = (int) e.Data.GetData("Index");
@@ -249,7 +241,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
         /// <summary>
         /// 
         /// </summary>
@@ -261,9 +252,6 @@ namespace XTMF.Gui.UserControls
             var layer = AdornerLayer.GetAdornerLayer(this);
             DragDropAdorner moveAdorner = new DragDropAdorner(this);
             layer.Add(moveAdorner);
-
-            
-
         }
     }
 }

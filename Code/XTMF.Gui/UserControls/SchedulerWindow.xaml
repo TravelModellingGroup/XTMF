@@ -11,7 +11,7 @@
 
         <Border x:Key="DefaultDisplay" Background="{DynamicResource MaterialDesignPaper}">
             <TextBlock Text="No run currently selected." HorizontalAlignment="Center" VerticalAlignment="Center"
-                       FontSize="32" Opacity="0.8" Foreground="{DynamicResource MaterialDesignBody}" />
+                       FontSize="32" Opacity="0.8" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" />
         </Border>
     </UserControl.Resources>
     <Grid Name="LayoutRoot">
@@ -20,9 +20,9 @@
                 <local:ModelSystemErrorDisplayModel />
             </materialDesign:DialogHost.DataContext>
             <materialDesign:DialogHost.DialogContent>
-                <StackPanel Margin="5">
+                <StackPanel Margin="5" Background="{DynamicResource MaterialDesignCardBackground}">
                     <TextBox Name="StackTraceTextBox" FontSize="14" MinWidth="400" MinHeight="100" IsReadOnly="True"
-                             Foreground="{DynamicResource MaterialDesignBody1}" Text="{Binding StackTrace}" />
+                             Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Text="{Binding StackTrace}" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <TextBlock HorizontalAlignment="Center" Margin="0 5 5 5">
                             <Hyperlink Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .,ElementName=SchedulerWindow}"

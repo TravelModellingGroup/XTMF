@@ -230,9 +230,6 @@
     <Compile Include="UserControls\Interfaces\IResumableControl.cs" />
     <Compile Include="UserControls\Interfaces\ITabCloseListener.cs" />
     <Compile Include="UserControls\InterTabClient.cs" />
-    <Compile Include="UserControls\LoggingControl.xaml.cs">
-      <DependentUpon>LoggingControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UserControls\ModelSystemDisplay\ModelSystemDisplay_ParameterDisplays.xaml.cs" />
     <Compile Include="UserControls\ModelSystemDisplay\ModelSystemDisplay_EventHandlers.xaml.cs" />
     <Compile Include="UserControls\ModelSystemDisplay\ModelSystemRegionViewDisplay.xaml.cs">
@@ -403,10 +400,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\FlatToolButton.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\LoggingControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

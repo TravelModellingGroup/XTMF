@@ -81,32 +81,6 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        ///     Removes a RunWindow from the SchedulerWindow
-        /// </summary>
-        /// <param name="run"></param>
-        public void CloseRun(RunWindow run)
-        {
-            SchedulerRunItemDisplayModel toRemove = null;
-            foreach (SchedulerRunItemDisplayModel item in FinishedRuns.Items)
-            {
-                if (item.RunWindow == run)
-                {
-                    toRemove = item;
-                    break;
-                }
-            }
-
-            if (toRemove != null)
-            {
-                FinishedRuns.Items.Remove(toRemove);
-            }
-
-            var defaultd = Resources["DefaultDisplay"];
-            Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
-            FinishedRuns.Items.Refresh();
-        }
-
-        /// <summary>
         ///     copy to clipboard (stack trace)
         /// </summary>
         /// <param name="sender"></param>
@@ -194,10 +168,12 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(() =>
             {
                 ScheduledRuns.Items.Remove(runItemDisplayModel);
-                FinishedRuns.Items.Insert(0, runItemDisplayModel);
-
-                var defaultd = Resources["DefaultDisplay"];
-                Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
+                if (!FinishedRuns.Items.Contains(runItemDisplayModel))
+                {
+                    FinishedRuns.Items.Insert(0, runItemDisplayModel);
+                    var defaultd = Resources["DefaultDisplay"];
+                    Dispatcher.Invoke(() => { ActiveRunContent.DataContext = Resources["DefaultDisplay"]; });
+                }
             });
         }
 
@@ -228,9 +204,9 @@ namespace XTMF.Gui.UserControls
         {
             Dispatcher.Invoke(() =>
             {
-                foreach(var item in FinishedRuns.Items)
+                foreach (var item in FinishedRuns.Items)
                 {
-                    if(item is SchedulerRunItemDisplayModel run)
+                    if (item is SchedulerRunItemDisplayModel run)
                     {
                         run.RunWindow.ClearRun();
                     }
@@ -594,7 +570,27 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
+            /// <summary>
+            /// </summary>
+            /// <param name="errorWithPath"></param>
+            private void RuntimeError(ErrorWithPath errorWithPath)
+            {
+                StatusText = "Runtime exception occurred.";
+                _schedulerWindow.RemoveFromActiveRuns(this);
+                Icon = PackIconKind.Alert;
+                HasError = true;
+            }
 
+            /// <summary>
+            /// </summary>
+            /// <param name="errorWithPaths"></param>
+            private void OnValidationError(List<ErrorWithPath> errorWithPaths)
+            {
+                StatusText = "Validation error occurred";
+                _schedulerWindow.RemoveFromActiveRuns(this);
+                Icon = PackIconKind.Alert;
+                HasError = true;
+            }
 
             /// <summary>
             /// </summary>
@@ -602,9 +598,7 @@ namespace XTMF.Gui.UserControls
             {
                 XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
                     () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
-
                 Icon = PackIconKind.Exclamation;
-
                 HasError = true;
             }
 
@@ -613,9 +607,8 @@ namespace XTMF.Gui.UserControls
             /// </summary>
             private void OnRuntimeValidationError()
             {
-                XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
+                XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a validation exception.",
                     () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
-
                 Icon = PackIconKind.AlertBox;
                 HasError = true;
             }
@@ -663,28 +656,6 @@ namespace XTMF.Gui.UserControls
                     Icon = PackIconKind.CheckCircleOutline;
                     StatusText = "Run finished successfully.";
                 }
-            }
-
-            /// <summary>
-            /// </summary>
-            /// <param name="errorWithPath"></param>
-            private void RuntimeError(ErrorWithPath errorWithPath)
-            {
-                StatusText = "Runtime exception occurred.";
-                _schedulerWindow.RemoveFromActiveRuns(this);
-                Icon = PackIconKind.Alert;
-                HasError = true;
-            }
-
-            /// <summary>
-            /// </summary>
-            /// <param name="errorWithPaths"></param>
-            private void OnValidationError(List<ErrorWithPath> errorWithPaths)
-            {
-                StatusText = "Validation error occurred";
-                _schedulerWindow.RemoveFromActiveRuns(this);
-                Icon = PackIconKind.Alert;
-                HasError = true;
             }
 
             [NotifyPropertyChangedInvocator]

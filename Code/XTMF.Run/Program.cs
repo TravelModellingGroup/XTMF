@@ -152,10 +152,10 @@ namespace XTMF.Run
                                         break;
                                     case ToClient.CancelModelRun:
                                         CancelModelSystem(root);
-                                        Console.WriteLine("Model System canceled by host.");
+                                        Console.WriteLine("Model System cancelled by host.");
                                         return;
                                     case ToClient.KillModelRun:
-                                        Console.WriteLine("Model system termination signaled.");
+                                        Console.WriteLine("Model system termination signalled.");
                                         return;
                                     default:
                                         Console.WriteLine("Unknown command!");
@@ -208,7 +208,6 @@ namespace XTMF.Run
                 };
                 run.RuntimeValidationError += (message) =>
                 {
-              
                     WriteMessageToStream(messageQueue, (writer) =>
                     {
                         writer.Write((Int32)ToHost.ClientErrorRuntimeValidation);

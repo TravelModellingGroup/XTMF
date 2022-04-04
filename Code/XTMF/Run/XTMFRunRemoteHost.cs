@@ -109,7 +109,6 @@ namespace XTMF.Run
             // terminated
             _Pipe?.Dispose();
             ClientExiting.Release();
-            InvokeRunCompleted();
         }
 
         private void RequestSignal(ToClient signal)
@@ -128,16 +127,6 @@ namespace XTMF.Run
                 }
 
             }
-        }
-
-        private void RequestRemoteProgress()
-        {
-            RequestSignal(ToClient.RequestProgress);
-        }
-
-        private void RequestRemoteStatus()
-        {
-            RequestSignal(ToClient.RequestStatus);
         }
 
         private void InitializeClientAndSendModelSystem()
@@ -188,6 +177,7 @@ namespace XTMF.Run
                                     break;
                                 case ToHost.ClientFinishedModelSystem:
                                 case ToHost.ClientExiting:
+                                    InvokeRunCompleted();
                                     return;
                                 case ToHost.ProjectSaved:
                                     LoadAndSignalModelSystem(reader);
@@ -202,6 +192,8 @@ namespace XTMF.Run
                             Console.WriteLine(e);
                         }
                     }
+                    // If we get here then the client has disconnected
+                    InvokeRuntimeError(new ErrorWithPath(null, "Run process was terminated!"));
                 }
                 finally
                 {
