@@ -58,7 +58,7 @@ namespace TMG.Frameworks.Testing
             //throw new dummy exception
             if (ThrowXTMFRuntimeException)
             {
-                throw new XTMFRuntimeException(this, "The requested runtime exception has been generatied!");
+                throw new XTMFRuntimeException(this, "The requested runtime exception has been generated!");
             }
             else
             {
