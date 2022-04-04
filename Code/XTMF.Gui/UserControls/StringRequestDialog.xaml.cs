@@ -101,15 +101,25 @@ namespace XTMF.Gui.UserControls
             }
             else if (e.Key == Key.Escape)
             {
-                DidComplete = false;
-                e.Handled = true;
-                try
-                {
-                    this._dialogSession.Close(false);
-                }
-                catch
-                {
-                }
+                Cancel(e);
+            }
+        }
+
+        private void OnClose_Clicked(object sender, MouseButtonEventArgs e)
+        {
+            Cancel(e);
+        }
+
+        private void Cancel(RoutedEventArgs e)
+        {
+            DidComplete = false;
+            e.Handled = true;
+            try
+            {
+                this._dialogSession.Close(false);
+            }
+            catch
+            {
             }
         }
 

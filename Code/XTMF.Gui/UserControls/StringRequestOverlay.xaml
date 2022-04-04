@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,17 +26,16 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"  
              d:DesignHeight="300" d:DesignWidth="300" IsVisibleChanged="UserControl_IsVisibleChanged">
-    <Grid VerticalAlignment="Center" HorizontalAlignment="Center"  Background="{DynamicResource MaterialDesignBackground}">
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center"  Background="{DynamicResource MaterialDesignCardBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Border Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Right" Width="20" ToolTip="Cancel" MouseLeftButtonDown="OnClose_Clicked">
+        <Border Grid.Row="0" HorizontalAlignment="Right" Width="20" ToolTip="Cancel" MouseLeftButtonDown="OnClose_Clicked">
             <Border.Style>
                 <Style TargetType="{x:Type Border}">
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-
                             <Setter Property="Cursor" Value="Hand"/>
                             <Setter Property="Opacity" Value="1.0"/>
                         </Trigger>
@@ -61,7 +60,7 @@
                         <TextBox Margin="0,0,0,0" Name="StringInput" KeyDown="StringInput_OnKeyDown"
                                 Width="500" Height="25" VerticalContentAlignment="Center"
                                 Foreground="{DynamicResource MaterialDesignBody}" Background="{DynamicResource MaterialDesignPaper}"/>
-                        <local:FlatButton Width="30" VerticalAlignment="Stretch" ToolText="OK" Click="FlatButton_OnClick" />
+                        <Button VerticalAlignment="Stretch" Click="FlatButton_OnClick">OK</Button>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>

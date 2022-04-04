@@ -245,25 +245,7 @@ namespace XTMF.Gui.UserControls
         {
             if (Display.SelectedItem is Project project)
             {
-                
-    
-
                 string error = null;
-                /*StringRequest sr = new StringRequest("Clone Project As?",
-                    newName => { return Runtime.ProjectController.ValidateProjectName(newName); });
-          
-                if (sr.ShowDialog() == true)
-                {
-                    if (!Runtime.ProjectController.CloneProject(project, sr.Answer, ref error))
-                    {
-                        MessageBox.Show(GetWindow(), error, "Unable to Clone Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                        return;
-                    }
-                    Runtime.Configuration.AddRecentProject(sr.Answer);
-                    Runtime.Configuration.Save();
-                    RefreshProjects();
-                } */
-
                 StringRequestDialog dialog = 
                     new StringRequestDialog("Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); }, null);
                 var result = await dialog.ShowAsync();
@@ -278,7 +260,6 @@ namespace XTMF.Gui.UserControls
                     Runtime.Configuration.Save();
                     RefreshProjects();
                 }
-
             }
         }
 

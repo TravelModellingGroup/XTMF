@@ -126,8 +126,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -157,9 +155,7 @@ namespace XTMF.Gui.UserControls
                 ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>();
                 LinkedParameterValue.Text = "";
                 LinkedParameterName.Text = "";
-                ;
             }
-
         }
 
         /// <summary>
@@ -333,8 +329,6 @@ namespace XTMF.Gui.UserControls
             if (Display.SelectedItem is LinkedParameterDisplayModel selectedLinkedParameter)
             {
                 string error = null;
-                var index = _linkedParametersModel.GetLinkedParameters()
-                    .IndexOf(selectedLinkedParameter.LinkedParameter);
                 if (!_linkedParametersModel.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
                 {
                     MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK,

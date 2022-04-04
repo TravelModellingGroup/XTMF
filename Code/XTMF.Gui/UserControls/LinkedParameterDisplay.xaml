@@ -70,7 +70,8 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Button Margin="8" TabIndex="3" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
+                <Button Margin="8" TabIndex="3" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center"
+                        Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Pencil" />
                         <StackPanel Orientation="Vertical">
