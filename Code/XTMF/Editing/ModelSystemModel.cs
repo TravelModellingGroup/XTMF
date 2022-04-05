@@ -388,10 +388,15 @@ namespace XTMF
         /// <param name="runFile"></param>
         private void LoadModelSystemFromFile(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, string runFile)
         {
-            Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
+            string error = null;
+            if (!runtime.ModelSystemController.LoadDetachedModelSystemFromFile(runFile, out var modelSystem, ref error))
+            {
+                throw new Exception(error);
+            }
+            Root = new ModelSystemStructureModel(modelSystemEditingSession, modelSystem.ModelSystemStructure as ModelSystemStructure);
             Root.PropertyChanged += Root_PropertyChanged;
-            LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, new List<ILinkedParameter>());
-            RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession, this, new List<IRegionDisplay>(),Root);
+            LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, modelSystem.LinkedParameters);
+            RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession, this, modelSystem.RegionDisplays, Root);
         }
 
         private void Root_PropertyChanged(object sender, PropertyChangedEventArgs e)
