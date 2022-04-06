@@ -124,7 +124,15 @@ If a directory with the same name exists already, it will be deleted before the 
                         }
                         else
                         {
-                            File.Copy( sourceLocation, Destination.GetFilePath(), true );
+                            var destinationPath = Destination.GetFilePath();
+                            if (Directory.Exists(destinationPath))
+                            {
+                                File.Copy(sourceLocation, Path.Combine(destinationPath, Path.GetFileName(sourceLocation)), true);
+                            }
+                            else
+                            {
+                                File.Copy(sourceLocation, Destination.GetFilePath(), true);
+                            }
                         }
                     }
                 }
