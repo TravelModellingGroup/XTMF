@@ -85,6 +85,7 @@
                             <Condition Property="IsSelected" Value="True" />
                         </MultiTrigger.Conditions>
                         <Setter Property="Background" Value="{DynamicResource SecondaryHueDarkBrush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SecondaryHueDarkForegroundBrush}" />
                     </MultiTrigger>
                 </Style.Triggers>
             </Style>
