@@ -34,7 +34,8 @@
             </Border.Style>
             <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"/>
         </Border>
-        <TextBox  Grid.Row="1" Grid.Column="0"  MinWidth="300" x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"
+        <TextBox Grid.Row="1" Grid.Column="0"  MinWidth="300" x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"
+                 FontSize="14"
                   Style="{DynamicResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Stretch">
             <TextBox.Text>
                 <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">

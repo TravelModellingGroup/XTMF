@@ -26,192 +26,188 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              MouseDown="UserControl_MouseDown" 
               KeyDown="Window_KeyDown" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown" GotFocus="UserControl_GotFocus" IsVisibleChanged="UserControl_IsVisibleChanged">
-    <Grid x:Name="LayoutRoot">
-        <Grid x:Name="Overlay" Panel.ZIndex="1000" Visibility="Collapsed">
-            <Grid.Background>
-                <SolidColorBrush Color="Black" Opacity=".6"/>
-            </Grid.Background>
-            <xtmfgui:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay" />
-        </Grid>
-        <Grid MinWidth="800" MinHeight="500" MaxHeight="500" VerticalAlignment="Center" HorizontalAlignment="Center" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
-                <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,0,0">
-                    <Border DockPanel.Dock="Left">
-                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal"/>
-                    </Border>
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
-                        <Border Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Right" Width="20" Margin="0,0,0,0" MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown">
-                            <Border.Style>
-                                <Style TargetType="{x:Type Border}">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                           
-                                            <Setter Property="Cursor" Value="Hand"/>
-                                            <Setter Property="Opacity" Value="1.0"/>
-                                        </Trigger>
-                                        <Trigger Property="IsMouseOver" Value="False">
-                                            <Setter Property="Opacity" Value="0.5"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"/>
+    <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" Name="RootDialogHost">
+        <Grid x:Name="LayoutRoot">
+            <Grid MinWidth="800" MinHeight="500" MaxHeight="500" VerticalAlignment="Center" HorizontalAlignment="Center" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
+                    <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,0,0">
+                        <Border DockPanel.Dock="Left">
+                            <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal"/>
                         </Border>
-                    </StackPanel>
-                </DockPanel>
-            </Border>
-            <Grid Grid.Row="2" Margin="0" Background="{DynamicResource MaterialDesignPaper}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Button Margin="8" TabIndex="3" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Pencil" />
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock>New Linked Parameter</TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                </Button>
-                <DockPanel Grid.Column="1"/>
-            </Grid>
-            
-            <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" MinWidth="325" />
-                    <ColumnDefinition Width="AUTO" />
-                    <ColumnDefinition Width="*" MinWidth="50"/>
-                </Grid.ColumnDefinitions>
-                <Grid Grid.Column="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="AUTO" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1" Grid.Row="0"
-                                              Margin="0 0 0 15"
-                                              materialDesign:ShadowAssist.ShadowDepth="Depth4">
-                        <my:FilterBox Grid.Row="0" TabIndex="1" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="0" materialDesign:ShadowAssist.ShadowDepth="Depth4" />
-                    </materialDesign:ColorZone>
-                    <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0" MouseDoubleClick="Display_OnMouseDoubleClick">
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel  Orientation="Vertical" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}"></TextBlock>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                        <ListView.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Rename (F2)" Click="Rename_Click">
-                                    <MenuItem.Icon>
-                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Delete" Click="RemoveLinkedParameter_Click">
-                                    <MenuItem.Icon>
-                                        <ContentControl Template="{DynamicResource CancelIcon}" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                            </ContextMenu>
-                        </ListView.ContextMenu>
-                    </ListView>
-                </Grid>
-                <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource MaterialDesignPaper}" ShowsPreview="True" />
-                <Grid Grid.Column="2" Background="{DynamicResource MaterialDesignPaper}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="AUTO" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <GroupBox Grid.Row="0" Margin="10"  Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Parameter Properties"  >
-                        
-                    <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignBackground}" >
-                        <StackPanel>
-                            <!--<Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignBackground}"/> -->
-                            <DockPanel FlowDirection="LeftToRight" >
-                                    <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
-                                <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"  IsReadOnly="True"></TextBox>
-                                <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" IsReadOnly="True"/>-->
-                            </DockPanel>
-                            <DockPanel FlowDirection="LeftToRight" >
-                                <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
-                                <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  IsReadOnly="False"></TextBox>
-                                <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}"/> -->
-                            </DockPanel>
-                        </StackPanel>
-                    </Border>
-                    </GroupBox>
-                    <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignPaper}">
-                        <Grid Background="{DynamicResource MaterialDesignPaper}" >
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="38"></RowDefinition>
-                                <RowDefinition Height="257"></RowDefinition>
-                            </Grid.RowDefinitions>
-                            <Label Grid.Row="0"  Content="Linked Parameters" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignPaper}"/>
-                            <ListView Grid.Row="1" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"
-                                      ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                      x:Name="ContainedParameterDisplay" Focusable="False" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}"
-                                      MouseDoubleClick="ContainedParameterDisplay_MouseDoubleClick">
-                                <ListView.Resources>
-                                    <Style TargetType="{x:Type ListViewItem}">
-                                        <Setter Property="BorderThickness" Value="0" />
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
+                            <Border Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Right" Width="20" Margin="0,0,0,0" MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown">
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="Transparent" />
-                                                <Setter Property="BorderBrush" Value="Transparent" />
-                                                <Setter Property="BorderThickness" Value="0" />
+
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Setter Property="Opacity" Value="1.0"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="False">
+                                                <Setter Property="Opacity" Value="0.5"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
-                                </ListView.Resources>
-                                <ListView.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" />
-                                    </ItemsPanelTemplate>
-                                </ListView.ItemsPanel>
-                                <ListView.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type xtmfgui:LinkedParameterDisplay+ParameterDisplay}">
-                                        <Border BorderBrush="Transparent" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
-                                            <Grid HorizontalAlignment="Stretch">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="50" />
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="AUTO" />
-                                                    <RowDefinition Height="AUTO" />
-                                                </Grid.RowDefinitions>
-                                                <Label Tag="{Binding ParameterName}" MouseDown="Unlink_MouseDown" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" Cursor="Hand" >
-                                                    <Label.Foreground>
-                                                        <SolidColorBrush Color="#FF0078D7"/>
-                                                    </Label.Foreground>
-                                                    <TextBlock TextDecorations="Underline">Unlink</TextBlock>
-                                                </Label>
-                                                <TextBlock Grid.Column="1" Margin="2" Grid.Row="0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" Text="Module Name" Opacity="0.995" />
-                                                <TextBlock Grid.Column="1" Margin="2" Grid.Row="1" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
-                                                <TextBlock Grid.Column="2" Margin="2" Grid.Row="0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" Text="Parameter Name" Opacity="0.995" />
-                                                <TextBlock Grid.Column="2" Grid.Row="1" Margin="2" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                        </Grid>
-                    </Border>
+                                </Border.Style>
+                                <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"/>
+                            </Border>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+                <Grid Grid.Row="2" Margin="0" Background="{DynamicResource MaterialDesignPaper}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Margin="8" TabIndex="3" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center"
+                        Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Pencil" />
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock>New Linked Parameter</TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </Button>
+                    <DockPanel Grid.Column="1"/>
+                </Grid>
+
+                <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="325" />
+                        <ColumnDefinition Width="AUTO" />
+                        <ColumnDefinition Width="*" MinWidth="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="AUTO" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1" Grid.Row="0"
+                                              Margin="0 0 0 15"
+                                              materialDesign:ShadowAssist.ShadowDepth="Depth4">
+                            <my:FilterBox Grid.Row="0" TabIndex="1" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="0" materialDesign:ShadowAssist.ShadowDepth="Depth4" />
+                        </materialDesign:ColorZone>
+                        <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
+                          Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0" MouseDoubleClick="Display_OnMouseDoubleClick">
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel  Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"></TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Rename (F2)" Click="Rename_Click">
+                                        <MenuItem.Icon>
+                                            <ContentControl Template="{DynamicResource RefreshIcon}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Delete" Click="RemoveLinkedParameter_Click">
+                                        <MenuItem.Icon>
+                                            <ContentControl Template="{DynamicResource CancelIcon}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                        </ListView>
+                    </Grid>
+                    <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource MaterialDesignPaper}" ShowsPreview="True" />
+                    <Grid Grid.Column="2" Background="{DynamicResource MaterialDesignPaper}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="AUTO" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <GroupBox Grid.Row="0" Margin="10"  Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Parameter Properties"  >
+
+                            <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignBackground}" >
+                                <StackPanel>
+                                    <!--<Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignBackground}"/> -->
+                                    <DockPanel FlowDirection="LeftToRight" >
+                                        <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
+                                        <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"  IsReadOnly="True"></TextBox>
+                                        <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" IsReadOnly="True"/>-->
+                                    </DockPanel>
+                                    <DockPanel FlowDirection="LeftToRight" >
+                                        <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
+                                        <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  IsReadOnly="False"></TextBox>
+                                        <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}"/> -->
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+                        </GroupBox>
+                        <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignPaper}">
+                            <Grid Background="{DynamicResource MaterialDesignPaper}" >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="38"></RowDefinition>
+                                    <RowDefinition Height="257"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0"  Content="Linked Parameters" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignPaper}"/>
+                                <ListView Grid.Row="1" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"
+                                      ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                      x:Name="ContainedParameterDisplay" Focusable="False" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}"
+                                      MouseDoubleClick="ContainedParameterDisplay_MouseDoubleClick">
+                                    <ListView.Resources>
+                                        <Style TargetType="{x:Type ListViewItem}">
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Setter Property="BorderBrush" Value="Transparent" />
+                                                    <Setter Property="BorderThickness" Value="0" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListView.Resources>
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type xtmfgui:LinkedParameterDisplay+ParameterDisplay}">
+                                            <Border BorderBrush="Transparent" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
+                                                <Grid HorizontalAlignment="Stretch">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="50" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="AUTO" />
+                                                        <RowDefinition Height="AUTO" />
+                                                    </Grid.RowDefinitions>
+                                                    <Label Tag="{Binding ParameterName}" MouseDown="Unlink_MouseDown" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" Cursor="Hand" >
+                                                        <Label.Foreground>
+                                                            <SolidColorBrush Color="#FF0078D7"/>
+                                                        </Label.Foreground>
+                                                        <TextBlock TextDecorations="Underline">Unlink</TextBlock>
+                                                    </Label>
+                                                    <TextBlock Grid.Column="1" Margin="2" Grid.Row="0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" Text="Module Name" Opacity="0.995" />
+                                                    <TextBlock Grid.Column="1" Margin="2" Grid.Row="1" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
+                                                    <TextBlock Grid.Column="2" Margin="2" Grid.Row="0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" Text="Parameter Name" Opacity="0.995" />
+                                                    <TextBlock Grid.Column="2" Grid.Row="1" Margin="2" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Grid>
+                        </Border>
+                    </Grid>
                 </Grid>
             </Grid>
         </Grid>
-    </Grid>
+    </materialDesign:DialogHost>
 </UserControl>
 
 

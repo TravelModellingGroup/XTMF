@@ -43,7 +43,7 @@ namespace XTMF.Gui.UserControls
         private LinkedParametersModel _linkedParametersModel;
 
         public Action<IModelSystemStructure> GoToModule;
-        
+
         public Action OnCloseDisplay;
 
         public bool IsAssignMode = false;
@@ -90,7 +90,7 @@ namespace XTMF.Gui.UserControls
             _currentlySelected = null;
             SelectedLinkParameter = null;
             LinkedParameterFilterBox.RetriveFocus();
-            FocusManager.SetFocusedElement(this,LinkedParameterFilterBox);
+            FocusManager.SetFocusedElement(this, LinkedParameterFilterBox);
         }
 
         /// <summary>
@@ -291,23 +291,15 @@ namespace XTMF.Gui.UserControls
         /// 
         /// </summary>
         /// <param name="obj"></param>
-        private void NewLinkedParameter_Clicked(object obj)
+        private async void NewLinkedParameter_Clicked(object obj)
         {
-            StringRequestOverlay.Description = "Name of new linked parameter:";
-            Overlay.Visibility = Visibility.Visible;
-            StringRequestOverlay.Visibility = Visibility.Visible;
-            StringRequestOverlay.StringEntryComplete = (sender, args) =>
+            var dialog = new StringRequestDialog(RootDialogHost, "New LinkedParameter Name", (value) => String.IsNullOrWhiteSpace(value), String.Empty);
+            await dialog.ShowAsync();
+
+            if (dialog.DidComplete)
             {
-                var name = StringRequestOverlay.StringEntryValue;
                 string error = null;
-                if (name == string.Empty || name == null)
-                {
-                    MessageBox.Show(MainWindow.Us, "Linked Parameter must have a name.",
-                        "Failed to create new Linked Parameter", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    return;
-                }
-                if (!_linkedParametersModel.NewLinkedParameter(name, ref error))
+                if (!_linkedParametersModel.NewLinkedParameter(dialog.UserInput, ref error))
                 {
                     MessageBox.Show(MainWindow.Us, error, "Failed to create new Linked Parameter", MessageBoxButton.OK,
                         MessageBoxImage.Error);
@@ -315,8 +307,7 @@ namespace XTMF.Gui.UserControls
                 }
                 SetupLinkedParameters(_linkedParametersModel);
                 ChangesMade = true;
-                StringRequestOverlay.Reset();
-            };
+            }
         }
 
         /// <summary>
@@ -467,14 +458,14 @@ namespace XTMF.Gui.UserControls
 
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            
-                e.Handled = true;
-                AssignCurrentlySelected();
-                ChangesMade = true;
-                CleanupSelectedParameters();
-                DialogOpenedEventArgs.Session.Close();
-                OnCloseDisplay.BeginInvoke(null, null);
-           
+
+            e.Handled = true;
+            AssignCurrentlySelected();
+            ChangesMade = true;
+            CleanupSelectedParameters();
+            DialogOpenedEventArgs.Session.Close();
+            OnCloseDisplay.BeginInvoke(null, null);
+
         }
 
         /// <summary>
@@ -592,7 +583,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void UserControl_GotFocus(object sender, RoutedEventArgs e)
         {
-           
+
         }
 
         /// <summary>
