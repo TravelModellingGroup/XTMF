@@ -352,12 +352,6 @@
     <Compile Include="UserControls\StartWindow.xaml.cs">
       <DependentUpon>StartWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\StringRequest.xaml.cs">
-      <DependentUpon>StringRequest.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\StringRequestOverlay.xaml.cs">
-      <DependentUpon>StringRequestOverlay.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UserControls\TextboxAdorner.xaml.cs">
       <DependentUpon>TextboxAdorner.xaml</DependentUpon>
     </Compile>
@@ -556,14 +550,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\StartWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\StringRequest.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\StringRequestOverlay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

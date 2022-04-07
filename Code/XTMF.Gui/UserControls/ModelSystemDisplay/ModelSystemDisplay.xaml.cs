@@ -1165,17 +1165,20 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// </summary>
         /// <param name="saveAs"></param>
-        public void SaveRequested(bool saveAs)
+        public async void SaveRequested(bool saveAs)
         {
             string error = null;
             SaveCurrentlySelectedParameters();
             if (saveAs)
             {
-                var sr = new StringRequest("Save Model System As?",
-                    newName => { return Project.ValidateProjectName(newName); });
-                if (sr.ShowDialog() == true)
+                var dialog = new StringRequestDialog(RootDialogHost, "Save Model System As?", (newName) =>
                 {
-                    if (!Session.SaveAs(sr.Answer, ref error))
+                    return Project.ValidateProjectName(newName);
+                }, Session.Name);
+                await dialog.ShowAsync();
+                if (dialog.DidComplete)
+                {
+                    if (!Session.SaveAs(dialog.UserInput, ref error))
                     {
                         MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save",
                             MessageBoxButton.OK, MessageBoxImage.Error);
@@ -1194,8 +1197,12 @@ namespace XTMF.Gui.UserControls
                         (Brush)FindResource("SecondaryHueMidBrush"));
                     SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
                 });
+                if(Session.IsSaving())
+                {
+                    return;
+                }
                 MainWindow.SetStatusText("Saving...");
-                Task.Run(() =>
+                await Task.Run(() =>
                 {
                     if (Session.SaveWait())
                     {
@@ -1232,7 +1239,6 @@ namespace XTMF.Gui.UserControls
                                 ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, false);
                                 ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton, Brushes.Transparent);
                                 ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton, Brushes.Transparent);
-                                //SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniButton");
                             });
                         }
                     }

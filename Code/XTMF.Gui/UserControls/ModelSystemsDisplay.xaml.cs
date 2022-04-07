@@ -219,22 +219,19 @@ namespace XTMF.Gui.UserControls
             RefreshModelSystems();
         }
 
-        private void CloneCurrentModelSystem()
+        private async void CloneCurrentModelSystem()
         {
             if (Display.SelectedItem is ModelSystem modelSystem)
             {
                 string error = null;
-                StringRequest sr = new StringRequest("Clone Model System As?", newName =>
+                var dialog = new StringRequestDialog(RootDialogHost, "Clone Model System As?", (newName) =>
                 {
-                    string e = null;
-                    return Runtime.ModelSystemController.ValidateModelSystemName(newName, ref e);
-                })
+                    return Runtime.ModelSystemController.ValidateModelSystemName(newName, ref error);
+                }, modelSystem.Name);
+                await dialog.ShowAsync();
+                if (dialog.DidComplete)
                 {
-                    Owner = GetWindow()
-                };
-                if (sr.ShowDialog() == true)
-                {
-                    if (!Runtime.ModelSystemController.CloneModelSystem(modelSystem, sr.Answer, ref error))
+                    if (!Runtime.ModelSystemController.CloneModelSystem(modelSystem, dialog.UserInput, ref error))
                     {
                         MessageBox.Show(GetWindow(), error, "Unable to Clone Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;

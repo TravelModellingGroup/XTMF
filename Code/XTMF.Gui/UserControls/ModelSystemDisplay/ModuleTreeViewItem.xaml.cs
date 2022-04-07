@@ -65,8 +65,17 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty IconPathDependencyProperty =
             DependencyProperty.Register("IconPath", typeof(Path), typeof(ModuleTreeViewItem), new PropertyMetadata(null));
 
-        public static readonly DependencyProperty CustomBackgrounDependencyProperty =
-            DependencyProperty.Register("CustomBackground", typeof(Brush), typeof(ModuleTreeViewItem), new PropertyMetadata(Brushes.Transparent));
+        public static readonly DependencyProperty CustomBackgroundDependencyProperty =
+             DependencyProperty.Register("CustomBackground", typeof(Brush), typeof(ModuleTreeViewItem), new PropertyMetadata(Brushes.Transparent));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Brush CustomBackground
+        {
+            get => (Brush)GetValue(CustomBackgroundDependencyProperty);
+            set => SetValue(CustomBackgroundDependencyProperty, value);
+        }
 
 
         public static readonly DependencyProperty ModelSystemTreeViewDisplayDependencyProperty =
@@ -84,14 +93,14 @@ namespace XTMF.Gui.UserControls
             }
             set
             {
-                SetValue(ModelSystemTreeViewDisplayDependencyProperty,value);
+                SetValue(ModelSystemTreeViewDisplayDependencyProperty, value);
             }
         }
-
 
         public static ModuleTreeViewItem ActiveDragItem { get; set; }
 
         public static DataObject DragData { get; set; }
+
         public PackIconKind Icon { get; set; }
 
 
@@ -103,10 +112,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             Loaded += ModuleTreeViewItem_Loaded;
             MouseMove += OnMouseMove;
-           
-
         }
-
 
         /// <summary>
         /// 
@@ -128,7 +134,7 @@ namespace XTMF.Gui.UserControls
                     ActiveDragItem = this;
                     DragDrop.DoDragDrop(ActiveDragItem, DragData, DragDropEffects.Move);
                 }
-                else if(ModelSystemTreeViewDisplay.IsDragActive)
+                else if (ModelSystemTreeViewDisplay.IsDragActive)
                 {
                     DragDrop.DoDragDrop(ActiveDragItem, DragData, DragDropEffects.Move);
                     e.Handled = true;
@@ -137,16 +143,6 @@ namespace XTMF.Gui.UserControls
             }
 
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Brush CustomBackground
-        {
-            get => (Brush)GetValue(CustomBackgrounDependencyProperty);
-            set => SetValue(CustomBackgrounDependencyProperty,value);
-        }
-
 
         /// <summary>
         /// 
@@ -261,7 +257,7 @@ namespace XTMF.Gui.UserControls
                         {
                             try
                             {
-                                iconKind = (PackIconKind) System.Enum.Parse(typeof(PackIconKind), info.IconURI);
+                                iconKind = (PackIconKind)System.Enum.Parse(typeof(PackIconKind), info.IconURI);
                                 PackIcon.ShowMinorIcon = false;
                                 hasCustomIcon = true;
                             }
@@ -277,7 +273,7 @@ namespace XTMF.Gui.UserControls
 
             if (BackingModel.BaseModel.IsMetaModule && !hasCustomIcon)
             {
-                IconPath = new Path {Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"]};
+                IconPath = new Path { Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"] };
                 PathBorder.Visibility = Visibility.Visible;
             }
             else if (BackingModel.BaseModel.IsMetaModule && hasCustomIcon)
@@ -299,7 +295,7 @@ namespace XTMF.Gui.UserControls
             {
                 IconPath = new Path
                 {
-                    Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"],
+                    Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"],
                 };
                 if (hasCustomIcon)
                 {
@@ -321,7 +317,7 @@ namespace XTMF.Gui.UserControls
             }
             else if (BackingModel.BaseModel.IsCollection)
             {
-                IconPath = new Path {Data = (PathGeometry) Application.Current.Resources["CollectionIconPath"]};
+                IconPath = new Path { Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"] };
                 PathBorder.Visibility = Visibility.Visible;
                 //PackIcon.Kind = PackIconKind.ViewList;
             }
@@ -439,7 +435,7 @@ namespace XTMF.Gui.UserControls
                     NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
                     NotificationIcon.Visibility = Visibility.Visible;
                     NotificationIcon.Fill = Brushes.OliveDrab;
-                   
+
                 }
                 else if (!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
                 {
@@ -462,7 +458,7 @@ namespace XTMF.Gui.UserControls
                     InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
                     BlockBorder.Opacity = 0.7;
                 }
-                else if(BackingModel.Type == null && !BackingModel.IsCollection)
+                else if (BackingModel.Type == null && !BackingModel.IsCollection)
                 {
                     ContentBorder.BorderThickness = new Thickness(1);
                     ContentBorder.BorderBrush = new SolidColorBrush(Colors.OliveDrab);
@@ -579,7 +575,7 @@ namespace XTMF.Gui.UserControls
         private void ModuleTreeViewItem_OnGiveFeedback(object sender, GiveFeedbackEventArgs e)
         {
             base.OnGiveFeedback(e);
-            
+
             e.Handled = true;
         }
     }

@@ -752,6 +752,21 @@ namespace XTMF
                 return false;
             }
         }
+
+        /// <summary>
+        /// Test to see if the model system is in the middle of saving.
+        /// </summary>
+        /// <returns>True if the model system session is currently saving.</returns>
+        public bool IsSaving()
+        {
+            var gotLock = _saveSemaphor.WaitOne(0, false);
+            if(gotLock)
+            {
+                _saveSemaphor.Release();
+                return false;
+            }
+            return false;
+        }
     }
 
 
