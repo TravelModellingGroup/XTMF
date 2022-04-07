@@ -215,7 +215,7 @@ namespace XTMF.Gui.UserControls
 
         private void CreateNewModelSystem()
         {
-            MainWindow.Us.NewModelSystem();
+            MainWindow.Us.NewModelSystem(RootDialogHost);
             RefreshModelSystems();
         }
 
@@ -309,7 +309,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void NewModelSystemStackPanel_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            MainWindow.Us.NewModelSystem();
+            MainWindow.Us.NewModelSystem(RootDialogHost);
             RefreshModelSystems();
         }
 
@@ -335,7 +335,7 @@ namespace XTMF.Gui.UserControls
 
         private void NewModelSystemButton_OnClick(object sender, RoutedEventArgs e)
         {
-            MainWindow.Us.NewModelSystem();
+            MainWindow.Us.NewModelSystem(RootDialogHost);
             RefreshModelSystems();
         }
 

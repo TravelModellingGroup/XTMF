@@ -36,6 +36,7 @@ using System.Windows.Media.Animation;
 using Dragablz;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
+using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
@@ -490,14 +491,14 @@ namespace XTMF.Gui
 
         private void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
         {
-            NewModelSystem();
+            NewModelSystem(RootDialogHost);
         }
 
         /// <summary>
         /// </summary>
-        public async void NewModelSystem()
+        public async void NewModelSystem(DialogHost host)
         {
-            var dialog = new StringRequestDialog("Model System Name", ValidateName, null);
+            var dialog = new StringRequestDialog(host, "Model System Name", ValidateName, null);
             var result = await dialog.ShowAsync();
             if (dialog.DidComplete)
             {
@@ -511,9 +512,9 @@ namespace XTMF.Gui
         /// <summary>
         ///     Creates a dialog for the inputs required to create a new project
         /// </summary>
-        public async void NewProject()
+        public async void NewProject(DialogHost host)
         {
-            var dialog = new StringRequestDialog("Project Name", ValidateName, null);
+            var dialog = new StringRequestDialog(host, "Project Name", ValidateName, null);
             _isDialogOpen = true;
             var result = await dialog.ShowAsync();
             
@@ -954,7 +955,7 @@ namespace XTMF.Gui
 
         private void NewProjectButton_Click(object sender, MouseButtonEventArgs e)
         {
-            NewProject();
+            NewProject(RootDialogHost);
         }
 
         /// <summary>

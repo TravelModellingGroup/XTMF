@@ -170,7 +170,7 @@ namespace XTMF.Gui.UserControls
 
         private void CreateNewProject()
         {
-            MainWindow.Us.NewProject();
+            MainWindow.Us.NewProject(RootDialogHost);
             RefreshProjects();
         }
 
@@ -247,7 +247,7 @@ namespace XTMF.Gui.UserControls
             {
                 string error = null;
                 StringRequestDialog dialog = 
-                    new StringRequestDialog("Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); }, null);
+                    new StringRequestDialog(RootDialogHost, "Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); }, null);
                 var result = await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {

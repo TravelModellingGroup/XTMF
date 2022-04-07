@@ -165,7 +165,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private async Task ShowCreateNewRegionDisplayDialog()
         {
-            var dialog = new StringRequestDialog("Enter a name for the region display.", s => s.Trim().Length > 0, null);
+            var dialog = new StringRequestDialog(MainWindow.Us.RootDialogHost, "Enter a name for the region display.", s => s.Trim().Length > 0, null);
             try
             {
                 var result = await dialog.ShowAsync(false);
@@ -184,7 +184,7 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         private async Task ShowCreateNewGroupDisplayDialog()
         {
-            var dialog = new StringRequestDialog("Enter a name for the group.", s => s.Trim().Length > 0, null);
+            var dialog = new StringRequestDialog(MainWindow.Us.RootDialogHost, "Enter a name for the group.", s => s.Trim().Length > 0, null);
             try
             {
                 var result = await dialog.ShowAsync(false);
@@ -494,7 +494,7 @@ namespace XTMF.Gui.UserControls
         private async void EditRegionDisplayButton_Click(object sender, RoutedEventArgs e)
         {
             var display = (RegionsComboBox.SelectedItem as RegionDisplayModel)?.Model;
-            var dialog = new StringRequestDialog("Enter a new name for the region display.", s => s.Trim().Length > 0, display.Name);
+            var dialog = new StringRequestDialog(MainWindow.Us.RootDialogHost, "Enter a new name for the region display.", s => s.Trim().Length > 0, display.Name);
             try
             {
                 dialog.UserInput = display.Name;

@@ -52,8 +52,11 @@ namespace XTMF.Gui.UserControls
 
         private DialogSession _dialogSession;
 
-        public StringRequestDialog(string question, Func<string, bool> validation, string startingText)
+        private DialogHost _host;
+
+        public StringRequestDialog(DialogHost host, string question, Func<string, bool> validation, string startingText)
         {
+            _host = host;
             DataContext = this;
             _validation = validation;
             QuestionText = question;
@@ -82,8 +85,8 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public async Task<object> ShowAsync(bool allowClickToClose = true)
         {
-            MainWindow.Us.RootDialogHost.CloseOnClickAway = allowClickToClose;
-            return await DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler);
+            _host.CloseOnClickAway = allowClickToClose;
+            return await _host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler);
         }
 
         /// <summary>

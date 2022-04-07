@@ -38,121 +38,122 @@
             </models:ViewModelBase.ContentPresenter>
         </models:ViewModelBase>
     </UserControl.DataContext>
-
-    <Grid Background="{DynamicResource MaterialDesignPaper}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="AUTO" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="AUTO"/>
-        </Grid.RowDefinitions>
-        <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
+    <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" Name="RootDialogHost">
+        <Grid Background="{DynamicResource MaterialDesignPaper}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="AUTO" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="AUTO"/>
+            </Grid.RowDefinitions>
+            <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                   Margin="12 12 12 12"
                                   materialDesign:ShadowAssist.ShadowDepth="Depth4">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
-                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                </Button>
-                <my:FilterBox Grid.Column="1" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
-                <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2"/>
-            </Grid>
-        </materialDesign:ColorZone>
-        <ListView MouseDoubleClick="Control_OnMouseDoubleClick" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1"
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
+                        <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                    </Button>
+                    <my:FilterBox Grid.Column="1" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
+                    <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2"/>
+                </Grid>
+            </materialDesign:ColorZone>
+            <ListView MouseDoubleClick="Control_OnMouseDoubleClick" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1"
                   x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">
-                        <MenuItem.Icon>
-                            <ContentControl Template="{DynamicResource RefreshIcon}" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="Change _Description (Shift+F2)" Click="ChangeDescription_Click">
-                        <MenuItem.Icon>
-                            <ContentControl Template="{DynamicResource EditIcon}" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <Separator />
-                    <MenuItem Header="_New Project (Ctrl+N)" Click="NewProject_Click">
-                        <MenuItem.Icon>
-                            <ContentControl Template="{DynamicResource NewIcon}" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="_Clone Project (Ctrl+C)" Click="Clone_Click">
-                        <MenuItem.Icon>
-                            <ContentControl Template="{DynamicResource CopyIcon}" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="_Delete Project (Del)" Click="Delete_Click">
-                        <MenuItem.Icon>
-                            <ContentControl Template="{DynamicResource CancelIcon}" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                </ContextMenu>
-            </ListView.ContextMenu>
-            <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <VirtualizingStackPanel/>
-                </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <local:ListViewControl Margin="0" IsPathIcon="False"  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" IconKind="FolderOutline" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        <Grid  Margin="10 10 30 30"  Grid.Row="2" HorizontalAlignment="Right">
-            <local:PopupBoxEx 
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource RefreshIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Change _Description (Shift+F2)" Click="ChangeDescription_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource EditIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_New Project (Ctrl+N)" Click="NewProject_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource NewIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Clone Project (Ctrl+C)" Click="Clone_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource CopyIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Delete Project (Del)" Click="Delete_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource CancelIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <local:ListViewControl Margin="0" IsPathIcon="False"  MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" IconKind="FolderOutline" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Grid  Margin="10 10 30 30"  Grid.Row="2" HorizontalAlignment="Right">
+                <local:PopupBoxEx 
                 xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
                 UnfurlOrientation="Vertical" PopupMode="Click"
                 ToolTipService.Placement="Left">
-                <StackPanel>
-                    <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
-                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Create New project" Opacity="1.0"/>
-                        </Border>
-                        <Button Click="NewProject_Click">
-                            <local:PackIconOverlap IconKind="Folder" IconKindMinor="Plus" Foreground="{DynamicResource PrimaryHueDarkBrush}"
+                    <StackPanel>
+                        <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
+                            <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Create New project" Opacity="1.0"/>
+                            </Border>
+                            <Button Click="NewProject_Click">
+                                <local:PackIconOverlap IconKind="Folder" IconKindMinor="Plus" Foreground="{DynamicResource PrimaryHueDarkBrush}"
                                                    Width="24" Height="24"/>
-                        </Button>
-                    </StackPanel>
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
-                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Rename Project" Opacity="1.0"/>
-                        </Border>
-                        <Button Click="Rename_Click" >
-                            <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Refresh" />
-                        </Button>
-                    </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
+                            <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Rename Project" Opacity="1.0"/>
+                            </Border>
+                            <Button Click="Rename_Click" >
+                                <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Refresh" />
+                            </Button>
+                        </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
-                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Clone Project" Opacity="1.0"></Label>
-                        </Border>
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
+                            <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Clone Project" Opacity="1.0"></Label>
+                            </Border>
 
-                        <Button Click="Clone_Click" >
-                            <local:PackIconOverlap IconKind="Folder" IconKindMinor="ContentCopy" Foreground="{DynamicResource PrimaryHueDarkBrush}"
+                            <Button Click="Clone_Click" >
+                                <local:PackIconOverlap IconKind="Folder" IconKindMinor="ContentCopy" Foreground="{DynamicResource PrimaryHueDarkBrush}"
                                                    Width="24" Height="24"/>
-                        </Button>
-                    </StackPanel>
+                            </Button>
+                        </StackPanel>
 
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
-                        <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                            <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Delete Project" Opacity="1.0"/>
-                        </Border>
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
+                            <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Delete Project" Opacity="1.0"/>
+                            </Border>
 
-                        <Button Click="Delete_Click" >
-                            <local:PackIconOverlap IconKind="Folder" IconKindMinor="DeleteForever" Foreground="{DynamicResource PrimaryHueDarkBrush}"
+                            <Button Click="Delete_Click" >
+                                <local:PackIconOverlap IconKind="Folder" IconKindMinor="DeleteForever" Foreground="{DynamicResource PrimaryHueDarkBrush}"
                                                    Width="24" Height="24"/>
-                        </Button>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </local:PopupBoxEx>
+                </local:PopupBoxEx>
+            </Grid>
         </Grid>
-    </Grid>
+    </materialDesign:DialogHost>
 </UserControl>

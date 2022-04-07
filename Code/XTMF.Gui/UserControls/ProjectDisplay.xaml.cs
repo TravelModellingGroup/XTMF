@@ -479,7 +479,7 @@ namespace XTMF.Gui.UserControls
                 }
                 else
                 {
-                    var dialog = new StringRequestDialog("Save Model System As?",
+                    var dialog = new StringRequestDialog(RootDialogHost, "Save Model System As?",
                     newName => { return Session.ValidateModelSystemName(newName); },
                     selected.Name);
                     var result = await dialog.ShowAsync(true);
@@ -540,7 +540,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private async void CreateNewModelSystem()
         {
-            var dialog = new StringRequestDialog("Name of New Model System",
+            var dialog = new StringRequestDialog(RootDialogHost, "Name of New Model System",
                 newName => { return Session.ValidateModelSystemName(newName); }, null);
             var result = await dialog.ShowAsync(true);
             if (dialog.DidComplete)
@@ -625,7 +625,7 @@ namespace XTMF.Gui.UserControls
                  }; */
 
 
-                var dialog = new StringRequestDialog("Paste: Model System's Name?",
+                var dialog = new StringRequestDialog(RootDialogHost, "Paste: Model System's Name?",
                     newName => Session.ValidateModelSystemName(newName), cloned.Name);
 
                 var aresult = await dialog.ShowAsync(false);
@@ -692,7 +692,7 @@ namespace XTMF.Gui.UserControls
                         {
                             string error = null;
 
-                            var dialog = new StringRequestDialog("Model System Name",
+                            var dialog = new StringRequestDialog(RootDialogHost, "Model System Name",
                                 newName => Session.ValidateModelSystemName(newName), realSession.Name);
 
                             var result = await dialog.ShowAsync(false);
@@ -730,7 +730,7 @@ namespace XTMF.Gui.UserControls
                         var modelSystem = ModelSystem.LoadDetachedModelSystem(fileDialog.OpenFile(),
                             EditorController.Runtime.Configuration,
                             ref error);
-                        var dialog = new StringRequestDialog("Save Model System As?",
+                        var dialog = new StringRequestDialog(RootDialogHost, "Save Model System As?",
                             newName => Session.ValidateModelSystemName(newName), modelSystem?.ModelSystemStructure?.Name);
                         var aresult = await dialog.ShowAsync(false);
                         if (dialog.DidComplete)

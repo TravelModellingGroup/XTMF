@@ -72,7 +72,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            MainWindow.Us.NewProject();
+            MainWindow.Us.NewProject(MainWindow.Us.RootDialogHost);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void CreateNewModelSystemButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow.Us.NewModelSystem();
+            MainWindow.Us.NewModelSystem(MainWindow.Us.RootDialogHost);
         }
 
         /// <summary>
