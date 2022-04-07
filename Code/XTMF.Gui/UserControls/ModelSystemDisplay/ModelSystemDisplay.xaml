@@ -217,24 +217,6 @@
                                         <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                     </Button>
                                     <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
-
-                                </Grid>
-                                <Grid>
-                                    <ListBox Margin="10 10 0 10"  Style="{StaticResource MaterialDesignToolToggleListBox}" SelectedIndex="0">
-                                        <ListBox.ToolTip>
-                                            <StackPanel>
-                                                <TextBlock Text="MaterialDesignToolToggleListBox" />
-                                                <TextBlock Text="Exclusive selection" />
-                                                <TextBlock Text="ListBoxAssist.IsToggle allows more natural toggle behaviour" />
-                                            </StackPanel>
-                                        </ListBox.ToolTip>
-                                        <ListBoxItem Name="TreeViewListBoxItem" Selected="TreeViewListBoxItem_Selected"  ToolTip="Show / Hide the model system tree view display" >
-                                            <materialDesign:PackIcon Kind="FileTree"/>
-                                        </ListBoxItem>
-                                        <ListBoxItem Name="RegionViewListBoxItem" Selected="RegionViewListBoxItem_Selected" ToolTip="Show / Hide the model system region view display" >
-                                            <materialDesign:PackIcon Kind="Group"/>
-                                        </ListBoxItem>
-                                    </ListBox>
                                 </Grid>
                             </ToolBar>
                         </ToolBarTray>

@@ -70,9 +70,6 @@ namespace XTMF.Gui.UserControls
 
         private static int FilterNumber;
 
-        private readonly ModelSystemRegionViewDisplay _regionViewDisplay;
-
-
         internal readonly List<ModelSystemStructureDisplayModel> CurrentlySelected =
             new List<ModelSystemStructureDisplayModel>();
 
@@ -97,12 +94,13 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public ModelSystemDisplay()
         {
+            //initialize sub displays for the model system
+            TreeViewDisplay = new ModelSystemTreeViewDisplay(this);
+            ActiveModelSystemView = TreeViewDisplay;
             DataContext = this;
             InitializeComponent();
-            //AllowMultiSelection(ModuleDisplay);
             Loaded += ModelSystemDisplay_Loaded;
             DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
-            //DisabledModulesList.ItemsSource = DisabledModules;
             FilterBox.Filter = (o, text) =>
             {
                 var module = o as ModelSystemStructureDisplayModel;
@@ -156,10 +154,6 @@ namespace XTMF.Gui.UserControls
                     _selectedParameterDisplayModel = null;
                 });
             };
-            //initialize sub displays for the model system
-            _regionViewDisplay = new ModelSystemRegionViewDisplay(this);
-            TreeViewDisplay = new ModelSystemTreeViewDisplay(this);
-            ActiveModelSystemView = TreeViewDisplay;
             ModelSystemDisplayModelMap = new Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel>();
             ToggleQuickParameterDisplay(0);
         }
@@ -1472,11 +1466,6 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         private List<ParameterModel> GetActiveParameters()
         {
-            if (ActiveModelSystemView == _regionViewDisplay)
-            {
-                return ActiveModelSystemView.SelectedModule.GetParameters().ToList();
-            }
-
             switch (CurrentlySelected.Count)
             {
                 case 0:
@@ -2530,39 +2519,6 @@ namespace XTMF.Gui.UserControls
             return true;
         }
 
-
-        /// <summary>
-        ///     Selected Listener for the RegionView button in the toolbar.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RegionViewListBoxItem_Selected(object sender, RoutedEventArgs e)
-        {
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                ModelSystemDisplayContent.Content = _regionViewDisplay;
-                ActiveModelSystemView = _regionViewDisplay;
-            }));
-        }
-
-        /// <summary>
-        ///     Selected listener for the TreeView button in the toolbar.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void TreeViewListBoxItem_Selected(object sender, RoutedEventArgs e)
-        {
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                ModelSystemDisplayContent.Content = TreeViewDisplay;
-                ActiveModelSystemView = TreeViewDisplay;
-            }));
-        }
-
-        public void ShowTreeViewDisplay()
-        {
-            TreeViewListBoxItem.IsSelected = true;
-        }
 
         /// <summary>
         /// </summary>

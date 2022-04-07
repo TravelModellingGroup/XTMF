@@ -232,9 +232,6 @@
     <Compile Include="UserControls\InterTabClient.cs" />
     <Compile Include="UserControls\ModelSystemDisplay\ModelSystemDisplay_ParameterDisplays.xaml.cs" />
     <Compile Include="UserControls\ModelSystemDisplay\ModelSystemDisplay_EventHandlers.xaml.cs" />
-    <Compile Include="UserControls\ModelSystemDisplay\ModelSystemRegionViewDisplay.xaml.cs">
-      <DependentUpon>ModelSystemRegionViewDisplay.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UserControls\ModelSystemDisplay\ModelSystemTreeViewDisplay.xaml.cs">
       <DependentUpon>ModelSystemTreeViewDisplay.xaml</DependentUpon>
     </Compile>
@@ -400,10 +397,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\FlatToolButton.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\ModelSystemDisplay\ModelSystemRegionViewDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
