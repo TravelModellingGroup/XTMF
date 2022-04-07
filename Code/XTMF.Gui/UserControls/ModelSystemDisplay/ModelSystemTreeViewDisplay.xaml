@@ -213,11 +213,6 @@
                                     <materialDesign:PackIcon Kind="Link" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Add to Region Group" Name="AddToRegionGroupMenuItem" StaysOpenOnClick="True" >
-                                <MenuItem.Icon>
-                                    <materialDesign:PackIcon Kind="Group" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
                             <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Expand all Modules" Click="ExpandAllMenuItem_Click"/>
                             <MenuItem Tag="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Header="Collapse all Modules" Click="CollapseAllMenuItem_Click"/>
                         </ContextMenu>

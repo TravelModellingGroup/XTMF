@@ -214,7 +214,6 @@
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ModelSytemRegionViewDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
-    <Compile Include="Models\RegionDisplaysDisplayModel.cs" />
     <Compile Include="Models\RunControllerDisplayModel.cs" />
     <Compile Include="Models\ValidationErrorDisplayModel.cs" />
     <Compile Include="Models\ViewModelBase.cs" />
@@ -409,10 +408,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\ModelSystemDisplay\DragDropAdorner.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\ModelSystemDisplay\Resources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -264,56 +264,7 @@ namespace XTMF.Gui.UserControls
                         }
                     }
                 }
-
-                //clear and get an up to date list of region groups available to the model system
-                var addRegionGroupMenuItem =
-                    menu.Items.Cast<MenuItem>().FirstOrDefault(m => m.Name == "AddToRegionGroupMenuItem");
-
-                UpdateAddRegionGroupMenu(addRegionGroupMenuItem);
             }
-        }
-
-        /// <summary>
-        ///     Updates the Add Region Group Sub Menu as part of the context menu
-        /// </summary>
-        /// <param name="addRegionGroupMenuItem"></param>
-        private void UpdateAddRegionGroupMenu(MenuItem addRegionGroupMenuItem)
-        {
-            addRegionGroupMenuItem.Items.Clear();
-            var regionDisplays = _modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel.RegionDisplays;
-            foreach (var regionDisplay in regionDisplays)
-            {
-                var regionDisplayMenuItem = new MenuItem
-                {
-                    Header = regionDisplay.Name
-                };
-                addRegionGroupMenuItem.Items.Add(regionDisplayMenuItem);
-
-                foreach (var regionGroup in regionDisplay.RegionGroups)
-                {
-                    var regionGroupMenuItem = new MenuItem
-                    {
-                        Header = regionGroup.Name,
-                        Tag = regionGroup
-                    };
-                    regionDisplayMenuItem.Items.Add(regionGroupMenuItem);
-
-                    regionGroupMenuItem.Click += RegionGroupMenuItem_Click;
-                }
-            }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RegionGroupMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var error = "";
-            var group = (RegionGroup)((MenuItem)e.Source).Tag;
-            var module = SelectedModule.BaseModel.RealModelSystemStructure;
-            _display.ModelSystemDisplayModelMap[SelectedModule.BaseModel.RealModelSystemStructure] = SelectedModule;
-            _regionDisplaysModel.AddModuleToGroup(group, module, ref error);
         }
 
         /// <summary>
