@@ -176,31 +176,27 @@ namespace XTMF.Gui.UserControls
 
         bool Renaming;
 
-        private void RenameCurrentProject()
+        private async void RenameCurrentProject()
         {
             if (Display.SelectedItem is Project project)
             {
-                var name = project.Name;
-                var selectedModuleControl = GetCurrentlySelectedControl();
-                var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
-                Renaming = true;
-                var adorn = new TextboxAdorner("Rename", result =>
+                var dialog = new StringRequestDialog(RootDialogHost, "Rename Project", (value) => String.IsNullOrWhiteSpace(value), project.Name);
+                await dialog.ShowAsync();
+                if (dialog.DidComplete)
                 {
+                    var originalName = project.Name;
                     string error = null;
-                    if (!Runtime.ProjectController.RenameProject(project, result, ref error))
+                    if (!Runtime.ProjectController.RenameProject(project, dialog.UserInput, ref error))
                     {
                         MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                     else
                     {
-                        Runtime.Configuration.RenameRecentProject(name, result);
+                        Runtime.Configuration.RenameRecentProject(originalName, dialog.UserInput);
                         Runtime.Configuration.Save();
                         RefreshProjects();
                     }
-                }, selectedModuleControl, project.Name);
-                adorn.Unloaded += Adorn_Unloaded;
-                layer.Add(adorn);
-                adorn.Focus();
+                }
             }
         }
 

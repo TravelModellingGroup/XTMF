@@ -464,7 +464,15 @@ namespace XTMF.Gui.UserControls
             switch (e.Key)
             {
                 case Key.F2:
-                    _display.RenameSelectedModule();
+                    if (EditorController.IsShiftDown())
+                    {
+                        _display.RenameDescription();
+                    }
+                    else
+                    {
+                        _display.RenameSelectedModule();
+                    }
+                    e.Handled= true;
                     break;
                 case Key.Up:
                     ModuleDisplayNavigateUp(item);
@@ -485,6 +493,7 @@ namespace XTMF.Gui.UserControls
                     if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl))
                     {
                         ToggleDisableModule();
+                        e.Handled = true;
                     }
                     break;
             }

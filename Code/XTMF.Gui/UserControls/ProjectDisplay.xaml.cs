@@ -421,25 +421,21 @@ namespace XTMF.Gui.UserControls
         /// 
         /// </summary>
 
-        private void RenameCurrentModelSystem()
+        private async void RenameCurrentModelSystem()
         {
             if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
-                var container = ModelSystemsDataGrid.ItemContainerGenerator.ContainerFromItem(selected) as DataGridRow;
-                // var container2 = ModelSystemsDataGrid.ItemContainerGenerator.ContainerFromItem(selected);
-                var layer = AdornerLayer.GetAdornerLayer(container);
-                var adorn = new TextboxAdorner("Rename", result =>
+                var dialog = new StringRequestDialog(RootDialogHost, "Rename Model System", (value) => String.IsNullOrWhiteSpace(value), selected.Name);
+                await dialog.ShowAsync();
+                if (dialog.DidComplete)
                 {
                     string error = null;
-                    if (!selected.SetName(result, ref error))
+                    if (!selected.SetName(dialog.UserInput, ref error))
                     {
                         MessageBox.Show(error, "Unable to Rename Model System", MessageBoxButton.OK,
                             MessageBoxImage.Error);
                     }
-                }, container, selected.Name);
-                layer.Add(adorn);
-                adorn.Focus();
-                IsRenameActive = true;
+                }
             }
         }
 

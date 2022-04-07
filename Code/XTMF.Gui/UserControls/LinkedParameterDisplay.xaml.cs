@@ -264,16 +264,17 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// 
         /// </summary>
-        private void Rename()
+        private async void Rename()
         {
             if (Display.SelectedItem is LinkedParameterDisplayModel selected)
             {
                 var selectedModuleControl = GetCurrentlySelectedControl();
-                var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
-                var adorn = new TextboxAdorner("Rename", result => { selected.Name = result; }, selectedModuleControl,
-                    selected.Name);
-                layer.Add(adorn);
-                adorn.Focus();
+                var dialog = new StringRequestDialog(RootDialogHost, "Set LinkedParameter Name", (value) => String.IsNullOrWhiteSpace(value), selected.Name);
+                await dialog.ShowAsync();
+                if(dialog.DidComplete)
+                {
+                    selected.Name = dialog.UserInput;
+                }
             }
         }
 

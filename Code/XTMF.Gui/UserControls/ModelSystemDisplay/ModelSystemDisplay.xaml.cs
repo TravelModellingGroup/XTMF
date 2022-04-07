@@ -117,7 +117,7 @@ namespace XTMF.Gui.UserControls
                         // Lock the refreshing of the items until we have finished modifying everything
                         using (var lockRender = this.TreeViewDisplay.ModuleDisplay.Items.DeferRefresh())
                         {
-                            CheckFilterRec(module, text);   
+                            CheckFilterRec(module, text);
                         }
                     }
                 });
@@ -1513,69 +1513,71 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         ///     Renames the selected module
         /// </summary>
-        public void RenameSelectedModule()
+        public async void RenameSelectedModule()
         {
             var selected = ActiveModelSystemView.SelectedModule?.BaseModel;
             var selectedModuleControl = GetCurrentlySelectedControl();
-            if (selectedModuleControl != null)
+
+            if (CurrentlySelected.Count == 0)
             {
-                var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
-                var adorn = new TextboxAdorner("Rename", result =>
+                return;
+            }
+            else if (CurrentlySelected.Count == 1)
+            {
+                var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Rename Module" : "Rename Modules", (value) => String.IsNullOrWhiteSpace(value), selected.Name);
+                await dialog.ShowAsync();
+                if (dialog.DidComplete)
                 {
                     string error = null;
                     Session.ExecuteCombinedCommands(
                         "Rename ModelSystem",
                         () =>
                         {
-                            if (CurrentlySelected.Any(sel => !sel.BaseModel.SetName(result.Trim(), ref error)))
+                            if (!CurrentlySelected.Any(sel => !sel.BaseModel.SetName(dialog.UserInput.Trim(), ref error)))
+                            {
+                                CanSaveModelSystem = true;
+                            }
+                            else
                             {
                                 throw new Exception(error);
                             }
-                            CanSaveModelSystem = true;
                         });
-                }, selectedModuleControl, selected.Name, true);
-                layer.Add(adorn);
-                adorn.Focus();
-            }
-            else
-            {
-                throw new InvalidAsynchronousStateException("The current module could not be found!");
+                }
             }
         }
 
         /// <summary>
         ///     Renames the selected module's description
         /// </summary>
-        public void RenameDescription()
+        public async void RenameDescription()
         {
             var selected = ActiveModelSystemView.SelectedModule?.BaseModel;
             var selectedModuleControl = GetCurrentlySelectedControl();
-            if (selectedModuleControl != null)
+            if (CurrentlySelected.Count == 0)
             {
-                var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
-                var adorn = new TextboxAdorner("Rename Description", result =>
+                return;
+            }
+            else if (CurrentlySelected.Count == 1)
+            {
+                var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Change Description" : "Change Descriptions", (value) => false, selected.Name);
+                await dialog.ShowAsync();
+                if (dialog.DidComplete)
                 {
                     string error = null;
                     Session.ExecuteCombinedCommands(
-                        "Set ModelSystem Description",
+                        "Rename ModelSystem",
                         () =>
                         {
-                            foreach (var sel in CurrentlySelected)
+                            if (!CurrentlySelected.Any(sel => !sel.BaseModel.SetDescription(dialog.UserInput.Trim(), ref error)))
                             {
-                                if (!sel.BaseModel.SetDescription(result, ref error))
-                                {
-                                    throw new Exception(error);
-                                }
+                                CanSaveModelSystem = true;
                             }
-                            CanSaveModelSystem = true;
+                            else
+                            {
+                                throw new Exception(error);
+                            }
                         });
-                }, selectedModuleControl, selected.Description);
-                layer.Add(adorn);
-                adorn.Focus();
-            }
-            else
-            {
-                throw new InvalidAsynchronousStateException("The current module could not be found!");
+                }
             }
         }
 
@@ -1750,32 +1752,26 @@ namespace XTMF.Gui.UserControls
 
         /// <summary>
         /// </summary>
-        private void RenameParameter()
+        private async void RenameParameter()
         {
             if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
-                var selectedContainer =
-                    (UIElement)ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
-                if (selectedContainer != null)
+                var dialog = new StringRequestDialog(RootDialogHost, "Rename Parameter", (value) => String.IsNullOrWhiteSpace(value), currentParameter.Name);
+                await dialog.ShowAsync();
+                if (dialog.DidComplete)
                 {
-                    var layer = AdornerLayer.GetAdornerLayer(selectedContainer);
-                    var adorn = new TextboxAdorner("Rename", result =>
+                    string error = null;
+                    if (!currentParameter.SetName(dialog.UserInput.Trim(), ref error))
                     {
-                        string error = null;
-                        if (!currentParameter.SetName(result.Trim(), ref error))
-                        {
-                            MessageBox.Show(GetWindow(), error, "Unable to Set Parameter Name", MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-                        }
-                        else
-                        {
-                            RefreshParameters();
-                            UpdateQuickParameters();
-                            CanSaveModelSystem = true;
-                        }
-                    }, selectedContainer, currentParameter.GetBaseName(), true);
-                    layer.Add(adorn);
-                    adorn.Focus();
+                        MessageBox.Show(GetWindow(), error, "Unable to Set Parameter Name", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        RefreshParameters();
+                        UpdateQuickParameters();
+                        CanSaveModelSystem = true;
+                    }
                 }
             }
         }

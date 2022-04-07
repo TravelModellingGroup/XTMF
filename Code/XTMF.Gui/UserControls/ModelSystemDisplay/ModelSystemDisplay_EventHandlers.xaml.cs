@@ -141,6 +141,7 @@ namespace XTMF.Gui.UserControls
                             {
                                 RenameParameter();
                             }
+                            e.Handled= true;
                             break;
                         case Key.F1:
                             ShowDocumentation();
