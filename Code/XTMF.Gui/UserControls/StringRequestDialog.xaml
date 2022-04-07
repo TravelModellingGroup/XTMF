@@ -8,7 +8,7 @@
 
              mc:Ignorable="d" PreviewKeyDown="StringRequestDialog_OnPreviewKeyDown" 
              d:DesignHeight="300" d:DesignWidth="500">
-    <Grid MinHeight="60"  MinWidth="300" Margin="10 7 10 5" VerticalAlignment="Center">
+    <Grid MinHeight="60"  MinWidth="300" Margin="10 7 10 10" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="300"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -34,7 +34,8 @@
             </Border.Style>
             <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"/>
         </Border>
-        <TextBox  Grid.Row="1" Grid.Column="0"  MinWidth="300"   x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"   Style="{DynamicResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Top">
+        <TextBox  Grid.Row="1" Grid.Column="0"  MinWidth="300" x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"
+                  Style="{DynamicResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Stretch">
             <TextBox.Text>
                 <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>

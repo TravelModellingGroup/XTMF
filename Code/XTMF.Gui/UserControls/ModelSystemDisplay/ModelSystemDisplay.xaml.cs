@@ -615,14 +615,12 @@ namespace XTMF.Gui.UserControls
         ///     Shows the Linked Parameter dialog
         /// </summary>
         /// <param name="assign"></param>
-        internal void ShowLinkedParameterDialog(bool assign = false)
+        internal async void ShowLinkedParameterDialog(bool assign = false)
         {
             var s = new LinkedParameterDisplay();
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
-
-            RunHost.DialogContent = LinkedParameterDisplayOverlay;
             LinkedParameterDisplayOverlay.IsAssignMode = assign;
-            object x = RunHost.ShowDialog(LinkedParameterDisplayOverlay, OpenedEventHandler);
+            await RootDialogHost.ShowDialog(LinkedParameterDisplayOverlay, OpenedEventHandler);
         }
 
         /// <summary>
@@ -922,7 +920,7 @@ namespace XTMF.Gui.UserControls
             var dialog = new SelectRunDateTimeDialog(Session);
             try
             {
-                var result = await dialog.ShowAsync(RunHost);
+                var result = await dialog.ShowAsync(RootDialogHost);
             }
             catch (Exception e)
             {
