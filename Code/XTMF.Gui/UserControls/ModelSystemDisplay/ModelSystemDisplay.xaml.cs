@@ -707,7 +707,7 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// Sets, replaces, or adds a module to the currently selected module.
         /// </summary>
-        internal void SelectReplacement()
+        internal async void SelectReplacement()
         {
             if (Session == null)
             {
@@ -723,12 +723,9 @@ namespace XTMF.Gui.UserControls
                         "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
-                var findReplacement = new ModuleTypeSelect(Session, CurrentlySelected[0].BaseModel)
-                {
-                    Owner = GetWindow()
-                };
-                if (findReplacement.ShowDialog() == true)
+                var findReplacement = new ModuleTypeSelect(RootDialogHost, Session, CurrentlySelected[0].BaseModel);
+                await findReplacement.ShowAsync();
+                if (findReplacement.HasResult)
                 {
                     var selectedType = findReplacement.SelectedType;
                     if (selectedType != null)

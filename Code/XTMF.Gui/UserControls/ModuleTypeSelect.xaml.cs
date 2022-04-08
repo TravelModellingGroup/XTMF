@@ -21,25 +21,20 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Navigation;
-using System.Xml;
 using MaterialDesignThemes.Wpf;
-
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
     /// Interaction logic for ModuleTypeSelect.xaml
     /// </summary>
-    public partial class ModuleTypeSelect : Window
+    public partial class ModuleTypeSelect : UserControl
     {
         private readonly ModelSystemStructureModel _selectedModule;
 
@@ -102,9 +97,15 @@ namespace XTMF.Gui.UserControls
             return false;
         }
 
-        public ModuleTypeSelect(ModelSystemEditingSession session, ModelSystemStructureModel selectedModule)
+        private readonly DialogHost _host;
+
+        public bool DialogHost { get; private set; }
+
+        public ModuleTypeSelect(DialogHost host, ModelSystemEditingSession session, ModelSystemStructureModel selectedModule)
             : this()
         {
+            _host = host;
+            DialogHost = false;
             _modelSystemSession = session;
             _selectedModule = selectedModule;
             BuildRequirements(session);
@@ -112,21 +113,9 @@ namespace XTMF.Gui.UserControls
             FilterBox.Display = Display;
         }
 
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-            FilterBox.Focus();
-        }
-
-        protected override void OnGotFocus(RoutedEventArgs e)
-        {
-            base.OnGotFocus(e);
-            if (e.OriginalSource == this)
-            {
-                FilterBox.Focus();
-            }
-        }
-
+        /// <summary>
+        /// The type that the user has selected
+        /// </summary>
         public Type SelectedType { get; private set; }
 
         /// <summary>
@@ -144,9 +133,8 @@ namespace XTMF.Gui.UserControls
             return ret;
         }
 
-        protected override void OnKeyUp(KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyUp(e);
             if (e.Handled == false)
             {
                 switch (e.Key)
@@ -168,6 +156,7 @@ namespace XTMF.Gui.UserControls
                         break;
                 }
             }
+            base.OnKeyDown(e);
         }
 
         private void Select()
@@ -197,7 +186,7 @@ namespace XTMF.Gui.UserControls
                     List<Type> selectedForFreeVariables = new List<Type>();
                     foreach (var variable in GetFreeVariables(SelectedType))
                     {
-                        var dialog = new FreeVariableEntry(variable, _modelSystemSession) { Owner = this };
+                        var dialog = new FreeVariableEntry(variable, _modelSystemSession);
                         if (dialog.ShowDialog() != true)
                         {
                             return;
@@ -206,9 +195,27 @@ namespace XTMF.Gui.UserControls
                     }
                     SelectedType = CreateConcreteType(SelectedType, selectedForFreeVariables);
                 }
-                DialogResult = true;
+                HasResult = true;
                 Close();
             }
+        }
+
+        public bool HasResult { get; private set; }
+
+        private void Close()
+        {
+            _host.CurrentSession.Close();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> ShowAsync(bool allowClickToClose = true)
+        {
+            _host.CloseOnClickAway = allowClickToClose;
+            var task = await _host.ShowDialog(this);
+            return task;
         }
 
         /// <summary>
@@ -273,13 +280,11 @@ namespace XTMF.Gui.UserControls
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-
                     ModuleNameTextBlock.Text = selected.Name ?? "No Module Selected";
                     var background = (SolidColorBrush)FindResource("MaterialDesignPaper");
                     var body = (SolidColorBrush)FindResource("MaterialDesignBody");
                     if (!string.IsNullOrEmpty(selected.Description))
                     {
-
                         var htmlString =
                             $"<style>body{{ font-size:14px; background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; " +
                             $"font-family: \"Segoe UI\";overflow: hidden }}</style><body>{selected.Description}</body>";
@@ -290,12 +295,9 @@ namespace XTMF.Gui.UserControls
                         var htmlString =
                             $"<style>body{{font-size:14px; overflow: hidden; background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body>No description available.</body>";
                         ModuleDescriptionTextBlock.NavigateToString(htmlString);
-
                     }
                     ModuleUrlTextBlock.Text = selected.Url ?? "";
                     ModuleTypeTextBlock.Text = selected.Text;
-
-
                 }));
             }
         }

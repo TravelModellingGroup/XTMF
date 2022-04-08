@@ -834,8 +834,8 @@ Global
 		{63996C2B-6769-4305-8933-1A87944679DC}.Development Debug|Any CPU.Build.0 = Development Debug|Any CPU
 		{63996C2B-6769-4305-8933-1A87944679DC}.Development Debug|x64.ActiveCfg = Development Debug|Any CPU
 		{63996C2B-6769-4305-8933-1A87944679DC}.Development Debug|x64.Build.0 = Development Debug|Any CPU
-		{63996C2B-6769-4305-8933-1A87944679DC}.Development|Any CPU.ActiveCfg = Development|Any CPU
-		{63996C2B-6769-4305-8933-1A87944679DC}.Development|Any CPU.Build.0 = Development|Any CPU
+		{63996C2B-6769-4305-8933-1A87944679DC}.Development|Any CPU.ActiveCfg = Development-XTMFGUI|Any CPU
+		{63996C2B-6769-4305-8933-1A87944679DC}.Development|Any CPU.Build.0 = Development-XTMFGUI|Any CPU
 		{63996C2B-6769-4305-8933-1A87944679DC}.Development|x64.ActiveCfg = Development|x64
 		{63996C2B-6769-4305-8933-1A87944679DC}.Development|x64.Build.0 = Development|x64
 		{63996C2B-6769-4305-8933-1A87944679DC}.Release|Any CPU.ActiveCfg = Release|Any CPU

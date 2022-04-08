@@ -60,12 +60,11 @@ namespace XTMF.Gui
 
         public void RetriveFocus()
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.InvokeAsync(() =>
             {
                 Box.Focus();
                 Keyboard.Focus(Box);
-
-            });
+            }, DispatcherPriority.Background);
         }
 
         public bool UseItemSourceFilter { get; set; }
@@ -166,15 +165,13 @@ namespace XTMF.Gui
                 {
                     case Key.Escape:
                         e.Handled = ClearFilter();
-                        //e.Handled = false;
                         break;
                     case Key.Enter:
                         e.Handled = HandleEnterPress();
                         break;
                 }
             }
-
-            OnKeyDown(e);
+            base.OnPreviewKeyDown(e);
         }
 
         private bool HandleEnterPress()

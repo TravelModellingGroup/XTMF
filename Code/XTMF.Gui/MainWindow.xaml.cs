@@ -937,7 +937,9 @@ namespace XTMF.Gui
                 DrawerHost.IsLeftDrawerOpen = false;
             }
 
-            if ((DockManager.SelectedContent as UIElement)?.IsAncestorOf((DependencyObject)Keyboard.FocusedElement) == true && DockManager.SelectedContent is IKeyShortcutHandler handler)
+            if (Keyboard.FocusedElement != null
+                && (DockManager.SelectedContent as UIElement)?.IsAncestorOf((DependencyObject)Keyboard.FocusedElement) == true 
+                && DockManager.SelectedContent is IKeyShortcutHandler handler)
             {
                 handler.HandleKeyPreviewDown(sender,e);
             }
