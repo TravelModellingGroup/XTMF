@@ -60,10 +60,10 @@
                         </StackPanel>
                     </DockPanel>
                 </Border>
-                <Grid Grid.Row="2" Margin="0" Background="{DynamicResource MaterialDesignPaper}">
+                <Grid Grid.Row="2" Margin="0" Background="{DynamicResource MaterialDesignCardBackground}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Margin="8" TabIndex="3" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center"
                         Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
@@ -74,7 +74,6 @@
                             </StackPanel>
                         </StackPanel>
                     </Button>
-                    <DockPanel Grid.Column="1"/>
                 </Grid>
 
                 <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
@@ -122,31 +121,25 @@
                         </ListView>
                     </Grid>
                     <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource MaterialDesignPaper}" ShowsPreview="True" />
-                    <Grid Grid.Column="2" Background="{DynamicResource MaterialDesignPaper}">
+                    <Grid Grid.Column="2" Grid.RowSpan="2" Background="{DynamicResource MaterialDesignPaper}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <GroupBox Grid.Row="0" Margin="10"  Style="{DynamicResource MaterialDesignCardGroupBox}" Header="Parameter Properties"  >
-
-                            <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignBackground}" >
-                                <StackPanel>
-                                    <!--<Label Content="Parameter Properties" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignBackground}"/> -->
-                                    <DockPanel FlowDirection="LeftToRight" >
-                                        <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
-                                        <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"  IsReadOnly="True"></TextBox>
-                                        <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right" Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}" IsReadOnly="True"/>-->
-                                    </DockPanel>
-                                    <DockPanel FlowDirection="LeftToRight" >
-                                        <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
-                                        <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  IsReadOnly="False"></TextBox>
-                                        <!--<xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  Background="{DynamicResource MaterialDesignPaper}" Foreground="{DynamicResource MaterialDesignBody}"/> -->
-                                    </DockPanel>
-                                </StackPanel>
-                            </Border>
-                        </GroupBox>
-                        <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignPaper}">
-                            <Grid Background="{DynamicResource MaterialDesignPaper}" >
+                        <materialDesign:Card Grid.Row="0" Margin="5">
+                            <StackPanel>
+                                <DockPanel FlowDirection="LeftToRight" >
+                                    <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,5,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
+                                    <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"  IsReadOnly="True"/>
+                                </DockPanel>
+                                <DockPanel FlowDirection="LeftToRight" >
+                                    <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,5,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
+                                    <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  IsReadOnly="False"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <Border Grid.Row="1"  BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource MaterialDesignPaper}" Background="{DynamicResource MaterialDesignPaper}">
+                            <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="38"></RowDefinition>
                                     <RowDefinition Height="257"></RowDefinition>
