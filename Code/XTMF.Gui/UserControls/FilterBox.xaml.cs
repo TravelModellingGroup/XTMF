@@ -91,8 +91,6 @@ namespace XTMF.Gui
             }
         }
 
-       // private bool _
-
         public ItemsControl Display
         {
             get => _display;
@@ -153,27 +151,6 @@ namespace XTMF.Gui
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
-        {
-            if (e.Handled == false)
-            {
-                switch (e.Key)
-                {
-                    case Key.Escape:
-                        e.Handled = ClearFilter();
-                        break;
-                    case Key.Enter:
-                        e.Handled = HandleEnterPress();
-                        break;
-                }
-            }
-            base.OnPreviewKeyDown(e);
-        }
-
         private bool HandleEnterPress()
         {
             var ev = EnterPressed;
@@ -182,7 +159,6 @@ namespace XTMF.Gui
                 ev(this, new EventArgs());
                 return true;
             }
-
             return false;
         }
 
@@ -223,12 +199,23 @@ namespace XTMF.Gui
 
         private void Box_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Down)
+            if (e.Handled == false)
             {
-                var tRequest = new TraversalRequest(FocusNavigationDirection.Next);
-                var keyboardFocus = Keyboard.FocusedElement as UIElement;
-                keyboardFocus?.MoveFocus(tRequest);
-                e.Handled = true;
+                switch (e.Key)
+                {
+                    case Key.Escape:
+                        e.Handled = ClearFilter();
+                        break;
+                    case Key.Enter:
+                        e.Handled = HandleEnterPress();
+                        break;
+                    case Key.Down:
+                        var tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                        var keyboardFocus = Keyboard.FocusedElement as UIElement;
+                        keyboardFocus?.MoveFocus(tRequest);
+                        e.Handled = true;
+                        break;
+                }
             }
         }
     }

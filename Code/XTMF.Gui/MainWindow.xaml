@@ -29,7 +29,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
         xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
-        Title="XTMF Version 1.9" Height="768" Width="1024" IsHitTestVisible="True"
+        Title="XTMF Version 1.10" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="500"
         Name="XtmfWindow"
         PreviewKeyDown="MainWindow_OnPreviewKeyDown"
@@ -37,7 +37,7 @@
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="12"
-
+        SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto" BorderThickness="0"        
         FontFamily="{DynamicResource MaterialDesignFont}" Closing="XtmfWindow_Closing" Initialized="XtmfWindow_Initialized">

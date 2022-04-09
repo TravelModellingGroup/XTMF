@@ -156,7 +156,6 @@ namespace XTMF.Gui.UserControls
                         break;
                 }
             }
-            base.OnKeyDown(e);
         }
 
         private void Select()
