@@ -104,8 +104,8 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Grid  Margin="10 10 30 30"  Grid.Row="2" HorizontalAlignment="Right">
-                <local:PopupBoxEx 
+            <materialDesign:Card  Grid.Row="2" HorizontalAlignment="Stretch">
+                <local:PopupBoxEx Margin="10" HorizontalAlignment="Right"
                 xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
@@ -153,7 +153,7 @@
                         </StackPanel>
                     </StackPanel>
                 </local:PopupBoxEx>
-            </Grid>
+            </materialDesign:Card>
         </Grid>
     </materialDesign:DialogHost>
 </UserControl>

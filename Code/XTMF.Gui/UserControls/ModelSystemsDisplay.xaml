@@ -99,8 +99,8 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Border SnapsToDevicePixels="True" BorderThickness="0" Grid.Row="2" HorizontalAlignment="Right" Margin="10 10 30 30">
-                <local:PopupBoxEx 
+            <materialDesign:Card BorderThickness="0" Grid.Row="2" HorizontalAlignment="Stretch">
+                <local:PopupBoxEx Margin="10" HorizontalAlignment="Right"
                 xtmfp:VisualAnimationProperty.IsRenderVisualAnimation="True"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
@@ -116,7 +116,8 @@
                                 <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Import" />
                             </Button>
                         </StackPanel>
-                        <StackPanel Name="ImportModelSystemStackPanel" HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemStackPanel_OnMouseLeftButtonUp" >
+                        <StackPanel Name="ImportModelSystemStackPanel" HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemStackPanel_OnM
+                                    ouseLeftButtonUp" >
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
                                 <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Import Model System" Opacity="1.0"/>
                             </Border>
@@ -164,7 +165,7 @@
                         </StackPanel>
                     </StackPanel>
                 </local:PopupBoxEx>
-            </Border>
+            </materialDesign:Card>
         </Grid>
     </materialDesign:DialogHost>
 </UserControl>

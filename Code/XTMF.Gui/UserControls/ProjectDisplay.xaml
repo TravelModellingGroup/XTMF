@@ -35,8 +35,8 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="AUTO"/>
             </Grid.RowDefinitions>
-            <Border  Margin="10 10 30 30"   Grid.Row="1" HorizontalAlignment="Right">
-                <materialDesign:PopupBox  
+            <materialDesign:Card  Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <materialDesign:PopupBox  Margin="10" HorizontalAlignment="Right"
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 PlacementMode="TopAndAlignRightEdges"
                 UnfurlOrientation="Vertical" PopupMode="Click"
@@ -93,7 +93,7 @@
                         </StackPanel>
                     </StackPanel>
                 </materialDesign:PopupBox>
-            </Border>
+            </materialDesign:Card>
 
             <Grid Grid.Row="0" HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions>
