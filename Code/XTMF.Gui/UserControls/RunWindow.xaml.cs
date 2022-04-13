@@ -564,9 +564,10 @@ namespace XTMF.Gui.UserControls
             _runtimeValidationErrorOccured = true;
             Dispatcher.Invoke(() =>
             {
-                SetRunFinished(false);
                 ShowErrorMessages(errors.ToArray());
+                SetRunFinished(false);
                 UpdateRunStatus?.Invoke("Runtime validation error");
+                RuntimeValidationError?.Invoke(errors);
                 OnRuntimeValidationError?.Invoke();
             });
         }

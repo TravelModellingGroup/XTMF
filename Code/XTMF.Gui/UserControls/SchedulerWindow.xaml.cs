@@ -483,6 +483,7 @@ namespace XTMF.Gui.UserControls
                 runWindow.OnRunFinished = OnRunFinished;
                 runWindow.OnValidationError = OnValidationError;
                 runWindow.RuntimeError = RuntimeError;
+                runWindow.RuntimeValidationError = OnValidationError;
                 runWindow.OnRunStarted = OnRunStarted;
                 runWindow.OnRuntimeError = OnRuntimeError;
                 ModelSystemErrors = new ObservableCollection<ModelSystemErrorDisplayModel>();
