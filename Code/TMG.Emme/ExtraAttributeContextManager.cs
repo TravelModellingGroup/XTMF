@@ -109,8 +109,6 @@ namespace TMG.Emme
             _Progress = 0.0f;
             _RunningTool = null;
 
-            if (EmmeToolsToRun.Count == 0) return true;
-
             var mc = controller as ModellerController;
             if (mc == null)
                 throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
@@ -172,7 +170,7 @@ namespace TMG.Emme
             {
                 if (_RunningTool != null)
                 {
-                    return _Progress + _RunningTool.Progress / (EmmeToolsToRun.Count);
+                    return _Progress + _RunningTool.Progress / (EmmeToolsToRun.Count > 0? EmmeToolsToRun.Count : 0);
                 } else 
                 {
                     return _Progress;
