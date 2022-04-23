@@ -70,12 +70,9 @@
                 </StackPanel>
             </Expander.Content>
         </Expander>
-        <StackPanel Margin="0 15 0 15" Orientation="Horizontal" HorizontalAlignment="Center">
-
-            <Button Name="RunButton" Style="{DynamicResource MaterialDesignFlatButton}" Click="RunButton_OnClick" IsEnabled="{Binding IsRunEnabled}"
-                    Foreground="{DynamicResource SecondaryHueMidBrush}">Run</Button>
-            <Button Name="CancelButton" Style="{DynamicResource MaterialDesignFlatButton}" Click="CancelButton_OnClick"
-                    Foreground="{DynamicResource SecondaryHueMidBrush}">Cancel</Button>
+        <StackPanel Margin="0,0,0,10" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Name="RunButton" Margin="5" Style="{DynamicResource MaterialDesignOutlinedSecondaryButton}" Click="RunButton_OnClick" IsEnabled="{Binding IsRunEnabled}">Run</Button>
+            <Button Name="CancelButton" Margin="5" Style="{DynamicResource MaterialDesignOutlinedSecondaryButton}" Click="CancelButton_OnClick">Cancel</Button>
         </StackPanel>
     </StackPanel>
 </UserControl>

@@ -66,7 +66,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Margin="8" TabIndex="3" Name="NewLinkedParameterButton" HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Grid.Column="0" Click="NewLinkedParameterButton_OnClick">
+                        Grid.Column="0" Click="NewLinkedParameterButton_OnClick" Style="{StaticResource MaterialDesignOutlinedSecondaryButton}">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Pencil" />
                             <StackPanel Orientation="Vertical">
