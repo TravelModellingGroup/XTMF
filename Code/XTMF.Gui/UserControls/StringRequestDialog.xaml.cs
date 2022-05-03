@@ -68,6 +68,7 @@ namespace XTMF.Gui.UserControls
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
         {
             this._dialogSession = eventargs.Session;
+            StringInputTextBox.Select(0, StringInputTextBox.Text.Length);
         }
 
         /// <summary>
