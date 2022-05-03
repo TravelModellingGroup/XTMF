@@ -25,7 +25,7 @@
                              Text="{Binding StackTrace}" Style="{DynamicResource MaterialDesignSubheadingTextBox}"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <TextBlock HorizontalAlignment="Center" Margin="0 5 5 5">
-                            <Hyperlink Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .,ElementName=SchedulerWindow}"
+                            <Hyperlink Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .}"
                                        Click="Hyperlink_OnClick">
                                 <materialDesign:PackIcon Kind="ContentCopy" />
                                 Copy to Clipboard
@@ -33,7 +33,7 @@
                         </TextBlock>
                         <TextBlock HorizontalAlignment="Center" Margin="5 5 0 5">
                             <Hyperlink Name="CloseDialogHyperLink"
-                                       Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .}"
+                                       Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}"
                                        Click="CloseDialogHyperLink_OnClick">
                                 <materialDesign:PackIcon Kind="Close" />
                                 Close

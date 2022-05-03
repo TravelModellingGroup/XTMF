@@ -88,9 +88,12 @@ namespace XTMF.Gui.UserControls
         private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
         {
             var error = (sender as FrameworkContentElement)?.Tag as ModelSystemErrorDisplayModel;
-            Clipboard.SetText(error.StackTrace == "Unavailable"
-                ? error.Description
-                : error.Description + "\r\n" + error.StackTrace);
+            if (error != null)
+            {
+                Clipboard.SetText(error.StackTrace == "Unavailable"
+                    ? error.Description
+                    : error.Description + "\r\n" + error.StackTrace);
+            }
         }
 
         /// <summary>
