@@ -400,7 +400,11 @@ namespace TMG.Tasha.MicrosimLoader
             {
                 vehicles[i] = Vehicle.MakeVehicle(Root.AutoType);
             }
-            return new Household(household.HouseholdID, new ITashaPerson[numberOfPersons], vehicles, household.Weight, zoneSystem.GetFlatData()[homeZoneIndex]);
+            return new Household(household.HouseholdID, new ITashaPerson[numberOfPersons], vehicles, household.Weight, zoneSystem.GetFlatData()[homeZoneIndex])
+            {
+                DwellingType = (DwellingType)(household.DwellingType),
+                IncomeClass = household.IncomeClass
+            };
         }
 
         private static bool IsHouseholdActivityPurpose(string purpose)
