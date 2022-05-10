@@ -165,7 +165,7 @@
                              PreviewMouseDoubleClick="ModuleDisplay_PreviewMouseDoubleClick"  
                              TreeViewItem.Selected="ModuleDisplay_Selected" Grid.ColumnSpan="2" 
                              ItemContainerStyle="{DynamicResource TreeViewItemStyle}" ContextMenuOpening="ModuleDisplay_ContextMenuOpening"
-                             VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                        >
                     <TreeView.ContextMenu>
                         <ContextMenu ContextMenuOpening="ModuleTreeViewItem_OnContextMenuOpening">
                             <MenuItem Name="CopyMenuItem"  Header="Copy (Ctrl+C)" Click="CopyMenuItem_OnClick" >

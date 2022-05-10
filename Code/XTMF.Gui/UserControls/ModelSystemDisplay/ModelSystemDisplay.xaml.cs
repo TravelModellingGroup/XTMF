@@ -107,16 +107,19 @@ namespace XTMF.Gui.UserControls
                 Task.Run(() =>
                 {
                     var ourNumber = Interlocked.Increment(ref FilterNumber);
-                    var waitTask = Task.Delay(200);
+                    var waitTask = Task.Delay(250);
                     waitTask.Wait();
                     Thread.MemoryBarrier();
                     if (ourNumber == FilterNumber)
                     {
                         // Lock the refreshing of the items until we have finished modifying everything
-                        using (var lockRender = this.TreeViewDisplay.ModuleDisplay.Items.DeferRefresh())
+                        Dispatcher.Invoke(() =>
                         {
-                            CheckFilterRec(module, text);
-                        }
+                            using (var lockRender = this.TreeViewDisplay.ModuleDisplay.Items.DeferRefresh())
+                            {
+                                CheckFilterRec(module, text);
+                            }
+                        }, DispatcherPriority.Render);
                     }
                 });
                 return true;
@@ -1194,7 +1197,7 @@ namespace XTMF.Gui.UserControls
                         (Brush)FindResource("SecondaryHueMidBrush"));
                     SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
                 });
-                if(Session.IsSaving())
+                if (Session.IsSaving())
                 {
                     return;
                 }

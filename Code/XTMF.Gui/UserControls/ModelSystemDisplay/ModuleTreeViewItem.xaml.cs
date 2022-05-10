@@ -339,10 +339,11 @@ namespace XTMF.Gui.UserControls
             }
 
             var layer = AdornerLayer.GetAdornerLayer(this);
-            DragDropAdorner moveAdorner = new DragDropAdorner(this);
-            layer.Add(moveAdorner);
-            moveAdorner.Focus();
-
+            if (layer != null)
+            {
+                DragDropAdorner moveAdorner = new DragDropAdorner(this);
+                layer.Add(moveAdorner);
+            }
         }
 
 
