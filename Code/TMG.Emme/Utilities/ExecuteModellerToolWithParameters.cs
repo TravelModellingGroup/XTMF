@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,6 +44,15 @@ namespace TMG.Emme.Utilities
 
             public Tuple<byte, byte, byte> ProgressColour => throw new NotImplementedException();
 
+            /// <summary>
+            /// Gets the value of this parameter.
+            /// </summary>
+            /// <returns>The value to pass into the EMME tool.</returns>
+            public virtual string GetParameterValue()
+            {
+                return ParameterValue;
+            }
+
             public bool RuntimeValidation(ref string error)
             {
                 if(String.IsNullOrWhiteSpace(ParameterName))
@@ -51,6 +61,44 @@ namespace TMG.Emme.Utilities
                     return false;
                 }
                 return true;
+            }
+        }
+
+        [ModuleInformation(Description = "Creates a parameter that gives the path relative to the run directory.")]
+        public class ParameterFromRunDirectory : Parameter
+        {
+            [RootModule]
+            public IModelSystemTemplate Root;
+
+            public override string GetParameterValue()
+            {
+                if (Path.IsPathRooted(ParameterValue))
+                {
+                    return ParameterValue;
+                }
+                else
+                {
+                    return Path.Combine(Environment.CurrentDirectory, ParameterValue);
+                }
+            }
+        }
+
+        [ModuleInformation(Description = "Creates a parameter that gives the path relative to the input directory.")]
+        public class ParameterFromInputDirectory : Parameter
+        {
+            [RootModule]
+            public IModelSystemTemplate Root;
+
+            public override string GetParameterValue()
+            {
+                if(Path.IsPathRooted(ParameterValue))
+                {
+                    return ParameterValue;
+                }
+                else
+                {
+                    return Path.Combine(Root.InputBaseDirectory, ParameterValue);
+                }
             }
         }
 
@@ -80,7 +128,7 @@ namespace TMG.Emme.Utilities
         private ModellerControllerParameter[] GetArguments()
         {
             return (from p in Parameters
-                    select new ModellerControllerParameter(p.ParameterName, p.ParameterValue))
+                    select new ModellerControllerParameter(p.ParameterName, p.GetParameterValue()))
                     .ToArray();
         }
 
