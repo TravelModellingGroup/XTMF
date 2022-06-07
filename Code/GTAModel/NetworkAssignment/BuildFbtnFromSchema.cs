@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -57,6 +57,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
         public bool StationConnectorFlag;
 
+        [RunParameter("IgnoreSameGroupsForStations", true, "Set this to true to maintain backwards compatibility?  Set this to false to allow the hyper network generator to properly create transfer nodes within an agency to a rail station.")]
+        public bool IgnoreSameGroupsForStations;
+
         private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         private const string ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
@@ -74,7 +77,8 @@ namespace TMG.GTAModel.NetworkAssignment
                                         SegmentFareAttribute,
                                         LinkFareAttribute,
                                         VirtualNodeDomain,
-                                        StationConnectorFlag);
+                                        StationConnectorFlag,
+                                        IgnoreSameGroupsForStations);
             var result = "";
             return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
         }
