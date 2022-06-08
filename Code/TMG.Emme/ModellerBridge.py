@@ -20,6 +20,7 @@
 from __future__ import print_function
 import sys
 import os
+from os.path import exists
 import glob
 import time
 import math
@@ -131,6 +132,8 @@ class XTMFBridge:
     SignalEnableLogbook = 13    
     """Signal from XTMF to start up a tool using binary parameters"""
     SignalStartModuleBinaryParameters = 14
+    """Signal from XTMF to check all loaded toolboxes to ensure that all unconsolidated tools actually point to a real script file."""
+    SignalCheckForMissingTools = 15
         
     """Initialize the bridge so that the tools that we run will not accidentally access the standard I/O"""
     def __init__(self, emmeApplication, databankName):
@@ -594,6 +597,58 @@ class XTMFBridge:
                 return
         self.SendRuntimeError("The databank " + databankName + " does not exist!")
 
+    def CheckForMissingTools(self):
+        def get_tool_namespace(toolbox, elementIndex):
+            element = toolbox.element(elementIndex)
+            if element["parent_id"] is None:
+                return element["attributes"]["namespace"]
+            return get_tool_namespace(toolbox, element["parent_id"]) + "." + element["attributes"]["namespace"]
+        
+        def does_tool_exist(toolbox, elementIndex):
+            element = toolbox.element(elementIndex)
+            if element is None:
+                return False
+            attributes = element["attributes"]
+            # If it is a directory the code attribute does not exist
+            if not ("code" in attributes):
+                return True
+            # If code exists and is not None, then the tool exists
+            if attributes["code"]:
+                return True
+            # Check to see if the script exists
+            script = attributes["script"]
+            if not script:
+                raise Exception("There is no file path for the unconsolidated tool " + get_tool_namespace(toolbox, elementIndex) + " defined!")
+            if not exists(script):
+                raise Exception("The unconsolidated tool \"" + get_tool_namespace(toolbox, elementIndex) + "\" calls a file that does not exist \""+script+"\"!")
+            return True
+
+        def read_children(childStr):
+            ret = [int(x) for x in childStr[1:len(childStr)-1].split(",")]
+            return ret
+
+        def explore_toolbox(toolbox, index):
+            element = toolbox.element(index)
+            if element is None:
+                raise Exception("The given element " + str(index) + " does not exist in the toolbox!")
+            if "attributes" not in element:
+                raise Exception("The element does not have any attributes " + str(index))
+            attributes = element["attributes"]
+            if "children" in attributes:
+                for childIndex in read_children(attributes["children"]):
+                    explore_toolbox(toolbox, childIndex)
+            else:
+                does_tool_exist(toolbox, index)
+        
+        for toolbox in self.Modeller.toolboxes:
+            try:
+                explore_toolbox(toolbox, toolbox.root)
+            except Exception as e:
+                self.SendRuntimeError(str(e))
+                return False
+        self.SendSignal(self.SignalRunComplete)
+        return True
+
     def Run(self, performanceMode):
         if performanceMode:
             _m.logbook_write("Performance Testing Activated")
@@ -635,6 +690,8 @@ class XTMFBridge:
                 self.DisableLogbook()
             elif input == self.SignalEnableLogbook:
                 self.EnableLogbook()
+            elif input == self.SignalCheckForMissingTools:
+                self.CheckForMissingTools()
             else:
                 #If we do not understand what XTMF is saying quietly die
                 exit = True

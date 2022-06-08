@@ -37,6 +37,9 @@ namespace TMG.NetworkEstimation
         [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
         public string EmmePath;
 
+        [RunParameter("Check Unconsolidated Tools", true, "Check that all unconsolidated tools exist after establishing connection.")]
+        public bool CheckUnconsolidatedTools;
+
         private ModellerController Data;
 
         public ModellerController GiveData() => Data;
@@ -53,6 +56,10 @@ namespace TMG.NetworkEstimation
                     {
                         GC.ReRegisterForFinalize(this);
                         Data = new ModellerController(this, ProjectFolder, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath);
+                        if(CheckUnconsolidatedTools)
+                        {
+                            Data.CheckAllToolsExist(this);
+                        }
                     }
                 }
             }
