@@ -27,37 +27,6 @@ namespace TMG.Emme
 {
     public sealed class ModellerController : Controller
     {
-        /// <summary>
-        /// Tell the bridge to clean out the modeller's logbook
-        /// </summary>
-        private const int SignalCleanLogbook = 6;
-
-        /// <summary>
-        /// We receive this error if the bridge can not get the parameters to match
-        /// the selected tool
-        /// </summary>
-        private const int SignalParameterError = 4;
-
-        /// <summary>
-        /// Receive a signal that contains a progress report
-        /// </summary>
-        private const int SignalProgressReport = 7;
-
-        /// <summary>
-        /// We receive this when the Bridge has completed its module run
-        /// </summary>
-        private const int SignalRunComplete = 3;
-
-        /// <summary>
-        /// We receive this when the Bridge has completed its module run and that there is a return value as well
-        /// </summary>
-        private const int SignalRunCompleteWithParameter = 8;
-
-        /// <summary>
-        /// We revive this error if the tool that we tell the bridge to run throws a
-        /// runtime exception that is not handled within the tool
-        /// </summary>
-        private const int SignalRuntimeError = 5;
 
         /// <summary>
         /// We will receive this from the ModellerBridge
@@ -66,20 +35,48 @@ namespace TMG.Emme
         private const int SignalStart = 0;
 
         /// <summary>
+        /// This is the message that we will send when it is time to shutdown the bridge.
+        /// If we receive it, then we know that the bridge is in a panic and has exited
+        /// </summary>
+        private const int SignalTermination = 1;
+
+        /// <summary>
         /// We will send this signal when we want to start to run a new module
         /// </summary>
         private const int SignalStartModule = 2;
 
         /// <summary>
-        /// We will send this signal when we want to start to run a new module with binary parameters
+        /// We receive this when the Bridge has completed its module run
         /// </summary>
-        private const int SignalStartModuleBinaryParameters = 14;
+        private const int SignalRunComplete = 3;
 
         /// <summary>
-        /// This is the message that we will send when it is time to shutdown the bridge.
-        /// If we receive it, then we know that the bridge is in a panic and has exited
+        /// We receive this error if the bridge can not get the parameters to match
+        /// the selected tool
         /// </summary>
-        private const int SignalTermination = 1;
+        private const int SignalParameterError = 4;
+
+        /// <summary>
+        /// We revive this error if the tool that we tell the bridge to run throws a
+        /// runtime exception that is not handled within the tool
+        /// </summary>
+        private const int SignalRuntimeError = 5;
+
+        /// <summary>
+        /// Tell the bridge to clean out the modeller's logbook
+        /// </summary>
+        private const int SignalCleanLogbook = 6;
+
+        /// <summary>
+        /// Receive a signal that contains a progress report
+        /// </summary>
+        private const int SignalProgressReport = 7;
+
+
+        /// <summary>
+        /// We receive this when the Bridge has completed its module run and that there is a return value as well
+        /// </summary>
+        private const int SignalRunCompleteWithParameter = 8;
 
         /// <summary>
         /// Signal the bridge to check if a tool namespace exists
@@ -99,6 +96,17 @@ namespace TMG.Emme
         private const int SignalDisableLogbook = 12;
 
         private const int SignalEnableLogbook = 13;
+
+        /// <summary>
+        /// We will send this signal when we want to start to run a new module with binary parameters
+        /// </summary>
+        private const int SignalStartModuleBinaryParameters = 14;
+
+        /// <summary>
+        /// Signal to the bridge that we want it to check that all of the unconsolidated tools have
+        /// their respective python files.
+        /// </summary>
+        private const int SignalCheckForMissingTools = 15;
 
         private NamedPipeServerStream PipeFromEMME;
 
@@ -470,6 +478,33 @@ namespace TMG.Emme
                 }
             }
             throw new XTMFRuntimeException(module, "We were unable to find a version of python inside of EMME!");
+        }
+
+        /// <summary>
+        /// Check that all unconsolidated tools have their file paths pointing to python
+        /// script files that exist.
+        /// </summary>
+        /// <param name="module">The module that is running the check.</param>
+        /// <exception cref="EmmeToolRuntimeException">This gets thrown if there is a tool with source code that was not found.</exception>
+        public void CheckAllToolsExist(IModule module)
+        {
+            lock (this)
+            {
+                string returnValue = null;
+                try
+                {
+                    EnsureWriteAvailable(module);
+                    // clear out all of the old input before starting
+                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream, System.Text.Encoding.Unicode);
+                    writer.Write(SignalCheckForMissingTools);
+                    writer.Flush();
+                }
+                catch (IOException e)
+                {
+                    throw new XTMFRuntimeException(module, "I/O Connection with EMME while sending data, with:\r\n" + e.Message);
+                }
+                WaitForEmmeResponse(module, ref returnValue, null);
+            }
         }
     }
 }
