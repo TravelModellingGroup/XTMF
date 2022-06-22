@@ -1,5 +1,5 @@
 ﻿'''
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -144,17 +144,19 @@ class XTMFBridge:
         # Redirect sys.stdout
         sys.stdin.close()
         terminate = False
-        # Load up Modeller before continuing on
-        try:
-            self.emmeApplication = emmeApplication
-            if databankName is not None:
-                self.SwitchToDatabank(emmeApplication, databankName)
-            self.Modeller = inro.modeller.Modeller(emmeApplication)
-            _m.logbook_write("Activated modeller from ModellerBridge for XTMF")
-        except:
-            #Terminate the bridge if we are unable to
+        if emmeApplication is not None:
+            # Load up Modeller before continuing on
+            try:
+                self.emmeApplication = emmeApplication
+                if databankName is not None:
+                    self.SwitchToDatabank(emmeApplication, databankName)
+                self.Modeller = inro.modeller.Modeller(emmeApplication)
+                _m.logbook_write("Activated modeller from ModellerBridge for XTMF")
+            except:
+                #Terminate the bridge if we are unable to
+                terminate = True
+        else:
             terminate = True
-
         self.ToXTMF = open('\\\\.\\pipe\\' + pipeName, 'wb', 0)
         self.FromXTMF = os.fdopen(0, "rb")
         sys.stdout = NullStream()
@@ -733,11 +735,18 @@ if len(args) > 5:
 #sys.stderr.write(args)
 print(userInitials)
 print(projectFile)
+TheEmmeEnvironmentXMTF = None
 try:
     TheEmmeEnvironmentXMTF = _app.start_dedicated(visible=False, user_initials=userInitials, project=projectFile)
+except:
+    # We can just pass here, if we didn't set the environment then the bridge will terminate
+    pass 
+    
+try:
     XTMFBridge(TheEmmeEnvironmentXMTF, databank,).Run(performancFlag)
 except Exception as e:   
     print(dir(e).__class__)
     print(e.message)
     print(e.args)
-TheEmmeEnvironmentXMTF.close()
+if TheEmmeEnvironmentXMTF is not None:
+    TheEmmeEnvironmentXMTF.close()
