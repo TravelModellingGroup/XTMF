@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Datastructure;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -65,6 +66,10 @@ namespace TMG.Emme.NetworkAssignment
 
         [RunParameter("Background Transit", true, "Set this to false to not assign transit vehicles on the roads")]
         public bool BackgroundTransit;
+
+        [RunParameter("On Road TTFs", "3-128", typeof(RangeSet), "The Transit Time Functions (TTFs) for transit segments that should be applied to the" +
+            " road links to reduce capacity for the buses and streetcars in mixed traffic.")]
+        public RangeSet OnRoadTTFs;
 
 
         public sealed class Class : IModule
@@ -228,7 +233,8 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("xtmf_PathSelection", GetPathSelection()),
                 new ModellerControllerParameter("xtmf_MultiplyPathPropByDemand", GetPathMultiplyDemand()),
                 new ModellerControllerParameter("xtmf_MultiplyPathPropByValue", GetPathMultiplyValue()),
-                new ModellerControllerParameter("xtmf_BackgroundTransit", BackgroundTransit.ToString())
+                new ModellerControllerParameter("xtmf_BackgroundTransit", BackgroundTransit.ToString()),
+                new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString())
             };
         }
 
