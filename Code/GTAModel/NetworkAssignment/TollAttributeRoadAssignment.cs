@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Datastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -90,6 +91,10 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("SOLA Flag", true, "Emme 4.1 and newer ONLY! Flag to use SOLA traffic assignment algorithm instead of standard.")]
         public bool SolaFlag;
 
+        [RunParameter("On Road TTFs", "3-128", typeof(RangeSet), "The Transit Time Functions (TTFs) for transit segments that should be applied to the" +
+            " road links to reduce capacity for the buses and streetcars in mixed traffic.")]
+        public RangeSet OnRoadTTFs;
+
         private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
         private const string ToolName = "tmg.assignment.road.tolled.toll_attribute";
         private const string ToolNameWithBgTraffic = "tmg.assignment.road.tolled.toll_attribute_transit_background";
@@ -158,10 +163,15 @@ namespace TMG.GTAModel.NetworkAssignment
                  LowerBound, UpperBound, PathToODAggregation, AnalyzedDemandMatrix, ODValueResults, LinkVolResults, TurnVolResults */
                 args = string.Join(" ", args, 
                     false, "None", "None", "None",
-                    0, 0, "None", "mf0", "mf0", "None", "None");
+                    0, 0, "None", "mf0", "mf0", "None", "None", AddQuotes(OnRoadTTFs.ToString()));
                 return mc.Run(this, ToolNameWithBgTraffic, args, (p => Progress = p), ref result);
             }
             return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
+        }
+
+        private string AddQuotes(string value)
+        {
+            return "\"" + value + "\"";
         }
 
         public bool RuntimeValidation(ref string error)
