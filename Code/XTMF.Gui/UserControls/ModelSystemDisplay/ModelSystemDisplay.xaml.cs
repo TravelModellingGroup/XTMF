@@ -1554,7 +1554,7 @@ namespace XTMF.Gui.UserControls
             }
             else if (CurrentlySelected.Count == 1)
             {
-                var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Change Description" : "Change Descriptions", (value) => false, selected.Name);
+                var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Change Description" : "Change Descriptions", (value) => false, selected.Description);
                 await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {
