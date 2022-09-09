@@ -204,7 +204,7 @@ namespace TMG.Tasha
                     try
                     {
                         EnsureReader();
-                        if(AutoOwnershipModel != null)
+                        if (AutoOwnershipModel != null)
                         {
                             AutoOwnershipModel.Load();
                         }
@@ -254,7 +254,7 @@ namespace TMG.Tasha
                     }
                     finally
                     {
-                        if(TripDump != null)
+                        if (TripDump != null)
                         {
                             TripDump.Dispose();
                             TripDump = null;
@@ -347,7 +347,7 @@ namespace TMG.Tasha
                 return false;
             }
             AutoType = Root.AutoType;
-            if(AutoType == null)
+            if (AutoType == null)
             {
                 error = "There was no AutoType loaded by the TashaRuntime.";
                 return false;
@@ -574,7 +574,7 @@ namespace TMG.Tasha
                 if (Reader == null)
                 {
                     Reader = new CsvReader(
-                        HouseholdFile != null?
+                        HouseholdFile != null ?
                         HouseholdFile.GetFilePath()
                         : Path.Combine(Root.InputBaseDirectory, FileName));
                 }
@@ -683,7 +683,7 @@ namespace TMG.Tasha
                     }
                     AssignNumberOfVehicles(h, numCars, tempInt);
                 }
-                if(IncomeCol >= 0)
+                if (IncomeCol >= 0)
                 {
                     Reader.Get(out int incomeClass, IncomeCol);
                     h.IncomeClass = incomeClass;
@@ -736,9 +736,23 @@ namespace TMG.Tasha
                 {
                     h.Recycle();
                 }
-                if(AutoOwnershipModel != null)
+                if (AutoOwnershipModel != null)
                 {
-                    AssignNumberOfVehicles(h, AutoOwnershipModel.ProduceResult(h), 0);
+                    var aoResult = AutoOwnershipModel.ProduceResult(h);
+                    if (aoResult < 0)
+                    {
+                        Reader.Get(out aoResult, CarsCol);
+                        if (SecondVehicleColumnNumber >= 0)
+                        {
+                            Reader.Get(out tempInt, SecondVehicleColumnNumber);
+                        }
+                        else
+                        {
+                            tempInt = 0;
+                        }
+                        aoResult += tempInt;
+                    }
+                    AssignNumberOfVehicles(h, aoResult, 0);
                 }
             } while (loadnext);
             if (LoadedTripDump != null)
@@ -762,14 +776,14 @@ namespace TMG.Tasha
             var writer = TripDump;
             for (int i = 0; i < h.Persons.Length; i++)
             {
-                var person = (Person) h.Persons[i];
+                var person = (Person)h.Persons[i];
                 for (int j = 0; j < person.TripChains.Count; j++)
                 {
-                    var tc = (TripChain) person.TripChains[j];
+                    var tc = (TripChain)person.TripChains[j];
                     for (int k = 0; k < tc.Trips.Count; k++)
                     {
-                        var trip = (Trip) tc.Trips[k];
-                        var obsMode = (ITashaMode) trip["ObservedMode"];
+                        var trip = (Trip)tc.Trips[k];
+                        var obsMode = (ITashaMode)trip["ObservedMode"];
                         writer.Write(h.HouseholdId);
                         writer.Write(',');
                         // person number

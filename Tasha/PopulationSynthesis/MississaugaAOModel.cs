@@ -21,6 +21,9 @@ namespace Tasha.PopulationSynthesis
 
         public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
 
+        [RunParameter("Zones To Process", "", typeof(RangeSet), "The zones to modify the auto ownership for.  Leave blank to apply to all zones.")]
+        public RangeSet ZonesToProcess;
+
         [RunParameter("Auto Network", "Auto", "The name of the auto network to use.")]
         public string AutoNetworkName;
 
@@ -38,9 +41,6 @@ namespace Tasha.PopulationSynthesis
 
         [SubModelInformation(Required = true, Description = "Employment by zone")]
         public IDataSource<SparseArray<float>> Employment;
-
-        [SubModelInformation(Required = true, Description = "The scenario to draw the employment from.")]
-        public FileLocation EmploymentDirectory;
 
         [RunParameter("Time", "7:00", typeof(Time), "The time to use for computing the accessibility terms.")]
         public Time Time;
@@ -234,7 +234,12 @@ namespace Tasha.PopulationSynthesis
 
         public int ProduceResult(ITashaHousehold data)
         {
-            var flatHomeZone = _zoneSystem.GetFlatIndex(data.HomeZone.ZoneNumber);
+            var zoneNumber = data.HomeZone.ZoneNumber;
+            if(ZonesToProcess.Count > 0 && !ZonesToProcess.Contains(zoneNumber))
+            {
+                return -1;
+            }
+            var flatHomeZone = _zoneSystem.GetFlatIndex(zoneNumber);
             if (flatHomeZone < 0)
             {
                 return 0;
