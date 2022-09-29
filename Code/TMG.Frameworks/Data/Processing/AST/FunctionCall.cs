@@ -887,10 +887,10 @@ namespace TMG.Frameworks.Data.Processing.AST
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
-            System.Threading.Tasks.Parallel.For(0, flatData.Length, (int i) =>
+            for(int i = 0; i < flatData.Length; i++)
             {
                 VectorHelper.Add(flatRet, 0, flatRet, 0, flatData[i], 0, flatData[i].Length);
-            });
+            }
             return new ComputationResult(ret, true, ComputationResult.VectorDirection.Horizontal);
         }
 
