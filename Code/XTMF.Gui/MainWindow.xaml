@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -29,7 +29,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
         xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
-        Title="XTMF Version 1.10" Height="768" Width="1024" IsHitTestVisible="True"
+        Title="XTMF Version 1.11" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="500"
         Name="XtmfWindow"
         PreviewKeyDown="MainWindow_OnPreviewKeyDown"
