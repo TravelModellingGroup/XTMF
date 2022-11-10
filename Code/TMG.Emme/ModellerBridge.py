@@ -289,7 +289,7 @@ class XTMFBridge:
             parameterList.append(currentParameter)
         return parameterList
     
-    def ConvertIntoTypes(self, parameterList, toolParameterTypes):
+    def ConvertIntoTypes(self, parameterList, toolParameterTypes, parameterNames):
         length = len(parameterList)
         if length != len(toolParameterTypes):
             return None
@@ -298,7 +298,7 @@ class XTMFBridge:
                 try:
                     parameterList[i] = int(parameterList[i])
                 except:
-                    self.SendParameterError("Unable to convert '" + parameterList[i] + "' to an integer!")
+                    self.SendParameterError("Unable to convert '" + parameterList[i] + "' to an integer for parameter "+ parameterNames[i] +"!")
                     return None
             elif toolParameterTypes[i] == "string":
                 #it is already a string, so we don't need to do anything
@@ -307,7 +307,7 @@ class XTMFBridge:
                 try:
                     parameterList[i] = float(parameterList[i])
                 except:
-                    self.SendParameterError("Unable to convert '" + parameterList[i] + "' to a float!")
+                    self.SendParameterError("Unable to convert '" + parameterList[i] + "' to a float for parameter "+ parameterNames[i] +"!")
                     return None
             elif toolParameterTypes[i] == "bool":
                 try:
@@ -316,12 +316,12 @@ class XTMFBridge:
                     elif parameterList[i].lower() in ['false','f','fals','fal']:
                         parameterList[i] = False
                     else:
-                        self.SendParameterError("Unable to convert '" + parameterList[i] + "' to a bool!")
+                        self.SendParameterError("Unable to convert '" + parameterList[i] + "' to a bool for parameter "+ parameterNames[i] +"!")
                 except:
-                    self.SendParameterError("Unable to convert '" + parameterList[i] + "' to a bool!")
+                    self.SendParameterError("Unable to convert '" + parameterList[i] + "' to a bool for parameter "+ parameterNames[i] +"!")
                     return None
             else:
-                self.SendParameterError("The type '" + toolParameterTypes[i] + "' is not recognized by this XTMF Bridge!")
+                self.SendParameterError("The type '" + toolParameterTypes[i] + "' is not recognized by this XTMF Bridge for parameter "+ parameterNames[i] +"!")
                 return None
         return parameterList
     
@@ -502,15 +502,15 @@ class XTMFBridge:
                 return
 
             # Parse the parameters
+            expectedParameterNames = self.GetToolParameters(tool)
             if useBinaryParameters:
-                expectedParameterNames = self.GetToolParameters(tool)
                 if not self.ReorderParametersToMatch(macroName, expectedParameterNames, sentParameterNames, parameterList):
                     return
                 parameterString = str.join(',', ['{%s:%s}' %(sentParameterNames[p], parameterList[p]) for p in range(0, numberOfParameters)])
             else:
                 parameterList = self.BreakIntoParametersStrings(parameterString)
             
-            parameterList = self.ConvertIntoTypes(parameterList, toolParameterTypes)
+            parameterList = self.ConvertIntoTypes(parameterList, toolParameterTypes, expectedParameterNames)
             if parameterList == None:
                 _m.logbook_write("We were unable to create the parameters to their given types, or there was the wrong number of arguments for the tool " + macroName + ".")
                 _m.logbook_write("The parameter string was \r\n" + parameterString)
