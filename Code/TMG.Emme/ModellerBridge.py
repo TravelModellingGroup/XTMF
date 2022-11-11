@@ -456,22 +456,25 @@ class XTMFBridge:
                     missing.append(param)
             self.SendParameterError(str.join("\r\n", ["A parameter called '" + param + "' was not sent while calling the tool '" + toolName + "'!" for param in missing]))
             return False
+
+        def swap(l, position1, position2):
+            temp = l[position1]
+            l[position1] = l[position2]
+            l[position2] = temp
+
         #We know we have the right number of parameters now
         for i in range(0, len(expectedParameterNames)):
-            if expectedParameterNames[i] != sentParameterNames[i]:
-                count = expectedParameterNames.count(sentParameterNames[i])
-                if count == 0:
-                    self.SendParameterError("Unable to find a parameter in the EMME tool '" + toolName + "' called '" + sentParameterNames[i] + "'!")
-                    return False
-                else:
-                    index = expectedParameterNames.index(sentParameterNames[i])
-                    #then we know there is a miss ordering for this parameter we can just swap
-                    temp = sentParameterNames[i]
-                    temp2 = parameterList[i]
-                    sentParameterNames[i] = sentParameterNames[index]
-                    parameterList[i] = parameterList[index]
-                    sentParameterNames[index] = temp
-                    parameterList[index] = temp2
+            found = False
+            for j in range(i, len(sentParameterNames)):
+                if expectedParameterNames[i] == sentParameterNames[j]:
+                    if i != j:
+                        swap(sentParameterNames, i, j)
+                        swap(parameterList, i, j)
+                    found = True
+                    break
+            if not found:
+                self.SendParameterError("Unable to find a parameter in the EMME tool '" + toolName + "' called '" + sentParameterNames[i] + "'!")
+                return False
         return True
     
     def ExecuteModule(self, useBinaryParameters):
