@@ -280,21 +280,7 @@ namespace XTMF.Gui.UserControls
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     ModuleNameTextBlock.Text = selected.Name ?? "No Module Selected";
-                    var background = (SolidColorBrush)FindResource("MaterialDesignPaper");
-                    var body = (SolidColorBrush)FindResource("MaterialDesignBody");
-                    if (!string.IsNullOrEmpty(selected.Description))
-                    {
-                        var htmlString =
-                            $"<style>body{{ font-size:14px; background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; " +
-                            $"font-family: \"Segoe UI\";overflow: hidden }}</style><body>{selected.Description}</body>";
-                        ModuleDescriptionTextBlock.NavigateToString(htmlString);
-                    }
-                    else
-                    {
-                        var htmlString =
-                            $"<style>body{{font-size:14px; overflow: hidden; background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body>No description available.</body>";
-                        ModuleDescriptionTextBlock.NavigateToString(htmlString);
-                    }
+                    ModuleDescriptionTextBlock.Text = string.IsNullOrEmpty(selected.Description) ? "No description available" : selected.Description;
                     ModuleUrlTextBlock.Text = selected.Url ?? "";
                     ModuleTypeTextBlock.Text = selected.Text;
                 }));
@@ -312,30 +298,6 @@ namespace XTMF.Gui.UserControls
             {
                 System.Diagnostics.Process.Start(selected.Url.StartsWith("http") ? selected.Url : $"http://{selected.Url}");
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModuleDescriptionTextBlock_OnNavigated(object sender, NavigationEventArgs e)
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModuleDescriptionTextBlock_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            var background = (SolidColorBrush)FindResource("MaterialDesignPaper");
-            var body = (SolidColorBrush)FindResource("MaterialDesignBody");
-            var htmlString =
-                $"<style>body{{ overflow: hidden;background-color:\"#{background.Color.ToString().Substring(3)}\"; color:\"#{body.Color.ToString().Substring(3)}\"; }}</style><body></body>";
-            ModuleDescriptionTextBlock.NavigateToString(htmlString);
         }
     }
 }
