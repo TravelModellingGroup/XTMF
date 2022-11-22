@@ -72,7 +72,7 @@
                 <TextBlock Foreground="{DynamicResource MaterialDesignBody}" Name="ModuleNameTextBlock" Grid.Row="0"  Text="No Module Selected" Style="{DynamicResource MaterialDesignTitleTextBlock}"/>
                 <TextBlock MouseUp="ModuleUrlTextBlock_OnMouseUp"  Foreground="{DynamicResource PrimaryHueMidBrush}" Name="ModuleUrlTextBlock" Grid.Row="2"  Text="" Style="{DynamicResource MaterialDesignCaptionTextBlock}" Cursor="Hand" />
                 <TextBlock  Foreground="{DynamicResource MaterialDesignBody}" Name="ModuleTypeTextBlock" Grid.Row="1"  Text="" Style="{DynamicResource MaterialDesignCaptionTextBlock}" Opacity="0.8"></TextBlock>
-                <WebBrowser ScrollViewer.VerticalScrollBarVisibility="Hidden"  Loaded="ModuleDescriptionTextBlock_OnLoaded" Navigated="ModuleDescriptionTextBlock_OnNavigated"   Margin="0 15 0 0"  Name="ModuleDescriptionTextBlock" Grid.Row="3" />
+                <TextBlock ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="0 15 0 0" TextWrapping="Wrap" Name="ModuleDescriptionTextBlock" Grid.Row="3" />
             </Grid>
         </Border>
     </Grid>
