@@ -37,7 +37,15 @@ namespace Datastructure
         /// <summary>
         /// The reader we use to get the IO data
         /// </summary>
-        private readonly BinaryReader Reader;
+        private BinaryReader Reader;
+
+        /// <summary>
+        /// This field will be set if we needed to
+        /// create an inner stream for decompression.
+        /// Reset using this stream instead of reader if
+        /// it is not null.
+        /// </summary>
+        private Stream _innerStream;
 
         /// <summary>
         /// The segments set when we read in a line
@@ -63,31 +71,33 @@ namespace Datastructure
         public CsvReader(string fileName, bool spacesAsSeperator = false)
         {
             FileName = fileName;
-            // Check to see if the CSV is compressed
-            if (Path.GetExtension(fileName)?.Equals(".gz", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                var innerStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                var decompressionStream = new GZipStream(innerStream, CompressionMode.Decompress, false);
-                Reader = new BinaryReader(decompressionStream);
-            }
-            else
-            {
-                Reader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read));
-            }
+            LoadReaderFromFile();
             BaseStream = Reader.BaseStream;
             LoadedFromStream = false;
             DataBufferLength = -1;
             SpacesAsSeperator = spacesAsSeperator;
         }
 
-        public CsvReader(FileInfo fileInfo, bool spacesAsSeperator = false)
+        private void LoadReaderFromFile()
         {
-            FileName = fileInfo.FullName;
-            Reader = new BinaryReader(fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
-            BaseStream = Reader.BaseStream;
-            LoadedFromStream = false;
-            DataBufferLength = -1;
-            SpacesAsSeperator = spacesAsSeperator;
+            BaseStream?.Dispose();
+            _innerStream?.Dispose();
+            // Check to see if the CSV is compressed
+            if (Path.GetExtension(FileName)?.Equals(".gz", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                _innerStream = File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                BaseStream = new GZipStream(_innerStream, CompressionMode.Decompress, false);  
+            }
+            else
+            {
+                BaseStream = File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            }
+            Reader = new BinaryReader(BaseStream);
+        }
+
+        public CsvReader(FileInfo fileInfo, bool spacesAsSeperator = false)
+            : this(fileInfo.FullName, spacesAsSeperator)
+        {
         }
 
         public CsvReader(Stream stream, bool spacesAsSeperator = false)
@@ -99,11 +109,7 @@ namespace Datastructure
             DataBufferLength = -1;
             SpacesAsSeperator = spacesAsSeperator;
         }
-
-        public Stream BaseStream
-        {
-            get;
-        }
+        public Stream BaseStream { get; private set; }
 
         public bool EndOfFile => DataBufferLength == 0;
 
@@ -363,7 +369,7 @@ namespace Datastructure
                     if (c != '\r')
                     {
                         LineBuffer[LinePosition++] = c;
-                    
+
                         // if a comma or an end quote followed by a comma
                         if ((!quote && (c == ',' || c == '\t'))
                             || c == '\r')
@@ -401,7 +407,14 @@ namespace Datastructure
         /// </summary>
         public void Reset()
         {
-            Reader.BaseStream.Seek(0, SeekOrigin.Begin);
+            if (!BaseStream.CanSeek)
+            {
+                LoadReaderFromFile();
+            }
+            else
+            {
+                BaseStream.Position = 0;
+            }
             DataBuffer2 = null;
             DataBufferLength = -1;
             LineNumber = 0;
