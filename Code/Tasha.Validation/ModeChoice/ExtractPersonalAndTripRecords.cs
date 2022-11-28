@@ -861,12 +861,11 @@ namespace Tasha.Validation.ModeChoice
                     // store the access and egresses per access station
                     foreach (var stn in from rec in replicationData
                                         group rec by rec.StationIndex into g
-                                        select new
-                                        {
-                                            StationIndex = g.Key,
-                                            TimesAccessed = g.Count(r => r.First),
-                                            TimesEgressed = g.Count(r => !r.First)
-                                        })
+                                        select (
+                                            StationIndex : g.Key,
+                                            TimesAccessed : g.Count(r => r.First),
+                                            TimesEgressed : g.Count(r => !r.First)
+                                        ))
                     {
                         if (stn.TimesAccessed > 0)
                         {
@@ -963,7 +962,7 @@ namespace Tasha.Validation.ModeChoice
             {
                 foreach (var stn in from rec in _stationChoices
                                     group rec by rec.StationZone into g
-                                    select new { StationIndex = g.Key, Accesses = g.Count(r => r.Access == true), Egresses = g.Count(r => r.Access == false) })
+                                    select ( StationIndex : g.Key, Accesses : g.Count(r => r.Access == true), Egresses : g.Count(r => r.Access == false) ))
                 {
                     if (stn.Accesses > 0)
                     {
