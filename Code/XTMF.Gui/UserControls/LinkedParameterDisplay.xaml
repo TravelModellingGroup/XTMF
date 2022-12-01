@@ -34,32 +34,25 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}">
-                    <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,0,0">
-                        <Border DockPanel.Dock="Left">
-                            <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal"/>
-                        </Border>
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
-                            <Border Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Right" Width="20" Margin="0,0,0,0" MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown">
-                                <Border.Style>
-                                    <Style TargetType="{x:Type Border}">
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-
-                                                <Setter Property="Cursor" Value="Hand"/>
-                                                <Setter Property="Opacity" Value="1.0"/>
-                                            </Trigger>
-                                            <Trigger Property="IsMouseOver" Value="False">
-                                                <Setter Property="Opacity" Value="0.5"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"/>
-                            </Border>
-                        </StackPanel>
-                    </DockPanel>
-                </Border>
+                <Grid Grid.Row="0" Background="{DynamicResource PrimaryHueDarkBrush}">
+                    <Border IsHitTestVisible="True" Grid.Row="0" 
+                Grid.Column="2" HorizontalAlignment="Right" Width="20" Height="20" ToolTip="Cancel" MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown">
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="False">
+                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <materialDesign:PackIcon x:Name="ExitButton" HorizontalAlignment="Center" VerticalAlignment="Center" Kind="Close" />
+                    </Border>
+                </Grid>
                 <Grid Grid.Row="2" Margin="0" Background="{DynamicResource MaterialDesignCardBackground}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />

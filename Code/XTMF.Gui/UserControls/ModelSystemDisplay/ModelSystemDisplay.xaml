@@ -97,7 +97,7 @@
                                           IsTabStop="False"/>
                         <TextBox   PreviewDragOver="StandardParameterTemplateTextBox_OnPreviewDragOver" Name="StandardParameterTemplateTextBox"  AllowDrop="True" LostFocus="TextBox_OnLostFocus"
                                    TextChanged="TextBox_OnTextChanged" materialDesign:TransitionAssist.DisableTransitions="True"  HorizontalContentAlignment="Left" Tag="{Binding .}" Grid.Column="2"
-                                   Style="{StaticResource MaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                                   Style="{StaticResource XtmfMaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                            GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus" CaretBrush="{DynamicResource SecondaryHueDarkBrush}"
                                           Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}" FocusManager.IsFocusScope="True"
                                           PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}" Drop="StandardParameterTemplateTextBox_OnDrop"
@@ -141,7 +141,7 @@
                         </Grid.ColumnDefinitions>
                         <CheckBox materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter" Checked="ToggleButton_OnChecked"  Unchecked="ToggleButton_OnUnchecked"
                                                   IsTabStop="False"/>
-                        <ComboBox  Tag="{Binding .}"  materialDesign:TransitionAssist.DisableTransitions="True"  Name="ComboBox"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                        <ComboBox  Tag="{Binding .}"  materialDesign:TransitionAssist.DisableTransitions="True"  Name="ComboBox"  Style="{StaticResource XtmfMaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                         AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="False"
                                           IsReadOnly="True" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
