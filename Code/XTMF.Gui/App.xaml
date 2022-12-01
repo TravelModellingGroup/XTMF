@@ -735,6 +735,12 @@
 
             <Style x:Key="XtmfMaterialDesignFloatingHintTextBox" TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignTextBox}">
                 <Setter Property="wpf:HintAssist.IsFloating" Value="True"/>
+                <Setter Property="wpf:HintAssist.FloatingScale" Value="0.95"/>
+            </Style>
+
+            <Style x:Key="XtmfMaterialDesignFloatingHintComboBox" TargetType="{x:Type ComboBox}" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
+                <Setter Property="wpf:HintAssist.IsFloating" Value="True"/>
+                <Setter Property="wpf:HintAssist.FloatingScale" Value="0.95"/>
             </Style>
         </ResourceDictionary>
     </Application.Resources>

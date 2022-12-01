@@ -8,35 +8,39 @@
 
              mc:Ignorable="d" PreviewKeyDown="StringRequestDialog_OnPreviewKeyDown" 
              d:DesignHeight="300" d:DesignWidth="500">
-    <Grid MinHeight="60"  MinWidth="300" Margin="10 7 10 10" VerticalAlignment="Center">
+    <Grid MinHeight="60"  MinWidth="300" Margin="0" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="300"></ColumnDefinition>
+            <ColumnDefinition MinWidth="300" Width="67*"></ColumnDefinition>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO"/>
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-
-        <Border Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="20" ToolTip="Cancel" MouseLeftButtonDown="OnClose_Clicked">
-            <Border.Style>
-                <Style TargetType="{x:Type Border}">
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Cursor" Value="Hand"/>
-                            <Setter Property="Opacity" Value="1.0"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="False">
-                            <Setter Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-            <materialDesign:PackIcon Kind="Close" Foreground="{DynamicResource MaterialDesignBody}"/>
-        </Border>
+        <Grid Grid.Row="0" Grid.ColumnSpan="3" Background="{DynamicResource PrimaryHueDarkBrush}">
+            <Border IsHitTestVisible="True" Grid.Row="0" 
+                Grid.Column="2" HorizontalAlignment="Right" Width="20" Height="20" ToolTip="Cancel" MouseLeftButtonDown="OnClose_Clicked">
+                <Border.Style>
+                    <Style TargetType="{x:Type Border}">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <materialDesign:PackIcon x:Name="ExitButton" HorizontalAlignment="Center" VerticalAlignment="Center" Kind="Close" />
+            </Border>
+        </Grid>
+        
         <TextBox Grid.Row="1" Grid.Column="0"  MinWidth="300" x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"
                  FontSize="14" CaretBrush="{DynamicResource SecondaryHueMidBrush}"
-                  Style="{DynamicResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Stretch">
+                  Style="{DynamicResource XtmfMaterialDesignFloatingHintTextBox}" Grid.ColumnSpan="2">
             <TextBox.Text>
                 <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
@@ -45,7 +49,7 @@
                 </Binding>
             </TextBox.Text>
         </TextBox>
-        <Button Style="{StaticResource MaterialDesignOutlinedSecondaryButton}" Margin="3 0 0 0"  Grid.Row="1" Grid.Column="1" Width="50" Name="ConfirmButton"
+        <Button Style="{StaticResource MaterialDesignOutlinedSecondaryButton}" Margin="3,7,0,6"  Grid.Row="1" Grid.Column="2" Width="50" Name="ConfirmButton"
                 Click="ConfirmButton_Click">OK</Button>
     </Grid>
 </UserControl>
