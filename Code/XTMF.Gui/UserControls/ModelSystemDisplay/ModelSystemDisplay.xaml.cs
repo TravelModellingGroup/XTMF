@@ -107,7 +107,7 @@ namespace XTMF.Gui.UserControls
                 Task.Run(() =>
                 {
                     var ourNumber = Interlocked.Increment(ref FilterNumber);
-                    var waitTask = Task.Delay(250);
+                    var waitTask = Task.Delay(350);
                     waitTask.Wait();
                     Thread.MemoryBarrier();
                     if (ourNumber == FilterNumber)
@@ -428,10 +428,11 @@ namespace XTMF.Gui.UserControls
             bool parentExpanded = true, bool parentVisible = false, bool parentPassed = false)
         {
             var children = module.Children;
-            var thisParentPassed = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
-                                   module.Type != null &&
-                                   module.Type.FullName.IndexOf(filterText,
-                                       StringComparison.CurrentCultureIgnoreCase) >= 0;
+            var thisParentPassed = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0
+                                    || (module.Type != null &&
+                                        module.Type.FullName.IndexOf(filterText,
+                                       StringComparison.CurrentCultureIgnoreCase) >= 0)
+                                    || (module.ParametersModel?.HasParameterContaining(filterText) ?? false);
             var childrenPassed = false;
             if (children != null)
             {
