@@ -61,6 +61,27 @@ namespace XTMF
             return Parameters != null ? Parameters.ToObservableCollection() : new ObservableCollection<ParameterModel>();
         }
 
+        /// <summary>
+        /// Call this to check if there is a parameter name or
+        /// a parameter value that contains the given filter text
+        /// </summary>
+        /// <param name="filterText">The text to filter for.</param>
+        /// <returns>True if it was found, false otherwise.</returns>
+        public bool HasParameterContaining(string filterText)
+        {
+            if(Parameters== null) return false;
+            foreach(var param in Parameters)
+            {
+                if(param.Name.Equals(filterText, StringComparison.OrdinalIgnoreCase)
+                    || param.Value.Equals(filterText, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
         internal void Update()
         {
             var parameters = Parameters;
