@@ -104,10 +104,13 @@ namespace Tasha.Scheduler
             return true;
         }
 
-        public static bool GetRandomStartTimeFrequency(int distribution, int freq, int min, int max, Random random, out Time startTime)
+        public static bool GetRandomStartTimeFrequency(int distribution, int freq, int min, int max, Random random,
+            int householdPD, int workPD, StartTimeAdjustment[] adjustments, out Time startTime)
         {
             float[][] pdf = Distributions[distribution].StartTimeFrequency;
-
+            Span<int> adjustmentsToApply = stackalloc int[adjustments.Length];
+            Span<float> tempPDF = stackalloc float[pdf.Length];
+            int numberOfAdjustments = GetStartTimeAdjustments(adjustmentsToApply, adjustments, distribution, householdPD, workPD);
             if (min >= max)
             {
                 startTime = DistributionToTimeOfDay(max);
@@ -118,7 +121,17 @@ namespace Tasha.Scheduler
             float pdfFactor = 0.0f;
             for (int i = min; i < max; ++i)
             {
-                pdfFactor += pdf[i][freq];
+                float factor = 1.0f;
+                for (int j = 0; j < numberOfAdjustments; j++)
+                {
+                    var adjustment = adjustments[adjustmentsToApply[j]];
+                    if(adjustment.StartTimeQuantum <= i && i < adjustment.EndTimeQuantum)
+                    {
+                        factor = adjustment.Factor;
+                        break;
+                    }
+                }
+                pdfFactor += (tempPDF[i] = factor * pdf[i][freq]);
             }
 
             if (pdfFactor == 0)
@@ -130,10 +143,11 @@ namespace Tasha.Scheduler
             float cdf = 0.0f;
             for (int i = min; i < max; i++)
             {
-                cdf += pdf[i][freq];
+                cdf += tempPDF[i];
 
                 if (rand < cdf)
                 {
+
                     startTime = DistributionToTimeOfDay(i);
                     if (startTime == Time.Zero)
                     {
@@ -145,6 +159,32 @@ namespace Tasha.Scheduler
             // if we get here, it was the last one but off due to rounding errors
             startTime = DistributionToTimeOfDay(max);
             return true;
+        }
+
+        /// <summary>
+        /// Fills out the adjustmentsToApply with the distributions that are
+        /// applicable.  The span must be the same size as the adjustments array.
+        /// </summary>
+        /// <param name="adjustmentsToApply">The span to fill with indexes to apply.</param>
+        /// <param name="distributionID">The id that we are applying to.</param>
+        /// <param name="householdPD">The planning district of the home zone.</param>
+        /// <param name="workPD">The planning district of the work zone (0 if none)</param>
+        /// <param name="adjustments">The adjustments we will search over.</param>
+        /// <returns>The number of adjustments to apply.</returns>
+        private static int GetStartTimeAdjustments(Span<int> adjustmentsToApply, StartTimeAdjustment[] adjustments,
+            int distributionID, int householdPD, int workPD)
+        {
+            int pos = 0;
+            for (int i = 0; i < adjustments.Length; i++)
+            {
+                if (adjustments[i].DistributionIDs.Contains(distributionID)
+                    && adjustments[i].HomePlanningDistricts.Contains(householdPD)
+                    && adjustments[i].WorkPlanningDistrict.Contains(workPD))
+                {
+                    adjustments[pos++] = adjustments[i];
+                }
+            }
+            return pos;
         }
 
         /// <summary>
