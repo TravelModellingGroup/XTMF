@@ -180,7 +180,7 @@ namespace XTMF.Gui.UserControls
         {
             if (Display.SelectedItem is Project project)
             {
-                var dialog = new StringRequestDialog(RootDialogHost, "Rename Project", (value) => String.IsNullOrWhiteSpace(value), project.Name);
+                var dialog = new StringRequestDialog(RootDialogHost, "Rename Project", (value) => !String.IsNullOrWhiteSpace(value), project.Name);
                 await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {

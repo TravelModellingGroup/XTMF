@@ -425,7 +425,7 @@ namespace XTMF.Gui.UserControls
         {
             if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
-                var dialog = new StringRequestDialog(RootDialogHost, "Rename Model System", (value) => String.IsNullOrWhiteSpace(value), selected.Name);
+                var dialog = new StringRequestDialog(RootDialogHost, "Rename Model System", (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
                 await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {
