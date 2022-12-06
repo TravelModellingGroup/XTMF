@@ -202,6 +202,9 @@ namespace Tasha.Scheduler
         [SubModelInformation(Description = "Adjustments to the generation rates to allow for spatial differences.")]
         public GenerationAdjustment[] GenerationRateAdjustments;
 
+        [SubModelInformation(Description = "Adjustments to the activity episode start time rates.")]
+        public StartTimeAdjustment[] StartTimeAdjustments;
+
         internal static int SchedulingFail;
 
         internal static int SchedulingSuccess;
@@ -304,7 +307,7 @@ namespace Tasha.Scheduler
             // Setup the data, no random is needed here
             AddProjects(h);
             // Generate the schedules for each type of project
-            if (!h.GenerateProjectSchedules(r, GenerationRateAdjustments))
+            if (!h.GenerateProjectSchedules(r, GenerationRateAdjustments, StartTimeAdjustments))
             {
                 // If we were not able to generate a schedule
                 System.Threading.Interlocked.Increment(ref SchedulingFail);
