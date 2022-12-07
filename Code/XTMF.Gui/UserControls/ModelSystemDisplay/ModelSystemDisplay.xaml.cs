@@ -1520,7 +1520,7 @@ namespace XTMF.Gui.UserControls
             }
             else if (CurrentlySelected.Count == 1)
             {
-                var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Rename Module" : "Rename Modules", (value) => String.IsNullOrWhiteSpace(value), selected.Name);
+                var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Rename Module" : "Rename Modules", (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
                 await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {
@@ -1555,7 +1555,7 @@ namespace XTMF.Gui.UserControls
             }
             else if (CurrentlySelected.Count == 1)
             {
-                var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Change Description" : "Change Descriptions", (value) => false, selected.Description);
+                var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Change Description" : "Change Descriptions", (value) => true, selected.Description);
                 await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {
@@ -1752,7 +1752,7 @@ namespace XTMF.Gui.UserControls
         {
             if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
-                var dialog = new StringRequestDialog(RootDialogHost, "Rename Parameter", (value) => String.IsNullOrWhiteSpace(value), currentParameter.Name);
+                var dialog = new StringRequestDialog(RootDialogHost, "Rename Parameter", (value) => !String.IsNullOrWhiteSpace(value), currentParameter.Name);
                 await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {

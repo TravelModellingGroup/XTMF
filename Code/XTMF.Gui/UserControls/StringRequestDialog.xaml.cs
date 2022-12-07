@@ -63,6 +63,20 @@ namespace XTMF.Gui.UserControls
             DidComplete = false;
             UserInput = startingText;
             InitializeComponent();
+            if(validation != null)
+            {
+                Binding b = BindingOperations.GetBinding(StringInputTextBox, TextBox.TextProperty);
+                if(b != null)
+                {
+                    foreach (var rule in b.ValidationRules)
+                    {
+                        if (rule is ValidateString r)
+                        {
+                            r.ValidationRule = validation;
+                        }
+                    }
+                }
+            }
         }
 
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
@@ -139,13 +153,35 @@ namespace XTMF.Gui.UserControls
             this._dialogSession.Close(false);
         }
     }
+
+    public class ValidateString : ValidationRule
+    {
+
+        public Func<string, bool> ValidationRule { get; set; }
+
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            if (ValidationRule == null)
+            {
+                return string.IsNullOrWhiteSpace((value ?? "").ToString())
+                    ? new ValidationResult(false, "Field is required.")
+                    : ValidationResult.ValidResult;
+            }
+            else
+            {
+                return ValidationRule((string)value)
+                    ? ValidationResult.ValidResult
+                    : new ValidationResult(false, "Invalid Value");
+            }
+        }
+    }
     public class NotEmptyValidationRule : ValidationRule
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-            return string.IsNullOrWhiteSpace((value ?? "").ToString())
-                ? new ValidationResult(false, "Field is required.")
-                : ValidationResult.ValidResult;
+                return string.IsNullOrWhiteSpace((value ?? "").ToString())
+                    ? new ValidationResult(false, "Field is required.")
+                    : ValidationResult.ValidResult;
         }
-    }
+    }    
 }

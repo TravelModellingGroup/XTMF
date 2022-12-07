@@ -8,11 +8,11 @@
 
              mc:Ignorable="d" PreviewKeyDown="StringRequestDialog_OnPreviewKeyDown" 
              d:DesignHeight="300" d:DesignWidth="500">
-    <Grid MinHeight="60"  MinWidth="300" Margin="0" VerticalAlignment="Center">
+    <Grid MinHeight="60"  MinWidth="500" MaxWidth="500" Margin="0" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="300" Width="67*"></ColumnDefinition>
+            <ColumnDefinition MinWidth="300" Width="67*"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO"/>
@@ -37,19 +37,24 @@
                 <materialDesign:PackIcon x:Name="ExitButton" HorizontalAlignment="Center" VerticalAlignment="Center" Kind="Close" />
             </Border>
         </Grid>
-        
-        <TextBox Grid.Row="1" Grid.Column="0"  MinWidth="300" x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"
+        <Grid Grid.Row="2" Grid.ColumnSpan="3" Margin="5,5,5,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0"  MinWidth="300" x:Name="StringInputTextBox" materialDesign:HintAssist.Hint="{Binding QuestionText}"
                  FontSize="14" CaretBrush="{DynamicResource SecondaryHueMidBrush}"
-                  Style="{DynamicResource XtmfMaterialDesignFloatingHintTextBox}" Grid.ColumnSpan="2">
-            <TextBox.Text>
-                <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <local:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <Button Style="{StaticResource MaterialDesignOutlinedSecondaryButton}" Margin="3,7,0,6"  Grid.Row="1" Grid.Column="2" Width="50" Name="ConfirmButton"
+                  Style="{DynamicResource XtmfMaterialDesignFloatingHintTextBox}">
+                <TextBox.Text>
+                    <Binding Path="UserInput" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <local:ValidateString ValidatesOnTargetUpdated="True" />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <Button Style="{StaticResource MaterialDesignOutlinedSecondaryButton}" Margin="3,7,0,6" Grid.Column="1" Width="50" Name="ConfirmButton"
                 Click="ConfirmButton_Click">OK</Button>
+        </Grid>
     </Grid>
 </UserControl>

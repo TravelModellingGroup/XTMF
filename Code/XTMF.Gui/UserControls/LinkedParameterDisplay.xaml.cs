@@ -269,7 +269,7 @@ namespace XTMF.Gui.UserControls
             if (Display.SelectedItem is LinkedParameterDisplayModel selected)
             {
                 var selectedModuleControl = GetCurrentlySelectedControl();
-                var dialog = new StringRequestDialog(RootDialogHost, "Set LinkedParameter Name", (value) => String.IsNullOrWhiteSpace(value), selected.Name);
+                var dialog = new StringRequestDialog(RootDialogHost, "Set LinkedParameter Name", (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
                 await dialog.ShowAsync();
                 if(dialog.DidComplete)
                 {
@@ -294,7 +294,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="obj"></param>
         private async void NewLinkedParameter_Clicked(object obj)
         {
-            var dialog = new StringRequestDialog(RootDialogHost, "New LinkedParameter Name", (value) => String.IsNullOrWhiteSpace(value), String.Empty);
+            var dialog = new StringRequestDialog(RootDialogHost, "New LinkedParameter Name", (value) => !String.IsNullOrWhiteSpace(value), String.Empty);
             await dialog.ShowAsync();
 
             if (dialog.DidComplete)
