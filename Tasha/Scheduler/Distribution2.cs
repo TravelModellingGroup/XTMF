@@ -181,7 +181,7 @@ namespace Tasha.Scheduler
                     && adjustments[i].HomePlanningDistricts.Contains(householdPD)
                     && adjustments[i].WorkPlanningDistrict.Contains(workPD))
                 {
-                    adjustments[pos++] = adjustments[i];
+                    adjustmentsToApply[pos++] = i;
                 }
             }
             return pos;
