@@ -150,8 +150,8 @@ namespace TMG.Emme.NetworkAssignment
                 return false;
             }
 
+            [SubModelInformation(Required = false, Description = " Path analysis specification")]
             public Analysis[] PathAnalyses;
-
             public class Analysis : IModule
             {
                 public string Name { get; set; }
