@@ -129,6 +129,7 @@
     <Compile Include="ExportSubareaTool.cs" />
     <Compile Include="ModellerControllerParameter.cs" />
     <Compile Include="NetworkAssignment\AuxiliaryTransitDistance.cs" />
+    <Compile Include="NetworkAssignment\SpaceTimeTrafficAssignmentTool.cs" />
     <Compile Include="NetworkAssignment\TmgTransitAssignmentTool.cs" />
     <Compile Include="NetworkAssignment\MulticlassFarebasedCongestedTransitAssignment.cs" />
     <Compile Include="Tools\Analysis\Traffic\ExportCountpostResultsMulticlass.cs" />
