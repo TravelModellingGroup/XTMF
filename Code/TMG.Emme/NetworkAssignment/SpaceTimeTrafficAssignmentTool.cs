@@ -25,6 +25,9 @@ using XTMF;
 
 namespace TMG.Emme.NetworkAssignment
 {
+    [ModuleInformation(Description =
+        @"The he Space-time Traffic Assignment Tool or STTA runs a multi-class quasi-dynamic traffic assignment that uses a time-dependent network loading."
+        )]
 
     public class SpaceTimeTrafficAssignmentTool : IEmmeTool
     {
