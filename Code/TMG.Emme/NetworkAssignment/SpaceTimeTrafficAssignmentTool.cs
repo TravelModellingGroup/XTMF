@@ -16,17 +16,20 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Newtonsoft.Json;
 using Datastructure;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using XTMF;
+using System.IO;
 
 namespace TMG.Emme.NetworkAssignment
 {
     [ModuleInformation(Description =
-        @"The he Space-time Traffic Assignment Tool or STTA runs a multi-class quasi-dynamic traffic assignment that uses a time-dependent network loading."
+        @"The he Space-time Traffic Assignment Tool or STTA runs a multi-class quasi-dynamic traffic assignment that uses a time-dependent network loading.",
+        Name = "Space Time Traffic Assignment Tool"
         )]
 
     public class SpaceTimeTrafficAssignmentTool : IEmmeTool
@@ -44,7 +47,7 @@ namespace TMG.Emme.NetworkAssignment
         const string ToolName = "tmg.XTMF_internal.space_time_travel_assignment";
 
         [SubModelInformation(Description = "The classes for this multi-class assignment.")]
-        public Class[] Classes;
+        public TrafficClass[] TrafficClasses;
 
         [RunParameter("Interval Lengths", "60,60,60", "Defines how the assignment time is split into intervals.")]
         public string IntervalLengths;
@@ -102,8 +105,10 @@ namespace TMG.Emme.NetworkAssignment
         public RangeSet OnRoadTTFs;
 
 
-        public sealed class Class : IModule
+        public sealed class TrafficClass : IModule
         {
+            private string _name = "TrafficClass";
+
             [RunParameter("Mode", 'c', "The mode for this class.")]
             public char Mode;
 
@@ -134,7 +139,7 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("LinkCost", 0f, "The penalty in minutes per dollar to apply when traversing a link.")]
             public float LinkCost;
 
-            public string Name { get; set; }
+            public string Name { get => _name; set => _name = value; }
 
             public float Progress { get; set; }
 
@@ -180,11 +185,61 @@ namespace TMG.Emme.NetworkAssignment
             {
                 throw new XTMFRuntimeException(this, "There was no tool with the name '" + ToolName + "' available in the EMME databank!");
             }
+
             return mc.Run(this, ToolName, GetParameters(), (p) => Progress = p, ref ret);
         }
 
+
         private ModellerControllerParameter[] GetParameters()
         {
+            StringBuilder sb = new StringBuilder();
+            StringWriter sw = new StringWriter(sb);
+
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                writer.Formatting = Formatting.None;
+                writer.WriteStartObject();
+                writer.WritePropertyName("TrafficClasses");
+                writer.WriteStartArray();
+
+                foreach (var trafficClass in TrafficClasses)
+                {
+                    writer.WriteStartObject();
+
+                    writer.WritePropertyName("VolumeAttribute");
+                    writer.WriteValue(trafficClass.VolumeAttribute);
+
+                    writer.WritePropertyName("AttributeStartIndex");
+                    writer.WriteValue(trafficClass.AttributeStartIndex);
+
+                    writer.WritePropertyName("LinkTollAttributeID");
+                    writer.WriteValue(trafficClass.LinkTollAttributeID);
+
+                    writer.WritePropertyName("TollWeightList");
+                    writer.WriteValue(trafficClass.TollWeight);
+
+                    writer.WritePropertyName("LinkCost");
+                    writer.WriteValue(trafficClass.LinkCost);
+
+                    writer.WritePropertyName("Mode");
+                    writer.WriteValue(trafficClass.Mode);
+
+                    writer.WritePropertyName("DemandMatrixNumber");
+                    writer.WriteValue(trafficClass.DemandMatrixNumber);
+
+                    writer.WritePropertyName("TimeMatrixNumber");
+                    writer.WriteValue(trafficClass.TimeMatrixNumber);
+
+                    writer.WritePropertyName("CostMatrixNumber");
+                    writer.WriteValue(trafficClass.CostMatrixNumber);
+
+                    writer.WritePropertyName("TollMatrixNumber");
+                    writer.WriteValue(trafficClass.TollMatrixNumber);
+                    writer.WriteEndObject();
+                }
+                writer.WriteEndArray();
+                writer.WriteEndObject();
+            }
             return new[]
             {
                 new ModellerControllerParameter("ScenarioNumber", ScenarioNumber.ToString()),
@@ -206,47 +261,49 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("PerformanceFlag", PerformanceFlag.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("RunTitle", RunTitle),
                 new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString()),
-                new ModellerControllerParameter("Mode", GetClasses()),
-                new ModellerControllerParameter("DemandMatrixNumber", GetDemand()),
-                new ModellerControllerParameter("TimeMatrixNumber", GetTimes()),
-                new ModellerControllerParameter("CostMatrixNumber", GetCosts()),
-                new ModellerControllerParameter("TollMatrixNumber", GetTolls()),
-                new ModellerControllerParameter("VolumeAttribute", string.Join(",", Classes.Select(c => c.VolumeAttribute))),
-                new ModellerControllerParameter("AttributeStartIndex", string.Join(",", Classes.Select(c => c.AttributeStartIndex))),
-                new ModellerControllerParameter("LinkTollAttributeID", string.Join(",", Classes.Select(c => c.LinkTollAttributeID))),
-                new ModellerControllerParameter("TollWeight", string.Join(",", Classes.Select(c => c.TollWeight.ToString(CultureInfo.InvariantCulture)))),
-                new ModellerControllerParameter("LinkCost", string.Join(",", Classes.Select(c => c.LinkCost.ToString(CultureInfo.InvariantCulture)))),
-            };
+                new ModellerControllerParameter("TrafficClasses", sb.ToString()),
+
+        // new ModellerControllerParameter("Mode", GetClasses()),
+        // new ModellerControllerParameter("DemandMatrixNumber", GetDemand()),
+        // new ModellerControllerParameter("TimeMatrixNumber", GetTimes()),
+        // new ModellerControllerParameter("CostMatrixNumber", GetCosts()),
+        // new ModellerControllerParameter("TollMatrixNumber", GetTolls()),
+        // new ModellerControllerParameter("VolumeAttribute", string.Join(",", Classes.Select(c => c.VolumeAttribute))),
+        // new ModellerControllerParameter("AttributeStartIndex", string.Join(",", Classes.Select(c => c.AttributeStartIndex))),
+        // new ModellerControllerParameter("LinkTollAttributeID", string.Join(",", Classes.Select(c => c.LinkTollAttributeID))),
+        // new ModellerControllerParameter("TollWeight", string.Join(",", Classes.Select(c => c.TollWeight.ToString(CultureInfo.InvariantCulture)))),
+        // new ModellerControllerParameter("LinkCost", string.Join(",", Classes.Select(c => c.LinkCost.ToString(CultureInfo.InvariantCulture)))),
+        };
         }
 
-        private string GetTimes()
-        {
-            return string.Join(",", Classes.Select(c => c.TimeMatrixNumber.ToString()));
-        }
+        // private string GetTimes()
+        // {
+        //     return string.Join(",", Classes.Select(c => c.TimeMatrixNumber.ToString()));
+        // }
 
-        private string GetCosts()
-        {
-            return string.Join(",", Classes.Select(c => c.CostMatrixNumber.ToString()));
-        }
+        // private string GetCosts()
+        // {
+        //     return string.Join(",", Classes.Select(c => c.CostMatrixNumber.ToString()));
+        // }
 
-        private string GetTolls()
-        {
-            return string.Join(",", Classes.Select(c => c.TollMatrixNumber.ToString()));
-        }
+        // private string GetTolls()
+        // {
+        //     return string.Join(",", Classes.Select(c => c.TollMatrixNumber.ToString()));
+        // }
 
-        private string GetClasses()
-        {
-            return string.Join(",", Classes.Select(c => c.Mode.ToString()));
-        }
+        // private string GetClasses()
+        // {
+        //     return string.Join(",", Classes.Select(c => c.Mode.ToString()));
+        // }
 
-        private string GetDemand()
-        {
-            return string.Join(",", Classes.Select(c => c.DemandMatrixNumber.ToString()));
-        }
+        // private string GetDemand()
+        // {
+        //     return string.Join(",", Classes.Select(c => c.DemandMatrixNumber.ToString()));
+        // }
 
         public bool RuntimeValidation(ref string error)
         {
-            foreach (var c in Classes)
+            foreach (var c in TrafficClasses)
             {
                 foreach (var at in c.PathAnalyses)
                 {
