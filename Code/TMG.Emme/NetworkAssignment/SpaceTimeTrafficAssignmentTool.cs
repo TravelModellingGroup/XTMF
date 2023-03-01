@@ -107,7 +107,6 @@ namespace TMG.Emme.NetworkAssignment
 
         public sealed class TrafficClass : IModule
         {
-            private string _name = "TrafficClass";
 
             [RunParameter("Mode", 'c', "The mode for this class.")]
             public char Mode;
@@ -139,7 +138,7 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("LinkCost", 0f, "The penalty in minutes per dollar to apply when traversing a link.")]
             public float LinkCost;
 
-            public string Name { get => _name; set => _name = value; }
+            public string Name { get; set; }
 
             public float Progress { get; set; }
 
