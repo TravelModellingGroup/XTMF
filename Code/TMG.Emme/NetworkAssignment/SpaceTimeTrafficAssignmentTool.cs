@@ -262,44 +262,8 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("RunTitle", RunTitle),
                 new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString()),
                 new ModellerControllerParameter("TrafficClasses", sb.ToString()),
-
-        // new ModellerControllerParameter("Mode", GetClasses()),
-        // new ModellerControllerParameter("DemandMatrixNumber", GetDemand()),
-        // new ModellerControllerParameter("TimeMatrixNumber", GetTimes()),
-        // new ModellerControllerParameter("CostMatrixNumber", GetCosts()),
-        // new ModellerControllerParameter("TollMatrixNumber", GetTolls()),
-        // new ModellerControllerParameter("VolumeAttribute", string.Join(",", Classes.Select(c => c.VolumeAttribute))),
-        // new ModellerControllerParameter("AttributeStartIndex", string.Join(",", Classes.Select(c => c.AttributeStartIndex))),
-        // new ModellerControllerParameter("LinkTollAttributeID", string.Join(",", Classes.Select(c => c.LinkTollAttributeID))),
-        // new ModellerControllerParameter("TollWeight", string.Join(",", Classes.Select(c => c.TollWeight.ToString(CultureInfo.InvariantCulture)))),
-        // new ModellerControllerParameter("LinkCost", string.Join(",", Classes.Select(c => c.LinkCost.ToString(CultureInfo.InvariantCulture)))),
         };
         }
-
-        // private string GetTimes()
-        // {
-        //     return string.Join(",", Classes.Select(c => c.TimeMatrixNumber.ToString()));
-        // }
-
-        // private string GetCosts()
-        // {
-        //     return string.Join(",", Classes.Select(c => c.CostMatrixNumber.ToString()));
-        // }
-
-        // private string GetTolls()
-        // {
-        //     return string.Join(",", Classes.Select(c => c.TollMatrixNumber.ToString()));
-        // }
-
-        // private string GetClasses()
-        // {
-        //     return string.Join(",", Classes.Select(c => c.Mode.ToString()));
-        // }
-
-        // private string GetDemand()
-        // {
-        //     return string.Join(",", Classes.Select(c => c.DemandMatrixNumber.ToString()));
-        // }
 
         public bool RuntimeValidation(ref string error)
         {
