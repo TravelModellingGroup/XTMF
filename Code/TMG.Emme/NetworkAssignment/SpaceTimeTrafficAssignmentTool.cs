@@ -52,43 +52,43 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Interval Lengths", "60,60,60", "Defines how the assignment time is split into intervals.")]
         public string IntervalLengths;
 
-        [RunParameter("Start Time", "00:00", "")]
+        [RunParameter("Start Time", "00:00", "Start time of the assignment period. String format hh:mm")]
         public string StartTime;
 
-        [RunParameter("Extra Time Interval", 60, "")]
+        [RunParameter("Extra Time Interval", 60, "Total time which the flow in the network will be allowed to clear. NOTE: no additional result attributes are created for the time interval")]
         public float ExtraTimeInterval;
 
-        [RunParameter("Number of Extra Time Intervals", 2, "")]
+        [RunParameter("Number of Extra Time Intervals", 2, "Total number of time periods. Cannot be greater than 125. Default is 2")]
         public int NumberOfExtraTimeIntervals;
 
         [RunParameter("Background Traffic", true, "Set this to false to not assign transit vehicles on the roads")]
         public bool BackgroundTraffic;
 
-        [RunParameter("Background Traffic Link Component Extra Attribute", "@tvph", "")]
+        [RunParameter("Background Traffic Link Component Extra Attribute", "@tvph", "Time dependent background traffic link extra attribute")]
         public string LinkComponentAttribute;
 
         [RunParameter("Time Dependent Start Index for Attributes", 1, "Time Dependent Start Indices used to create the alphanumerical attribute name string for attributes in this class.")]
         public int StartIndex;
 
-        [RunParameter("Variable Topology", false, "")]
+        [RunParameter("Variable Network Topology", false, "Set to true if modelling network changes during the assignment period is needed.")]
         public bool VariableTopology;
 
-        [RunParameter("Max Inner Iterations", 15, "")]
+        [RunParameter("Max Inner Iterations", 15, "Maximum inner iterations")]
         public int InnerIterations;
 
-        [RunParameter("Max Outer Iterations", 5, "")]
+        [RunParameter("Max Outer Iterations", 5, "Maximum outer iterations")]
         public int OuterIterations;
 
-        [RunParameter("Coarse Relative Gap", 0.01f, "")]
+        [RunParameter("Coarse Relative Gap", 0.01f, "Coarse relative gap")]
         public float CoarseRGap;
 
-        [RunParameter("Fine Relative Gap", 0.0001f, "")]
+        [RunParameter("Fine Relative Gap", 0.0001f, "Fine relative gap")]
         public float FineRGap;
 
-        [RunParameter("Coarse Best Relative Gap", 0.01f, "")]
+        [RunParameter("Coarse Best Relative Gap", 0.01f, "Coarse best relative gap")]
         public float CoarseBRGap;
 
-        [RunParameter("Fine Best Relative Gap", 0.0001f, "")]
+        [RunParameter("Fine Best Relative Gap", 0.0001f, "Fine best relative gap")]
         public float FineBRGap;
 
         [RunParameter("Normalized Gap", 0.005f, "The minimum gap required to terminate the algorithm.")]
