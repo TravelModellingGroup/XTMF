@@ -22,7 +22,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json.Nodes;
 using System.Threading;
+using System.Xml.Serialization;
 using XTMF.Interfaces;
 
 namespace XTMF.Networking
@@ -93,7 +95,6 @@ namespace XTMF.Networking
                        try
                        {
                            BinaryReader reader = new BinaryReader(networkStream);
-                           BinaryFormatter inputFormat = new BinaryFormatter();
                            // we need some connection every 60 minutes, the host should be trying to request progress
                            networkStream.ReadTimeout = Timeout.Infinite;
                            while (!done || _Exit)
@@ -114,7 +115,7 @@ namespace XTMF.Networking
                                            object data = null;
                                            if (exists)
                                            {
-                                               data = inputFormat.Deserialize(reader.BaseStream);
+                                               data = Deserialize(reader);
                                            }
                                            Result res = new Result() { Name = name, Data = data };
                                            msg.Data = res;
@@ -238,6 +239,23 @@ namespace XTMF.Networking
             }
             done = true;
             _Exit = true;
+        }
+
+        private static void Serialize(BinaryWriter writer, object data)
+        {
+            var type = data.GetType();
+            var typeName = type.AssemblyQualifiedName;
+            writer.Write(typeName);
+            XmlSerializer serializer = new(type);
+            writer.Flush();
+            serializer.Serialize(writer.BaseStream, data);
+        }
+
+        private static object Deserialize(BinaryReader reader)
+        {
+            var typeName = reader.ReadString();
+            XmlSerializer deserializer = new(Type.GetType(typeName));
+            return deserializer.Deserialize(reader.BaseStream);
         }
 
         public void Dispose() => Dispose(true);
@@ -398,7 +416,8 @@ namespace XTMF.Networking
                     {
                         var data = message.Data as Result;
                         writer.Write(data.Name);
-                        outputFormat.Serialize(writer.BaseStream, data.Data);
+                        Serialize(writer, data.Data);
+                        writer.Flush();
                     }
                     break;
                 case MessageType.PostProgess:
@@ -575,6 +594,8 @@ namespace XTMF.Networking
             }
             return false;
         }
+
+        
 
         /// <summary>
         /// Validate the model system before starting to execute it

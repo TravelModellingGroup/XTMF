@@ -1,182 +1,57 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D5A50A9D-319F-410C-998F-BA3EA98A1E85}</ProjectGuid>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TMG.NetworkEstimation</RootNamespace>
-    <AssemblyName>NetworkEstimation</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>D:\Documents\XTMF\Modules\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>D:\Documents\XTMF\Modules\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
-    <OutputPath>..\..\..\XTMF32\Modules\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisLogFile>D:\Documents\XTMF\Modules\NetworkEstimation.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
-    <OutputPath>..\..\..\XTMF\Modules\</OutputPath>
-    <DebugType>full</DebugType>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>true</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|AnyCPU'">
-    <OutputPath>..\..\..\..\..\..\..\Documents\XTMF32\Modules\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisLogFile>D:\Documents\XTMF\Modules\NetworkEstimation.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug Remote Host|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Development Debug Remote Host\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Forms.DataVisualization" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\..\Datastructure\Datastructure.csproj" />
+    <ProjectReference Include="..\TMG.Emme\TMG.Emme.csproj" />
+    <ProjectReference Include="..\TMG.Estimation\TMG.Estimation.csproj" />
+    <ProjectReference Include="..\TMG.NetworkEstimation\TMG.NetworkEstimation.csproj" />
+    <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj" />
+    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdvancedGeneticNetworkEstimationHost.cs" />
-    <Compile Include="CalcMSEofBoardingsAM.cs" />
-    <Compile Include="CalcRMSEofBoardingsAMPMWAW.cs" />
-    <Compile Include="CalcRMSEofBoardingsAM.cs" />
-    <Compile Include="CalcWMPE.cs" />
-    <Compile Include="V4ClienntEstimationSupplementalReport2.cs" />
-    <Compile Include="CordonCountEstimation.cs" />
-    <Compile Include="ExecuteOnce.cs" />
-    <Compile Include="ExecuteTools.cs" />
-    <Compile Include="GeneticNetworkEstimationClient.cs" />
-    <Compile Include="GeneticNetworkEstimationHost.cs" />
-    <Compile Include="LinearSearchAI.cs" />
-    <Compile Include="LineErrorTally.cs" />
-    <Compile Include="ModellerControllerDataSource.cs" />
-    <Compile Include="NetworkAI.cs" />
-    <Compile Include="NetworkAnalysisReporter.cs" />
-    <Compile Include="NetworkEstimationServer.cs" />
-    <Compile Include="NetworkEstimationTemplate.cs" />
-    <Compile Include="NetworkGravityDescent.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegionErrorTally.cs" />
-    <Compile Include="CombinationTally.cs" />
-    <Compile Include="RenameClientFile.cs" />
-    <Compile Include="ReportClientTasks.cs" />
-    <Compile Include="SpawnEmmeCopyControllerDataSource.cs" />
-    <Compile Include="V4ClienntEstimationSupplementalReport1.cs" />
-    <Compile Include="V4ClientEstimationReport.cs" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.410601">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Windows.Forms.DataVisualization" Version="1.0.0-prerelease.20110.1" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
-      <Project>{E0B4F1C9-D2F6-415E-B8F5-AF66F23F4B87}</Project>
-      <Name>Datastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TMG.Emme\TMG.Emme.csproj">
-      <Project>{9423A82C-0120-4D8F-AAC0-C9C37966B3A8}</Project>
-      <Name>TMG.Emme</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TMG.Estimation\TMG.Estimation.csproj">
-      <Project>{f2da3dd8-c8e8-420c-b0df-4787ff7c791a}</Project>
-      <Name>TMG.Estimation</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TMG.NetworkEstimation\TMG.NetworkEstimation.csproj">
-      <Project>{8317B7CA-B8E5-4282-8D2B-F488AD363AB4}</Project>
-      <Name>TMG.NetworkEstimation</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj">
-      <Project>{036AE224-AA65-4C4C-A29F-502DED239A84}</Project>
-      <Name>TMGInterfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
-      <Project>{5A7C8449-BE6F-4CBB-AD7F-B38560DAE637}</Project>
-      <Name>XTMFInterfaces</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

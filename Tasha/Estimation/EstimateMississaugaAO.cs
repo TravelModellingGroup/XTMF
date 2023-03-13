@@ -10,6 +10,7 @@ using Tasha.Common;
 using Tasha.PopulationSynthesis;
 using TMG.Estimation;
 using System.Diagnostics;
+using Activity = Tasha.Common.Activity;
 
 namespace Tasha.Estimation
 {

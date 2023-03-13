@@ -409,6 +409,9 @@ namespace XTMF
         public static bool HasFolderWritePermission(string destDir)
         {
             if (string.IsNullOrEmpty(destDir) || !Directory.Exists(destDir)) return false;
+            return true;
+            // TODO: Find a new way to test if a directory could have an issue writing to it
+            /*
             try
             {
                 var ret = false;
@@ -456,6 +459,7 @@ namespace XTMF
             {
                 return false;
             }
+            */
         }
 
         public bool SetModelSystemDirectory(string dir, ref string error)

@@ -28,6 +28,7 @@ using TMG.GTAModel.V2.Generation;
 using TMG.Input;
 using TMG.ModeSplit;
 using XTMF;
+using Range = Datastructure.Range;
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable CompareOfFloatsByEqualityOperator
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
     Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
@@ -31,6 +31,7 @@ namespace XTMF.Update
         private static void Main(string[] args)
         {
             Application.EnableVisualStyles();
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.SetCompatibleTextRenderingDefault(false);
             if (args.Length >= 2 && int.TryParse(args[0], out int processID))
             {

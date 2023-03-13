@@ -23,11 +23,8 @@ namespace XTMF.RemoteClient
 {
     internal class Program
     {
-        private static PowerModeChangedEventHandler PowerHandeler = SystemEvents_PowerModeChanged;
-
         private static void Main(string[] args)
         {
-            SystemEvents.PowerModeChanged += PowerHandeler;
             if (args.Length < 2)
             {
                 Console.WriteLine("Usage: XTMF.RemoteClient.exe serverAddress severPort [<Optional>ConfigurationFile]");
@@ -52,15 +49,6 @@ namespace XTMF.RemoteClient
                 return;
             }
             Console.WriteLine( "Remote Client Activated" );
-        }
-
-        private static void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
-        {
-            if ( e.Mode == PowerModes.Suspend )
-            {
-                SystemEvents.PowerModeChanged -= PowerHandeler;
-                Environment.Exit( 0 );
-            }
         }
     }
 }

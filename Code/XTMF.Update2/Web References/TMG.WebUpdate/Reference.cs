@@ -18,10 +18,8 @@ namespace XTMF.Update.TMG.WebUpdate {
     using System;
     using System.Xml.Serialization;
     using System.ComponentModel;
-    using System.Web.Services.Protocols;
-    using System.Web.Services;
-    
-    
+#if FALSE
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.4161.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -266,6 +264,7 @@ namespace XTMF.Update.TMG.WebUpdate {
             }
         }
     }
+#endif
 }
 
 #pragma warning restore 1591

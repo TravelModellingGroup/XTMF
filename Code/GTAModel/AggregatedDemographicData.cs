@@ -23,6 +23,7 @@ using System.IO;
 using System.Linq;
 using Datastructure;
 using XTMF;
+using Range = Datastructure.Range;
 
 namespace TMG.GTAModel
 {

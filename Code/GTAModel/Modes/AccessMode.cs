@@ -24,6 +24,7 @@ using Datastructure;
 using TMG.Input;
 using TMG.Modes;
 using XTMF;
+using Range = Datastructure.Range;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Modes
