@@ -73,16 +73,6 @@
     <StartupObject>XTMFUpdateServer.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.ServiceProcess" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="ProjectInstaller.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="ProjectInstaller.Designer.cs">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
-    </Compile>
     <Compile Update="UpdateServer.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -113,9 +103,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="ProjectInstaller.resx">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Update="UpdateServer.resx">
       <DependentUpon>UpdateServer.cs</DependentUpon>
     </EmbeddedResource>

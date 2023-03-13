@@ -85,6 +85,16 @@
     <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Commands\**" />
+    <Compile Remove="Services\**" />
+    <EmbeddedResource Remove="Commands\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Commands\**" />
+    <None Remove="Services\**" />
+    <Page Remove="Commands\**" />
+    <Page Remove="Services\**" />
+  </ItemGroup>
+  <ItemGroup>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -105,10 +115,6 @@
   <ItemGroup>
     <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj" />
     <ProjectReference Include="..\XTMF\XTMF.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
@@ -133,5 +139,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.0" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
   </ItemGroup>
 </Project>

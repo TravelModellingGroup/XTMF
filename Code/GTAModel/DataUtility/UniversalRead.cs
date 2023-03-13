@@ -56,7 +56,7 @@ namespace TMG.GTAModel.DataUtility
         {
             var moduleDirectory = GetModuleDirectory();
             var callingAssembly = Assembly.GetCallingAssembly();
-            unit.ReferencedAssemblies.Add(callingAssembly.CodeBase.Substring(8));
+            unit.ReferencedAssemblies.Add(callingAssembly.Location.Substring(8));
             foreach (var t in callingAssembly.GetReferencedAssemblies())
             {
                 var localName = Path.Combine(moduleDirectory, t.Name + ".dll");
@@ -144,7 +144,7 @@ namespace TMG.GTAModel.DataUtility
 
         private static string GetModuleDirectory()
         {
-            var programPath = Path.GetFullPath(Assembly.GetEntryAssembly().CodeBase.Replace("file:///", String.Empty));
+            var programPath = Path.GetFullPath(Assembly.GetEntryAssembly().Location.Replace("file:///", String.Empty));
             return Path.Combine(Path.GetDirectoryName(programPath), "Modules");
         }
 

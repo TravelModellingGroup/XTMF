@@ -226,7 +226,13 @@ namespace TMG.Tasha
             }
             else
             {
+                if(Environment.OSVersion.Platform != PlatformID.Win32NT)
+                {
+                    throw new XTMFRuntimeException(this, "Can't use Oledb if you are not on Windows!");
+                }
+#pragma warning disable CA1416 // Validate platform compatibility
                 return new OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Path.GetFullPath(GetFullPath(DataBaseFile)) + ";Persist Security Info=False;");
+#pragma warning restore CA1416 // Validate platform compatibility
             }
         }
 

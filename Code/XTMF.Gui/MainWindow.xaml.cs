@@ -33,6 +33,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
+using ControlzEx.Standard;
 using Dragablz;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
@@ -433,13 +434,12 @@ namespace XTMF.Gui
 
         public static string OpenDirectory()
         {
-            var showAdvanced = Environment.OSVersion.Version.Major >= 6;
-            if (showAdvanced)
+            if (Ookii.Dialogs.Wpf.VistaFolderBrowserDialog.IsVistaFolderDialogSupported)
             {
-                var result = Win32Helper.VistaDialog.Show(new WindowInteropHelper(Us).Handle, null, "Select Directory");
-                if (result.Result)
+                var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+                if (dialog.ShowDialog(MainWindow.Us).HasValue)
                 {
-                    return result.FileName;
+                    return dialog.SelectedPath;
                 }
             }
             else

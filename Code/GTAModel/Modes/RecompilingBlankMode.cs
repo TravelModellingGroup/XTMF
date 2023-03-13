@@ -105,7 +105,7 @@ namespace TMG.GTAModel.Modes
         {
             var moduleDirectory = GetModuleDirectory();
             var callingAssembly = Assembly.GetCallingAssembly();
-            unit.ReferencedAssemblies.Add(callingAssembly.CodeBase.Substring(8));
+            unit.ReferencedAssemblies.Add(callingAssembly.Location.Substring(8));
             foreach (var t in callingAssembly.GetReferencedAssemblies())
             {
                 var localName = Path.Combine(moduleDirectory, t.Name + ".dll");
@@ -123,7 +123,7 @@ namespace TMG.GTAModel.Modes
         private static string GetModuleDirectory()
         {
             string programPath;
-            var codeBase = Assembly.GetEntryAssembly().CodeBase;
+            var codeBase = Assembly.GetEntryAssembly().Location;
             try
             {
                 programPath = Path.GetFullPath(codeBase);
