@@ -178,6 +178,7 @@
     <Compile Include="Tools\FullNetworkSetGenerator.cs" />
     <Compile Include="Tools\ImportScenarios.cs" />
     <Compile Include="Tools\MatrixCalculator.cs" />
+    <Compile Include="Tools\NetworkEditing\TransitFareHypernetworks\AddTransferTimeAdjustments.cs" />
     <Compile Include="Tools\NetworkEditing\RemoveExtraLinks.cs" />
     <Compile Include="Tools\NetworkEditing\RemoveExtraNodes.cs" />
     <Compile Include="TransitLines.cs" />
