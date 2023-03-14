@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -296,7 +297,8 @@ namespace XTMF.Gui.UserControls
         {
             if (Display.SelectedItem is Model selected && selected.Url != null)
             {
-                System.Diagnostics.Process.Start(selected.Url.StartsWith("http") ? selected.Url : $"http://{selected.Url}");
+                Process.Start(new ProcessStartInfo() { FileName = selected.Url.StartsWith("http") ? selected.Url : $"http://{selected.Url}"
+                    , UseShellExecute = true });
             }
         }
     }

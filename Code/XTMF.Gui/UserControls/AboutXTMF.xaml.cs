@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Shapes;
 using XTMF.Gui.Controllers;
 using IOPath = System.IO.Path;
 
@@ -64,7 +65,7 @@ namespace XTMF.Gui.UserControls
         {
             if (sender is TextBlock textBlock)
             {
-                Process.Start(textBlock.Text);
+                Process.Start(new ProcessStartInfo() { FileName = textBlock.Text, UseShellExecute = true });
             }
         }
     }
