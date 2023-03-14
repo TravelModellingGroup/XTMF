@@ -289,6 +289,10 @@ namespace Tasha.PopulationSynthesis
 
         public int ProduceResult(ITashaHousehold data)
         {
+            if(data.HomeZone is null)
+            {
+                throw new XTMFRuntimeException(this, "A household didn't have a homezone!");
+            }
             int flathomeZone = _zones.GetFlatIndex(data.HomeZone.ZoneNumber);
             float v = ComputeUtility(data, flathomeZone);
             // now that we have our utility go through them and test against the thresholds.

@@ -9,16 +9,18 @@
     <SccProvider>SAK</SccProvider>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DebugSymbols>true</DebugSymbols>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>D:\Documents\XTMF\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>D:\Documents\XTMF\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|x86'">
-    <OutputPath>..\..\..\XTMF32\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <Optimize>true</Optimize>
     <CodeAnalysisLogFile>D:\Documents\XTMF\XTMF.RemoteClient.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -28,13 +30,13 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|x86'">
-    <OutputPath>..\..\..\XTMF\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <PlatformTarget>x64</PlatformTarget>
     <Optimize>true</Optimize>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|x86'">
-    <OutputPath>..\..\..\..\..\..\..\Documents\XTMF32\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <Optimize>true</Optimize>
     <CodeAnalysisLogFile>D:\Documents\XTMF\XTMF.RemoteClient.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -60,8 +62,5 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.410601">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
 </Project>
