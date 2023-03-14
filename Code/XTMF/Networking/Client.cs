@@ -484,13 +484,7 @@ namespace XTMF.Networking
                         }
                         if (_ModelSystemThread != null && _ModelSystemThread.IsAlive)
                         {
-                            try
-                            {
-                                _ModelSystemThread.Abort();
-                            }
-                            catch
-                            {
-                            }
+                            // TODO: Replace with a new system to replace Thread.Abort
                         }
                         // now that the other thread is going to end
                         // we can now go and start generating ourselves

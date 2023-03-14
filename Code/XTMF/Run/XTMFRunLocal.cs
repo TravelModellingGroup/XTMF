@@ -300,14 +300,7 @@ namespace XTMF.Run
 
         override public void TerminateRun()
         {
-            Task.Run(() =>
-            {
-                try
-                {
-                    _RunThread?.Abort();
-                }
-                catch { }
-            });
+            // TODO: Replace with a new system to replace Thread.Abort
         }
 
         public override float PollProgress() => _MST?.Progress ?? 0f;

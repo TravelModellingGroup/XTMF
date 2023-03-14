@@ -426,12 +426,7 @@ namespace XTMF.Run
 
         public override void TerminateRun()
         {
-            try
-            {
-                _RunThread?.Abort();
-            }
-            catch
-            { }
+            // TODO: Replace with a new system to replace Thread.Abort
         }
 
         public override void Wait() => _RunThread?.Join();

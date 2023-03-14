@@ -507,7 +507,7 @@ namespace XTMF.Networking
             {
                 // Since we are in XTMF.dll we need to figure out what program is actually using us before we open up the firewall
                 Assembly baseAssembly = Assembly.GetEntryAssembly();
-                var codeBase = baseAssembly.CodeBase;
+                var codeBase = baseAssembly.Location;
                 var programName = Path.GetFileName(codeBase);
                 string programPath = null;
                 try
