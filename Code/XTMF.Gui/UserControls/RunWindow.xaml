@@ -1,5 +1,5 @@
 ﻿<!--
-    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -119,14 +119,15 @@
                 </Grid>
             </Grid>
         </GroupBox>
-        <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="12"  Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}"  Grid.Row="3" Grid.Column="0" Header="Console Output" BorderThickness="0.5" Opacity="1">
+        <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="12"  Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}"  Grid.Row="3" Grid.Column="0" Header="Console Output" BorderThickness="0.5" Opacity="1"
+                  VerticalAlignment="Stretch">
             <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch"
                 Visibility="Visible" >
                 <Grid VerticalAlignment="Stretch">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1"  Grid.Row="0" >
+                    <Border HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1"  Grid.Row="0" VerticalAlignment="Stretch" >
                         <ScrollViewer  Padding="0" x:Name="ConsoleScrollViewer"   BorderThickness="0"  
                               HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible"
                               VerticalAlignment="Stretch"  Margin="0,0,0,0">
@@ -134,8 +135,8 @@
                                       Foreground="{DynamicResource MaterialDesignBody}"
                                       TextWrapping="Wrap" Text="{Binding ConsoleOutput}" UndoLimit="0" IsUndoEnabled="False"
                                       TextChanged="ConsoleOutput_TextChanged" IsReadOnly="True" IsReadOnlyCaretVisible="True"
-                                      SelectionChanged="ConsoleOutput_SelectionChanged"
-                                      BorderBrush="{x:Null}" FontFamily="Lucida Console"/>
+                                      SelectionChanged="ConsoleOutput_SelectionChanged" VerticalContentAlignment="Top"
+                                      BorderBrush="{x:Null}" FontFamily="Lucida Console" VerticalAlignment="Stretch"/>
                         </ScrollViewer>
                     </Border>
                 </Grid>
