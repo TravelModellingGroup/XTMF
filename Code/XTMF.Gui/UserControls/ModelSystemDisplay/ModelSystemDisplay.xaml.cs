@@ -2448,7 +2448,7 @@ namespace XTMF.Gui.UserControls
         private void OpenProjectFolderToolbarButton_Click(object sender, RoutedEventArgs e)
         {
             var path = Path.Combine(Session.Configuration.ProjectDirectory, Session.ProjectEditingSession.Project.Name);
-            Process.Start(path);
+            Process.Start("explorer", path);
         }
 
         /// <summary>

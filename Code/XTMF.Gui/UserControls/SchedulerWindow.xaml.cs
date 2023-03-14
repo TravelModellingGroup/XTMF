@@ -190,7 +190,7 @@ namespace XTMF.Gui.UserControls
             ;
             if (Directory.Exists(item?.RunWindow.Run.RunDirectory))
             {
-                Process.Start(item.RunWindow.Run.RunDirectory);
+                Process.Start("explorer", item.RunWindow.Run.RunDirectory);
             }
             else
             {

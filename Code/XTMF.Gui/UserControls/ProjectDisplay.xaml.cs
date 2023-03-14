@@ -325,7 +325,7 @@ namespace XTMF.Gui.UserControls
                 {
                     if (Project != null && Directory.Exists(directoryName))
                     {
-                        Process.Start(directoryName);
+                        Process.Start("explorer", directoryName);
                     }
                 }
                 catch
@@ -343,7 +343,7 @@ namespace XTMF.Gui.UserControls
             {
                 if (Project != null && Directory.Exists(directoryName))
                 {
-                    Process.Start(directoryName);
+                    Process.Start("explorer", directoryName);
                 }
             }
             catch

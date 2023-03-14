@@ -676,7 +676,7 @@ namespace XTMF.Gui.UserControls
         {
             if (Directory.Exists(_runDirectory))
             {
-                Process.Start(_runDirectory);
+                Process.Start("explorer", _runDirectory);
             }
             else
             {
