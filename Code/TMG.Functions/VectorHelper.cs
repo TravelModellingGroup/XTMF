@@ -19,6 +19,8 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace TMG.Functions
 {
@@ -36,6 +38,14 @@ namespace TMG.Functions
         static VectorHelper()
         {
             MaxFloat = new Vector<float>(float.MaxValue);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public static Span<K> ReinterpretSpan<T, K>(this Span<T> span)
+            where T : struct
+            where K : struct
+        {
+            return MemoryMarshal.Cast<T, K>(span);
         }
 
         /// <summary>
