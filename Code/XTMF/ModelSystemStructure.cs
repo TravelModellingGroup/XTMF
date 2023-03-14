@@ -1497,11 +1497,21 @@ namespace XTMF
             for (int i = 0; i < typesUsed.Count; i++)
             {
                 writer.WriteStartElement("Type");
-                writer.WriteAttributeString("Name", typesUsed[i]?.AssemblyQualifiedName ?? String.Empty);
+                writer.WriteAttributeString("Name", GetTypeName(typesUsed[i]));
                 writer.WriteAttributeString("TIndex", i.ToString());
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
+        }
+
+        private static string GetTypeName(Type type)
+        {
+            // Try to maintain forwards compatibility by trying to use .Net Framework types
+            var name = type?.AssemblyQualifiedName
+                .Replace("System.Private.CoreLib, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
+                    "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") 
+                ?? String.Empty;
+            return name;
         }
 
         public bool MapGenericsFromTypeToParentType(Type parent, Type t, out Type mappedType)
