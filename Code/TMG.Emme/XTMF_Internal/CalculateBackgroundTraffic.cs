@@ -79,10 +79,6 @@ namespace TMG.Emme.Calculate
 
         private ModellerControllerParameter[] GetParameters()
         {
-            StringBuilder sb = new StringBuilder();
-            StringWriter sw = new StringWriter(sb);
-
-            using (JsonWriter writer = new JsonTextWriter(sw))
             return new[]
             {
                 new ModellerControllerParameter("ScenarioNumber", ScenarioNumber.ToString()),
@@ -90,8 +86,7 @@ namespace TMG.Emme.Calculate
                 new ModellerControllerParameter("LinkComponentAttribute", LinkComponentAttribute),
                 new ModellerControllerParameter("StartIndex", StartIndex.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString()),
-                new ModellerControllerParameter("TrafficClasses", sb.ToString()),
-        };
+            };
         }
 
         public bool RuntimeValidation(ref string error)
