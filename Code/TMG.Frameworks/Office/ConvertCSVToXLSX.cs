@@ -23,7 +23,7 @@ using TMG.Input;
 using Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
 using System.IO;
-
+#pragma warning disable CA1416 // Validate platform compatibility
 namespace TMG.Frameworks.Office
 {
     [ModuleInformation(Description =
@@ -87,7 +87,7 @@ namespace TMG.Frameworks.Office
             try
             {
                 workbooks = excel.Workbooks;
-                List<ConversionDetails> filesToConvert = new List<ConversionDetails>();
+                List<ConversionDetails> filesToConvert = new();
                 foreach(var toConvert in FilesToConvert)
                 {
 
@@ -140,7 +140,6 @@ namespace TMG.Frameworks.Office
             }
         }
 
-
         private void AddDirectory(List<ConversionDetails> files, DirectoryInfo currentInputDirectory, DirectoryInfo currentOutputDirectory)
         {
             foreach(var subDir in currentInputDirectory.GetDirectories())
@@ -162,5 +161,5 @@ namespace TMG.Frameworks.Office
             files.Add(new ConversionDetails(inPath, outPath));
         }
     }
-
 }
+#pragma warning restore CA1416 // Validate platform compatibility

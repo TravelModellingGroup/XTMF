@@ -23,7 +23,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <OutputPath>..\XTMF-Dev\Modules\</OutputPath>
+	  <OutputPath>..\..\XTMF-Dev\Modules\</OutputPath>
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	  <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
