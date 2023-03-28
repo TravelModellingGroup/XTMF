@@ -191,6 +191,7 @@
     <Compile Include="Utilities\LOSBetweenPoints.cs" />
     <Compile Include="Utilities\ZoneSystemFromNWP.cs" />
     <Compile Include="XTMF_Internal\CalculateBackgroundTraffic.cs" />
+    <Compile Include="XTMF_Internal\CopyBackgroundTraffic.cs" />
     <Compile Include="XTMF_Internal\CopyScenario.cs" />
     <Compile Include="XTMF_Internal\DeleteScenario.cs" />
     <Compile Include="XTMF_Internal\ImportFunctionBatchFile.cs" />

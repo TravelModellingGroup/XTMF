@@ -28,11 +28,11 @@ using System.IO;
 namespace TMG.Emme.XTMF_Internal
 {
     [ModuleInformation(Description =
-        @"Calculate the background traffic @tvph[per_time_period] to be used be a space time traffic assignemnt tool.",
-        Name = "Background Traffic Calculation"
+        @"Copy the background traffic @tvph[per_time_period] between scenarios",
+        Name = "Copy Background Traffic Between Scenarios"
         )]
 
-    public class CalculateBackgroundTraffic : IEmmeTool
+    public class CopyBackgroundTraffic : IEmmeTool
     {
 
         public string Name { get; set; }
@@ -41,30 +41,26 @@ namespace TMG.Emme.XTMF_Internal
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        [RunParameter("Scenario Number", 1, "The scenario number to execute against.")]
-        public int ScenarioNumber;
+        [RunParameter("To Scenario Number", 10, "The scenario number to copy to.")]
+        public int ToScenarioNumber;
 
-        const string ToolName = "tmg.XTMF_internal.calculate_background_traffic";
+        [RunParameter("From Scenario Numbers", "20,30,40,49", "The scenario number to copy from.")]
+        public string FromScenarioNumbers;
 
-        [RunParameter("Interval Lengths", "60,60,60", "Defines how the assignment time is split into intervals.")]
-        public string IntervalLengths;
+        const string ToolName = "tmg.XTMF_internal.copy_background_traffic";
+
+        [RunParameter("Attribute Index Ranges", "0-5,9-23", "Attribute Index Range.")]
+        public string AttributeIndexRange;
 
         [RunParameter("Background Traffic Link Component Extra Attribute", "@tvph", "Time dependent background traffic link extra attribute")]
         public string LinkComponentAttribute;
-
-        [RunParameter("Time Dependent Start Index for Attributes", 1, "Time Dependent Start Indices used to create the alphanumerical attribute name string for attributes in this class.")]
-        public int StartIndex;
-
-        [RunParameter("On Road TTFs", "3-128", typeof(RangeSet), "The Transit Time Functions (TTFs) for transit segments that should be applied to the" +
-            " road links to reduce capacity for the buses and streetcars in mixed traffic.")]
-        public RangeSet OnRoadTTFs;
 
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
             if (mc == null)
             {
-                throw new XTMFRuntimeException(this, "TMG.Emme.CalculateBackgroundTraffic requires the use of EMME Modeller and will not work through command prompt!");
+                throw new XTMFRuntimeException(this, "TMG.Emme.CopyBackgroundTraffic requires the use of EMME Modeller and will not work through command prompt!");
             }
 
             string ret = null;
@@ -76,16 +72,14 @@ namespace TMG.Emme.XTMF_Internal
             return mc.Run(this, ToolName, GetParameters(), (p) => Progress = p, ref ret);
         }
 
-
         private ModellerControllerParameter[] GetParameters()
         {
             return new[]
             {
-                new ModellerControllerParameter("ScenarioNumber", ScenarioNumber.ToString()),
-                new ModellerControllerParameter("IntervalLengths", IntervalLengths.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("ToScenarioNumber", ToScenarioNumber.ToString()),
+                new ModellerControllerParameter("FromScenarioNumbers", FromScenarioNumbers),
                 new ModellerControllerParameter("LinkComponentAttribute", LinkComponentAttribute),
-                new ModellerControllerParameter("StartIndex", StartIndex.ToString(CultureInfo.InvariantCulture)),
-                new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString()),
+                new ModellerControllerParameter("AttributeIndexRange", AttributeIndexRange),
             };
         }
 
@@ -96,3 +90,4 @@ namespace TMG.Emme.XTMF_Internal
     }
 
 }
+
