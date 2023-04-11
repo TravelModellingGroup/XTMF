@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
+using Range = Datastructure.Range;
 
 namespace TMG.GTAModel
 {

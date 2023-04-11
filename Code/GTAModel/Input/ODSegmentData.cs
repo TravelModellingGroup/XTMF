@@ -24,6 +24,7 @@ using Datastructure;
 using TMG.GTAModel.DataUtility;
 using TMG.Input;
 using XTMF;
+using Range = Datastructure.Range;
 
 namespace TMG.GTAModel.Input
 {

@@ -19,6 +19,7 @@
 using System.Collections.Generic;
 using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Range = Datastructure.Range;
 
 namespace XTMF.Testing
 {

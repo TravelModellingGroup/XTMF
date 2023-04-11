@@ -19,6 +19,8 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace TMG.Functions
 {
@@ -38,6 +40,14 @@ namespace TMG.Functions
             MaxFloat = new Vector<float>(float.MaxValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public static Span<K> ReinterpretSpan<T, K>(this Span<T> span)
+            where T : struct
+            where K : struct
+        {
+            return MemoryMarshal.Cast<T, K>(span);
+        }
+
         /// <summary>
         /// Add up the elements in the vector
         /// </summary>
@@ -46,9 +56,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float Sum(ref Vector<float> v)
         {
-            // shockingly to myself this is actually faster than doing a copy to an array
-            // and manually computing the sum
-            return Vector.Dot(v, Vector<float>.One);
+            return Vector.Sum(v);
         }
 
 

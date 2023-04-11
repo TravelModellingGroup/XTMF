@@ -24,7 +24,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Security.AccessControl;
+using System.Security.Policy;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -322,7 +324,7 @@ namespace XTMF
                 ReloadProjects();
                 ReloadModelSystems();
             }
-            catch(IOException)
+            catch (IOException)
             {
 
             }
@@ -409,6 +411,9 @@ namespace XTMF
         public static bool HasFolderWritePermission(string destDir)
         {
             if (string.IsNullOrEmpty(destDir) || !Directory.Exists(destDir)) return false;
+            return true;
+            // TODO: Find a new way to test if a directory could have an issue writing to it
+            /*
             try
             {
                 var ret = false;
@@ -456,6 +461,7 @@ namespace XTMF
             {
                 return false;
             }
+            */
         }
 
         public bool SetModelSystemDirectory(string dir, ref string error)
@@ -952,6 +958,7 @@ namespace XTMF
 
         private void LoadModules()
         {
+
             // load in the types from system
             LoadAssembly(typeof(float).GetType().Assembly);
             // Load the given base assembly
@@ -972,23 +979,28 @@ namespace XTMF
             {
                 var files = Directory.GetFiles(_ModuleDirectory, "*.dll");
                 var excludedDlls = LoadExcludeList();
-                Parallel.For(0, files.Length,
-                    (int i) =>
+                //Parallel.For(0, files.Length,
+                //(int i) =>
+                for (int i = 0; i < files.Length; i++)
+                {
+                    try
                     {
-                        try
+                        var fileName = files[i];
+                        
+
+                        var name = Path.GetFileName(fileName);
+                        if (!excludedDlls.Contains(name))
                         {
-                            var fileName = files[i];
-                            if (!excludedDlls.Contains(Path.GetFileName(fileName.ToLower())))
-                            {
-                                LoadAssembly((Assembly.Load(Path.GetFileNameWithoutExtension(fileName))));
-                            }
+                            var fullPath = Path.GetFullPath(files[i]);
+                            LoadAssembly(Assembly.LoadFrom(fullPath));
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Error when trying to load assembly '" + Path.GetFileNameWithoutExtension(files[i]) + "'");
-                            Console.WriteLine(e.ToString());
-                        }
-                    });
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error when trying to load assembly '" + Path.GetFileNameWithoutExtension(files[i]) + "'");
+                        Console.WriteLine(e.Message);
+                    }
+                }//);
             }
         }
 

@@ -23,17 +23,17 @@ namespace XTMF.Testing
     public class TestDataSource<T> : IDataSource<T>
     {
         public bool Loaded { get { return true; } }
-        
 
-        public string Name { get; set; }
+
+        public string Name { get; set; } = String.Empty;
 
         private T Data;
 
         public TestDataSource(T data)
         {
-            Data = data;    
+            Data = data;
         }
-        
+
 
         public float Progress
         {
@@ -47,7 +47,7 @@ namespace XTMF.Testing
         {
             get
             {
-                return null;
+                return new Tuple<byte, byte, byte>(50, 150, 50);
             }
         }
 
@@ -58,7 +58,7 @@ namespace XTMF.Testing
 
         public void LoadData()
         {
-            
+
         }
 
         public bool RuntimeValidation(ref string error)

@@ -27,12 +27,7 @@ namespace XTMFUpdateServer
         /// </summary>
         private static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
-			{
-				new UpdateServer()
-			};
-            ServiceBase.Run( ServicesToRun );
+            ServiceBase.Run(new UpdateServer());
         }
     }
 }

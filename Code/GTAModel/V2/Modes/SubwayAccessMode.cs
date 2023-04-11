@@ -25,6 +25,7 @@ using Datastructure;
 using TMG.Input;
 using TMG.Modes;
 using XTMF;
+using Range = Datastructure.Range;
 
 namespace TMG.GTAModel.V2.Modes
 {

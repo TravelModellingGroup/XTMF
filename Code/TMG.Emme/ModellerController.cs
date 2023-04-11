@@ -142,7 +142,7 @@ namespace TMG.Emme
             // Get the path of ModellerBridge
             // Learn where the modules are stored so we can find the python script
             // The Entry assembly will be the XTMF.GUI or XTMF.RemoteClient
-            var codeBase = Assembly.GetEntryAssembly().CodeBase;
+            var codeBase = Assembly.GetEntryAssembly().Location;
             string programPath;
             // make sure that the path is not relative
             try

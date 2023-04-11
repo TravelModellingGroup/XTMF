@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "XTMF.Run": {
+      "commandName": "Project",
+      "commandLineArgs": "\"GTAModel V4.2.0\" \"GTAModel V4.2.0\" test-console",
+      "hotReloadEnabled": false
+    }
+  }
+}

@@ -1,209 +1,51 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{036AE224-AA65-4C4C-A29F-502DED239A84}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TMG</RootNamespace>
-    <AssemblyName>TMGInterfaces</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
-    <OutputPath>bin\32Bit\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Release\TMGInterfaces.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
-    <OutputPath>bin\64Bit\</OutputPath>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Prefer32Bit>false</Prefer32Bit>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|AnyCPU'">
-    <OutputPath>..\..\..\..\..\..\..\Documents\XTMF32\Modules\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Release\TMGInterfaces.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
-    <OutputPath>bin\Development\</OutputPath>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug Remote Host|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AgentBased\IHouseholdAgent.cs" />
-    <Compile Include="AgentBased\IPersonAgent.cs" />
-    <Compile Include="AgentBased\MST\ITourBasedDemographic4StepMST.cs" />
-    <Compile Include="AgentBased\ActivityPriorities.cs" />
-    <Compile Include="AgentBased\IActivity.cs" />
-    <Compile Include="AgentBased\IActivityEpisode.cs" />
-    <Compile Include="AgentBased\IHouseholdActivityEpisode.cs" />
-    <Compile Include="AgentBased\Tours\IJointTour.cs" />
-    <Compile Include="AgentBased\Tours\ITourPurpose.cs" />
-    <Compile Include="AgentBased\Tours\ITrip.cs" />
-    <Compile Include="AgentBased\Tours\ITripChain.cs" />
-    <Compile Include="DataUtility\FloatList.cs" />
-    <Compile Include="DataUtility\NumberList.cs" />
-    <Compile Include="DataUtility\StringList.cs" />
-    <Compile Include="Data\DwellingType.cs" />
-    <Compile Include="Data\TreeData.cs" />
-    <Compile Include="Data\ZoneMap.cs" />
-    <Compile Include="IDemographicCategoyPurpose.cs" />
-    <Compile Include="IAssignment.cs" />
-    <Compile Include="IDemographic4StepModelSystemTemplate.cs" />
-    <Compile Include="IDemographicAssignment.cs" />
-    <Compile Include="IDemographicCategory.cs" />
-    <Compile Include="Generation\IDemographicCategoryGeneration.cs" />
-    <Compile Include="IEstimableCalculation.cs" />
-    <Compile Include="IIterationSensitive.cs" />
-    <Compile Include="IModeAggregationTally.cs" />
-    <Compile Include="ICalculation.cs" />
-    <Compile Include="Input\FileFromInputDirectory.cs" />
-    <Compile Include="Input\FileFromOutputDirectory.cs" />
-    <Compile Include="Input\FileLocation.cs" />
-    <Compile Include="Input\IDataLineSource.cs" />
-    <Compile Include="Input\IODDataSource.cs" />
-    <Compile Include="Input\ISaveODData.cs" />
-    <Compile Include="Input\ISaveODDataSeries.cs" />
-    <Compile Include="IResourceSource.cs" />
-    <Compile Include="ModeSplit\IInteractiveModeSplit.cs" />
-    <Compile Include="Modes\IStationCollectionMode.cs" />
-    <Compile Include="Modes\IUtilityComponent.cs" />
-    <Compile Include="Modes\IUtilityComponentMode.cs" />
-    <Compile Include="ParameterDatabase\IModeParameterDatabase.cs" />
-    <Compile Include="IMultiDistribution.cs" />
-    <Compile Include="Input\IReadODData.cs" />
-    <Compile Include="Modes\IStationMode.cs" />
-    <Compile Include="IPopulation.cs" />
-    <Compile Include="ITripComponentData.cs" />
-    <Compile Include="Data\ITransitStation.cs" />
-    <Compile Include="Data\MobilityCategory.cs" />
-    <Compile Include="Data\TTSEmploymentStatus.cs" />
-    <Compile Include="Data\HouseholdType.cs" />
-    <Compile Include="Modes\IModeCategory.cs" />
-    <Compile Include="Modes\IModeChoiceNode.cs" />
-    <Compile Include="IPurpose.cs" />
-    <Compile Include="I4StepModel.cs" />
-    <Compile Include="IDemographicsData.cs" />
-    <Compile Include="IDistribution.cs" />
-    <Compile Include="IGeneration.cs" />
-    <Compile Include="IDemographicsModelSystemTemplate.cs" />
-    <Compile Include="Data\IHousehold.cs" />
-    <Compile Include="IIterativeModel.cs" />
-    <Compile Include="Modes\IMode.cs" />
-    <Compile Include="ModeSplit\IModeSplit.cs" />
-    <Compile Include="INetworkAssignment.cs" />
-    <Compile Include="INetworkData.cs" />
-    <Compile Include="Data\IPerson.cs" />
-    <Compile Include="ITravelDemandModel.cs" />
-    <Compile Include="Data\IZone.cs" />
-    <Compile Include="ModeSplit\IMultiModeSplit.cs" />
-    <Compile Include="IZoneSystem.cs" />
-    <Compile Include="ParameterDatabase\IModeParameterAssignment.cs" />
-    <Compile Include="ParameterDatabase\IParameter.cs" />
-    <Compile Include="ParameterDatabase\IParameterLink.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
-      <Project>{E0B4F1C9-D2F6-415E-B8F5-AF66F23F4B87}</Project>
-      <Name>Datastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
-      <Project>{5A7C8449-BE6F-4CBB-AD7F-B38560DAE637}</Project>
-      <Name>XTMFInterfaces</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="AgentBased\ModeChoice\" />
-    <Folder Include="AgentBased\Scheduling\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<RootNamespace>TMG</RootNamespace>
+		<SccProjectName>SAK</SccProjectName>
+		<SccLocalPath>SAK</SccLocalPath>
+		<SccAuxPath>SAK</SccAuxPath>
+		<SccProvider>SAK</SccProvider>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<DebugSymbols>true</DebugSymbols>
+		<OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
+		<OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
+		<OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+		<DebugSymbols>true</DebugSymbols>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|AnyCPU'">
+		<OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
+		<OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+		<DebugSymbols>true</DebugSymbols>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Datastructure\Datastructure.csproj" />
+		<ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="AgentBased\ModeChoice\" />
+		<Folder Include="AgentBased\Scheduling\" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+	</ItemGroup>
 </Project>

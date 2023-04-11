@@ -162,44 +162,31 @@ namespace TMG.Emme
             writer.Write(Version);
             writer.Write((int)Type);
             writer.Write(Dimensions);
-            byte[] temp = null;
             for (int i = 0; i < Indexes.Length; i++)
             {
                 writer.Write(Indexes[i].Length);
             }
             for (int i = 0; i < Indexes.Length; i++)
             {
-                if (temp == null || temp.Length != Indexes[i].Length)
-                {
-                    temp = new byte[sizeof(int) * Indexes[i].Length];
-                }
-                Buffer.BlockCopy(Indexes[i], 0, temp, 0, temp.Length);
-                writer.Write(temp, 0, temp.Length);
+                writer.Write(Indexes[i].AsSpan().ReinterpretSpan<int, byte>());
             }
             switch (Type)
             {
                 case DataType.Float:
-                    temp = new byte[FloatData.Length * sizeof(float)];
-                    Buffer.BlockCopy(FloatData, 0, temp, 0, temp.Length);
+                    writer.Write(FloatData.AsSpan().ReinterpretSpan<float, byte>());
                     break;
                 case DataType.Double:
-                    temp = new byte[FloatData.Length * sizeof(double)];
-                    Buffer.BlockCopy(DoubleData, 0, temp, 0, temp.Length);
+                    writer.Write(DoubleData.AsSpan().ReinterpretSpan<double, byte>());
                     break;
                 case DataType.SignedInteger:
-                    temp = new byte[FloatData.Length * sizeof(int)];
-                    Buffer.BlockCopy(SignedIntData, 0, temp, 0, temp.Length);
+                    writer.Write(SignedIntData.AsSpan().ReinterpretSpan<int, byte>());
                     break;
                 case DataType.UnsignedInteger:
-                    temp = new byte[FloatData.Length * sizeof(uint)];
-                    Buffer.BlockCopy(UnsignedIntData, 0, temp, 0, temp.Length);
+                    writer.Write(UnsignedIntData.AsSpan().ReinterpretSpan<uint, byte>());
                     break;
+                default:
+                    throw new XTMFRuntimeException(null, $"When saving an EMME matrix to {fileLocation} we tried had no data to write!");
             }
-            if (temp == null)
-            {
-                throw new XTMFRuntimeException(null, $"When saving an EMME matrix to {fileLocation} we tried had no data to write!");
-            }
-            writer.Write(temp);
         }
 
         private void LoadData(Stream baseStream)
@@ -213,37 +200,30 @@ namespace TMG.Emme
             {
                 case DataType.Float:
                     {
-                        var bytes = numberOfElements * sizeof(float);
-                        var cb = new ConversionBuffer(bytes);
-                        cb.FillFrom(baseStream);
-                        FloatData = cb.FinalizeAsFloatArray(numberOfElements);
+                        FloatData = new float[numberOfElements];
+                        var byteSpan = FloatData.AsSpan().ReinterpretSpan<float, byte>();
+                        baseStream.ReadExactly(byteSpan);
                     }
                     break;
                 case DataType.Double:
                     {
-                        var temp = new double[numberOfElements];
-                        var raw = new byte[numberOfElements * sizeof(double)];
-                        baseStream.Read(raw, 0, raw.Length);
-                        Buffer.BlockCopy(raw, 0, temp, 0, raw.Length);
-                        DoubleData = temp;
+                        DoubleData = new double[numberOfElements];
+                        var byteSpan = DoubleData.AsSpan().ReinterpretSpan<double, byte>();
+                        baseStream.ReadExactly(byteSpan);
                     }
                     break;
                 case DataType.SignedInteger:
                     {
-                        var temp = new int[numberOfElements];
-                        var raw = new byte[numberOfElements * sizeof(int)];
-                        baseStream.Read(raw, 0, raw.Length);
-                        Buffer.BlockCopy(raw, 0, temp, 0, raw.Length);
-                        SignedIntData = temp;
+                        SignedIntData = new int[numberOfElements];
+                        var byteSpan = SignedIntData.AsSpan().ReinterpretSpan<int, byte>();
+                        baseStream.ReadExactly(byteSpan);
                     }
                     break;
                 case DataType.UnsignedInteger:
                     {
-                        var temp = new uint[numberOfElements];
-                        var raw = new byte[numberOfElements * sizeof(uint)];
-                        baseStream.Read(raw, 0, raw.Length);
-                        Buffer.BlockCopy(raw, 0, temp, 0, raw.Length);
-                        UnsignedIntData = temp;
+                        UnsignedIntData = new uint[numberOfElements];
+                        var byteSpan = UnsignedIntData.AsSpan().ReinterpretSpan<uint, byte>();
+                        baseStream.ReadExactly(byteSpan);
                     }
                     break;
             }

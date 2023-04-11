@@ -1,186 +1,45 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6C534CC4-E0DC-4613-9358-678834C55776}</ProjectGuid>
+    <TargetFramework>net7.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TMG.Frameworks</RootNamespace>
-    <AssemblyName>TMG.Frameworks</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	  <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '32Bit|AnyCPU' ">
-    <OutputPath>..\..\..\XTMF32\Modules\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
-    <OutputPath>..\..\..\XTMF\Modules\</OutputPath>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugType>full</DebugType>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>false</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug Remote Host|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	  <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\..\Datastructure\Datastructure.csproj" />
+    <ProjectReference Include="..\TMG.Emme\TMG.Emme.csproj" />
+    <ProjectReference Include="..\TMG.Functions\TMG.Functions.csproj" />
+    <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj" />
+    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\DataModule.cs" />
-    <Compile Include="Data\DataTypes\LabeledData.cs" />
-    <Compile Include="Data\Loading\ArbitraryParameterDataSource.cs" />
-    <Compile Include="Data\Loading\LabeledDataFromCSV.cs" />
-    <Compile Include="Data\Loading\LoadDataSource.cs" />
-    <Compile Include="Data\Loading\LoadITripComponentDataMatrix.cs" />
-    <Compile Include="Data\Loading\LoadINetworkDataMatrix.cs" />
-    <Compile Include="Data\Loading\LoadODDataFromCSV.cs" />
-    <Compile Include="Data\Loading\LoadPDMatrixToZoneMatrix.cs" />
-    <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
-    <Compile Include="Data\Loading\ZoneSystemVector.cs" />
-    <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
-    <Compile Include="Data\Loading\RemoteDataSource.cs" />
-    <Compile Include="Data\Loading\ZoneSystemVectorFromRange.cs" />
-    <Compile Include="Data\Processing\AST\CompareOr.cs" />
-    <Compile Include="Data\Processing\AST\CompareAnd.cs" />
-    <Compile Include="Data\Processing\AST\FusedMultiplyAdd.cs" />
-    <Compile Include="Data\Processing\AST\Negate.cs" />
-    <Compile Include="Data\Processing\ConvertMatrixIntoZoneSystem.cs" />
-    <Compile Include="Data\Processing\GravityModel2D.cs" />
-    <Compile Include="Data\Processing\AggregateLabeledDataToShape.cs" />
-    <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />
-    <Compile Include="Data\Processing\AssignParameterFromDataSource.cs" />
-    <Compile Include="Data\Processing\AST\Add.cs" />
-    <Compile Include="Data\Processing\AST\ASTNode.cs" />
-    <Compile Include="Data\Processing\AST\CompareLessThanOrEqual.cs" />
-    <Compile Include="Data\Processing\AST\CompareLessThan.cs" />
-    <Compile Include="Data\Processing\AST\CompareGreaterThanOrEqual.cs" />
-    <Compile Include="Data\Processing\AST\CompareGreaterThan.cs" />
-    <Compile Include="Data\Processing\AST\CompareNotEquals.cs" />
-    <Compile Include="Data\Processing\AST\CompareEqual.cs" />
-    <Compile Include="Data\Processing\AST\Compiler.cs" />
-    <Compile Include="Data\Processing\AST\Divide.cs" />
-    <Compile Include="Data\Processing\AST\Exponent.cs" />
-    <Compile Include="Data\Processing\AST\Expression.cs" />
-    <Compile Include="Data\Processing\AST\FunctionCall.cs" />
-    <Compile Include="Data\Processing\AST\Multiply.cs" />
-    <Compile Include="Data\Processing\AST\Subtract.cs" />
-    <Compile Include="Data\Processing\AST\Variable.cs" />
-    <Compile Include="Data\Processing\ConvertLabeledDataToSparseArray.cs" />
-    <Compile Include="Data\Processing\GravityModel2DAStar.cs" />
-    <Compile Include="Data\Processing\GravityModel2DAccessibility.cs" />
-    <Compile Include="Data\Processing\IntegerizeMatrix.cs" />
-    <Compile Include="Data\Processing\ProcessKFactors.cs" />
-    <Compile Include="Data\Processing\VectorMath.cs" />
-    <Compile Include="Data\Processing\ScalarMath.cs" />
-    <Compile Include="Data\Processing\ODMath.cs" />
-    <Compile Include="Data\Resources\ForwardLookup.cs" />
-    <Compile Include="Data\Saving\SaveHistogramData.cs" />
-    <Compile Include="Data\Saving\SaveLabeledDataToCSV.cs" />
-    <Compile Include="Data\Saving\SaveODToESRIMatrix.cs" />
-    <Compile Include="Data\Saving\SaveODToThirdNormalizedCSV.cs" />
-    <Compile Include="Data\Saving\SaveSparseTriIndex.cs" />
-    <Compile Include="Data\Synthesis\Gibbs\Aggregation.cs" />
-    <Compile Include="Data\Synthesis\Gibbs\Attribute.cs" />
-    <Compile Include="Data\Synthesis\Gibbs\Conditional.cs" />
-    <Compile Include="Data\Synthesis\Gibbs\ConditionalByPD.cs" />
-    <Compile Include="Data\Synthesis\Gibbs\GibbsSampler.cs" />
-    <Compile Include="Data\Synthesis\Gibbs\Pool.cs" />
-    <Compile Include="Data\Synthesis\Gibbs\PoolSegment.cs" />
-    <Compile Include="Data\Testing\IncrementOnLoad.cs" />
-    <Compile Include="Extensibility\ExecuteInParallel.cs" />
-    <Compile Include="Extensibility\ExecuteModelSystemWithRandomSeeds.cs" />
-    <Compile Include="Extensibility\Iteration.cs" />
-    <Compile Include="Extensibility\LaunchProgram.cs" />
-    <Compile Include="FileManagement\DeleteFilesOfType.cs" />
-    <Compile Include="Graphviz\GenerateModelSystemDotFile.cs" />
-    <Compile Include="MultiRun\MultiRunModelSystem.cs" />
-    <Compile Include="Office\ConvertCSVToXLSX.cs" />
-    <Compile Include="Parallel\ParallelWorkSerialRecombination.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Testing\TestRequiredModule.cs" />
-    <Compile Include="Testing\TestExecutingModule.cs" />
-    <Compile Include="Testing\TestRootModule.cs" />
-    <Compile Include="Testing\TestRuntimeErrorModule.cs" />
-    <Compile Include="Testing\TestRuntimeValidationErrorModule.cs" />
-    <Compile Include="Testing\TestValidationErrorModule.cs" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
-      <Project>{e0b4f1c9-d2f6-415e-b8f5-af66f23f4b87}</Project>
-      <Name>Datastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TMG.Emme\TMG.Emme.csproj">
-      <Project>{9423a82c-0120-4d8f-aac0-c9c37966b3a8}</Project>
-      <Name>TMG.Emme</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TMG.Functions\TMG.Functions.csproj">
-      <Project>{4129e4db-412b-493a-bda1-f0c367ee1f6f}</Project>
-      <Name>TMG.Functions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj">
-      <Project>{036ae224-aa65-4c4c-a29f-502ded239a84}</Project>
-      <Name>TMGInterfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
-      <Project>{5a7c8449-be6f-4cbb-ad7f-b38560dae637}</Project>
-      <Name>XTMFInterfaces</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Office.Interop.Excel">
-      <Version>15.0.4795.1000</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

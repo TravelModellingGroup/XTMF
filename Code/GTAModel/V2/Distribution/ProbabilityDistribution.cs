@@ -25,6 +25,7 @@ using Datastructure;
 using TMG.Input;
 using TMG.ModeSplit;
 using XTMF;
+using Range = Datastructure.Range;
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable CompareOfFloatsByEqualityOperator
 

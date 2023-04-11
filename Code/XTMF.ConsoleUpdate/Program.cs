@@ -24,30 +24,30 @@ namespace XTMF.ConsoleUpdate
     {
         static void Main(string[] args)
         {
-            Console.WriteLine( "XTMF.ConsoleUpdate Version 1.0.1" );
+            Console.WriteLine("XTMF.ConsoleUpdate Version 1.0.1");
             var controller = new UpdateController();
             controller.XTMFUpdateServerLocation = args[0];
             controller.UseWebservices = false;
             try
             {
-                controller.UpdateAll( false, false, (progress) => Console.Write( "\r{0:P}%\t", progress ),
-                ( s =>
+                controller.UpdateAll(false, false, (progress) => Console.Write("\r{0:P}%\t", progress),
+                (s =>
                     {
                         Console.WriteLine();
-                        Console.WriteLine( s );
-                    } ) );
+                        Console.WriteLine(s);
+                    }));
             }
-            catch ( AggregateException error )
+            catch (AggregateException error)
             {
                 Console.WriteLine();
-                Console.WriteLine( "XTMF Update Error:" );
-                Console.WriteLine( error.InnerException?.Message );
+                Console.WriteLine("XTMF Update Error:");
+                Console.WriteLine(error.InnerException?.Message);
             }
-            catch ( Exception error )
+            catch (Exception error)
             {
                 Console.WriteLine();
-                Console.WriteLine( "XTMF Update Error:" );
-                Console.WriteLine( error.Message + "\r\n" + error.StackTrace );
+                Console.WriteLine("XTMF Update Error:");
+                Console.WriteLine(error.Message + "\r\n" + error.StackTrace);
             }
         }
     }

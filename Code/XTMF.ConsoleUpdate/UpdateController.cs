@@ -163,6 +163,8 @@ namespace XTMF.ConsoleUpdate
             }
             if ( UseWebservices )
             {
+                // TODO: Implement Web Services
+#if FALSE
                 byte[] data;
                 using ( TMG.WebUpdate.XTMFUpdateWebservice webservice = new TMG.WebUpdate.XTMFUpdateWebservice() )
                 {
@@ -213,6 +215,7 @@ namespace XTMF.ConsoleUpdate
                 {
                     stream?.Dispose();
                 }
+#endif
             }
             else
             {

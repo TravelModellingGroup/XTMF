@@ -173,6 +173,8 @@ namespace XTMF.Update
             }
             if (UseWebservices)
             {
+                // TODO: Implement Web Services
+#if false
                 byte[] data;
                 using (TMG.WebUpdate.XTMFUpdateWebservice webservice = new TMG.WebUpdate.XTMFUpdateWebservice())
                 {
@@ -224,6 +226,7 @@ namespace XTMF.Update
                 {
                     stream?.Dispose();
                 }
+#endif
             }
             else
             {

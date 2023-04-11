@@ -26,6 +26,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 // Used for the windows firewall
 using NetFwTypeLib;
@@ -192,7 +193,9 @@ namespace XTMF.Networking
 
         private static bool AuthorizeApplication(INetFwMgr manager, string title, string applicationPath, NET_FW_SCOPE_ scope, NET_FW_IP_VERSION_ ipVersion)
         {      // Create the type from prog id
+#pragma warning disable CA1416 // Validate platform compatibility
             Type type = Type.GetTypeFromProgID(PROGID_AUTHORIZED_APPLICATION);
+#pragma warning restore CA1416 // Validate platform compatibility
             INetFwAuthorizedApplication auth = Activator.CreateInstance(type) as INetFwAuthorizedApplication;
             auth.Name = title;
             auth.ProcessImageFileName = applicationPath;
@@ -212,7 +215,9 @@ namespace XTMF.Networking
 
         private static INetFwMgr GetFirewallManager()
         {
+#pragma warning disable CA1416 // Validate platform compatibility
             var objectType = Type.GetTypeFromCLSID(new Guid(CLSID_FIREWALL_MANAGER));
+#pragma warning restore CA1416 // Validate platform compatibility
             return objectType != null ? Activator.CreateInstance(objectType) as INetFwMgr : null;
         }
 
@@ -315,7 +320,7 @@ namespace XTMF.Networking
                                            break;
                                        case MessageType.PostResource:
                                            {
-                                               var data = readingConverter.Deserialize(reader.BaseStream);
+                                               var data = Deserialize(reader);
                                                clientMessage.Data = data;
                                                ourRemoteClient.Messages.Add(clientMessage);
                                            }
@@ -425,6 +430,23 @@ namespace XTMF.Networking
             }
         }
 
+        private static void Serialize(BinaryWriter writer, object data)
+        {
+            var type = data.GetType();
+            var typeName = type.AssemblyQualifiedName;
+            writer.Write(typeName);
+            XmlSerializer serializer = new(type);
+            writer.Flush();
+            serializer.Serialize(writer.BaseStream, data);
+        }
+
+        private static object Deserialize(BinaryReader reader)
+        {
+            var typeName = reader.ReadString();
+            XmlSerializer deserializer = new(Type.GetType(typeName));
+            return deserializer.Deserialize(reader.BaseStream);
+        }
+
         private void CompletedTask(RemoteXTMF ourRemoteClient, int status, string error)
         {
             lock (this)
@@ -485,7 +507,7 @@ namespace XTMF.Networking
             {
                 // Since we are in XTMF.dll we need to figure out what program is actually using us before we open up the firewall
                 Assembly baseAssembly = Assembly.GetEntryAssembly();
-                var codeBase = baseAssembly.CodeBase;
+                var codeBase = baseAssembly.Location;
                 var programName = Path.GetFileName(codeBase);
                 string programPath = null;
                 try
@@ -580,7 +602,7 @@ namespace XTMF.Networking
                             if (Resources.TryGetValue(name, out object data))
                             {
                                 writer.Write(true);
-                                converter.Serialize(writer.BaseStream, data);
+                                Serialize(writer, data);
                             }
                             else
                             {

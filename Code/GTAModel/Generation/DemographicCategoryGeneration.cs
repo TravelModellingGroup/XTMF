@@ -43,9 +43,9 @@ namespace TMG.GTAModel
         [RootModule]
         public IDemographic4StepModelSystemTemplate Root;
 
-        private SparseArray<Range> AgeCategories;
+        private SparseArray<Datastructure.Range> AgeCategories;
 
-        private Range[] FlatAges;
+        private Datastructure.Range[] FlatAges;
 
         [RunParameter( "Mobility Category", "0", typeof( RangeSet ), "0= No Car and License, 1= car no license, 2= 2+ cars no license, 3= No Car with license, 4= license 1 car, 5= license 2+ cars" )]
         public RangeSet Mobility { get; set; }

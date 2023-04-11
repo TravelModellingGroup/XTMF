@@ -1137,7 +1137,7 @@ namespace XTMF.Gui.UserControls
             var module =
                 (((sender as MenuItem)?.Parent as FrameworkElement).DataContext as ModelSystemStructureDisplayModel)
                 ?.BaseModel;
-            Process.Start($"https://tmg.utoronto.ca/doc/{_xtmfMajorVersion}/modules/{module.Type}.html");
+            Process.Start(new ProcessStartInfo() { FileName = $"https://tmg.utoronto.ca/doc/{_xtmfMajorVersion}/modules/{module.Type}.html", UseShellExecute = true });
         }
     }
 }
