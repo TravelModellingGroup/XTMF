@@ -67,7 +67,10 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Background Traffic Link Component Extra Attribute", "@tvph", "Time dependent background traffic link extra attribute")]
         public string LinkComponentAttribute;
 
-        [RunParameter("Time Dependent Start Index for Attributes", 1, "Time Dependent Start Indices used to create the alphanumerical attribute name string for attributes in this class.")]
+        [RunParameter("Create Link Component Extra Attribute", false, "Set to true if time dependent background traffic link extra attribute does not already exist in the network")]
+        public bool CreateLinkComponentAttribute;
+
+        [RunParameter("Start Index for Attributes", 1, "Time Dependent Start Indices used to create the alphanumerical attribute name string for attributes in this class.")]
         public int StartIndex;
 
         [RunParameter("Variable Network Topology", false, "Set to true if modelling network changes during the assignment period is needed.")]
@@ -114,7 +117,7 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("Demand Matrix", 1000, "The id of the demand matrix to use.")]
             public int DemandMatrixNumber;
 
-            [RunParameter("Time Matrix", 10, "The matrix number to save in vehicle travel times")]
+            [RunParameter("Time Matrix", 0, "The matrix number to save in vehicle travel times")]
             public int TimeMatrixNumber;
 
             [RunParameter("Cost Matrix", 0, "The matrix number to save the total cost into.")]
@@ -126,7 +129,7 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("VolumeAttribute", "@auto_volume", "The name of the attribute to save the volumes into (or None for no saving).")]
             public string VolumeAttribute;
 
-            [RunParameter("Time Dependent Start Index for Attributes in this Class", 1, "")]
+            [RunParameter("Class Start Index for Attributes", 1, "")]
             public int AttributeStartIndex;
 
             [RunParameter("TollAttributeID", "@toll", "The attribute containing the road tolls for this class of vehicle.")]
@@ -248,6 +251,7 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("NumberOfExtraTimeIntervals", NumberOfExtraTimeIntervals.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("BackgroundTraffic", BackgroundTraffic.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("LinkComponentAttribute", LinkComponentAttribute),
+                new ModellerControllerParameter("CreateLinkComponentAttribute", LinkComponentAttribute.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("StartIndex", StartIndex.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("VariableTopology", VariableTopology.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("InnerIterations", InnerIterations.ToString(CultureInfo.InvariantCulture)),
@@ -263,7 +267,6 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("TrafficClasses", sb.ToString()),
         };
         }
-
         public bool RuntimeValidation(ref string error)
         {
             foreach (var c in TrafficClasses)
