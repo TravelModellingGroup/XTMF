@@ -615,7 +615,6 @@ namespace XTMF.Gui.UserControls
         /// <param name="assign"></param>
         internal async void ShowLinkedParameterDialog(bool assign = false)
         {
-            var s = new LinkedParameterDisplay();
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
             LinkedParameterDisplayOverlay.IsAssignMode = assign;
             await RootDialogHost.ShowDialog(LinkedParameterDisplayOverlay, OpenedEventHandler);
