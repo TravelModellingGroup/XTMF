@@ -122,7 +122,7 @@ namespace XTMF.Gui.UserControls
                 ChangesMade = true;
                 CleanupSelectedParameters();
                 DialogOpenedEventArgs.Session.Close();
-                OnCloseDisplay.BeginInvoke(null, null);
+                OnCloseDisplay.Invoke();
             }
         }
 
@@ -444,7 +444,7 @@ namespace XTMF.Gui.UserControls
                 if (DialogOpenedEventArgs != null)
                 {
                     DialogOpenedEventArgs.Session.Close();
-                    OnCloseDisplay.BeginInvoke(null, null);
+                    OnCloseDisplay.Invoke();
                 }
             }
         }
@@ -464,9 +464,8 @@ namespace XTMF.Gui.UserControls
             AssignCurrentlySelected();
             ChangesMade = true;
             CleanupSelectedParameters();
+            OnCloseDisplay.Invoke();
             DialogOpenedEventArgs.Session.Close();
-            OnCloseDisplay.BeginInvoke(null, null);
-
         }
 
         /// <summary>
@@ -517,7 +516,7 @@ namespace XTMF.Gui.UserControls
                 if (DialogOpenedEventArgs != null)
                 {
                     DialogOpenedEventArgs.Session.Close();
-                    OnCloseDisplay.BeginInvoke(null, null);
+                    OnCloseDisplay.Invoke();
                 }
 
                 GoToModule?.Invoke(moduleToGoTo);
@@ -572,7 +571,7 @@ namespace XTMF.Gui.UserControls
             if (DialogOpenedEventArgs != null)
             {
                 DialogOpenedEventArgs.Session.Close();
-                OnCloseDisplay.BeginInvoke(null, null);
+                OnCloseDisplay.Invoke();
                 e.Handled = true;
             }
         }
