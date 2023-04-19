@@ -16,7 +16,6 @@
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
 		<OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
