@@ -23,13 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"  BorderThickness="0"
-             d:DesignHeight="600" d:DesignWidth="800" Background="{DynamicResource MaterialDesignPaper}" >
-
-    <UserControl.Resources>
-        <ResourceDictionary>
-           
-        </ResourceDictionary>
-    </UserControl.Resources>
+             d:DesignHeight="600" d:DesignWidth="800" Background="{DynamicResource MaterialDesignPaper}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
