@@ -177,8 +177,6 @@ namespace XTMF
 
         public BindingListWithRemoving<IProgressReport> ProgressReports { get; private set; }
 
-        private Dictionary<IProject, string> RecentProjectMap { get; set; } = new Dictionary<IProject, string>();
-
         public List<string> RecentProjects { get; private set; }
 
         private string _ProjectDirectory;

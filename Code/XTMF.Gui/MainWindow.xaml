@@ -43,7 +43,8 @@
         FontFamily="{DynamicResource MaterialDesignFont}" Closing="XtmfWindow_Closing" Initialized="XtmfWindow_Initialized">
     <metro:MetroWindow.LeftWindowCommands>
         <metro:WindowCommands BorderThickness="0">
-            <ToggleButton IsChecked="True" Background="Transparent" Name="MenuToggleButton" Style="{StaticResource MaterialDesignActionToggleButton}" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}"
+            <ToggleButton IsChecked="False" Background="Transparent" Name="MenuToggleButton" 
+						  Style="{StaticResource MaterialDesignActionToggleButton}" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}"
                           ToolTip="MaterialDesignActionLightToggleButton">
                 <ToggleButton.Content>
                     <materialDesign:PackIcon Kind="Menu" />
@@ -107,8 +108,8 @@
                           VerticalAlignment="Top" Width="100" Grid.Column="2" />
                         </Grid>
                     </Grid>
-                    <materialDesign:DrawerHost.LeftDrawerContent >
-                        <StackPanel   MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
+                    <materialDesign:DrawerHost.LeftDrawerContent>
+                        <StackPanel MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
                             <ListBox Name="XTMFWorkspaceListBox" SelectionChanged="XTMFWorkspaceListBox_OnSelectionChanged" >
                                 <ListBoxItem Padding="15 8 5 8" MouseUp="NewProjectButton_Click">New Project</ListBoxItem>
                                 <ListBoxItem Name="OpenProjectGlobalMenuItem" MouseUp="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>

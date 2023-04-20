@@ -199,7 +199,6 @@ namespace XTMF.Gui
         public void UpdateRecentProjectsMenu()
         {
             var recentProjects = EditorController.Runtime.Configuration.RecentProjects;
-            recentProjects.Reverse();
             Dispatcher.Invoke(() =>
             {
                 //RecentProjectsMenuItem.Items.Clear();
