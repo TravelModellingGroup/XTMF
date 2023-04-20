@@ -47,9 +47,9 @@ namespace XTMF
         private static List<ParameterModel> CreateParameterModels(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession Session)
         {
             var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters?.Parameters;
-            if(realParameters == null) return null;
+            if (realParameters == null) return null;
             var ret = new List<ParameterModel>(realParameters.Count);
-            for(int i = 0; i < realParameters.Count; i++)
+            for (int i = 0; i < realParameters.Count; i++)
             {
                 ret.Add(new ParameterModel(realParameters[i] as ModuleParameter, Session, modelSystemStructure));
             }
@@ -69,15 +69,14 @@ namespace XTMF
         /// <returns>True if it was found, false otherwise.</returns>
         public bool HasParameterContaining(string filterText)
         {
-            if(Parameters== null) return false;
-            foreach(var param in Parameters)
+            if (Parameters is null) return false;
+            foreach (var param in Parameters)
             {
-                if(param.Name.Equals(filterText, StringComparison.OrdinalIgnoreCase)
-                    || param.Value.Equals(filterText, StringComparison.OrdinalIgnoreCase))
+                if (param.Name.Contains(filterText, StringComparison.OrdinalIgnoreCase)
+                    || param.Value.Contains(filterText, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
-
             }
             return false;
         }
@@ -86,10 +85,10 @@ namespace XTMF
         {
             var parameters = Parameters;
             var modelSystemStructure = ModelSystemStructure;
-            if(modelSystemStructure.RealModelSystemStructure.Parameters == null) return;
+            if (modelSystemStructure.RealModelSystemStructure.Parameters == null) return;
             var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters.Parameters;
-            if(realParameters == null) return;
-            if(Parameters != null)
+            if (realParameters == null) return;
+            if (Parameters != null)
             {
                 Parameters.Clear();
             }
@@ -97,11 +96,11 @@ namespace XTMF
             {
                 Parameters = parameters = new List<ParameterModel>(realParameters.Count);
             }
-            for(int i = 0; i < realParameters.Count; i++)
+            for (int i = 0; i < realParameters.Count; i++)
             {
                 parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, _Session, modelSystemStructure));
             }
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Parameters));
         }
     }
 }

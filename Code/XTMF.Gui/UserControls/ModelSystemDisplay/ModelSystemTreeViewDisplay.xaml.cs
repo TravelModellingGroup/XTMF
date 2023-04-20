@@ -35,10 +35,6 @@ namespace XTMF.Gui.UserControls
 
         private bool _isDragActive;
 
-        private ModelSystemEditingSession _modelSystemEditingSession;
-
-        private RegionDisplaysModel _regionDisplaysModel;
-
         public bool IsDragActive
         {
             get => _isDragActive;
@@ -84,8 +80,6 @@ namespace XTMF.Gui.UserControls
 
             ModuleContextControl.ModuleContextChanged += ModuleContextControlOnModuleContextChanged;
 
-            _display.ModelSystemEditingSessionChanged += DisplayOnModelSystemEditingSessionChanged;
-
             AllowDrop = true;
         }
 
@@ -97,18 +91,6 @@ namespace XTMF.Gui.UserControls
         private string _xtmfMajorVersion;
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DisplayOnModelSystemEditingSessionChanged(object sender,
-            ModelSystemEditingSessionChangedEventArgs e)
-        {
-            _modelSystemEditingSession = e.Session;
-
-            _regionDisplaysModel = _modelSystemEditingSession.ModelSystemModel.RegionDisplaysModel;
-        }
 
         /// <summary>
         /// </summary>
@@ -188,7 +170,7 @@ namespace XTMF.Gui.UserControls
         ///     Expands a module, tracing backwards until the root module is reached
         /// </summary>
         /// <param name="module"></param>
-        public void ExpandToRoot(ModelSystemStructureDisplayModel module)
+        public static void ExpandToRoot(ModelSystemStructureDisplayModel module)
         {
             // don't expand the bottom node
             module = module?.Parent;
@@ -318,7 +300,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="module"></param>
         /// <param name="collapse"></param>
-        private void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse = true)
+        private static void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse = true)
         {
             if (module != null)
             {
@@ -334,15 +316,6 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="up"></param>
-        private void MoveFocusNextModule(bool up)
-        {
-            Keyboard.Focus(ModuleDisplay);
-            _display.MoveFocusNext(up);
         }
 
         /// <summary>
@@ -391,23 +364,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private string GetDocumetnationURL(Type type)
-        {
-            if (type.GetCustomAttribute(typeof(ModuleInformationAttribute)) is ModuleInformationAttribute moduleInfo)
-            {
-                if (!String.IsNullOrWhiteSpace(moduleInfo.DocURL))
-                {
-                    return moduleInfo.DocURL;
-                }
-            }
-            return $"https://tmg.utoronto.ca/doc/{_xtmfMajorVersion}/modules/{type}.html";
-        }
-
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
+        private async void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             var module = item?.BaseModel;
@@ -417,11 +378,11 @@ namespace XTMF.Gui.UserControls
                 case Key.F2:
                     if (EditorController.IsShiftDown())
                     {
-                        _display.RenameDescription();
+                        await _display.RenameDescription();
                     }
                     else
                     {
-                        _display.RenameSelectedModule();
+                        await _display.RenameSelectedModule();
                     }
                     e.Handled= true;
                     break;
@@ -481,7 +442,7 @@ namespace XTMF.Gui.UserControls
         {
             return !item.IsExpanded || item.Children == null || item.Children.Count == 0
                 ? item
-                : FindMostExpandedItem(item.Children[item.Children.Count - 1]);
+                : FindMostExpandedItem(item.Children[^1]);
         }
 
         /// <summary>
@@ -827,11 +788,10 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         private static TreeViewItem VisualUpwardSearch(DependencyObject source)
         {
-            while (source != null && !(source is TreeViewItem))
+            while (source is not null && source is not TreeViewItem)
             {
                 source = VisualTreeHelper.GetParent(source);
             }
-
             return source as TreeViewItem;
         }
 
@@ -892,18 +852,18 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RenameMenuItem_OnClick(object sender, RoutedEventArgs e)
+        private async void RenameMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            _display.RenameSelectedModule();
+            await _display.RenameSelectedModule();
         }
 
         /// <summary>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void EditDescriptionMenuItem_OnClick(object sender, RoutedEventArgs e)
+        private async void EditDescriptionMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            _display.RenameDescription();
+            await _display.RenameDescription();
         }
 
         /// <summary>
@@ -1030,7 +990,7 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// </summary>
         /// <param name="module"></param>
-        private void ShowModuleMoveAdorner(ModuleTreeViewItem module, bool isOrderUp)
+        private static void ShowModuleMoveAdorner(ModuleTreeViewItem module, bool isOrderUp)
         {
             var layer = AdornerLayer.GetAdornerLayer(module);
             var moveAdorner = (DragDropAdorner)layer.GetAdorners(module)
@@ -1054,7 +1014,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
-        private bool IsModuleMoveOrderUp(ModuleTreeViewItem module)
+        private static bool IsModuleMoveOrderUp(ModuleTreeViewItem module)
         {
             var mousePosition = Mouse.GetPosition(module);
             if (mousePosition.Y - module.RenderSize.Height / 2 < 0)
@@ -1067,7 +1027,7 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         /// </summary>
         /// <param name="module"></param>
-        private void HideModuleMoveAdorner(ModuleTreeViewItem module)
+        private static void HideModuleMoveAdorner(ModuleTreeViewItem module)
         {
             var layer = AdornerLayer.GetAdornerLayer(module);
             var moveAdorner = layer.GetAdorners(module)
@@ -1082,7 +1042,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
-        private ModuleTreeViewItem GetDragOverItem(ModuleTreeViewItem module, bool isOrderUp, DragEventArgs e)
+        private static ModuleTreeViewItem GetDragOverItem(ModuleTreeViewItem module, bool isOrderUp, DragEventArgs e)
         {
             var moduleSiblings = module.GetSiblingModuleTreeViewItems();
 

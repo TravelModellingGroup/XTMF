@@ -79,10 +79,10 @@ namespace XTMF.Gui.UserControls
         {
             SoftActiveParameterDisplay = QuickParameterListView.SelectedItem as ParameterDisplayModel;
             var listView = e.Source as ListView;
-            foreach(var item in listView.ContextMenu.Items)
+            foreach (var item in listView.ContextMenu.Items)
             {
                 var menuItem = item as FrameworkElement;
-                if(menuItem.Name == "SelectFileMenuItem" || menuItem.Name == "SelectDirectoryMenuItem")
+                if (menuItem.Name == "SelectFileMenuItem" || menuItem.Name == "SelectDirectoryMenuItem")
                 {
                     menuItem.IsEnabled = !SoftActiveParameterDisplay.IsEnumeration && SoftActiveParameterDisplay.ParameterType != typeof(bool);
                 }
@@ -101,7 +101,7 @@ namespace XTMF.Gui.UserControls
             foreach (var item in listView.ContextMenu.Items)
             {
                 var menuItem = item as FrameworkElement;
-                if (menuItem.Name == "PSelectFileMenuItem" || menuItem.Name == "PSelectDirectoryMenuItem" 
+                if (menuItem.Name == "PSelectFileMenuItem" || menuItem.Name == "PSelectDirectoryMenuItem"
                     || menuItem.Name == "POpenFileMenuItem")
                 {
                     menuItem.IsEnabled = !SoftActiveParameterDisplay.IsEnumeration && SoftActiveParameterDisplay.ParameterType != typeof(bool);
@@ -194,7 +194,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void ToggleQuickParameterDisplaySearch()
         {
-            Action localAction = new Action(() =>
+            Action localAction = new(() =>
             {
                 if (QuickParameterDisplaySearch.Opacity == 0.0)
                 {
@@ -280,8 +280,8 @@ namespace XTMF.Gui.UserControls
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                
-                var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
+
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 if (files.Length > 0)
                 {
                     var parameterDisplayModel = ((TextBox)sender).Tag as ParameterDisplayModel;
@@ -291,7 +291,7 @@ namespace XTMF.Gui.UserControls
                     GetInputDirectory(Session.GetModelSystemStructureModel(DisplayRoot.BaseModel.RealModelSystemStructure), out var inputDirectory);
 
                     string inputDirectoryString = inputDirectory.Value;
-        
+
                     TransformToRelativePath(inputDirectoryString, ref path);
                     SetParameterValue(parameterDisplayModel, path);
                 }

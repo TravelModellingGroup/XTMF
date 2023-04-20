@@ -29,7 +29,7 @@ namespace XTMF.Gui.Controllers
 {
     internal static class EditorController
     {
-        static SingleAccess<List<MainWindow>> OpenWindows = new SingleAccess<List<MainWindow>>(new List<MainWindow>());
+        static readonly SingleAccess<List<MainWindow>> OpenWindows = new(new List<MainWindow>());
 
         public static XTMFRuntime Runtime { get; private set; }
 

@@ -229,7 +229,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void UnassignedModulesStatusBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            List<ModelSystemStructureDisplayModel> modules = new List<ModelSystemStructureDisplayModel>();
+            List<ModelSystemStructureDisplayModel> modules = new();
 
             Dispatcher.BeginInvoke(new Action(() =>
               {
@@ -284,7 +284,7 @@ namespace XTMF.Gui.UserControls
                     model.IsSelected = true;
                     if (ActiveModelSystemView is ModelSystemTreeViewDisplay view)
                     {
-                        view.ExpandToRoot(model);
+                        ModelSystemTreeViewDisplay.ExpandToRoot(model);
                     }
                     UnassignedModulesPopup.IsOpen = false;
                     NoUnassignedModulesPopup.IsOpen = false;
