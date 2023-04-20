@@ -218,7 +218,7 @@ namespace XTMF.Gui.UserControls
             LinkedParameterFilterBox.Filter = (o, text) =>
             {
                 var model = o as LinkedParameterDisplayModel;
-                return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
+                return model.Name.Contains(text, StringComparison.CurrentCultureIgnoreCase);
             };
             Display.SelectionChanged += Display_SelectionChanged;
         }
@@ -292,7 +292,7 @@ namespace XTMF.Gui.UserControls
         /// 
         /// </summary>
         /// <param name="obj"></param>
-        private async void NewLinkedParameter_Clicked(object obj)
+        private async void NewLinkedParameter_Clicked()
         {
             var dialog = new StringRequestDialog(RootDialogHost, "New LinkedParameter Name", (value) => !String.IsNullOrWhiteSpace(value), String.Empty);
             await dialog.ShowAsync();
@@ -425,7 +425,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private MessageBoxResult ConfirmUnlinkParameterMessageBox(ParameterDisplay parameterDisplay)
+        private static MessageBoxResult ConfirmUnlinkParameterMessageBox(ParameterDisplay parameterDisplay)
         {
             return MessageBox.Show(MainWindow.Us, "Are you sure you wish to unlink the selected parameter?",
                 "Confirm Unlink [" + parameterDisplay.ParameterName + "]",
@@ -459,7 +459,6 @@ namespace XTMF.Gui.UserControls
 
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-
             e.Handled = true;
             AssignCurrentlySelected();
             ChangesMade = true;
@@ -543,7 +542,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void NewLinkedParameterButton_OnClick(object sender, RoutedEventArgs e)
         {
-            NewLinkedParameter_Clicked(sender);
+            NewLinkedParameter_Clicked();
         }
 
         public class ParameterDisplay
