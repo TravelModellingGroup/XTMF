@@ -25,6 +25,7 @@ using TMG.Emme;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
+    [ModuleInformation(Description = "This tool is designed to call the EMME Network calculator.")]
     public class NetworkCalculator : IEmmeTool
     {
 
@@ -34,7 +35,17 @@ namespace Tasha.Validation.PerformanceMeasures
             Node = 1,
             Transit_Line = 2,
             Transit_Segment = 3
+        }
 
+        public enum AggregationType
+        {
+            None = 0,
+            Sum = 1,
+            Average = 2,
+            Min = 3,
+            Max = 4,
+            BitwiseAnd = 5,
+            BitwiseOr = 6,
         }
 
         private const string ToolName = "tmg.XTMF_internal.xtmf_network_calculator";
@@ -59,6 +70,9 @@ namespace Tasha.Validation.PerformanceMeasures
 
         [RunParameter("Result Attribute", "", "The attribute to save the result into, leave blank to not save.")]
         public string Result;
+
+        [RunParameter("Aggregation", AggregationType.None, "The aggregation type to apply if required. Set to none if there is no aggregation.")]
+        public AggregationType Aggregation;
 
         [SubModelInformation(Required = false, Description = "Resource that will store the sum of the network calculation")]
         public IResource SumOfReport;
@@ -93,7 +107,7 @@ namespace Tasha.Validation.PerformanceMeasures
         private string GetParameters()
         {
             return string.Join(" ", ScenarioNumber, (int)Domain, AddQuotes(Expression), AddQuotes(Node_Selection), AddQuotes(Link_Selection), AddQuotes(Transit_Line_Selection),
-                AddQuotes(Result));
+                AddQuotes(Result), (int)Aggregation);
         }
 
         private static string AddQuotes(string toQuote)
@@ -132,6 +146,5 @@ namespace Tasha.Validation.PerformanceMeasures
             }
             return true;
         }
-
     }
 }
