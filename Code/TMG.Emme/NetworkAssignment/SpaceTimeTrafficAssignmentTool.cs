@@ -61,8 +61,8 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Number of Extra Time Intervals", 2, "Total number of time periods. Cannot be greater than 125. Default is 2")]
         public int NumberOfExtraTimeIntervals;
 
-        [RunParameter("Background Traffic", true, "Set this to false to not assign transit vehicles on the roads")]
-        public bool BackgroundTraffic;
+        // [RunParameter("Background Traffic", true, "Set this to false to not assign transit vehicles on the roads")]
+        // public bool BackgroundTraffic;
 
         [RunParameter("Background Traffic Link Component Extra Attribute", "@tvph", "Time dependent background traffic link extra attribute")]
         public string LinkComponentAttribute;
@@ -73,8 +73,8 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Start Index for Attributes", 1, "Time Dependent Start Indices used to create the alphanumerical attribute name string for attributes in this class.")]
         public int StartIndex;
 
-        [RunParameter("Variable Network Topology", false, "Set to true if modelling network changes during the assignment period is needed.")]
-        public bool VariableTopology;
+        // [RunParameter("Variable Network Topology", false, "Set to true if modelling network changes during the assignment period is needed.")]
+        // public bool VariableTopology;
 
         [RunParameter("Max Inner Iterations", 15, "Maximum inner iterations")]
         public int InnerIterations;
@@ -103,9 +103,9 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Run Title", "Multi-class Run", "The name of the run to appear in the logbook.")]
         public string RunTitle;
 
-        [RunParameter("On Road TTFs", "3-128", typeof(RangeSet), "The Transit Time Functions (TTFs) for transit segments that should be applied to the" +
-            " road links to reduce capacity for the buses and streetcars in mixed traffic.")]
-        public RangeSet OnRoadTTFs;
+        // [RunParameter("On Road TTFs", "3-128", typeof(RangeSet), "The Transit Time Functions (TTFs) for transit segments that should be applied to the" +
+        //     " road links to reduce capacity for the buses and streetcars in mixed traffic.")]
+        // public RangeSet OnRoadTTFs;
 
 
         public sealed class TrafficClass : IModule
@@ -249,11 +249,11 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("StartTime", StartTime.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("ExtraTimeInterval", ExtraTimeInterval.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("NumberOfExtraTimeIntervals", NumberOfExtraTimeIntervals.ToString(CultureInfo.InvariantCulture)),
-                new ModellerControllerParameter("BackgroundTraffic", BackgroundTraffic.ToString(CultureInfo.InvariantCulture)),
+                // new ModellerControllerParameter("BackgroundTraffic", BackgroundTraffic.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("LinkComponentAttribute", LinkComponentAttribute),
-                new ModellerControllerParameter("CreateLinkComponentAttribute", LinkComponentAttribute.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("CreateLinkComponentAttribute", CreateLinkComponentAttribute.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("StartIndex", StartIndex.ToString(CultureInfo.InvariantCulture)),
-                new ModellerControllerParameter("VariableTopology", VariableTopology.ToString(CultureInfo.InvariantCulture)),
+                // new ModellerControllerParameter("VariableTopology", VariableTopology.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("InnerIterations", InnerIterations.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("OuterIterations", OuterIterations.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("CoarseRGap",CoarseRGap.ToString(CultureInfo.InvariantCulture)),
@@ -263,7 +263,7 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("NormalizedGap", NormalizedGap.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("PerformanceFlag", PerformanceFlag.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("RunTitle", RunTitle),
-                new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString()),
+                // new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString()),
                 new ModellerControllerParameter("TrafficClasses", sb.ToString()),
         };
         }
