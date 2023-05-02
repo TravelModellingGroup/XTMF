@@ -12,4 +12,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug Remote Host|x86'">
     <StartArguments>localhost 1447</StartArguments>
   </PropertyGroup>
+  <PropertyGroup>
+    <_LastSelectedProfileId>Y:\repos\TravelModellingGroup\XTMF\Code\XTMF.RemoteClient\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
 </Project>
