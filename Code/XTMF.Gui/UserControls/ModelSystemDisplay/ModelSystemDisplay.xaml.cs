@@ -2164,7 +2164,7 @@ namespace XTMF.Gui.UserControls
             return e.Key switch
             {
                 Key.Down => Math.Min(view.SelectedIndex + 1, view.Items.Count - 1),
-                Key.Enter | Key.Tab => shift
+                Key.Enter or Key.Tab => shift
                     ? Math.Max(view.SelectedIndex - 1, 0)
                     : Math.Min(view.SelectedIndex + 1, view.Items.Count - 1),
                 Key.Up => Math.Max(view.SelectedIndex - 1, 0),
