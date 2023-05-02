@@ -137,7 +137,7 @@ namespace XTMF.Gui.UserControls
                     case Key.F2:
                         if (EditorController.IsShiftDown())
                         {
-                            RenameDescription();
+                            RenameDescription().GetAwaiter().GetResult();
                         }
                         else
                         {
