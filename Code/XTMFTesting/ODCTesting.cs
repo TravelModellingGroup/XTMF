@@ -152,12 +152,12 @@ namespace XTMF.Testing
                     Create311File( zones, data, "Test" + i + ".311" );
                     allData[i] = data;
                 }
-                var writer = new OdMatrixWriter<int>( referenceArray, times, types );
+                var writer = new OdMatrixWriter<int>( referenceArray, types, times);
                 for ( int i = 0; i < types; i++ )
                 {
                     for ( int j = 0; j < times; j++ )
                     {
-                        writer.LoadEmme2( "Test" + ( i * times + j ) + ".311", i, j );
+                        writer.LoadEmme2( "Test" + ( i * times + j ) + ".311", j, i);
                     }
                 }
                 writer.Save( "Test.odc", false );
