@@ -66,17 +66,14 @@ namespace Tasha.Common
                 v.VehicleType = type;
                 return v;
             }
-            return new Vehicle( type );
+            return new Vehicle(type);
         }
 
         public void Recycle()
         {
             VehicleType = null;
             Release();
-            if(Vehicles.Count < 100)
-            {
-                Vehicles.Add(this);
-            }
+            Vehicles.Add(this);
         }
     }
 }
