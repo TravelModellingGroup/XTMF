@@ -138,11 +138,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     result = WorkBasedBusinessModel.GetLocation(previousZone, ep, nextZone, startTime, availableTime, calculationSpace, random);
                     break;
             }
-            // if it isn't something that we understand just accept its previous zone
-            if (CalculationPool.Count <= Cores)
-            {
-                CalculationPool.Enqueue(calculationSpace);
-            }
+            CalculationPool.Enqueue(calculationSpace);
             return result;
         }
 
@@ -458,7 +454,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     + TransitWalk * walk
                     + TransitWait * wait
                     + TransitBoarding * boarding
-                    + Cost * cost)/scaleFactor);
+                    + Cost * cost) / scaleFactor);
             }
 
             protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, float[][] distances, int i, int j, Time time,
@@ -559,8 +555,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 });
                 Parallel.For(0, zones2, index =>
                 {
-                    autoSpace[index] = (float)Math.Pow(Math.Exp(autoSpace[index]/ timePeriodParameters.TravelLogsumDenominator) + Math.Exp(transitSpace[index]/ timePeriodParameters.TravelLogsumDenominator)
-                        + Math.Exp(activeSpace[index]/ timePeriodParameters.TravelLogsumDenominator), timePeriodParameters.TravelLogsumScale);
+                    autoSpace[index] = (float)Math.Pow(Math.Exp(autoSpace[index] / timePeriodParameters.TravelLogsumDenominator) + Math.Exp(transitSpace[index] / timePeriodParameters.TravelLogsumDenominator)
+                        + Math.Exp(activeSpace[index] / timePeriodParameters.TravelLogsumDenominator), timePeriodParameters.TravelLogsumScale);
                 });
                 return autoSpace;
             }
@@ -685,7 +681,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 var totalEmp = ((pf[i] + pp[i]) + (gf[i] + gp[i])) + ((sf[i] + sp[i]) + (mf[i] + mp[i]));
                                 var logOfEmp = Math.Log(totalEmp + 1);
                                 empTerm = Math.Exp(
-                                    (ProfessionalFullTime * pf[i]  +
+                                    (ProfessionalFullTime * pf[i] +
                                     ProfessionalPartTime * pp[i] +
                                     GeneralFullTime * gf[i] +
                                     GeneralPartTime * gp[i] +
