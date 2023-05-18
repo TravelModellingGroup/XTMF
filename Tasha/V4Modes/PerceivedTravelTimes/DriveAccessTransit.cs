@@ -433,12 +433,10 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                         cache.Add(pair, new Pair<float, Action<Random, ITripChain>>(float.NegativeInfinity, onSelection));
                         return false;
                     }
-                    int householdIteration = 0;
                     onSelection = (rand, tripChain) =>
                     {
                         var person = tripChain.Person;
                         var household = person.Household;
-                        householdIteration++;
                         tripChain.Attach("AccessStation", SelectAccessStation(
                                 rand,
                                 accessData));
