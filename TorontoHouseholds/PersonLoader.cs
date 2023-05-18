@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Datastructure;
 using Tasha.Common;
 using TMG.Input;
@@ -198,18 +199,10 @@ namespace TMG.Tasha
         {
             if(Reader == null)
             {
-                if(PlaceOfResidencePlaceOfSchool != null)
-                {
-                    PlaceOfResidencePlaceOfSchool.Load();
-                }
-                if(PlaceOfResidencePlaceOfWork != null)
-                {
-                    PlaceOfResidencePlaceOfWork.Load();
-                }
-                if(DriverLicenseModel != null)
-                {
-                    DriverLicenseModel.Load();
-                }
+                Parallel.Invoke(() => PlaceOfResidencePlaceOfSchool?.Load(),
+                    () => PlaceOfResidencePlaceOfWork?.Load(),
+                    () => DriverLicenseModel?.Load()
+                );
                 Reader = new CsvReader(PersonFile ?? System.IO.Path.Combine(TashaRuntime.InputBaseDirectory, FileName));
                 if(Header)
                 {

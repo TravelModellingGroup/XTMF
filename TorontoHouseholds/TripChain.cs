@@ -269,9 +269,7 @@ namespace Tasha.Common
 
         internal static void ReleaseChainPool()
         {
-            while (TripChains.TryDequeue(out TripChain c))
-            {
-            }
+            TripChains = new ConcurrentQueue<TripChain>();
         }
 
         #region ITripChain Members

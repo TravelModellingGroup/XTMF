@@ -235,15 +235,7 @@ namespace Tasha.Common
 
         internal static void ReleasePersonPool()
         {
-            try
-            {
-                while (People.TryTake(out Person p))
-                {
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            People = new ConcurrentBag<Person>();
         }
     }
 }

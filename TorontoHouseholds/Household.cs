@@ -179,15 +179,7 @@ namespace Tasha.Common
 
         internal static void ReleaseHouseholdPool()
         {
-            try
-            {
-                while (Households.TryTake(out Household notUsed))
-                {
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            Households = new ConcurrentBag<Household>();
         }
 
         #region IHousehold Members
