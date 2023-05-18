@@ -80,7 +80,7 @@ namespace Tasha.Common
         {
             get
             {
-                if (_NumberOfAdults == -1 )
+                if (_NumberOfAdults == -1)
                 {
                     _NumberOfAdults = 0;
                     foreach (ITashaPerson p in Persons)
@@ -174,10 +174,7 @@ namespace Tasha.Common
                 vehicles[i].Recycle();
             }
             _NumberOfAdults = -1;
-            if(Households.Count < 100)
-            {
-                Households.Add(this);
-            }
+            Households.Add(this);
         }
 
         internal static void ReleaseHouseholdPool()
@@ -205,7 +202,7 @@ namespace Tasha.Common
                 {
                     foreach (var tc in person.TripChains)
                     {
-                        if (tc.JointTripChains == null )
+                        if (tc.JointTripChains == null)
                             continue;
 
                         foreach (var jtc in tc.JointTripChains)
@@ -249,9 +246,9 @@ namespace Tasha.Common
         {
             Household newH = (Household)MemberwiseClone();
             newH.Variables = new SortedList<string, object>();
-            newH.Attach("Maintainer", this["Maintainer"] );
+            newH.Attach("Maintainer", this["Maintainer"]);
             newH.Persons = new ITashaPerson[Persons.Length];
-            for ( int i = 0; i < Persons.Length; i++)
+            for (int i = 0; i < Persons.Length; i++)
             {
                 Person newPerson = (Person)Persons[i].Clone();
                 newPerson.Household = newH;

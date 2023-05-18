@@ -585,6 +585,7 @@ namespace TMG.Tasha
                 }
                 NeedsReset = true;
                 AllDataLoaded = Reader.EndOfFile;
+                AutoOwnershipModel?.Load();
                 while (LoadNextHousehold(list) && !AllDataLoaded)
                 {
                 }

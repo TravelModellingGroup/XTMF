@@ -30,7 +30,7 @@ namespace Tasha.Scheduler
         private SchedulerTripChain(ITashaPerson person)
         {
             Person = person;
-            Trips = new List<ITrip>( 3 );
+            Trips = new List<ITrip>(3);
         }
 
         /// <summary>
@@ -65,15 +65,15 @@ namespace Tasha.Scheduler
         {
             get
             {
-                if ( !JointTrip ) return null;
+                if (!JointTrip) return null;
 
                 List<ITripChain> linkedTripChains = new List<ITripChain>();
-                foreach ( var p in Person.Household.Persons )
+                foreach (var p in Person.Household.Persons)
                 {
-                    foreach ( var tripChain in p.TripChains )
+                    foreach (var tripChain in p.TripChains)
                     {
-                        if ( tripChain.JointTripID == JointTripID )
-                            linkedTripChains.Add( tripChain );
+                        if (tripChain.JointTripID == JointTripID)
+                            linkedTripChains.Add(tripChain);
                     }
                 }
                 return linkedTripChains;
@@ -118,13 +118,13 @@ namespace Tasha.Scheduler
             {
                 List<IVehicleType> v = new List<IVehicleType>();
 
-                foreach ( var trip in Trips )
+                foreach (var trip in Trips)
                 {
-                    if ( trip.Mode != null && trip.Mode.RequiresVehicle != null )
+                    if (trip.Mode != null && trip.Mode.RequiresVehicle != null)
                     {
-                        if ( !v.Contains( trip.Mode.RequiresVehicle ) )
+                        if (!v.Contains(trip.Mode.RequiresVehicle))
                         {
-                            v.Add( trip.Mode.RequiresVehicle );
+                            v.Add(trip.Mode.RequiresVehicle);
                         }
                     }
                 }
@@ -148,9 +148,9 @@ namespace Tasha.Scheduler
         {
             get
             {
-                foreach ( var t in Trips )
+                foreach (var t in Trips)
                 {
-                    if ( !t.Mode.NonPersonalVehicle )
+                    if (!t.Mode.NonPersonalVehicle)
                     {
                         return true;
                     }
@@ -176,7 +176,7 @@ namespace Tasha.Scheduler
         {
             ITripChain chain = (ITripChain)MemberwiseClone();
             chain.Trips = new List<ITrip>();
-            chain.Trips.AddRange( Trips );
+            chain.Trips.AddRange(Trips);
             return chain;
         }
 
@@ -192,14 +192,14 @@ namespace Tasha.Scheduler
             List<ITrip> trips = new List<ITrip>();
 
             //cloning trips as well and setting their trip chain to cloned chained
-            foreach ( var trip in Trips )
+            foreach (var trip in Trips)
             {
                 ITrip t = trip.Clone();
                 t.TripChain = chain;
-                trips.Add( t );
+                trips.Add(t);
             }
 
-            chain.Trips.AddRange( trips );
+            chain.Trips.AddRange(trips);
 
             return chain;
         }
@@ -207,7 +207,7 @@ namespace Tasha.Scheduler
         public void Recycle()
         {
             Release();
-            foreach ( var t in Trips )
+            foreach (var t in Trips)
             {
                 t.Release();
             }
@@ -215,15 +215,12 @@ namespace Tasha.Scheduler
             JointTripID = 0;
             JointTripRep = false;
             GetRepTripChain = null;
-            if ( JointTripChains != null )
+            if (JointTripChains != null)
             {
                 JointTripChains.Clear();
             }
             Person = null;
-            if(Chains.Count < 100)
-            {
-                Chains.Enqueue(this);
-            }
+            Chains.Enqueue(this);
         }
 
         internal static SchedulerTripChain GetTripChain(ITashaPerson person)
