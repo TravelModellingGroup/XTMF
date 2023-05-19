@@ -127,16 +127,14 @@ namespace TMG.Input
         {
             try
             {
-                var name = DirectoryName.GetFileName();
-                if (!String.IsNullOrWhiteSpace(name))
+                var directoryName = DirectoryName.GetFileName();
+                var fullPath = String.IsNullOrWhiteSpace(directoryName) ? FileName : Path.Combine(directoryName, FileName);
+                var fullPathDir = Path.GetDirectoryName(fullPath);
+                if (!String.IsNullOrWhiteSpace(fullPathDir) && !Directory.Exists(fullPathDir))
                 {
-                    if (!Directory.Exists(name))
-                    {
-                        Directory.CreateDirectory(name);
-                    }
-                    return Path.Combine(name, FileName);
+                    Directory.CreateDirectory(fullPathDir);
                 }
-                return FileName;
+                return fullPath;
             }
             catch (Exception e)
             {
