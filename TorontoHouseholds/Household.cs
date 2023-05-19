@@ -123,12 +123,9 @@ namespace Tasha.Common
 
         public static Household MakeHousehold()
         {
-            for (int i = 0; i < 10; i++)
+            if (Households.TryTake(out Household h))
             {
-                if (Households.TryTake(out Household h))
-                {
-                    return h;
-                }
+                return h;
             }
             HouseholdsMade++;
             return new Household();
