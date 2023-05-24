@@ -17,10 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using TMG.Emme;
 using TMG.Input;
 using XTMF;
@@ -56,7 +56,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         [SubModelInformation(Description = "Fare Class", Required = true)]
         public FareClass[] FareClasses;
-        
+
 
         private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
@@ -64,52 +64,36 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public bool Execute(Controller controller)
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
+            if (controller is not ModellerController mc)
                 throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
+            using var stream = new MemoryStream();
+            using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions() { Indented = false });
+            writer.WriteStartObject();
+            writer.WritePropertyName("FareClasses");
+            writer.WriteStartArray();
 
-            StringBuilder sb = new StringBuilder();
-            StringWriter sw = new StringWriter(sb);
-
-            using (JsonWriter writer = new JsonTextWriter(sw))
+            foreach (var fareClass in FareClasses)
             {
-
-                writer.Formatting = Formatting.None;
                 writer.WriteStartObject();
-                writer.WritePropertyName("FareClasses");
-                writer.WriteStartArray();
-
-                foreach(var fareClass in FareClasses)
-                {
-                    writer.WriteStartObject();
-
-                    writer.WritePropertyName("SchemaFile");
-                    writer.WriteValue(fareClass.SchemaFile.GetFilePath());
-
-                    writer.WritePropertyName("SegmentFareAttribute");
-                    writer.WriteValue(fareClass.SegmentFareAttribute);
-
-                    writer.WritePropertyName("LinkFareAttribute");
-                    writer.WriteValue(fareClass.LinkFareAttribute);
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndArray();
+                writer.WriteString("SchemaFile", fareClass.SchemaFile.GetFilePath());
+                writer.WriteString("SegmentFareAttribute", fareClass.SegmentFareAttribute);
+                writer.WriteString("LinkFareAttribute", fareClass.LinkFareAttribute);
                 writer.WriteEndObject();
             }
-
-             var args = string.Join(" ", "\"" + BaseSchemaFile.GetFilePath() + "\"",
-                                     BaseScenarioNumber,
-                                     NewScenarioNumber,
-                                     TransferModeId,
-                                     VirtualNodeDomain,
-                                     StationConnectorFlag,
-                                     "\"" + sb.ToString().Replace("\"", "'") + "\""
-                                         ); 
-
-    
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+            writer.Flush();
+            stream.Position = 0;
+            var sb = System.Text.UTF8Encoding.UTF8.GetString(stream.ToArray());
+            var args = string.Join(" ", "\"" + BaseSchemaFile.GetFilePath() + "\"",
+                                    BaseScenarioNumber,
+                                    NewScenarioNumber,
+                                    TransferModeId,
+                                    VirtualNodeDomain,
+                                    StationConnectorFlag,
+                                    "\"" + stream.ToString().Replace("\"", "'") + "\""
+                                        );
             var result = "";
             return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
         }
@@ -133,7 +117,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public bool RuntimeValidation(ref string error)
         {
-            if(FareClasses.Length < 1)
+            if (FareClasses.Length < 1)
             {
                 error = "There must be at least one fare class defined.";
                 return false;
@@ -153,7 +137,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
             public float Progress => 100;
 
-            public Tuple<byte, byte, byte> ProgressColour => Tuple.Create<byte,byte,byte>(100,100,100);
+            public Tuple<byte, byte, byte> ProgressColour => Tuple.Create<byte, byte, byte>(100, 100, 100);
 
             [SubModelInformation(Description = "Fare Schema File", Required = true)]
             public FileLocation SchemaFile;

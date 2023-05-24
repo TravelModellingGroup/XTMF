@@ -16,7 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using Newtonsoft.Json;
 using Datastructure;
 using System;
 using System.Globalization;
@@ -72,7 +71,6 @@ namespace TMG.Emme.XTMF_Internal
             {
                 throw new XTMFRuntimeException(this, "There was no tool with the name '" + ToolName + "' available in the EMME databank!");
             }
-
             return mc.Run(this, ToolName, GetParameters(), (p) => Progress = p, ref ret);
         }
 
