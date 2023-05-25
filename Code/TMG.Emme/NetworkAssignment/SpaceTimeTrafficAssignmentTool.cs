@@ -16,14 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using Newtonsoft.Json;
-using Datastructure;
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Text;
+using System.Text.Json;
 using XTMF;
 using System.IO;
+using System.Buffers.Text;
 
 namespace TMG.Emme.NetworkAssignment
 {
@@ -34,7 +33,6 @@ namespace TMG.Emme.NetworkAssignment
 
     public class SpaceTimeTrafficAssignmentTool : IEmmeTool
     {
-
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -61,9 +59,6 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Number of Extra Time Intervals", 2, "Total number of time periods. Cannot be greater than 125. Default is 2")]
         public int NumberOfExtraTimeIntervals;
 
-        // [RunParameter("Background Traffic", true, "Set this to false to not assign transit vehicles on the roads")]
-        // public bool BackgroundTraffic;
-
         [RunParameter("Background Traffic Link Component Extra Attribute", "@tvph", "Time dependent background traffic link extra attribute")]
         public string LinkComponentAttribute;
 
@@ -72,9 +67,6 @@ namespace TMG.Emme.NetworkAssignment
 
         [RunParameter("Start Index for Attributes", 1, "Time Dependent Start Indices used to create the alphanumerical attribute name string for attributes in this class.")]
         public int StartIndex;
-
-        // [RunParameter("Variable Network Topology", false, "Set to true if modelling network changes during the assignment period is needed.")]
-        // public bool VariableTopology;
 
         [RunParameter("Max Inner Iterations", 15, "Maximum inner iterations")]
         public int InnerIterations;
@@ -103,14 +95,9 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Run Title", "Multi-class Run", "The name of the run to appear in the logbook.")]
         public string RunTitle;
 
-        // [RunParameter("On Road TTFs", "3-128", typeof(RangeSet), "The Transit Time Functions (TTFs) for transit segments that should be applied to the" +
-        //     " road links to reduce capacity for the buses and streetcars in mixed traffic.")]
-        // public RangeSet OnRoadTTFs;
-
-
+        [ModuleInformation(Description = "This module is used to define the different classes that will be assigned during STTA.")]
         public sealed class TrafficClass : IModule
         {
-
             [RunParameter("Mode", 'c', "The mode for this class.")]
             public char Mode;
 
@@ -140,7 +127,6 @@ namespace TMG.Emme.NetworkAssignment
 
             [RunParameter("LinkCost", 0f, "The penalty in minutes per dollar to apply when traversing a link.")]
             public float LinkCost;
-
             public string Name { get; set; }
 
             public float Progress { get; set; }
@@ -149,7 +135,7 @@ namespace TMG.Emme.NetworkAssignment
 
             public bool RuntimeValidation(ref string error)
             {
-                if (Mode >= 'a' && Mode <= 'z' || Mode >= 'A' && Mode <= 'Z')
+                if (char.IsLetter(Mode))
                 {
                     error = "In '" + Name + "' the Mode '" + Mode + "' is not a feasible mode for multi class assignment!";
                     return true;
@@ -173,7 +159,6 @@ namespace TMG.Emme.NetworkAssignment
             }
         }
 
-
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
@@ -191,57 +176,35 @@ namespace TMG.Emme.NetworkAssignment
             return mc.Run(this, ToolName, GetParameters(), (p) => Progress = p, ref ret);
         }
 
-
         private ModellerControllerParameter[] GetParameters()
         {
-            StringBuilder sb = new StringBuilder();
-            StringWriter sw = new StringWriter(sb);
-
-            using (JsonWriter writer = new JsonTextWriter(sw))
+            // Build the traffic class JSON parameter
+            using var stream = new MemoryStream();
+            using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions() { Indented = false });
+            writer.WriteStartObject();
+            writer.WritePropertyName("TrafficClasses");
+            writer.WriteStartArray();
+            foreach (var trafficClass in TrafficClasses)
             {
-                writer.Formatting = Formatting.None;
                 writer.WriteStartObject();
-                writer.WritePropertyName("TrafficClasses");
-                writer.WriteStartArray();
-
-                foreach (var trafficClass in TrafficClasses)
-                {
-                    writer.WriteStartObject();
-
-                    writer.WritePropertyName("VolumeAttribute");
-                    writer.WriteValue(trafficClass.VolumeAttribute);
-
-                    writer.WritePropertyName("AttributeStartIndex");
-                    writer.WriteValue(trafficClass.AttributeStartIndex);
-
-                    writer.WritePropertyName("LinkTollAttributeID");
-                    writer.WriteValue(trafficClass.LinkTollAttributeID);
-
-                    writer.WritePropertyName("TollWeightList");
-                    writer.WriteValue(trafficClass.TollWeight);
-
-                    writer.WritePropertyName("LinkCost");
-                    writer.WriteValue(trafficClass.LinkCost);
-
-                    writer.WritePropertyName("Mode");
-                    writer.WriteValue(trafficClass.Mode);
-
-                    writer.WritePropertyName("DemandMatrixNumber");
-                    writer.WriteValue(trafficClass.DemandMatrixNumber);
-
-                    writer.WritePropertyName("TimeMatrixNumber");
-                    writer.WriteValue(trafficClass.TimeMatrixNumber);
-
-                    writer.WritePropertyName("CostMatrixNumber");
-                    writer.WriteValue(trafficClass.CostMatrixNumber);
-
-                    writer.WritePropertyName("TollMatrixNumber");
-                    writer.WriteValue(trafficClass.TollMatrixNumber);
-                    writer.WriteEndObject();
-                }
-                writer.WriteEndArray();
+                writer.WriteString("VolumeAttribute", trafficClass.VolumeAttribute);
+                writer.WriteNumber("AttributeStartIndex", trafficClass.AttributeStartIndex);
+                writer.WriteString("LinkTollAttributeID", trafficClass.LinkTollAttributeID);
+                writer.WriteString("TollWeightList", trafficClass.TollWeight);
+                writer.WriteNumber("LinkCost", trafficClass.LinkCost);
+                writer.WriteString("Mode", trafficClass.Mode.ToString());
+                writer.WriteNumber("DemandMatrixNumber", trafficClass.DemandMatrixNumber);
+                writer.WriteNumber("TimeMatrixNumber", trafficClass.TimeMatrixNumber);
+                writer.WriteNumber("CostMatrixNumber", trafficClass.CostMatrixNumber);
+                writer.WriteNumber("TollMatrixNumber", trafficClass.TollMatrixNumber);
                 writer.WriteEndObject();
             }
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+            writer.Flush();
+            stream.Position = 0;
+            // convert the traffic class data into a string and send it through the bridge as parameters
+            var sb = System.Text.UTF8Encoding.UTF8.GetString(stream.ToArray());
             return new[]
             {
                 new ModellerControllerParameter("ScenarioNumber", ScenarioNumber.ToString()),
@@ -249,11 +212,9 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("StartTime", StartTime.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("ExtraTimeInterval", ExtraTimeInterval.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("NumberOfExtraTimeIntervals", NumberOfExtraTimeIntervals.ToString(CultureInfo.InvariantCulture)),
-                // new ModellerControllerParameter("BackgroundTraffic", BackgroundTraffic.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("LinkComponentAttribute", LinkComponentAttribute),
                 new ModellerControllerParameter("CreateLinkComponentAttribute", CreateLinkComponentAttribute.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("StartIndex", StartIndex.ToString(CultureInfo.InvariantCulture)),
-                // new ModellerControllerParameter("VariableTopology", VariableTopology.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("InnerIterations", InnerIterations.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("OuterIterations", OuterIterations.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("CoarseRGap",CoarseRGap.ToString(CultureInfo.InvariantCulture)),
@@ -263,22 +224,12 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("NormalizedGap", NormalizedGap.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("PerformanceFlag", PerformanceFlag.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("RunTitle", RunTitle),
-                // new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString()),
                 new ModellerControllerParameter("TrafficClasses", sb.ToString()),
-        };
+            };
         }
+
         public bool RuntimeValidation(ref string error)
         {
-            foreach (var c in TrafficClasses)
-            {
-                foreach (var at in c.PathAnalyses)
-                {
-                    if (!at.RuntimeValidation(ref error))
-                    {
-                        return false;
-                    }
-                }
-            }
             return true;
         }
     }
