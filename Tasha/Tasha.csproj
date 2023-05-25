@@ -80,6 +80,6 @@
 	<ItemGroup>
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
 		<PackageReference Include="System.Windows.Forms.DataVisualization" Version="1.0.0-prerelease.20110.1" />
-		<PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.1" />
 	</ItemGroup>
 </Project>
