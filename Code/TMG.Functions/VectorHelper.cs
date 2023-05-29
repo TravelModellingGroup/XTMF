@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -46,6 +47,12 @@ namespace TMG.Functions
             where K : struct
         {
             return MemoryMarshal.Cast<T, K>(span);
+        }
+
+        [DoesNotReturn]
+        private static void ThrowVectorsMustBeSameSize()
+        {
+            throw new ArgumentException("Vectors must be the same size!");
         }
 
         /// <summary>

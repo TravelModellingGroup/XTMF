@@ -72,6 +72,39 @@ namespace Datastructure
             }
         }
 
+        /// <summary>
+        /// Read the value if the sparse index exists.
+        /// </summary>
+        /// <param name="sparseIndex">The sparse index to read from.</param>
+        /// <param name="data">The data that was read, default if it does not exist.</param>
+        /// <returns>True if the sparse index exists, false otherwise.</returns>
+        public bool TryRead(int sparseIndex, out T data)
+        {
+            if (GetTransformedIndex(ref sparseIndex))
+            {
+                data = Data[sparseIndex];
+                return true;
+            }
+            data = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Store the value if the sparse index exists.
+        /// </summary>
+        /// <param name="sparseIndex">The sparse index to write to.</param>
+        /// <param name="data">The data to write.</param>
+        /// <returns>True if the sparse index exists, false otherwise.</returns>
+        public bool TryStore(int sparseIndex, T data)
+        {
+            if (GetTransformedIndex(ref sparseIndex))
+            {
+                Data[sparseIndex] = data;
+                return true;
+            }
+            return false;
+        }
+
         public static SparseArray<T> CreateSparseArray(int[] sparseSpace, IList<T> data)
         {
             var length = sparseSpace.Length;
