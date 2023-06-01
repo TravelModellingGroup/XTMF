@@ -121,7 +121,7 @@
 			<Version>2.4.9</Version>
 		</PackageReference>
 		<PackageReference Include="MaterialDesignThemes.MahApps">
-			<Version>0.3.0</Version>
+			<Version>0.2.8</Version>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.1" />
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
