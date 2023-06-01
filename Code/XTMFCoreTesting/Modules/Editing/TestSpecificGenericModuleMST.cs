@@ -23,16 +23,16 @@ namespace XTMF.Testing.Modules.Editing
     public class TestSpecificGenericModuleMST : IModelSystemTemplate
     {
         [RunParameter("Input Directory", "../../Input", "The input directory.")]
-        public string InputBaseDirectory { get; set; }
+        public string InputBaseDirectory { get; set; } = string.Empty;
 
         [RunParameter("SecondaryString", "", "Another string parameter")]
-        public string SecondaryString;
+        public string SecondaryString = string.Empty;
 
-        public IGenericInterface<float,float, float, float> MyChild;
+        public IGenericInterface<float,float, float, float>? MyChild;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public string OutputBaseDirectory { get; set; }
+        public string OutputBaseDirectory { get; set; } = string.Empty;
 
         public float Progress { get; } = 0f;
 
@@ -43,7 +43,7 @@ namespace XTMF.Testing.Modules.Editing
             return false;
         }
 
-        public bool RuntimeValidation(ref string error)
+        public bool RuntimeValidation(ref string? error)
         {
             return true;
         }

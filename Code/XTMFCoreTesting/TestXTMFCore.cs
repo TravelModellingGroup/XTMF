@@ -22,7 +22,9 @@ namespace XTMF.Testing
     static class TestXTMFCore
     {
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private static XTMFRuntime Runtime;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         internal static XTMFRuntime CreateRuntime()
         {

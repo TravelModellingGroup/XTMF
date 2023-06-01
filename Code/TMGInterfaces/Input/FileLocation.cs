@@ -195,7 +195,7 @@ Description = "This module provides the ability to specify a file path relative 
 
         private string GetXTMFDirectory()
         {
-            return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().CodeBase.Replace("file:///", String.Empty)));
+            return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location.Replace("file:///", String.Empty)));
         }
     }
 }

@@ -36,6 +36,6 @@ namespace XTMF
     /// <typeparam name="T">The type of data that this will use</typeparam>
     public interface IDataSource<T> : IDataSource
     {
-        T GiveData();
+        T? GiveData();
     }
 }

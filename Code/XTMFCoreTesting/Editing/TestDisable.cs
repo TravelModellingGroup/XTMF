@@ -37,7 +37,7 @@ namespace XTMF.Testing.Editing
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
             using (var session = controller.EditModelSystem(ms))
             {
-                string error = null;
+                string? error = null;
                 // build a small model system
                 var model = session.ModelSystemModel;
                 Assert.IsNotNull(model, "No model system model was created!");
@@ -66,7 +66,7 @@ namespace XTMF.Testing.Editing
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
             using (var session = controller.EditModelSystem(ms))
             {
-                string error = null;
+                string? error = null;
                 // build a small model system
                 var model = session.ModelSystemModel;
                 Assert.IsNotNull(model, "No model system model was created!");
@@ -94,7 +94,7 @@ namespace XTMF.Testing.Editing
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
             using (var session = controller.EditModelSystem(ms))
             {
-                string error = null;
+                string? error = null;
                 // build a small model system
                 var model = session.ModelSystemModel;
                 Assert.IsNotNull(model, "No model system model was created!");

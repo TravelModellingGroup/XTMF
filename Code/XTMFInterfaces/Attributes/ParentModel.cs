@@ -24,8 +24,8 @@ namespace XTMF
     /// This attribute lets XTMF know that you want the parent of your model to be, or desend from the attached type,
     /// and to load it with the value of your parent at runtime.
     /// </summary>
-    public class ParentModel : Attribute
+    public sealed class ParentModel : Attribute
     {
-        public Type ParentType { get; set; }
+        public Type? ParentType { get; set; }
     }
 }

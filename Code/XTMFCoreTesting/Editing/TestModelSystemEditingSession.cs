@@ -117,7 +117,7 @@ namespace XTMF.Testing.Editing
 
                 root.Type = typeof(TestModelSystemTemplate);
                 Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
-                string error = null;
+                string? error = null;
                 Assert.IsTrue(session.Undo(ref error), "The undo failed!");
                 Assert.AreEqual(null, root.Type, "The root was not updated to the proper type after undo!");
 
@@ -145,7 +145,7 @@ namespace XTMF.Testing.Editing
                 root.Type = typeof(TestModelSystemTemplate);
                 Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
                 Assert.AreEqual(1, root.Children.Count);
-                string error = null;
+                string? error = null;
                 Assert.IsTrue(session.Undo(ref error), "The undo failed!");
                 Assert.AreEqual(null, root.Type, "The root was not updated to the proper type after undo!");
                 Assert.AreEqual(0, root.Children.Count, "There should be no children!");
@@ -179,7 +179,7 @@ namespace XTMF.Testing.Editing
                 var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
                 Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string error = null;
+                string? error = null;
                 Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
                 Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
             }
@@ -209,7 +209,7 @@ namespace XTMF.Testing.Editing
                 var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
                 Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string error = null;
+                string? error = null;
                 Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
                 Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
 
@@ -245,7 +245,7 @@ namespace XTMF.Testing.Editing
                 var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
                 Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string error = null;
+                string? error = null;
                 Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
                 Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
                 Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
@@ -289,7 +289,7 @@ namespace XTMF.Testing.Editing
                 var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
                 Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string error = null;
+                string? error = null;
                 Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
                 Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
                 var members = collection.Children;
@@ -317,13 +317,13 @@ namespace XTMF.Testing.Editing
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
             using (var session = controller.EditModelSystem(ms))
             {
-                string error = null;
+                string? error = null;
                 var model = session.ModelSystemModel;
                 Assert.IsNotNull(model, "No model system model was created!");
                 ModelSystemStructureModel root = model.Root;
                 Assert.IsNotNull(root, "No root object was made!");
                 var oldName = root.Name;
-                const string newName = "New Name";
+                const string? newName = "New Name";
                 Assert.IsTrue(root.SetName(newName, ref error), "Failed to set the module's name!");
                 Assert.AreEqual(root.Name, newName, "The new name was not assigned!");
                 if(!session.Undo(ref error))
@@ -344,7 +344,7 @@ namespace XTMF.Testing.Editing
         {
             var runtime = TestXTMFCore.CreateRuntime();
             var controller = runtime.ProjectController;
-            string error = null;
+            string? error = null;
             controller.DeleteProject("TestProject", ref error);
             Project project;
             Assert.IsTrue((project = controller.LoadOrCreate("TestProject", ref error)) != null);
@@ -363,12 +363,12 @@ namespace XTMF.Testing.Editing
                     Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
                     modelSystemSession.ExecuteRun(run,true);
                     bool finished = false;
-                    List<ErrorWithPath> errors = null;
-                    Action<List<ErrorWithPath>> catchErrors = (errorPath) =>
+                    List<ErrorWithPath>? errors = null;
+                    void catchErrors(List<ErrorWithPath> errorPath)
                     {
                         errors = errorPath;
                         finished = true;
-                    };
+                    }
                     run.ValidationError += catchErrors;
                     run.RuntimeValidationError += catchErrors;
                     run.RunCompleted += () =>
@@ -397,7 +397,7 @@ namespace XTMF.Testing.Editing
         }
 
         [TestMethod]
-        public void TestNotChangingSubmoduleNameOnTypeChange()
+        public void TestNotChangingSubModuleNameOnTypeChange()
         {
             var runtime = TestXTMFCore.CreateRuntime();
             var controller = runtime.ModelSystemController;
@@ -420,7 +420,7 @@ namespace XTMF.Testing.Editing
                 var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
                 Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string error = null;
+                string? error = null;
                 Assert.IsTrue(collection.AddCollectionMember(typeof(TestRequiredSubmodule), ref error), "We were unable to properly add a new collection member.");
                 Assert.AreEqual(1, collection.Children.Count, "The collection does not have 1 child!");
                 var parent = collection.Children[0];
@@ -437,7 +437,7 @@ namespace XTMF.Testing.Editing
             var controller = runtime.ModelSystemController;
             controller.Delete("TestModelSystem");
             var modelSystem = controller.LoadOrCreate("TestModelSystem");
-            string error = null;
+            string? error = null;
             using (var session = controller.EditModelSystem(modelSystem))
             {
                 var root = session.ModelSystemModel.Root;

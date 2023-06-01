@@ -51,7 +51,7 @@ namespace TMG.GTAModel
         public float Epsilon;
 
         [RunParameter("Correlation of Modes", 1f, "The correlation between the different modes. 1 means no correlation to 0 meaning perfect.  Only used if there is no Spatial Parameters.")]
-        public float ImpedianceParameter;
+        public float ImpedanceParameter;
 
         [SubModelInformation(Description = "K-Factor Data Read, Optional", Required = false)]
         public IODDataSource<float> KFactorDataReader;

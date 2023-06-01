@@ -36,7 +36,7 @@ namespace XTMF
         /// <param name="input">The string to parse</param>
         /// <param name="error">An error returned if we are unable to parse the string</param>
         /// <returns>Null if we are unable to parse it, otherwise an object of the given type</returns>
-        public static object ArbitraryParameterParse(Type t, string input, ref string error)
+        public static object? ArbitraryParameterParse(Type t, string input, ref string? error)
         {
             // strings are always just themselves
             if (t == null)
@@ -117,7 +117,7 @@ namespace XTMF
 
         private static readonly NumberFormatInfo _numberFormat = CultureInfo.InvariantCulture.NumberFormat;
 
-        private static object ParseFloat(string input, ref string error)
+        private static object? ParseFloat(string input, ref string? error)
         {
             float ret;
             if(!float.TryParse(input, out ret))
@@ -131,7 +131,7 @@ namespace XTMF
             return ret;
         }
 
-        private static object ParseDouble(string input, ref string error)
+        private static object? ParseDouble(string input, ref string? error)
         {
             double ret;
             if (!double.TryParse(input, out ret))
@@ -152,19 +152,19 @@ namespace XTMF
         /// <param name="value">The value held as a string</param>
         /// <param name="error">Contains an error if this returns false</param>
         /// <returns>True if it is a value value, false otherwise with a reason inside of error.</returns>
-        public static bool Check(Type type, string value, ref string error)
+        public static bool Check(Type type, string value, ref string? error)
         {
             return ArbitraryParameterParse(type, value, ref error) != null;
         }
 
-        private static object ErrorTryParse(string input, ref string error, MethodInfo errorTryParse)
+        private static object? ErrorTryParse(string input, ref string? error, MethodInfo errorTryParse)
         {
-            object output = null;
+            object? output = null;
             // ReSharper disable once ExpressionIsAlwaysNull
             var parameters = new[] { error, input, output };
             try
             {
-                if ((bool)errorTryParse.Invoke(null, parameters))
+                if ((bool?)errorTryParse.Invoke(null, parameters) == true)
                 {
                     // a fail appears
                     output = parameters[2];
@@ -188,9 +188,9 @@ namespace XTMF
             return output;
         }
 
-        private static object RegularParse(string input, ref string error, MethodInfo regularParse)
+        private static object? RegularParse(string input, ref string? error, MethodInfo regularParse)
         {
-            object output = null;
+            object? output = null;
             var parameters = new object[] { input };
             try
             {
@@ -210,14 +210,14 @@ namespace XTMF
             return output;
         }
 
-        private static object TryParse(string input, ref string error, MethodInfo errorTryParse)
+        private static object? TryParse(string input, ref string? error, MethodInfo errorTryParse)
         {
-            object output = null;
+            object? output = null;
             // ReSharper disable once ExpressionIsAlwaysNull
             var parameters = new[] { input, output };
             try
             {
-                if ((bool)errorTryParse.Invoke(null, parameters))
+                if ((bool?)errorTryParse.Invoke(null, parameters) == true)
                 {
                     // a fail appears
                     output = parameters[1];

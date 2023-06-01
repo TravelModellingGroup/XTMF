@@ -33,7 +33,7 @@ namespace XTMF.Testing.Editing
             controller.Delete( msName );
             var ms = controller.LoadOrCreate( msName );
             Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            string error = null;
+            string? error = null;
             Assert.IsTrue( controller.Delete( ms, ref error ), "We were unable to delete a model system that should have existed!" );
             ms = controller.LoadOrCreate( msName );
             using (controller.EditModelSystem( ms ))
@@ -49,7 +49,7 @@ namespace XTMF.Testing.Editing
             var runtime = TestXTMFCore.CreateRuntime();
             var controller = runtime.ModelSystemController;
             var importName = "TestImportModelSystem";
-            string error = null;
+            string? error = null;
             controller.Delete( importName );
             Assert.IsNull( controller.Load( importName ) );
             Assert.IsTrue( controller.ImportModelSystem( "TestImportModelSystem.xml", false, ref error ), error );
