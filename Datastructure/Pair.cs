@@ -48,12 +48,13 @@ namespace Datastructure
         /// </summary>
         /// <param name="other">The pair we want to compare with</param>
         /// <returns>Less than zero if it is less, 0 if equal, otherwise greater than zero</returns>
-        public int CompareTo(Pair<TF, TS> other)
+        public int CompareTo(Pair<TF, TS>? other)
         {
+            if(other == null) return 1;
             var compFirst = First as IComparable<TF>;
             var compSecond = Second as IComparable<TS>;
             // if they are both comparable then we will just see if they are both equal, if not -1
-            if ( compFirst != null & compSecond != null )
+            if ((compFirst is not null) && (compSecond is not null))
             {
                 int value;
                 return ( ( value = compFirst.CompareTo( other.First ) ) == 0 ) ? ( ( ( value = compSecond.CompareTo( other.Second ) ) == 0 ) ? 0 : value ) : value;
@@ -71,19 +72,19 @@ namespace Datastructure
                 return compSecond.CompareTo( other.Second );
             }
             //see if they are equal
-            if ( First.Equals( other.First ) && Second.Equals( other.Second ) )
+            if ( First!.Equals( other.First ) && Second!.Equals( other.Second ) )
             {
                 return 0;
             }
             // if they are not equal, subtract the total of the hashcodes, this can cause false equals
-            return First.GetHashCode() + Second.GetHashCode() - other.First.GetHashCode() - other.Second.GetHashCode();
+            return First.GetHashCode() + Second!.GetHashCode() - other.First!.GetHashCode() - other.Second!.GetHashCode();
         }//end CompareTo
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Pair<TF, TS> other)
             {
-                return (First.Equals(other.First)) && (Second.Equals(other.Second));
+                return (First!.Equals(other.First)) && (Second!.Equals(other.Second));
             }
             return false;
         }
@@ -96,7 +97,7 @@ namespace Datastructure
         {
             // Hopefully multiplying two "random" numbers is unique enough
             // To go into data structures, works best when large
-            return (First.GetHashCode() * 2 ) * Second.GetHashCode();
+            return (First!.GetHashCode() * 2 ) * Second!.GetHashCode();
         }
     }//end class
 }//end namespace

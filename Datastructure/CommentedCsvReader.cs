@@ -58,7 +58,7 @@ namespace Datastructure
         /// <summary>
         /// The array of column labels.
         /// </summary>
-        public string[] Headers
+        public string[]? Headers
         {
             get;
             private set;

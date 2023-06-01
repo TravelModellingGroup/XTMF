@@ -33,9 +33,9 @@ namespace Datastructure
         /// </summary>
         /// <param name="item">The item we wish to find something close to</param>
         /// <returns>The data for that item, or the default value if there is no data in the tree.</returns>
-        public TK FindClosest(TK item)
+        public TK? FindClosest(TK item)
         {
-            Node current;
+            Node? current;
             IncreaseReaders();
             current = Root;
             while ( current != null )
@@ -97,7 +97,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="node">The node that we start on</param>
         /// <returns>Null if the node doesn't exist, otherwise the leftmost node</returns>
-        private Node GetLeftmost(Node node)
+        private Node? GetLeftmost(Node? node)
         {
             var prev = node;
             while ( node != null )
@@ -113,7 +113,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="node">The node that we start on</param>
         /// <returns>Null if the node doesn't exist, otherwise the rightmost node</returns>
-        private Node GetRightmost(Node node)
+        private Node? GetRightmost(Node? node)
         {
             var prev = node;
             while ( node != null )

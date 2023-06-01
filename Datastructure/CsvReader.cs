@@ -45,15 +45,15 @@ namespace Datastructure
         /// Reset using this stream instead of reader if
         /// it is not null.
         /// </summary>
-        private Stream _innerStream;
+        private Stream? _innerStream;
 
         /// <summary>
         /// The segments set when we read in a line
         /// </summary>
         private CsvPartition[] Data = new CsvPartition[50];
         private const int _bufferSize = 0x40000;
-        private char[] DataBuffer = new char[_bufferSize];
-        private char[] DataBuffer2;
+        private char[]? DataBuffer = new char[_bufferSize];
+        private char[]? DataBuffer2;
 
         private int DataBufferLength;
 
@@ -72,7 +72,7 @@ namespace Datastructure
         {
             FileName = fileName;
             LoadReaderFromFile();
-            BaseStream = Reader.BaseStream;
+            BaseStream = Reader!.BaseStream;
             LoadedFromStream = false;
             DataBufferLength = -1;
             SpacesAsSeperator = spacesAsSeperator;
@@ -232,7 +232,7 @@ namespace Datastructure
                             return true;
                         }
                     }
-                    c = DataBuffer[DataBufferPosition++];
+                    c = DataBuffer![DataBufferPosition++];
                     if ((c == '\n') | (c == '\0'))
                     {
                         if (Data.Length <= numberOfColumns)
@@ -321,7 +321,7 @@ namespace Datastructure
                             return true;
                         }
                     }
-                    c = DataBuffer[DataBufferPosition++];
+                    c = DataBuffer![DataBufferPosition++];
                     if ((c == '\n') | (c == '\0'))
                     {
                         if (Data.Length <= numberOfColumns)
@@ -438,7 +438,7 @@ namespace Datastructure
             if (DataBuffer2 == null)
             {
                 DataBuffer2 = new char[_bufferSize];
-                NextDataBufferLength = Reader.Read(DataBuffer2, 0, DataBuffer.Length);
+                NextDataBufferLength = Reader.Read(DataBuffer2, 0, DataBuffer!.Length);
                 NextDataReady = true;
             }
             // spin-wait on this being ready until the data is ready
@@ -454,7 +454,7 @@ namespace Datastructure
             // load the next set of data in parallel
             Task.Run(() =>
             {
-                NextDataBufferLength = Reader.Read(DataBuffer2, 0, DataBuffer.Length);
+                NextDataBufferLength = Reader.Read(DataBuffer2!, 0, DataBuffer.Length);
                 Thread.MemoryBarrier();
                 NextDataReady = true;
             });

@@ -64,7 +64,7 @@ namespace Datastructure
         /// <summary>
         /// The data stored in the hashtable
         /// </summary>
-        public IEnumerable<TD> Data
+        public IEnumerable<TD?> Data
         {
             get
             {
@@ -111,7 +111,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">The identifier for this data</param>
         /// <returns></returns>
-        public TD this[TK key]
+        public TD? this[TK key]
         {
             get
             {
@@ -125,7 +125,7 @@ namespace Datastructure
                     }
                     current = current.Next;
                 }
-                return default( TD );
+                return default;
             }
         }
 
@@ -137,10 +137,12 @@ namespace Datastructure
         public virtual void Add(TK key, TD data)
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
-            var n = new Node();
-            n.Key = key;
-            n.Storage = data;
-            n.Next = Table[place];
+            var n = new Node
+            {
+                Key = key,
+                Storage = data,
+                Next = Table[place]
+            };
             Table[place] = n;
             Interlocked.Increment( ref _Count );
         }
@@ -172,11 +174,12 @@ namespace Datastructure
         /// <returns>True if it was found</returns>
         public bool Contains(TD data)
         {
-            var place = Math.Abs( data.GetHashCode() % Table.Length );
+            if(data is null) return false;
+            var place = Math.Abs(data.GetHashCode() % Table.Length );
             var current = Table[place];
             while ( current != null )
             {
-                if ( current.Storage.Equals( data ) )
+                if (current.Storage?.Equals(data) == true)
                 {
                     return true;
                 }
@@ -203,11 +206,12 @@ namespace Datastructure
         public virtual void UniqueAdd(TK key, TD data)
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
-            var n = new Node();
-            n.Key = key;
-            n.Storage = data;
-
-            n.Next = Table[place];
+            var n = new Node
+            {
+                Key = key,
+                Storage = data,
+                Next = Table[place]
+            };
             var current = Table[place];
             var add = true;
             while ( current != null )
@@ -231,9 +235,9 @@ namespace Datastructure
         /// </summary>
         protected class Node
         {
-            public TK Key;
-            public Node Next;
-            public TD Storage;
+            public required TK Key;
+            public Node? Next;
+            public required TD Storage;
         }
     }
 }

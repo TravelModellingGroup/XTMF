@@ -48,13 +48,13 @@ namespace Datastructure
             }
         }
 
-        public static bool TryParse(string rangeString, out RangeSetSeries output)
+        public static bool TryParse(string rangeString, out RangeSetSeries? output)
         {
-            string error = null;
+            string? error = null;
             return TryParse(ref error, rangeString, out output);
         }
 
-        public static bool TryParse(ref string error, string rangeString, out RangeSetSeries output)
+        public static bool TryParse(ref string? error, string rangeString, out RangeSetSeries? output)
         {
             var rangeSets = new List<RangeSet>();
             output = null;
@@ -69,7 +69,7 @@ namespace Datastructure
                     {
                         if (rangeString[endPos] == '}')
                         {
-                            if (!RangeSet.TryParse(ref error, rangeString.Substring(startPos + 1, endPos - startPos - 1), out RangeSet temp))
+                            if (!RangeSet.TryParse(ref error, rangeString.Substring(startPos + 1, endPos - startPos - 1), out RangeSet? temp))
                             {
                                 return false;
                             }
@@ -89,7 +89,7 @@ namespace Datastructure
             // in case it is a set of 1 element
             if (rangeSets.Count == 0)
             {
-                if (RangeSet.TryParse(ref error, rangeString, out RangeSet temp))
+                if (!RangeSet.TryParse(ref error, rangeString, out RangeSet? temp))
                 {
                     return false;
                 }
@@ -138,7 +138,7 @@ namespace Datastructure
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RangeSetSeries;
             if (Count != other?.Count) return false;

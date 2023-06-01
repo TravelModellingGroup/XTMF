@@ -61,10 +61,12 @@ namespace Datastructure
             {
                 if (Table[place] == null )
                 {
-                    var n = new Node();
-                    n.Key = key;
-                    n.Storage = data;
-                    n.Next = null;
+                    var n = new Node
+                    {
+                        Key = key,
+                        Storage = data,
+                        Next = null
+                    };
                     Table[place] = n;
                     Interlocked.Increment( ref _Count);
                 }

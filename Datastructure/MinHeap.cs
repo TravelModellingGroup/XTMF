@@ -21,10 +21,10 @@ using System.Collections.Generic;
 
 namespace Datastructure
 {
-    public class MinHeap<T> : ICollection<T> where T : IComparable<T>
+    public class MinHeap<T> : ICollection<T?> where T : IComparable<T?>
     {
         private int Elements;
-        private T[] Data;
+        private T?[] Data;
 
         /// <summary>
         /// Crate a new empty min heap
@@ -42,7 +42,7 @@ namespace Datastructure
         public MinHeap(IList<T> startingData)
         {
             Elements = startingData.Count;
-            var temp = new T[Elements];
+            var temp = new T?[Elements];
             for ( var i = 0; i < temp.Length; i++ )
             {
                 temp[i] = startingData[i];
@@ -55,11 +55,11 @@ namespace Datastructure
         /// Add an item to the Min Heap
         /// </summary>
         /// <param name="item">The item to add to the </param>
-        public void Add(T item)
+        public void Add(T? item)
         {
-            if ( item == null )
+            if ( item is null )
             {
-                throw new ArgumentNullException( "item" );
+                throw new ArgumentNullException(nameof(item));
             }
             if (Elements >= Data.Length )
             {
@@ -74,7 +74,7 @@ namespace Datastructure
         /// Remove the min valued item from the heap
         /// </summary>
         /// <returns>A smallest valued object stored in the heap</returns>
-        public T Pop()
+        public T? Pop()
         {
             return Remove( 0 );
         }
@@ -84,14 +84,14 @@ namespace Datastructure
         /// </summary>
         /// <param name="item">The item to remove</param>
         /// <returns>If the item was removed.</returns>
-        public bool Remove(T item)
+        public bool Remove(T? item)
         {
             var data = Data;
-            for ( var i = 0; i < data.Length; i++ )
+            for (var i = 0; i < data.Length; i++)
             {
-                if ( data[i].Equals( item ) )
+                if (data[i]?.Equals(item) == true)
                 {
-                    Remove( i );
+                    Remove(i);
                     return true;
                 }
             }
@@ -103,7 +103,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="elementAt">The position to remove from</param>
         /// <returns>The value at that position in the array</returns>
-        private T Remove(int elementAt)
+        private T? Remove(int elementAt)
         {
             var data = Data;
             var ret = data[elementAt];
@@ -120,7 +120,7 @@ namespace Datastructure
                 }
                 else
                 {
-                    if ( data[children].CompareTo( data[children + 1] ) <= 0 )
+                    if ( (data[children]?.CompareTo( data[children + 1] ) ?? -1) <= 0 )
                     {
                         data[elementAt] = data[children];
                         elementAt = children;
@@ -134,7 +134,7 @@ namespace Datastructure
             }
             // move the last element to our current
             var temp = data[elements - 1];
-            data[elements - 1] = default( T );
+            data[elements - 1] = default;
             data[elementAt] = temp;
             // we now have 1 less element
             Elements--;
@@ -183,17 +183,17 @@ namespace Datastructure
         /// <param name="data"></param>
         /// <param name="start"></param>
         /// <param name="end"></param>
-        private static void SiftDown(T[] data, int start, int end)
+        private static void SiftDown(T?[] data, int start, int end)
         {
             while ( start * 2 + 1 <= end )
             {
                 var child = start * 2 + 1;
                 var swap = start;
-                if ( data[swap].CompareTo( data[child] ) > 0 )
+                if ( (data[swap]?.CompareTo(data[child]) ?? 1) > 0 )
                 {
                     swap = child;
                 }
-                if ( child + 1 <= end && data[swap].CompareTo( data[child + 1] ) > 0 )
+                if ( child + 1 <= end && (data[swap]?.CompareTo( data[child + 1] ) ?? 1) > 0 )
                 {
                     swap = child + 1;
                 }
@@ -235,12 +235,13 @@ namespace Datastructure
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public bool Contains(T item)
+        public bool Contains(T? item)
         {
+            if(item is null) return false;
             var data = Data;
             for ( var i = 0; i < data.Length; i++ )
             {
-                if ( data[i].Equals( item ) )
+                if (data[i]?.Equals(item) == true)
                 {
                     return true;
                 }
@@ -253,7 +254,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="array"></param>
         /// <param name="arrayIndex"></param>
-        public void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(T?[] array, int arrayIndex)
         {
             if ( array.Length - arrayIndex < Elements)
             {
@@ -276,7 +277,7 @@ namespace Datastructure
         /// 
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<T?> GetEnumerator()
         {
             for ( var i = 0; i < Elements; i++ )
             {
