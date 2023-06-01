@@ -23,6 +23,8 @@ using TMG.Functions;
 using TMG.Input;
 using System.Linq;
 using XTMF;
+using System.Runtime.CompilerServices;
+using System.IO;
 
 namespace TMG.Frameworks.Data.Processing;
 
@@ -31,9 +33,6 @@ public sealed class ConvertMatrixBetweenZoneSystems : IDataSource<SparseTwinInde
 {
     [RootModule]
     public ITravelDemandModel Root;
-
-    [SubModelInformation(Required = true, Description = "The zone system the OD data was designed for")]
-    public IDataSource<IZoneSystem> OriginalZoneSystem;
 
     [SubModelInformation(Required = false, Description = "The zone system the OD data will be converted for, leave blank to use the model system's zone system.")]
     public IDataSource<IZoneSystem> ConvertToZoneSystem;
@@ -72,10 +71,10 @@ public sealed class ConvertMatrixBetweenZoneSystems : IDataSource<SparseTwinInde
 
     public void LoadData()
     {
-        var originalZones = LoadZoneSystem(OriginalZoneSystem);
         var convertToZones = LoadZoneSystem(ConvertToZoneSystem ?? Root.ZoneSystem);
         var ret = SparseTwinIndex<float>.CreateSquareTwinIndex(convertToZones, convertToZones);
         var original = GetData(Original);
+        var originalZones = original.ValidIndexArray();
         var flat = ret.GetFlatData();
         var map = ColumnNormalize(BuildMapping(originalZones, convertToZones), originalZones.Length);
         switch (Aggregation)
@@ -153,18 +152,18 @@ public sealed class ConvertMatrixBetweenZoneSystems : IDataSource<SparseTwinInde
         });
     }
 
-    private static float ComputeAverage(float[] map, float[][] flatOrigin, int retRow, int retColumn)
+    private static float ComputeAverage(float[] map, float[][] fromMatrix, int retRow, int retColumn)
     {
         var ret = 0.0f;
-        var rowBase = flatOrigin.Length * retRow;
-        var columnBase = flatOrigin.Length * retColumn;
+        var rowBase = fromMatrix.Length * retRow;
+        var columnBase = fromMatrix.Length * retColumn;
         Vector<float> vRet = Vector<float>.Zero;
         Vector<float> vFactorSum = Vector<float>.Zero;
         float factorSum = 0.0f;
-        for (int i = 0; i < flatOrigin.Length; i++)
+        for (int i = 0; i < fromMatrix.Length; i++)
         {
             var iFactor = map[rowBase + i];
-            var row = flatOrigin[i];
+            var row = fromMatrix[i];
             if (iFactor > 0)
             {
                 int j = 0;
@@ -190,33 +189,19 @@ public sealed class ConvertMatrixBetweenZoneSystems : IDataSource<SparseTwinInde
         return ret;
     }
 
-    private float ComputeSum(float[] map, float[][] flatOrigin, int retRow, int retColumn)
+    private float ComputeSum(float[] map, float[][] fromMatrix, int retRow, int retColumn)
     {
         var ret = 0.0f;
-        var rowBase = flatOrigin.Length * retRow;
-        var columnBase = flatOrigin.Length * retColumn;
-        Vector<float> vRet = Vector<float>.Zero;
-        for (int i = 0; i < flatOrigin.Length; i++)
+        var rowBase = fromMatrix.Length * retRow;
+        var columnBase = fromMatrix.Length * retColumn;
+        for (int i = 0; i < fromMatrix.Length; i++)
         {
             var iFactor = map[rowBase + i];
-            var row = flatOrigin[i];
             if (iFactor > 0)
             {
-                int j = 0;
-                Vector<float> iFactorV = new(iFactor);
-                for (; j < row.Length - Vector<float>.Count; j += Vector<float>.Count)
-                {
-                    var rowV = new Vector<float>(row, j);
-                    var mapV = new Vector<float>(map, columnBase + j);
-                    vRet += rowV * iFactorV * mapV;
-                }
-                for (; j < row.Length; j++)
-                {
-                    ret += row[j] * iFactor * map[columnBase + j];
-                }
+                ret += iFactor * VectorHelper.MultiplyAndSumNoStore(fromMatrix[i].AsSpan(), map.AsSpan(columnBase, fromMatrix.Length));
             }
         }
-        ret += Vector.Dot(vRet, Vector<float>.One);
         return ret;
     }
 
@@ -238,24 +223,35 @@ public sealed class ConvertMatrixBetweenZoneSystems : IDataSource<SparseTwinInde
     private float[] BuildMapping(int[] originalZones, int[] convertToZones)
     {
         var map = new float[originalZones.Length * convertToZones.Length];
-        using (var reader = new CsvReader(MapFile))
+        using var reader = new CsvReader(MapFile, true);
+        reader.LoadLine();
+        while (reader.LoadLine(out int columns))
         {
-            reader.LoadLine();
-            while (reader.LoadLine(out int columns))
+            if (columns >= 3)
             {
-                if (columns >= 3)
+                reader.Get(out int origin, 0);
+                reader.Get(out int destination, 1);
+                reader.Get(out float ratio, 2);
+                // convert the indexes into flat index look ups
+                var flatOrigin = Array.BinarySearch(originalZones, origin);
+                var flatDestination = Array.BinarySearch(convertToZones, destination);
+                if (flatOrigin < 0)
                 {
-                    reader.Get(out int origin, 0);
-                    reader.Get(out int destination, 1);
-                    reader.Get(out float ratio, 2);
-                    // convert the indexes into flat index look ups
-                    origin = Array.BinarySearch(originalZones, origin);
-                    destination = Array.BinarySearch(convertToZones, destination);
-                    map[destination * originalZones.Length + origin] = ratio;
+                    throw new XTMFRuntimeException(this, $"The zone origin zone {origin} does not exist in the zone system on row {reader.LineNumber + 1}!");
                 }
+                else if (flatDestination < 0)
+                {
+                    throw new XTMFRuntimeException(this, $"The zone destination zone {destination} does not exist in the zone system on row {reader.LineNumber + 1}!");
+                }
+                map[GetMapIndex(flatDestination, flatOrigin, originalZones.Length)] = ratio;
             }
         }
         return map;
+    }
+
+    private static int GetMapIndex(int flatDestination, int flatOrigin, int totalOriginZones)
+    {
+        return flatDestination * totalOriginZones + flatOrigin;
     }
 
     private static int[] LoadZoneSystem(IDataSource<IZoneSystem> zoneSystem)
