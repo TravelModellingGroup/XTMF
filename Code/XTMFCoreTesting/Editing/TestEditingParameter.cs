@@ -49,15 +49,15 @@ namespace XTMF.Testing.Editing
                 Assert.IsNotNull( parameters, "There are no parameters for our test model system template!" );
                 var inputDirectory = GetParameter( parameters, "Input Directory" );
                 Assert.IsNotNull( inputDirectory, "There was no parameter called input directory." );
-                string error = null;
+                string? error = null;
                 var previousValue = inputDirectory.Value;
                 var newValue = "NewValue";
                 Assert.IsTrue( inputDirectory.SetValue( newValue, ref error ), "The assignment of a value to a string somehow failed!" );
-                Assert.AreEqual( newValue, inputDirectory.Value, "The valid value was not stored in the parameter!" );
+                Assert.AreEqual( newValue, inputDirectory?.Value, "The valid value was not stored in the parameter!" );
                 Assert.IsTrue( session.Undo( ref error ), "There should have been a command that could be undone!" );
-                Assert.AreEqual( previousValue, inputDirectory.Value, "The undo did not restore the previous value." );
+                Assert.AreEqual( previousValue, inputDirectory?.Value, "The undo did not restore the previous value." );
                 Assert.IsTrue( session.Redo( ref error ), "There should have been a command to have redone!" );
-                Assert.AreEqual( newValue, inputDirectory.Value, "The valid value was not stored in the parameter after the redo!" );
+                Assert.AreEqual( newValue, inputDirectory?.Value, "The valid value was not stored in the parameter after the redo!" );
             }
         }
 
@@ -83,13 +83,13 @@ namespace XTMF.Testing.Editing
                 Assert.IsNotNull( parameters, "There are no parameters for our test model system template!" );
                 var inputDirectory = GetParameter( parameters, "Input Directory" );
                 Assert.IsNotNull( inputDirectory, "There was no parameter called input directory." );
-                string error = null;
+                string? error = null;
                 var previousValue = inputDirectory.Value;
                 var newValue = "NewValue";
                 Assert.IsTrue( inputDirectory.SetValue( newValue, ref error ), "The assignment of a value to a string somehow failed!" );
                 Assert.AreEqual( newValue, inputDirectory.Value, "The valid value was not stored in the parameter!" );
                 Assert.IsTrue( inputDirectory.SetToDefault( ref error ), "Set to default failed!" );
-                Assert.AreEqual( previousValue, inputDirectory.Value, "We did not revert to the previous value!" );
+                Assert.AreEqual( previousValue, inputDirectory?.Value, "We did not revert to the previous value!" );
             }
         }
 
@@ -107,7 +107,7 @@ namespace XTMF.Testing.Editing
                 var modelSystem = session.ModelSystemModel;
                 var linkedParameters = modelSystem.LinkedParameters;
                 Assert.AreEqual( 0, linkedParameters.Count, "The model system already had a linked parameter before we added any!" );
-                string error = null;
+                string? error = null;
                 Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
                 Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
 
@@ -126,29 +126,29 @@ namespace XTMF.Testing.Editing
                 var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
                 Assert.IsTrue( linkedParameterList[0].AddParameter( secondaryString, ref error ), error );
-                string oldValue = linkedParameterList[0].GetValue();
-                string newValue = "NewValue";
+                string? oldValue = linkedParameterList[0].GetValue();
+                string? newValue = "NewValue";
                 Assert.IsTrue( linkedParameterList[0].SetValue( newValue, ref error ) );
                 // assign to both with through the linked parameter
                 Assert.AreEqual( newValue, linkedParameterList[0].GetValue() );
-                Assert.AreEqual( newValue, inputDirectory.Value );
-                Assert.AreEqual( newValue, secondaryString.Value );
+                Assert.AreEqual( newValue, inputDirectory?.Value );
+                Assert.AreEqual( newValue, secondaryString?.Value );
                 // assign to both using the secondary string
-                Assert.IsTrue( secondaryString.SetValue( oldValue, ref error ) );
+                Assert.IsTrue( secondaryString?.SetValue( oldValue, ref error ) );
                 Assert.AreEqual( oldValue, linkedParameterList[0].GetValue() );
-                Assert.AreEqual( oldValue, inputDirectory.Value );
-                Assert.AreEqual( oldValue, secondaryString.Value );
+                Assert.AreEqual( oldValue, inputDirectory?.Value );
+                Assert.AreEqual( oldValue, secondaryString?.Value );
 
                 Assert.IsTrue( session.Undo( ref error ) );
                 Assert.AreEqual( newValue, linkedParameterList[0].GetValue() );
-                Assert.AreEqual( newValue, inputDirectory.Value );
-                Assert.AreEqual( newValue, secondaryString.Value );
+                Assert.AreEqual( newValue, inputDirectory?.Value );
+                Assert.AreEqual( newValue, secondaryString?.Value );
 
 
                 Assert.IsTrue( session.Redo( ref error ) );
                 Assert.AreEqual( oldValue, linkedParameterList[0].GetValue() );
-                Assert.AreEqual( oldValue, inputDirectory.Value );
-                Assert.AreEqual( oldValue, secondaryString.Value );
+                Assert.AreEqual( oldValue, inputDirectory?.Value );
+                Assert.AreEqual( oldValue, secondaryString?.Value );
             }
         }
 
@@ -166,7 +166,7 @@ namespace XTMF.Testing.Editing
                 var modelSystem = session.ModelSystemModel;
                 var linkedParameters = modelSystem.LinkedParameters;
                 Assert.AreEqual( 0, linkedParameters.Count, "The model system already had a linked parameter before we added any!" );
-                string error = null;
+                string? error = null;
                 Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
                 Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
 
@@ -185,19 +185,19 @@ namespace XTMF.Testing.Editing
                 var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
                 Assert.IsTrue( linkedParameterList[0].AddParameter( secondaryString, ref error ), error );
-                string newValue = "NewValue";
+                string? newValue = "NewValue";
                 Assert.IsTrue( linkedParameterList[0].SetValue( newValue, ref error ) );
                 // assign to both with through the linked parameter
                 Assert.AreEqual( newValue, linkedParameterList[0].GetValue() );
-                Assert.AreEqual( newValue, inputDirectory.Value );
-                Assert.AreEqual( newValue, secondaryString.Value );
+                Assert.AreEqual( newValue, inputDirectory?.Value );
+                Assert.AreEqual( newValue, secondaryString?.Value );
                 // assign to both using the secondary string
-                Assert.IsFalse( secondaryString.SetToDefault( ref error ) );
+                Assert.IsFalse( secondaryString?.SetToDefault( ref error ) );
 
             }
         }
 
-        private static ParameterModel GetParameter(IList<ParameterModel> parameters, string parameterName)
+        private static ParameterModel? GetParameter(IList<ParameterModel> parameters, string parameterName)
         {
             return parameters.FirstOrDefault( (p) => p.Name == parameterName );
         }

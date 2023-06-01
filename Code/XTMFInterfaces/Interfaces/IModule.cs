@@ -49,6 +49,6 @@ namespace XTMF
         /// </summary>
         /// <param name="error">The error string returned by a model that has an error</param>
         /// <returns>True if there are no problems with the configuration of this module</returns>
-        bool RuntimeValidation(ref string error);
+        bool RuntimeValidation(ref string? error);
     }
 }

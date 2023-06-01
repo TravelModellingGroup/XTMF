@@ -33,9 +33,9 @@ namespace Datastructure
         {
         }
 
-        public override string ReadLine()
+        public override string? ReadLine()
         {
-            string line;
+            string? line;
             while ( !EndOfStream )
             {
                 line = base.ReadLine();
@@ -63,7 +63,7 @@ namespace Datastructure
         public readonly string[] IndexNames;
 
         //Metadata on index names
-        public string Decription = "";
+        public string Description = "";
 
         private readonly Dictionary<string, float> Data; //The actual data.
         private readonly float DefaultValue;
@@ -82,61 +82,70 @@ namespace Datastructure
 
         public SparseMultiIndexTable(string fileName, float defaultValue = 0.0f)
         {
+            string[]? indexedNames = null;
+            HashSet<int>[]? mappedIndices = null;
             long lineNumber = 2;
             Data = new Dictionary<string, float>();
-
-            using ( var reader = new CommentedStreamReader( fileName ) )
+            try
             {
-                var line = reader.ReadLine(); //get the header
-
-                if (line != null)
+                using (var reader = new CommentedStreamReader(fileName))
                 {
-                    var cells = line.Split( ',' );
-                    if ( cells.Length < 2 )
+                    var line = reader.ReadLine(); //get the header
+
+                    if (line != null)
                     {
-                        throw new IOException( "A multi-index table requires at least two columns!" );
-                    }
-
-                    //Load header data, initialize this class.
-                    MappedIndices = new HashSet<int>[cells.Length - 1];
-                    for ( var i = 0; i < Dimensions; i++ ) MappedIndices[i] = new HashSet<int>();
-
-                    IndexNames = new string[Dimensions];
-                    for ( var i = 0; i < Dimensions; i++ ) IndexNames[i] = cells[i];
-                    DefaultValue = defaultValue;
-
-                    var indices = new int[Dimensions]; //This is getting constantly recycled, so there's no sense in using a malloc each time.
-
-                    //Read the actual data
-                    while ( !reader.EndOfStream )
-                    {
-                        line = reader.ReadLine();
-                        if (line == null)
+                        var cells = line.Split(',');
+                        if (cells.Length < 2)
                         {
-                            return;
-                        }
-                        cells = line.Split( ',' );
-                        lineNumber++;
-
-                        if ( cells.Length != (Dimensions + 1 ) )
-                        {
-                            throw new IOException( "Error reading line " + lineNumber + ": The number of cells on this line needs to be " + (Dimensions + 1 ) +
-                                                   ", instead was " + cells.Length + " to match the correct size of this table." );
+                            throw new IOException("A multi-index table requires at least two columns!");
                         }
 
-                        var value = Convert.ToSingle( cells[Dimensions] ); //Get the last index
-                        // ReSharper disable once CompareOfFloatsByEqualityOperator
-                        if ( value == DefaultValue )
-                            continue; //Skip cells with this table's default value.
+                        //Load header data, initialize this class.
+                        mappedIndices = new HashSet<int>[cells.Length - 1];
+                        for (var i = 0; i < Dimensions; i++) mappedIndices[i] = new HashSet<int>();
 
-                        for ( var i = 0; i < Dimensions; i++ ) indices[i] = Convert.ToInt32( cells[i] ); //Parse each int
+                        indexedNames = new string[Dimensions];
+                        for (var i = 0; i < Dimensions; i++) indexedNames[i] = cells[i];
+                        DefaultValue = defaultValue;
 
-                        for ( var i = 0; i < Dimensions; i++ ) MappedIndices[i].Add( indices[i] ); // Store the mapped index to the HashSet.
+                        var indices = new int[Dimensions]; //This is getting constantly recycled, so there's no sense in using a malloc each time.
 
-                        var key = ConvertAddress( indices );
-                        Data[key] = value;
+                        //Read the actual data
+                        while (!reader.EndOfStream)
+                        {
+                            line = reader.ReadLine();
+                            if (line == null)
+                            {
+                                return;
+                            }
+                            cells = line.Split(',');
+                            lineNumber++;
+
+                            if (cells.Length != (Dimensions + 1))
+                            {
+                                throw new IOException("Error reading line " + lineNumber + ": The number of cells on this line needs to be " + (Dimensions + 1) +
+                                                       ", instead was " + cells.Length + " to match the correct size of this table.");
+                            }
+
+                            var value = Convert.ToSingle(cells[Dimensions]); //Get the last index
+                                                                             // ReSharper disable once CompareOfFloatsByEqualityOperator
+                            if (value == DefaultValue)
+                                continue; //Skip cells with this table's default value.
+
+                            for (var i = 0; i < Dimensions; i++) indices[i] = Convert.ToInt32(cells[i]); //Parse each int
+
+                            for (var i = 0; i < Dimensions; i++) mappedIndices[i].Add(indices[i]); // Store the mapped index to the HashSet.
+
+                            var key = ConvertAddress(indices);
+                            Data[key] = value;
+                        }
                     }
                 }
+            }
+            finally
+            {
+                MappedIndices = mappedIndices ?? Array.Empty<HashSet<int>>();
+                IndexNames = indexedNames ?? Array.Empty<string>();
             }
         }
 

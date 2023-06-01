@@ -42,7 +42,7 @@ namespace XTMF.Testing.Editing
                 var modelSystem = session.ModelSystemModel;
                 var linkedParameters = modelSystem.LinkedParameters;
                 Assert.AreEqual( 0, linkedParameters.Count, "The model system already had a linked parameter before we added any!" );
-                string error = null;
+                string? error = null;
                 Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
                 Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
 
@@ -85,7 +85,7 @@ namespace XTMF.Testing.Editing
                 var modelSystem = session.ModelSystemModel;
                 var linkedParameters = modelSystem.LinkedParameters;
                 Assert.AreEqual( 0, linkedParameters.Count, "The model system already had a linked parameter before we added any!" );
-                string error = null;
+                string? error = null;
                 Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
                 Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
 
@@ -136,7 +136,7 @@ namespace XTMF.Testing.Editing
                 var modelSystem = session.ModelSystemModel;
                 var linkedParameters = modelSystem.LinkedParameters;
                 Assert.AreEqual( 0, linkedParameters.Count, "The model system already had a linked parameter before we added any!" );
-                string error = null;
+                string? error = null;
                 Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
                 Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
 
@@ -153,24 +153,24 @@ namespace XTMF.Testing.Editing
 
                 var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
-                string oldValue = linkedParameterList[0].GetValue();
-                string newValue = "NewValue";
+                string? oldValue = linkedParameterList[0].GetValue();
+                string? newValue = "NewValue";
                 Assert.IsTrue( linkedParameterList[0].SetValue( newValue, ref error ) );
 
                 Assert.AreEqual( newValue, linkedParameterList[0].GetValue() );
-                Assert.AreEqual( newValue, inputDirectory.Value );
+                Assert.AreEqual( newValue, inputDirectory?.Value );
 
                 Assert.IsTrue( session.Undo( ref error ) );
                 Assert.AreEqual( oldValue, linkedParameterList[0].GetValue() );
-                Assert.AreEqual( oldValue, inputDirectory.Value );
+                Assert.AreEqual( oldValue, inputDirectory?.Value );
 
                 Assert.IsTrue( session.Redo( ref error ) );
                 Assert.AreEqual( newValue, linkedParameterList[0].GetValue() );
-                Assert.AreEqual( newValue, inputDirectory.Value );
+                Assert.AreEqual( newValue, inputDirectory?.Value );
             }
         }
 
-        private static ParameterModel GetParameter(IList<ParameterModel> parameters, string parameterName)
+        private static ParameterModel? GetParameter(IList<ParameterModel> parameters, string parameterName)
         {
             return parameters.FirstOrDefault( (p) => p.Name == parameterName );
         }

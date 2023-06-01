@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using static System.Char;
 using static System.String;
@@ -75,13 +76,13 @@ namespace Datastructure
             }
         }
 
-        public static bool TryParse(string rangeString, out RangeSet output)
+        public static bool TryParse(string rangeString, [NotNullWhen(true)] out RangeSet? output)
         {
-            string error = null;
+            string? error = null;
             return TryParse(ref error, rangeString, out output);
         }
 
-        public static bool TryParse(ref string error, string rangeString, out RangeSet output)
+        public static bool TryParse([NotNullWhen(false)] ref string? error, string rangeString, [NotNullWhen(true)] out RangeSet? output)
         {
             var tempRange = new List<Range>();
             var length = rangeString.Length;
@@ -249,7 +250,7 @@ namespace Datastructure
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RangeSet;
             if (other?.Count != Count) return false;

@@ -319,11 +319,11 @@ namespace XTMF
 
         public static bool TryParse(string timeString, out Time time)
         {
-            string error = null;
+            string? error = null;
             return TryParse(ref error, timeString, out time);
         }
 
-        public static bool TryParse(ref string error, string timeString, out Time time)
+        public static bool TryParse(ref string? error, string timeString, out Time time)
         {
             time = new Time();
             if (String.IsNullOrWhiteSpace(timeString))
@@ -558,7 +558,7 @@ namespace XTMF
             return InternalTime < other.InternalTime ? -1 : (InternalTime == other.InternalTime ? 0 : 1);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Time other)
             {

@@ -135,12 +135,12 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">The identifier for this data</param>
         /// <returns></returns>
-        public TD this[TK key]
+        public TD? this[TK key]
         {
             get
             {
                 var place = Math.Abs( key.GetHashCode() % Table.Length );
-                Node current = null;
+                Node? current = null;
                 TableLocks[place].PassThrough( ()=>
                 {
                     current = Table[place];
@@ -150,7 +150,7 @@ namespace Datastructure
                         current = current.Next;
                     }
                 } );
-                return current != null ? current.Storage : default( TD );
+                return current != null ? current.Storage : default;
             }
         }
 
@@ -162,9 +162,11 @@ namespace Datastructure
         public virtual void Add(TK key, TD data)
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
-            var n = new Node();
-            n.Key = key;
-            n.Storage = data;
+            var n = new Node
+            {
+                Key = key,
+                Storage = data
+            };
             TableLocks[place].Lock( ()=>
             {
                 n.Next = Table[place];
@@ -181,7 +183,7 @@ namespace Datastructure
         public bool Contains(TK key)
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
-            Node current;
+            Node? current;
             var found = false;
             TableLocks[place].PassThrough( ()=>
             {
@@ -206,15 +208,16 @@ namespace Datastructure
         /// <returns>True if it was found</returns>
         public bool Contains(TD data)
         {
+            if (data is null) return false;
             var place = Math.Abs( data.GetHashCode() % Table.Length );
-            Node current;
+            Node? current;
             var found = false;
             TableLocks[place].PassThrough( delegate
             {
                 current = Table[place];
                 while ( current != null )
                 {
-                    if ( current.Storage.Equals( data ) )
+                    if ( current.Storage?.Equals( data ) == true)
                     {
                         found = true;
                         return;
@@ -243,9 +246,11 @@ namespace Datastructure
         public virtual void UniqueAdd(TK key, TD data)
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
-            var n = new Node();
-            n.Key = key;
-            n.Storage = data;
+            var n = new Node
+            {
+                Key = key,
+                Storage = data
+            };
             TableLocks[place].Lock( delegate
             {
                 n.Next = Table[place];
@@ -273,9 +278,9 @@ namespace Datastructure
         /// </summary>
         protected class Node
         {
-            public TK Key;
-            public Node Next;
-            public TD Storage;
+            public required TK Key;
+            public Node? Next;
+            public required TD Storage;
         }
     }
 }

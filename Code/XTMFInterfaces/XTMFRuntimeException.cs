@@ -27,7 +27,7 @@ namespace XTMF
         /// The module that caused the error.
         /// Check for null.
         /// </summary>
-        public IModule Module { get; }
+        public IModule? Module { get; }
 
         public XTMFRuntimeException()
         {
@@ -39,14 +39,14 @@ namespace XTMF
 
         }
 
-        public XTMFRuntimeException(IModule module, string message)
+        public XTMFRuntimeException(IModule? module, string message)
             : base(message)
         {
             Module = module;
         }
 
-        public XTMFRuntimeException(IModule module, Exception wrapedException, string message = null)
-            : base(String.IsNullOrWhiteSpace(message) ? wrapedException?.Message ?? "No Message" : message, wrapedException)
+        public XTMFRuntimeException(IModule? module, Exception? wrappedException, string? message = null)
+            : base(String.IsNullOrWhiteSpace(message) ? wrappedException?.Message ?? "No Message" : message, wrappedException)
         {
             Module = module;
         }

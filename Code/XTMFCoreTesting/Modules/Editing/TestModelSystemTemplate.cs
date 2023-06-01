@@ -24,17 +24,17 @@ namespace XTMF.Testing.Modules.Editing
     public class TestModelSystemTemplate : IModelSystemTemplate
     {
         [RunParameter("Input Directory", "../../Input", "The input directory.")]
-        public string InputBaseDirectory { get; set; }
+        public string InputBaseDirectory { get; set; } = string.Empty;
 
         [RunParameter("SecondaryString", "", "Another string parameter")]
-        public string SecondaryString;
+        public string SecondaryString = string.Empty;
 
         [SubModelInformation(Required = false, Description = "A test description")]
-        public IModule[] TestCollection;
+        public IModule[]? TestCollection;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public string OutputBaseDirectory { get; set; }
+        public string OutputBaseDirectory { get; set; } = string.Empty;
 
         public float Progress { get; set; }
 
@@ -51,7 +51,7 @@ namespace XTMF.Testing.Modules.Editing
             return false;
         }
 
-        public bool RuntimeValidation(ref string error)
+        public bool RuntimeValidation(ref string? error)
         {
             return true;
         }

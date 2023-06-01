@@ -38,7 +38,7 @@ namespace XTMF.Networking
         /// </summary>
         /// <param name="status">Set this to non-zero if there is additional meaning for the host</param>
         /// <param name="error">This allows us to pass back a string in case of an error</param>
-        void NotifyComplete(int status = 0, string error = null);
+        void NotifyComplete(int status = 0, string? error = null);
 
         /// <summary>
         /// Notify the host of our current state of progress.

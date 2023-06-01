@@ -29,14 +29,14 @@ namespace XTMF.Testing.Modules.Editing
     }
 
     public abstract class NonGenericBase<E,F,G> : IGenericInterface<float, E, F, G>
-    { 
-        public string Name { get; set; }
+    {
+        public string Name { get; set; } = string.Empty;
 
         public float Progress { get; } = 0f;
 
         public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
-        public bool RuntimeValidation(ref string error)
+        public bool RuntimeValidation(ref string? error)
         {
             return true;
         }
@@ -48,6 +48,6 @@ namespace XTMF.Testing.Modules.Editing
         /// Actually have a data field in order to ensure the T matters
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public I Data;
+        public I? Data;
     }
 }

@@ -77,7 +77,7 @@ namespace XTMF
         /// <param name="name"></param>
         /// <param name="reportProgress"></param>
         /// <param name="color"></param>
-        void CreateProgressReport(string name, Func<float> reportProgress, Tuple<byte, byte, byte> color = null);
+        void CreateProgressReport(string name, Func<float> reportProgress, Tuple<byte, byte, byte>? color = null);
 
         /// <summary>
         ///
