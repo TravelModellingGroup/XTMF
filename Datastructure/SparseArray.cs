@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -78,11 +79,11 @@ namespace Datastructure
         /// <param name="sparseIndex">The sparse index to read from.</param>
         /// <param name="data">The data that was read, default if it does not exist.</param>
         /// <returns>True if the sparse index exists, false otherwise.</returns>
-        public bool TryRead(int sparseIndex, out T? data)
+        public bool TryRead(int sparseIndex, [NotNullWhen(true)] out T? data)
         {
             if (GetTransformedIndex(ref sparseIndex))
             {
-                data = Data[sparseIndex];
+                data = Data[sparseIndex]!;
                 return true;
             }
             data = default;

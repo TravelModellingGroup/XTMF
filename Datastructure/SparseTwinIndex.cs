@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Datastructure
 {
@@ -84,6 +85,47 @@ namespace Datastructure
                 {
                     throw new IndexOutOfRangeException(String.Format("The location {0}:{1} is invalid for this Sparse Twin Index Datastructure!", originalO, originalD));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Get the result if the sparse indexes exist.
+        /// </summary>
+        /// <param name="o">The row to store to</param>
+        /// <param name="d">The column to store to.</param>
+        /// <param name="value">The value that was read, default value otherwise</param>
+        /// <returns>True if the index was found, false otherwise.</returns>
+        public bool TryGet(int o, int d, [NotNullWhen(true)] out T? value)
+        {
+            if (GetTransformedIndexes(ref o, ref d))
+            {
+                value = Data[o][d]!;
+                return true;
+            }
+            else
+            {
+                value = default;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Store the result if the sparse indexes exist.
+        /// </summary>
+        /// <param name="o">The row to store to</param>
+        /// <param name="d">The column to store to.</param>
+        /// <param name="value">The value to store</param>
+        /// <returns></returns>
+        public bool TryStore(int o, int d, T value)
+        {
+            if (GetTransformedIndexes(ref o, ref d))
+            {
+                Data[o][d] = value;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
