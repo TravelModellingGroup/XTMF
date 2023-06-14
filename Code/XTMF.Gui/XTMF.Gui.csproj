@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net7.0-windows</TargetFramework>
 		<OutputType>WinExe</OutputType>
@@ -123,7 +123,7 @@
 		<PackageReference Include="MaterialDesignThemes.MahApps">
 			<Version>0.2.8</Version>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.1" />
+		<PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.3" />
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
 	</ItemGroup>
 	<ItemGroup>
