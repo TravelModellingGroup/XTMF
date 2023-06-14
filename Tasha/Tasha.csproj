@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net7.0-windows</TargetFramework>
 		<OutputType>Library</OutputType>
@@ -80,6 +80,6 @@
 	<ItemGroup>
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
 		<PackageReference Include="System.Windows.Forms.DataVisualization" Version="1.0.0-prerelease.20110.1" />
-		<PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.1" />
+		<PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.3" />
 	</ItemGroup>
 </Project>
