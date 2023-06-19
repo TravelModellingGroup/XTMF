@@ -162,6 +162,38 @@ namespace XTMF.Testing
         }
 
         [TestMethod]
+        public void SparseTwinIndexFrom2DArrayTest()
+        {
+            var length = 1000;
+            Random r = new();
+            int[][] baseData = new int[length][];
+            int[] position = new int[length];
+            for (int i = 0; i < position.Length; i++)
+            {
+                position[i] = i * 2 + 1;
+            }
+            for (int i = 0; i < baseData.Length; i++)
+            {
+                baseData[i] = new int[length];
+                for (int j = 0; j < baseData[i].Length; j++)
+                {
+                    baseData[i][j] = r.Next();
+                }
+            }
+            var sparseData = SparseTwinIndex<int>.CreateSquareTwinIndex(position, baseData);
+            for (int i = 0; i < baseData.Length; i++)
+            {
+                for (int j = 0; j < baseData[i].Length; j++)
+                {
+                    if (baseData[i][j] != sparseData[position[i], position[j]])
+                    {
+                        Assert.Fail($"{baseData[i][j]} != {sparseData[position[i], position[j]]}");
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
         public void CreateSquareTwinArrayTest()
         {
             var length = 1000;

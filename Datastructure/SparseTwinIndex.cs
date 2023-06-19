@@ -170,14 +170,9 @@ namespace Datastructure
         public static SparseTwinIndex<T> CreateSquareTwinIndex(int[] firstIndex, int[] secondIndex, T[]? data = null)
         {
             // check the parameters
-            if (firstIndex == null)
-            {
-                throw new ArgumentNullException(nameof(firstIndex));
-            }
-            if (secondIndex == null)
-            {
-                throw new ArgumentNullException(nameof(secondIndex));
-            }
+            ArgumentNullException.ThrowIfNull(firstIndex, nameof(firstIndex));
+            ArgumentNullException.ThrowIfNull(secondIndex, nameof(secondIndex));
+
             if (data != null)
             {
                 if (firstIndex.Length * secondIndex.Length != data.Length)
@@ -190,6 +185,52 @@ namespace Datastructure
             var firstRangeSet = new RangeSet(firstIndex);
             var secondRangeSet = new RangeSet(secondIndex);
             return new SparseTwinIndex<T>(CreateSquareIndexes(firstRangeSet, secondRangeSet), ConvertArrayToMatrix(firstIndex, secondIndex, data)) { Count = firstIndex.Length * secondIndex.Length };
+        }
+
+        /// <summary>
+        /// Create a square twin index
+        /// </summary>
+        /// <param name="indexes">The indexes to use for both origin and destination. Must be monotonic if providing data.</param>
+        /// <param name="data">Optional, the data to use for the matrix.</param>
+        /// <returns>A SquareTwinIndex sized using the given indexes</returns>
+        public static SparseTwinIndex<T> CreateSquareTwinIndex(int[] indexes, T[][]? data = null)
+        {
+            ArgumentNullException.ThrowIfNull(indexes, nameof(indexes));
+
+            // Check the data if it exists to make sure that the size is correct
+            if(data is not null)
+            {
+                if(data.Length != indexes.Length)
+                {
+                    throw new ArgumentException($"The number of rows in the data is not the same as the number of indexes!");
+                }
+                for ( var i = 0; i < data.Length; i++)
+                {
+                    if (data[i].Length != indexes.Length)
+                    {
+                        throw new ArgumentException($"The number of columns in the data is not the same as the number of indexes!");
+                    }
+                }
+                if (!IsMonotonic(indexes))
+                {
+                    throw new ArgumentException($"The indexes must be monotonic!", nameof(indexes));
+                }
+            }
+            // Now that we know that the given data is fine, build the twin index
+            var ranges = new RangeSet(indexes);
+            return new SparseTwinIndex<T>(CreateSquareIndexes(ranges, ranges), data);
+        }
+
+        private static bool IsMonotonic(int[] indexes)
+        {
+            for (int i = 1; i < indexes.Length; i++)
+            {
+                if (indexes[i - 1] >= indexes[i])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private static SparseIndexing CreateSquareIndexes(RangeSet firstRangeSet, RangeSet secondRangeSet)
