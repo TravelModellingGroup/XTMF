@@ -63,10 +63,10 @@ namespace XTMF.Gui.UserControls
             DidComplete = false;
             UserInput = startingText;
             InitializeComponent();
-            if(validation != null)
+            if (validation != null)
             {
                 Binding b = BindingOperations.GetBinding(StringInputTextBox, TextBox.TextProperty);
-                if(b != null)
+                if (b != null)
                 {
                     foreach (var rule in b.ValidationRules)
                     {
@@ -79,10 +79,27 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private bool _firstKeyboardFocus = true;
+
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            base.OnGotFocus(e);
+            Keyboard.Focus(StringInputTextBox);
+        }
+
+        protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
+        {
+            base.OnGotKeyboardFocus(e);
+            if (_firstKeyboardFocus)
+            {
+                StringInputTextBox.Select(0, StringInputTextBox.Text.Length);
+            }
+            Keyboard.Focus(StringInputTextBox);
+        }
+
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
         {
             this._dialogSession = eventargs.Session;
-            StringInputTextBox.Select(0, StringInputTextBox.Text.Length);
         }
 
         /// <summary>
@@ -179,9 +196,9 @@ namespace XTMF.Gui.UserControls
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-                return string.IsNullOrWhiteSpace((value ?? "").ToString())
-                    ? new ValidationResult(false, "Field is required.")
-                    : ValidationResult.ValidResult;
+            return string.IsNullOrWhiteSpace((value ?? "").ToString())
+                ? new ValidationResult(false, "Field is required.")
+                : ValidationResult.ValidResult;
         }
-    }    
+    }
 }
