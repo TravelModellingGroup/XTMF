@@ -46,6 +46,8 @@ namespace XTMF.Gui.UserControls
 
         private DialogHost _host;
 
+        private IInputElement _returnFocusTo;
+
         public StringRequestDialog(DialogHost host, string question, Func<string, bool> validation, string startingText)
         {
             _host = host;
@@ -56,6 +58,7 @@ namespace XTMF.Gui.UserControls
             UserInput = startingText;
             InitializeComponent();
             // We clear the focus here to ensure that extra keys strokes before we gain keyboard focus don't go through.
+            _returnFocusTo = Keyboard.FocusedElement;
             Keyboard.ClearFocus();
             if (validation != null)
             {
@@ -112,7 +115,17 @@ namespace XTMF.Gui.UserControls
         public async Task<object> ShowAsync(bool allowClickToClose = true)
         {
             _host.CloseOnClickAway = allowClickToClose;
-            return await _host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler);
+            try
+            {
+                return await _host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler);
+            }
+            finally
+            {
+                if (_returnFocusTo is not null)
+                {
+                    await Dispatcher.BeginInvoke(new Action(() => Keyboard.Focus(_returnFocusTo)), System.Windows.Threading.DispatcherPriority.Input);
+                }
+            }
         }
 
         /// <summary>

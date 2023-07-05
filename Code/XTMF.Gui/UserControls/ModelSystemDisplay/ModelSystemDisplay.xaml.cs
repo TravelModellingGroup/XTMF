@@ -1023,7 +1023,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        private async void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
             {
@@ -1055,7 +1055,7 @@ namespace XTMF.Gui.UserControls
 
                         break;
                     case Key.F2:
-                        RenameParameter();
+                        await RenameParameter();
                         e.Handled = true;
                         break;
                     case Key.H:
@@ -1685,7 +1685,7 @@ namespace XTMF.Gui.UserControls
 
         /// <summary>
         /// </summary>
-        private async void RenameParameter()
+        private async Task RenameParameter()
         {
             if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
