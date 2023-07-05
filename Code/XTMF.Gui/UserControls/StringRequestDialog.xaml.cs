@@ -55,6 +55,8 @@ namespace XTMF.Gui.UserControls
             DidComplete = false;
             UserInput = startingText;
             InitializeComponent();
+            // We clear the focus here to ensure that extra keys strokes before we gain keyboard focus don't go through.
+            Keyboard.ClearFocus();
             if (validation != null)
             {
                 Binding b = BindingOperations.GetBinding(StringInputTextBox, TextBox.TextProperty);
