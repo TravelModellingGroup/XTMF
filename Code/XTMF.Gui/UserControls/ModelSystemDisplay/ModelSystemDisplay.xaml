@@ -365,6 +365,7 @@
                                                     <Separator/>
                                                     <MenuItem Header="Hide Parameter(Ctrl+H)" Click="HideParameter_Click"/>
                                                     <MenuItem Header="Show Parameter(Ctrl+Shift+H)" Click="ShowParameter_Click"/>
+                                                    <MenuItem Header="Paste From Spreadsheet" Click="PasteSpreadsheet_Click" />
                                                 </MenuItem>
                                                 <MenuItem Header="Open">
                                                     <MenuItem Name="POpenFileMenuItem"  Header="Open File  (Ctrl+O)" Click="OpenFile_Click">

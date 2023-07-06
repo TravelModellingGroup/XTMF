@@ -141,7 +141,7 @@ namespace XTMF.Gui.UserControls
                         }
                         else
                         {
-                            RenameParameter();
+                            RenameParameter().GetAwaiter().GetResult();
                         }
                         e.Handled = true;
                         break;
