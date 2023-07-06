@@ -127,7 +127,7 @@ namespace Tasha.PopulationSynthesis
             var flatBase = baseData.GetFlatData();
             for (int i = 0; i < flatBase.Length; i++)
             {
-                Array.Copy(flatRet[i], flatBase[i], flatRet.Length);
+                Array.Copy(flatBase[i], flatRet[i], flatRet.Length);
             }
             return ret;
         }
@@ -161,7 +161,7 @@ namespace Tasha.PopulationSynthesis
             }
             if (!WithReplacement)
             {
-                IZone ret = PickSchoolZone(householdZone, probabilities, _random, person.ExpansionFactor);
+                IZone ret = PickSchoolZone(person, householdZone, probabilities, _random, person.ExpansionFactor);
                 // If a zone is successfully found, return it
                 if (ret != null) return ret;
             }
@@ -213,7 +213,8 @@ namespace Tasha.PopulationSynthesis
                     return Zones.GetFlatData()[i];
                 }
             }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there were no zones with any probability!" +
+                $" HouseholdZone = {person.Household.HomeZone.ZoneNumber}, Age={person.Age}");
         }
 
         /// <summary>
@@ -262,7 +263,7 @@ namespace Tasha.PopulationSynthesis
         /// <param name="personExpansionFactor"></param>
         /// <exception cref="XTMFRuntimeException">If the household zone does not have data defined for it.</exception>
         /// <returns>A zone to use for school, null if no options exist</returns>
-        private IZone PickSchoolZone(int householdZone, SparseTwinIndex<float> probabilities, Random random, float personExpansionFactor)
+        private IZone PickSchoolZone(ITashaPerson person, int householdZone, SparseTwinIndex<float> probabilities, Random random, float personExpansionFactor)
         {
             (float[] data, float total) = GetHouseholdRow(householdZone, (probabilities, null));
             if (data == null)
@@ -306,7 +307,8 @@ namespace Tasha.PopulationSynthesis
                     return Zones.GetFlatData()[i];
                 }
             }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
+            // If there was not enough space, grab from the original distribution
+            return null;
         }
 
         /// <summary>
