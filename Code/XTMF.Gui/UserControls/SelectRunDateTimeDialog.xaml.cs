@@ -46,7 +46,7 @@ namespace XTMF.Gui.UserControls
         private DialogSession _dialogSession;
 
         public bool DidComplete { get; set; }
-    
+  
         public SelectRunDateTimeDialog(ModelSystemEditingSession session)
         {
             InitializeComponent();
@@ -70,13 +70,28 @@ namespace XTMF.Gui.UserControls
         /// <returns></returns>
         public async Task<object> ShowAsync(DialogHost host = null)
         {
-            return await (host == null ? DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler)
-                : host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler));
+            var previousKeyboardFocus = Keyboard.FocusedElement;
+            Keyboard.ClearFocus();
+            try
+            {
+                return await (host == null ? DialogHost.Show(this, "RootDialog", OpenedEventHandler, ClosingEventHandler)
+                    : host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler));
+            }
+            finally
+            {
+                Keyboard.Focus(previousKeyboardFocus);
+            }
         }
 
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
         {
             _dialogSession = eventargs.Session;
+        }
+
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            base.OnGotFocus(e);
+            Keyboard.Focus(StringInputTextBox);
         }
 
         /// <summary>
