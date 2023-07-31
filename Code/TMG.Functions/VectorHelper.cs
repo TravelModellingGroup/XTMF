@@ -294,10 +294,6 @@ namespace TMG.Functions
             }
         }
 
-
-
-
-
         /// <summary>
         /// Assign the given value to the whole array
         /// </summary>
@@ -309,7 +305,7 @@ namespace TMG.Functions
             {
                 int i = 0;
                 var vValue = new Vector<float>(value);
-                for (; i < dest.Length - Vector<float>.Count; i++)
+                for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     vValue.CopyTo(dest, i);
                 }
