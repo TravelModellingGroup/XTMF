@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2022-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -21,17 +21,15 @@ using Datastructure;
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.IO;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
 namespace TMG.Emme
 {
-
+    [ModuleInformation(Description = "This tool provides access to the EMME subarea tool with the addition of providing support for setting up the" +
+        " subarea nodes using a ShapeFile.", 
+        DocURL = "http://tmg.utoronto.ca/doc/1.6/tmgtoolbox/input_output/ExportSubareaTool.html")]
     public class ExportSubareaTool : IEmmeTool
     {
 
@@ -103,6 +101,9 @@ namespace TMG.Emme
         [RunParameter("On Road TTFs", "3-128", typeof(RangeSet), "The Transit Time Functions (TTFs) for transit segments that should be applied to the" +
             " road links to reduce capacity for the buses and streetcars in mixed traffic.")]
         public RangeSet OnRoadTTFs;
+
+        [RunParameter("Max CPU Cores", 16, "Set this to the maximum number of CPU cores that the subarea SOLA is allowed to use.  We have noticed exponential performance deterioration if run with more than 16.")]
+        public int MaxCPUCores;
 
         public sealed class Class : IModule
         {
@@ -203,6 +204,7 @@ namespace TMG.Emme
                 new ModellerControllerParameter("xtmf_createGateAttrib", CreateGateAttrib.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("xtmf_extractTransit", ExtractTransit.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("xtmf_outputFolder", OutputFolder.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("MaxCores", MaxCPUCores.ToString(CultureInfo.InvariantCulture)),
             };
         }
 
@@ -244,6 +246,11 @@ namespace TMG.Emme
                 {
                     return false;
                 }
+            }
+            if(MaxCPUCores <= 0)
+            {
+                error = "You need to run with at least 1 CPU core.";
+                return false;
             }
             return true;
         }
