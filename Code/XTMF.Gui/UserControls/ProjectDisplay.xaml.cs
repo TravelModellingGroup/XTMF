@@ -1043,19 +1043,19 @@ namespace XTMF.Gui.UserControls
 
                 internal bool SetName(string newName, ref string error)
                 {
-                    var ret = _session.RenameModelSystem(ModelSystemStructure, newName, ref error);
+                    var ret = _session.RenameModelSystem(_projectModelSystem, newName, ref error);
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
                     return ret;
                 }
 
                 internal bool CloneModelSystem(string name, ref string error)
                 {
-                    return _session.CloneModelSystemAs(ModelSystemStructure, name, ref error);
+                    return _session.CloneModelSystemAs(_projectModelSystem, name, ref error);
                 }
 
                 internal bool CloneModelSystemToProject(string name, ref string error)
                 {
-                    return _session.CloneModelSystemToProjectAs(ModelSystemStructure, name, ref error);
+                    return _session.CloneModelSystemToProjectAs(_projectModelSystem, name, ref error);
                 }
 
 

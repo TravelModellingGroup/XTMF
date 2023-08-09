@@ -152,7 +152,6 @@ namespace XTMF
             XmlDocument msDoc = new XmlDocument();
             msDoc.Load(msPath);
             var child = msDoc["Root"] ?? msDoc["AdvancedModelSystem"];
-            bool hasDescription = false;
             var attributes = child.Attributes;
             if (attributes != null)
             {
@@ -160,8 +159,10 @@ namespace XTMF
                 {
                     if (attribute.Name == "Description")
                     {
-                        hasDescription = true;
-                        pms.Description = attribute.InnerText;
+                        if (string.IsNullOrEmpty(pms.Description))
+                        {
+                            pms.Description = attribute.InnerText;
+                        }
                         break;
                     }
                 }
@@ -170,7 +171,7 @@ namespace XTMF
             if (child.HasChildNodes)
             {
                 ModelSystemStructure ms = XTMF.ModelSystemStructure.Load(child, _Configuration);
-                if (ms != null)
+                if (ms is not null)
                 {
                     pms.Root = ms;
                 }
@@ -181,9 +182,10 @@ namespace XTMF
                 return false;
             }
 
-            if (!hasDescription)
+            if (pms.Root is ModelSystemStructure mss)
             {
-                pms.Description = pms.Root.Description;
+                mss.Name = pms.Name;
+                mss.Description = pms.Description;
             }
 
             // now do a second pass for Linked parameters, since we need the current model system to actually link things
@@ -226,7 +228,7 @@ namespace XTMF
             pms = new ProjectModelSystem()
             {
                 GUID = guid,
-                
+
             };
             bool hasDescription = false;
             var attributes = child.Attributes;
@@ -614,7 +616,7 @@ namespace XTMF
                         writer.WriteEndElement();
                         // There is no need to re-write a model system
                         // that has not been loaded
-                        if(!pms.IsLoaded)
+                        if (!pms.IsLoaded)
                         {
                             continue;
                         }

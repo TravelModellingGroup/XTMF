@@ -316,29 +316,37 @@ namespace XTMF
         /// <summary>
         /// Renames the model system within the project
         /// </summary>
-        /// <param name="root">The root structure of the model system to rename</param>
+        /// <param name="pms">The root structure of the model system to rename</param>
         /// <param name="newName">The name to set this model system to.</param>
         /// <param name="error">An error message that describes why this operation has failed.</param>
         /// <returns>True if the model system was renamed, if not the error will describe why not.</returns>
-        public bool RenameModelSystem(IModelSystemStructure root, string newName, ref string error)
+        public bool RenameModelSystem(ProjectModelSystem pms, string newName, ref string error)
         {
             lock (_EditingSessionsLock)
             {
-                var index = Project.IndexOf(root);
+                
+                var index = Project.IndexOf(pms);
                 if (index < 0)
                 {
                     error = "The model system was not found within the project!";
                     return false;
                 }
-                // check to see if the model system is being edited, if it is send a command to that session
-                var editingSession = _EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
-                if (editingSession.Session != null)
+                if (pms.IsLoaded)
                 {
-                    editingSession.Session.ModelSystemModel.ChangeModelSystemName(newName, ref error);
-                    InvokeModelSystemNameChanged();
+                    // check to see if the model system is being edited, if it is send a command to that session
+                    var editingSession = _EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(pms.Root));
+                    if (editingSession.Session != null)
+                    {
+                        editingSession.Session.ModelSystemModel.ChangeModelSystemName(newName, ref error);
+                        InvokeModelSystemNameChanged();
+                    }
+                    //In any case we need to save this change so everything updates accordingly
+                    Project.ModelSystemStructure[index].Name = newName;
                 }
-                //In any case we need to save this change so everything updates accordingly
-                Project.ModelSystemStructure[index].Name = newName;
+                else
+                {
+                    pms.Name = newName;
+                }
                 Project.Save(ref error);
             }
             return true;
@@ -353,25 +361,28 @@ namespace XTMF
         /// <param name="name"></param>
         /// <param name="error"></param>
         /// <returns></returns>
-        public bool CloneModelSystemAs(IModelSystemStructure root, string name, ref string error)
+        public bool CloneModelSystemAs(ProjectModelSystem pms, string name, ref string error)
         {
             lock (_EditingSessionsLock)
             {
-                var index = Project.IndexOf(root);
+                var index = Project.IndexOf(pms);
                 if (index < 0)
                 {
                     error = "The model system was not found within the project!";
                     return false;
                 }
-                // If it is currently being edited, save that version
-                var editingSession = _EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
-                if (editingSession.Session != null)
+                if (pms.IsLoaded)
                 {
-                    return editingSession.Session.SaveAsModelSystem(name, ref error);
+                    // If it is currently being edited, save that version
+                    var editingSession = _EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(pms.Root));
+                    if (editingSession.Session != null)
+                    {
+                        return editingSession.Session.SaveAsModelSystem(name, ref error);
+                    }
                 }
                 var ms = _Runtime.ModelSystemController.LoadOrCreate(name);
                 ms.Name = name;
-                ms.Description = Project.ModelSystemDescriptions[index];
+                ms.Description = pms.Description;
                 ms.ModelSystemStructure = Project.CloneModelSystemStructure(out List<ILinkedParameter> lp, out List<IRegionDisplay> regionDisplays, index);
                 ms.LinkedParameters = lp;
                 ms.RegionDisplays = regionDisplays;
@@ -439,11 +450,11 @@ namespace XTMF
 
         public ModelSystem CloneModelSystem(IModelSystemStructure root, ref string error) => Project.CloneModelSystem(root);
 
-        public bool CloneModelSystemToProjectAs(IModelSystemStructure root, string name, ref string error)
+        public bool CloneModelSystemToProjectAs(ProjectModelSystem pms, string name, ref string error)
         {
             lock (_EditingSessionsLock)
             {
-                var index = Project.IndexOf(root);
+                var index = Project.IndexOf(pms);
                 if (index < 0)
                 {
                     error = "The model system was not found within the project!";
