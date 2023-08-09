@@ -1000,8 +1000,8 @@ namespace XTMF.Gui.UserControls
                 {
                     get
                     {
-                        return ((Project)_project).GetLastModified(ModelSystemStructure) is DateTime lm 
-                            && lm.Year > 1 ? lm.ToString("dddd, dd MMMM yyyy") : "N/A";                        
+                        var lm = _projectModelSystem.LastModified;
+                        return lm.Year > 1 ? lm.ToString("dddd, dd MMMM yyyy") : "N/A";
                     }
                 }
 
@@ -1009,8 +1009,8 @@ namespace XTMF.Gui.UserControls
                 {
                     get
                     {
-                        return ((Project)_project).GetLastModified(ModelSystemStructure) is DateTime lm
-                            && lm.Year > 1 ? lm.ToString("H:mm tt") : String.Empty;
+                        var lm = _projectModelSystem.LastModified;
+                        return lm.Year > 1 ? lm.ToString("H:mm tt") : String.Empty;
                     }
                 }
 
