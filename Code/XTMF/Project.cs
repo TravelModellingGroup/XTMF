@@ -56,7 +56,7 @@ namespace XTMF
         /// </summary>
         private volatile bool _IsLoaded;
 
-        private List<ProjectModelSystem> _ProjectModelSystems = new List<ProjectModelSystem>();
+        public readonly List<ProjectModelSystem> ProjectModelSystems = new List<ProjectModelSystem>();
 
         private readonly bool RemoteProject;
 
@@ -89,8 +89,21 @@ namespace XTMF
             var loadTo = new ProjectModelSystem[numberOfModelSystems];
             Parallel.For(0, numberOfModelSystems, i =>
             {
-                var mss = toClone.CloneModelSystemStructure(out var lp,
-                    out var regionDisplays, i);
+                IModelSystemStructure mss;
+                List<IRegionDisplay> regionDisplays;
+                List<ILinkedParameter> lp;
+                if (toClone.ProjectModelSystems[i].IsLoaded)
+                {
+                    mss = toClone.CloneModelSystemStructure(out lp,
+                    out regionDisplays, i);
+                }
+                else
+                {
+                    mss = null;
+                    lp = null;
+                    regionDisplays = null;
+                }
+
 
                 loadTo[i] = new ProjectModelSystem
                 {
@@ -98,10 +111,11 @@ namespace XTMF
                     LinkedParameters = lp,
                     Description = mss?.Description ?? "No Description",
                     GUID = Guid.NewGuid().ToString(),
-                    RegionDisplays = regionDisplays
+                    RegionDisplays = regionDisplays,
+                    IsLoaded = toClone.ProjectModelSystems[i].IsLoaded
                 };
             });
-            _ProjectModelSystems = loadTo.ToList();
+            ProjectModelSystems = loadTo.ToList();
         }
 
         /// <summary>
@@ -111,7 +125,7 @@ namespace XTMF
             get
             {
                 SetActive();
-                return _ProjectModelSystems.Select(pms => pms.RegionDisplays).ToList();
+                return ProjectModelSystems.Select(pms => pms.RegionDisplays).ToList();
             }
         }
 
@@ -123,7 +137,7 @@ namespace XTMF
             get
             {
                 SetActive();
-                return _ProjectModelSystems.Select(pms => pms.Description).ToList();
+                return ProjectModelSystems.Select(pms => pms.Description).ToList();
             }
         }
 
@@ -140,9 +154,9 @@ namespace XTMF
                 throw new ArgumentNullException(nameof(realModelSystemStructure));
             }
 
-            for (var i = 0; i < _ProjectModelSystems.Count; i++)
+            for (var i = 0; i < ProjectModelSystems.Count; i++)
             {
-                if (_ProjectModelSystems[i]?.Root == realModelSystemStructure)
+                if (ProjectModelSystems[i]?.Root == realModelSystemStructure)
                 {
                     return i;
                 }
@@ -168,7 +182,7 @@ namespace XTMF
             get
             {
                 SetActive();
-                return _ProjectModelSystems.Select(pms => pms.LinkedParameters).ToList();
+                return ProjectModelSystems.Select(pms => pms.LinkedParameters).ToList();
             }
         }
 
@@ -180,7 +194,7 @@ namespace XTMF
             get
             {
                 SetActive();
-                return _ProjectModelSystems.Select(pms => pms.Root).ToList();
+                return ProjectModelSystems.Select(pms => pms.Root).ToList();
             }
         }
 
@@ -207,7 +221,7 @@ namespace XTMF
         /// </summary>
         public void Reload()
         {
-            _ProjectModelSystems.Clear();
+            ProjectModelSystems.Clear();
             string error = null;
             if (!Load(ref error))
             {
@@ -222,30 +236,36 @@ namespace XTMF
         public bool Save(ref string error)
         {
             var dirName = Path.Combine(_Configuration.ProjectDirectory, Name);
-            if (!Directory.Exists(dirName))
+            bool ret = false;
+            try
             {
-                Directory.CreateDirectory(dirName);
-            }
-
-            bool ret;
-            if (((Configuration)_Configuration).DivertSaveRequests)
-            {
-                ret = true;
-                ExternallySaved?.Invoke(this, new ProjectExternallySavedEventArgs(this, null));
-            }
-            else
-            {
-               
-                ret = Save(Path.Combine(dirName, "Project.xml"), ref error);
-                if (_ClonedFrom != null)
+                if (!Directory.Exists(dirName))
                 {
-                    var e = _ClonedFrom.ExternallySaved;
-                    // swap the project that this was a clone of and replace the real project.
-                    ((ProjectRepository)_Configuration.ProjectRepository).ReplaceProjectFromClone(_ClonedFrom, this);
-                    e?.Invoke(_ClonedFrom, new ProjectExternallySavedEventArgs(_ClonedFrom, this));
+                    Directory.CreateDirectory(dirName);
+                }
+                if (((Configuration)_Configuration).DivertSaveRequests)
+                {
+                    ret = true;
+                    ExternallySaved?.Invoke(this, new ProjectExternallySavedEventArgs(this, null));
+                }
+                else
+                {
+
+                    ret = Save(Path.Combine(dirName, "Project.xml"), ref error);
+                    if (_ClonedFrom != null)
+                    {
+                        var e = _ClonedFrom.ExternallySaved;
+                        // swap the project that this was a clone of and replace the real project.
+                        ((ProjectRepository)_Configuration.ProjectRepository).ReplaceProjectFromClone(_ClonedFrom, this);
+                        e?.Invoke(_ClonedFrom, new ProjectExternallySavedEventArgs(_ClonedFrom, this));
+                    }
                 }
             }
-
+            catch (IOException e)
+            {
+                error = e.Message;
+                return false;
+            }
             return ret;
         }
 
@@ -286,7 +306,7 @@ namespace XTMF
         /// <param name="description"></param>
         public void AddModelSystem(IModelSystemStructure root, List<ILinkedParameter> lps, string description)
         {
-            _ProjectModelSystems.Add(new ProjectModelSystem
+            ProjectModelSystems.Add(new ProjectModelSystem
             {
                 Root = root,
                 LinkedParameters = lps,
@@ -317,7 +337,7 @@ namespace XTMF
             }
 
             clone.Name = newName;
-            _ProjectModelSystems.Add(new ProjectModelSystem
+            ProjectModelSystems.Add(new ProjectModelSystem
             {
                 Root = clone,
                 LinkedParameters = linkedParameters,
@@ -331,7 +351,7 @@ namespace XTMF
 
         internal bool AddExternalModelSystem(IModelSystem system, ref string error)
         {
-            _ProjectModelSystems.Add(new ProjectModelSystem
+            ProjectModelSystems.Add(new ProjectModelSystem
             {
                 Root = system.ModelSystemStructure,
                 LinkedParameters = system.LinkedParameters,
@@ -341,7 +361,7 @@ namespace XTMF
             });
             return Save(ref error);
         }
-        
+
         internal bool AddModelSystem(string modelSystemName, ref string error)
         {
             if (string.IsNullOrWhiteSpace(modelSystemName))
@@ -350,7 +370,7 @@ namespace XTMF
                 return false;
             }
 
-            _ProjectModelSystems.Add(new ProjectModelSystem
+            ProjectModelSystems.Add(new ProjectModelSystem
             {
                 Root = new ModelSystemStructure(_Configuration)
                 {
@@ -384,11 +404,11 @@ namespace XTMF
             }
 
             clone.Name = newName;
-            _ProjectModelSystems.Add(new ProjectModelSystem
+            ProjectModelSystems.Add(new ProjectModelSystem
             {
                 Root = clone,
                 LinkedParameters = linkedParameters,
-                Description = _ProjectModelSystems[index].Description,
+                Description = ProjectModelSystems[index].Description,
                 GUID = Guid.NewGuid().ToString(),
                 RegionDisplays = regionDisplays,
                 LastModified = DateTime.Now
@@ -415,7 +435,7 @@ namespace XTMF
         /// <returns></returns>
         internal bool RemoveModelSystem(int index, ref string error)
         {
-            _ProjectModelSystems.RemoveAt(index);
+            ProjectModelSystems.RemoveAt(index);
             return Save(ref error);
         }
 
@@ -428,9 +448,9 @@ namespace XTMF
         /// <returns></returns>
         internal bool MoveModelSystems(int currentIndex, int newIndex, ref string error)
         {
-            var temp = _ProjectModelSystems[currentIndex];
-            _ProjectModelSystems.RemoveAt(currentIndex);
-            _ProjectModelSystems.Insert(newIndex, temp);
+            var temp = ProjectModelSystems[currentIndex];
+            ProjectModelSystems.RemoveAt(currentIndex);
+            ProjectModelSystems.Insert(newIndex, temp);
             return Save(ref error);
         }
 
@@ -508,12 +528,12 @@ namespace XTMF
             List<ILinkedParameter> lps,
             List<IRegionDisplay> regionDisplays, string description)
         {
-            _ProjectModelSystems[modelSystemIndex] = new ProjectModelSystem
+            ProjectModelSystems[modelSystemIndex] = new ProjectModelSystem
             {
                 Root = realModelSystemStructure,
                 LinkedParameters = lps,
                 Description = description,
-                GUID = _ProjectModelSystems[modelSystemIndex]?.GUID ?? Guid.NewGuid().ToString(),
+                GUID = ProjectModelSystems[modelSystemIndex]?.GUID ?? Guid.NewGuid().ToString(),
                 RegionDisplays = regionDisplays
             };
         }
@@ -559,12 +579,12 @@ namespace XTMF
         /// <param name="newMSS"></param>
         public void UpdateModelSystemStructure(int modelSystemIndex, ModelSystemStructure newMSS)
         {
-            if (modelSystemIndex < 0 || modelSystemIndex >= _ProjectModelSystems.Count)
+            if (modelSystemIndex < 0 || modelSystemIndex >= ProjectModelSystems.Count)
             {
                 throw new ArgumentOutOfRangeException(nameof(modelSystemIndex));
             }
 
-            _ProjectModelSystems[modelSystemIndex].Root = newMSS;
+            ProjectModelSystems[modelSystemIndex].Root = newMSS;
         }
 
         /// <summary>
@@ -666,12 +686,6 @@ namespace XTMF
         ///     When a running model system saves itself, this will trigger.
         /// </summary>
         public event EventHandler<ProjectExternallySavedEventArgs> ExternallySaved;
-
-        public bool SaveModelSystem(int modelSystemIndex, ref string error)
-        {
-            return false;
-        }
-
 
         /// <summary>
         /// </summary>
@@ -996,12 +1010,12 @@ namespace XTMF
         /// <returns>The last time it was modified, null if the time was not recorded or if the model system structure was not found.</returns>
         public DateTime? GetLastModified(IModelSystemStructure modelSystemStructure)
         {
-            return _ProjectModelSystems.FirstOrDefault(pms => pms.Root == modelSystemStructure)?.LastModified;
+            return ProjectModelSystems.FirstOrDefault(pms => pms.Root == modelSystemStructure)?.LastModified;
         }
 
         internal void SetLastModifiedToNow(ModelSystemStructure modelSystemStructure)
         {
-            var modelSystem = _ProjectModelSystems.FirstOrDefault(pms => pms.Root == modelSystemStructure);
+            var modelSystem = ProjectModelSystems.FirstOrDefault(pms => pms.Root == modelSystemStructure);
             if (modelSystem != null)
             {
                 modelSystem.LastModified = DateTime.Now;
@@ -1619,6 +1633,14 @@ namespace XTMF
 
             ret.Add(builder.ToString());
             return ret.ToArray();
+        }
+
+        internal void EnsureModelSystemLoaded(int modelSystemIndex)
+        {
+            if (!ProjectModelSystems[modelSystemIndex].IsLoaded)
+            {
+                LoadDetachedModelSystem(_DirectoryLocation, ProjectModelSystems[modelSystemIndex]);
+            }
         }
     }
 }

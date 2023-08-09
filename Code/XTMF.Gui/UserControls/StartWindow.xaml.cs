@@ -59,7 +59,10 @@ namespace XTMF.Gui
                     HorizontalContentAlignment = HorizontalAlignment.Left,
                     Style = (Style)FindResource("MaterialDesignFlatButton")
                 };
-                b.Click += (senderx, EventArgs) => MainWindow.Us.LoadProjectByName(recentProject);
+                b.Click += (senderx, EventArgs) =>
+                {
+                    MainWindow.Us.LoadProjectByName(recentProject);
+                };
                 RecentProjectsStackPanel.Children.Add(b);
             }
 

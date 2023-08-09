@@ -356,6 +356,7 @@ namespace XTMF
 
         private void LoadModelSystemFromProject(ModelSystemEditingSession session, Project project, int modelSystemIndex)
         {
+            project.EnsureModelSystemLoaded(modelSystemIndex);
             Name = project.ModelSystemStructure[modelSystemIndex].Name;
             _Description = project.ModelSystemDescriptions[modelSystemIndex];
             Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters,

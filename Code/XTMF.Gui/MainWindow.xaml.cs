@@ -41,6 +41,7 @@ using XTMF.Gui.UserControls;
 using XTMF.Gui.UserControls.Help;
 using XTMF.Gui.UserControls.Interfaces;
 using XTMF.Gui.Util;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using Application = System.Windows.Application;
 using FileDialog = Microsoft.Win32.FileDialog;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
@@ -78,7 +79,7 @@ namespace XTMF.Gui
 
         private bool _isDialogOpen = false;
 
-        public event EventHandler<EventArgs> ThemeChanged; 
+        public event EventHandler<EventArgs> ThemeChanged;
 
         public MainWindow()
         {
@@ -99,7 +100,7 @@ namespace XTMF.Gui
             WorkspaceProjects = new Dictionary<Project, UserControl>();
             XtmfNotificationIcon.InitializeNotificationIcon();
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline),
-                new FrameworkPropertyMetadata {DefaultValue = 60});
+                new FrameworkPropertyMetadata { DefaultValue = 60 });
         }
 
         public ThemeController ThemeController { get; }
@@ -110,7 +111,7 @@ namespace XTMF.Gui
 
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
-            get => (ActiveEditingSessionDisplayModel) GetValue(EditingDisplayModelProperty);
+            get => (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty);
             set => SetValue(EditingDisplayModelProperty, value);
         }
 
@@ -328,12 +329,12 @@ namespace XTMF.Gui
             }
             else if (EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
-                if (WorkspaceProjects.TryGetValue(project, out var projectContorl))
+                if (WorkspaceProjects.TryGetValue(project, out var projectControl))
                 {
                     var visible = false;
                     foreach (TabItem tabItem in DockManager.Items)
                     {
-                        if (tabItem.Content == projectContorl && tabItem.IsSelected)
+                        if (tabItem.Content == projectControl && tabItem.IsSelected)
                         {
                             visible = true;
                             break;
@@ -341,7 +342,7 @@ namespace XTMF.Gui
                     }
                     if (!visible)
                     {
-                        SetDisplayActive(projectContorl, "Project - " + project.Name);
+                        SetDisplayActive(projectControl, "Project - " + project.Name);
                     }
                 }
             }
@@ -414,7 +415,7 @@ namespace XTMF.Gui
                 select element.Key + "|*." + element.Value
             );
             var dialog = alreadyExists
-                ? (FileDialog) new OpenFileDialog
+                ? (FileDialog)new OpenFileDialog
                 {
                     Title = title,
                     Filter = filter
@@ -465,20 +466,20 @@ namespace XTMF.Gui
                         "Unable to import", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No))
                     {
                         case MessageBoxResult.Yes:
-                        {
-                            if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true,
-                                ref error))
                             {
-                                MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK,
-                                    MessageBoxImage.Error);
+                                if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true,
+                                    ref error))
+                                {
+                                    MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK,
+                                        MessageBoxImage.Error);
+                                }
+                                else
+                                {
+                                    MessageBox.Show(this,
+                                        "The model system has been successfully imported from '" + fileName + "'.",
+                                        "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
                             }
-                            else
-                            {
-                                MessageBox.Show(this,
-                                    "The model system has been successfully imported from '" + fileName + "'.",
-                                    "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
-                            }
-                        }
                             break;
                     }
                 }
@@ -513,7 +514,7 @@ namespace XTMF.Gui
             var dialog = new StringRequestDialog(host, "Project Name", ValidateName, null);
             _isDialogOpen = true;
             var result = await dialog.ShowAsync();
-            
+
             if (dialog.DidComplete)
             {
                 var name = dialog.UserInput;
@@ -561,7 +562,7 @@ namespace XTMF.Gui
                                          modelSystemSession.ModelSystemModel.Name
                                        : "Model System - " + modelSystemSession.ModelSystemModel.Name);
                 SetDisplayActive(display, titleBarName);
-                if(modelSystemSession.EditingProject)
+                if (modelSystemSession.EditingProject)
                 {
                     modelSystemSession.NameChanged += (o, e) =>
                     {
@@ -719,7 +720,7 @@ namespace XTMF.Gui
                 {
                     if (ContentControl.DataContext is ViewModelBase)
                     {
-                        ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
+                        ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
                     }
                     var newTabItem = new TabItem
                     {
@@ -731,7 +732,7 @@ namespace XTMF.Gui
                     {
                         newTabItem.PreviewKeyDown += delegate (object sender, KeyEventArgs args)
                         {
-                            shortcutHandler.HandleKeyPreviewDown(sender,args);
+                            shortcutHandler.HandleKeyPreviewDown(sender, args);
                         };
                     }
                 }
@@ -740,9 +741,9 @@ namespace XTMF.Gui
                     tabItem.IsSelected = true;
                     tabItem.Focus();
                 }
-                foreach(var item in display.GetAncestors())
+                foreach (var item in display.GetAncestors())
                 {
-                    if(item is Window window)
+                    if (item is Window window)
                     {
                         window.Activate();
                     }
@@ -934,10 +935,10 @@ namespace XTMF.Gui
             }
 
             if (Keyboard.FocusedElement != null
-                && (DockManager.SelectedContent as UIElement)?.IsAncestorOf((DependencyObject)Keyboard.FocusedElement) == true 
+                && (DockManager.SelectedContent as UIElement)?.IsAncestorOf((DependencyObject)Keyboard.FocusedElement) == true
                 && DockManager.SelectedContent is IKeyShortcutHandler handler)
             {
-                handler.HandleKeyPreviewDown(sender,e);
+                handler.HandleKeyPreviewDown(sender, e);
             }
         }
 
