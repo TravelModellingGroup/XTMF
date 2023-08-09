@@ -27,7 +27,25 @@ namespace XTMF
 {
     public class ProjectModelSystem
     {
-        public string Name => Root?.Name ?? "Unnamed";
+        public string Name
+        {
+            get
+            {
+                return Root?.Name ?? _tempName ?? "Unnamed";
+            }
+            set
+            {
+                if (Root is not null)
+                {
+                    Root.Name = value;
+                }
+                else
+                {
+                    _tempName = value;
+                }
+            }
+        }
+        private string _tempName;
         public IModelSystemStructure Root { get; internal set; }
         public List<ILinkedParameter> LinkedParameters { get; internal set; }
         public List<IRegionDisplay> RegionDisplays { get; internal set; }
@@ -37,7 +55,9 @@ namespace XTMF
 
         public ProjectModelSystem()
         {
-            RegionDisplays = new List<IRegionDisplay>();
+            
         }
+
+        public bool IsLoaded { get; set; } = true;
     }
 }

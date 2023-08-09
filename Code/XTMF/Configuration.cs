@@ -379,12 +379,13 @@ namespace XTMF
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    error = "Unable to create directory " + dir + ". Access was denied!";
+                    error = "Unable to create projects directory " + dir + ". Access was denied!";
                     return false;
                 }
                 catch (IOException)
                 {
-                    error = "Unable to create directory " + dir + ". Unable to write to the location!";
+                    error = $"Unable to access projects directory {dir}!\r\n" +
+                        $"Switching to the default project directory {ProjectDirectory}";
                     return false;
                 }
             }
@@ -392,7 +393,7 @@ namespace XTMF
             {
                 if (!HasFolderWritePermission(dir))
                 {
-                    error = "Unable to use directory " + dir + ". Access was denied!";
+                    error = "Unable to use projects directory " + dir + ". Access was denied!";
                     return false;
                 }
             }

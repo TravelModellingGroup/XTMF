@@ -874,9 +874,9 @@ namespace XTMF.Gui.UserControls
 
             public List<PreviousRun> PreviousRuns = new List<PreviousRun>();
 
-            private IProject Project;
+            private Project Project;
 
-            public ProjectModel(IProject project, ProjectEditingSession session)
+            public ProjectModel(Project project, ProjectEditingSession session)
             {
                 Session = session;
                 Project = project;
@@ -946,9 +946,9 @@ namespace XTMF.Gui.UserControls
                 {
                     lock (ContainedModelSystems)
                     {
-                        ContainedModelSystems.AddRange(from ms in Project.ModelSystemStructure
-                                                       orderby ms.Name
-                                                       select new ContainedModelSystemModel(Session, ms, Project));
+                        ContainedModelSystems.AddRange(Enumerable.Range(0, Project.ProjectModelSystems.Count)
+                            .OrderBy(index => Project.ProjectModelSystems[index].Name)
+                            .Select(index => new ContainedModelSystemModel(Session, Project.ProjectModelSystems[index], index, Project)));
                     }
 
                     ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
@@ -966,26 +966,27 @@ namespace XTMF.Gui.UserControls
 
                 private readonly IProject _project;
                 private readonly ProjectEditingSession _session;
+                private readonly ProjectModelSystem _projectModelSystem;
 
-                public ContainedModelSystemModel(ProjectEditingSession session, IModelSystemStructure ms,
+                public ContainedModelSystemModel(ProjectEditingSession session, ProjectModelSystem pms, int index,
                     IProject project)
                 {
-                    ModelSystemStructure = ms;
-                    RealIndex = ((Project)project).IndexOf(ms);
+                    _projectModelSystem = pms;
+                    ModelSystemStructure = pms.Root;
+                    RealIndex = index;
                     _project = project;
                     _session = session;
-                    FindMissingModules(ms);
                 }
 
                 public IModelSystemStructure ModelSystemStructure { get; }
 
-                public string Name => ModelSystemStructure.Name;
+                public string Name => _projectModelSystem.Name;
 
                 public string StatusText => IsMissingModules
                     ? "This module requires additional setup, or a required module is not present."
                     : null;
 
-                public string Description => ModelSystemStructure.Description;
+                public string Description => _projectModelSystem.Description;
 
                 public bool IsMissingModules { get; private set; }
 
@@ -1038,42 +1039,6 @@ namespace XTMF.Gui.UserControls
                 protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
                 {
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-                }
-
-                /// <summary>
-                /// </summary>
-                /// <param name="ms"></param>
-                private void FindMissingModules(IModelSystemStructure ms)
-                {
-                    var loadTask = Task.Run(() =>
-                    {
-                        try
-                        {
-                            if (ms.Type == null && ms.Required && !ms.IsCollection)
-                            {
-                                IsMissingModules = true;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                        }
-                    });
-
-                    if (ms.Children != null)
-                    {
-                        foreach (var subModule in ms.Children)
-                        {
-                            if (ms is IModelSystemStructure2 ms2)
-                            {
-                                if (ms2.IsDisabled)
-                                {
-                                    continue;
-                                }
-                            }
-
-                            FindMissingModules(subModule);
-                        }
-                    }
                 }
 
                 internal bool SetName(string newName, ref string error)
