@@ -686,11 +686,17 @@ namespace XTMF.Gui
         /// <summary>
         /// </summary>
         /// <param name="documentationControl"></param>
-        internal void NewDocumentationWindow(DocumentationControl documentationControl)
+        internal void NewHelpWindow(DocumentationControl documentationControl)
         {
             SetDisplayActive(documentationControl, "Documentation - " + documentationControl.TypeNameText);
             Keyboard.Focus(documentationControl);
             documentationControl.Focus();
+        }
+
+        private void HelpMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            LaunchHelpWindow();
+            MenuToggleButton.IsChecked = false;
         }
 
         /// <summary>
@@ -809,7 +815,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void DocumentationMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            SetDisplayActive(new HelpDialog(EditorController.Runtime.Configuration), "Documentation");
+            Process.Start(new ProcessStartInfo() { FileName = "https://tmg.utoronto.ca/doc/1.6/", UseShellExecute = true });
             MenuToggleButton.IsChecked = false;
         }
 
@@ -853,8 +859,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void UpdateXtmfMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            LaunchUpdate = true;
-            Close();
+            Process.Start(new ProcessStartInfo() { FileName = "https://github.com/TravelModellingGroup/XTMF/releases", UseShellExecute = true });
         }
 
         /// <summary>
