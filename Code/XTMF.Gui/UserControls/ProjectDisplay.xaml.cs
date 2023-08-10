@@ -1000,8 +1000,8 @@ namespace XTMF.Gui.UserControls
                 {
                     get
                     {
-                        return ((Project)_project).GetLastModified(ModelSystemStructure) is DateTime lm 
-                            && lm.Year > 1 ? lm.ToString("dddd, dd MMMM yyyy") : "N/A";                        
+                        var lm = _projectModelSystem.LastModified;
+                        return lm.Year > 1 ? lm.ToString("dddd, dd MMMM yyyy") : "N/A";
                     }
                 }
 
@@ -1009,8 +1009,8 @@ namespace XTMF.Gui.UserControls
                 {
                     get
                     {
-                        return ((Project)_project).GetLastModified(ModelSystemStructure) is DateTime lm
-                            && lm.Year > 1 ? lm.ToString("H:mm tt") : String.Empty;
+                        var lm = _projectModelSystem.LastModified;
+                        return lm.Year > 1 ? lm.ToString("H:mm tt") : String.Empty;
                     }
                 }
 
@@ -1043,19 +1043,19 @@ namespace XTMF.Gui.UserControls
 
                 internal bool SetName(string newName, ref string error)
                 {
-                    var ret = _session.RenameModelSystem(ModelSystemStructure, newName, ref error);
+                    var ret = _session.RenameModelSystem(_projectModelSystem, newName, ref error);
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
                     return ret;
                 }
 
                 internal bool CloneModelSystem(string name, ref string error)
                 {
-                    return _session.CloneModelSystemAs(ModelSystemStructure, name, ref error);
+                    return _session.CloneModelSystemAs(_projectModelSystem, name, ref error);
                 }
 
                 internal bool CloneModelSystemToProject(string name, ref string error)
                 {
-                    return _session.CloneModelSystemToProjectAs(ModelSystemStructure, name, ref error);
+                    return _session.CloneModelSystemToProjectAs(_projectModelSystem, name, ref error);
                 }
 
 

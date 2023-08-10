@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -142,21 +143,39 @@ namespace XTMF
         }
 
         /// <summary>
-        ///     Finds the index of the given model system.
-        ///     Returns -1 if it is not found.
+        /// Finds the index of the given model system.
+        /// Returns -1 if it is not found.
         /// </summary>
-        /// <param name="realModelSystemStructure">The model system to find.</param>
+        /// <param name="projectModelSystem">The model system to find.</param>
         /// <returns>The index for this model system, -1 if it is not found.</returns>
-        public int IndexOf(IModelSystemStructure realModelSystemStructure)
+        public int IndexOf(ProjectModelSystem projectModelSystem)
         {
-            if (realModelSystemStructure == null)
-            {
-                throw new ArgumentNullException(nameof(realModelSystemStructure));
-            }
+            if(projectModelSystem is null) throw new ArgumentNullException(nameof(projectModelSystem));
 
             for (var i = 0; i < ProjectModelSystems.Count; i++)
             {
-                if (ProjectModelSystems[i]?.Root == realModelSystemStructure)
+                if (ProjectModelSystems[i] == projectModelSystem)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Finds the index of the given model system.
+        /// Returns -1 if it is not found.
+        /// </summary>
+        /// <param name="projectModelSystem">The model system to find.</param>
+        /// <returns>The index for this model system, -1 if it is not found.</returns>
+        public int IndexOf(IModelSystemStructure modelSystemStructure)
+        {
+            if (modelSystemStructure is null) throw new ArgumentNullException(nameof(modelSystemStructure));
+
+            for (var i = 0; i < ProjectModelSystems.Count; i++)
+            {
+                if (ProjectModelSystems[i]?.Root == modelSystemStructure)
                 {
                     return i;
                 }
@@ -463,6 +482,7 @@ namespace XTMF
         internal ModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> linkedParameters,
             out List<IRegionDisplay> regionDisplays, int modelSystemIndex)
         {
+            EnsureModelSystemLoaded(modelSystemIndex);
             var ourClone = ModelSystemStructure[modelSystemIndex].Clone();
             linkedParameters = LinkedParameters[modelSystemIndex].Count > 0
                 ? LinkedParameter.MapLinkedParameters(LinkedParameters[modelSystemIndex], ourClone,
