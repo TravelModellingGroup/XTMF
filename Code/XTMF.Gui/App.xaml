@@ -138,8 +138,8 @@
                                                            KeyboardNavigation.TabIndex="1" Panel.ZIndex="1"
                                                            ItemTemplate="{TemplateBinding HeaderItemTemplate}"
                                                            Style="{StaticResource TabablzDragablzItemsControlStyle}"
-                                                                   Margin="1,0,1,-2"
-                                                                   Padding="0">
+                                                           Margin="1,0,1,0"
+                                                           Padding="0">
                                         <dragablz:DragablzItemsControl.MaxWidth>
                                             <MultiBinding>
                                                 <MultiBinding.Converter>
@@ -153,19 +153,7 @@
                                             </MultiBinding>
                                         </dragablz:DragablzItemsControl.MaxWidth>
                                     </dragablz:DragablzItemsControl>
-                                    <Button Style="{StaticResource MaterialDesignAddItemCommandButtonStyle}"
-                                    x:Name="DefaultAddButton"
-                                    Grid.Column="2"
-                                    Command="{x:Static dragablz:TabablzControl.AddItemCommand}"
-                                    Visibility="{TemplateBinding ShowDefaultAddButton, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    />
-                                    <ContentControl Grid.Column="3" x:Name="SuffixContentControl" 
-                                            Content="{TemplateBinding HeaderSuffixContent}"
-                                            ContentStringFormat="{TemplateBinding HeaderSuffixContentStringFormat}"
-                                            ContentTemplate="{TemplateBinding HeaderSuffixContentStringFormat}"
-                                            ContentTemplateSelector="{TemplateBinding HeaderSuffixContentTemplateSelector}"
-                                            HorizontalAlignment="Stretch"
-                                            />
+                                    
                                 </Grid>
                             </Grid>
                             <ControlTemplate.Triggers>
@@ -177,9 +165,6 @@
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="false">
                                     <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                                </Trigger>
-                                <Trigger Property="IsDraggingWindow" Value="True">
-                                    <Setter TargetName="DefaultAddButton" Property="Visibility" Value="Hidden" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
