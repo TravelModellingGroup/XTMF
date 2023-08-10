@@ -75,8 +75,6 @@ namespace XTMF.Gui
 
         private SettingsPage _settingsPage;
 
-        private bool LaunchUpdate;
-
         private bool _isDialogOpen = false;
 
         public event EventHandler<EventArgs> ThemeChanged;
@@ -593,29 +591,6 @@ namespace XTMF.Gui
             base.OnClosing(e);
             if (!e.Cancel)
             {
-                if (LaunchUpdate)
-                {
-                    Task.Run(() =>
-                        {
-                            var path = Assembly.GetExecutingAssembly().Location;
-                            try
-                            {
-                                Process.Start(
-                                    Path.Combine(Path.GetDirectoryName(path), UpdateProgram),
-                                    Process.GetCurrentProcess().Id + " \"" + path + "\"");
-                            }
-                            catch
-                            {
-                                Dispatcher.Invoke(() =>
-                                {
-                                    MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!",
-                                        MessageBoxButton.OK, MessageBoxImage.Error);
-                                });
-                            }
-                        })
-                        .Wait();
-                }
-
                 Application.Current.Shutdown(0);
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
@@ -686,11 +661,17 @@ namespace XTMF.Gui
         /// <summary>
         /// </summary>
         /// <param name="documentationControl"></param>
-        internal void NewDocumentationWindow(DocumentationControl documentationControl)
+        internal void NewHelpWindow(DocumentationControl documentationControl)
         {
             SetDisplayActive(documentationControl, "Documentation - " + documentationControl.TypeNameText);
             Keyboard.Focus(documentationControl);
             documentationControl.Focus();
+        }
+
+        private void HelpMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            LaunchHelpWindow();
+            MenuToggleButton.IsChecked = false;
         }
 
         /// <summary>
@@ -809,7 +790,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void DocumentationMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            SetDisplayActive(new HelpDialog(EditorController.Runtime.Configuration), "Documentation");
+            Process.Start(new ProcessStartInfo() { FileName = "https://tmg.utoronto.ca/doc/1.6/", UseShellExecute = true });
             MenuToggleButton.IsChecked = false;
         }
 
@@ -853,8 +834,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void UpdateXtmfMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            LaunchUpdate = true;
-            Close();
+            Process.Start(new ProcessStartInfo() { FileName = "https://github.com/TravelModellingGroup/XTMF/releases", UseShellExecute = true });
         }
 
         /// <summary>

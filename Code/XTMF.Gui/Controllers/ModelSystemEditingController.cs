@@ -31,7 +31,7 @@ namespace XTMF.Gui.Controllers
             if(modelSystemStructure != null)
             {
                 var documentationControl = new DocumentationControl() { Type = modelSystemStructure.Type };
-                MainWindow.Us.NewDocumentationWindow(documentationControl);
+                MainWindow.Us.NewHelpWindow(documentationControl);
                 Keyboard.Focus(documentationControl);
             }
         }
