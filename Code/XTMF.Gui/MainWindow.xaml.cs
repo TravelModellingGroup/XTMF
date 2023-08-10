@@ -75,8 +75,6 @@ namespace XTMF.Gui
 
         private SettingsPage _settingsPage;
 
-        private bool LaunchUpdate;
-
         private bool _isDialogOpen = false;
 
         public event EventHandler<EventArgs> ThemeChanged;
@@ -593,29 +591,6 @@ namespace XTMF.Gui
             base.OnClosing(e);
             if (!e.Cancel)
             {
-                if (LaunchUpdate)
-                {
-                    Task.Run(() =>
-                        {
-                            var path = Assembly.GetExecutingAssembly().Location;
-                            try
-                            {
-                                Process.Start(
-                                    Path.Combine(Path.GetDirectoryName(path), UpdateProgram),
-                                    Process.GetCurrentProcess().Id + " \"" + path + "\"");
-                            }
-                            catch
-                            {
-                                Dispatcher.Invoke(() =>
-                                {
-                                    MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!",
-                                        MessageBoxButton.OK, MessageBoxImage.Error);
-                                });
-                            }
-                        })
-                        .Wait();
-                }
-
                 Application.Current.Shutdown(0);
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
