@@ -83,33 +83,28 @@ namespace XTMF
         public static List<IRegionDisplay> MapRegionDisplays(List<IRegionDisplay> displays, IModelSystemStructure clone)
         {
             var list = new List<IRegionDisplay>();
-
-            foreach (var region in displays)
+            if (displays is not null)
             {
-                var r = new RegionDisplay()
+                foreach (var region in displays)
                 {
-                    Name = region.Name
-                };
+                    var r = new RegionDisplay()
+                    {
+                        Name = region.Name
+                    };
 
-                foreach (var group in region.RegionGroups)
-                {
-                    var g = new RegionGroup(group,clone,r);
+                    foreach (var group in region.RegionGroups)
+                    {
+                        var g = new RegionGroup(group, clone, r);
 
-                    
-                    r.RegionGroups.Add(g);
+
+                        r.RegionGroups.Add(g);
+                    }
+
+                    list.Add(r);
                 }
-
-                list.Add(r);
             }
-
             return (List<IRegionDisplay>)list;
         }
-
-
-
-    
-
-
-
     }
+
 }
