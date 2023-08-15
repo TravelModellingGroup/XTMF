@@ -484,6 +484,7 @@ namespace XTMF
         /// <param name="mss"></param>
         private void WriteRegions(XmlTextWriter writer, List<IRegionDisplay> regionDisplays, IModelSystemStructure mss)
         {
+            if (regionDisplays is null) return;
             foreach (var regionDisplay in regionDisplays)
             {
                 writer.WriteStartElement("RegionDisplay");

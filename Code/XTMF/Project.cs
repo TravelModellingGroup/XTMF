@@ -506,15 +506,15 @@ namespace XTMF
         {
             var index = 0;
             var clone = modelSystemStructure.Clone();
-            var modelSystem = new ModelSystem(_Configuration, modelSystemStructure.Name)
+            var clonedModelSystem = new ModelSystem(_Configuration, modelSystemStructure.Name)
             {
                 ModelSystemStructure = clone
             };
             foreach (var f in ModelSystemStructure)
             {
-                if (f.Name == modelSystemStructure.Name)
+                if (f == modelSystemStructure)
                 {
-                    modelSystem.LinkedParameters = LinkedParameters[index].Count > 0
+                    clonedModelSystem.LinkedParameters = LinkedParameters[index].Count > 0
                         ? LinkedParameter.MapLinkedParameters(LinkedParameters[index], clone,
                             ModelSystemStructure[index])
                         : new List<ILinkedParameter>();
@@ -523,7 +523,7 @@ namespace XTMF
                 index++;
             }
 
-            return modelSystem;
+            return clonedModelSystem;
         }
 
         /// <summary>
@@ -1660,6 +1660,15 @@ namespace XTMF
             if (!ProjectModelSystems[modelSystemIndex].IsLoaded)
             {
                 LoadDetachedModelSystem(_DirectoryLocation, ProjectModelSystems[modelSystemIndex]);
+            }
+        }
+
+        public void EnsureModelSystemLoaded(ProjectModelSystem projectModelSystem)
+        {
+            var index = IndexOf(projectModelSystem);
+            if(index >= 0)
+            {
+                EnsureModelSystemLoaded(index);
             }
         }
     }

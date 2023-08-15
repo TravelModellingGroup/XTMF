@@ -517,6 +517,7 @@ namespace XTMF.Gui.UserControls
         {
             if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
+                selected.EnsureIsLoaded();
                 MainWindow.Us.ClipboardModel = selected;
             }
         }
@@ -614,17 +615,11 @@ namespace XTMF.Gui.UserControls
             if (MainWindow.Us.ClipboardModel != null)
             {
                 var cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
-                /* var sr = new StringRequest("Paste: Model System's Name?",
-                     newName => { return Session.ValidateModelSystemName(newName); })
-                 {
-                     Owner = GetWindow()
-                 }; */
-
 
                 var dialog = new StringRequestDialog(RootDialogHost, "Paste: Model System's Name?",
                     newName => Session.ValidateModelSystemName(newName), cloned.Name);
 
-                var aresult = await dialog.ShowAsync(false);
+                _ = await dialog.ShowAsync(false);
 
                 if (dialog.DidComplete)
                 {
@@ -638,6 +633,10 @@ namespace XTMF.Gui.UserControls
                         Model.RefreshModelSystems();
                     }
                 }
+            }
+            else
+            {
+                MessageBox.Show(GetWindow(), "A model system was not selected to copy.", "Unable to Paste Model System", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -978,7 +977,7 @@ namespace XTMF.Gui.UserControls
                     _session = session;
                 }
 
-                public IModelSystemStructure ModelSystemStructure { get; }
+                public IModelSystemStructure ModelSystemStructure { get; private set; }
 
                 public string Name => _projectModelSystem.Name;
 
@@ -1062,6 +1061,12 @@ namespace XTMF.Gui.UserControls
                 internal bool ExportModelSystem(string fileName, ref string error)
                 {
                     return _session.ExportModelSystem(RealIndex, fileName, ref error);
+                }
+
+                internal void EnsureIsLoaded()
+                {
+                    ((Project)_project).EnsureModelSystemLoaded(_projectModelSystem);
+                    ModelSystemStructure = _projectModelSystem.Root;
                 }
             }
 
