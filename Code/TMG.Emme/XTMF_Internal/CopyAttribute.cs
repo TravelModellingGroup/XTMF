@@ -56,7 +56,7 @@ namespace TMG.Emme.XTMF_Internal
 
         const string ToolName = "tmg.XTMF_internal.copy_attribute";
 
-        [RunParameter("Emme Attribute Domain Type", "LINK", "Options: LINK, NODE, TURN, TRANSIT_LINE, TRANSIT_SEGMENT")]
+        [RunParameter("Attribute Domain Type", DomainTypes.LINK, "Domain types: LINK, NODE, TURN, TRANSIT_LINE, TRANSIT_SEGMENT")]
         public DomainTypes Domain;
 
         [RunParameter("Attribute to copy from", "", "Attribute to copy from eg. @tvph")]
