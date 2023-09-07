@@ -16,7 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using Newtonsoft.Json;
 using Datastructure;
 using System;
 using System.Globalization;
@@ -101,8 +100,8 @@ namespace TMG.Emme.XTMF_Internal
         {
             return new[]
             {
-                new ModellerControllerParameter("to_scenario_number", FromScenarioNumber.ToString()),
-                new ModellerControllerParameter("from_scenario_numbers", ToScenarioNumber.ToString()),
+                new ModellerControllerParameter("to_scenario_number", ToScenarioNumber.ToString()),
+                new ModellerControllerParameter("from_scenario_numbers", FromScenarioNumber.ToString()),
                 new ModellerControllerParameter("to_attribute", ToAttribute),
                 new ModellerControllerParameter("from_attribute", FromAttribute),
                 new ModellerControllerParameter("domain", Enum.GetName(Domain)),
