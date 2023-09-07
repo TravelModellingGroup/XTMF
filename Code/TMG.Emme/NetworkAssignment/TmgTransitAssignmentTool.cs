@@ -39,6 +39,10 @@ namespace TMG.Emme.NetworkAssignment
         [Parameter("Effective Headway Attribute", "@ehdw", "The name of the attribute to use for the effective headway")]
         public string EffectiveHeadwayAttributeId;
 
+        [Parameter("Auto Time Result", "", "Auto time result from the last traffic assignment. The name of the attribute to store auto time. Leave empty to use Emme's" + 
+                    " default auto time result attribute.")]
+        public string AutoTimeAttributeId;
+
         //-------------------------------------------
 
         [RunParameter("Effective Headway Slope", 0.5f, "")]
@@ -140,6 +144,8 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("xtmf_SegmentFareAttributeIdString", string.Join(",", from c in Classes
                                                                  select c.SegmentFareAttribute)),
                 new ModellerControllerParameter("EffectiveHeadwayAttributeId",EffectiveHeadwayAttributeId.ToString()),
+                new ModellerControllerParameter("AutoTimeAttributeId",AutoTimeAttributeId.ToString()),
+
                 new ModellerControllerParameter("EffectiveHeadwaySlope",Controller.ToEmmeFloat(EffectiveHeadwaySlope)),
                 new ModellerControllerParameter("AssignmentPeriod",Controller.ToEmmeFloat(RepresentativeHourFactor)),
                 new ModellerControllerParameter("Iterations",MaxIterations.ToString()),
@@ -201,6 +207,7 @@ namespace TMG.Emme.NetworkAssignment
                                         "\"" + (string.Join(",", from c in Classes
                                                                  select c.SegmentFareAttribute)).Replace('"', '\'') + "\"",
                                         EffectiveHeadwayAttributeId,
+                                        AutoTimeAttributeId,
                                         Controller.ToEmmeFloat(EffectiveHeadwaySlope),
                                         Controller.ToEmmeFloat(RepresentativeHourFactor),
                                         MaxIterations,

@@ -42,7 +42,7 @@ namespace Datastructure
             return (first.Start == other.Start) & (first.Stop == other.Stop);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Range other)
             {
@@ -78,7 +78,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="i">The int value to check</param>
         /// <returns>True IFF i is less than Start and i is less than Stop.</returns>
-        public bool ContainsExcusive(int i)
+        public bool ContainsExclusive(int i)
         {
             return (i > Start) & (i < Stop);
         }
@@ -88,7 +88,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="valueToFind">The value to check for</param>
         /// <returns>True if the value is contained within the range</returns>
-        public bool ContainsExcusive(float valueToFind)
+        public bool ContainsExclusive(float valueToFind)
         {
             return (valueToFind > Start) & (valueToFind < Stop);
         }

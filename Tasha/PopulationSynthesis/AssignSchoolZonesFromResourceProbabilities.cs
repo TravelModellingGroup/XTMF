@@ -24,6 +24,8 @@ using Tasha.Common;
 using Datastructure;
 using TMG.Input;
 using TMG.Functions;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -75,20 +77,41 @@ namespace Tasha.PopulationSynthesis
         [SubModelInformation(Required = false, Description = "The location to save the remainders for the final iteration.")]
         public FileLocation SaveUniversitySchoolProbabilities;
 
+        private Random _random;
+
         public void Load()
         {
+            _random = new Random(RandomSeed);
             // Get our resources
-            ElementarySchoolProbabilities = ElementarySchoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
-            HighSchoolProbabilities = HighschoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
-            UniversityProbabilities = UniversityProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
-
+            Parallel.Invoke(
+            () =>
+            {
+                ElementarySchoolProbabilities = ElementarySchoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
+                _elementryProbabilities = GetRowTotals(ElementarySchoolProbabilities);
+            }, () =>
+            {
+                HighSchoolProbabilities = HighschoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
+                _highschoolProbabilities = GetRowTotals(HighSchoolProbabilities);
+            }, () =>
+            {
+                UniversityProbabilities = UniversityProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
+                _universityProperties = GetRowTotals(UniversityProbabilities);
+            });
             // create replicated versions for our per iteration needs
-            CurrentElementarySchoolProbabilities = Replicate(ElementarySchoolProbabilities);
-            CurrentHighSchoolProbabilities = Replicate(HighSchoolProbabilities);
-            CurrentUniversityProbabilities = Replicate(UniversityProbabilities);
-
+            if (!WithReplacement)
+            {
+                CurrentElementarySchoolProbabilities = Replicate(ElementarySchoolProbabilities);
+                CurrentHighSchoolProbabilities = Replicate(HighSchoolProbabilities);
+                CurrentUniversityProbabilities = Replicate(UniversityProbabilities);
+            }
             // Gather the zone system for use from the root module.
             Zones = Root.ZoneSystem.ZoneArray;
+        }
+
+        private static float[] GetRowTotals(SparseTwinIndex<float> matrix)
+        {
+            var flat = matrix.GetFlatData();
+            return flat.Select(a => VectorHelper.Sum(a, 0, a.Length)).ToArray();
         }
 
         /// <summary>
@@ -104,28 +127,32 @@ namespace Tasha.PopulationSynthesis
             var flatBase = baseData.GetFlatData();
             for (int i = 0; i < flatBase.Length; i++)
             {
-                var retRow = flatRet[i];
-                var baseRow = flatBase[i];
-                for (int j = 0; j < retRow.Length; j++)
-                {
-                    retRow[j] = baseRow[j];
-                }
+                Array.Copy(flatBase[i], flatRet[i], flatRet.Length);
             }
             return ret;
         }
 
         [RunParameter("With Replacement", false, "Should the distributions be sampled with, or without replacement.")]
         public bool WithReplacement;
+        private float[] _elementryProbabilities;
+        private float[] _highschoolProbabilities;
+        private float[] _universityProperties;
+
+        [RunParameter("New Random Per Person", true, "Should we regenerate the random seed per person or per iteration?")]
+        public bool NewRandomSeedPerPerson;
 
         public IZone ProduceResult(ITashaPerson person)
         {
-            if(AlreadyHasExternalZone(person))
+            if (AlreadyHasExternalZone(person))
             {
                 return person.SchoolZone;
             }
             // Gather the base data and create our random generator
             var household = person.Household;
-            var random = new Random(RandomSeed * household.HouseholdId);
+            if (NewRandomSeedPerPerson)
+            {
+                _random = new Random(RandomSeed * household.HouseholdId);
+            }
             var probabilities = GetDataForAge(person.Age);
             var householdZone = household.HomeZone.ZoneNumber;
             if (Root.ZoneSystem.ZoneArray.GetFlatIndex(householdZone) < 0)
@@ -134,12 +161,12 @@ namespace Tasha.PopulationSynthesis
             }
             if (!WithReplacement)
             {
-                IZone ret = PickSchoolZone(householdZone, probabilities, random, person.ExpansionFactor);
+                IZone ret = PickSchoolZone(person, householdZone, probabilities, _random, person.ExpansionFactor);
                 // If a zone is successfully found, return it
                 if (ret != null) return ret;
             }
             // If we couldn't find a zone we need to use our backup plan and just generate out of the original distribution
-            return GenerateFromOriginalDistribution(person, random, householdZone);
+            return GenerateFromOriginalDistribution(person, _random, householdZone);
         }
 
         private bool AlreadyHasExternalZone(ITashaPerson person)
@@ -159,15 +186,10 @@ namespace Tasha.PopulationSynthesis
         private IZone GenerateFromOriginalDistribution(ITashaPerson person, Random random, int householdZone, bool deapSearch = true)
         {
             var originalData = GetOriginalDataForAge(person.Age);
-            var data = GetHouseholdRow(householdZone, originalData);
+            (var data, var total) = GetHouseholdRow(householdZone, originalData);
             if (data == null)
             {
                 return null;
-            }
-            double total = 0.0;
-            for (int i = 0; i < data.Length; i++)
-            {
-                total += data[i];
             }
             if (total <= 0)
             {
@@ -191,7 +213,8 @@ namespace Tasha.PopulationSynthesis
                     return Zones.GetFlatData()[i];
                 }
             }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there were no zones with any probability!" +
+                $" HouseholdZone = {person.Household.HomeZone.ZoneNumber}, Age={person.Age}");
         }
 
         /// <summary>
@@ -240,18 +263,12 @@ namespace Tasha.PopulationSynthesis
         /// <param name="personExpansionFactor"></param>
         /// <exception cref="XTMFRuntimeException">If the household zone does not have data defined for it.</exception>
         /// <returns>A zone to use for school, null if no options exist</returns>
-        private IZone PickSchoolZone(int householdZone, SparseTwinIndex<float> probabilities, Random random, float personExpansionFactor)
+        private IZone PickSchoolZone(ITashaPerson person, int householdZone, SparseTwinIndex<float> probabilities, Random random, float personExpansionFactor)
         {
-            float[] data = GetHouseholdRow(householdZone, probabilities);
+            (float[] data, float total) = GetHouseholdRow(householdZone, (probabilities, null));
             if (data == null)
             {
                 throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find school choice data for household zone number " + householdZone + " !");
-            }
-            double total;
-            total = VectorHelper.Sum(data, 0, data.Length);
-            if (total <= 0)
-            {
-                return null;
             }
             var count = (float)random.NextDouble() * total;
             int countIndex = -1;
@@ -290,7 +307,8 @@ namespace Tasha.PopulationSynthesis
                     return Zones.GetFlatData()[i];
                 }
             }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
+            // If there was not enough space, grab from the original distribution
+            return null;
         }
 
         /// <summary>
@@ -299,15 +317,17 @@ namespace Tasha.PopulationSynthesis
         /// <param name="householdZone">The sparse space to retrieve</param>
         /// <param name="probabilities">The probability table</param>
         /// <returns>The row of data, null if it doesn't exist</returns>
-        private float[] GetHouseholdRow(int householdZone, SparseTwinIndex<float> probabilities)
+        private (float[] probabilities, float total) GetHouseholdRow(int householdZone, (SparseTwinIndex<float> probabilities, float[] rowTotals) data)
         {
-            var index = probabilities.GetFlatIndex(householdZone);
+            var index = data.probabilities.GetFlatIndex(householdZone);
             if (index < 0)
             {
                 throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any data for a zone numbered '" + householdZone
                     + "'.  Please make sure that this zone actually exists.");
             }
-            return probabilities.GetFlatData()[index];
+            var row = data.probabilities.GetFlatData()[index];
+            return (row,
+                data.rowTotals is not null ? data.rowTotals[index] : VectorHelper.Sum(row, 0, row.Length));
         }
 
         /// <summary>
@@ -333,17 +353,17 @@ namespace Tasha.PopulationSynthesis
         /// </summary>
         /// <param name="age">The age of the person to lookup for.</param>
         /// <returns>The probability distribution for the age.</returns>
-        private SparseTwinIndex<float> GetOriginalDataForAge(int age)
+        private (SparseTwinIndex<float> Probabilities, float[] Totals) GetOriginalDataForAge(int age)
         {
             if (ElementryRange.Contains(age))
             {
-                return ElementarySchoolProbabilities;
+                return (ElementarySchoolProbabilities, _elementryProbabilities);
             }
             if (HighschoolRange.Contains(age))
             {
-                return HighSchoolProbabilities;
+                return (HighSchoolProbabilities, _highschoolProbabilities);
             }
-            return UniversityProbabilities;
+            return (UniversityProbabilities, _universityProperties);
         }
 
 

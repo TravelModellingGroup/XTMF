@@ -140,15 +140,7 @@ namespace Tasha.Common
 
         internal static void ReleaseTripPool()
         {
-            try
-            {
-                while (Trips.TryDequeue(out Trip t))
-                {
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            Trips = new ConcurrentQueue<Trip>();
         }
 
         #region ITrip Members

@@ -22,7 +22,7 @@ using System.Collections.Generic;
 namespace Datastructure
 {
     public class Multimap<TK, TV>
-        : AvlTree<Pair<TK, TV>> where TK : IComparable<TK>
+        : AvlTree<Pair<TK, TV?>> where TK : IComparable<TK>
     {
         /// <summary>
         /// This is how you are supposed to access inserting
@@ -30,16 +30,16 @@ namespace Datastructure
         /// </summary>
         /// <param name="k"></param>
         /// <returns></returns>
-        public TV this[TK k]
+        public TV? this[TK k]
         {
             get
             {
-                return Get( k );
+                return Get(k);
             }
 
             set
             {
-                Set( k, value );
+                Set(k, value);
             }
         }
 
@@ -48,19 +48,19 @@ namespace Datastructure
         /// </summary>
         /// <param name="item">What we are looking for</param>
         /// <returns>True if it is found, false otherwise</returns>
-        public TV Get(TK item)
+        public TV? Get(TK item)
         {
-            if ( item == null ) return default( TV );
+            if (item == null) return default;
             IncreaseReaders();
             var current = Root;
-            while ( current != null )
+            while (current != null)
             {
-                var dif = item.CompareTo( current.Data.First );
-                if ( dif < 0 )
+                var dif = item.CompareTo(current.Data.First);
+                if (dif < 0)
                 {
                     current = current.Left;
                 }
-                else if ( dif > 0 )
+                else if (dif > 0)
                 {
                     current = current.Right;
                 }
@@ -70,26 +70,26 @@ namespace Datastructure
                 }
             }
             DecreaseReaders();
-            return ( current != null ? current.Data.Second : default( TV ) );
+            return (current != null ? current.Data.Second : default);
         }
 
         /// <summary>
         /// Checks to see if the data exists in the AST
         /// </summary>
         /// <returns>True if it is found, false otherwise</returns>
-        public bool Get(TK key, ref TV value)
+        public bool Get(TK key, ref TV? value)
         {
-            if ( key == null ) return false;
+            if (key == null) return false;
             IncreaseReaders();
             var current = Root;
-            while ( current != null )
+            while (current != null)
             {
-                var dif = key.CompareTo( current.Data.First );
-                if ( dif < 0 )
+                var dif = key.CompareTo(current.Data!.First);
+                if (dif < 0)
                 {
                     current = current.Left;
                 }
-                else if ( dif > 0 )
+                else if (dif > 0)
                 {
                     current = current.Right;
                 }
@@ -99,9 +99,9 @@ namespace Datastructure
                 }
             }
             DecreaseReaders();
-            if ( current != null )
+            if (current is not null)
             {
-                value = current.Data.Second;
+                value = current.Data!.Second;
             }
             return false;
         }
@@ -110,7 +110,7 @@ namespace Datastructure
         /// Checks to see if the data exists in the AST
         /// </summary>
         /// <returns>True if it is found, false otherwise</returns>
-        public void Set(TK key, TV value)
+        public void Set(TK key, TV? value)
         {
             if (key == null)
             {
@@ -119,17 +119,17 @@ namespace Datastructure
             var path = new Stack<Node>();
             lock (WriterLock)
             {
-                Node current = Root, prev = null;
-                while ( current != null )
+                Node? current = Root, prev = null;
+                while (current != null)
                 {
                     prev = current;
-                    path.Push( current );
-                    var dif = key.CompareTo( current.Data.First );
-                    if ( dif < 0 )
+                    path.Push(current);
+                    var dif = key.CompareTo(current.Data.First);
+                    if (dif < 0)
                     {
                         current = current.Left;
                     }
-                    else if ( dif > 0 )
+                    else if (dif > 0)
                     {
                         current = current.Right;
                     }
@@ -139,16 +139,20 @@ namespace Datastructure
                     }
                 }
 
-                if ( current == null )
+                if (current == null)
                 {
-                    var n = new Node {Height = 0};
-                    n.Left = n.Right = null;
-                    n.Data = new Pair<TK, TV>(key, value);
+                    var n = new Node
+                    {
+                        Left = null,
+                        Right = null,
+                        Height = 0,
+                        Data = new (key, value)
+                    };
                     WaitForReaders();
                     IncreaseCount();
-                    if ( prev != null )
+                    if (prev != null)
                     {
-                        if ( key.CompareTo( prev.Data.First ) < 0 )
+                        if (key.CompareTo(prev.Data.First) < 0)
                         {
                             prev.Left = n;
                         }
@@ -156,7 +160,7 @@ namespace Datastructure
                         {
                             prev.Right = n;
                         }
-                        BalanceTree( path );
+                        BalanceTree(path);
                     }
                     else
                     {
@@ -166,7 +170,7 @@ namespace Datastructure
                 else
                 {
                     // if we found the item
-                    current.Data = new Pair<TK, TV>(key, value);
+                    current.Data = new (key, value);
                 }
                 // We need to make sure all of the nodes memory is now shared between processors
                 System.Threading.Thread.MemoryBarrier();

@@ -23,17 +23,17 @@ namespace Datastructure
 {
     public sealed class SparseTriIndex<T>
     {
-        private T[][][] Data;
+        private T?[][][] Data;
         private SparseIndexing Indexes;
 
-        public SparseTriIndex(SparseIndexing indexes, T[][][] data = null)
+        public SparseTriIndex(SparseIndexing indexes, T?[][][]? data = null)
         {
             Indexes = indexes;
-            if(data != null)
+            if(data is not null)
             {
                 Data = data;
             }
-            GenerateStructure();
+            Data = GenerateStructure();
         }
 
         /// <summary>
@@ -41,10 +41,10 @@ namespace Datastructure
         /// </summary>
         private SparseTriIndex()
         {
-            Data = new T[0][][];
+            Data = Array.Empty<T[][]>();
         }
 
-        public T this[int o, int d, int t]
+        public T? this[int o, int d, int t]
         {
             get
             {
@@ -55,7 +55,7 @@ namespace Datastructure
                 else
                 {
                     // return null / whatever the closest thing to null is
-                    return default(T);
+                    return default;
                 }
             }
 
@@ -87,7 +87,7 @@ namespace Datastructure
                 var subindexLength = indexes.Indexes[i].SubIndex.Indexes.Length;
                 for(var j = 0; j < subindexLength; j++)
                 {
-                    subIndexes[j].SubIndex.Indexes = third.Indexing.Indexes.Clone() as SparseSet[];
+                    subIndexes[j].SubIndex.Indexes = (third.Indexing.Indexes.Clone() as SparseSet[])!;
                 }
             }
             return new SparseTriIndex<T>(indexes);
@@ -123,66 +123,37 @@ namespace Datastructure
 
         public SparseTriIndex<TKey> CreateSimilarArray<TKey>()
         {
-            if(Data.Length == 0)
-            {
-                return new SparseTriIndex<TKey>();
-            }
-            return new SparseTriIndex<TKey>(Indexes);
+            return Data.Length == 0 ? new SparseTriIndex<TKey>() : new SparseTriIndex<TKey>(Indexes);
         }
 
-        public T[][][] GetFlatData()
+        public T?[][][] GetFlatData()
         {
             return Data;
         }
 
         public int GetFlatIndex(int sparseSpaceIndex)
         {
-            if (TansformO(Indexes.Indexes, ref sparseSpaceIndex, out SparseSet unused))
-            {
-                // the now transformed sparse space index for O
-                return sparseSpaceIndex;
-            }
-            return -1;
+            return TansformO(Indexes.Indexes, ref sparseSpaceIndex, out SparseSet unused) ? sparseSpaceIndex : -1;
         }
 
         public int GetFlatIndex(int sparseSpaceIndexO, int sparseSpaceIndexD)
         {
-            if(GetTransformedIndexes(ref sparseSpaceIndexO, ref sparseSpaceIndexD))
-            {
-                // the now transformed sparse space index for D
-                return sparseSpaceIndexD;
-            }
-            return -1;
+            return GetTransformedIndexes(ref sparseSpaceIndexO, ref sparseSpaceIndexD) ? sparseSpaceIndexD : -1;
         }
 
         public bool GetFlatIndex(ref int sparseSpaceIndexO, ref int sparseSpaceIndexD)
         {
-            if(GetTransformedIndexes(ref sparseSpaceIndexO, ref sparseSpaceIndexD))
-            {
-                // the now transformed sparse space index for D
-                return true;
-            }
-            return false;
+            return GetTransformedIndexes(ref sparseSpaceIndexO, ref sparseSpaceIndexD);
         }
 
         public int GetFlatIndex(int sparseSpaceIndexI, int sparseSpaceIndexJ, int sparseSpaceIndexK)
         {
-            if(GetTransformedIndexes(ref sparseSpaceIndexI, ref sparseSpaceIndexJ, ref sparseSpaceIndexK))
-            {
-                // the now transformed sparse space index for D
-                return sparseSpaceIndexK;
-            }
-            return -1;
+            return GetTransformedIndexes(ref sparseSpaceIndexI, ref sparseSpaceIndexJ, ref sparseSpaceIndexK) ? sparseSpaceIndexK : -1;
         }
 
         public bool GetFlatIndex(ref int sparseSpaceIndexI, ref int sparseSpaceIndexJ, ref int sparseSpaceIndexK)
         {
-            if(GetTransformedIndexes(ref sparseSpaceIndexI, ref sparseSpaceIndexJ, ref sparseSpaceIndexK))
-            {
-                // the now transformed sparse space index for D
-                return true;
-            }
-            return false;
+            return GetTransformedIndexes(ref sparseSpaceIndexI, ref sparseSpaceIndexJ, ref sparseSpaceIndexK);
         }
 
         public IEnumerable<int> ValidIndexes()
@@ -343,12 +314,14 @@ namespace Datastructure
             return meta;
         }
 
-        private void GenerateStructure()
+        private T?[][][] GenerateStructure()
         {
-            var malloc = (Data == null);
-            ProcessFirst(malloc);
-            ProcessSecond(malloc);
-            ProcessThird(malloc);
+            T?[][][] data;
+            var malloc = (Data is null);
+            data = ProcessFirst(malloc);
+            ProcessSecond(malloc, data);
+            ProcessThird(malloc, data);
+            return data; 
         }
 
         private bool GetTransformedIndexes(ref int o, ref int d)
@@ -378,7 +351,7 @@ namespace Datastructure
             return false;
         }
 
-        private void ProcessFirst(bool malloc)
+        private T?[][][] ProcessFirst(bool malloc)
         {
             var totalFirst = 0;
 
@@ -391,9 +364,10 @@ namespace Datastructure
             {
                 Data = new T[totalFirst][][];
             }
+            return Data;
         }
 
-        private void ProcessSecond(bool malloc)
+        private void ProcessSecond(bool malloc, T?[][][] data)
         {
             var currentDataPlace = 0;
             // Now make the matrix's second rows
@@ -413,13 +387,13 @@ namespace Datastructure
                     // malloc the data
                     for(var k = Indexes.Indexes[iIndex].Start; k <= Indexes.Indexes[iIndex].Stop; k++)
                     {
-                        Data[currentDataPlace++] = new T[totalSecond][];
+                        data[currentDataPlace++] = new T[totalSecond][];
                     }
                 }
             }
         }
 
-        private void ProcessThird(bool malloc)
+        private void ProcessThird(bool malloc, T?[][][] data)
         {
             var iLength = Indexes.Indexes.Length;
             for(var iIndex = 0; iIndex < iLength; iIndex++)
@@ -445,7 +419,7 @@ namespace Datastructure
                             currentDataPlace = 0;
                             for(var k = Indexes.Indexes[iIndex].SubIndex.Indexes[j].Start; k <= Indexes.Indexes[iIndex].SubIndex.Indexes[j].Stop; k++)
                             {
-                                Data[i + Indexes.Indexes[iIndex].BaseLocation][jOffset + currentDataPlace++] = new T[totalThird];
+                                data[i + Indexes.Indexes[iIndex].BaseLocation][jOffset + currentDataPlace++] = new T[totalThird];
                             }
                         }
                         jOffset += currentDataPlace;

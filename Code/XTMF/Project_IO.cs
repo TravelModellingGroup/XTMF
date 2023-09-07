@@ -41,7 +41,7 @@ namespace XTMF
                 return true;
             }
 
-            _ProjectModelSystems.Clear();
+            ProjectModelSystems.Clear();
             if (!Directory.Exists(_DirectoryLocation) || !File.Exists(fileLocation))
             {
                 _IsLoaded = true;
@@ -80,7 +80,7 @@ namespace XTMF
                             case "DetachedModelSystem":
                                 {
                                     var guid = child.Attributes["GUID"]?.InnerText ?? string.Empty;
-                                    if (LoadDetachedModelSystem(_DirectoryLocation, guid, out var pms))
+                                    if (LoadDetachedModelSystemHeader(child, guid, out var pms))
                                     {
                                         toLoad[i] = pms;
                                     }
@@ -89,8 +89,7 @@ namespace XTMF
                         }
                     });
                     var validToLoad = toLoad.Select(load => load).Where(load => load != null).ToList();
-                    _ProjectModelSystems.AddRange(validToLoad);
-
+                    ProjectModelSystems.AddRange(validToLoad);
                     _IsLoaded = true;
                     return true;
                 }
@@ -105,6 +104,25 @@ namespace XTMF
             return false;
         }
 
+        private bool LoadDetachedModelSystemHeader(XmlNode node, string guid, out ProjectModelSystem pms)
+        {
+            var lastModifiedText = node.Attributes["LastModified"]?.InnerText;
+            var description = node.Attributes["Description"]?.InnerText;
+            DateTime.TryParse(lastModifiedText, out var lastModified);
+            pms = new ProjectModelSystem()
+            {
+                Root = null,
+                LastModified = lastModified,
+                GUID = guid,
+                Description = description ?? string.Empty,
+                Name = node.Attributes["Name"]?.InnerText ?? "No Name",
+                LinkedParameters = null,
+                RegionDisplays = null,
+                IsLoaded = false,
+            };
+            return true;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -112,8 +130,9 @@ namespace XTMF
         /// <param name="guid"></param>
         /// <param name="pms"></param>
         /// <returns></returns>
-        private bool LoadDetachedModelSystem(string directory, string guid, out ProjectModelSystem pms)
+        private bool LoadDetachedModelSystem(string directory, ProjectModelSystem pms)
         {
+            var guid = pms.GUID;
             var msPath = Path.Combine(_DirectoryLocation, "._ModelSystems", $"Project.ms-{guid}.xml");
             if (!File.Exists(msPath))
             {
@@ -132,12 +151,7 @@ namespace XTMF
             }
             XmlDocument msDoc = new XmlDocument();
             msDoc.Load(msPath);
-            pms = new ProjectModelSystem()
-            {
-                GUID = guid
-            };
             var child = msDoc["Root"] ?? msDoc["AdvancedModelSystem"];
-            bool hasDescription = false;
             var attributes = child.Attributes;
             if (attributes != null)
             {
@@ -145,8 +159,10 @@ namespace XTMF
                 {
                     if (attribute.Name == "Description")
                     {
-                        hasDescription = true;
-                        pms.Description = attribute.InnerText;
+                        if (string.IsNullOrEmpty(pms.Description))
+                        {
+                            pms.Description = attribute.InnerText;
+                        }
                         break;
                     }
                 }
@@ -155,7 +171,7 @@ namespace XTMF
             if (child.HasChildNodes)
             {
                 ModelSystemStructure ms = XTMF.ModelSystemStructure.Load(child, _Configuration);
-                if (ms != null)
+                if (ms is not null)
                 {
                     pms.Root = ms;
                 }
@@ -166,9 +182,10 @@ namespace XTMF
                 return false;
             }
 
-            if (!hasDescription)
+            if (pms.Root is ModelSystemStructure mss)
             {
-                pms.Description = pms.Root.Description;
+                mss.Name = pms.Name;
+                mss.Description = pms.Description;
             }
 
             // now do a second pass for Linked parameters, since we need the current model system to actually link things
@@ -194,6 +211,7 @@ namespace XTMF
                         break;
                 }
             }
+            pms.IsLoaded = true;
             return true;
         }
 
@@ -209,7 +227,8 @@ namespace XTMF
         {
             pms = new ProjectModelSystem()
             {
-                GUID = guid
+                GUID = guid,
+
             };
             bool hasDescription = false;
             var attributes = child.Attributes;
@@ -465,6 +484,7 @@ namespace XTMF
         /// <param name="mss"></param>
         private void WriteRegions(XmlTextWriter writer, List<IRegionDisplay> regionDisplays, IModelSystemStructure mss)
         {
+            if (regionDisplays is null) return;
             foreach (var regionDisplay in regionDisplays)
             {
                 writer.WriteStartElement("RegionDisplay");
@@ -546,12 +566,6 @@ namespace XTMF
         /// <returns></returns>
         public bool Save(string path, ref string error)
         {
-            // We need this in case it is a new project that has no model systems
-            if (_ProjectModelSystems == null)
-            {
-                _ProjectModelSystems = new List<ProjectModelSystem>();
-            }
-
             var dirName = Path.GetDirectoryName(path);
             if (dirName == null)
             {
@@ -581,7 +595,7 @@ namespace XTMF
 
             try
             {
-                List<Task> writeTasks = new List<Task>(_ProjectModelSystems.Count);
+                List<Task> writeTasks = new List<Task>(ProjectModelSystems.Count);
                 using (XmlTextWriter writer = new XmlTextWriter(tempFileName, Encoding.Unicode))
                 {
                     writer.Formatting = Formatting.Indented;
@@ -593,13 +607,20 @@ namespace XTMF
                         writer.WriteAttributeString("Description", Description);
                     }
 
-                    foreach (var pms in _ProjectModelSystems)
+                    foreach (var pms in ProjectModelSystems)
                     {
                         writer.WriteStartElement("DetachedModelSystem");
                         writer.WriteAttributeString("Name", pms.Name);
                         writer.WriteAttributeString("Description", pms.Description);
                         writer.WriteAttributeString("GUID", pms.GUID);
+                        writer.WriteAttributeString("LastModified", pms.LastModified.ToString("F"));
                         writer.WriteEndElement();
+                        // There is no need to re-write a model system
+                        // that has not been loaded
+                        if (!pms.IsLoaded)
+                        {
+                            continue;
+                        }
                         var ms = pms;
                         writeTasks.Add(Task.Run(() =>
                         {

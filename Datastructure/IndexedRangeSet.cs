@@ -55,13 +55,13 @@ namespace Datastructure
             }
         }
 
-        public static bool TryParse(string rangeString, out IndexedRangeSet output)
+        public static bool TryParse(string rangeString, out IndexedRangeSet? output)
         {
-            string error = null;
+            string? error = null;
             return TryParse(ref error, rangeString, out output);
         }
 
-        public static bool TryParse(ref string error, string rangeString, out IndexedRangeSet output)
+        public static bool TryParse(ref string? error, string rangeString, out IndexedRangeSet? output)
         {
             var tempRange = new List<Range>();
             var tempIndexes = new List<int>();

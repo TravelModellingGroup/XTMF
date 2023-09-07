@@ -517,6 +517,7 @@ namespace XTMF.Gui.UserControls
         {
             if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
             {
+                selected.EnsureIsLoaded();
                 MainWindow.Us.ClipboardModel = selected;
             }
         }
@@ -614,17 +615,11 @@ namespace XTMF.Gui.UserControls
             if (MainWindow.Us.ClipboardModel != null)
             {
                 var cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
-                /* var sr = new StringRequest("Paste: Model System's Name?",
-                     newName => { return Session.ValidateModelSystemName(newName); })
-                 {
-                     Owner = GetWindow()
-                 }; */
-
 
                 var dialog = new StringRequestDialog(RootDialogHost, "Paste: Model System's Name?",
                     newName => Session.ValidateModelSystemName(newName), cloned.Name);
 
-                var aresult = await dialog.ShowAsync(false);
+                _ = await dialog.ShowAsync(false);
 
                 if (dialog.DidComplete)
                 {
@@ -638,6 +633,10 @@ namespace XTMF.Gui.UserControls
                         Model.RefreshModelSystems();
                     }
                 }
+            }
+            else
+            {
+                MessageBox.Show(GetWindow(), "A model system was not selected to copy.", "Unable to Paste Model System", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -874,9 +873,9 @@ namespace XTMF.Gui.UserControls
 
             public List<PreviousRun> PreviousRuns = new List<PreviousRun>();
 
-            private IProject Project;
+            private Project Project;
 
-            public ProjectModel(IProject project, ProjectEditingSession session)
+            public ProjectModel(Project project, ProjectEditingSession session)
             {
                 Session = session;
                 Project = project;
@@ -946,9 +945,9 @@ namespace XTMF.Gui.UserControls
                 {
                     lock (ContainedModelSystems)
                     {
-                        ContainedModelSystems.AddRange(from ms in Project.ModelSystemStructure
-                                                       orderby ms.Name
-                                                       select new ContainedModelSystemModel(Session, ms, Project));
+                        ContainedModelSystems.AddRange(Enumerable.Range(0, Project.ProjectModelSystems.Count)
+                            .OrderBy(index => Project.ProjectModelSystems[index].Name)
+                            .Select(index => new ContainedModelSystemModel(Session, Project.ProjectModelSystems[index], index, Project)));
                     }
 
                     ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
@@ -966,26 +965,27 @@ namespace XTMF.Gui.UserControls
 
                 private readonly IProject _project;
                 private readonly ProjectEditingSession _session;
+                private readonly ProjectModelSystem _projectModelSystem;
 
-                public ContainedModelSystemModel(ProjectEditingSession session, IModelSystemStructure ms,
+                public ContainedModelSystemModel(ProjectEditingSession session, ProjectModelSystem pms, int index,
                     IProject project)
                 {
-                    ModelSystemStructure = ms;
-                    RealIndex = ((Project)project).IndexOf(ms);
+                    _projectModelSystem = pms;
+                    ModelSystemStructure = pms.Root;
+                    RealIndex = index;
                     _project = project;
                     _session = session;
-                    FindMissingModules(ms);
                 }
 
-                public IModelSystemStructure ModelSystemStructure { get; }
+                public IModelSystemStructure ModelSystemStructure { get; private set; }
 
-                public string Name => ModelSystemStructure.Name;
+                public string Name => _projectModelSystem.Name;
 
                 public string StatusText => IsMissingModules
                     ? "This module requires additional setup, or a required module is not present."
                     : null;
 
-                public string Description => ModelSystemStructure.Description;
+                public string Description => _projectModelSystem.Description;
 
                 public bool IsMissingModules { get; private set; }
 
@@ -999,8 +999,8 @@ namespace XTMF.Gui.UserControls
                 {
                     get
                     {
-                        return ((Project)_project).GetLastModified(ModelSystemStructure) is DateTime lm 
-                            && lm.Year > 1 ? lm.ToString("dddd, dd MMMM yyyy") : "N/A";                        
+                        var lm = _projectModelSystem.LastModified;
+                        return lm.Year > 1 ? lm.ToString("dddd, dd MMMM yyyy") : "N/A";
                     }
                 }
 
@@ -1008,8 +1008,8 @@ namespace XTMF.Gui.UserControls
                 {
                     get
                     {
-                        return ((Project)_project).GetLastModified(ModelSystemStructure) is DateTime lm
-                            && lm.Year > 1 ? lm.ToString("H:mm tt") : String.Empty;
+                        var lm = _projectModelSystem.LastModified;
+                        return lm.Year > 1 ? lm.ToString("H:mm tt") : String.Empty;
                     }
                 }
 
@@ -1040,63 +1040,33 @@ namespace XTMF.Gui.UserControls
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
                 }
 
-                /// <summary>
-                /// </summary>
-                /// <param name="ms"></param>
-                private void FindMissingModules(IModelSystemStructure ms)
-                {
-                    var loadTask = Task.Run(() =>
-                    {
-                        try
-                        {
-                            if (ms.Type == null && ms.Required && !ms.IsCollection)
-                            {
-                                IsMissingModules = true;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                        }
-                    });
-
-                    if (ms.Children != null)
-                    {
-                        foreach (var subModule in ms.Children)
-                        {
-                            if (ms is IModelSystemStructure2 ms2)
-                            {
-                                if (ms2.IsDisabled)
-                                {
-                                    continue;
-                                }
-                            }
-
-                            FindMissingModules(subModule);
-                        }
-                    }
-                }
-
                 internal bool SetName(string newName, ref string error)
                 {
-                    var ret = _session.RenameModelSystem(ModelSystemStructure, newName, ref error);
+                    var ret = _session.RenameModelSystem(_projectModelSystem, newName, ref error);
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
                     return ret;
                 }
 
                 internal bool CloneModelSystem(string name, ref string error)
                 {
-                    return _session.CloneModelSystemAs(ModelSystemStructure, name, ref error);
+                    return _session.CloneModelSystemAs(_projectModelSystem, name, ref error);
                 }
 
                 internal bool CloneModelSystemToProject(string name, ref string error)
                 {
-                    return _session.CloneModelSystemToProjectAs(ModelSystemStructure, name, ref error);
+                    return _session.CloneModelSystemToProjectAs(_projectModelSystem, name, ref error);
                 }
 
 
                 internal bool ExportModelSystem(string fileName, ref string error)
                 {
                     return _session.ExportModelSystem(RealIndex, fileName, ref error);
+                }
+
+                internal void EnsureIsLoaded()
+                {
+                    ((Project)_project).EnsureModelSystemLoaded(_projectModelSystem);
+                    ModelSystemStructure = _projectModelSystem.Root;
                 }
             }
 

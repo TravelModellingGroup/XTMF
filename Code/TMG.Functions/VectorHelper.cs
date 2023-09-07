@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -46,6 +47,12 @@ namespace TMG.Functions
             where K : struct
         {
             return MemoryMarshal.Cast<T, K>(span);
+        }
+
+        [DoesNotReturn]
+        private static void ThrowVectorsMustBeSameSize()
+        {
+            throw new ArgumentException("Vectors must be the same size!");
         }
 
         /// <summary>
@@ -287,10 +294,6 @@ namespace TMG.Functions
             }
         }
 
-
-
-
-
         /// <summary>
         /// Assign the given value to the whole array
         /// </summary>
@@ -302,7 +305,7 @@ namespace TMG.Functions
             {
                 int i = 0;
                 var vValue = new Vector<float>(value);
-                for (; i < dest.Length - Vector<float>.Count; i++)
+                for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     vValue.CopyTo(dest, i);
                 }

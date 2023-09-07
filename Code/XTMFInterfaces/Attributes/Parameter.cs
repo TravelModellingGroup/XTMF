@@ -64,7 +64,7 @@ namespace XTMF
         {
             Name = name;
             Description = description;
-            string error = null;
+            string? error = null;
             Index = index;
             DefaultValue = ArbitraryParameterParser.ArbitraryParameterParse(type, defaultValue, ref error);
         }
@@ -76,7 +76,7 @@ namespace XTMF
         /// <summary>
         /// The default value for this parameter
         /// </summary>
-        public object DefaultValue { get; set; }
+        public object? DefaultValue { get; set; }
 
         /// <summary>
         /// Describes what this parameter is used for
@@ -88,7 +88,7 @@ namespace XTMF
         /// </summary>
         public string Name { get; set; }
 
-        public string VariableName { get; set; }
+        public string? VariableName { get; set; }
 
         /// <summary>
         /// Gives a quick description of what this parameter is for the debugger

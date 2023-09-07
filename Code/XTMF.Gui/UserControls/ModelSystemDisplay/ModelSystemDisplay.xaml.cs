@@ -545,8 +545,8 @@ namespace XTMF.Gui.UserControls
             {
                 current = VisualTreeHelper.GetParent(current);
             }
-
-            return current as Window;
+            // As a fallback, if there is somehow no window, just use the main one.
+            return (current as Window) ?? MainWindow.Us;
         }
 
         /// <summary>
@@ -1023,7 +1023,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        private async void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
             {
@@ -1055,7 +1055,7 @@ namespace XTMF.Gui.UserControls
 
                         break;
                     case Key.F2:
-                        RenameParameter();
+                        await RenameParameter();
                         e.Handled = true;
                         break;
                     case Key.H:
@@ -1683,9 +1683,50 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void PasteExcelClipboard()
+        {
+            if (Clipboard.ContainsText())
+            {
+                static string[] GetEntries(string originalText)
+                {
+                    return originalText.Contains(Environment.NewLine) ?
+                        originalText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+                        : originalText.Split('\t', StringSplitOptions.RemoveEmptyEntries);
+                }
+                // Get the number of records from the text in the clipboard
+                var text = GetEntries(Clipboard.GetText().Trim());
+                var currentParameterDisplay = GetCurrentParameterDisplay();
+                var startingIndex = currentParameterDisplay.SelectedIndex;
+
+                // Make sure there is enough room
+
+                if(startingIndex + text.Length > currentParameterDisplay.Items.Count)
+                {
+                    MessageBox.Show(GetWindow(), "There is not enough space to paste all of the entries.");
+                    return;
+                }
+                // If we have enough spaces, store to all of the values
+                Session.ExecuteCombinedCommands("Paste List", () =>
+                {
+                    for (int i = 0; i < text.Length; i++)
+                    {
+                        if (!SetParameterValue(currentParameterDisplay.Items[startingIndex + i] as ParameterDisplayModel, text[i]))
+                        {
+                            // if there was an issue, abort (an error message has already been sent)
+                            return;
+                        }
+                    }
+                });
+            }
+            else
+            {
+                MessageBox.Show(GetWindow(), "There was no text data in the clipboard to copy.");
+            }
+        }
+
         /// <summary>
         /// </summary>
-        private async void RenameParameter()
+        private async Task RenameParameter()
         {
             if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
@@ -2000,9 +2041,9 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RenameParameter_Click(object sender, RoutedEventArgs e)
+        private async void RenameParameter_Click(object sender, RoutedEventArgs e)
         {
-            RenameParameter();
+            await RenameParameter();
         }
 
         /// <summary>
@@ -2031,6 +2072,11 @@ namespace XTMF.Gui.UserControls
         private void ShowParameter_Click(object sender, RoutedEventArgs e)
         {
             SetCurrentParameterHidden(false);
+        }
+
+        private void PasteSpreadsheet_Click(object sender, RoutedEventArgs e)
+        {
+            PasteExcelClipboard();
         }
 
         /// <summary>
@@ -2445,8 +2491,8 @@ namespace XTMF.Gui.UserControls
             if (!parameter.SetValue(value, out var error))
             {
                 Dispatcher.BeginInvoke(new Action(() =>
-                    MessageBox.Show(MainWindow.Us,
-                        "We were unable to set the parameter '" + Name + "' with the value '" + value +
+                    MessageBox.Show(GetWindow(),
+                        "We were unable to set the parameter '" + parameter.Name ?? "" + "' with the value '" + value +
                         "'.\r\n" + error, "Unable to Set Parameter",
                         MessageBoxButton.OK, MessageBoxImage.Error)));
                 return false;

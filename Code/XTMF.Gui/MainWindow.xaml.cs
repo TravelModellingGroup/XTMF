@@ -31,11 +31,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media.Animation;
-using ControlzEx.Standard;
 using Dragablz;
-using MahApps.Metro;
 using MahApps.Metro.Controls;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
@@ -44,6 +41,7 @@ using XTMF.Gui.UserControls;
 using XTMF.Gui.UserControls.Help;
 using XTMF.Gui.UserControls.Interfaces;
 using XTMF.Gui.Util;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using Application = System.Windows.Application;
 using FileDialog = Microsoft.Win32.FileDialog;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
@@ -77,11 +75,9 @@ namespace XTMF.Gui
 
         private SettingsPage _settingsPage;
 
-        private bool LaunchUpdate;
-
         private bool _isDialogOpen = false;
 
-        public event EventHandler<EventArgs> ThemeChanged; 
+        public event EventHandler<EventArgs> ThemeChanged;
 
         public MainWindow()
         {
@@ -102,7 +98,7 @@ namespace XTMF.Gui
             WorkspaceProjects = new Dictionary<Project, UserControl>();
             XtmfNotificationIcon.InitializeNotificationIcon();
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline),
-                new FrameworkPropertyMetadata {DefaultValue = 60});
+                new FrameworkPropertyMetadata { DefaultValue = 60 });
         }
 
         public ThemeController ThemeController { get; }
@@ -113,7 +109,7 @@ namespace XTMF.Gui
 
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
-            get => (ActiveEditingSessionDisplayModel) GetValue(EditingDisplayModelProperty);
+            get => (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty);
             set => SetValue(EditingDisplayModelProperty, value);
         }
 
@@ -331,12 +327,12 @@ namespace XTMF.Gui
             }
             else if (EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
-                if (WorkspaceProjects.TryGetValue(project, out var projectContorl))
+                if (WorkspaceProjects.TryGetValue(project, out var projectControl))
                 {
                     var visible = false;
                     foreach (TabItem tabItem in DockManager.Items)
                     {
-                        if (tabItem.Content == projectContorl && tabItem.IsSelected)
+                        if (tabItem.Content == projectControl && tabItem.IsSelected)
                         {
                             visible = true;
                             break;
@@ -344,7 +340,7 @@ namespace XTMF.Gui
                     }
                     if (!visible)
                     {
-                        SetDisplayActive(projectContorl, "Project - " + project.Name);
+                        SetDisplayActive(projectControl, "Project - " + project.Name);
                     }
                 }
             }
@@ -417,7 +413,7 @@ namespace XTMF.Gui
                 select element.Key + "|*." + element.Value
             );
             var dialog = alreadyExists
-                ? (FileDialog) new OpenFileDialog
+                ? (FileDialog)new OpenFileDialog
                 {
                     Title = title,
                     Filter = filter
@@ -468,20 +464,20 @@ namespace XTMF.Gui
                         "Unable to import", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No))
                     {
                         case MessageBoxResult.Yes:
-                        {
-                            if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true,
-                                ref error))
                             {
-                                MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK,
-                                    MessageBoxImage.Error);
+                                if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true,
+                                    ref error))
+                                {
+                                    MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK,
+                                        MessageBoxImage.Error);
+                                }
+                                else
+                                {
+                                    MessageBox.Show(this,
+                                        "The model system has been successfully imported from '" + fileName + "'.",
+                                        "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
                             }
-                            else
-                            {
-                                MessageBox.Show(this,
-                                    "The model system has been successfully imported from '" + fileName + "'.",
-                                    "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
-                            }
-                        }
                             break;
                     }
                 }
@@ -516,7 +512,7 @@ namespace XTMF.Gui
             var dialog = new StringRequestDialog(host, "Project Name", ValidateName, null);
             _isDialogOpen = true;
             var result = await dialog.ShowAsync();
-            
+
             if (dialog.DidComplete)
             {
                 var name = dialog.UserInput;
@@ -564,7 +560,7 @@ namespace XTMF.Gui
                                          modelSystemSession.ModelSystemModel.Name
                                        : "Model System - " + modelSystemSession.ModelSystemModel.Name);
                 SetDisplayActive(display, titleBarName);
-                if(modelSystemSession.EditingProject)
+                if (modelSystemSession.EditingProject)
                 {
                     modelSystemSession.NameChanged += (o, e) =>
                     {
@@ -595,29 +591,6 @@ namespace XTMF.Gui
             base.OnClosing(e);
             if (!e.Cancel)
             {
-                if (LaunchUpdate)
-                {
-                    Task.Run(() =>
-                        {
-                            var path = Assembly.GetExecutingAssembly().Location;
-                            try
-                            {
-                                Process.Start(
-                                    Path.Combine(Path.GetDirectoryName(path), UpdateProgram),
-                                    Process.GetCurrentProcess().Id + " \"" + path + "\"");
-                            }
-                            catch
-                            {
-                                Dispatcher.Invoke(() =>
-                                {
-                                    MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!",
-                                        MessageBoxButton.OK, MessageBoxImage.Error);
-                                });
-                            }
-                        })
-                        .Wait();
-                }
-
                 Application.Current.Shutdown(0);
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
@@ -688,11 +661,17 @@ namespace XTMF.Gui
         /// <summary>
         /// </summary>
         /// <param name="documentationControl"></param>
-        internal void NewDocumentationWindow(DocumentationControl documentationControl)
+        internal void NewHelpWindow(DocumentationControl documentationControl)
         {
             SetDisplayActive(documentationControl, "Documentation - " + documentationControl.TypeNameText);
             Keyboard.Focus(documentationControl);
             documentationControl.Focus();
+        }
+
+        private void HelpMenuItem_OnSelected(object sender, RoutedEventArgs e)
+        {
+            LaunchHelpWindow();
+            MenuToggleButton.IsChecked = false;
         }
 
         /// <summary>
@@ -722,7 +701,7 @@ namespace XTMF.Gui
                 {
                     if (ContentControl.DataContext is ViewModelBase)
                     {
-                        ((ViewModelBase) ContentControl.DataContext).ViewModelControl = display;
+                        ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
                     }
                     var newTabItem = new TabItem
                     {
@@ -734,7 +713,7 @@ namespace XTMF.Gui
                     {
                         newTabItem.PreviewKeyDown += delegate (object sender, KeyEventArgs args)
                         {
-                            shortcutHandler.HandleKeyPreviewDown(sender,args);
+                            shortcutHandler.HandleKeyPreviewDown(sender, args);
                         };
                     }
                 }
@@ -743,9 +722,9 @@ namespace XTMF.Gui
                     tabItem.IsSelected = true;
                     tabItem.Focus();
                 }
-                foreach(var item in display.GetAncestors())
+                foreach (var item in display.GetAncestors())
                 {
-                    if(item is Window window)
+                    if (item is Window window)
                     {
                         window.Activate();
                     }
@@ -811,7 +790,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void DocumentationMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            SetDisplayActive(new HelpDialog(EditorController.Runtime.Configuration), "Documentation");
+            Process.Start(new ProcessStartInfo() { FileName = "https://tmg.utoronto.ca/doc/1.6/", UseShellExecute = true });
             MenuToggleButton.IsChecked = false;
         }
 
@@ -855,8 +834,7 @@ namespace XTMF.Gui
         /// <param name="e"></param>
         private void UpdateXtmfMenuItem_OnSelected(object sender, RoutedEventArgs e)
         {
-            LaunchUpdate = true;
-            Close();
+            Process.Start(new ProcessStartInfo() { FileName = "https://github.com/TravelModellingGroup/XTMF/releases", UseShellExecute = true });
         }
 
         /// <summary>
@@ -937,10 +915,10 @@ namespace XTMF.Gui
             }
 
             if (Keyboard.FocusedElement != null
-                && (DockManager.SelectedContent as UIElement)?.IsAncestorOf((DependencyObject)Keyboard.FocusedElement) == true 
+                && (DockManager.SelectedContent as UIElement)?.IsAncestorOf((DependencyObject)Keyboard.FocusedElement) == true
                 && DockManager.SelectedContent is IKeyShortcutHandler handler)
             {
-                handler.HandleKeyPreviewDown(sender,e);
+                handler.HandleKeyPreviewDown(sender, e);
             }
         }
 

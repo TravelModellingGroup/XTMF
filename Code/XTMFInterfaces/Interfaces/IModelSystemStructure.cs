@@ -106,7 +106,7 @@ namespace XTMF
         /// Make an exact copy of this model system structure
         /// </summary>
         /// <returns>A copy of this model system structure including all children</returns>
-        IModelSystemStructure Clone(IModelSystemStructure parent = null);
+        IModelSystemStructure Clone(IModelSystemStructure? parent = null);
 
         /// <summary>
         /// Create a new IProjectStructure that can be used as a
@@ -140,7 +140,7 @@ namespace XTMF
         /// <param name="error">A message returned if there is an error found providing additional information</param>
         /// <param name="parent"></param>
         /// <returns>If the ProjectStructure is valid (able to be created into an executable model system)</returns>
-        bool Validate(ref string error, IModelSystemStructure parent = null);
+        bool Validate(ref string? error, IModelSystemStructure? parent = null);
 
 
     }

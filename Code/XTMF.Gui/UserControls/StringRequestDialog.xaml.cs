@@ -18,20 +18,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
 
 namespace XTMF.Gui.UserControls
@@ -54,6 +46,8 @@ namespace XTMF.Gui.UserControls
 
         private DialogHost _host;
 
+        private IInputElement _returnFocusTo;
+
         public StringRequestDialog(DialogHost host, string question, Func<string, bool> validation, string startingText)
         {
             _host = host;
@@ -63,10 +57,13 @@ namespace XTMF.Gui.UserControls
             DidComplete = false;
             UserInput = startingText;
             InitializeComponent();
-            if(validation != null)
+            // We clear the focus here to ensure that extra keys strokes before we gain keyboard focus don't go through.
+            _returnFocusTo = Keyboard.FocusedElement;
+            Keyboard.ClearFocus();
+            if (validation != null)
             {
                 Binding b = BindingOperations.GetBinding(StringInputTextBox, TextBox.TextProperty);
-                if(b != null)
+                if (b != null)
                 {
                     foreach (var rule in b.ValidationRules)
                     {
@@ -79,10 +76,27 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private bool _firstKeyboardFocus = true;
+
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            base.OnGotFocus(e);
+            Keyboard.Focus(StringInputTextBox);
+        }
+
+        protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
+        {
+            base.OnGotKeyboardFocus(e);
+            if (_firstKeyboardFocus)
+            {
+                StringInputTextBox.Select(0, StringInputTextBox.Text.Length);
+            }
+            Keyboard.Focus(StringInputTextBox);
+        }
+
         private void OpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
         {
             this._dialogSession = eventargs.Session;
-            StringInputTextBox.Select(0, StringInputTextBox.Text.Length);
         }
 
         /// <summary>
@@ -101,7 +115,17 @@ namespace XTMF.Gui.UserControls
         public async Task<object> ShowAsync(bool allowClickToClose = true)
         {
             _host.CloseOnClickAway = allowClickToClose;
-            return await _host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler);
+            try
+            {
+                return await _host.ShowDialog(this, OpenedEventHandler, ClosingEventHandler);
+            }
+            finally
+            {
+                if (_returnFocusTo is not null)
+                {
+                    await Dispatcher.BeginInvoke(new Action(() => Keyboard.Focus(_returnFocusTo)), System.Windows.Threading.DispatcherPriority.Input);
+                }
+            }
         }
 
         /// <summary>
@@ -179,9 +203,9 @@ namespace XTMF.Gui.UserControls
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-                return string.IsNullOrWhiteSpace((value ?? "").ToString())
-                    ? new ValidationResult(false, "Field is required.")
-                    : ValidationResult.ValidResult;
+            return string.IsNullOrWhiteSpace((value ?? "").ToString())
+                ? new ValidationResult(false, "Field is required.")
+                : ValidationResult.ValidResult;
         }
-    }    
+    }
 }

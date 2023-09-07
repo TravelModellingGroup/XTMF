@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -27,23 +28,23 @@ namespace Datastructure
     {
         internal SparseIndexing Indexing;
         private const int Version = 2;
-        private T[] Data;
+        private T?[] Data;
 
-        public SparseArray(SparseIndexing indexing, T[] rawData = null)
+        public SparseArray(SparseIndexing indexing, T?[]? rawData = null)
         {
             Indexing = indexing;
-            if(rawData != null)
+            if(rawData is not null)
             {
                 Data = rawData;
             }
-            GenerateStructure();
+            Data = GenerateStructure();
         }
 
         public int Count => Data.Length;
 
         public int Top { get; private set; }
 
-        public T this[int o]
+        public T? this[int o]
         {
             get
             {
@@ -54,7 +55,7 @@ namespace Datastructure
                 else
                 {
                     // return null / whatever the closest thing to null is
-                    return default(T);
+                    return default;
                 }
             }
 
@@ -70,6 +71,39 @@ namespace Datastructure
                     throw new IndexOutOfRangeException(String.Format("The location {0} is invalid for this SparseArray Datastructure!", originalO));
                 }
             }
+        }
+
+        /// <summary>
+        /// Read the value if the sparse index exists.
+        /// </summary>
+        /// <param name="sparseIndex">The sparse index to read from.</param>
+        /// <param name="data">The data that was read, default if it does not exist.</param>
+        /// <returns>True if the sparse index exists, false otherwise.</returns>
+        public bool TryRead(int sparseIndex, [NotNullWhen(true)] out T? data)
+        {
+            if (GetTransformedIndex(ref sparseIndex))
+            {
+                data = Data[sparseIndex]!;
+                return true;
+            }
+            data = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Store the value if the sparse index exists.
+        /// </summary>
+        /// <param name="sparseIndex">The sparse index to write to.</param>
+        /// <param name="data">The data to write.</param>
+        /// <returns>True if the sparse index exists, false otherwise.</returns>
+        public bool TryStore(int sparseIndex, T data)
+        {
+            if (GetTransformedIndex(ref sparseIndex))
+            {
+                Data[sparseIndex] = data;
+                return true;
+            }
+            return false;
         }
 
         public static SparseArray<T> CreateSparseArray(int[] sparseSpace, IList<T> data)
@@ -125,7 +159,7 @@ namespace Datastructure
             return new SparseTwinIndex<TKey>(twinIndex);
         }
 
-        public T[] GetFlatData()
+        public T?[] GetFlatData()
         {
             return Data;
         }
@@ -155,7 +189,7 @@ namespace Datastructure
             return -1;
         }
 
-        public void Save(string fileName, Func<T, float[]> decompose, int types)
+        public void Save(string fileName, Func<T?, float[]> decompose, int types)
         {
             using (var writer = new BinaryWriter(new
                 FileStream(fileName, FileMode.Create, FileAccess.Write,
@@ -265,8 +299,8 @@ namespace Datastructure
             return indexes;
         }
 
-        private void GenerateStructure()
-        {
+        private T?[] GenerateStructure()
+        {            
             var total = 0;
             for(var i = 0; i < Indexing.Indexes.Length; i++)
             {
@@ -277,10 +311,7 @@ namespace Datastructure
                     Top = Indexing.Indexes[i].Stop;
                 }
             }
-            if(Data == null)
-            {
-                Data = new T[total];
-            }
+            return Data ?? new T?[total];
         }
 
 

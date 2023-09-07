@@ -17,8 +17,11 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace TMG.Functions
@@ -385,6 +388,27 @@ namespace TMG.Functions
                     destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex] * fourth[i + fourthIndex];
                 }
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+        public static float MultiplyAndSumNoStore(Span<float> first, Span<float> second)
+        {
+            // Make sure our data is of the right size
+            if (first.Length != second.Length) ThrowVectorsMustBeSameSize();
+            var remainder = first.Length % Vector<float>.Count;
+            var accV = Vector<float>.Zero;
+            var acc = 0.0f;
+            var firstV = first[..^remainder].ReinterpretSpan<float, Vector<float>>();
+            var secondV = second[..^remainder].ReinterpretSpan<float, Vector<float>>();
+            for (int i = 0; i < firstV.Length; i++)
+            {
+                accV += firstV[i] * secondV[i];
+            }
+            for (int i = first.Length - remainder; i < first.Length; i++)
+            {
+                acc += first[i] * second[i];
+            }
+            return Vector.Sum(accV) + acc;
         }
     }
 }

@@ -31,8 +31,8 @@ namespace XTMF.Networking
     /// <typeparam name="T"></typeparam>
     public class MessageQueue<T> : IDisposable
     {
-        private ConcurrentQueue<T> Messages = new ConcurrentQueue<T>();
-        private SemaphoreSlim Sem = new SemaphoreSlim( 0 );
+        private ConcurrentQueue<T> Messages = new();
+        private SemaphoreSlim? Sem = new SemaphoreSlim(0);
 
         /// <summary>
         /// Add a new message to the queue
@@ -41,13 +41,13 @@ namespace XTMF.Networking
         public void Add(T message)
         {
             // we need to enqueue it before we add an extra count
-            Messages.Enqueue( message );
-            Sem.Release();
+            Messages.Enqueue(message);
+            Sem?.Release();
         }
 
         public void Dispose()
         {
-            Dispose( true );
+            Dispose(true);
         }
 
         /// <summary>
@@ -55,13 +55,13 @@ namespace XTMF.Networking
         /// This will wait indefinitely for the next message
         /// </summary>
         /// <returns>The next message</returns>
-        public T GetMessage()
+        public T? GetMessage()
         {
-            Sem.Wait();
+            Sem?.Wait();
             // this should always succeed
-            if (!Messages.TryDequeue(out T ret))
+            if (!Messages.TryDequeue(out T? ret))
             {
-                return default(T);
+                return default;
             }
             return ret;
         }
@@ -71,17 +71,17 @@ namespace XTMF.Networking
         /// </summary>
         /// <param name="timeout">The length of time to wait at most in milliseconds before returning</param>
         /// <returns>The next message, if the timeout occurs the default value</returns>
-        public T GetMessageOrTimeout(int timeout)
+        public T? GetMessageOrTimeout(int timeout)
         {
-            if ( Sem.Wait( timeout ) )
+            if (Sem!.Wait(timeout))
             {
-                if (!Messages.TryDequeue(out T ret))
+                if (!Messages.TryDequeue(out T? ret))
                 {
-                    return default(T);
+                    return default;
                 }
                 return ret;
             }
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace XTMF.Networking
 
         protected virtual void Dispose(bool includeManaged)
         {
-            Sem.Dispose();
+            Sem?.Dispose();
             Sem = null;
         }
     }

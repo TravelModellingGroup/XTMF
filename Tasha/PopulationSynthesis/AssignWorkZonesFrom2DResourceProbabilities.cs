@@ -160,9 +160,11 @@ namespace Tasha.PopulationSynthesis
         [SubModelInformation(Required = true)]
         public AssignWorkZoneForOccEmp ManufacturingPartTime;
 
+        Random _random;
 
         public void Load()
         {
+            _random = new Random(RandomSeed);
             _zones = Root.ZoneSystem.ZoneArray;
             Parallel.Invoke(
                 () => ProfessionalFullTime.Load(),
@@ -182,14 +184,20 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Passthrough Zones", "6000-6999,8888", typeof(RangeSet), "The set of zones to pass through the model instead of assigning a work zone.")]
         public RangeSet PassthroughZones;
 
+        [RunParameter("New Random Per Person", true, "Should we regenerate the random seed per person or per iteration?")]
+        public bool NewRandomSeedPerPerson;
+
         public IZone ProduceResult(ITashaPerson person)
         {
             ITashaHousehold household = person.Household;
-            var random = new Random(RandomSeed * household.HouseholdId);
             int flatHomeZone = _zones.GetFlatIndex(household.HomeZone.ZoneNumber);
             if (person.EmploymentZone != null && PassthroughZones.Contains(person.EmploymentZone.ZoneNumber))
             {
                 return person.EmploymentZone;
+            }
+            if (NewRandomSeedPerPerson)
+            {
+                _random = new Random(RandomSeed * household.HouseholdId);
             }
             switch (person.EmploymentStatus)
             {
@@ -198,26 +206,26 @@ namespace Tasha.PopulationSynthesis
                     switch (person.Occupation)
                     {
                         case Occupation.Professional:
-                            return _zones.GetFlatData()[ProfessionalFullTime.PickZone(random, flatHomeZone)];
+                            return _zones.GetFlatData()[ProfessionalFullTime.PickZone(_random, flatHomeZone)];
                         case Occupation.Office:
-                            return _zones.GetFlatData()[GeneralFullTime.PickZone(random, flatHomeZone)];
+                            return _zones.GetFlatData()[GeneralFullTime.PickZone(_random, flatHomeZone)];
                         case Occupation.Retail:
-                            return _zones.GetFlatData()[SalesFullTime.PickZone(random, flatHomeZone)];
+                            return _zones.GetFlatData()[SalesFullTime.PickZone(_random, flatHomeZone)];
                         case Occupation.Manufacturing:
-                            return _zones.GetFlatData()[ManufacturingFullTime.PickZone(random, flatHomeZone)];
+                            return _zones.GetFlatData()[ManufacturingFullTime.PickZone(_random, flatHomeZone)];
                     }
                     break;
                 case TTSEmploymentStatus.PartTime:
                     switch (person.Occupation)
                     {
                         case Occupation.Professional:
-                            return _zones.GetFlatData()[ProfessionalPartTime.PickZone(random, flatHomeZone)];
+                            return _zones.GetFlatData()[ProfessionalPartTime.PickZone(_random, flatHomeZone)];
                         case Occupation.Office:
-                            return _zones.GetFlatData()[GeneralPartTime.PickZone(random, flatHomeZone)];
+                            return _zones.GetFlatData()[GeneralPartTime.PickZone(_random, flatHomeZone)];
                         case Occupation.Retail:
-                            return _zones.GetFlatData()[SalesPartTime.PickZone(random, flatHomeZone)];
+                            return _zones.GetFlatData()[SalesPartTime.PickZone(_random, flatHomeZone)];
                         case Occupation.Manufacturing:
-                            return _zones.GetFlatData()[ManufacturingPartTime.PickZone(random, flatHomeZone)];
+                            return _zones.GetFlatData()[ManufacturingPartTime.PickZone(_random, flatHomeZone)];
                     }
                     break;
             }

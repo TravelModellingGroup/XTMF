@@ -273,13 +273,6 @@ namespace Tasha
                     CurrentHousehold = 0;
                     CurrentIteration = i;
                     CompletedIterationPercentage = i * IterationPercentage;
-                    if (LoadAllHouseholds)
-                    {
-                        if (!SkipLoadingHouseholds)
-                        {
-                            HouseholdLoader.LoadData();
-                        }
-                    }
                     RunIteration(i);
                 }
             }
@@ -577,6 +570,13 @@ namespace Tasha
             RunPreIterationModules(i);
             RunStartIteration(i);
             RunIterationSensitiveStart(i);
+            if (LoadAllHouseholds)
+            {
+                if (!SkipLoadingHouseholds)
+                {
+                    HouseholdLoader.LoadData();
+                }
+            }
             _Progress = () => (Math.Min(((float)CurrentHousehold / NumberOfHouseholds), 1.0f) / TotalIterations + CompletedIterationPercentage);
             if (!SkipLoadingHouseholds)
             {

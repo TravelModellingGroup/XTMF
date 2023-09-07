@@ -31,7 +31,7 @@ namespace XTMF.Testing.Editing
         {
             var runtime = TestXTMFCore.CreateRuntime();
             var controller = runtime.ProjectController;
-            string error = null;
+            string? error = null;
             controller.DeleteProject( "TestProject", ref error );
             Project project;
             Assert.IsTrue( ( project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
@@ -48,7 +48,7 @@ namespace XTMF.Testing.Editing
         {
             var runtime = TestXTMFCore.CreateRuntime();
             var controller = runtime.ProjectController;
-            string error = null;
+            string? error = null;
             controller.DeleteProject( "TestProject", ref error );
             Project project;
             Assert.IsTrue( ( project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
@@ -78,7 +78,7 @@ namespace XTMF.Testing.Editing
         {
             var runtime = TestXTMFCore.CreateRuntime();
             var controller = runtime.ProjectController;
-            string error = null;
+            string? error = null;
             controller.DeleteProject( "TestProject", ref error );
             Project project;
             Assert.IsTrue( ( project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
@@ -107,7 +107,7 @@ namespace XTMF.Testing.Editing
             var controller = runtime.ModelSystemController;
             controller.Delete( "TestModelSystem" );
             var modelSystem = controller.LoadOrCreate( "TestModelSystem" );
-            string error = null;
+            string? error = null;
             using (var session = controller.EditModelSystem( modelSystem ))
             {
                 var root = session.ModelSystemModel.Root;
@@ -120,7 +120,7 @@ namespace XTMF.Testing.Editing
         [TestMethod]
         public void TestSettingModelSystemRootInAProject()
         {
-            string error = null;
+            string? error = null;
             var runtime = TestXTMFCore.CreateRuntime();
             var projectController = runtime.ProjectController;
             var projectName = "TestProject";

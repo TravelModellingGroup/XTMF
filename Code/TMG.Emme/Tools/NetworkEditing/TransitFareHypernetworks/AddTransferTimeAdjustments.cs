@@ -18,14 +18,14 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
-using Newtonsoft.Json;
 using System.IO;
+using System.Text.Json;
 using Datastructure;
+using TMG.Functions;
+using System.Text.Unicode;
+using System.Text;
 
 namespace TMG.Emme.Tools.NetworkEditing.TransitFareHypernetworks
 {
@@ -48,7 +48,7 @@ namespace TMG.Emme.Tools.NetworkEditing.TransitFareHypernetworks
         {
             if (controller is ModellerController modellerController)
             {
-                modellerController.Run(this, ToolName, GetParameters());
+                return modellerController.Run(this, ToolName, GetParameters());
             }
             return false;
         }
@@ -92,30 +92,26 @@ namespace TMG.Emme.Tools.NetworkEditing.TransitFareHypernetworks
             }
 
             //Write out the found stations
-            using (var stream = new StringWriter())
+            using (var stream = new MemoryStream())
             {
-                using (var writer = new JsonTextWriter(stream))
+                using (var writer = new Utf8JsonWriter(stream))
                 {
                     writer.WriteStartObject();
-                    writer.WritePropertyName("scenario");
-                    writer.WriteValue(ScenarioNumber);
+                    writer.WriteNumber("scenario", ScenarioNumber);
                     writer.WritePropertyName("stations");
                     writer.WriteStartArray();
                     foreach (var adjustment in adjustments)
                     {
                         writer.WriteStartObject();
-                        writer.WritePropertyName("station_number");
-                        writer.WriteValue(adjustment.StationNode);
-                        writer.WritePropertyName("transfer_time");
-                        writer.WriteValue(adjustment.AdjustedTime);
+                        writer.WriteNumber("station_number", adjustment.StationNode);
+                        writer.WriteNumber("transfer_time", adjustment.AdjustedTime);
                         writer.WriteEndObject();
                     }
                     writer.WriteEndArray();
-                    writer.WritePropertyName("transfer_modes");
-                    writer.WriteValue(TransferModes);
+                    writer.WriteString("transfer_modes", TransferModes);
                     writer.WriteEndObject();
                 }
-                return stream.ToString();
+                return Encoding.UTF8.GetString(stream.ToArray());
             }
         }
 

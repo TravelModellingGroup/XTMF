@@ -60,10 +60,6 @@ namespace XTMF.Gui.Controllers
                          {
                              MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);
                              Clipboard.SetText(loadError);
-                             if (((Configuration)Runtime.Configuration).LoadErrorTerminal)
-                             {
-                                 Application.Current.Shutdown(-1);
-                             }
                          }
                      }));
                    }

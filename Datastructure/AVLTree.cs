@@ -34,10 +34,10 @@ namespace Datastructure
     public class AvlTree<T>
         where T : IComparable<T>
     {
-        protected readonly object WriterLock = new object();
+        protected readonly object WriterLock = new();
         private volatile int _Count;
         private volatile int ReaderCount;
-        private volatile Node _Root;
+        private volatile Node? _Root;
 
         /// <summary>
         /// Returns how many elements are currently in the tree
@@ -64,7 +64,7 @@ namespace Datastructure
         /// </summary>
         public object SyncRoot => WriterLock;
 
-        protected Node Root { get { return _Root; } set { _Root = value; } }
+        protected Node? Root { get { return _Root; } set { _Root = value; } }
 
         /// <summary>
         /// Adds a new item to the BST
@@ -74,7 +74,7 @@ namespace Datastructure
         public bool Add(T item)
         {
             var visited = new Stack<Node>();
-            Node current;
+            Node? current;
             // TODO: We need to test the performance difference between making the node here or not
             // Making it here could allow more readers in, making the lag for a write take long?
             // However, if we are parallel writing, doing more work in parallel is better
@@ -191,7 +191,7 @@ namespace Datastructure
         /// The structure will remain in a consistent state while reading
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<T?> GetEnumerator()
         {
             IncreaseReaders();
             var stack = new Stack<Node>();
@@ -226,7 +226,7 @@ namespace Datastructure
         public bool Remove(T item)
         {
             var visited = new Stack<Node>();
-            if ( default( T ) == null && item == null ) return false;
+            if ( default(T) == null && item == null ) return false;
             // grab the Writer's lock.
             lock ( WriterLock )
             {
@@ -249,10 +249,10 @@ namespace Datastructure
         /// Generates a new array that holds a snapshot of the tree, in order
         /// </summary>
         /// <returns></returns>
-        public T[] ToArray()
+        public T?[] ToArray()
         {
             IncreaseReaders();
-            var ret = new T[Count];
+            var ret = new T?[Count];
             var i = 0;
             foreach ( var t in this )
             {
@@ -270,7 +270,7 @@ namespace Datastructure
         protected void BalanceTree(Stack<Node> path)
         {
             // To balance the tree we need to go back up the path and update the balances for each side
-            if (path.Count == 0)
+            if (path.Count == 0 || Root is null)
             {
                 return;
             }
@@ -377,11 +377,13 @@ namespace Datastructure
         /// <param name="here">Where are are going to store it</param>
         private void MakeNode(T item, out Node here)
         {
-            here = new Node();
-            here.Data = item;
-            here.Height = 0;
-            here.Left = null;
-            here.Right = null;
+            here = new Node
+            {
+                Data = item,
+                Height = 0,
+                Left = null,
+                Right = null
+            };
         }
 
         /// <summary>
@@ -392,7 +394,7 @@ namespace Datastructure
         /// <param name="visited">Nodes that have been visited</param>
         /// <param name="removed"></param>
         /// <returns></returns>
-        private Node RecursiveRemove(Node current, T item, Stack<Node> visited, out bool removed)
+        private Node? RecursiveRemove(Node? current, T item, Stack<Node> visited, out bool removed)
         {
             if ( current == null )
             {
@@ -454,7 +456,7 @@ namespace Datastructure
         private void RotateLeft(Node pivot, Node parent)
         {
             var right = pivot.Right;
-            pivot.Right = right.Left;
+            pivot.Right = right!.Left;
             if ( parent.Right == pivot )
             {
                 parent.Right = right;
@@ -474,7 +476,7 @@ namespace Datastructure
         private void RotateRight(Node pivot, Node parent)
         {
             var left = pivot.Left;
-            pivot.Left = left.Right;
+            pivot.Left = left!.Right;
             if ( parent.Left == pivot )
             {
                 parent.Left = left;
@@ -495,7 +497,7 @@ namespace Datastructure
             /// <summary>
             /// The payload
             /// </summary>
-            public T Data { get; set; }
+            public required T Data { get; set; }
 
             /// <summary>
             /// How many nodes are
@@ -505,12 +507,12 @@ namespace Datastructure
             /// <summary>
             /// Nodes here are less than the _Root
             /// </summary>
-            public Node Left { get; set; }
+            public Node? Left { get; set; }
 
             /// <summary>
             /// Nodes here are greater than the _Root
             /// </summary>
-            public Node Right { get; set; }
+            public Node? Right { get; set; }
         }
     }
 }

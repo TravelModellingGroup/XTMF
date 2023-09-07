@@ -272,7 +272,7 @@ namespace Tasha.Scheduler
             throw new NotImplementedException();
         }
 
-        public static float SkippedWorkEpisodes;
+        public static float SkippedWorkEpisodes = -1;
         private static SpinLock SkippedWorkLock = new SpinLock(false);
 
         internal void InsertWorkSchedule(Schedule schedule, Random random)
@@ -284,11 +284,13 @@ namespace Tasha.Scheduler
                 {
                     if(!Insert((Episode)schedule.Episodes[i], random))
                     {
+                        /*
                         var expFactor = Owner.ExpansionFactor;
                         var taken = false;
                         SkippedWorkLock.Enter(ref taken);
                         SkippedWorkEpisodes += expFactor;
                         if(taken) SkippedWorkLock.Exit(true);
+                        */
                     }
                 }
             }
@@ -301,11 +303,13 @@ namespace Tasha.Scheduler
                 {
                     if(!Insert((Episode)schedule.Episodes[i], random))
                     {
+                        /*
                         var expFactor = Owner.ExpansionFactor;
                         var taken = false;
                         SkippedWorkLock.Enter(ref taken);
                         SkippedWorkEpisodes += expFactor;
                         if(taken) SkippedWorkLock.Exit(true);
+                        */
                     }
                 }
             }
@@ -317,11 +321,13 @@ namespace Tasha.Scheduler
                 {
                     if(!Insert((Episode)schedule.Episodes[i], random))
                     {
+                        /*
                         var expFactor = Owner.ExpansionFactor;
                         var taken = false;
                         SkippedWorkLock.Enter(ref taken);
                         SkippedWorkEpisodes += expFactor;
                         if(taken) SkippedWorkLock.Exit(true);
+                        */
                     }
                 }
             }

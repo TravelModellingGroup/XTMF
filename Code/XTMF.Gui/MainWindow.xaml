@@ -58,7 +58,7 @@
     <Border Name="WindowGrid" Margin="0,0,0,0" BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="0">
         <Grid>
             <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" Name="RootDialogHost"   >
-                <materialDesign:DrawerHost Name="DrawerHost"  materialDesign:ShadowAssist.ShadowDepth="Depth4" 
+                <materialDesign:DrawerHost Name="DrawerHost" materialDesign:ElevationAssist.Elevation="Dp4" 
                                    IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}" 
                                    PreviewKeyDown="DrawerHost_PreviewKeyDown">
                     <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
@@ -155,7 +155,7 @@
                                         <TextBlock>Update XTMF</TextBlock>
                                     </StackPanel>
                                 </ListBoxItem>
-                                <ListBoxItem Selected="DocumentationMenuItem_OnSelected"  Padding="15 8 5 8" Name="HelpMenuItem" >
+                                <ListBoxItem Selected="HelpMenuItem_OnSelected"  Padding="15 8 5 8" Name="HelpMenuItem" >
                                     <StackPanel Orientation="Horizontal">
 
                                         <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" HorizontalAlignment="Center"

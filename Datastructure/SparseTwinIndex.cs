@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Datastructure
 {
@@ -25,18 +26,22 @@ namespace Datastructure
     {
         public SparseIndexing Indexes { get; private set; }
 
-        private T[][] Data;
+        private T?[][] Data;
 
-        public SparseTwinIndex(SparseIndexing indexes, T[][] data = null)
+        public SparseTwinIndex(SparseIndexing indexes, T?[][]? data = null)
         {
             Indexes = indexes;
-            if (data != null)
+            if (data is not null)
             {
                 Data = data;
             }
-            if (indexes.Indexes != null)
+            if (indexes.Indexes is not null)
             {
-                GenerateStructure();
+                Data = GenerateStructure();
+            }
+            else if(Data is null)
+            {
+                throw new ArgumentException("You must define either the indexes if you do not provide the data.");
             }
             //Generate _Count
             var count = 0;
@@ -53,7 +58,7 @@ namespace Datastructure
             private set;
         }
 
-        public T this[int o, int d]
+        public T? this[int o, int d]
         {
             get
             {
@@ -64,7 +69,7 @@ namespace Datastructure
                 else
                 {
                     // return null / whatever the closest thing to null is
-                    return default(T);
+                    return default;
                 }
             }
 
@@ -83,6 +88,47 @@ namespace Datastructure
             }
         }
 
+        /// <summary>
+        /// Get the result if the sparse indexes exist.
+        /// </summary>
+        /// <param name="o">The row to store to</param>
+        /// <param name="d">The column to store to.</param>
+        /// <param name="value">The value that was read, default value otherwise</param>
+        /// <returns>True if the index was found, false otherwise.</returns>
+        public bool TryGet(int o, int d, [NotNullWhen(true)] out T? value)
+        {
+            if (GetTransformedIndexes(ref o, ref d))
+            {
+                value = Data[o][d]!;
+                return true;
+            }
+            else
+            {
+                value = default;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Store the result if the sparse indexes exist.
+        /// </summary>
+        /// <param name="o">The row to store to</param>
+        /// <param name="d">The column to store to.</param>
+        /// <param name="value">The value to store</param>
+        /// <returns></returns>
+        public bool TryStore(int o, int d, T value)
+        {
+            if (GetTransformedIndexes(ref o, ref d))
+            {
+                Data[o][d] = value;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public static SparseTwinIndex<T> CreateSimilarArray<TFirst, TSecond>(SparseArray<TFirst> first, SparseArray<TSecond> second)
         {
             var indexes = new SparseIndexing();
@@ -90,7 +136,7 @@ namespace Datastructure
             var length = indexes.Indexes.Length;
             for (var i = 0; i < length; i++)
             {
-                indexes.Indexes[i].SubIndex = new SparseIndexing() { Indexes = second.Indexing.Indexes.Clone() as SparseSet[] };
+                indexes.Indexes[i].SubIndex = new SparseIndexing() { Indexes = (SparseSet[])second.Indexing.Indexes.Clone() };
             }
             return new SparseTwinIndex<T>(indexes);
         }
@@ -121,17 +167,12 @@ namespace Datastructure
         /// <param name="secondIndex">The destination indexes</param>
         /// <param name="data">(Optional)The data to initialize the structure with</param>
         /// <returns>A SparseTwinIndex in the shape provided and optionally filled with the given data.</returns>
-        public static SparseTwinIndex<T> CreateSquareTwinIndex(int[] firstIndex, int[] secondIndex, T[] data = null)
+        public static SparseTwinIndex<T> CreateSquareTwinIndex(int[] firstIndex, int[] secondIndex, T[]? data = null)
         {
             // check the parameters
-            if (firstIndex == null)
-            {
-                throw new ArgumentNullException("firstIndex");
-            }
-            if (secondIndex == null)
-            {
-                throw new ArgumentNullException("secondIndex");
-            }
+            ArgumentNullException.ThrowIfNull(firstIndex, nameof(firstIndex));
+            ArgumentNullException.ThrowIfNull(secondIndex, nameof(secondIndex));
+
             if (data != null)
             {
                 if (firstIndex.Length * secondIndex.Length != data.Length)
@@ -144,6 +185,52 @@ namespace Datastructure
             var firstRangeSet = new RangeSet(firstIndex);
             var secondRangeSet = new RangeSet(secondIndex);
             return new SparseTwinIndex<T>(CreateSquareIndexes(firstRangeSet, secondRangeSet), ConvertArrayToMatrix(firstIndex, secondIndex, data)) { Count = firstIndex.Length * secondIndex.Length };
+        }
+
+        /// <summary>
+        /// Create a square twin index
+        /// </summary>
+        /// <param name="indexes">The indexes to use for both origin and destination. Must be monotonic if providing data.</param>
+        /// <param name="data">Optional, the data to use for the matrix.</param>
+        /// <returns>A SquareTwinIndex sized using the given indexes</returns>
+        public static SparseTwinIndex<T> CreateSquareTwinIndex(int[] indexes, T[][]? data = null)
+        {
+            ArgumentNullException.ThrowIfNull(indexes, nameof(indexes));
+
+            // Check the data if it exists to make sure that the size is correct
+            if(data is not null)
+            {
+                if(data.Length != indexes.Length)
+                {
+                    throw new ArgumentException($"The number of rows in the data is not the same as the number of indexes!");
+                }
+                for ( var i = 0; i < data.Length; i++)
+                {
+                    if (data[i].Length != indexes.Length)
+                    {
+                        throw new ArgumentException($"The number of columns in the data is not the same as the number of indexes!");
+                    }
+                }
+                if (!IsMonotonic(indexes))
+                {
+                    throw new ArgumentException($"The indexes must be monotonic!", nameof(indexes));
+                }
+            }
+            // Now that we know that the given data is fine, build the twin index
+            var ranges = new RangeSet(indexes);
+            return new SparseTwinIndex<T>(CreateSquareIndexes(ranges, ranges), data);
+        }
+
+        private static bool IsMonotonic(int[] indexes)
+        {
+            for (int i = 1; i < indexes.Length; i++)
+            {
+                if (indexes[i - 1] >= indexes[i])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private static SparseIndexing CreateSquareIndexes(RangeSet firstRangeSet, RangeSet secondRangeSet)
@@ -169,10 +256,10 @@ namespace Datastructure
 
 
 
-        private static T[][] ConvertArrayToMatrix(int[] firstIndex, int[] secondIndex, T[] data)
+        private static T[][]? ConvertArrayToMatrix(int[] firstIndex, int[] secondIndex, T[]? data)
         {
             // if there is nothing to do, we are already done
-            if (data == null) return null;
+            if (data is null) return null;
             // if there is data to copy into the new structure build it and copy
             var ret = new T[firstIndex.Length][];
             var pos = 0;
@@ -196,7 +283,7 @@ namespace Datastructure
             return ret;
         }
 
-        public T[][] GetFlatData()
+        public T?[][] GetFlatData()
         {
             return Data;
         }
@@ -406,19 +493,15 @@ namespace Datastructure
             return meta;
         }
 
-        private void GenerateStructure()
+        private T?[][] GenerateStructure()
         {
             var totalFirst = 0;
-            var malloc = (Data == null);
             for (var i = 0; i < Indexes.Indexes.Length; i++)
             {
                 Indexes.Indexes[i].BaseLocation = totalFirst;
                 totalFirst += Indexes.Indexes[i].Stop - Indexes.Indexes[i].Start + 1;
             }
-            if (malloc)
-            {
-                Data = new T[totalFirst][];
-            }
+            var ret = Data ?? new T[totalFirst][];
             var currentDataPlace = 0;
             // Now make the matrix's second rows
             for (var i = 0; i < Indexes.Indexes.Length; i++)
@@ -431,15 +514,15 @@ namespace Datastructure
                     Indexes.Indexes[i].SubIndex.Indexes[j].BaseLocation = totalSecond;
                     totalSecond += Indexes.Indexes[i].SubIndex.Indexes[j].Stop - Indexes.Indexes[i].SubIndex.Indexes[j].Start + 1;
                 }
-                if (malloc)
+                if (Data is null)
                 {
-                    // malloc the data
                     for (var k = Indexes.Indexes[i].Start; k <= Indexes.Indexes[i].Stop; k++)
                     {
-                        Data[currentDataPlace++] = new T[totalSecond];
+                        ret[currentDataPlace++] = new T[totalSecond];
                     }
                 }
             }
+            return ret;
         }
 
         private bool GetTransformedIndex(ref int o)

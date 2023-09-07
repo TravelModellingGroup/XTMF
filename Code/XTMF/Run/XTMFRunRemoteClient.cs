@@ -264,7 +264,7 @@ namespace XTMF.Run
 
         private void Run()
         {
-            if(_Root == null)
+            if (_Root == null)
             {
                 InvokeRuntimeValidationError(new List<ErrorWithPath>(1)
                 {
@@ -288,6 +288,7 @@ namespace XTMF.Run
                     ModelSystemStructureModelRoot = new ModelSystemStructureModel(null, _Root);
                     MST.Start();
                     Console.WriteLine("Model run complete!");
+                    DisposeModelSystem(ModelSystemStructureModelRoot);
                     InvokeRunCompleted();
                 }
                 catch (ThreadAbortException)
@@ -296,6 +297,7 @@ namespace XTMF.Run
                 }
                 catch (Exception e)
                 {
+                    DisposeModelSystem(ModelSystemStructureModelRoot);
                     GetInnermostError(ref e);
                     List<int> path = null;
                     string moduleName = null;
@@ -312,7 +314,31 @@ namespace XTMF.Run
                             moduleName = "Null Module";
                         }
                     }
-                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, CombineStackTrace(e), moduleName,e));
+                    InvokeRuntimeError(new ErrorWithPath(path, e.Message, CombineStackTrace(e), moduleName, e));
+                }
+            }
+        }
+
+        private void DisposeModelSystem(ModelSystemStructureModel module)
+        {
+            if (module.RealModelSystemStructure.Module is IDisposable disposable)
+            {
+                try
+                {
+                    disposable.Dispose();
+                }
+                catch
+                {
+                    // ignore errors during dispose
+                }
+            }
+
+            var children = module.Children;
+            if (children is not null)
+            {
+                foreach (var child in children)
+                {
+                    DisposeModelSystem(child);
                 }
             }
         }
@@ -382,7 +408,7 @@ namespace XTMF.Run
             }
             catch (Exception e)
             {
-                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, e.StackTrace,exception:e)));
+                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, e.StackTrace, exception: e)));
                 return false;
             }
             return true;
@@ -406,7 +432,7 @@ namespace XTMF.Run
             }
             catch (Exception e)
             {
-                errors.Add(new ErrorWithPath(null, e.Message, e.StackTrace,exception:e));
+                errors.Add(new ErrorWithPath(null, e.Message, e.StackTrace, exception: e));
                 InvokeRuntimeValidationError(errors);
                 return false;
             }

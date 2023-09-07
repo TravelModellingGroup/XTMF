@@ -215,10 +215,7 @@ namespace Tasha.Common
             AuxTripChains.Clear();
             EmploymentZone = null;
             SchoolZone = null;
-            if (People.Count < 100)
-            {
-                People.Add(this);
-            }
+            People.Add(this);
         }
 
         public List<ITripChain> AuxTripChains
@@ -238,15 +235,7 @@ namespace Tasha.Common
 
         internal static void ReleasePersonPool()
         {
-            try
-            {
-                while (People.TryTake(out Person p))
-                {
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            People = new ConcurrentBag<Person>();
         }
     }
 }

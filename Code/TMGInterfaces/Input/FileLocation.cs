@@ -127,16 +127,14 @@ namespace TMG.Input
         {
             try
             {
-                var name = DirectoryName.GetFileName();
-                if (!String.IsNullOrWhiteSpace(name))
+                var directoryName = DirectoryName.GetFileName();
+                var fullPath = String.IsNullOrWhiteSpace(directoryName) ? FileName : Path.Combine(directoryName, FileName);
+                var fullPathDir = Path.GetDirectoryName(fullPath);
+                if (!String.IsNullOrWhiteSpace(fullPathDir) && !Directory.Exists(fullPathDir))
                 {
-                    if (!Directory.Exists(name))
-                    {
-                        Directory.CreateDirectory(name);
-                    }
-                    return Path.Combine(name, FileName);
+                    Directory.CreateDirectory(fullPathDir);
                 }
-                return FileName;
+                return fullPath;
             }
             catch (Exception e)
             {
@@ -197,7 +195,7 @@ Description = "This module provides the ability to specify a file path relative 
 
         private string GetXTMFDirectory()
         {
-            return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().CodeBase.Replace("file:///", String.Empty)));
+            return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location.Replace("file:///", String.Empty)));
         }
     }
 }

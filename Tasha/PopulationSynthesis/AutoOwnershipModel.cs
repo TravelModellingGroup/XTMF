@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2019 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2019-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,6 +27,7 @@ using Tasha.Common;
 using TMG;
 using TMG.Functions;
 using XTMF;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -40,7 +41,7 @@ namespace Tasha.PopulationSynthesis
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         [RunParameter("Number Of Adults", 0.159f, "Applied against the number of persons over the age of 18.")]
         public float NumberOfAdults;
@@ -104,6 +105,9 @@ namespace Tasha.PopulationSynthesis
         private float[] _thresholdOffset2;
         private float[] _thresholdOffset3;
         private float[] _thresholdOffset4;
+
+        const int KFactorSizePerZone = 10;
+        private float[] _kFactors;
 
         [SubModelInformation(Required = true, Description = "The population density in pop/m^2")]
         public IDataSource<SparseArray<float>> PopulationDensity;
@@ -180,7 +184,7 @@ namespace Tasha.PopulationSynthesis
                         transitIndex += 5;
                     }
                 }
-                  
+
                 var v = PopulationDensityBeta * populationDensity[i];
                 v += JobDensityBeta * jobDensity[i];
                 v += AverageAutoTravelTimeToWork * jobAverageAutoTime[i];
@@ -220,8 +224,41 @@ namespace Tasha.PopulationSynthesis
             [RunParameter("Apartment Offset", 0.0f, "Applied to the utility if the household is in an apartment dwelling.")]
             public float ApartmentOffset;
 
-            internal void ApplyConstant(int[] zonePds, float[] zoneConstantsGround, float[] zoneConstantsApt, float[] thresholdOffset1, float[] thresholdOffset2, float[] thresholdOffset3, float[] thresholdOffset4)
+            [RunParameter("Apartment Scale 0 ", 1.0f, "A scaling parameter applied to the probability of zero vehicles for an apartment dwelling.")]
+            public float ApartmentScale0;
+
+            [RunParameter("Apartment Scale 1 ", 1.0f, "A scaling parameter applied to the probability of one vehicles for an apartment dwelling")]
+            public float ApartmentScale1;
+
+            [RunParameter("Apartment Scale 2 ", 1.0f, "A scaling parameter applied to the probability of two vehicles for an apartment dwelling")]
+            public float ApartmentScale2;
+
+            [RunParameter("Apartment Scale 3 ", 1.0f, "A scaling parameter applied to the probability of three vehicles for an apartment dwelling")]
+            public float ApartmentScale3;
+
+            [RunParameter("Apartment Scale 4 ", 1.0f, "A scaling parameter applied to the probability of three vehicles for an apartment dwelling")]
+            public float ApartmentScale4;
+
+            [RunParameter("Ground Scale 0 ", 1.0f, "A scaling parameter applied to the probability of zero vehicles for a ground dwelling")]
+            public float GroundScale0;
+
+            [RunParameter("Ground Scale 1 ", 1.0f, "A scaling parameter applied to the probability of one vehicles for a ground dwelling")]
+            public float GroundScale1;
+
+            [RunParameter("Ground Scale 2 ", 1.0f, "A scaling parameter applied to the probability of two vehicles for a ground dwelling")]
+            public float GroundScale2;
+
+            [RunParameter("Ground Scale 3 ", 1.0f, "A scaling parameter applied to the probability of three vehicles for a ground dwelling")]
+            public float GroundScale3;
+
+            [RunParameter("Ground Scale 4 ", 1.0f, "A scaling parameter applied to the probability of three vehicles for a ground dwelling")]
+            public float GroundScale4;
+
+            internal void ApplyConstant(int[] zonePds, float[] zoneConstantsGround, float[] zoneConstantsApt, float[] thresholdOffset1, float[] thresholdOffset2, float[] thresholdOffset3, float[] thresholdOffset4,
+                float[] kFactors)
             {
+                // First normalize the ground and apartment scales
+
                 for (int i = 0; i < zoneConstantsGround.Length; i++)
                 {
                     if (PlanningDistricts.Contains(zonePds[i]))
@@ -232,6 +269,16 @@ namespace Tasha.PopulationSynthesis
                         thresholdOffset2[i] += ThresholdOffset2;
                         thresholdOffset3[i] += ThresholdOffset3;
                         thresholdOffset4[i] += ThresholdOffset4;
+                        kFactors[i * KFactorSizePerZone + 0] *= GroundScale0;
+                        kFactors[i * KFactorSizePerZone + 1] *= GroundScale1;
+                        kFactors[i * KFactorSizePerZone + 2] *= GroundScale2;
+                        kFactors[i * KFactorSizePerZone + 3] *= GroundScale3;
+                        kFactors[i * KFactorSizePerZone + 4] *= GroundScale4;
+                        kFactors[i * KFactorSizePerZone + 5] *= ApartmentScale0;
+                        kFactors[i * KFactorSizePerZone + 6] *= ApartmentScale1;
+                        kFactors[i * KFactorSizePerZone + 7] *= ApartmentScale2;
+                        kFactors[i * KFactorSizePerZone + 8] *= ApartmentScale3;
+                        kFactors[i * KFactorSizePerZone + 9] *= ApartmentScale4;
                     }
                 }
             }
@@ -249,10 +296,14 @@ namespace Tasha.PopulationSynthesis
             _thresholdOffset2 = new float[flatZones.Length];
             _thresholdOffset3 = new float[flatZones.Length];
             _thresholdOffset4 = new float[flatZones.Length];
+            _kFactors = new float[flatZones.Length * 10];
+            // Initialize all of the kFactors to 1 since we will multiply against them
+            VectorHelper.Set(_kFactors, 1.0f);
             var pds = _zones.GetFlatData().Select(zone => zone.PlanningDistrict).ToArray();
             foreach (var constants in Constants)
             {
-                constants.ApplyConstant(pds, _preComputedHouseholdZoneUtilitiesGround, _preComputedHouseholdZoneUtilitiesApt, _thresholdOffset1, _thresholdOffset2, _thresholdOffset3, _thresholdOffset4);
+                constants.ApplyConstant(pds, _preComputedHouseholdZoneUtilitiesGround, _preComputedHouseholdZoneUtilitiesApt, _thresholdOffset1, _thresholdOffset2, _thresholdOffset3, _thresholdOffset4,
+                    _kFactors);
             }
         }
 
@@ -287,83 +338,121 @@ namespace Tasha.PopulationSynthesis
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        private Span<float> GetKFactors(DwellingType dwellingType, int flatHomeZone)
+        {
+            var dwellingOffset = dwellingType == DwellingType.Apartment ? 5 : 0;
+            // 8 because there are 8 thresholds
+            return new Span<float>(_kFactors, flatHomeZone * KFactorSizePerZone + dwellingOffset, 5);
+        }
+
         public int ProduceResult(ITashaHousehold data)
         {
-            if(data.HomeZone is null)
+            var homeZone = data.HomeZone;
+            if (homeZone is null)
             {
-                throw new XTMFRuntimeException(this, "A household didn't have a homezone!");
+                throw new XTMFRuntimeException(this, "A household didn't have a home zone!");
             }
-            int flathomeZone = _zones.GetFlatIndex(data.HomeZone.ZoneNumber);
-            float v = ComputeUtility(data, flathomeZone);
+            int flatHomeZone = _zones.GetFlatIndex(homeZone.ZoneNumber);
+            float v = ComputeUtility(data, flatHomeZone);
+            var kFactor = GetKFactors(data.DwellingType, flatHomeZone);
             // now that we have our utility go through them and test against the thresholds.
             var pop = _random.NextDouble();
-            if (pop < LogitCDF(v, Threshold1 + _thresholdOffset1[flathomeZone]))
+            Span<float> probability = stackalloc float[KFactorSizePerZone / 2];
+            
+            // First we load in the raw CDFs, then we will multiply by the
+            // kFactors so we scale the probabilities.  Once that is complete
+            // we scale the popped value so that it is in [0, probabilitySum)
+            probability[0] = LogitCDF(v, Threshold1 + _thresholdOffset1[flatHomeZone]);
+            probability[1] = LogitCDF(v, Threshold2 + _thresholdOffset2[flatHomeZone]);
+            probability[2] = LogitCDF(v, Threshold3 + _thresholdOffset3[flatHomeZone]);
+            probability[3] = LogitCDF(v, Threshold4 + _thresholdOffset4[flatHomeZone]);
+            probability[4] = 1.0f;
+            // we have to do this backwards so we can do it all in-place
+            var probabilitySum = 0.0f;
+            for (int i = probability.Length - 1; i >= 1; i--)
             {
-                return 0;
+                // initially these are a CDF so we need to subtract from the previous CDF to
+                // get the probability of each step
+                probabilitySum += (probability[i] = (probability[i] - probability[i - 1]) * kFactor[i]);
             }
-            if (pop < LogitCDF(v, Threshold2 + _thresholdOffset2[flathomeZone]))
+            // For the last step there is nothing else lower, so we only need to multiply by the kFactor
+            probabilitySum += (probability[0] *= kFactor[0]);
+            // Scale the popped number [0, 1] to [0, probabilitySum] probability instead of changing all of the options
+            // Then we are going to subtract the probabilities out of it to get back to a CDF
+            pop *= probabilitySum;
+            for (int i = 0; i < probability.Length; i++)
             {
-                return 1;
+                pop -= probability[i];
+                if (pop <= 0)
+                {
+                    return i;
+                }
             }
-            if (pop < LogitCDF(v, Threshold3 + _thresholdOffset3[flathomeZone]))
-            {
-                return 2;
-            }
-            if (pop < LogitCDF(v, Threshold4 + _thresholdOffset4[flathomeZone]))
-            {
-                return 3;
-            }
-            //TODO: Replace this with a 4+ distribution?
+            // just in case we go through all of the options give rounding errors to category 4
             return 4;
         }
 
         public float Estimate(ITashaHousehold input, int expectedResult)
         {
-            int flathomeZone = _zones.GetFlatIndex(input.HomeZone.ZoneNumber);
-            float v = ComputeUtility(input, flathomeZone);
-            switch(expectedResult)
+            int flatHomeZone = _zones.GetFlatIndex(input.HomeZone.ZoneNumber);
+            float v = ComputeUtility(input, flatHomeZone);
+            Span<float> kFactor
+                = GetKFactors(input.DwellingType, flatHomeZone);
+            Span<float> probability = stackalloc float[KFactorSizePerZone / 2];
+            probability[0] = LogitCDF(v, Threshold1 + _thresholdOffset1[flatHomeZone]);
+            probability[1] = LogitCDF(v, Threshold2 + _thresholdOffset2[flatHomeZone]);
+            probability[2] = LogitCDF(v, Threshold3 + _thresholdOffset3[flatHomeZone]);
+            probability[3] = LogitCDF(v, Threshold4 + _thresholdOffset4[flatHomeZone]);
+            probability[4] = 1.0f;
+            var probabilitySum = 0.0f;
+            for (int i = probability.Length - 1; i >= 1; i--)
+            {
+                // initially these are a CDF so we need to subtract from the previous CDF to
+                // get the probability of each step
+                probabilitySum += (probability[i] = (probability[i] - probability[i - 1]) * kFactor[i]);
+            }
+            // For the last step there is nothing else lower, so we only need to multiply by the kFactor
+            probabilitySum += (probability[0] *= kFactor[0]);
+            switch (expectedResult)
             {
                 case 0:
-                    return LogitCDF(v, Threshold1 + _thresholdOffset1[flathomeZone]);
+                    return probability[0] / probabilitySum;
                 case 1:
-                    return LogitCDF(v, Threshold2 + _thresholdOffset2[flathomeZone])
-                        - LogitCDF(v, Threshold1 + _thresholdOffset1[flathomeZone]);
+                    return probability[1] / probabilitySum;
                 case 2:
-                    return LogitCDF(v, Threshold3 + _thresholdOffset3[flathomeZone])
-                        - LogitCDF(v, Threshold2 + _thresholdOffset2[flathomeZone]);
+                    return probability[2] / probabilitySum;
                 case 3:
-                    return LogitCDF(v, Threshold4 + _thresholdOffset4[flathomeZone])
-                        - LogitCDF(v, Threshold3 + _thresholdOffset3[flathomeZone]);
+                    return probability[3] / probabilitySum;
                 default:
-                    return 1.0f
-                        - LogitCDF(v, Threshold4 + _thresholdOffset4[flathomeZone]);
+                    return probability[4] / probabilitySum;
             }
         }
 
-        private float ComputeUtility(ITashaHousehold data, int flathomeZone)
+        private float ComputeUtility(ITashaHousehold data, int flatHomeZone)
         {
             float v;
-            if(data.DwellingType == DwellingType.Apartment)
+            if (data.DwellingType == DwellingType.Apartment)
             {
-                v = _preComputedHouseholdZoneUtilitiesApt[flathomeZone] + Apartment;
+                v = _preComputedHouseholdZoneUtilitiesApt[flatHomeZone] + Apartment;
             }
             else
             {
-                v = _preComputedHouseholdZoneUtilitiesGround[flathomeZone];
+                v = _preComputedHouseholdZoneUtilitiesGround[flatHomeZone];
             }
             var persons = data.Persons;
             int adults = 0, kids = 0, ftWorkers = 0;
             for (int i = 0; i < persons.Length; i++)
             {
-                if(persons[i].Age >= 18)
+                if (persons[i].Age >= 18)
                 {
                     adults++;
                 }
-                else if(persons[i].Age < 16)
+                else if (persons[i].Age < 16)
                 {
                     kids++;
                 }
-                if(persons[i].EmploymentStatus == TTSEmploymentStatus.FullTime)
+                if (persons[i].EmploymentStatus == TTSEmploymentStatus.FullTime)
                 {
                     ftWorkers++;
                 }
