@@ -105,7 +105,7 @@ namespace TMG.Emme.XTMF_Internal
                 new ModellerControllerParameter("from_scenario_numbers", ToScenarioNumber.ToString()),
                 new ModellerControllerParameter("to_attribute", ToAttribute),
                 new ModellerControllerParameter("from_attribute", FromAttribute),
-                new ModellerControllerParameter("domain", Domain.ToString()),
+                new ModellerControllerParameter("domain", Enum.GetName(Domain)),
                 new ModellerControllerParameter("node_selector", NodeSelection),
                 new ModellerControllerParameter("link_selector", LinkSelection),
                 new ModellerControllerParameter("transit_line_selector", TransitLineSelection),
