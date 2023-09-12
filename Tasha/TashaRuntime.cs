@@ -288,12 +288,17 @@ namespace Tasha
 
         private bool FindUs(IModelSystemStructure mst, ref IModelSystemStructure modelSystemStructure)
         {
+            // Defend against model systems that have not been loaded.
+            if(mst is null)
+            {
+                return false;
+            }
             if (mst.Module == this)
             {
                 modelSystemStructure = mst;
                 return true;
             }
-            if (mst.Children != null)
+            if (mst.Children is not null)
             {
                 foreach (var child in mst.Children)
                 {
