@@ -371,7 +371,7 @@ namespace TMG.Functions
             List<IModelSystemStructure> chain = new List<IModelSystemStructure>();
             foreach (var ms in project.ModelSystemStructure)
             {
-                if (BuildModelStructureChain(ms, toFind, chain))
+                if (ms is not null && BuildModelStructureChain(ms, toFind, chain))
                 {
                     break;
                 }
@@ -390,7 +390,7 @@ namespace TMG.Functions
             List<IModelSystemStructure> chain = new List<IModelSystemStructure>();
             foreach (var ms in config.ProjectRepository.ActiveProject.ModelSystemStructure)
             {
-                if (BuildModelStructureChain(ms, toFind, chain))
+                if (ms is not null && BuildModelStructureChain(ms, toFind, chain))
                 {
                     break;
                 }
@@ -407,6 +407,10 @@ namespace TMG.Functions
         /// <returns>True if we found the module, false otherwise</returns>
         public static bool BuildModelStructureChain(IModelSystemStructure root, IModule toFind, List<IModelSystemStructure> chain)
         {
+            if(root is null)
+            {
+                return false;
+            }
             if (root.Module == toFind)
             {
                 chain.Add(root);
@@ -436,6 +440,10 @@ namespace TMG.Functions
         /// <returns>True if we found the module, false otherwise</returns>
         public static bool BuildModelStructureChain(IModelSystemStructure root, IModelSystemStructure toFind, List<IModelSystemStructure> chain)
         {
+            if (root is null)
+            {
+                return false;
+            }
             if (root == toFind)
             {
                 chain.Add(root);
@@ -465,6 +473,10 @@ namespace TMG.Functions
         /// <returns>True if a model system structure with that path was found, false otherwise</returns>
         public static bool GetModelSystemStructureFromPath(IModelSystemStructure root, string path, ref IModelSystemStructure structure)
         {
+            if (root is null)
+            {
+                return false;
+            }
             var parts = SplitNameToParts(path);
             IModelSystemStructure current = root;
             for (int i = 0; i < parts.Length; i++)
