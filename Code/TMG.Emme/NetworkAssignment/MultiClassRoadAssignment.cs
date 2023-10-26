@@ -167,7 +167,7 @@ namespace TMG.Emme.NetworkAssignment
                 {
                     if (String.IsNullOrWhiteSpace(AttributeId))
                     {
-                        error = $"In {Name} the attriubute ID was not valid!";
+                        error = $"In {Name} the attribute ID was not valid!";
                         return false;
                     }
                     if (AggregationMatrix <= 0)

@@ -145,6 +145,7 @@ namespace TMG.Emme.NetworkAssignment
 
             [SubModelInformation(Required = false, Description = " Path analysis specification")]
             public Analysis[] PathAnalyses;
+
             public class Analysis : IModule
             {
                 public string Name { get; set; }
@@ -152,9 +153,63 @@ namespace TMG.Emme.NetworkAssignment
                 public float Progress => 0f;
 
                 public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+
+                [RunParameter("Attribute ID", "", "The attribute to use for analysis.")]
+                public string AttributeId;
+
+                [RunParameter("Aggregation Matrix", 0, "The first matrix number to store the results into.")]
+                public int AggregationMatrix;
+
+                [RunParameter("Operator", "+", "The operator to use to aggregate the matrix. Example:'+' for emissions, 'max' for select link analysis")]
+                public string AggregationOperator;
+
+                [RunParameter("Lower Bound for Path Selector", "None", "The number to use for the lower bound in path selection, or None if using all paths")]
+                public string LowerBound;
+
+                [RunParameter("Upper Bound for Path Selector", "None", "The number to use for the upper bound in path selection, or None if using all paths")]
+                public string UpperBound;
+
+                public enum Selection
+                {
+                    ALL = 0,
+                    SELECTED = 1
+                }
+                [RunParameter("Paths to Select", "ALL", typeof(Selection), "The paths that will be used for analysis")]
+                public Selection PathSelection;
+
+                [RunParameter("Multiply Path Proportion By Analyzed Demand", true, "Choose whether to multiply the path proportion by the analyzed demand")]
+                public bool MultiplyPathByDemand;
+                [RunParameter("Multiply Path Proportion By Path Value", true, "Choose whether to multiply the path proportion by the path value")]
+                public bool MultiplyPathByValue;
+
                 public bool RuntimeValidation(ref string error)
                 {
+                    if (String.IsNullOrWhiteSpace(AttributeId))
+                    {
+                        error = $"In {Name} the attribute ID was not valid!";
+                        return false;
+                    }
+                    if (AggregationMatrix <= 0)
+                    {
+                        error = $"In {Name} the aggregation matrix number was invalid!";
+                        return false;
+                    }
+
                     return true;
+                }
+
+                internal void Write(Utf8JsonWriter writer)
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("AttributeId", AttributeId);
+                    writer.WriteNumber("StartMatrixNumber", AggregationMatrix);
+                    writer.WriteString("AggregationOperator", AggregationOperator);
+                    writer.WriteString("LowerBound", LowerBound);
+                    writer.WriteString("UpperBound", UpperBound);
+                    writer.WriteNumber("PathSelection", (int)PathSelection);
+                    writer.WriteBoolean("MultiplyPathByDemand", MultiplyPathByDemand);
+                    writer.WriteBoolean("MultiplyPathByValue", MultiplyPathByValue);
+                    writer.WriteEndObject();
                 }
             }
         }
@@ -197,6 +252,12 @@ namespace TMG.Emme.NetworkAssignment
                 writer.WriteNumber("TimeMatrixNumber", trafficClass.TimeMatrixNumber);
                 writer.WriteNumber("CostMatrixNumber", trafficClass.CostMatrixNumber);
                 writer.WriteNumber("TollMatrixNumber", trafficClass.TollMatrixNumber);
+                writer.WriteStartArray("PathAnalyses");
+                foreach(var analysis in trafficClass.PathAnalyses)
+                {
+                    analysis.Write(writer);
+                }
+                writer.WriteEndArray();
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
