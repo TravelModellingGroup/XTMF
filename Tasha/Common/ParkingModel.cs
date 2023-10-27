@@ -142,6 +142,11 @@ namespace Tasha.Common
                             reader.Get(out data.Nightly.Hourly, 5);
                             reader.Get(out data.Nightly.Max, 6);
                             reader.Get(out data.FullDayMax, 7);
+
+                            // Convert from hourly costs to per minute costs
+                            data.Daily.Hourly /= 60;
+                            data.Nightly.Hourly /= 60;
+
                             _parkingInformation[index] = data;
                         }
                     }
