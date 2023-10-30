@@ -144,8 +144,9 @@ namespace TMG.Emme.NetworkAssignment
             }
 
             [SubModelInformation(Required = false, Description = " Path analysis specification")]
-            public Analysis[] PathAnalyses;
+            public Analysis PathAnalysis;
 
+            [ModuleInformation(Description = "Run a Path Analysis during the Space-Time Traffic Assignment.")]
             public class Analysis : IModule
             {
                 public string Name { get; set; }
@@ -206,7 +207,7 @@ namespace TMG.Emme.NetworkAssignment
                     writer.WriteString("AggregationOperator", AggregationOperator);
                     writer.WriteString("LowerBound", LowerBound);
                     writer.WriteString("UpperBound", UpperBound);
-                    writer.WriteNumber("PathSelection", (int)PathSelection);
+                    writer.WriteString("PathSelection", Enum.GetName<Selection>(PathSelection));
                     writer.WriteBoolean("MultiplyPathByDemand", MultiplyPathByDemand);
                     writer.WriteBoolean("MultiplyPathByValue", MultiplyPathByValue);
                     writer.WriteEndObject();
@@ -241,6 +242,7 @@ namespace TMG.Emme.NetworkAssignment
             writer.WriteStartArray();
             foreach (var trafficClass in TrafficClasses)
             {
+                // start traffic class
                 writer.WriteStartObject();
                 writer.WriteString("VolumeAttribute", trafficClass.VolumeAttribute);
                 writer.WriteNumber("AttributeStartIndex", trafficClass.AttributeStartIndex);
@@ -252,12 +254,12 @@ namespace TMG.Emme.NetworkAssignment
                 writer.WriteNumber("TimeMatrixNumber", trafficClass.TimeMatrixNumber);
                 writer.WriteNumber("CostMatrixNumber", trafficClass.CostMatrixNumber);
                 writer.WriteNumber("TollMatrixNumber", trafficClass.TollMatrixNumber);
+
                 writer.WriteStartArray("PathAnalyses");
-                foreach(var analysis in trafficClass.PathAnalyses)
-                {
-                    analysis.Write(writer);
-                }
+                trafficClass.PathAnalysis?.Write(writer);
                 writer.WriteEndArray();
+
+                // end traffic class
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
