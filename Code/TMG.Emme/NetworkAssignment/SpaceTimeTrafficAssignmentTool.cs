@@ -30,7 +30,6 @@ namespace TMG.Emme.NetworkAssignment
         @"The he Space-time Traffic Assignment Tool or STTA runs a multi-class quasi-dynamic traffic assignment that uses a time-dependent network loading.",
         Name = "Space Time Traffic Assignment Tool"
         )]
-
     public class SpaceTimeTrafficAssignmentTool : IEmmeTool
     {
         public string Name { get; set; }
@@ -135,19 +134,28 @@ namespace TMG.Emme.NetworkAssignment
 
             public bool RuntimeValidation(ref string error)
             {
-                if (char.IsLetter(Mode))
+                if (!char.IsLetter(Mode))
                 {
                     error = "In '" + Name + "' the Mode '" + Mode + "' is not a feasible mode for multi class assignment!";
-                    return true;
+                    return false;
                 }
-                return false;
+                if ((PathAnalysis is not null) && (TraversalAnalysis is not null))
+                {
+                    error = "In '" + Name + "you can have at most one of either a" +
+                        " Path Analysis or a Traversal analysis per Traffic Class!";
+                    return false;
+                }
+                return true;
             }
 
-            [SubModelInformation(Required = false, Description = " Path analysis specification")]
+            [SubModelInformation(Required = false, Description = "Path analysis specification")]
             public Analysis PathAnalysis;
 
+            [SubModelInformation(Required = false, Description = "Traversal analysis specification")]
+            public TraversalAnalysisSpec TraversalAnalysis;
+
             [ModuleInformation(Description = "Run a Path Analysis during the Space-Time Traffic Assignment.")]
-            public class Analysis : IModule
+            public sealed class Analysis : IModule
             {
                 public string Name { get; set; }
 
@@ -201,7 +209,7 @@ namespace TMG.Emme.NetworkAssignment
 
                 internal void Write(Utf8JsonWriter writer)
                 {
-                    writer.WriteStartObject();
+                    writer.WriteStartObject("PathAnalyses");
                     writer.WriteString("AttributeId", AttributeId);
                     writer.WriteNumber("StartMatrixNumber", AggregationMatrix);
                     writer.WriteString("AggregationOperator", AggregationOperator);
@@ -210,6 +218,69 @@ namespace TMG.Emme.NetworkAssignment
                     writer.WriteString("PathSelection", Enum.GetName<Selection>(PathSelection));
                     writer.WriteBoolean("MultiplyPathByDemand", MultiplyPathByDemand);
                     writer.WriteBoolean("MultiplyPathByValue", MultiplyPathByValue);
+                    writer.WriteEndObject();
+                }
+            }
+
+            [ModuleInformation(Description = "Run a Traversal Analysis during the Space-Time Traffic Assignment.")]
+            public sealed class TraversalAnalysisSpec : IModule
+            {
+                [RunParameter("Link Gates Attribute", "", "Link extra attribute or user data item to specify the gates.")]
+                public string LinkGates;
+
+                [RunParameter("Lower Threshold", 0, "The minimum number of gate pairs needed to cross before being selected.")]
+                public int LowerThreshold;
+
+                [RunParameter("Upper Threshold", 9999, "The maximum number of gate pairs needed to cross before being selected.")]
+                public int UpperThreshold;
+
+                [RunParameter("Traversal Matrix", 0, "The first matrix number to store the results into.")]
+                public int AggregationMatrix;
+
+                [RunParameter("Max CPU Cores", 16, "Set this to the maximum number of CPU cores that the traversal analysis is allowed to use." +
+                    "  We have noticed exponential performance deterioration if run with more than 16.  This will override performance mode.")]
+                public int MaxCPUCores;
+
+                public string Name { get; set; }
+
+                public float Progress => 0f;
+
+                public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+                public bool RuntimeValidation(ref string error)
+                {
+                    if (string.IsNullOrEmpty(LinkGates))
+                    {
+                        error = "You must specify the Link Gates Attribute to a link" +
+                            " extra attribute or user data item so we know how to build the traversal analysis area.";
+                        return false;
+                    }
+                    if(LowerThreshold > UpperThreshold)
+                    {
+                        error = "The LowerThreshold must be less than or equal to the UpperThreshold.";
+                        return false;
+                    }
+                    if(LowerThreshold < 0)
+                    {
+                        error = "The LowerThreshold must be greater than or equal to zero.";
+                        return false;
+                    }
+                    return true;
+                }
+
+                internal void Write(Utf8JsonWriter writer)
+                {
+                    writer.WriteStartObject("traversal_analysis");
+                    writer.WriteString("link_gates", LinkGates);
+                    writer.WriteStartObject("gate_pairs_threshold");
+                    writer.WriteNumber("lower", LowerThreshold);
+                    writer.WriteNumber("upper", UpperThreshold);
+                    writer.WriteEndObject();
+
+                    // Parameters that are not directly part of the traversal analysis.
+                    writer.WriteNumber("StartMatrixNumber", AggregationMatrix);
+                    writer.WriteNumber("MaxCPUCores", MaxCPUCores);
+                    // end traversal analysis spec
                     writer.WriteEndObject();
                 }
             }
@@ -255,9 +326,8 @@ namespace TMG.Emme.NetworkAssignment
                 writer.WriteNumber("CostMatrixNumber", trafficClass.CostMatrixNumber);
                 writer.WriteNumber("TollMatrixNumber", trafficClass.TollMatrixNumber);
 
-                writer.WriteStartArray("PathAnalyses");
                 trafficClass.PathAnalysis?.Write(writer);
-                writer.WriteEndArray();
+                trafficClass.TraversalAnalysis?.Write(writer);
 
                 // end traffic class
                 writer.WriteEndObject();
