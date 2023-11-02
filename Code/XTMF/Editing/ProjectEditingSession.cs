@@ -324,7 +324,6 @@ namespace XTMF
         {
             lock (_EditingSessionsLock)
             {
-                
                 var index = Project.IndexOf(pms);
                 if (index < 0)
                 {
@@ -341,6 +340,7 @@ namespace XTMF
                         InvokeModelSystemNameChanged();
                     }
                     //In any case we need to save this change so everything updates accordingly
+                    Project.EnsureModelSystemLoaded(index);
                     Project.ModelSystemStructure[index].Name = newName;
                 }
                 else
@@ -422,6 +422,7 @@ namespace XTMF
             lock (_EditingSessions)
             {
                 // If it is currently being edited, save that version
+                Project.EnsureModelSystemLoaded(modelSystemIndex);
                 var root = Project.ModelSystemStructure[modelSystemIndex];
                 var editingSession = _EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
                 if (editingSession.Session != null)
