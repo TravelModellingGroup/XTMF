@@ -1,8 +1,9 @@
 # XTMF - The eXtensible Travel Modelling Framework
 
-XTMF is software that creates, edits and runs _model systems_. Model systems in XTMF are designed with a hierarchical compositions of modules. Every module in a model system provides data input and custom execution logic. XTMF uses projects as an organizational structure for containing a collection of model systems.
+XTMF is software that creates, edits and runs _model systems_. Model systems in XTMF are designed with a hierarchical compositions of modules.
+Every module in a model system provides data input and custom execution logic. XTMF uses projects as an organizational structure for containing a collection of model systems.
 
-XTMF and its modules are written in C# using the .NET framework.
+XTMF and its modules are written in C# using the .NET 8.0 SDK.
 
 A large collection of modules are available as part of this repository - and is also included with the binary releases of XTMF.
 
@@ -30,14 +31,24 @@ For development of XTMF, Visual Studio 2017 or later is required. _XTMF.sln_ in 
 
 **Note:** Module development does not require using Visual Studio as your IDE. Rider, Visual Studio Code and others are suitable alternatives for module development _only_ with the XTMF SDK.
 
+To compile XTMF run the following in the `Code` directory:
+
+> dotnet build -c Development;
+
+To run unit tests execute
+
+> dotnet test -c Development;
+
+To run XTMF from the command line:
+
+> dotnet run -c Development --project XTMF.GUI;
+
 ## Documentation
 
 Documentation for XTMF is available on the Travel Modelling Group's [documentation site](https://tmg.utoronto.ca/doc 'XTMF User Guide').
 
 ## Licensing
 
-The eXtensible Travel Modelling Framework
-
-Licensed under the GPLv3 which is available in the root directory under "License".
-
-The eXtensible Travel Modelling Framework (XTMF) is an open-source (GPLv3) software platform developed by the University of Toronto to build model systems through the composition and configuration of different modules. This means that all modules used to construct GTAModel V4.0 have their code available for inspection or recompilation
+The eXtensible Travel Modelling Framework Licensed under the GPLv3 which is available in the root directory under "License". The eXtensible Travel Modelling Framework (XTMF)
+is an open-source (GPLv3) software platform developed by the University of Toronto to build model systems through the composition and configuration of different modules.
+This means that all modules used to construct GTAModel V4.0+ have their code available for inspection or recompilation.
