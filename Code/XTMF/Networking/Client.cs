@@ -209,7 +209,6 @@ namespace XTMF.Networking
                        }
                    }).Start();
                 BinaryWriter writer = new BinaryWriter(networkStream);
-                BinaryFormatter outputFormat = new BinaryFormatter();
                 networkStream.WriteTimeout = 20000;
                 while (!done && !_Exit)
                 {
@@ -217,7 +216,7 @@ namespace XTMF.Networking
                     Thread.MemoryBarrier();
                     if (!done && message != null)
                     {
-                        if (ProcessMessage(writer, outputFormat, message))
+                        if (ProcessMessage(writer, message))
                         {
                             done = true;
                         }
@@ -403,7 +402,7 @@ namespace XTMF.Networking
             }
         }
 
-        private bool ProcessMessage(BinaryWriter writer, BinaryFormatter outputFormat, Message message)
+        private bool ProcessMessage(BinaryWriter writer, Message message)
         {
             switch (message.Type)
             {

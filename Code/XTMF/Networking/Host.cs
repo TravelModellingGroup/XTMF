@@ -287,7 +287,6 @@ namespace XTMF.Networking
                            {
                                clientStream.ReadTimeout = Timeout.Infinite;
                                BinaryReader reader = new BinaryReader(clientStream);
-                               BinaryFormatter readingConverter = new BinaryFormatter();
                                while (!done && !_Exit)
                                {
                                    var messageType = (MessageType)reader.ReadInt32();
@@ -378,7 +377,6 @@ namespace XTMF.Networking
                        // don't close the reader/writer since this will also close the client stream
                    }).Start();
                 BinaryWriter writer = new BinaryWriter(clientStream);
-                BinaryFormatter converter = new BinaryFormatter();
                 clientStream.WriteTimeout = 10000;
                 while (!done && !_Exit)
                 {
@@ -387,7 +385,7 @@ namespace XTMF.Networking
                     {
                         message = new Message(MessageType.RequestProgress);
                     }
-                    var nowDone = ProcessMessage(done, ourRemoteClient, writer, converter, message);
+                    var nowDone = ProcessMessage(done, ourRemoteClient, writer, message);
                     Thread.MemoryBarrier();
                     done = done | nowDone;
                 }
@@ -576,7 +574,7 @@ namespace XTMF.Networking
             }
         }
 
-        private bool ProcessMessage(bool done, RemoteXTMF ourRemoteClient, BinaryWriter writer, BinaryFormatter converter, Message message)
+        private bool ProcessMessage(bool done, RemoteXTMF ourRemoteClient, BinaryWriter writer, Message message)
         {
             if (message != null)
             {

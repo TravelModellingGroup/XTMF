@@ -23,7 +23,7 @@ namespace XTMF
 {
     public class BindingListWithRemoving<T> : BindingList<T>
     {
-        public event EventHandler<ListChangedEventArgs> BeforeRemove;
+        public event EventHandler<ListChangedEventArgs>? BeforeRemove;
 
         protected override void RemoveItem(int index)
         {
