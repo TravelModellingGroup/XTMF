@@ -32,7 +32,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 if ((destIndex | firstIndex | secondIndex) == 0)
                 {
@@ -115,7 +115,7 @@ namespace TMG.Functions
 
         public static void Multiply(float[] dest, float[] source, float scalar)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var constant = Vector512.Create(scalar);
 
@@ -161,7 +161,7 @@ namespace TMG.Functions
 
         public static void Multiply(float[][] destination, float lhs, float[][] rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -220,7 +220,7 @@ namespace TMG.Functions
 
         public static void Multiply(float[][] destination, float[][] lhs, float rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -279,7 +279,7 @@ namespace TMG.Functions
 
         public static void Multiply(float[][] destination, float[][] lhs, float[][] rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -350,7 +350,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float scalar, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var scalarV = Vector512.Create(scalar);
                 if ((destIndex | firstIndex) == 0)
@@ -440,7 +440,7 @@ namespace TMG.Functions
         /// <param name="length"></param>
         internal static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, float scalar, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var vScalar = Vector512.Create(scalar);
                 if ((destIndex | firstIndex | secondIndex) == 0)

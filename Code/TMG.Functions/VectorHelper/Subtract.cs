@@ -28,7 +28,7 @@ namespace TMG.Functions
     {
         public static void Subtract(float[] dest, float[] lhs, float rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var rhsV = Vector512.Create(rhs);
 
@@ -74,7 +74,7 @@ namespace TMG.Functions
 
         public static void Subtract(float[] dest, float lhs, float[] rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var lhsV = Vector512.Create(lhs);
 
@@ -120,7 +120,7 @@ namespace TMG.Functions
 
         public static void Subtract(float[][] destination, float lhs, float[][] rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -179,7 +179,7 @@ namespace TMG.Functions
 
         public static void Subtract(float[][] destination, float[][] lhs, float rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -238,7 +238,7 @@ namespace TMG.Functions
 
         public static void Subtract(float[][] destination, float[][] lhs, float[][] rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -310,7 +310,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Subtract(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 if ((destIndex | firstIndex | secondIndex) == 0)
                 {

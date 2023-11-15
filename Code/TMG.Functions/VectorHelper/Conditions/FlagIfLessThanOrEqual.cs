@@ -30,7 +30,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThanOrEqual(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var zero = Vector512<float>.Zero;
                 var one = Vector512<float>.One;

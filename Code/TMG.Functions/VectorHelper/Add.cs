@@ -28,7 +28,7 @@ namespace TMG.Functions
     {
         public static void Add(float[] dest, float[] source, float scalar)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var constant = Vector512.Create(scalar);
 
@@ -75,7 +75,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, float[] third, int thirdIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 if ((destIndex | firstIndex | secondIndex | thirdIndex) == 0)
                 {
@@ -165,7 +165,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 if ((destIndex | firstIndex | secondIndex) == 0)
                 {
@@ -240,7 +240,7 @@ namespace TMG.Functions
 
         public static void Add(float[][] destination, float lhs, float[][] rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -299,7 +299,7 @@ namespace TMG.Functions
 
         public static void Add(float[][] destination, float[][] lhs, float rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -358,7 +358,7 @@ namespace TMG.Functions
 
         public static void Add(float[][] destination, float[][] lhs, float[][] rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {

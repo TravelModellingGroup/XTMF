@@ -34,7 +34,7 @@ namespace TMG.Functions
             {
                 throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
             }
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 int i;
                 var zero = Vector512<float>.Zero;
@@ -129,7 +129,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThan(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var zero = Vector512<float>.Zero;
                 var one = Vector512<float>.One;

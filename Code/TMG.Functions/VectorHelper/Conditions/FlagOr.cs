@@ -39,7 +39,7 @@ namespace TMG.Functions
             else
             {
                 int i = 0;
-                if(Vector512.IsHardwareAccelerated)
+                if (Vector512.IsHardwareAccelerated)
                 {
                     var one = Vector512<float>.One;
                     for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
@@ -69,7 +69,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagOr(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var one = Vector512<float>.One;
                 if ((destIndex | lhsIndex | rhsIndex) == 0)

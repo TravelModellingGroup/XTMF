@@ -29,7 +29,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Divide(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 if ((destIndex | firstIndex | secondIndex) == 0)
                 {
@@ -114,7 +114,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Divide(float[] destination, int destIndex, float[] first, int firstIndex, float denominator, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var s = Vector512.Create(denominator);
                 if ((destIndex | firstIndex) == 0)
@@ -160,7 +160,7 @@ namespace TMG.Functions
                     for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
                     {
                         var f = new Vector<float>(first, i);
-                        
+
                         (f / s).CopyTo(destination, i);
                     }
                     // copy the remainder
@@ -196,7 +196,7 @@ namespace TMG.Functions
 
         public static void Divide(float[][] destination, float numerator, float[][] denominator)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -255,7 +255,7 @@ namespace TMG.Functions
 
         public static void Divide(float[][] destination, float[][] numerator, float denominator)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -314,7 +314,7 @@ namespace TMG.Functions
 
         public static void Divide(float[][] destination, float[][] numerator, float[][] denominator)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -375,7 +375,7 @@ namespace TMG.Functions
 
         public static void Divide(float[] dest, float[] lhs, float rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Vector512<float> rhsV = Vector512.Create(rhs);
 
@@ -421,7 +421,7 @@ namespace TMG.Functions
 
         public static void Divide(float[] dest, float lhs, float[] rhs)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 var lhsV = Vector512.Create(lhs);
 

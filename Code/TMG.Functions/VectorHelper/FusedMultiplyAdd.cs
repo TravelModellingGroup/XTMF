@@ -31,7 +31,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[] dest, float[] lhs, float[] rhs, float add)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 int i;
                 var vAdd = Vector512.Create(add);
@@ -78,7 +78,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[] dest, float[] lhs, float rhs, float add)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 int i;
                 var vAdd = Vector512.Create(add);
@@ -126,7 +126,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[] dest, float[] lhs, float rhs, float[] add)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 int i;
                 var r = Vector512.Create(rhs);
@@ -173,7 +173,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[] dest, float[] lhs, float[] rhs, float[] add)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 int i;
                 for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)

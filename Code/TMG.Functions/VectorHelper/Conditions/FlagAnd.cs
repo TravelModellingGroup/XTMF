@@ -43,7 +43,7 @@ namespace TMG.Functions
                 {
                     throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
                 }
-                if(Vector512.IsHardwareAccelerated)
+                if (Vector512.IsHardwareAccelerated)
                 {
                     Vector512<float> zero = Vector512<float>.Zero;
                     Vector512<float> vValue = Vector512.Create(value);
@@ -84,7 +84,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagAnd(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
         {
-            if(Vector512.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
             {
                 Vector512<float> zero = Vector512<float>.Zero;
                 if ((destIndex | lhsIndex | rhsIndex) == 0)
