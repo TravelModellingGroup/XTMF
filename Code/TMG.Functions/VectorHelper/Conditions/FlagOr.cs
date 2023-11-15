@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Numerics;
+using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
@@ -37,12 +38,23 @@ namespace TMG.Functions
             }
             else
             {
-                // the vector implementation performed faster than the serial version by multiples
                 int i = 0;
-                var one = Vector<float>.One;
-                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                if(Vector512.IsHardwareAccelerated)
                 {
-                    one.CopyTo(dest, i);
+                    var one = Vector512<float>.One;
+                    for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        Vector512.StoreUnsafe(one, ref dest[i]);
+                    }
+                }
+                if (Vector.IsHardwareAccelerated)
+                {
+                    // the vector implementation performed faster than the serial version by multiples
+                    var one = Vector<float>.One;
+                    for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        one.CopyTo(dest, i);
+                    }
                 }
                 // copy the remainder
                 for (; i < dest.Length; i++)
@@ -57,7 +69,42 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagOr(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var one = Vector512<float>.One;
+                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref lhs[i]);
+                        var s = Vector512.LoadUnsafe(ref rhs[i]);
+                        var local = Vector512.ConditionalSelect(Vector512.Equals(f, one), one, s);
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = lhs[i] == 1.0f ? 1.0f : rhs[i];
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref lhs[i + lhsIndex]);
+                        var s = Vector512.LoadUnsafe(ref rhs[i + rhsIndex]);
+                        var local = Vector512.ConditionalSelect(Vector512.Equals(f, one), one, s);
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = lhs[i + lhsIndex] == 1.0f ? 1.0f : rhs[i + rhsIndex];
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var one = Vector<float>.One;
                 if ((destIndex | lhsIndex | rhsIndex) == 0)

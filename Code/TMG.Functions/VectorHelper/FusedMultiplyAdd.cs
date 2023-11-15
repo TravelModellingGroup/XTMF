@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,8 @@
 */
 
 using System.Numerics;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 
 namespace TMG.Functions
@@ -29,7 +31,25 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[] dest, float[] lhs, float[] rhs, float add)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                int i;
+                var vAdd = Vector512.Create(add);
+                for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var l = Vector512.LoadUnsafe(ref lhs[i]);
+                    var r = Vector512.LoadUnsafe(ref rhs[i]);
+                    var local = Avx512F.IsSupported ?
+                        Avx512F.FusedMultiplyAdd(l, r, vAdd) :
+                        (l * r + vAdd);
+                    Vector512.StoreUnsafe(local, ref dest[i]);
+                }
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = lhs[i] * rhs[i] + add;
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 int i;
                 var vAdd = new Vector<float>(add);
@@ -58,7 +78,25 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[] dest, float[] lhs, float rhs, float add)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                int i;
+                var vAdd = Vector512.Create(add);
+                var r = Vector512.Create(rhs);
+                for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var l = Vector512.LoadUnsafe(ref lhs[i]);
+                    var local = Avx512F.IsSupported ?
+                        Avx512F.FusedMultiplyAdd(l, r, vAdd) :
+                        (l * r + vAdd);
+                    Vector512.StoreUnsafe(local, ref dest[i]);
+                }
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = lhs[i] * rhs + add;
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 int i;
                 var vAdd = new Vector<float>(add);
@@ -88,7 +126,25 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[] dest, float[] lhs, float rhs, float[] add)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                int i;
+                var r = Vector512.Create(rhs);
+                for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var l = Vector512.LoadUnsafe(ref lhs[i]);
+                    var vAdd = Vector512.LoadUnsafe(ref add[i]);
+                    var local = Avx512F.IsSupported ?
+                        Avx512F.FusedMultiplyAdd(l, r, vAdd) :
+                        (l * r + vAdd);
+                    Vector512.StoreUnsafe(local, ref dest[i]);
+                }
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = lhs[i] * rhs + add[i];
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 int i;
                 var r = new Vector<float>(rhs);
@@ -117,7 +173,25 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[] dest, float[] lhs, float[] rhs, float[] add)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                int i;
+                for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var l = Vector512.LoadUnsafe(ref lhs[i]);
+                    var r = Vector512.LoadUnsafe(ref rhs[i]);
+                    var vAdd = Vector512.LoadUnsafe(ref add[i]);
+                    var local = Avx512F.IsSupported ?
+                        Avx512F.FusedMultiplyAdd(l, r, vAdd) :
+                        (l * r + vAdd);
+                    Vector512.StoreUnsafe(local, ref dest[i]);
+                }
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = lhs[i] * rhs[i] + add[i];
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 int i;
                 for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -22,6 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 
 namespace TMG.Functions
@@ -31,7 +32,44 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                if ((destIndex | firstIndex | secondIndex) == 0)
+                {
+                    int i = 0;
+                    // copy everything we can do inside of a vector
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i]);
+                        var s = Vector512.LoadUnsafe(ref second[i]);
+                        var local = (f * s);
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = first[i] * second[i];
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
+                        var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                        var local = (f * s);
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex];
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 if ((destIndex | firstIndex | secondIndex) == 0)
                 {
@@ -77,7 +115,25 @@ namespace TMG.Functions
 
         public static void Multiply(float[] dest, float[] source, float scalar)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var constant = Vector512.Create(scalar);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= source.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var dynamic = Vector512.LoadUnsafe(ref source[i]);
+                    var local = (constant * dynamic);
+                    Vector512.StoreUnsafe(local, ref dest[i]);
+                }
+                // copy the remainder
+                for (; i < source.Length; i++)
+                {
+                    dest[i] = source[i] * scalar;
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 Vector<float> constant = new Vector<float>(scalar);
 
@@ -105,7 +161,30 @@ namespace TMG.Functions
 
         public static void Multiply(float[][] destination, float lhs, float[][] rhs)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                Parallel.For(0, destination.Length, row =>
+                {
+                    var n = Vector512.Create(lhs);
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var denom = rhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var d = Vector512.LoadUnsafe(ref denom[i]);
+                        var local = (n * d);
+                        Vector512.StoreUnsafe(local, ref dest[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = lhs * denom[i];
+                    }
+                });
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -141,7 +220,30 @@ namespace TMG.Functions
 
         public static void Multiply(float[][] destination, float[][] lhs, float rhs)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                Parallel.For(0, destination.Length, row =>
+                {
+                    var d = Vector512.Create(rhs);
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = lhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var n = Vector512.LoadUnsafe(ref num[i]);
+                        var local = (n * d);
+                        Vector512.StoreUnsafe(local, ref dest[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] * rhs;
+                    }
+                });
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -177,7 +279,31 @@ namespace TMG.Functions
 
         public static void Multiply(float[][] destination, float[][] lhs, float[][] rhs)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                Parallel.For(0, destination.Length, row =>
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = lhs[row];
+                    var denom = rhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var n = Vector512.LoadUnsafe(ref num[i]);
+                        var d = Vector512.LoadUnsafe(ref denom[i]);
+                        var local = (n * d);
+                        Vector512.StoreUnsafe(local, ref dest[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] * denom[i];
+                    }
+                });
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 Parallel.For(0, destination.Length, row =>
                 {
@@ -224,7 +350,41 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float scalar, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var scalarV = Vector512.Create(scalar);
+                if ((destIndex | firstIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var local = (Vector512.LoadUnsafe(ref first[i]) * scalarV);
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = first[i] * scalar;
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var local = (Vector512.LoadUnsafe(ref first[i + firstIndex]) * scalarV);
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i + destIndex] = first[i + firstIndex] * scalar;
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 Vector<float> scalarV = new Vector<float>(scalar);
                 if ((destIndex | firstIndex) == 0)
@@ -280,7 +440,45 @@ namespace TMG.Functions
         /// <param name="length"></param>
         internal static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, float scalar, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var vScalar = Vector512.Create(scalar);
+                if ((destIndex | firstIndex | secondIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i]);
+                        var s = Vector512.LoadUnsafe(ref second[i]);
+                        var local = (f * s * vScalar);
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = first[i] * second[i] * scalar;
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
+                        var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                        var local = (f * s * vScalar);
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * scalar;
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var vScalar = new Vector<float>(scalar);
                 if ((destIndex | firstIndex | secondIndex) == 0)

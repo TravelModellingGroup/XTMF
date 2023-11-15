@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Numerics;
+using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 
 namespace TMG.Functions
@@ -29,16 +30,33 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThan(float[] dest, float lhs, float[] rhs)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (dest.Length != rhs.Length)
+            {
+                throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+            }
+            if(Vector512.IsHardwareAccelerated)
             {
                 int i;
-                if (dest.Length != rhs.Length)
+                var zero = Vector512<float>.Zero;
+                var one = Vector512<float>.One;
+                var vValue = Vector512.Create(lhs);
+                for (i = 0; i < rhs.Length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                    var vData = Vector512.LoadUnsafe(ref rhs[i]);
+                    var local = Vector512.ConditionalSelect(Vector512.LessThan(vData, vValue), one, zero);
+                    Vector512.StoreUnsafe(local, ref dest[i]);
                 }
-                Vector<float> zero = Vector<float>.Zero;
-                Vector<float> one = Vector<float>.One;
-                Vector<float> vValue = new Vector<float>(lhs);
+                for (; i < rhs.Length; i++)
+                {
+                    dest[i] = lhs < rhs[i] ? 1 : 0;
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                var zero = Vector<float>.Zero;
+                var one = Vector<float>.One;
+                var vValue = new Vector<float>(lhs);
                 for (i = 0; i < rhs.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var vData = new Vector<float>(rhs, i);
@@ -60,16 +78,33 @@ namespace TMG.Functions
 
         public static void FlagIfLessThan(float[] dest, float[] lhs, float rhs)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (dest.Length != lhs.Length)
+            {
+                throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+            }
+            if (Vector512.IsHardwareAccelerated)
             {
                 int i;
-                if (dest.Length != lhs.Length)
+                var zero = Vector512<float>.Zero;
+                var one = Vector512<float>.One;
+                var vRhs = Vector512.Create(rhs);
+                for (i = 0; i < lhs.Length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                    var vData = Vector512.LoadUnsafe(ref lhs[i]);
+                    var local = Vector512.ConditionalSelect(Vector512.LessThan(vData, vRhs), one, zero);
+                    Vector512.StoreUnsafe(local, ref dest[i]);
                 }
-                Vector<float> zero = Vector<float>.Zero;
-                Vector<float> one = Vector<float>.One;
-                Vector<float> vRhs = new Vector<float>(rhs);
+                for (; i < lhs.Length; i++)
+                {
+                    dest[i] = lhs[i] < rhs ? 1 : 0;
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                var zero = Vector<float>.Zero;
+                var one = Vector<float>.One;
+                var vRhs = new Vector<float>(rhs);
                 for (i = 0; i < lhs.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var vData = new Vector<float>(lhs, i);
@@ -94,10 +129,46 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThan(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
             {
-                Vector<float> zero = Vector<float>.Zero;
-                Vector<float> one = Vector<float>.One;
+                var zero = Vector512<float>.Zero;
+                var one = Vector512<float>.One;
+                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref lhs[i]);
+                        var s = Vector512.LoadUnsafe(ref rhs[i]);
+                        var local = Vector512.ConditionalSelect(Vector512.LessThan(f, s), one, zero);
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = lhs[i] < rhs[i] ? 1 : 0;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref lhs[i + lhsIndex]);
+                        var s = Vector512.LoadUnsafe(ref rhs[i + rhsIndex]);
+                        var local = Vector512.ConditionalSelect(Vector512.LessThan(f, s), one, zero);
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = lhs[i + lhsIndex] < rhs[i + rhsIndex] ? 1 : 0;
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
+            {
+                var zero = Vector<float>.Zero;
+                var one = Vector<float>.One;
                 if ((destIndex | lhsIndex | rhsIndex) == 0)
                 {
                     int i = 0;
