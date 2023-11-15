@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -22,6 +22,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
+using System.Runtime.Intrinsics;
 
 namespace TMG.Functions
 {
@@ -36,9 +37,12 @@ namespace TMG.Functions
         /// </summary>
         private static Vector<float> MaxFloat;
 
+        private static Vector512<float> MaxFloat512;
+
         static VectorHelper()
         {
             MaxFloat = new Vector<float>(float.MaxValue);
+            MaxFloat512 = Vector512.Create(float.MaxValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
@@ -77,7 +81,33 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Sum(float[] array, int startIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var remainderSum = 0.0f;
+                var acc = Vector512<float>.Zero;
+                var acc2 = Vector512<float>.Zero;
+                var acc3 = Vector512<float>.Zero;
+                int endIndex = (startIndex + length);
+                // copy everything we can do inside of a vector
+                int i = startIndex;
+                for (; i <= (endIndex - (Vector512<float>.Count * 3)); i += (Vector512<float>.Count * 3))
+                {
+                    var f = Vector512.LoadUnsafe(ref array[i]);
+                    var s = Vector512.LoadUnsafe(ref array[i + Vector512<float>.Count]);
+                    var t = Vector512.LoadUnsafe(ref array[i + Vector512<float>.Count * 2]);
+                    acc += f;
+                    acc2 += s;
+                    acc3 += t;
+                }
+                // copy the remainder
+                for (; i < endIndex; i++)
+                {
+                    remainderSum += array[i];
+                }
+                acc = acc + acc2 + acc3;
+                return remainderSum + Vector512.Sum(acc);
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var remainderSum = 0.0f;
                 var acc = Vector<float>.Zero;
@@ -127,7 +157,44 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float AbsDiffAverage(float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var remainderSum = 0.0f;
+                var acc = Vector512<float>.Zero;
+                var acc2 = Vector512<float>.Zero;
+                int i = firstIndex;
+                if ((firstIndex | secondIndex) == 0)
+                {
+                    int highestForVector = length - (Vector512<float>.Count * 2);
+                    for (; i <= highestForVector; i += Vector512<float>.Count * 2)
+                    {
+                        var f1 = Vector512.LoadUnsafe(ref first[i]);
+                        var s1 = Vector512.LoadUnsafe(ref second[i]);
+                        var f2 = Vector512.LoadUnsafe(ref first[i + Vector512<float>.Count]);
+                        var s2 = Vector512.LoadUnsafe(ref second[i + Vector512<float>.Count]);
+                        acc += Vector512.Abs(f1 - s1);
+                        acc2 += Vector512.Abs(f2 - s2);
+                    }
+                    acc += acc2;
+                }
+                else
+                {
+                    int highestForVector = length - Vector512<float>.Count + firstIndex;
+                    int s = secondIndex;
+                    for (; i <= highestForVector; i += Vector512<float>.Count)
+                    {
+                        acc += Vector512.Abs(Vector512.LoadUnsafe(ref first[i]) - Vector512.LoadUnsafe(ref second[s]));
+                        s += Vector512<float>.Count;
+                    }
+                }
+                // copy the remainder
+                for (; i < length; i++)
+                {
+                    remainderSum += Math.Abs(first[i + firstIndex] - second[i + secondIndex]);
+                }
+                return (remainderSum + Vector512.Sum(acc)) / length;
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var remainderSum = 0.0f;
                 var acc = Vector<float>.Zero;
@@ -187,7 +254,42 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float AbsDiffMax(float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var remainderMax = 0.0f;
+                var vectorMax = Vector512<float>.Zero;
+                if ((firstIndex | secondIndex) == 0)
+                {
+                    int highestForVector = length - Vector512<float>.Count;
+                    for (int i = 0; i <= highestForVector; i += Vector512<float>.Count)
+                    {
+                        vectorMax = Vector512.Max(Vector512.Abs(Vector512.LoadUnsafe(ref first[i]) - Vector512.LoadUnsafe(ref second[i])), vectorMax);
+                    }
+                }
+                else
+                {
+                    int highestForVector = length - Vector512<float>.Count + firstIndex;
+                    int s = secondIndex;
+                    for (int f = 0; f <= highestForVector; f += Vector512<float>.Count)
+                    {
+                        vectorMax = Vector512.Max(Vector512.Abs(Vector512.LoadUnsafe(ref first[f]) - Vector512.LoadUnsafe(ref second[s])), vectorMax);
+                        s += Vector<float>.Count;
+                    }
+                }
+                // copy the remainder
+                for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                {
+                    remainderMax = Math.Max(remainderMax, Math.Abs(first[i + firstIndex] - second[i + secondIndex]));
+                }
+                Span<float> temp = stackalloc float[Vector512<float>.Count];
+                vectorMax.CopyTo(temp);
+                for (int i = 0; i < temp.Length; i++)
+                {
+                    remainderMax = Math.Max(temp[i], remainderMax);
+                }
+                return remainderMax;
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var remainderMax = 0.0f;
                 var vectorMax = Vector<float>.Zero;
@@ -214,7 +316,7 @@ namespace TMG.Functions
                 {
                     remainderMax = Math.Max(remainderMax, Math.Abs(first[i + firstIndex] - second[i + secondIndex]));
                 }
-                float[] temp = new float[Vector<float>.Count];
+                Span<float> temp = stackalloc float[Vector<float>.Count];
                 vectorMax.CopyTo(temp);
                 for (int i = 0; i < temp.Length; i++)
                 {
@@ -245,7 +347,43 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float SquareDiff(float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var remainderSum = 0.0f;
+                var acc = Vector512<float>.Zero;
+                if ((firstIndex | secondIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var diff = Vector512.LoadUnsafe(ref first[i]) - Vector512.LoadUnsafe(ref second[i]);
+                        acc += diff * diff;
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        var diff = first[i] - second[i];
+                        remainderSum += diff * diff;
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var diff = Vector512.LoadUnsafe(ref first[i + firstIndex]) - Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                        acc += diff * diff;
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        var diff = first[i + firstIndex] - second[i + secondIndex];
+                        remainderSum += diff * diff;
+                    }
+                }
+                return remainderSum + Vector512.Sum(acc);
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var remainderSum = 0.0f;
                 var acc = Vector<float>.Zero;
@@ -301,7 +439,20 @@ namespace TMG.Functions
         /// <param name="value">The value to set it to</param>
         public static void Set(float[] dest, float value)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                int i = 0;
+                var vValue = Vector512.Create(value);
+                for (; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    Vector512.StoreUnsafe(vValue, ref dest[i]);
+                }
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = value;
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 int i = 0;
                 var vValue = new Vector<float>(value);
@@ -325,7 +476,23 @@ namespace TMG.Functions
 
         public static void Abs(float[] dest, float[] source)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var dynamic = Vector512.LoadUnsafe(ref source[i]);
+                    var local = (Vector512.Abs(dynamic));
+                    Vector512.StoreUnsafe(local, ref dest[i]);
+                }
+                // copy the remainder
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = Math.Abs(source[i]);
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 // copy everything we can do inside of a vector
                 int i = 0;
@@ -372,7 +539,49 @@ namespace TMG.Functions
         public static float MultiplyAndSum(float[] destination, int destIndex, float[] first, int firstIndex,
             float[] second, int secondIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var remainderSum = 0.0f;
+                var acc = Vector512<float>.Zero;
+                if ((destIndex | firstIndex | secondIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i]);
+                        var s = Vector512.LoadUnsafe(ref second[i]);
+                        var local = (f * s);
+                        acc += local;
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        remainderSum += destination[i] = first[i] * second[i];
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
+                        var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                        var local = (f * s);
+                        acc += local;
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        remainderSum += destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex];
+                    }
+                }
+                return remainderSum + Vector512.Sum(acc);
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var remainderSum = 0.0f;
                 var acc = Vector<float>.Zero;
@@ -437,7 +646,49 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float MultiplyAndSum(float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var remainderSum = 0.0f;
+                var acc = Vector512<float>.Zero;
+                var acc2 = Vector512<float>.Zero;
+                if ((firstIndex | secondIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - (Vector512<float>.Count * 2); i += (Vector512<float>.Count * 2))
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i]);
+                        var s = Vector512.LoadUnsafe(ref second[i]);
+                        var f2 = Vector512.LoadUnsafe(ref first[i + Vector<float>.Count]);
+                        var s2 = Vector512.LoadUnsafe(ref second[i + Vector<float>.Count]);
+
+                        acc += (f * s);
+                        acc2 += (f2 * s2);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        remainderSum += first[i] * second[i];
+                    }
+                    acc += acc2;
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        acc += (Vector512.LoadUnsafe(ref first[i + firstIndex]) * Vector512.LoadUnsafe(ref second[i + secondIndex]));
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        remainderSum += first[i + firstIndex] * second[i + secondIndex];
+                    }
+                }
+                return remainderSum + Vector512.Sum(acc);
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var remainderSum = 0.0f;
                 var acc = Vector<float>.Zero;
@@ -504,7 +755,53 @@ namespace TMG.Functions
         public static float Multiply3AndSum(float[] first, int firstIndex, float[] second, int secondIndex,
             float[] third, int thirdIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var remainderSum = 0.0f;
+                var acc = Vector512<float>.Zero;
+                var acc2 = Vector512<float>.Zero;
+                if ((firstIndex | secondIndex | thirdIndex) == 0)
+                {
+                    int i = 0;
+                    // copy everything we can do inside of a vector
+                    for (; i <= length - (Vector512<float>.Count * 2); i += (Vector512<float>.Count * 2))
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i]);
+                        var s = Vector512.LoadUnsafe(ref second[i]);
+                        var t = Vector512.LoadUnsafe(ref third[i]);
+                        var f2 = Vector512.LoadUnsafe(ref first[i + Vector512<float>.Count]);
+                        var s2 = Vector512.LoadUnsafe(ref second[i + Vector512<float>.Count]);
+                        var t2 = Vector512.LoadUnsafe(ref third[i + Vector512<float>.Count]);
+                        acc += (f * s * t);
+                        acc2 += (f2 * s2 * t2);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        remainderSum += first[i] * second[i] * third[i];
+                    }
+                    acc += acc2;
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
+                        var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                        var t = Vector512.LoadUnsafe(ref third[i + thirdIndex]);
+                        var local = (f * s * t);
+                        acc += local;
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        remainderSum += first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex];
+                    }
+                }
+                return remainderSum + Vector512.Sum(acc);
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var remainderSum = 0.0f;
                 var acc = Vector<float>.Zero;
@@ -576,7 +873,42 @@ namespace TMG.Functions
         public static void Multiply2Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
             float[] second, int secondIndex, float scalar, float[] columnSum, int columnIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var scalarV = Vector512.Create(scalar);
+                if ((destIndex | firstIndex | secondIndex | columnIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var local = Vector512.LoadUnsafe(ref first[i]) * Vector512.LoadUnsafe(ref second[i]) * scalarV;
+                        Vector512.StoreUnsafe((Vector512.LoadUnsafe(ref columnSum[i]) + local), ref columnSum[i]);
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        columnSum[i] += (destination[i] = first[i] * second[i] * scalar);
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var local = Vector512.LoadUnsafe(ref first[i + firstIndex]) * Vector512.LoadUnsafe(ref second[i + secondIndex]) * scalarV;
+                        Vector512.StoreUnsafe(Vector512.LoadUnsafe(ref columnSum[i + columnIndex]) + local, ref columnSum[i + columnIndex]);
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        columnSum[i + columnIndex] += (destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * scalar);
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 Vector<float> scalarV = new Vector<float>(scalar);
                 if ((destIndex | firstIndex | secondIndex | columnIndex) == 0)
@@ -640,7 +972,41 @@ namespace TMG.Functions
         public static void Multiply3Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
             float[] second, int secondIndex, float[] third, int thirdIndex, float scalar, float[] columnSum, int columnIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var scalarV = Vector512.Create(scalar);
+                if ((destIndex | firstIndex | secondIndex | thirdIndex | columnIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var local = Vector512.LoadUnsafe(ref first[i]) * Vector512.LoadUnsafe(ref second[i]) * Vector512.LoadUnsafe(ref third[i]) * scalarV;
+                        Vector512.StoreUnsafe(Vector512.LoadUnsafe(ref columnSum[i]) + local, ref columnSum[i]);
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        columnSum[i] += (destination[i] = first[i] * second[i] * third[i] * scalar);
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var local = Vector512.LoadUnsafe(ref first[i + firstIndex]) * Vector512.LoadUnsafe(ref second[i + secondIndex]) * Vector512.LoadUnsafe(ref third[i + thirdIndex]) * scalarV;
+                        Vector512.StoreUnsafe(Vector512.LoadUnsafe(ref columnSum[i + columnIndex]) + local, ref columnSum[i + columnIndex]);
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        columnSum[i + columnIndex] += (destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex] * scalar);
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 Vector<float> scalarV = new Vector<float>(scalar);
                 if ((destIndex | firstIndex | secondIndex | thirdIndex | columnIndex) == 0)
@@ -688,13 +1054,30 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThanOrEqual(float[] dest, float lhs, float[] rhs)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (dest.Length != rhs.Length)
+            {
+                throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+            }
+            if(Vector512.IsHardwareAccelerated)
             {
                 int i;
-                if (dest.Length != rhs.Length)
+                var zero = Vector512<float>.Zero;
+                var one = Vector512<float>.One;
+                var vValue = Vector512.Create(lhs);
+                for (i = 0; i < rhs.Length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                    var vData = Vector512.LoadUnsafe(ref rhs[i]);
+                    Vector512.StoreUnsafe(Vector512.ConditionalSelect(Vector512.LessThanOrEqual(vData, vValue), one, zero),
+                        ref dest[i]);
                 }
+                for (; i < rhs.Length; i++)
+                {
+                    dest[i] = lhs <= rhs[i] ? 1 : 0;
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
+            {
+                int i;
                 Vector<float> zero = Vector<float>.Zero;
                 Vector<float> one = Vector<float>.One;
                 Vector<float> vValue = new Vector<float>(lhs);
@@ -722,13 +1105,30 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThanOrEqual(float[] dest, float[] lhs, float rhs)
         {
-            if (Vector.IsHardwareAccelerated)
+            if (dest.Length != lhs.Length)
+            {
+                throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+            }
+            if (Vector512.IsHardwareAccelerated)
             {
                 int i;
-                if (dest.Length != lhs.Length)
+                Vector512<float> zero = Vector512<float>.Zero;
+                Vector512<float> one = Vector512<float>.One;
+                Vector512<float> vValue = Vector512.Create(rhs);
+                for (i = 0; i < lhs.Length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                    var vData = Vector512.LoadUnsafe(ref lhs[i]);
+                    Vector512.StoreUnsafe(Vector512.ConditionalSelect(Vector512.LessThanOrEqual(vData, vValue), one, zero),
+                        ref dest[i]);
                 }
+                for (; i < lhs.Length; i++)
+                {
+                    dest[i] = lhs[i] <= rhs ? 1 : 0;
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
+            {
+                int i;  
                 Vector<float> zero = Vector<float>.Zero;
                 Vector<float> one = Vector<float>.One;
                 Vector<float> vValue = new Vector<float>(rhs);
@@ -764,7 +1164,42 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Average(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                Vector512<float> half = Vector512.Create(0.5f);
+                if ((destIndex | firstIndex | secondIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i]);
+                        var s = Vector512.LoadUnsafe(ref second[i]);
+                        Vector512.StoreUnsafe((f + s) * half,
+                            ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = (first[i] + second[i]) * 0.5f;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
+                        var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                        Vector512.StoreUnsafe((f + s) * half,
+                            ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = (first[i + firstIndex] + second[i + secondIndex]) * 0.5f;
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 Vector<float> half = new Vector<float>(0.5f);
                 if ((destIndex | firstIndex | secondIndex) == 0)
@@ -829,6 +1264,23 @@ namespace TMG.Functions
         /// </summary>
         /// <param name="baseValues">The values to test for their finite property</param>
         /// <param name="alternateValues">The values to replace if the base value is not finite</param>
+        /// <returns>A new vector containing the proper mix of the base and alternate values</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector512<float> SelectIfFinite(Vector512<float> baseValues, Vector512<float> alternateValues)
+        {
+            //If it is greater than the maximum value it is infinite, if it is not equal to itself it is NaN
+            return Vector512.ConditionalSelect(
+                Vector512.BitwiseAnd(Vector512.LessThanOrEqual(Vector512.Abs(baseValues), MaxFloat512), Vector512.GreaterThanOrEqual(baseValues, baseValues)),
+                baseValues, alternateValues
+                );
+        }
+
+        /// <summary>
+        /// Produce a new vector selecting the original value if it is finite.  If it is not,
+        /// select the alternative value.
+        /// </summary>
+        /// <param name="baseValues">The values to test for their finite property</param>
+        /// <param name="alternateValues">The values to replace if the base value is not finite</param>
         /// <param name="minimumV"></param>
         /// <returns>A new vector containing the proper mix of the base and alternate values</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -843,6 +1295,25 @@ namespace TMG.Functions
         }
 
         /// <summary>
+        /// Produce a new vector selecting the original value if it is finite.  If it is not,
+        /// select the alternative value.
+        /// </summary>
+        /// <param name="baseValues">The values to test for their finite property</param>
+        /// <param name="alternateValues">The values to replace if the base value is not finite</param>
+        /// <param name="minimumV"></param>
+        /// <returns>A new vector containing the proper mix of the base and alternate values</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector512<float> SelectIfFiniteAndLessThan(Vector512<float> baseValues, Vector512<float> alternateValues, Vector512<float> minimumV)
+        {
+            //If it is greater than the maximum value it is infinite, if it is not equal to itself it is NaN
+            return Vector512.ConditionalSelect(
+                Vector512.BitwiseAnd(Vector512.BitwiseAnd(Vector512.LessThanOrEqual(Vector512.Abs(baseValues), MaxFloat512),
+                Vector512.GreaterThanOrEqual(baseValues, baseValues)), Vector512.GreaterThanOrEqual(baseValues, minimumV)),
+                baseValues, alternateValues
+                );
+        }
+
+        /// <summary>
         /// Assign to an array replacing values if the base is NaN
         /// </summary>
         /// <param name="dest">The place to store the results</param>
@@ -851,11 +1322,25 @@ namespace TMG.Functions
         public static void ReplaceIfNaN(float[] dest, float[] baseValue, float[] replacementValue)
         {
             int i = 0;
-            for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            if(Vector512.IsHardwareAccelerated)
             {
-                var b = new Vector<float>(baseValue, i);
-                var r = new Vector<float>(replacementValue, i);
-                Vector.ConditionalSelect(Vector.GreaterThanOrEqual(b, b), b, r).CopyTo(dest, i);
+                for (; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var b = Vector512.LoadUnsafe(ref baseValue[i]);
+                    var r = Vector512.LoadUnsafe(ref replacementValue[i]);
+                    Vector512.StoreUnsafe(
+                        Vector512.ConditionalSelect(Vector512.GreaterThanOrEqual(b, b), b, r), 
+                        ref dest[i]);
+                }
+            }
+            if (Vector.IsHardwareAccelerated)
+            {
+                for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var b = new Vector<float>(baseValue, i);
+                    var r = new Vector<float>(replacementValue, i);
+                    Vector.ConditionalSelect(Vector.GreaterThanOrEqual(b, b), b, r).CopyTo(dest, i);
+                }
             }
             for (; i < dest.Length; i++)
             {
@@ -872,7 +1357,41 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReplaceIfNotFinite(float[] destination, int destIndex, float alternateValue, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var altV = Vector512.Create(alternateValue);
+                if (destIndex == 0)
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        Vector512.StoreUnsafe(SelectIfFinite(Vector512.LoadUnsafe(ref destination[i]), altV), ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        if (!float.IsFinite(destination[i]))
+                        {
+                            destination[i] = alternateValue;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        Vector512.StoreUnsafe(SelectIfFinite(Vector512.LoadUnsafe(ref destination[i + destIndex]), altV), ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        if (!float.IsFinite(destination[i + destIndex]))
+                        {
+                            destination[i + destIndex] = alternateValue;
+                        }
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var altV = new Vector<float>(alternateValue);
                 if (destIndex == 0)
@@ -884,7 +1403,7 @@ namespace TMG.Functions
                     // copy the remainder
                     for (int i = length - (length % Vector<float>.Count); i < length; i++)
                     {
-                        if (float.IsNaN(destination[i]) || float.IsInfinity(destination[i]))
+                        if (!float.IsFinite(destination[i]))
                         {
                             destination[i] = alternateValue;
                         }
@@ -899,7 +1418,7 @@ namespace TMG.Functions
                     // copy the remainder
                     for (int i = length - (length % Vector<float>.Count); i < length; i++)
                     {
-                        if (float.IsNaN(destination[i + destIndex]) || float.IsInfinity(destination[i + destIndex]))
+                        if (!float.IsFinite(destination[i + destIndex]))
                         {
                             destination[i + destIndex] = alternateValue;
                         }
@@ -910,7 +1429,7 @@ namespace TMG.Functions
             {
                 for (int i = 0; i < length; i++)
                 {
-                    if (float.IsNaN(destination[i + destIndex]) || float.IsInfinity(destination[i + destIndex]))
+                    if (!float.IsFinite(destination[i + destIndex]))
                     {
                         destination[i + destIndex] = alternateValue;
                     }
@@ -928,7 +1447,35 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReplaceIfNotFinite(float[] destination, int destIndex, float[] source, int sourceIndex, float alternateValue, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var altV = Vector512.Create(alternateValue);
+                if (destIndex == 0 && sourceIndex == 0)
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Vector512.StoreUnsafe(SelectIfFinite(Vector512.LoadUnsafe(ref source[i]), altV), ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        destination[i] = !float.IsFinite(source[i]) ? alternateValue : source[i];
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        Vector512.StoreUnsafe(SelectIfFinite(Vector512.LoadUnsafe(ref source[i + sourceIndex]), altV), ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = !float.IsFinite(source[i + sourceIndex]) ? alternateValue : source[i + sourceIndex];
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var altV = new Vector<float>(alternateValue);
                 if (destIndex == 0 && sourceIndex == 0)
@@ -940,7 +1487,7 @@ namespace TMG.Functions
                     // copy the remainder
                     for (int i = length - (length % Vector<float>.Count); i < length; i++)
                     {
-                        destination[i] = float.IsNaN(source[i]) || float.IsInfinity(source[i]) ? alternateValue : source[i];
+                        destination[i] = !float.IsFinite(source[i]) ? alternateValue : source[i];
                     }
                 }
                 else
@@ -952,7 +1499,7 @@ namespace TMG.Functions
                     // copy the remainder
                     for (int i = length - (length % Vector<float>.Count); i < length; i++)
                     {
-                        destination[i + destIndex] = float.IsNaN(source[i + sourceIndex]) || float.IsInfinity(source[i + sourceIndex]) ? alternateValue : source[i + sourceIndex];
+                        destination[i + destIndex] = !float.IsFinite(source[i + sourceIndex]) ? alternateValue : source[i + sourceIndex];
                     }
                 }
             }
@@ -960,7 +1507,7 @@ namespace TMG.Functions
             {
                 for (int i = 0; i < length; i++)
                 {
-                    destination[i + destIndex] = float.IsNaN(source[i + sourceIndex]) || float.IsInfinity(source[i + sourceIndex]) ? alternateValue : source[i + sourceIndex];
+                    destination[i + destIndex] = !float.IsFinite(source[i + sourceIndex]) ? alternateValue : source[i + sourceIndex];
                 }
             }
         }
@@ -975,7 +1522,36 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReplaceIfNotFinite(float[] destination, int destIndex, float[] source, int sourceIndex, float[] alternateValue, int altIndex, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                if (destIndex == 0 && sourceIndex == 0 && altIndex == 0)
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var altV = Vector512.LoadUnsafe(ref alternateValue[i]);
+                        Vector512.StoreUnsafe(SelectIfFinite(Vector512.LoadUnsafe(ref source[i]), altV), ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i] = !float.IsFinite(source[i]) ? alternateValue[i] : source[i];
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var altV = Vector512.LoadUnsafe(ref alternateValue[i + altIndex]);
+                        Vector512.StoreUnsafe(SelectIfFinite(Vector512.LoadUnsafe(ref source[i + sourceIndex]), altV), ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = !float.IsFinite(source[i + sourceIndex]) ? alternateValue[i + altIndex] : source[i + sourceIndex];
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 if (destIndex == 0 && sourceIndex == 0 && altIndex == 0)
                 {
@@ -987,7 +1563,7 @@ namespace TMG.Functions
                     // copy the remainder
                     for (int i = length - (length % Vector<float>.Count); i < length; i++)
                     {
-                        destination[i] = float.IsNaN(source[i]) || float.IsInfinity(source[i]) ? alternateValue[i] : source[i];
+                        destination[i] = !float.IsFinite(source[i]) ? alternateValue[i] : source[i];
                     }
                 }
                 else
@@ -1000,7 +1576,7 @@ namespace TMG.Functions
                     // copy the remainder
                     for (int i = length - (length % Vector<float>.Count); i < length; i++)
                     {
-                        destination[i + destIndex] = float.IsNaN(source[i + sourceIndex]) || float.IsInfinity(source[i + sourceIndex]) ? alternateValue[i + altIndex] : source[i + sourceIndex];
+                        destination[i + destIndex] = !float.IsFinite(source[i + sourceIndex]) ? alternateValue[i + altIndex] : source[i + sourceIndex];
                     }
                 }
             }
@@ -1008,14 +1584,51 @@ namespace TMG.Functions
             {
                 for (int i = 0; i < length; i++)
                 {
-                    destination[i + destIndex] = float.IsNaN(source[i + sourceIndex]) || float.IsInfinity(source[i + sourceIndex]) ? alternateValue[i + altIndex] : source[i + sourceIndex];
+                    destination[i + destIndex] = !float.IsFinite(source[i + sourceIndex]) ? alternateValue[i + altIndex] : source[i + sourceIndex];
                 }
             }
         }
 
         public static void ReplaceIfLessThanOrNotFinite(float[] destination, int destIndex, float alternateValue, float minimum, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var altV = Vector512.Create(alternateValue);
+                var minimumV = Vector512.Create(minimum);
+                if (destIndex == 0)
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var local = SelectIfFiniteAndLessThan(Vector512.LoadUnsafe(ref destination[i]), altV, minimumV);
+                        Vector512.StoreUnsafe(local, ref destination[i]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        if (float.IsInfinity(destination[i]) || !(destination[i] >= minimum))
+                        {
+                            destination[i] = alternateValue;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        var local = SelectIfFiniteAndLessThan(Vector512.LoadUnsafe(ref destination[i + destIndex]), altV, minimumV);
+                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        if (float.IsInfinity(destination[i + destIndex]) || !(destination[i + destIndex] >= minimum))
+                        {
+                            destination[i + destIndex] = alternateValue;
+                        }
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var altV = new Vector<float>(alternateValue);
                 var minimumV = new Vector<float>(minimum);
@@ -1065,7 +1678,47 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AnyGreaterThan(float[] data, int dataIndex, float rhs, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var rhsV = Vector512.Create(rhs);
+                if (dataIndex == 0)
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        if (Vector512.GreaterThanAny(Vector512.LoadUnsafe(ref data[i]), rhsV))
+                        {
+                            return true;
+                        }
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        if (data[i] > rhs)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        if (Vector512.GreaterThanAny(Vector512.LoadUnsafe(ref data[i + dataIndex]), rhsV))
+                        {
+                            return true;
+                        }
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        if (data[i + dataIndex] > rhs)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var rhsV = new Vector<float>(rhs);
                 if (dataIndex == 0)
@@ -1121,7 +1774,48 @@ namespace TMG.Functions
 
         public static bool AreBoundedBy(float[] data, int dataIndex, float baseNumber, float maxVarriation, int length)
         {
-            if (Vector.IsHardwareAccelerated)
+            if(Vector512.IsHardwareAccelerated)
+            {
+                var baseV = Vector512.Create(baseNumber);
+                var maxmumVariationV = Vector512.Create(maxVarriation);
+                if (dataIndex == 0)
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        if (Vector512.GreaterThanAny(Vector512.Abs(Vector512.LoadUnsafe(ref data[i]) - baseV), maxmumVariationV))
+                        {
+                            return false;
+                        }
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        if (Math.Abs(data[i] - baseNumber) > maxVarriation)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                    {
+                        if (Vector512.GreaterThanAny(Vector512.Abs(Vector512.LoadUnsafe(ref data[i + dataIndex]) - baseV), maxmumVariationV))
+                        {
+                            return true;
+                        }
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
+                    {
+                        if (Math.Abs(data[i + dataIndex] - baseNumber) > maxVarriation)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
             {
                 var baseV = new Vector<float>(baseNumber);
                 var maxmumVariationV = new Vector<float>(maxVarriation);
@@ -1238,6 +1932,30 @@ namespace TMG.Functions
         }
 
         /// <summary>
+        /// Computes the Arithmetic Geometric mean for the given values.
+        /// </summary>
+        /// <param name="x">The first parameter vector. This parameter must be non negative!</param>
+        /// <param name="y">The second parameter vector. This parameter must be non negative!</param>
+        /// <seealso>
+        ///     <cref>https://en.wikipedia.org/wiki/Arithmetic–geometric_mean</cref>
+        /// </seealso>
+        /// <returns>The AGM for each element in the parameters</returns>
+        public static Vector512<float> ArithmeticGeometricMean(Vector512<float> x, Vector512<float> y)
+        {
+            var half = Vector512.Create(0.5f);
+            var a = half * (x + y);
+            var g = Vector512.Sqrt(x * y);
+            // 5 expansions seems to be sufficient for 32-bit floating point numbers
+            for (int i = 0; i < 5; i++)
+            {
+                var tempA = half * (a + g);
+                g = Vector512.Sqrt(a * g);
+                a = tempA;
+            }
+            return a;
+        }
+
+        /// <summary>
         /// Computes the natural logarithm for each element in x
         /// </summary>
         /// <param name="x">The values to compute the logarithms of</param>
@@ -1248,10 +1966,27 @@ namespace TMG.Functions
         public static Vector<float> Log(Vector<float> x)
         {
             var two = new Vector<float>(2.0f);
-            var pi = new Vector<float>((float)Math.PI);
+            var pi = new Vector<float>(MathF.PI);
             var mTimesln2 = new Vector<float>(0.693147181f * 16.0f);
             var denom = new Vector<float>(4.0f) / (x * new Vector<float>(65536.0f));
             return (pi / (two * ArithmeticGeometricMean(Vector<float>.One, denom))) - mTimesln2;
+        }
+
+        /// <summary>
+        /// Computes the natural logarithm for each element in x
+        /// </summary>
+        /// <param name="x">The values to compute the logarithms of</param>
+        /// <returns>The vector of logarithms</returns>
+        /// <see>
+        ///     <cref>https://en.wikipedia.org/wiki/Natural_logarithm</cref>
+        /// </see>
+        public static Vector512<float> Log(Vector512<float> x)
+        {
+            var two = Vector512.Create(2.0f);
+            var pi = Vector512.Create(MathF.PI);
+            var mTimesln2 = Vector512.Create(0.693147181f * 16.0f);
+            var denom = Vector512.Create(4.0f) / (x * Vector512.Create(65536.0f));
+            return (pi / (two * ArithmeticGeometricMean(Vector512<float>.One, denom))) - mTimesln2;
         }
 
         /// <summary>
@@ -1266,22 +2001,33 @@ namespace TMG.Functions
         {
             for (int i = 0; i < length; i++)
             {
-                destination[i + destIndex] = (float)Math.Log(x[i + xIndex]);
+                destination[i + destIndex] = MathF.Log(x[i + xIndex]);
             }
         }
 
         public static void Negate(float[] dest, float[] source)
         {
             int i = 0;
-            for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            if(Vector512.IsHardwareAccelerated)
             {
-                Vector.Negate(new Vector<float>(source, i)).CopyTo(dest, i);
+                for (; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var local = Vector512.Negate(Vector512.LoadUnsafe(ref source[i]));
+                    Vector512.StoreUnsafe(local, ref dest[i]);
+                }
+            }
+            if(Vector.IsHardwareAccelerated)
+            {
+                for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    Vector.Negate(new Vector<float>(source, i)).CopyTo(dest, i);
+                }
             }
             for (; i < dest.Length; i++)
             {
                 dest[i] = -source[i];
             }
         }
-
     }
+
 }
