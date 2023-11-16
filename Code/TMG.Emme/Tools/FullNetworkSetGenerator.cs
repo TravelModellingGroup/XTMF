@@ -110,11 +110,6 @@ namespace TMG.Emme.Tools
                     error = "In '" + Name + "' the uncleaned scenario number is invalid!";
                     return false;
                 }
-                if(CleanedScenarioNumber <= 0)
-                {
-                    error = "In '" + Name + "' the cleaned scenario number is invalid!";
-                    return false;
-                }
                 if(EndTime <= StartTime)
                 {
                     error = "In '" + Name + "' the end time of the scenario is not after its start time!";
