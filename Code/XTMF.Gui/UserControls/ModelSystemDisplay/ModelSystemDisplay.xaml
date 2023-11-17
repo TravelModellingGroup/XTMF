@@ -93,18 +93,24 @@
                             <ColumnDefinition Width="AUTO"/>
                             <ColumnDefinition Width="AUTO"/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter" Checked="ToggleButton_OnChecked"  Unchecked="ToggleButton_OnUnchecked"
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="AUTO"/>
+                            <RowDefinition Height="AUTO"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock x:Name="ParameterNameBlock" Grid.Column="2" Grid.ColumnSpan="3" 
+                                   Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource PrimaryHueMidBrush}" />
+                        <CheckBox materialDesign:TransitionAssist.DisableTransitions="True" Grid.Row="1" Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter" Checked="ToggleButton_OnChecked"  Unchecked="ToggleButton_OnUnchecked"
                                           IsTabStop="False"/>
-                        <TextBox   PreviewDragOver="StandardParameterTemplateTextBox_OnPreviewDragOver" Name="StandardParameterTemplateTextBox"  AllowDrop="True" LostFocus="TextBox_OnLostFocus"
+                        <TextBox Grid.Row="1"  PreviewDragOver="StandardParameterTemplateTextBox_OnPreviewDragOver" Name="StandardParameterTemplateTextBox"  AllowDrop="True" LostFocus="TextBox_OnLostFocus"
                                    TextChanged="TextBox_OnTextChanged" HorizontalContentAlignment="Left" Tag="{Binding .}" Grid.Column="2"
-                                   Style="{StaticResource XtmfMaterialDesignFloatingHintTextBox}"  TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                                   TextWrapping="Wrap" VerticalContentAlignment="Center" materialDesign:HintAssist.Hint=""
                                            GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus" CaretBrush="{DynamicResource SecondaryHueDarkBrush}"
-                                          Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}" FocusManager.IsFocusScope="True"
+                                          Margin="4,0,0,0" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}" FocusManager.IsFocusScope="True"
                                           PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}" Drop="StandardParameterTemplateTextBox_OnDrop"
-                                          SelectionOpacity="0.6" MinHeight="15" Padding="5" LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
+                                          SelectionOpacity="1" MinHeight="15" LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
                                    ContextMenu="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=ContextMenu}"/>
 
-                        <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"   Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                        <StackPanel Grid.Row="1" materialDesign:TransitionAssist.DisableTransitions="True"   Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                             <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
                             <materialDesign:PackIcon Kind="DoNotDisturbAlt" ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
@@ -133,22 +139,27 @@
 
                     <Grid materialDesign:TransitionAssist.DisableTransitions="True" >
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="16"></ColumnDefinition>
+                            <ColumnDefinition Width="16"/>
                             <ColumnDefinition Width="AUTO"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="AUTO"/>
                             <ColumnDefinition Width="AUTO"/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter" Checked="ToggleButton_OnChecked"  Unchecked="ToggleButton_OnUnchecked"
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="AUTO"/>
+                            <RowDefinition Height="AUTO"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock x:Name="ParameterNameBlock" Grid.Column="2" Grid.ColumnSpan="3" 
+                                   Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource PrimaryHueMidBrush}" />
+                        <CheckBox Grid.Row="1" materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="1" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter" Checked="ToggleButton_OnChecked"  Unchecked="ToggleButton_OnUnchecked"
                                                   IsTabStop="False"/>
-                        <ComboBox  Tag="{Binding .}"  materialDesign:TransitionAssist.DisableTransitions="True"  Name="ComboBox"  Style="{StaticResource XtmfMaterialDesignFloatingHintComboBox}" PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2" materialDesign:HintAssist.Hint="{Binding Name, Mode=OneTime}"
+                        <ComboBox Grid.Row="1" Tag="{Binding .}"  materialDesign:TransitionAssist.DisableTransitions="True"  Name="ComboBox"  PreviewKeyDown="ComboBox_PreviewKeyDown"  Grid.Column="2"
                                           MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                         AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}" IsEditable="False"
-                                          IsReadOnly="True" Margin="5,5,5,5" HorizontalAlignment="Stretch" FontSize="14" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
-                                          BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True" SelectionChanged="ComboBox_SelectionChanged"
+                                          IsReadOnly="True" HorizontalAlignment="Stretch" GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus"
+                                          BorderThickness="0" Margin="4,0,0,0"  SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" IsTabStop="True" SelectionChanged="ComboBox_SelectionChanged"
                                    ContextMenu="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=ContextMenu}"/>
-                        <StackPanel materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
-
+                        <StackPanel Grid.Row="1" materialDesign:TransitionAssist.DisableTransitions="True"  Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="LinkVariant" ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}"/>
                             <materialDesign:PackIcon Kind="Settings"  ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}"/>
                             <materialDesign:PackIcon Kind="DoNotDisturbAlt" ToolTip="Associated module is disabled" Visibility="{Binding ModuledDisabledIconVisiblity}"/>
@@ -454,7 +465,7 @@
                                             <materialDesign:ColorZone Mode="Standard" Padding="0 0 0 0" CornerRadius="2"
                                                                       Margin="5 5 5 5" UseLayoutRounding="True" Background="{DynamicResource MaterialDesignCardBackground}"
                                                                       Foreground="{DynamicResource IdealForegroundColorBrush}">
-                                                
+
                                                 <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="AUTO" />
