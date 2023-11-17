@@ -183,53 +183,54 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="1"  Background="{DynamicResource MaterialDesignToolBarBackground}"></Border>
-                        <ToolBarTray IsLocked="True" Grid.Row="0" Grid.Column="0" DockPanel.Dock="Left" Height="54" Margin="0 0 0 0"  Background="{DynamicResource MaterialDesignPaper}" >
-                            <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
+                        <Border Grid.Column="1"  Background="{DynamicResource MaterialDesignToolBarBackground}"/>
+                        <ToolBarTray IsLocked="True" Grid.Row="0" Grid.Column="0" Height="54" Margin="0 0 0 0"  Background="{DynamicResource MaterialDesignPaper}" >
+                            <ToolBar VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True">
                                 <Button ToolTip="Save Model System" Click="ButtonBase_OnClick" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanSaveModelSystem}" Name="SaveModelSystemButton"
-                                        Width="36" Height="36" Margin="10 2 5 0" BorderBrush="Transparent"
-                                        Background="Transparent" Foreground="{DynamicResource MaterialDesignBody}"
-                                        Style="{DynamicResource MaterialDesignFloatingActionMiniButton}" VerticalAlignment="Center"
-                                       >
-                                    <materialDesign:PackIcon Kind="ContentSave" />
+                                            BorderBrush="Transparent" Background="Transparent" Style="{DynamicResource MaterialDesignFloatingActionMiniDarkButton}" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="ContentSave" Foreground="{DynamicResource PrimaryHueLightBrush}" />
                                 </Button>
                                 <Button ToolTip="Linked Parameters" Click="LinkedParameter_Click" Name="LinkedParameterDisplayButton">
-                                    <materialDesign:PackIcon Kind="LinkVariant" />
+                                    <materialDesign:PackIcon Kind="LinkVariant" Foreground="{DynamicResource PrimaryHueLightBrush}"/>
                                 </Button>
                                 <Button ToolTip="Run Model System" Click="RunModelSystem_Click" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
                                              AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}">
-                                    <materialDesign:PackIcon Kind="Run" />
+                                    <materialDesign:PackIcon Kind="Run" Foreground="{DynamicResource PrimaryHueLightBrush}"/>
                                 </Button>
                                 <Button ToolTip="Open Project Folder" Click="OpenProjectFolderToolbarButton_Click" Name="OpenProjectFolderToolbarButton">
-                                    <materialDesign:PackIcon Kind="FolderOpen" />
+
+                                    <materialDesign:PackIcon Kind="FolderOpen" Foreground="{DynamicResource PrimaryHueLightBrush}"/>
                                 </Button>
                                 <Button ToolTip="Reload Model System" Click="ReloadModelSystemToolbarButton_Click" Name="ReloadModelSystemToolbarButton">
-                                    <materialDesign:PackIcon Kind="Reload" />
+                                    <materialDesign:PackIcon Kind="Reload" Foreground="{DynamicResource PrimaryHueLightBrush}"/>
                                 </Button>
-                                <Grid Width="250" HorizontalAlignment="Left"   Margin="12 2 12 0" VerticalAlignment="Center">
+                                <Grid Width="270" HorizontalAlignment="Left"   Margin="12 2 12 0" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
-
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
-                                        <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                        <materialDesign:PackIcon Kind="Magnify" Opacity=".6" />
                                     </Button>
-                                    <my:FilterBox Opacity="0.5" Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
+                                    <my:FilterBox Grid.Column="1" x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="8,2,8,5" />
                                 </Grid>
                             </ToolBar>
                         </ToolBarTray>
-                        <ToolBarTray   Grid.Column="2" IsLocked="True" Grid.Row="0" DockPanel.Dock="Right" Height="54" Margin="0 0 0 0" VerticalAlignment="Center" >
-                            <ToolBar  VerticalContentAlignment="Stretch" Style="{DynamicResource MaterialDesignToolBar}" ClipToBounds="True" VerticalAlignment="Bottom">
-                                <Button Name="QuickParameterToolbarToggle" Click="QuickParameterToolbarToggle_OnClick"  >
-                                    <materialDesign:PackIcon Kind="Flash"  Foreground="{Binding QuickParameterToolBarForeground}" />
-                                </Button>
-                                <Button ToolTip="Toggle Module Parameters Panel" Name="ModuleParametersToolbarToggle" Click="ModuleParametersToolbarToggle_OnClick"  >
-                                    <materialDesign:PackIcon Kind="Tune" Foreground="{Binding ModuleParameterToolBarForeground}" />
-                                </Button>
-                            </ToolBar>
-                        </ToolBarTray>
+                        <Grid Grid.Column="2" HorizontalAlignment="Right" Grid.Row="0" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="AUTO" />
+                                <ColumnDefinition Width="AUTO" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" ToolTip="Toggle Quick Parameters Panel" Height="54" Name="QuickParameterToolbarToggle" Click="QuickParameterToolbarToggle_OnClick" 
+                                    Background="{DynamicResource MaterialDesignToolBarBackground}">
+                                <materialDesign:PackIcon Kind="Flash"  Foreground="{Binding QuickParameterToolBarForeground}" Height="54" Width="28" />
+                            </Button>
+                            <Button Grid.Column="1" ToolTip="Toggle Module Parameters Panel" Height="54" Name="ModuleParametersToolbarToggle" Click="ModuleParametersToolbarToggle_OnClick" 
+                                    Background="{DynamicResource MaterialDesignToolBarBackground}">
+                                <materialDesign:PackIcon Kind="Tune" Foreground="{Binding ModuleParameterToolBarForeground}" Height="54" Width="28"/>
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Grid>
                 <Grid Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}" Name="ContentDisplayGrid">
@@ -262,18 +263,20 @@
 
                                 </Grid.RowDefinitions>
 
-                                <Grid  Grid.Row="0">
+                                <Grid Grid.Row="0" Background="{DynamicResource MaterialDesignCardBackground}">
                                     <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch"   Margin="0 0 5 2"  Name="ModuleParameterDisplaySearch" Opacity="0"  >
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="30" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <Button  Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}" Name="ModuleParameterDisplaySearchBackButton" Click="ModuleParameterSearchButton_Click">
+                                        <Button  Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}" Name="ModuleParameterDisplaySearchBackButton" Click="ModuleParameterDisplayClose_Click">
                                             <materialDesign:PackIcon Kind="ArrowLeft" Width="25" Height="25" />
                                         </Button>
                                         <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Width="270">
                                             <materialDesign:ColorZone Mode="Standard" Padding="0 0 0 0" CornerRadius="2"
-                                                                      Margin="5 5 5 5" UseLayoutRounding="True">
+                                                                      Margin="5 5 5 5" UseLayoutRounding="True"
+                                                                      Background="{DynamicResource MaterialDesignCardBackground}"
+                                                                      Foreground="{DynamicResource IdealForegroundColorBrush}">
                                                 <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="AUTO"/>
@@ -293,16 +296,12 @@
                                             <ColumnDefinition Width="AUTO"></ColumnDefinition>
 
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignBody1TextBlock}" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}">Module Parameters</TextBlock>
+                                        <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignBody1TextBlock}" VerticalAlignment="Center" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}">Module Parameters</TextBlock>
                                         <Button Grid.Column="1" Style="{DynamicResource MaterialDesignFlatButton}" Width="48" Height="48" Padding="0" Click="ModuleParameterSearchButton_Click">
-        
                                             <materialDesign:PackIcon Foreground="{DynamicResource MaterialDesignBodyLight}" Kind="FilterVariant" Name="ModuleParameterSearchButton" Height="32" Width="32"/>
-                             
                                         </Button>
                                         <Button Grid.Column="2" Style="{DynamicResource MaterialDesignFlatButton}" Width="48" Height="48" Padding="0" Click="ModuleParameterDisplayClose_Click">
-        
                                             <materialDesign:PackIcon Foreground="{DynamicResource MaterialDesignBodyLight}" Kind="Close" Height="32" Width="32" Name="ModuleParameterDisplayClose" />
-                             
                                         </Button>
                                     </Grid>
                                 </Grid>
@@ -438,11 +437,11 @@
                             </materialDesign:DialogHost.DialogContent>
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="AUTO"></RowDefinition>
+                                    <RowDefinition Height="65"></RowDefinition>
                                     <RowDefinition Height="*"></RowDefinition>
                                 </Grid.RowDefinitions>
 
-                                <Grid Grid.Row="0">
+                                <Grid Grid.Row="0" Background="{DynamicResource MaterialDesignCardBackground}">
                                     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Name="QuickParameterDisplaySearch" Opacity="0"  >
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="30" />
@@ -452,15 +451,18 @@
                                             <materialDesign:PackIcon Foreground="{DynamicResource MaterialDesignBodyLight}" Kind="ArrowLeft" Width="32" Height="32" />
                                         </Button>
                                         <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Width="270">
-                                            <materialDesign:ColorZone   Mode="Standard" Padding="0 0 0 0" CornerRadius="2"
-                                                                      Margin="5 5 5 5" UseLayoutRounding="True">
+                                            <materialDesign:ColorZone Mode="Standard" Padding="0 0 0 0" CornerRadius="2"
+                                                                      Margin="5 5 5 5" UseLayoutRounding="True" Background="{DynamicResource MaterialDesignCardBackground}"
+                                                                      Foreground="{DynamicResource IdealForegroundColorBrush}">
+                                                
                                                 <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="AUTO" />
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
                                                     <materialDesign:PackIcon Grid.Column="0" Kind="FilterVariant" Margin="5 2 0 5"  Width="18" Height="18"  />
-                                                    <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="4 0 0 5" />
+                                                    <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" 
+                                                                   FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="4 0 0 5" />
                                                 </Grid>
                                             </materialDesign:ColorZone>
                                         </Grid>
