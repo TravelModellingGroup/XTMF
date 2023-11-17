@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -466,7 +466,10 @@
 
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignBody1TextBlock}" Foreground="{DynamicResource MaterialDesignBody}">Quick Parameters</TextBlock>
-                                        <materialDesign:PackIcon  Foreground="{DynamicResource MaterialDesignBody}" Cursor="Hand" Opacity="0.6" Grid.Column="1" Kind="FilterVariant" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterSearchButton" MouseUp="QuickParameterSearchButton_OnMouseUp" />
+                                        <Button Grid.Column="1"  Style="{DynamicResource MaterialDesignFloatingActionMiniButton}" VerticalAlignment="Top" Width="25" Height="25" Cursor="Hand" Click="QuickParameterSearchButton_Click">
+                                            <materialDesign:PackIcon  Foreground="{DynamicResource MaterialDesignBody}" Opacity="0.6" Kind="FilterVariant" HorizontalContentAlignment="Stretch" Name="QuickParameterSearchButton" />
+                                        </Button>
+                                        
                                         <materialDesign:PackIcon Foreground="{DynamicResource MaterialDesignBody}" Cursor="Hand" Opacity="0.6" Grid.Column="2" Kind="Close" VerticalAlignment="Top" Width="25" Height="25" HorizontalContentAlignment="Stretch" Name="QuickParameterDisplayClose" MouseUp="QuickParameterDisplayClose_MouseUp" />
                                     </Grid>
                                 </Grid>

@@ -184,7 +184,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void QuickParameterSearchButton_OnMouseUp(object sender, MouseButtonEventArgs e)
+        private void QuickParameterSearchButton_Click(object sender, RoutedEventArgs e)
         {
             this.ToggleQuickParameterDisplaySearch();
         }
