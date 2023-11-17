@@ -32,12 +32,12 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="AUTO" />
         </Grid.ColumnDefinitions>
-        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontSize="16"
+        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontSize="18"
                  Grid.Column="0" x:Name="Box" materialDesign:HintAssist.Hint="{Binding FilterWatermark, ElementName=self}" 
                  TextChanged="Box_TextChanged" PreviewKeyDown="Box_PreviewKeyDown" 
                  CaretBrush="{DynamicResource SecondaryHueMidBrush}"/>
-        <Button  Margin="0" Padding="0" BorderThickness="0" Background="Transparent" Grid.Column="1" x:Name="ClearFilterButton" Click="ClearFilter_Click" Visibility="Collapsed" Width="24" Height="24" VerticalAlignment="Center" >
-            <materialDesign:PackIcon Kind="Cancel" Foreground="{DynamicResource SecondaryHueMidBrush}" Width="20" Height="20" VerticalAlignment="Center"></materialDesign:PackIcon>
+        <Button Margin="0" Padding="0" BorderThickness="0" Background="Transparent" Grid.Column="1" x:Name="ClearFilterButton" Click="ClearFilter_Click" Visibility="Collapsed" Width="32" Height="32" VerticalAlignment="Center" >
+            <materialDesign:PackIcon Kind="Cancel" Foreground="{DynamicResource MaterialDesignBodyLight}" Width="24" Height="24" VerticalAlignment="Center" />
         </Button>
     </Grid>
 </UserControl>

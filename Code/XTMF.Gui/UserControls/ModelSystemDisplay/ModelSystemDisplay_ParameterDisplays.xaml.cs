@@ -124,7 +124,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ModuleParameterDisplaySearchBackButton_OnClick(object sender, RoutedEventArgs e)
+        private void ModuleParameterSearchButton_Click(object sender, RoutedEventArgs e)
         {
             this.ToggleModuleParameterDisplaySearch();
         }
@@ -134,9 +134,9 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ModuleParameterSearchButton_OnMouseUp(object sender, MouseButtonEventArgs e)
+        private void ModuleParameterDisplayClose_Click(object sender, RoutedEventArgs e)
         {
-            this.ToggleModuleParameterDisplaySearch();
+            this.ToggleModuleParameterDisplay();
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void QuickParameterDisplayClose_MouseUp(object sender, MouseButtonEventArgs e)
+        private void QuickParameterDisplayClose_Click(object sender, RoutedEventArgs e)
         {
             this.ToggleQuickParameterDisplay();
         }
@@ -184,7 +184,7 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void QuickParameterSearchButton_OnMouseUp(object sender, MouseButtonEventArgs e)
+        private void QuickParameterSearchButton_Click(object sender, RoutedEventArgs e)
         {
             this.ToggleQuickParameterDisplaySearch();
         }

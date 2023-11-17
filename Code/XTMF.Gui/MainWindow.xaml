@@ -30,13 +30,13 @@
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
         xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
         Title="XTMF Version 1.13" Height="768" Width="1024" IsHitTestVisible="True"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="500"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="750"
         Name="XtmfWindow"
         PreviewKeyDown="MainWindow_OnPreviewKeyDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" 
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
-        TextElement.FontSize="12"
+        TextElement.FontSize="14"
         SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto" BorderThickness="0"        
@@ -113,8 +113,6 @@
                             <ListBox Name="XTMFWorkspaceListBox" SelectionChanged="XTMFWorkspaceListBox_OnSelectionChanged" >
                                 <ListBoxItem Padding="15 8 5 8" MouseUp="NewProjectButton_Click">New Project</ListBoxItem>
                                 <ListBoxItem Name="OpenProjectGlobalMenuItem" MouseUp="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
-                                <ListBoxItem Padding="15 8 5 8" MouseUp="NewModelSystemButton_Click">New Model System</ListBoxItem>
-                                <ListBoxItem Padding="15 8 5 8" Name="OpenModelSystemGlobalMenuItem" MouseUp="OpenModelSystemGlobalMenuItem_Selected">Open Model System</ListBoxItem>
                             </ListBox>
                             <Separator Foreground="{DynamicResource MaterialDesignDivider}" />
                             <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">Workspace</TextBlock>
