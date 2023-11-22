@@ -61,7 +61,7 @@ namespace XTMF.Run
             }
             using (var projectSession = runtime.ProjectController.EditProject(project))
             {
-                var modelSystems = projectSession.Project.ModelSystemStructure.Select((m, i) => new { MSS = m, Index = i }).Where((m, i) => m.MSS.Name == modelSystemName).ToList();
+                var modelSystems = projectSession.Project.ProjectModelSystems.Select((m, i) => new { MSS = m, Index = i }).Where((m, i) => m.MSS.Name == modelSystemName).ToList();
                 switch (modelSystems.Count)
                 {
                     case 0:
