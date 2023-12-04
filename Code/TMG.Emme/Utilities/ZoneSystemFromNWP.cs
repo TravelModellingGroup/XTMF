@@ -347,8 +347,6 @@ namespace TMG.Emme.Utilities
             }
         }
 
-
-
         [SubModelInformation(Required = false, Description = "A CSV File with Zone,IntrazonalDistance. Where the distance is in metres.")]
         public FileLocation IntrazonalDistanceFile;
 
