@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2018-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,6 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+// Ignore Spelling: Intrazonal
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -270,7 +273,7 @@ namespace TMG.Emme.Utilities
         }
 
 
-        [SubModelInformation(Required = false, Description = "A CSV File with Zone,Region.")]
+        [SubModelInformation(Required = false, Description = "A CSV File with Zone,PlanningDistrict.")]
         public FileLocation PDFile;
 
         private void LoadPDs()
@@ -307,7 +310,7 @@ namespace TMG.Emme.Utilities
             }
         }
 
-        [SubModelInformation(Required = false, Description = "A CSV File with Zone,Region.")]
+        [SubModelInformation(Required = false, Description = "A CSV File with HomeZone,Population.")]
         public FileLocation PopulationFile;
 
         private void LoadPopulation()
@@ -346,7 +349,7 @@ namespace TMG.Emme.Utilities
 
 
 
-        [SubModelInformation(Required = false, Description = "A CSV File with Zone,Region.")]
+        [SubModelInformation(Required = false, Description = "A CSV File with Zone,IntrazonalDistance. Where the distance is in metres.")]
         public FileLocation IntrazonalDistanceFile;
 
         private void LoadIntrazonalDistance()
@@ -384,7 +387,7 @@ namespace TMG.Emme.Utilities
         }
 
 
-        [SubModelInformation(Required = false, Description = "A CSV File with Zone,ParkingCost.")]
+        [SubModelInformation(Required = false, Description = "A CSV File with Zone,ParkingCost. Where the cost is in $/hour")]
         public FileLocation ParkingCostFile;
 
         private void LoadParkingCosts()
