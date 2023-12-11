@@ -30,9 +30,10 @@ namespace TMG.Emme.Utilities
 
         public string Name { get; set; }
 
-        public float Progress { get { return _Progress != null ? _Progress() : 0.0f; } }
+        public float Progress { get { return _progress != null ? _progress() : 0.0f; } }
 
-        private Func<float> _Progress;
+        private Func<float> _progress;
+        private Func<string> _status;
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
@@ -43,7 +44,8 @@ namespace TMG.Emme.Utilities
         {
             int i = 0;
             // ReSharper disable AccessToModifiedClosure
-            _Progress = () => ((float)i / Tools.Length) + (Tools[i].Progress / Tools.Length);
+            _progress = () => ((float)i / Tools.Length) + (Tools[i].Progress / Tools.Length);
+            _status = () => i < Tools.Length ? Tools[i].ToString() : base.ToString();
             for (; i < Tools.Length; i++)
             {
                 if (!Tools[i].Execute(controller))
@@ -51,13 +53,18 @@ namespace TMG.Emme.Utilities
                     return false;
                 }
             }
-            _Progress = null;
+            _progress = null;
             return true;
         }
 
         public bool RuntimeValidation(ref string error)
         {
             return true;
+        }
+
+        public override string ToString()
+        {
+            return _status?.Invoke() ?? base.ToString();
         }
     }
 
