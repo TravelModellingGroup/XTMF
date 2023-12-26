@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2018-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -133,7 +133,8 @@ namespace Tasha.Validation.ModeChoice
         [RunParameter("Export Times As Minutes", true, "Export the times as minutes since midnight instead of as a time stamp.")]
         public bool ExportTimesAsMinutes;
 
-
+        [RunParameter("TelecommuterAttribute", "", "Set this to the name of the telecommuter attribute to include it in Microsim.")]
+        public string TelecommuterAttribute;
 
         /// <summary>
         /// Used to quickly check if an assigned mode is drive access transit
@@ -194,10 +195,11 @@ namespace Tasha.Validation.ModeChoice
             internal readonly char StudentStatus;
             internal readonly int WorkZone;
             internal readonly int SchoolZone;
+            internal readonly bool Telecommuting;
             internal readonly float ExpFactor;
 
             public PersonRecord(int householdID, int personID, int age, char sex, bool license, bool transitPass, char employmentStatus,
-                char occupation, bool freeParking, char studentStatus, int workZone, int schoolZone, float expFactor)
+                char occupation, bool freeParking, char studentStatus, int workZone, int schoolZone, bool telecommuter, float expFactor)
             {
                 HouseholdID = householdID;
                 PersonID = personID;
@@ -211,6 +213,7 @@ namespace Tasha.Validation.ModeChoice
                 StudentStatus = studentStatus;
                 WorkZone = workZone;
                 SchoolZone = schoolZone;
+                Telecommuting = telecommuter;
                 ExpFactor = expFactor;
             }
         }
@@ -633,11 +636,23 @@ namespace Tasha.Validation.ModeChoice
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void StorePersonRecord(int hhldID, ITashaPerson person, float expFactor)
         {
+            
             _personRecordQueue.Add(new PersonRecord(hhldID, person.Id, person.Age, person.Female ? 'F' : 'M',
                                     person.Licence, person.TransitPass != TransitPass.None, GetEmploymentChar(person.EmploymentStatus),
                                     GetOccupationChar(person.Occupation), person.FreeParking, GetStudentChar(person.StudentStatus),
                                     person.EmploymentZone?.ZoneNumber ?? 0,
-                                    person.SchoolZone?.ZoneNumber ?? 0, expFactor));
+                                    person.SchoolZone?.ZoneNumber ?? 0,
+                                    GetTelecommuter(person),
+                                    expFactor));
+        }
+
+        private bool GetTelecommuter(ITashaPerson person)
+        {
+            if(!string.IsNullOrWhiteSpace(TelecommuterAttribute))
+            {
+                return (bool)person[TelecommuterAttribute];
+            }
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1156,8 +1171,17 @@ namespace Tasha.Validation.ModeChoice
         {
             using (var writer = new StreamWriter(PersonRecords))
             {
-                writer.WriteLine("household_id,person_id,age,sex,license,transit_pass,employment_status,occupation,free_parking" +
+                writer.Write("household_id,person_id,age,sex,license,transit_pass,employment_status,occupation,free_parking" +
                     ",student_status,work_zone,school_zone,weight");
+                var writeTelecommuting = !string.IsNullOrWhiteSpace(TelecommuterAttribute);
+                if (writeTelecommuting)
+                {
+                    writer.WriteLine(",telecommuting");
+                }
+                else
+                {
+                    writer.WriteLine();
+                }
                 foreach (var person in _personRecordQueue.GetConsumingEnumerable())
                 {
                     writer.Write(person.HouseholdID);
@@ -1184,7 +1208,13 @@ namespace Tasha.Validation.ModeChoice
                     writer.Write(',');
                     writer.Write(person.SchoolZone);
                     writer.Write(',');
-                    writer.WriteLine(person.ExpFactor);
+                    writer.Write(person.ExpFactor);
+                    if(writeTelecommuting)
+                    {
+                        writer.Write(',');
+                        writer.Write(person.Telecommuting ? '1' : '0');
+                    }
+                    writer.WriteLine();
                 }
             }
             if (CompressResults)

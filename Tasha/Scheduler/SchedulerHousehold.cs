@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using Tasha.Common;
 using TMG;
+using TMG.Functions;
 using XTMF;
 
 namespace Tasha.Scheduler
@@ -637,8 +638,14 @@ namespace Tasha.Scheduler
                 }
                 if (((person.EmploymentStatus == TTSEmploymentStatus.FullTime) | (person.EmploymentStatus == TTSEmploymentStatus.PartTime)))
                 {
+                    
                     var empZone = person.EmploymentZone;
                     int workPD = empZone == null ? 0 : empZone.PlanningDistrict;
+                    bool isTelecommuter = Scheduler.GetTelecommuter(person);
+                    if(isTelecommuter)
+                    {
+                        empZone = household.HomeZone;
+                    }
                     if (person.EmploymentZone == null)
                     {
                         //continue;
@@ -652,7 +659,8 @@ namespace Tasha.Scheduler
                         continue;
                     }
 
-                    int freq = TimeTable.GetFrequency(person, Activity.PrimaryWork, random, householdPD, workPD, generationAdjustments);
+                    // If the person is telecommuting they have already made the choice to generate the activity episode.
+                    int freq = isTelecommuter ? 1 : TimeTable.GetFrequency(person, Activity.PrimaryWork, random, householdPD, workPD, generationAdjustments);
                     if (freq <= 0)
                     {
                         continue;

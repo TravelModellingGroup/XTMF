@@ -72,6 +72,7 @@ namespace Tasha.Scheduler
              * For each episode, we need to check if the person goes home first or not
              * If the do go home we need to add a trip there and a trip to i+1
              */
+            var isTelecommuter = Tasha.Scheduler.Scheduler.GetTelecommuter(Owner);
             SchedulerTripChain currentChain = null;
             int i = 0;
             bool atHome = true;
@@ -79,7 +80,7 @@ namespace Tasha.Scheduler
             var homeZone = household.HomeZone;
             for(; i < EpisodeCount; i++)
             {
-                var isAtHomeEpisode = AtHomeActivity(Episodes[i].ActivityType);
+                var isAtHomeEpisode = AtHomeActivity(Episodes[i].ActivityType, isTelecommuter);
                 // if we are already at home and we are going to be doing a household activity just continue
                 if(atHome && isAtHomeEpisode)
                 {
@@ -471,12 +472,17 @@ namespace Tasha.Scheduler
             return true;
         }
 
-        private bool AtHomeActivity(Activity activity)
+        private bool AtHomeActivity(Activity activity, bool isTeleCommuter)
         {
-            return activity == Activity.ReturnFromSchool
-                    | activity == Activity.ReturnFromWork
-                    | activity == Activity.PickupAndReturn
-                    | activity == Activity.WorkAtHomeBusiness;
+            return activity switch
+            {
+                Activity.ReturnFromSchool => true,
+                Activity.ReturnFromWork => true,
+                Activity.PickupAndReturn => true,
+                Activity.WorkAtHomeBusiness => true,
+                Activity.PrimaryWork => isTeleCommuter,
+                _ => false
+            };
         }
 
         private void FixDurationToInsert(ref Time earlyTimeBound, Episode prior, Episode middle, Episode post, ref Time lateTimeBound, ref Time firstTime, ref Time secondTime)

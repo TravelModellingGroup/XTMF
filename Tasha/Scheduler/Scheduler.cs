@@ -205,6 +205,11 @@ namespace Tasha.Scheduler
         [SubModelInformation(Description = "Adjustments to the activity episode start time rates.")]
         public StartTimeAdjustment[] StartTimeAdjustments;
 
+        [RunParameter("Telecommuter Attribute", "", "Set this to the attribute to use if we have the telecommuting model enabled.")]
+        public string TelecommuterAttribute;
+
+        internal static string _telecommuterAttribute_s;
+
         internal static int SchedulingFail;
 
         internal static int SchedulingSuccess;
@@ -284,11 +289,25 @@ namespace Tasha.Scheduler
 
             MaxFrequency = MaxFrequencyLocal;
             Distribution.InitializeDistributions();
-
+            _telecommuterAttribute_s = TelecommuterAttribute;
             HouseholdExtender.TashaRuntime = TashaRuntime;
             // references in scheduler
             SchedulerHousehold.TashaRuntime = TashaRuntime;
             Schedule.Scheduler = this;
+        }
+
+        /// <summary>
+        /// Get if this person is currently telecommuting.
+        /// </summary>
+        /// <param name="person">The person to test.</param>
+        /// <returns>True if the person is WfH today, false otherwise.</returns>
+        internal static bool GetTelecommuter(ITashaPerson person)
+        {
+            if (!string.IsNullOrWhiteSpace(Scheduler._telecommuterAttribute_s))
+            {
+                return (bool)person[Scheduler._telecommuterAttribute_s];
+            }
+            return false;
         }
 
         [RunParameter("Random Seed", 1234123, "A random seed to base the randomness of the scheduler.")]
