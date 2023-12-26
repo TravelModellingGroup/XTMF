@@ -100,6 +100,12 @@ namespace TMG.Tasha
         [SubModelInformation(Required = false, Description = "A model to compute the number of autos available for the household.")]
         public ICalculation<ITashaHousehold, int> AutoOwnershipModel;
 
+        [RunParameter("Telecommuter Attribute", "", "If you are using a telecommuter model set this to be the name of the attribute to lookup to see if the person will be telecommuting today.")]
+        public string TelecommuterAttribute;
+
+        [SubModelInformation(Required = false, Description = "A model to assign if a person is going to telecommute today.")]
+        public ICalculation<ITashaPerson, bool> TelecommutingModel;
+
         [SubModelInformation(Required = false, Description = "An alternative way of specifying the household file location.")]
         public FileLocation HouseholdFile;
 
@@ -204,10 +210,8 @@ namespace TMG.Tasha
                     try
                     {
                         EnsureReader();
-                        if (AutoOwnershipModel != null)
-                        {
-                            AutoOwnershipModel.Load();
-                        }
+                        AutoOwnershipModel?.Load();
+                        TelecommutingModel?.Load();
                         if (SkipBadHouseholds)
                         {
                             do
@@ -322,6 +326,7 @@ namespace TMG.Tasha
                 Reader?.Close();
                 Reader = null;
                 AutoOwnershipModel?.Unload();
+                TelecommutingModel?.Unload();
                 NeedsReset = false;
                 return null;
             }
@@ -426,6 +431,11 @@ namespace TMG.Tasha
                     error = "In '" + Name + "' we were unable to find a non shared mode called '" + PassengerModeName + "' to use replace with rideshare";
                     return false;
                 }
+            }
+            if (TelecommutingModel is not null && string.IsNullOrWhiteSpace(TelecommuterAttribute))
+            {
+                error = "You must specify a Telecommuter Attribute if you are going to use a Telecommuting Model!";
+                return false;
             }
             return true;
         }
@@ -586,6 +596,7 @@ namespace TMG.Tasha
                 NeedsReset = true;
                 AllDataLoaded = Reader.EndOfFile;
                 AutoOwnershipModel?.Load();
+                TelecommutingModel?.Load();
                 while (LoadNextHousehold(list) && !AllDataLoaded)
                 {
                 }
@@ -736,6 +747,14 @@ namespace TMG.Tasha
                 if (loadnext)
                 {
                     h.Recycle();
+                }
+                if(TelecommutingModel is not null)
+                {
+                    for(int i = 0; i < persons.Length; i++)
+                    {
+                        var result = TelecommutingModel.ProduceResult(persons[i]);
+                        persons[i].Attach(TelecommuterAttribute, result);
+                    }
                 }
                 if (AutoOwnershipModel != null)
                 {
