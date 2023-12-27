@@ -242,5 +242,77 @@ namespace XTMF.Testing
                 Assert.AreEqual(Math.Log(temp[i]), dest[i], 0.0001f);
             }
         }
+
+        [TestMethod]
+        public void TestMinVectors()
+        {
+            var temp1 = new float[0x100];
+            var temp2 = new float[0x100];
+            var dest = new float[temp1.Length];
+            const float incrementFactor = 0.1f;
+            for (int i = 0; i < temp1.Length; i++)
+            {
+                temp1[i] = i * incrementFactor;
+                temp2[i] = 50 - (i * incrementFactor);
+            }
+            VectorHelper.Min(dest, temp1, temp2);
+            for (int i = 0; i < dest.Length; i++)
+            {
+                Assert.AreEqual(MathF.Min(temp1[i], temp2[i]), dest[i], 0.0001f);
+            }
+        }
+
+        [TestMethod]
+        public void TestMaxVectors()
+        {
+            var temp1 = new float[0x100];
+            var temp2 = new float[0x100];
+            var dest = new float[temp1.Length];
+            const float incrementFactor = 0.1f;
+            for (int i = 0; i < temp1.Length; i++)
+            {
+                temp1[i] = i * incrementFactor;
+                temp2[i] = 50 - (i * incrementFactor);
+            }
+            VectorHelper.Max(dest, temp1, temp2);
+            for (int i = 0; i < dest.Length; i++)
+            {
+                Assert.AreEqual(MathF.Max(temp1[i], temp2[i]), dest[i], 0.0001f);
+            }
+        }
+
+        [TestMethod]
+        public void TestMinScalar()
+        {
+            var temp1 = new float[0x100];
+            var dest = new float[temp1.Length];
+            const float incrementFactor = 0.1f;
+            for (int i = 0; i < temp1.Length; i++)
+            {
+                temp1[i] = i * incrementFactor;
+            }
+            VectorHelper.Min(dest, temp1, 50);
+            for (int i = 0; i < dest.Length; i++)
+            {
+                Assert.AreEqual(MathF.Min(temp1[i], 50), dest[i], 0.0001f);
+            }
+        }
+
+        [TestMethod]
+        public void TestMaxScalar()
+        {
+            var temp1 = new float[0x100];
+            var dest = new float[temp1.Length];
+            const float incrementFactor = 0.1f;
+            for (int i = 0; i < temp1.Length; i++)
+            {
+                temp1[i] = i * incrementFactor;
+            }
+            VectorHelper.Max(dest, temp1, 50);
+            for (int i = 0; i < dest.Length; i++)
+            {
+                Assert.AreEqual(MathF.Max(temp1[i], 50), dest[i], 0.0001f);
+            }
+        }
     }
 }

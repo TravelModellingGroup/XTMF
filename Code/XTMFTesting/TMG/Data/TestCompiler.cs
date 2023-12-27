@@ -1294,6 +1294,60 @@ namespace XTMF.Testing.TMG.Data
         }
 
         [TestMethod]
+        public void TestMax()
+        {
+            CompareScalar("Max(B)", new IDataSource[]
+            {
+                CreateMatrixData("B", 2, 4, 6, 8)
+            }, 8.0f);
+        }
+
+        [TestMethod]
+        public void TestMaxColumns()
+        {
+            CompareVector("MaxColumns(B)", new IDataSource[]
+            {
+                CreateMatrixData("B", 2, 4, 6, 8)
+            }, 6.0f, 8.0f);
+        }
+
+        [TestMethod]
+        public void TestMaxRows()
+        {
+            CompareVector("MaxRows(B)", new IDataSource[]
+            {
+                CreateMatrixData("B", 2, 4, 6, 8)
+            }, 4.0f, 8.0f);
+        }
+
+        [TestMethod]
+        public void TestMin()
+        {
+            CompareScalar("Min(B)", new IDataSource[]
+            {
+                CreateMatrixData("B", 2, 4, 6, 8)
+            }, 2.0f);
+        }
+
+        [TestMethod]
+        public void TestMinColumns()
+        {
+            CompareVector("MinColumns(B)", new IDataSource[]
+            {
+                CreateMatrixData("B", 2, 4, 6, 8)
+            }, 2.0f, 4.0f);
+        }
+
+        [TestMethod]
+        public void TestMinRows()
+        {
+            CompareVector("MinRows(B)", new IDataSource[]
+            {
+                CreateMatrixData("B", 2, 4, 6, 8)
+            }, 2.0f, 6.0f);
+        }
+
+        [TestMethod]
         public void TestSubtractionOrder()
         {
             string error = null;
@@ -1343,6 +1397,25 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(m12, flat[1], 0.00001f);
             Assert.AreEqual(m21, flat[2], 0.00001f);
             Assert.AreEqual(m22, flat[3], 0.00001f);
+            return ex;
+        }
+
+        /// <summary>
+        /// Assert results
+        /// </summary>
+        private static Expression CompareVector(string equation, IDataSource[] data, float m11, float m12)
+        {
+            string error = null;
+            Assert.IsTrue(Compiler.Compile(equation, out Expression ex, ref error), $"Unable to compile '{equation}'\r\n{error}");
+            var result = ex.Evaluate(data);
+            if (result.Error)
+            {
+                Assert.Fail(result.ErrorMessage);
+            }
+            Assert.IsTrue(result.IsVectorResult);
+            var flat = result.VectorData.GetFlatData();
+            Assert.AreEqual(m11, flat[0], 0.00001f);
+            Assert.AreEqual(m12, flat[1], 0.00001f);
             return ex;
         }
 

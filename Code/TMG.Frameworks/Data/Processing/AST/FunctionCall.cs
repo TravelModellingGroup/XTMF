@@ -19,9 +19,13 @@
 using Datastructure;
 using System;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static TMG.Emme.Utilities.LOSBetweenPoints;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
@@ -55,7 +59,13 @@ namespace TMG.Frameworks.Data.Processing.AST
             IfNaN,
             Normalize,
             NormalizeColumns,
-            NormalizeRows
+            NormalizeRows,
+            Max,
+            MaxRows,
+            MaxColumns,
+            Min,
+            MinRows,
+            MinColumns,
         }
 
         private FunctionType Type;
@@ -172,6 +182,24 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "normalizerows":
                     type = FunctionType.NormalizeRows;
+                    return true;
+                case "max":
+                    type = FunctionType.Max;
+                    return true;
+                case "maxcolumns":
+                    type = FunctionType.MaxColumns;
+                    return true;
+                case "maxrows":
+                    type = FunctionType.MaxRows;
+                    return true;
+                case "min":
+                    type = FunctionType.Min;
+                    return true;
+                case "mincolumns":
+                    type = FunctionType.MinColumns;
+                    return true;
+                case "minrows":
+                    type = FunctionType.MinRows;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -414,7 +442,42 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("NormalizeRows requires 1 parameter, a matrix to be normalized.");
                     }
                     return ComputeNormalizeRows(values);
-
+                case FunctionType.Max:
+                    if (values.Length == 0 || values.Length > 2)
+                    {
+                        return new ComputationResult("Max requires either 1 or 2 parameters.");
+                    }
+                    return ComputeMax(values);
+                case FunctionType.MaxColumns:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("MaxColumns requires 1 matrix parameter!");
+                    }
+                    return ComputeMaxColumns(values);
+                case FunctionType.MaxRows:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("MaxRows requires 1 matrix parameter!");
+                    }
+                    return ComputeMaxRows(values);
+                case FunctionType.Min:
+                    if (values.Length == 0 || values.Length > 2)
+                    {
+                        return new ComputationResult("Min requires either 1 or 2 parameters.");
+                    }
+                    return ComputeMin(values);
+                case FunctionType.MinColumns:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("MinColumns requires 1 matrix parameter!");
+                    }
+                    return ComputeMinColumns(values);
+                case FunctionType.MinRows:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("MinRows requires 1 matrix parameter!");
+                    }
+                    return ComputeMinRows(values);
 
             }
             return new ComputationResult("An undefined function was executed!");
@@ -989,5 +1052,384 @@ namespace TMG.Frameworks.Data.Processing.AST
             }
             return new ComputationResult("An unknown data type was processed through LengthColumns!");
         }
+
+        private ComputationResult ComputeMax(ComputationResult[] values)
+        {
+            // If we are operating on a single parameter
+            if (values.Length == 1)
+            {
+                // If it is a scalar, return the value
+                if (values[0].IsValue) { return values[0]; }
+                // If we are working on a vector
+                if (values[0].IsVectorResult)
+                {
+                    var max = VectorHelper.Max(values[0].VectorData.GetFlatData());
+                    return new ComputationResult(max);
+                }
+                // if we are working on a matrix
+                if (values[0].IsOdResult)
+                {
+                    float max = float.NegativeInfinity;
+                    var data = values[0].OdData.GetFlatData();
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        max = MathF.Max(VectorHelper.Max(data[i]), max);
+                    }
+                    return new ComputationResult(max);
+                }
+            }
+            // If we are operating on two parameters
+            else if(values.Length == 2)
+            {
+                static ComputationResult MaxVectorScalar(ComputationResult vector, ComputationResult scalar)
+                {
+                    var dest = vector.Accumulator ? vector.VectorData
+                                                  : vector.VectorData.CreateSimilarArray<float>();
+                    var flat = dest.GetFlatData();
+                    VectorHelper.Max(flat, flat, scalar.LiteralValue);
+                    return new ComputationResult(dest, true, vector.Direction);
+                }
+
+                static ComputationResult MaxMatrixScalar(ComputationResult matrix, ComputationResult scalar)
+                {
+                    var dest = matrix.Accumulator ? matrix.OdData
+                                                  : matrix.OdData.CreateSimilarArray<float>();
+                    var flat = dest.GetFlatData();
+                    for (int i = 0; i < flat.Length; i++)
+                    {
+                        VectorHelper.Max(flat[i], flat[i], scalar.LiteralValue);
+                    }
+                    return new ComputationResult(dest, true);
+                }
+
+                static ComputationResult MaxVectorVector(ComputationResult vector1, ComputationResult vector2)
+                {
+                    var direction = vector1.Direction == ComputationResult.VectorDirection.Unassigned ?
+                        vector2.Direction : vector1.Direction;
+                    var dest = vector1.Accumulator ? vector1.VectorData
+                                                  : (vector2.Accumulator ? vector2.VectorData 
+                                                    : vector1.VectorData.CreateSimilarArray<float>());
+                    VectorHelper.Max(dest.GetFlatData(), vector1.VectorData.GetFlatData(), vector2.VectorData.GetFlatData());
+                    return new ComputationResult(dest, true, direction);
+                }
+
+                static ComputationResult MaxVectorMatrix(ComputationResult vector, ComputationResult matrix)
+                {
+                    if(vector.Direction == ComputationResult.VectorDirection.Unassigned)
+                    {
+                        return new ComputationResult("Unable to compute a max between a vector and matrix when the vector does not have an assigned directionality.");
+                    }
+                    var dest = matrix.Accumulator ? matrix.OdData : matrix.OdData.CreateSimilarArray<float>();
+                    var flatDest = dest.GetFlatData();
+                    var flatMatrix = matrix.OdData.GetFlatData();
+                    var flatVector = vector.VectorData.GetFlatData();
+                    if (vector.Direction == ComputationResult.VectorDirection.Horizontal)
+                    {
+                        for (int i = 0; i < flatDest.Length; i++)
+                        {
+                            VectorHelper.Max(flatDest[i], flatMatrix[i], flatVector);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < flatDest.Length; i++)
+                        {
+                            VectorHelper.Max(flatDest[i], flatMatrix[i], flatVector[i]);
+                        }
+                    }
+                    return new ComputationResult(dest, true);
+                }
+
+                static ComputationResult MaxMatrixMatrix(ComputationResult matrix1, ComputationResult matrix2)
+                {
+                    var dest = matrix1.Accumulator ? matrix1.OdData : 
+                        (matrix2.Accumulator ? matrix2.OdData : matrix1.OdData.CreateSimilarArray<float>());
+                    var flatDest = dest.GetFlatData();
+                    var flat1 = matrix1.OdData.GetFlatData();
+                    var flat2 = matrix2.OdData.GetFlatData();
+                    for (int i = 0; i < flatDest.Length; i++)
+                    {
+                        VectorHelper.Max(flatDest[i], flat1[i], flat2[i]);
+                    }
+                    return new ComputationResult(dest, true);
+                }
+
+                if (values[0].IsValue)
+                {
+                    if (values[1].IsValue)
+                    {
+                        return new ComputationResult(MathF.Max(values[0].LiteralValue, values[1].LiteralValue));
+                    }
+                    if (values[1].IsVectorResult)
+                    {
+                        return MaxVectorScalar(values[1], values[0]);
+                    }
+                    if (values[1].IsOdResult)
+                    {
+                        return MaxMatrixScalar(values[1], values[0]);
+                    }
+                }
+                if (values[0].IsVectorResult)
+                {
+                    if (values[1].IsValue)
+                    {
+                        return MaxVectorScalar(values[0], values[1]);
+                    }
+                    if (values[1].IsVectorResult)
+                    {
+                        return MaxVectorVector(values[0], values[1]);
+                    }
+                    if (values[1].IsOdResult)
+                    {
+                        return MaxVectorMatrix(values[0], values[1]);
+                    }
+                }
+                if (values[0].IsOdResult)
+                {
+                    if (values[1].IsValue)
+                    {
+                        return MaxMatrixScalar(values[0], values[1]);
+                    }
+                    if (values[1].IsVectorResult)
+                    {
+                        return MaxVectorMatrix(values[1], values[0]);
+                    }
+                    if (values[1].IsOdResult)
+                    {
+                        return MaxMatrixMatrix(values[0], values[1]);
+                    }
+                }
+                
+            }
+            return new ComputationResult("An unknown data type was processed through Max!");
+        }
+
+        private ComputationResult ComputeMaxRows(ComputationResult[] values)
+        {
+            if (!values[0].IsOdResult)
+            {
+                return new ComputationResult("The parameter for MaxRows must be a matrix!");
+            }
+            var data = values[0].OdData;
+            var ret = new SparseArray<float>(data.Indexes);
+            var flatData = data.GetFlatData();
+            var flatRet = ret.GetFlatData();
+            for ( var i = 0; i < flatData.Length; i++)
+            {
+                flatRet[i] = VectorHelper.Max(flatData[i]);
+            }
+            return new ComputationResult(ret, true, ComputationResult.VectorDirection.Vertical);
+        }
+
+        private ComputationResult ComputeMaxColumns(ComputationResult[] values)
+        {
+            if (!values[0].IsOdResult)
+            {
+                return new ComputationResult("The parameter for MaxColumns must be a matrix!");
+            }
+            var data = values[0].OdData;
+            var ret = new SparseArray<float>(data.Indexes);
+            var flatData = data.GetFlatData();
+            var flatRet = ret.GetFlatData();
+            for (var i = 0; i < flatRet.Length; i++)
+            {
+                flatRet[i] = float.NegativeInfinity;
+            }
+            for (var i = 0; i < flatData.Length; i++)
+            {
+                VectorHelper.Max(flatRet, flatRet, flatData[i]);
+            }
+            return new ComputationResult(ret, true, ComputationResult.VectorDirection.Horizontal);
+        }
+
+        private ComputationResult ComputeMin(ComputationResult[] values)
+        {
+            // If we are operating on a single parameter
+            if (values.Length == 1)
+            {
+                // If it is a scalar, return the value
+                if (values[0].IsValue) { return values[0]; }
+                // If we are working on a vector
+                if (values[0].IsVectorResult)
+                {
+                    var max = VectorHelper.Min(values[0].VectorData.GetFlatData());
+                    return new ComputationResult(max);
+                }
+                // if we are working on a matrix
+                if (values[0].IsOdResult)
+                {
+                    float max = float.PositiveInfinity;
+                    var data = values[0].OdData.GetFlatData();
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        max = MathF.Min(VectorHelper.Min(data[i]), max);
+                    }
+                    return new ComputationResult(max);
+                }
+            }
+            // If we are operating on two parameters
+            else if (values.Length == 2)
+            {
+                static ComputationResult MinVectorScalar(ComputationResult vector, ComputationResult scalar)
+                {
+                    var dest = vector.Accumulator ? vector.VectorData
+                                                  : vector.VectorData.CreateSimilarArray<float>();
+                    var flat = dest.GetFlatData();
+                    VectorHelper.Min(flat, flat, scalar.LiteralValue);
+                    return new ComputationResult(dest, true, vector.Direction);
+                }
+
+                static ComputationResult MinMatrixScalar(ComputationResult matrix, ComputationResult scalar)
+                {
+                    var dest = matrix.Accumulator ? matrix.OdData
+                                                  : matrix.OdData.CreateSimilarArray<float>();
+                    var flat = dest.GetFlatData();
+                    for (int i = 0; i < flat.Length; i++)
+                    {
+                        VectorHelper.Min(flat[i], flat[i], scalar.LiteralValue);
+                    }
+                    return new ComputationResult(dest, true);
+                }
+
+                static ComputationResult MinVectorVector(ComputationResult vector1, ComputationResult vector2)
+                {
+                    var direction = vector1.Direction == ComputationResult.VectorDirection.Unassigned ?
+                        vector2.Direction : vector1.Direction;
+                    var dest = vector1.Accumulator ? vector1.VectorData
+                                                  : (vector2.Accumulator ? vector2.VectorData
+                                                    : vector1.VectorData.CreateSimilarArray<float>());
+                    VectorHelper.Min(dest.GetFlatData(), vector1.VectorData.GetFlatData(), vector2.VectorData.GetFlatData());
+                    return new ComputationResult(dest, true, direction);
+                }
+
+                static ComputationResult MinVectorMatrix(ComputationResult vector, ComputationResult matrix)
+                {
+                    if (vector.Direction == ComputationResult.VectorDirection.Unassigned)
+                    {
+                        return new ComputationResult("Unable to compute a max between a vector and matrix when the vector does not have an assigned directionality.");
+                    }
+                    var dest = matrix.Accumulator ? matrix.OdData : matrix.OdData.CreateSimilarArray<float>();
+                    var flatDest = dest.GetFlatData();
+                    var flatMatrix = matrix.OdData.GetFlatData();
+                    var flatVector = vector.VectorData.GetFlatData();
+                    if (vector.Direction == ComputationResult.VectorDirection.Horizontal)
+                    {
+                        for (int i = 0; i < flatDest.Length; i++)
+                        {
+                            VectorHelper.Min(flatDest[i], flatMatrix[i], flatVector);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < flatDest.Length; i++)
+                        {
+                            VectorHelper.Min(flatDest[i], flatMatrix[i], flatVector[i]);
+                        }
+                    }
+                    return new ComputationResult(dest, true);
+                }
+
+                static ComputationResult MinMatrixMatrix(ComputationResult matrix1, ComputationResult matrix2)
+                {
+                    var dest = matrix1.Accumulator ? matrix1.OdData :
+                        (matrix2.Accumulator ? matrix2.OdData : matrix1.OdData.CreateSimilarArray<float>());
+                    var flatDest = dest.GetFlatData();
+                    var flat1 = matrix1.OdData.GetFlatData();
+                    var flat2 = matrix2.OdData.GetFlatData();
+                    for (int i = 0; i < flatDest.Length; i++)
+                    {
+                        VectorHelper.Min(flatDest[i], flat1[i], flat2[i]);
+                    }
+                    return new ComputationResult(dest, true);
+                }
+
+                if (values[0].IsValue)
+                {
+                    if (values[1].IsValue)
+                    {
+                        return new ComputationResult(MathF.Min(values[0].LiteralValue, values[1].LiteralValue));
+                    }
+                    if (values[1].IsVectorResult)
+                    {
+                        return MinVectorScalar(values[1], values[0]);
+                    }
+                    if (values[1].IsOdResult)
+                    {
+                        return MinMatrixScalar(values[1], values[0]);
+                    }
+                }
+                if (values[0].IsVectorResult)
+                {
+                    if (values[1].IsValue)
+                    {
+                        return MinVectorScalar(values[0], values[1]);
+                    }
+                    if (values[1].IsVectorResult)
+                    {
+                        return MinVectorVector(values[0], values[1]);
+                    }
+                    if (values[1].IsOdResult)
+                    {
+                        return MinVectorMatrix(values[0], values[1]);
+                    }
+                }
+                if (values[0].IsOdResult)
+                {
+                    if (values[1].IsValue)
+                    {
+                        return MinMatrixScalar(values[0], values[1]);
+                    }
+                    if (values[1].IsVectorResult)
+                    {
+                        return MinVectorMatrix(values[1], values[0]);
+                    }
+                    if (values[1].IsOdResult)
+                    {
+                        return MinMatrixMatrix(values[0], values[1]);
+                    }
+                }
+
+            }
+            return new ComputationResult("An unknown data type was processed through Min!");
+        }
+
+        private ComputationResult ComputeMinRows(ComputationResult[] values)
+        {
+            if (!values[0].IsOdResult)
+            {
+                return new ComputationResult("The parameter for MinRows must be a matrix!");
+            }
+            var data = values[0].OdData;
+            var ret = new SparseArray<float>(data.Indexes);
+            var flatData = data.GetFlatData();
+            var flatRet = ret.GetFlatData();
+            for (var i = 0; i < flatData.Length; i++)
+            {
+                flatRet[i] = VectorHelper.Min(flatData[i]);
+            }
+            return new ComputationResult(ret, true, ComputationResult.VectorDirection.Vertical);
+        }
+
+        private ComputationResult ComputeMinColumns(ComputationResult[] values)
+        {
+            if (!values[0].IsOdResult)
+            {
+                return new ComputationResult("The parameter for MinColumns must be a matrix!");
+            }
+            var data = values[0].OdData;
+            var ret = new SparseArray<float>(data.Indexes);
+            var flatData = data.GetFlatData();
+            var flatRet = ret.GetFlatData();
+            for (var i = 0; i < flatRet.Length; i++)
+            {
+                flatRet[i] = float.PositiveInfinity;
+            }
+            for (var i = 0; i < flatData.Length; i++)
+            {
+                VectorHelper.Min(flatRet, flatRet, flatData[i]);
+            }
+            return new ComputationResult(ret, true, ComputationResult.VectorDirection.Horizontal);
+        }
+
     }
 }
