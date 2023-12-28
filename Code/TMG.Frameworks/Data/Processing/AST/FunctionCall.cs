@@ -19,13 +19,9 @@
 using Datastructure;
 using System;
 using System.Linq;
-using System.Numerics;
-using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static TMG.Emme.Utilities.LOSBetweenPoints;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
