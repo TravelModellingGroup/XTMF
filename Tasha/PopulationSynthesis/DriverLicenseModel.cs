@@ -182,6 +182,9 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Time To Use", "7:00", typeof(Time), "The time of day to use for computing travel times.")]
         public Time TimeToUse;
 
+        [RunParameter("Max Transit Perceived Time", float.PositiveInfinity, "The maximum perceived time to use when computing the utilities.")]
+        public float MaxTransitPerceivedTime;
+
         private SparseArray<IZone> _zones;
         private float[] _zonalConstants;
 
@@ -301,7 +304,7 @@ namespace Tasha.PopulationSynthesis
                 Debug(flatHhldZone, data);
             }
             // Binary logit
-            var eToV = Math.Exp(v);
+            var eToV = MathF.Exp(v);
             return _random.NextDouble() < (eToV / (1.0f + eToV));
         }
 
@@ -320,7 +323,7 @@ namespace Tasha.PopulationSynthesis
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float TravelTimeIfExists(ITripComponentData network, int flatOrigin, IZone zone, SparseArray<IZone> zones, Time time)
+        private float TravelTimeIfExists(ITripComponentData network, int flatOrigin, IZone zone, SparseArray<IZone> zones, Time time)
         {
             if (zone == null)
             {
@@ -331,7 +334,8 @@ namespace Tasha.PopulationSynthesis
             {
                 return 0f;
             }
-            return network.BoardingTime(flatOrigin, index, time).ToMinutes();
+            var ret = network.BoardingTime(flatOrigin, index, time).ToMinutes();
+            return MathF.Min(ret, MaxTransitPerceivedTime);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
