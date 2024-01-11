@@ -182,7 +182,7 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Time To Use", "7:00", typeof(Time), "The time of day to use for computing travel times.")]
         public Time TimeToUse;
 
-        [RunParameter("Max Transit Perceived Time", float.PositiveInfinity, "The maximum time")]
+        [RunParameter("Max Transit Perceived Time", float.PositiveInfinity, "The maximum perceived time to use when computing the utilities.")]
         public float MaxTransitPerceivedTime;
 
         private SparseArray<IZone> _zones;
