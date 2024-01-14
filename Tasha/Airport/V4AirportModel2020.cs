@@ -124,15 +124,19 @@ namespace Tasha.Airport
             [RunParameter("TerminatingPassengers", 0.0f, "The number of passengers of this type that are ending their tours.")]
             public float TerminatingPassengers;
 
-            [RunParameter("Party Size Auto", 1.0f, "")]
+            [RunParameter("Party Size Auto", 1.0f, "The number of passengers going to or from a plane for an auto party.")]
             public float PartySizeAuto;
-            [RunParameter("Party Size Passenger", 1.0f, "")]
+
+            [RunParameter("Party Size Passenger", 1.0f, "The number of passengers going to or from a plane for a passenger party.")]
             public float PartySizePassenger;
-            [RunParameter("Party Size RideShare", 1.0f, "")]
+
+            [RunParameter("Party Size RideShare", 1.0f, "The number of passengers going to or from a plane for a ride share party.")]
             public float PartySizeRideShare;
-            [RunParameter("Party Size Transit", 1.0f, "")]
+
+            [RunParameter("Party Size Transit", 1.0f, "The number of passengers going to or from a plane for a transit party.")]
             public float PartySizeTransit;
-            [RunParameter("Party Size Other", 1.0f, "")]
+
+            [RunParameter("Party Size Other", 1.0f, "The number of passengers going to or from a plane for an other party.")]
             public float PartySizeOther;
 
             [SubModelInformation(Required = true, Description = "The location to save the auto demand for this segment.")]
