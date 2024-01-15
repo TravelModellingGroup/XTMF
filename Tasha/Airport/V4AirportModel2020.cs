@@ -124,6 +124,21 @@ namespace Tasha.Airport
             [RunParameter("TerminatingPassengers", 0.0f, "The number of passengers of this type that are ending their tours.")]
             public float TerminatingPassengers;
 
+            [RunParameter("Party Size Auto", 1.0f, "The number of passengers going to or from a plane for an auto party.")]
+            public float PartySizeAuto;
+
+            [RunParameter("Party Size Passenger", 1.0f, "The number of passengers going to or from a plane for a passenger party.")]
+            public float PartySizePassenger;
+
+            [RunParameter("Party Size RideShare", 1.0f, "The number of passengers going to or from a plane for a ride share party.")]
+            public float PartySizeRideShare;
+
+            [RunParameter("Party Size Transit", 1.0f, "The number of passengers going to or from a plane for a transit party.")]
+            public float PartySizeTransit;
+
+            [RunParameter("Party Size Other", 1.0f, "The number of passengers going to or from a plane for an other party.")]
+            public float PartySizeOther;
+
             [SubModelInformation(Required = true, Description = "The location to save the auto demand for this segment.")]
             public FileLocation AutoDemand;
 
@@ -153,7 +168,7 @@ namespace Tasha.Airport
             {
                 var autoNetworkData = autoNetwork.GetTimePeriodData(StartTime);
                 var transitNetworkData = transitNetwork.GetTimePeriodData(StartTime);
-                if(autoNetworkData == null)
+                if (autoNetworkData == null)
                 {
                     throw new XTMFRuntimeException(this, $"We were unable to get the auto network time period data starting at {StartTime}!");
                 }
@@ -224,25 +239,41 @@ namespace Tasha.Airport
                 var zones = Root.ZoneSystem.ZoneArray;
                 var autoDemandMatrix = CreateMatrix(distribution);
                 var transitDemandMatrix = CreateMatrix(distribution);
+                
                 for (int i = 0; i < distribution.Length; i++)
                 {
+                    // We need to factor in the party size
+                    auto[i] *= PartySizeAuto;
+                    passengerOutOfParty[i] *= PartySizePassenger;
+                    rideshare[i] *= PartySizeRideShare;
+                    publicTransit[i] *= PartySizeTransit;
+                    other[i] *= PartySizeOther;
+
                     var denominator = auto[i] + passengerOutOfParty[i] + publicTransit[i] + rideshare[i] + other[i];
+
                     if (denominator > 0)
                     {
+                        auto[i] /= denominator;
+                        passengerOutOfParty[i] /= denominator;
+                        rideshare[i] /= denominator;
+                        publicTransit[i] /= denominator;
+                        // Nothing depends on other starting at this point
+                        // other[i] /= denominator;
+
                         /*
                          * Auto Goes there or back. PassOOP Goes there and back again.
                          * Rideshare Goes there or back.
                          * Other is ignored.
                          */
                         var distributionRate = (distribution[i] / sum);
-                        var direct = (auto[i] + (rideshare[i] / denominator)) * distributionRate;
+                        var direct = (auto[i] / PartySizeAuto  + rideshare[i] / PartySizeRideShare) * distributionRate;
                         var bothWays = (TerminatingPassengers + OriginatingPassengers)
-                            * (passengerOutOfParty[i] / denominator)
+                            * passengerOutOfParty[i] / PartySizePassenger
                             * distributionRate;
-                        autoDemandMatrix[i][airportIndex] = (direct * OriginatingPassengers) + bothWays;
-                        autoDemandMatrix[airportIndex][i] = (direct * TerminatingPassengers) + bothWays;
-                        transitDemandMatrix[i][airportIndex] = OriginatingPassengers * distributionRate * (publicTransit[i] / denominator);
-                        transitDemandMatrix[airportIndex][i] = TerminatingPassengers * distributionRate * (publicTransit[i] / denominator);
+                        autoDemandMatrix[i][airportIndex] = OriginatingPassengers * (direct + bothWays);
+                        autoDemandMatrix[airportIndex][i] = TerminatingPassengers * (direct + bothWays);
+                        transitDemandMatrix[i][airportIndex] = OriginatingPassengers * distributionRate * publicTransit[i];
+                        transitDemandMatrix[airportIndex][i] = TerminatingPassengers * distributionRate * publicTransit[i];
                     }
                 }
                 SaveMatrix(autoDemandMatrix, zones, AutoDemand);
@@ -324,7 +355,7 @@ namespace Tasha.Airport
                 };
             ProcessAttractionTerms(attractionTerms);
             int pearsonZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(AirportZone);
-            if(pearsonZoneIndex < 0)
+            if (pearsonZoneIndex < 0)
             {
                 throw new XTMFRuntimeException(this, $"The airport zone number {AirportZone} was not found in the zone system!");
             }
@@ -345,7 +376,7 @@ namespace Tasha.Airport
             for (int i = 0; i < p.Length; i++)
             {
                 var total = p[i] + g[i] + s[i] + m[i];
-                if(total > 0)
+                if (total > 0)
                 {
                     var logTotal = (float)Math.Log(total + 1);
                     p[i] = logTotal * (p[i] / total);
@@ -359,7 +390,7 @@ namespace Tasha.Airport
 
         private static float[] GetResource(IDataSource<SparseArray<float>> resource)
         {
-            if(!resource.Loaded)
+            if (!resource.Loaded)
             {
                 resource.LoadData();
             }
