@@ -95,6 +95,9 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Sufficient Licenses", 0.0f, "This will be applied if the number of licenses in the household is equal to the number of people who can possibly have one.")]
         public float SufficientLicenses;
 
+        [RunParameter("Over Sufficient", 0.0f, "A factor to apply to the threshold if it is over the number of licenses in the household.")]
+        public float OverSufficient;
+
         private Random _random;
 
         [RunParameter("Random Seed", 4564616, "The fixed seed to start the pseudo-random number generator with.")]
@@ -357,19 +360,27 @@ namespace Tasha.PopulationSynthesis
                 throw new XTMFRuntimeException(this, "A household didn't have a home zone!");
             }
             int flatHomeZone = _zones.GetFlatIndex(homeZone.ZoneNumber);
-            float v = ComputeUtility(data, flatHomeZone);
+            (float v, int licenses) = ComputeUtility(data, flatHomeZone);
             var kFactor = GetKFactors(data.DwellingType, flatHomeZone);
             // now that we have our utility go through them and test against the thresholds.
             var pop = _random.NextDouble();
             Span<float> probability = stackalloc float[KFactorSizePerZone / 2];
-            
+
             // First we load in the raw CDFs, then we will multiply by the
             // kFactors so we scale the probabilities.  Once that is complete
             // we scale the popped value so that it is in [0, probabilitySum)
-            probability[0] = LogitCDF(v, Threshold1 + _thresholdOffset1[flatHomeZone]);
-            probability[1] = LogitCDF(v, Threshold2 + _thresholdOffset2[flatHomeZone]);
-            probability[2] = LogitCDF(v, Threshold3 + _thresholdOffset3[flatHomeZone]);
-            probability[3] = LogitCDF(v, Threshold4 + _thresholdOffset4[flatHomeZone]);
+            // var t1 = Threshold1 + _thresholdOffset1[flatHomeZone] + ;
+            // var t2 = MathF.Max(Threshold2 + _thresholdOffset2[flatHomeZone] + licenses < 2 ? OverSufficient : 0.0f, t1);
+            // var t3 = MathF.Max(Threshold3 + _thresholdOffset3[flatHomeZone] + licenses < 3 ? OverSufficient : 0.0f, t2);
+            // var t4 = MathF.Max(Threshold4 + _thresholdOffset4[flatHomeZone] + licenses < 4 ? OverSufficient : 0.0f, t3);
+            var t1 = Threshold1 + _thresholdOffset1[flatHomeZone] + (licenses < 1 ? OverSufficient : 0.0f);
+            var t2 = MathF.Max(Threshold2 + _thresholdOffset2[flatHomeZone] + (licenses < 2 ? OverSufficient : 0.0f), t1);
+            var t3 = MathF.Max(Threshold3 + _thresholdOffset3[flatHomeZone] + (licenses < 3 ? OverSufficient : 0.0f), t2);
+            var t4 = MathF.Max(Threshold4 + _thresholdOffset4[flatHomeZone] + (licenses < 4 ? OverSufficient : 0.0f), t3);
+            probability[0] = LogitCDF(v, t1);
+            probability[1] = LogitCDF(v, t2);
+            probability[2] = LogitCDF(v, t3);
+            probability[3] = LogitCDF(v, t4);
             probability[4] = 1.0f;
             // we have to do this backwards so we can do it all in-place
             var probabilitySum = 0.0f;
@@ -399,14 +410,18 @@ namespace Tasha.PopulationSynthesis
         public float Estimate(ITashaHousehold input, int expectedResult)
         {
             int flatHomeZone = _zones.GetFlatIndex(input.HomeZone.ZoneNumber);
-            float v = ComputeUtility(input, flatHomeZone);
+            (float v, int licenses) = ComputeUtility(input, flatHomeZone);
             Span<float> kFactor
                 = GetKFactors(input.DwellingType, flatHomeZone);
             Span<float> probability = stackalloc float[KFactorSizePerZone / 2];
-            probability[0] = LogitCDF(v, Threshold1 + _thresholdOffset1[flatHomeZone]);
-            probability[1] = LogitCDF(v, Threshold2 + _thresholdOffset2[flatHomeZone]);
-            probability[2] = LogitCDF(v, Threshold3 + _thresholdOffset3[flatHomeZone]);
-            probability[3] = LogitCDF(v, Threshold4 + _thresholdOffset4[flatHomeZone]);
+            var t1 = Threshold1 + _thresholdOffset1[flatHomeZone] + (licenses < 1 ? OverSufficient : 0.0f);
+            var t2 = MathF.Max(Threshold2 + _thresholdOffset2[flatHomeZone] + (licenses < 2 ? OverSufficient : 0.0f), t1);
+            var t3 = MathF.Max(Threshold3 + _thresholdOffset3[flatHomeZone] + (licenses < 3 ? OverSufficient : 0.0f), t2);
+            var t4 = MathF.Max(Threshold4 + _thresholdOffset4[flatHomeZone] + (licenses < 4 ? OverSufficient : 0.0f), t3);
+            probability[0] = LogitCDF(v, t1);
+            probability[1] = LogitCDF(v, t2);
+            probability[2] = LogitCDF(v, t3);
+            probability[3] = LogitCDF(v, t4);
             probability[4] = 1.0f;
             var probabilitySum = 0.0f;
             for (int i = probability.Length - 1; i >= 1; i--)
@@ -432,7 +447,7 @@ namespace Tasha.PopulationSynthesis
             }
         }
 
-        private float ComputeUtility(ITashaHousehold data, int flatHomeZone)
+        private (float v, int licenses) ComputeUtility(ITashaHousehold data, int flatHomeZone)
         {
             float v;
             if (data.DwellingType == DwellingType.Apartment)
@@ -503,7 +518,7 @@ namespace Tasha.PopulationSynthesis
                 default:
                     break;
             }
-            return v;
+            return (v, licenses);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
