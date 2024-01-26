@@ -109,9 +109,6 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("Cost Matrix", 0, "The matrix number to save the total cost into.")]
             public int CostMatrixNumber;
 
-            [RunParameter("Toll Matrix", 0, "The matrix to save the toll costs into.")]
-            public int TollMatrixNumber;
-
             [RunParameter("VolumeAttribute", "@auto_volume", "The name of the attribute to save the volumes into (or None for no saving).")]
             public string VolumeAttribute;
 
@@ -324,7 +321,6 @@ namespace TMG.Emme.NetworkAssignment
                 writer.WriteNumber("DemandMatrixNumber", trafficClass.DemandMatrixNumber);
                 writer.WriteNumber("TimeMatrixNumber", trafficClass.TimeMatrixNumber);
                 writer.WriteNumber("CostMatrixNumber", trafficClass.CostMatrixNumber);
-                writer.WriteNumber("TollMatrixNumber", trafficClass.TollMatrixNumber);
 
                 trafficClass.PathAnalysis?.Write(writer);
                 trafficClass.TraversalAnalysis?.Write(writer);
