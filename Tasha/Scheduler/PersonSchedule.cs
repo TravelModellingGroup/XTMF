@@ -131,6 +131,10 @@ namespace Tasha.Scheduler
                 currentChain.Trips.Add(trip);
                 if(isAtHomeEpisode)
                 {
+                    if (trip.Purpose == Activity.PrimaryWork && isTelecommuter)
+                    {
+                        trip.Purpose = Activity.Home;
+                    }
                     currentChain = null;
                 }
                 atHome = isAtHomeEpisode;

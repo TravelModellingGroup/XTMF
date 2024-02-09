@@ -41,7 +41,7 @@ namespace Tasha.Utilities
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!Data.CheckResourceType<SparseArray<float>>())
+            if (!Data.CheckResourceType<SparseArray<float>>())
             {
                 error = "In '" + Name + "' the Data resource was not of type SparseArray<float>!";
             }
@@ -52,6 +52,10 @@ namespace Tasha.Utilities
         {
             SparseArray<float> data;
             data = Data.AcquireResource<SparseArray<float>>();
+            if (data is null)
+            {
+                throw new XTMFRuntimeException(this, $"The data loading in from {Data.Name} did not contain a valid SparseArray<Float>!");
+            }
             TMG.Functions.SaveData.SaveVector(data, OutputTo.GetFilePath());
         }
     }

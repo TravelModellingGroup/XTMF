@@ -20,6 +20,9 @@ using System;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
+using System.Linq;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace TMG.Frameworks.Data.Processing
 {
@@ -59,6 +62,16 @@ namespace TMG.Frameworks.Data.Processing
 
         [RunParameter("Unload friction", true, "Should we unload friction if we load it?")]
         public bool UnloadFriction;
+
+        public enum BalanceToSpatial
+        {
+            Global = 0,
+            PlanningDistrict = 1,
+            Region = 2,
+        }
+
+        [RunParameter("Spatial Aggregation", nameof(BalanceToSpatial.Global), typeof(BalanceToSpatial), "To what spatial unit should we balance the production and attraction?")]
+        public BalanceToSpatial SpatialAggregation;
 
         public enum Balance
         {
@@ -114,24 +127,53 @@ namespace TMG.Frameworks.Data.Processing
             var flatProduction = production.GetFlatData();
             var newFlatProduction = newProduction.GetFlatData();
             var newFlatAttraction = newAttraction.GetFlatData();
-            var productionTotal = VectorHelper.Sum(flatProduction, 0, flatProduction.Length);
-            var attractionTotal = VectorHelper.Sum(flatAttraction, 0, flatAttraction.Length);
-            var totalAverage = productionTotal + attractionTotal / 2.0f;
-            var ratio = totalAverage / attractionTotal;
-            if (float.IsNaN(ratio) || float.IsInfinity(ratio))
+            switch (SpatialAggregation)
             {
-                ratio = 0.0f;
+                case BalanceToSpatial.Global:
+                    var productionTotal = VectorHelper.Sum(flatProduction, 0, flatProduction.Length);
+                    var attractionTotal = VectorHelper.Sum(flatAttraction, 0, flatAttraction.Length);
+                    var totalAverage = productionTotal + attractionTotal / 2.0f;
+                    var ratio = totalAverage / attractionTotal;
+                    if (float.IsNaN(ratio) || float.IsInfinity(ratio))
+                    {
+                        ratio = 0.0f;
+                    }
+                    VectorHelper.Multiply(newFlatAttraction, flatAttraction, ratio);
+                    ratio = totalAverage / productionTotal;
+                    if (float.IsNaN(ratio) || float.IsInfinity(ratio))
+                    {
+                        ratio = 0.0f;
+                    }
+                    VectorHelper.Multiply(newFlatProduction, flatProduction, 1.0f / ratio);
+                    break;
+                case BalanceToSpatial.PlanningDistrict:
+                case BalanceToSpatial.Region:
+                    var zones = _zoneSystem.ZoneArray.GetFlatData();
+                    var zoneAggregationIndex = SpatialAggregation switch
+                    {
+                        BalanceToSpatial.PlanningDistrict => zones.Select(z => z.PlanningDistrict).ToArray(),
+                        _ => zones.Select(z => z.RegionNumber).ToArray(),
+                    };
+                    var totalProduction = new Dictionary<int, float>();
+                    var totalAttraction = new Dictionary<int, float>();
+                    for (int i = 0; i < zones.Length; i++)
+                    {
+                        CollectionsMarshal.GetValueRefOrAddDefault(totalProduction, zoneAggregationIndex[i], out bool _) += flatProduction[i];
+                        CollectionsMarshal.GetValueRefOrAddDefault(totalAttraction, zoneAggregationIndex[i], out bool _) += flatAttraction[i];
+                    }
+                    for (int i = 0; i < zones.Length; i++)
+                    {
+                        var nominator = (totalProduction[zoneAggregationIndex[i]] / 2.0f) + (totalAttraction[zoneAggregationIndex[i]] / 2.0f);
+                        newFlatProduction[i] = totalProduction[zoneAggregationIndex[i]] <= 0 ? 0 : flatProduction[i] * (nominator / totalProduction[zoneAggregationIndex[i]]);
+                        newFlatAttraction[i] = totalAttraction[zoneAggregationIndex[i]] <= 0 ? 0 : flatAttraction[i] * (nominator / totalAttraction[zoneAggregationIndex[i]]);
+                    }
+                    break;
             }
-            VectorHelper.Multiply(newFlatAttraction, flatAttraction, ratio);
-            ratio = totalAverage / productionTotal;
-            if (float.IsNaN(ratio) || float.IsInfinity(ratio))
-            {
-                ratio = 0.0f;
-            }
-            VectorHelper.Multiply(newFlatProduction, flatProduction, 1.0f/ratio);
             attraction = newAttraction;
             production = newProduction;
         }
+
+        private IZoneSystem _zoneSystem;
 
         private void MatchAttractionToProduction(ref SparseArray<float> production, ref SparseArray<float> attraction)
         {
@@ -139,12 +181,39 @@ namespace TMG.Frameworks.Data.Processing
             var flatAttraction = attraction.GetFlatData();
             var flatProduction = production.GetFlatData();
             var newFlatAttraction = newAttraction.GetFlatData();
-            var ratio = VectorHelper.Sum(flatProduction, 0, flatProduction.Length) / VectorHelper.Sum(flatAttraction, 0, flatAttraction.Length);
-            if (float.IsNaN(ratio) || float.IsInfinity(ratio))
+            switch (SpatialAggregation)
             {
-                ratio = 0.0f;
+                case BalanceToSpatial.Global:
+                    var ratio = VectorHelper.Sum(flatProduction, 0, flatProduction.Length) / VectorHelper.Sum(flatAttraction, 0, flatAttraction.Length);
+                    if (float.IsNaN(ratio) || float.IsInfinity(ratio))
+                    {
+                        ratio = 0.0f;
+                    }
+                    VectorHelper.Multiply(newFlatAttraction, flatAttraction, ratio);
+                    break;
+                case BalanceToSpatial.PlanningDistrict:
+                case BalanceToSpatial.Region:
+                    var zones = _zoneSystem.ZoneArray.GetFlatData();
+                    var zoneAggregationIndex = SpatialAggregation switch
+                    {
+                        BalanceToSpatial.PlanningDistrict => zones.Select(z => z.PlanningDistrict).ToArray(),
+                        _ => zones.Select(z => z.RegionNumber).ToArray(),
+                    };
+                    var totalProduction = new Dictionary<int, float>();
+                    var totalAttraction = new Dictionary<int, float>();
+                    for (int i = 0; i < zones.Length; i++)
+                    {
+                        CollectionsMarshal.GetValueRefOrAddDefault(totalProduction, zoneAggregationIndex[i], out bool _) += flatProduction[i];
+                        CollectionsMarshal.GetValueRefOrAddDefault(totalAttraction, zoneAggregationIndex[i], out bool _) += flatAttraction[i];
+                    }
+                    for (int i = 0; i < zones.Length; i++)
+                    {
+                        var a = totalAttraction[zoneAggregationIndex[i]];
+                        newFlatAttraction[i] = a <= 0 ? 0 : flatAttraction[i] * (totalProduction[zoneAggregationIndex[i]] / a);
+                    }
+                    break;
             }
-            VectorHelper.Multiply(newFlatAttraction, flatAttraction, ratio);
+
             attraction = newAttraction;
         }
 
@@ -157,15 +226,37 @@ namespace TMG.Frameworks.Data.Processing
                 loaded = true;
             }
             var ret = dataSource.GiveData();
-            if(loaded && unloadIfLoad)
+            if (loaded && unloadIfLoad)
             {
                 dataSource.UnloadData();
             }
             return ret;
         }
 
+        private IConfiguration _config;
+
+        public GravityModel2D(IConfiguration config)
+        {
+            _config = config;
+        }
+
         public bool RuntimeValidation(ref string error)
         {
+            if (SpatialAggregation != BalanceToSpatial.Global)
+            {
+                // then we need to find something with a zone system
+                if (!ModelSystemReflection.GetRootOfType(_config, typeof(ITravelDemandModel), this, out var mss))
+                {
+                    error = "To use a Spatial aggregation for balancing other than global, this module must be contained in an ITravelDemandModel model system template.";
+                    return false;
+                }
+                _zoneSystem = (mss.Module as ITravelDemandModel)?.ZoneSystem;
+                if(_zoneSystem is null)
+                {
+                    error = "There was no zone system loaded in the ITravelDemandModel.";
+                    return false;
+                }
+            }
             return true;
         }
 
