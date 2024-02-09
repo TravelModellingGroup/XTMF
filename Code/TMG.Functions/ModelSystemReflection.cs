@@ -52,7 +52,7 @@ namespace TMG.Functions
             var chain = BuildModelStructureChain(config, currentModule);
             for (int i = chain.Count - 1; i >= 0; i--)
             {
-                if(chain[i].Type == type)
+                if(chain[i].Type?.IsAssignableTo(type) == true)
                 {
                     result = chain[i];
                     return true;

@@ -270,8 +270,9 @@ namespace Tasha.Airport
                         var bothWays = (TerminatingPassengers + OriginatingPassengers)
                             * passengerOutOfParty[i] / PartySizePassenger
                             * distributionRate;
-                        autoDemandMatrix[i][airportIndex] = OriginatingPassengers * (direct + bothWays);
-                        autoDemandMatrix[airportIndex][i] = TerminatingPassengers * (direct + bothWays);
+                        // Both ways already has the originating and terminating multiplied.
+                        autoDemandMatrix[i][airportIndex] = OriginatingPassengers * direct + bothWays;
+                        autoDemandMatrix[airportIndex][i] = TerminatingPassengers * direct + bothWays;
                         transitDemandMatrix[i][airportIndex] = OriginatingPassengers * distributionRate * publicTransit[i];
                         transitDemandMatrix[airportIndex][i] = TerminatingPassengers * distributionRate * publicTransit[i];
                     }
