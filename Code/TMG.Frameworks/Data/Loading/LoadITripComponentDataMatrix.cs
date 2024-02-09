@@ -70,7 +70,7 @@ namespace TMG.Frameworks.Data.Loading
         public void LoadData()
         {
             var network = Root.NetworkData.FirstOrDefault(n => n.NetworkType == Network) as ITripComponentData;
-            if(network == null)
+            if (network == null)
             {
                 throw new XTMFRuntimeException(this, $"In {Name} we were unable to find a network with the name '{Network}'");
             }
@@ -110,56 +110,101 @@ namespace TMG.Frameworks.Data.Loading
 
         private void LoadBoardingTimes(SparseTwinIndex<float> data, ITripComponentData network)
         {
+            if (network is ITripComponentCompleteData complete)
+            {
+                // time,wait,walk,cost,boarding
+                LoadData(data, complete, 4);
+            }
+            else
+            {
+                var flatData = data.GetFlatData();
+                var time = TimeToLoad;
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    var row = flatData[i];
+                    for (int j = 0; j < row.Length; j++)
+                    {
+                        row[j] = network.BoardingTime(i, j, time).ToMinutes();
+                    }
+                }
+            }
+        }
+
+        private void LoadData(SparseTwinIndex<float> data, ITripComponentCompleteData completeNetwork, int offset)
+        {
             var flatData = data.GetFlatData();
-            var time = TimeToLoad;
+            var networkData = completeNetwork.GetTimePeriodData(TimeToLoad);
             for (int i = 0; i < flatData.Length; i++)
             {
-                var row = flatData[i];
-                for (int j = 0; j < row.Length; j++)
+                for (int j = 0; j < flatData[i].Length; j++)
                 {
-                    row[j] = network.BoardingTime(i, j, time).ToMinutes();
+                    flatData[i][j] = networkData[(i * flatData.Length + j) * 5 + offset];
                 }
             }
         }
 
         private void LoadWaitTimes(SparseTwinIndex<float> data, ITripComponentData network)
         {
-            var flatData = data.GetFlatData();
-            var time = TimeToLoad;
-            for (int i = 0; i < flatData.Length; i++)
+            if (network is ITripComponentCompleteData complete)
             {
-                var row = flatData[i];
-                for (int j = 0; j < row.Length; j++)
+                // time,wait,walk,cost,boarding
+                LoadData(data, complete, 1);
+            }
+            else
+            {
+                var flatData = data.GetFlatData();
+                var time = TimeToLoad;
+                for (int i = 0; i < flatData.Length; i++)
                 {
-                    row[j] = network.WaitTime(i, j, time).ToMinutes();
+                    var row = flatData[i];
+                    for (int j = 0; j < row.Length; j++)
+                    {
+                        row[j] = network.WaitTime(i, j, time).ToMinutes();
+                    }
                 }
             }
         }
 
         private void LoadWalkTimes(SparseTwinIndex<float> data, ITripComponentData network)
         {
-            var flatData = data.GetFlatData();
-            var time = TimeToLoad;
-            for (int i = 0; i < flatData.Length; i++)
+            if (network is ITripComponentCompleteData complete)
             {
-                var row = flatData[i];
-                for (int j = 0; j < row.Length; j++)
+                // time,wait,walk,cost,boarding
+                LoadData(data, complete, 2);
+            }
+            else
+            {
+                var flatData = data.GetFlatData();
+                var time = TimeToLoad;
+                for (int i = 0; i < flatData.Length; i++)
                 {
-                    row[j] = network.WalkTime(i, j, time).ToMinutes();
+                    var row = flatData[i];
+                    for (int j = 0; j < row.Length; j++)
+                    {
+                        row[j] = network.WalkTime(i, j, time).ToMinutes();
+                    }
                 }
             }
         }
 
         private void LoadInVehicleTimes(SparseTwinIndex<float> data, ITripComponentData network)
         {
-            var flatData = data.GetFlatData();
-            var time = TimeToLoad;
-            for (int i = 0; i < flatData.Length; i++)
+            if (network is ITripComponentCompleteData complete)
             {
-                var row = flatData[i];
-                for (int j = 0; j < row.Length; j++)
+                // time,wait,walk,cost,boarding
+                LoadData(data, complete, 0);
+            }
+            else
+            {
+                var flatData = data.GetFlatData();
+                var time = TimeToLoad;
+                for (int i = 0; i < flatData.Length; i++)
                 {
-                    row[j] = network.InVehicleTravelTime(i, j, time).ToMinutes();
+                    var row = flatData[i];
+                    for (int j = 0; j < row.Length; j++)
+                    {
+                        row[j] = network.InVehicleTravelTime(i, j, time).ToMinutes();
+                    }
                 }
             }
         }
