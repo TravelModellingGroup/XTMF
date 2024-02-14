@@ -84,6 +84,12 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float NonWorkerStudentCostFactor;
 
+        [RunParameter("ChildFlag", 0f, "A factor to apply if the person is a child [0-10].")]
+        public float ChildFlag;
+
+        [RunParameter("YouthFlag", 0f, "A factor to apply if the person is a child [11-15].")]
+        public float YouthFlag;
+
         private ITripComponentData Network;
 
         [Parameter("Feasible", 1f, "Is the mode feasible?(1)")]
@@ -161,6 +167,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     v += ZonalDensityForActivitiesArray[d];
                     break;
             }
+            v += p.Child ? ChildFlag : 0f;
+            v += p.Youth ? YouthFlag : 0f;
             v += GetPlanningDistrictConstant(trip.TripStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
             return v;
         }
