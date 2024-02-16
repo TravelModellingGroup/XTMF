@@ -107,7 +107,7 @@
                                            GotKeyboardFocus="ParameterValueTextBox_OnGotKeyboardFocus" CaretBrush="{DynamicResource SecondaryHueDarkBrush}"
                                           Margin="4,0,0,0" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True}" FocusManager.IsFocusScope="True"
                                           PreviewKeyDown="HintedTextBox_PreviewKeyDown" Foreground="{DynamicResource MaterialDesignBody}" Drop="StandardParameterTemplateTextBox_OnDrop"
-                                          SelectionOpacity="1" MinHeight="15" LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
+                                          MinHeight="15" LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
                                    ContextMenu="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=ContextMenu}"/>
 
                         <StackPanel Grid.Row="1" materialDesign:TransitionAssist.DisableTransitions="True"   Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
