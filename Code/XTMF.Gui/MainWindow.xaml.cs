@@ -432,7 +432,7 @@ namespace XTMF.Gui
             if (Ookii.Dialogs.Wpf.VistaFolderBrowserDialog.IsVistaFolderDialogSupported)
             {
                 var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
-                if (dialog.ShowDialog(MainWindow.Us).HasValue)
+                if (dialog.ShowDialog(MainWindow.Us) == true)
                 {
                     return dialog.SelectedPath;
                 }
