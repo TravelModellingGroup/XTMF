@@ -1799,7 +1799,7 @@ namespace XTMF.Gui.UserControls
             if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
             {
                 var inputParameter =
-                    GetInputParameter(ActiveModelSystemView.SelectedModule.BaseModel,
+                    GetInputParameter((ActiveModelSystemView.SelectedModule ?? DisplayRoot).BaseModel,
                         out var inputDirectory);
                 if (inputParameter is not null)
                 {
