@@ -133,6 +133,9 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Time To Use", "7:00", typeof(Time), "The time of day to use for computing travel times.")]
         public Time TimeToUse;
 
+        [RunParameter("Max Auto Time", float.PositiveInfinity, "The maximum auto travel time to use when computing the Average Auto Time To Work.")]
+        public float MaxAutoTime;
+
         [RunParameter("Max Transit Time", float.PositiveInfinity, "The maximum transit perceived travel time to use when computing the Average Perceived Transit Time To Work.")]
         public float MaxTransitTime;
 
@@ -181,7 +184,7 @@ namespace Tasha.PopulationSynthesis
                     for (int j = 0; j < jobLinkages[i].Length; j++)
                     {
                         var jobRatio = (jobLinkages[i][j] / totalJobs);
-                        jobAverageAutoTime[i] += jobRatio * autoData[autoIndex];
+                        jobAverageAutoTime[i] += jobRatio * Math.Min(autoData[autoIndex], MaxAutoTime);
                         // using perceived travel time
                         jobAverageTransitTime[i] += jobRatio * Math.Min(MaxTransitTime, transitData[transitIndex + 4]);
                         // this variable is in km
