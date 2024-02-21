@@ -44,6 +44,9 @@ namespace Tasha.V4Modes
         [RunParameter( "IntrazonalConstant", 0f, "The mode constant if the trip is intrazonal." )]
         public float IntrazonalConstant;
 
+        [RunParameter("Max Age", 200, "The maximum age you can be and still take this mode.")]
+        public int MaxAge;
+
         [RootModule]
         public ITashaRuntime Root;
 
@@ -141,6 +144,10 @@ namespace Tasha.V4Modes
 
         public bool Feasible(ITrip trip)
         {
+            if(trip.TripChain.Person.Age >= MaxAge)
+            {
+                return false;
+            }
             // you need to be going within the same region
             if(trip.OriginalZone.RegionNumber != trip.DestinationZone.RegionNumber)
             {
