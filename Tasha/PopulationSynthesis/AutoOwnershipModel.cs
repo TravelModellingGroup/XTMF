@@ -18,16 +18,12 @@
 */
 using Datastructure;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Tasha.Common;
 using TMG;
 using TMG.Functions;
 using XTMF;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -372,10 +368,6 @@ namespace Tasha.PopulationSynthesis
             // First we load in the raw CDFs, then we will multiply by the
             // kFactors so we scale the probabilities.  Once that is complete
             // we scale the popped value so that it is in [0, probabilitySum)
-            // var t1 = Threshold1 + _thresholdOffset1[flatHomeZone] + ;
-            // var t2 = MathF.Max(Threshold2 + _thresholdOffset2[flatHomeZone] + licenses < 2 ? OverSufficient : 0.0f, t1);
-            // var t3 = MathF.Max(Threshold3 + _thresholdOffset3[flatHomeZone] + licenses < 3 ? OverSufficient : 0.0f, t2);
-            // var t4 = MathF.Max(Threshold4 + _thresholdOffset4[flatHomeZone] + licenses < 4 ? OverSufficient : 0.0f, t3);
             var t1 = Threshold1 + _thresholdOffset1[flatHomeZone] + (licenses < 1 ? OverSufficient : 0.0f);
             var t2 = MathF.Max(Threshold2 + _thresholdOffset2[flatHomeZone] + (licenses < 2 ? OverSufficient : 0.0f), t1);
             var t3 = MathF.Max(Threshold3 + _thresholdOffset3[flatHomeZone] + (licenses < 3 ? OverSufficient : 0.0f), t2);
