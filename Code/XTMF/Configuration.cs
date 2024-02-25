@@ -744,13 +744,28 @@ namespace XTMF
         {
             RecentProjects.Remove(name);
         }
-        public void AddRecentProject(string name)
+
+        public void AddRecentProject(string name, bool end = false)
         {
             RecentProjects.Remove(name);
-            RecentProjects.Insert(0, name);
-            if (RecentProjects.Count > 5)
+            if(end)
             {
-                RecentProjects.RemoveAt(5);
+                if(RecentProjects.Count >= 5)
+                {
+                    RecentProjects[0] = name;
+                }
+                else
+                {
+                    RecentProjects.Add(name);
+                }
+            }
+            else
+            {
+                RecentProjects.Insert(0, name);
+                if (RecentProjects.Count > 5)
+                {
+                    RecentProjects.RemoveAt(5);
+                }
             }
         }
 
@@ -838,7 +853,7 @@ namespace XTMF
                             var projectName = recentProjectNode.Attributes["Name"].Value;
                             if (CheckProjectExists(projectName))
                             {
-                                AddRecentProject(projectName);
+                                AddRecentProject(projectName, true);
                             }
                         }
                         break;
