@@ -19,6 +19,7 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Tasha.Common;
 using TMG;
 using TMG.Input;
@@ -53,7 +54,7 @@ public sealed class RateBasedTelecommuting : ICalculation<ITashaPerson, bool>
         PartTime = 2,
     }
 
-    record struct Entry(Range Ages, Range Income, Range EmploymentStatus, WorkPlaceType Workplace, float Rate);
+    record struct Entry(Range Ages, Range Income, Range EmploymentStatus, char Occupation, WorkPlaceType Workplace, float Rate);
 
     private List<Entry> _entries = new();
     private IZone _roamingZone;
@@ -67,18 +68,28 @@ public sealed class RateBasedTelecommuting : ICalculation<ITashaPerson, bool>
         // Load in the CSV file for the different demographics
         using var reader = new CsvReader(RateFile, false);
         reader.LoadLine(); // burn header
+        var any = false;
         while (reader.LoadLine(out int columns))
         {
-            if (columns < 5)
+            if (columns < 6)
             {
                 continue;
             }
+            any = true;
             Range ages = ParseAge(reader);
             Range income = ParseIncome(reader);
             Range employmentStatus = ParseEmploymentStatus(reader);
+            char occupation = ParseOccupation(reader);
             WorkPlaceType workplace = ParseWorkPlace(reader);
             float rate = GetRate(reader);
-            _entries.Add(new Entry(ages, income, employmentStatus, workplace, rate));
+            _entries.Add(new Entry(ages, income, employmentStatus, occupation, workplace, rate));
+        }
+
+        // Ensure that we loaded at least record.
+        if(!any)
+        {
+            throw new XTMFRuntimeException(this, "No telecommuting records were loaded in. Please make sure there are 6 columns in the order of (AgeRange, IncomeClass," +
+                " EmploymentStatuses, Occupation, WorkplaceType, Rate).");
         }
     }
 
@@ -161,9 +172,35 @@ public sealed class RateBasedTelecommuting : ICalculation<ITashaPerson, bool>
         throw new XTMFRuntimeException(this, $"Unable to parse '{employmentStatus}' on line {reader.LineNumber}");
     }
 
+    private char ParseOccupation(CsvReader reader)
+    {
+        reader.Get(out string occupationStatus, 3);
+        if (occupationStatus.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            return 'A';
+        }
+        else if (occupationStatus.Equals("p", StringComparison.OrdinalIgnoreCase))
+        {
+            return (char)Occupation.Professional;
+        }
+        else if (occupationStatus.Equals("g", StringComparison.OrdinalIgnoreCase))
+        {
+            return (char)Occupation.Office;
+        }
+        else if (occupationStatus.Equals("s", StringComparison.OrdinalIgnoreCase))
+        {
+            return (char)Occupation.Retail;
+        }
+        else if (occupationStatus.Equals("m", StringComparison.OrdinalIgnoreCase))
+        {
+            return (char)Occupation.Manufacturing;
+        }
+        throw new XTMFRuntimeException(this, $"Unable to parse the occupation status '{occupationStatus}' on line {reader.LineNumber}");
+    }
+
     private WorkPlaceType ParseWorkPlace(CsvReader reader)
     {
-        reader.Get(out string workplace, 3);
+        reader.Get(out string workplace, 4);
 
         if (workplace.Equals("all", StringComparison.OrdinalIgnoreCase))
         {
@@ -182,7 +219,7 @@ public sealed class RateBasedTelecommuting : ICalculation<ITashaPerson, bool>
 
     private float GetRate(CsvReader reader)
     {
-        reader.Get(out float rate, 4);
+        reader.Get(out float rate, 5);
         return rate;
     }
 
@@ -195,7 +232,8 @@ public sealed class RateBasedTelecommuting : ICalculation<ITashaPerson, bool>
             if (entry.Ages.ContainsInclusive(age)
                 && entry.Income.ContainsInclusive(income)
                 && TestEmploymentStatus(entry.EmploymentStatus, data.EmploymentStatus)
-                && TestWorkplace(entry.Workplace, data.EmploymentZone))
+                && TestWorkplace(entry.Workplace, data.EmploymentZone)
+                && TestOccupation(entry, data.Occupation))
             {
                 return _random.NextSingle() < entry.Rate;
             }
@@ -204,6 +242,17 @@ public sealed class RateBasedTelecommuting : ICalculation<ITashaPerson, bool>
         return false;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private bool TestOccupation(Entry entry, Occupation occupation)
+    {
+        return entry.Occupation switch
+        {
+            'A' => true,
+            _ => entry.Occupation == (char)occupation,
+        };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static bool TestEmploymentStatus(Range targetEmp, TTSEmploymentStatus personEmp)
     {
         return personEmp switch
@@ -214,6 +263,7 @@ public sealed class RateBasedTelecommuting : ICalculation<ITashaPerson, bool>
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private bool TestWorkplace(WorkPlaceType workplace, IZone employmentZone)
     {
         return workplace switch

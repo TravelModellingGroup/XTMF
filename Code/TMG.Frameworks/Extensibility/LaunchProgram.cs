@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -21,6 +21,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using TMG.Frameworks.MultiRun;
 using TMG.Functions;
 using TMG.Input;
@@ -38,6 +39,9 @@ namespace TMG.Frameworks.Extensibility
         [RunParameter("Arguments", "", "Optional: The arguments to send to the program at launch.")]
         public string Arguments;
 
+        [SubModelInformation(Required = false, Description = "File paths to pass in as arguments in order.  These arguments will be added to the end of the 'Arguments' parameter.")]
+        public FileLocation[] FileArguments;
+
         private readonly IConfiguration Config;
 
         [SubModelInformation(Required = true, Description = "The program to execute.")]
@@ -47,6 +51,9 @@ namespace TMG.Frameworks.Extensibility
 
         [RunParameter("Wait For Exit", false, "Should we wait for the program to exit before continuing?")]
         public bool WaitForExit;
+
+        [RunParameter("Working Directory", ".", "The directory for the program to use as the starting point for relative paths.")]
+        public string WorkingDirectory;
 
         public LaunchProgram(IConfiguration config)
         {
@@ -63,7 +70,13 @@ namespace TMG.Frameworks.Extensibility
         {
             try
             {
-                var process = RunningProcess = Process.Start(Program, Arguments);
+                var arguments = CreateArguments();
+                Console.WriteLine(arguments);
+                var process = RunningProcess = Process.Start(new ProcessStartInfo(Program)
+                {
+                    Arguments = arguments,
+                    WorkingDirectory = WorkingDirectory,
+                });
                 if (process != null && WaitForExit)
                 {
                     process.WaitForExit();
@@ -79,6 +92,19 @@ namespace TMG.Frameworks.Extensibility
                 throw new XTMFRuntimeException(this,
                     "In '" + Name + "' we were to find the program '" + Program.GetFilePath() + "'!");
             }
+        }
+
+        private string CreateArguments()
+        {
+            return string.IsNullOrWhiteSpace(Arguments) ?
+                  string.Join(" ", FileArguments.Select(x => AddQuotes(Path.GetFullPath(x.GetFilePath()))))
+                : Arguments + " " + string.Join(" ", FileArguments.Select(x => AddQuotes(Path.GetFullPath(x.GetFilePath()))));
+        }
+
+        private static string AddQuotes(string filePath)
+        {
+            // Escape the quotes on the inside and add quotes to the outside
+            return string.Concat("\"", filePath.Replace("\"", "\\\""), "\"");
         }
 
         public bool RuntimeValidation(ref string error)

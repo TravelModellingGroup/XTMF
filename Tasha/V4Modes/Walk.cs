@@ -39,27 +39,37 @@ namespace Tasha.V4Modes
 
         [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
         public float ProfessionalConstant;
+
         [RunParameter("GeneralConstant", 0f, "The constant applied to the person type.")]
         public float GeneralConstant;
+
         [RunParameter("SalesConstant", 0f, "The constant applied to the person type.")]
         public float SalesConstant;
+
         [RunParameter("ManufacturingConstant", 0f, "The constant applied to the person type.")]
         public float ManufacturingConstant;
+
         [RunParameter("StudentConstant", 0f, "The constant applied to the person type.")]
         public float StudentConstant;
+
         [RunParameter("NonWorkerStudentConstant", 0f, "The constant applied to the person type.")]
         public float NonWorkerStudentConstant;
 
         [RunParameter("ProfessionalWalkTimeFactor", 0f, "The Walk applied to the person type.")]
         public float ProfessionalWalk;
+
         [RunParameter("GeneralWalkTimeFactor", 0f, "The Walk applied to the person type.")]
         public float GeneralWalk;
+
         [RunParameter("SalesWalkTimeFactor", 0f, "The Walk applied to the person type.")]
         public float SalesWalk;
+
         [RunParameter("ManufacturingWalkTimeFactor", 0f, "The Walk applied to the person type.")]
         public float ManufacturingWalk;
+
         [RunParameter("StudentWalkTimeFactor", 0f, "The Walk applied to the person type.")]
         public float StudentWalk;
+
         [RunParameter("NonWorkerStudentWalkTimeFactor", 0f, "The Walk applied to the person type.")]
         public float NonWorkerStudentWalk;
 
@@ -67,10 +77,7 @@ namespace Tasha.V4Modes
         public float DriversLicenseFlag;
 
         [RunParameter("Intrazonal", 0f, "The factor applied for being an intrazonal trip")]
-        public float IntrazonalConstant;
-
-        [RunParameter("MarketFlag", 0f, "Added to the utility if the trip's purpose is market.")]
-        public float MarketFlag;
+        public float IntrazonalConstant;       
 
         [RunParameter("Max Walking Distance", 4000, "The largest distance (Manhattan) allowed for walking")]
         public float MaxWalkDistance;
@@ -78,11 +85,17 @@ namespace Tasha.V4Modes
         [RunParameter("NoVehicleFlag", 0.0f, "Added to the utility if the household has no vehicle")]
         public float NoVehicleFlag;
 
+        [RunParameter("MarketFlag", 0f, "Added to the utility if the trip's purpose is market.")]
+        public float MarketFlag;
+
         [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
         public float OtherFlag;
 
         [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
         public float SchoolFlag;
+
+        [RunParameter("WorkFlag", 0f, "Added to the utility if the trip's purpose is 'Primary Work, Secondary Work, or Work Based Business'.")]
+        public float WorkFlag;
 
         [RunParameter("TravelTimeFactor", 0.0f, "The factor for the distance walked")]
         public float TravelTimeFactor;
@@ -184,32 +197,18 @@ namespace Tasha.V4Modes
             }
 
             //if intrazonal trip
-            if (o == d)
+            v += (o == d ? IntrazonalConstant : 0.0f)
+                + (person.Household.Vehicles.Length == 0 ? NoVehicleFlag : 0.0f);
+            v += trip.Purpose switch
             {
-                v += IntrazonalConstant;
-            }
-
-            //if no vehicles
-            if (person.Household.Vehicles.Length == 0)
-            {
-                v += NoVehicleFlag;
-            }
-            switch (trip.Purpose)
-            {
-                case Activity.Market:
-                case Activity.JointMarket:
-                    v += MarketFlag;
-                    break;
-
-                case Activity.JointOther:
-                case Activity.IndividualOther:
-                    v += OtherFlag;
-                    break;
-
-                case Activity.School:
-                    v += SchoolFlag;
-                    break;
-            }
+                Activity.Market or Activity.JointMarket => MarketFlag,
+                Activity.JointOther or Activity.IndividualOther => OtherFlag,
+                Activity.School => SchoolFlag,
+                Activity.PrimaryWork 
+                or Activity.WorkBasedBusiness 
+                or Activity.SecondaryWork => WorkFlag,
+                _ => 0
+            };
             return v + GetPlanningDistrictConstant(startTime, origin.PlanningDistrict, destination.PlanningDistrict);
         }
 
