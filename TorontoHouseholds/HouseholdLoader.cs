@@ -566,12 +566,19 @@ namespace TMG.Tasha
                 {
                     if (Reader == null)
                     {
-                        Reader = new CsvReader(HouseholdFile ?? Path.Combine(Root.InputBaseDirectory, FileName));
-                        if (ContainsHeader)
+                        try
                         {
-                            Reader.LoadLine();
+                            Reader = new CsvReader(HouseholdFile ?? Path.Combine(Root.InputBaseDirectory, FileName));
+                            if (ContainsHeader)
+                            {
+                                Reader.LoadLine();
+                            }
+                            AllDataLoaded = Reader.EndOfFile;
                         }
-                        AllDataLoaded = Reader.EndOfFile;
+                        catch (IOException e)
+                        {
+                            throw new XTMFRuntimeException(this, e);
+                        }
                     }
                 }
             }
@@ -748,9 +755,9 @@ namespace TMG.Tasha
                 {
                     h.Recycle();
                 }
-                if(TelecommutingModel is not null)
+                if (TelecommutingModel is not null)
                 {
-                    for(int i = 0; i < persons.Length; i++)
+                    for (int i = 0; i < persons.Length; i++)
                     {
                         var result = TelecommutingModel.ProduceResult(persons[i]);
                         persons[i].Attach(TelecommuterAttribute, result);

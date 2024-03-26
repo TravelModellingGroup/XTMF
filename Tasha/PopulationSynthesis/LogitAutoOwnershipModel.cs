@@ -51,6 +51,15 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         [RunParameter("B_FTWorkers", 0.0f, "The factor to apply against the total number of full-time workers in the household.")]
         public float B_FTWorkers;
 
+        [RunParameter("B_AIVTT", 0.0f, "The factor to apply to the average auto travel time to work or school.")]
+        public float B_AIVTT;
+
+        [RunParameter("B_TPTT", 0.0f, "The factor to apply to the average transit perceived travel time to work or school.")]
+        public float B_TPTT;
+
+        [RunParameter("B_Distance", 0.0f, "The factor to apply to the average distance (KM) to work or school.")]
+        public float B_Distance;
+
         [SubModelInformation(Required = false, Description = "The utility to use for the home zone.")]
         public IDataSource<SparseArray<float>> ZoneBasedUtility;
 
@@ -183,14 +192,15 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         }
         // Gather the data needed to compute the nodes' utilities.        
         var persons = data.Persons;
+        (float aivtt, float tptt, float distance) = GetAverageWorkSchool(persons);
         NodeData nodeData = new()
         {
             FlatTAZ = flatHouseholdZone,
             DriverLicenses = GetDriverLicenses(persons),
             FTWorkers = GetFTWorkers(persons),
-            AverageWorkSchoolAIVTT = persons.Average(p => 0.0f),
-            AverageWorkSchoolTPTT = persons.Average(p => 0.0f),
-            AverageWorkSchoolDistance = persons.Average(p => 0.0f),
+            AverageWorkSchoolAIVTT = aivtt,
+            AverageWorkSchoolTPTT = tptt,
+            AverageWorkSchoolDistance = distance,
             IncomeClass = data.IncomeClass
         };
 
@@ -213,6 +223,11 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         }
         // If we run into rounding issues, round it to be in the final bin.
         return Nodes[^-1].NumberOfVehicles;
+    }
+
+    private (float aivtt, float tptt, float distance) GetAverageWorkSchool(ITashaPerson[] persons)
+    {
+        return (0, 0, 0);
     }
 
     private static int GetDriverLicenses(ITashaPerson[] persons)
