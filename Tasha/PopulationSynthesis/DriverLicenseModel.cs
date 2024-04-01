@@ -48,6 +48,8 @@ namespace Tasha.PopulationSynthesis
             _zones = Root.ZoneSystem.ZoneArray;
             _distances = Root.ZoneSystem.Distances.GetFlatData();
             LoadZonalConstants();
+            _additionalIncomeCategories = AdditionalIncomeCategories.Select(x => x.Category).ToArray();
+            _additionalIncomeValues = AdditionalIncomeCategories.Select(x => x.Value).ToArray();
         }
 
         public sealed class PDConstants : IModule
@@ -264,27 +266,15 @@ namespace Tasha.PopulationSynthesis
             {
                 v += PartTime;
             }
-            switch (household.IncomeClass)
+            v += household.IncomeClass switch
             {
-                case 2:
-                    v += Income2;
-                    break;
-                case 3:
-                    v += Income3;
-                    break;
-                case 4:
-                    v += Income4;
-                    break;
-                case 5:
-                    v += Income5;
-                    break;
-                case 6:
-                    v += Income6;
-                    break;
-                // Income class 1 is our base
-                default:
-                    break;
-            }
+                2 => Income2,
+                3 => Income3,
+                4 => Income4,
+                5 => Income5,
+                6 => Income6,
+                var otherIncomeClass => AdditionalIncomes(otherIncomeClass),
+            };
 
             v += PopulationDensityBeta * _populationDensity[flatHhldZone];
 
@@ -306,6 +296,45 @@ namespace Tasha.PopulationSynthesis
             // Binary logit
             var eToV = MathF.Exp(v);
             return _random.NextDouble() < (eToV / (1.0f + eToV));
+        }
+
+        [ModuleInformation(Description = "Provides a general way of giving a constant for a particular number of something coming from the household.")]
+        public sealed class IncomeCategory : IModule
+        {
+            [RunParameter("Category", 0, "The income category for this value.", Index = 0)]
+            public int Category;
+
+            [RunParameter("Value", 0.0f, "The value this option represents.", Index = 1)]
+            public float Value;
+
+            public string Name { get; set; }
+
+            public float Progress => 0f;
+
+            public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+        [SubModelInformation(Required = false, Description = "Additional income category constants.")]
+        public IncomeCategory[] AdditionalIncomeCategories;
+
+        private int[] _additionalIncomeCategories;
+        private float[] _additionalIncomeValues;
+
+        private float AdditionalIncomes(int incomeClass)
+        {
+            for (int i = 0; i < _additionalIncomeCategories.Length; i++)
+            {
+                if (incomeClass == _additionalIncomeCategories[i])
+                {
+                    return _additionalIncomeValues[i];
+                }
+            }
+            return 0f;
         }
 
         private void Debug(int flatHhldZone, ITashaPerson person)
