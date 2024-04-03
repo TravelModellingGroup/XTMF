@@ -45,7 +45,7 @@ public class LoadODDataFromCSV : IReadODData<float>
     [RunParameter("Destination Column", 1, "The column to use for the destination if this is ThirdNormalized. If auto detect is used, this will be ignored.", Index = 3)]
     public int DestinationColumn;
 
-    [RunParameter("Data Column", -1, "The column to use for the data if this is ThirdNormalized.  If auto detect is used, this will be ignored.", Index = 4)]
+    [RunParameter("Data Column", -1, "The column to use for the data if this is ThirdNormalized.  If auto detect is used, this will be ignored.  If negative it will default to 1 for vectors or 2 for matrices.", Index = 4)]
     public int DataColumn;
 
     [RunParameter("Contains Header", true, "Set this to true if there is a header line in the CSV File (Only for ThirdNormalized).", Index = 5)]
