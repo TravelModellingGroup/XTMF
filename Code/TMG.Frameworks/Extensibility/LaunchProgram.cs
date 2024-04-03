@@ -52,8 +52,14 @@ namespace TMG.Frameworks.Extensibility
         [RunParameter("Wait For Exit", false, "Should we wait for the program to exit before continuing?")]
         public bool WaitForExit;
 
+        [RunParameter("Throw if bad exit code", false, "Should the module throw if the error code is not zero.  Requires WaitForExist to be true.")]
+        public bool ThrowIfBadExitCode;
+
         [RunParameter("Working Directory", ".", "The directory for the program to use as the starting point for relative paths.")]
         public string WorkingDirectory;
+
+        [RunParameter("Route Console Outputs", true, "Should we pass along the console outputs to XTMF Console?")]
+        public bool RouteConsoleOutputs;
 
         public LaunchProgram(IConfiguration config)
         {
@@ -71,15 +77,21 @@ namespace TMG.Frameworks.Extensibility
             try
             {
                 var arguments = CreateArguments();
-                Console.WriteLine(arguments);
+                Console.WriteLine($"Running Program \"{Program}\" {arguments}");
                 var process = RunningProcess = Process.Start(new ProcessStartInfo(Program)
                 {
                     Arguments = arguments,
                     WorkingDirectory = WorkingDirectory,
+                    CreateNoWindow = !RouteConsoleOutputs,
                 });
+
                 if (process != null && WaitForExit)
                 {
                     process.WaitForExit();
+                    if (ThrowIfBadExitCode && process.ExitCode != 0)
+                    {
+                        throw new XTMFRuntimeException(this, $"The external program ended with an error code {process.ExitCode}!");
+                    }
                 }
             }
             catch (Win32Exception)
@@ -115,7 +127,11 @@ namespace TMG.Frameworks.Extensibility
                 error = "In '" + Name + "' we were unable to find ourselves!";
                 return false;
             }
-
+            if (!WaitForExit && ThrowIfBadExitCode)
+            {
+                error = "If you want to throw if there is a bad exit code, you must also have WaitForExit set to True!";
+                return false;
+            }
             AddMultiRunCommand();
             return true;
         }

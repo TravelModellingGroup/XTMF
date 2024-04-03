@@ -26,7 +26,7 @@ namespace TMG.Frameworks.Data.Loading
 {
     [ModuleInformation(Description =
 @"This module will stream ODData<float> from a CSV file.  If there are two columns of data it will store it as Origin,Data.  If there three or more it
- will be stored as Origin,Destination,Data.")]
+ will be stored as Origin,Destination,Data. If you specify the format as a vector")]
     // ReSharper disable once InconsistentNaming
     public class LoadODDataFromCSV : IReadODData<float>
     {
@@ -41,6 +41,15 @@ namespace TMG.Frameworks.Data.Loading
 
         [RunParameter("Read Type", ReadType.AutoDetect, "Either auto detect if we are reading a vector or a matrix or specify this manually.  This only applies to ThirdNormalized.")]
         public ReadType ThirdNormalizedType;
+
+        [RunParameter("Origin Column", 0, "The column to use for the origin if this is ThirdNormalized. If auto detect is used, this will be ignored.")]
+        public int OriginColumn;
+
+        [RunParameter("Destination Column", 1, "The column to use for the destination if this is ThirdNormalized. If auto detect is used, this will be ignored.")]
+        public int DestinationColumn;
+
+        [RunParameter("Data Column", -1, "The column to use for the data if this is ThirdNormalized.  If auto detect is used, this will be ignored.")]
+        public int DataColumn;
 
         public enum FileType
         {
@@ -149,27 +158,38 @@ namespace TMG.Frameworks.Data.Loading
                         }
                         break;
                     case ReadType.Matrix:
-                        while (reader.LoadLine(out int columns))
                         {
-                            if (columns >= 3)
+                            var originColumn = OriginColumn;
+                            var destinationColumn = DestinationColumn;
+                            var dataColumn = DataColumn;
+                            var minRowSize = Math.Max(Math.Max(originColumn, destinationColumn), dataColumn) + 1;
+                            while (reader.LoadLine(out int columns))
                             {
-                                ODData<float> data = new ODData<float>();
-                                reader.Get(out data.O, 0);
-                                reader.Get(out data.D, 1);
-                                reader.Get(out data.Data, 2);
-                                yield return data;
+                                if (columns >= minRowSize)
+                                {
+                                    ODData<float> data = new();
+                                    reader.Get(out data.O, originColumn);
+                                    reader.Get(out data.D, destinationColumn);
+                                    reader.Get(out data.Data, dataColumn);
+                                    yield return data;
+                                }
                             }
                         }
                         break;
                     case ReadType.Vector:
-                        while (reader.LoadLine(out int columns))
                         {
-                            if (columns >= 2)
+                            var originColumn = OriginColumn;
+                            var dataColumn = DataColumn;
+                            var minRowSize = Math.Max(originColumn, dataColumn) + 1;
+                            while (reader.LoadLine(out int columns))
                             {
-                                ODData<float> data = new ODData<float>();
-                                reader.Get(out data.O, 0);
-                                reader.Get(out data.Data, 1);
-                                yield return data;
+                                if (columns >= minRowSize)
+                                {
+                                    ODData<float> data = new();
+                                    reader.Get(out data.O, originColumn);
+                                    reader.Get(out data.Data, dataColumn);
+                                    yield return data;
+                                }
                             }
                         }
                         break;
@@ -180,6 +200,37 @@ namespace TMG.Frameworks.Data.Loading
 
         public bool RuntimeValidation(ref string error)
         {
+            // Check to see if the DataColumn has not been set
+            if (DataColumn < 0)
+            {
+                // Then set it depending on if we are using a vector or not.
+                DataColumn = ThirdNormalizedType switch
+                {
+                    ReadType.Vector => 1,
+                    // If it is anything else then we want a 2
+                    _ => 2,
+                };
+            }
+            // Make sure we don't allow customization if we are trying to auto detect.
+            if (ThirdNormalizedType == ReadType.AutoDetect)
+            {
+                if (OriginColumn != 0)
+                {
+                    error = $"The origin column can not be specified when using auto detect for the data type, it must be 0.";
+                    return false;
+                }
+                if (DestinationColumn != 1)
+                {
+                    error = $"The destination column can not be specified when using auto detect for the data type, it must be 1.";
+                    return false;
+                }
+                // The default is a -1, but we already modify it at startup time.
+                if (DataColumn != 2)
+                {
+                    error = $"The data column can not be specified when using auto detect for the data type, it must be -1.";
+                    return false;
+                }
+            }
             return true;
         }
     }
