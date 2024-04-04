@@ -46,6 +46,9 @@ namespace Tasha.V4Modes
         [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
         public float SchoolFlag;
 
+        [RunParameter("WorkFlag", 0f, "Added to the utility if the trip's purpose is 'Primary Work, Secondary Work, or Work Based Business'.")]
+        public float WorkFlag;
+
         [RunParameter("IntrazonalConstant", 0f, "The factor applied for being an intrazonal trip")]
         public float IntrazonalConstant;
 
@@ -54,14 +57,19 @@ namespace Tasha.V4Modes
 
         [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float ProfessionalTimeFactor;
+
         [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float GeneralTimeFactor;
+
         [RunParameter("SalesTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float SalesTimeFactor;
+
         [RunParameter("ManufacturingTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float ManufacturingTimeFactor;
+
         [RunParameter("StudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float StudentTimeFactor;
+
         [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float NonWorkerStudentTimeFactor;
 
@@ -79,14 +87,19 @@ namespace Tasha.V4Modes
 
         [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
         public float ProfessionalConstant;
+
         [RunParameter("GeneralConstant", 0f, "The constant applied to the person type.")]
         public float GeneralConstant;
+
         [RunParameter("SalesConstant", 0f, "The constant applied to the person type.")]
         public float SalesConstant;
+
         [RunParameter("ManufacturingConstant", 0f, "The constant applied to the person type.")]
         public float ManufacturingConstant;
+
         [RunParameter("StudentConstant", 0f, "The constant applied to the person type.")]
         public float StudentConstant;
+
         [RunParameter("NonWorkerStudentConstant", 0f, "The constant applied to the person type.")]
         public float NonWorkerStudentConstant;
 
@@ -221,6 +234,16 @@ namespace Tasha.V4Modes
             {
                 v += YoungAdultFlag;
             }
+            v += trip.Purpose switch
+            {
+                Activity.Market or Activity.JointMarket => MarketFlag,
+                Activity.JointOther or Activity.IndividualOther => OtherFlag,
+                Activity.School => SchoolFlag,
+                Activity.PrimaryWork
+                or Activity.WorkBasedBusiness
+                or Activity.SecondaryWork => WorkFlag,
+                _ => 0
+            };
             return v + GetPlanningDistrictConstant(startTime, origin.PlanningDistrict, destination.PlanningDistrict);
         }
 

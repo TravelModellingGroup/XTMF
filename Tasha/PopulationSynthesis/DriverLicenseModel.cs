@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Tasha.Common;
 using TMG;
 using XTMF;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -48,8 +49,11 @@ namespace Tasha.PopulationSynthesis
             _zones = Root.ZoneSystem.ZoneArray;
             _distances = Root.ZoneSystem.Distances.GetFlatData();
             LoadZonalConstants();
+            _additionalIncomeCategories = AdditionalIncomeCategories.Select(x => x.Category).ToArray();
+            _additionalIncomeValues = AdditionalIncomeCategories.Select(x => x.Value).ToArray();
         }
 
+        [ModuleInformation(Description = "Provides the ability to apply a dummy variable for the given planning districts.")]
         public sealed class PDConstants : IModule
         {
             public string Name { get; set; }
@@ -84,16 +88,37 @@ namespace Tasha.PopulationSynthesis
         [SubModelInformation(Required = false, Description = "The spatial constants to apply at the planning district level")]
         public PDConstants[] Constants;
 
+        [SubModelInformation(Required = false, Description = "Constants to apply at the TAZ level.")]
+        public IDataSource<SparseArray<float>> ZonalConstants;
 
         private void LoadZonalConstants()
         {
             var flatZones = _zones.GetFlatData();
-            _zonalConstants = new float[flatZones.Length];
+            _zonalConstants = ZonalConstants switch
+            {
+                null => new float[flatZones.Length],
+                _ => LoadResource(ZonalConstants),
+            };
             var pds = _zones.GetFlatData().Select(zone => zone.PlanningDistrict).ToArray();
             foreach (var constants in Constants)
             {
                 constants.ApplyConstant(pds, _zonalConstants);
             }
+        }
+
+        private static T[] LoadResource<T>(IDataSource<SparseArray<T>> zonalConstants)
+        {
+            var loaded = zonalConstants.Loaded;
+            if (!loaded)
+            {
+                zonalConstants.LoadData();
+            }
+            var ret = zonalConstants.GiveData();
+            if (!loaded)
+            {
+                zonalConstants.UnloadData();
+            }
+            return ret.GetFlatData();
         }
 
         private void LoadPopulationDensity()
@@ -122,55 +147,79 @@ namespace Tasha.PopulationSynthesis
 
         [RunParameter("Constant", -0.7586f, "The model's constant.")]
         public float Constant;
+
         [RunParameter("Female", -0.7775f, "Applied if the person is female.")]
         public float Female;
 
         [RunParameter("Age16To17", -0.3646f, "A term to add if the person is within the age range.")]
         public float Age16To17;
+
         [RunParameter("Age18To20", 0.9070f, "A term to add if the person is within the age range.")]
         public float Age18To20;
+
         [RunParameter("Age21To25", 1.3652f, "A term to add if the person is within the age range.")]
         public float Age21To25;
+
         [RunParameter("Age26To35", 1.7433f, "A term to add if the person is within the age range.")]
         public float Age26To35;
+
         [RunParameter("Age36To45", 2.1094f, "A term to add if the person is within the age range.")]
         public float Age36To45;
+
         [RunParameter("Age46To55", 2.0226f, "A term to add if the person is within the age range.")]
         public float Age46To55;
+
         [RunParameter("Age56To65", 1.9770f, "A term to add if the person is within the age range.")]
         public float Age56To65;
+
         [RunParameter("Age66To75", 1.9461f, "A term to add if the person is within the age range.")]
         public float Age66To75;
+
         [RunParameter("Age76To85", 1.2269f, "A term to add if the person is within the age range.")]
         public float Age76To85;
 
         [RunParameter("Occupation General", 0.5737f, "A term to add if the person works in the occupation category.")]
         public float OccGeneral;
+
         [RunParameter("Occupation Manufacturing", 0.7314f, "A term to add if the person works in the occupation category.")]
         public float OccManufacturing;
+
         [RunParameter("Occupation Professional", 1.2349f, "A term to add if the person works in the occupation category.")]
         public float OccProfessional;
+
         [RunParameter("Occupation Sales", 0.4507f, "A term to add if the person works in the occupation category.")]
         public float OccSales;
+
+        [RunParameter("Full Time", 0.0f, "A constant applied if the person is a full-time worker.")]
+        public float FullTime;
 
         [RunParameter("Part Time", -0.3366f, "A term to add if the person works part time outside of the home.")]
         public float PartTime;
 
+        [RunParameter("Student", 0.0f, "A constant applied if the person is a student.")]
+        public float Student;
+
         [RunParameter("Income Category 2", 0.4493f, "A term to add if the person belongs to a household within the TTS income category 2.")]
         public float Income2;
+
         [RunParameter("Income Category 3", 0.7008f, "A term to add if the person belongs to a household within the TTS income category 3.")]
         public float Income3;
+
         [RunParameter("Income Category 4", 0.8689f, "A term to add if the person belongs to a household within the TTS income category 4.")]
         public float Income4;
+
         [RunParameter("Income Category 5", 1.0242f, "A term to add if the person belongs to a household within the TTS income category 5.")]
         public float Income5;
+
         [RunParameter("Income Category 6", 1.3385f, "A term to add if the person belongs to a household within the TTS income category 6.")]
         public float Income6;
 
         [RunParameter("Population Density", -29.0526f, "Applied against the population density for the home zone. (pop/m^2)")]
         public float PopulationDensityBeta;
+
         [RunParameter("Transit Perceived Time", 0.0018f, "Applied against the perceived travel time to work and school. (minutes)")]
         public float TransitPerceivedTravelTime;
+
         [RunParameter("Distance to Work and School", 0.0200f, "Applied against the distance to work and school. (km)")]
         public float DistanceToWorkSchoolBeta;
 
@@ -185,6 +234,12 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Max Transit Perceived Time", float.PositiveInfinity, "The maximum perceived time to use when computing the utilities.")]
         public float MaxTransitPerceivedTime;
 
+        [RunParameter("Minimum Age", 16, "The minimum age for a person to have a driver license.")]
+        public int MinimumAge;
+
+        [RunParameter("School Plus Work", true, "Should we add the distance of work and school or just use work for workers and school for students?")]
+        public bool SchoolPlusWork;
+
         private SparseArray<IZone> _zones;
         private float[] _zonalConstants;
 
@@ -195,109 +250,62 @@ namespace Tasha.PopulationSynthesis
             var flatHhldZone = _zones.GetFlatIndex(household.HomeZone.ZoneNumber);
             var age = data.Age;
             // you have to be older than 16 to drive
-            if (age < 16)
+            if (age < MinimumAge)
             {
                 return false;
             }
             var ageClass = (age - 16) / 5;
-            var v = Constant + _zonalConstants[flatHhldZone];
-            if (data.Female)
-            {
-                v += Female;
-            }
-            switch (ageClass)
-            {
-                case 0:
-                    v += age < 18 ? Age16To17 : Age18To20;
-                    break;
-                case 1:
-                    v += Age21To25;
-                    break;
-                case 2:
-                case 3:
-                    v += Age26To35;
-                    break;
-                case 4:
-                case 5:
-                    v += Age36To45;
-                    break;
-                case 6:
-                case 7:
-                    v += Age46To55;
-                    break;
-                case 8:
-                case 9:
-                    v += Age56To65;
-                    break;
-                case 10:
-                case 11:
-                    v += Age66To75;
-                    break;
-                case 12:
-                case 13:
-                    v += Age76To85;
-                    break;
-                // Do nothing for age classes for 86+
-                default:
-                    break;
-            }
-            switch (data.Occupation)
-            {
-                case Occupation.Office:
-                    v += OccGeneral;
-                    break;
-                case Occupation.Manufacturing:
-                    v += OccManufacturing;
-                    break;
-                case Occupation.Professional:
-                    v += OccProfessional;
-                    break;
-                case Occupation.Retail:
-                    v += OccSales;
-                    break;
-                // Do nothing for the rest
-                default:
-                    break;
-
-            }
-            if (data.EmploymentStatus == TTSEmploymentStatus.PartTime)
-            {
-                v += PartTime;
-            }
-            switch (household.IncomeClass)
-            {
-                case 2:
-                    v += Income2;
-                    break;
-                case 3:
-                    v += Income3;
-                    break;
-                case 4:
-                    v += Income4;
-                    break;
-                case 5:
-                    v += Income5;
-                    break;
-                case 6:
-                    v += Income6;
-                    break;
-                // Income class 1 is our base
-                default:
-                    break;
-            }
-
-            v += PopulationDensityBeta * _populationDensity[flatHhldZone];
-
-            // Add the combined travel times for home to work and home to school if they exist.
-            v += TransitPerceivedTravelTime * (
-                 TravelTimeIfExists(TransitNetwork, flatHhldZone, data.EmploymentZone, _zones, TimeToUse)
-                + TravelTimeIfExists(TransitNetwork, flatHhldZone, data.SchoolZone, _zones, TimeToUse)
-                );
             var distanceRow = _distances[flatHhldZone];
-            v += DistanceToWorkSchoolBeta * (
-                 DistanceIfExists(distanceRow, data.EmploymentZone, _zones)
-                + DistanceIfExists(distanceRow, data.SchoolZone, _zones)
-                );
+            var v = Constant
+                + _zonalConstants[flatHhldZone]
+                + (data.Female ? Female : 0f)
+                + ageClass switch
+                {
+                    0 => age < 18 ? Age16To17 : Age18To20,
+                    1 => Age21To25,
+                    2 or 3 => Age26To35,
+                    4 or 5 => Age36To45,
+                    6 or 7 => Age46To55,
+                    8 or 9 => Age56To65,
+                    10 or 11 => Age66To75,
+                    12 or 13 => Age76To85,
+                    _ => 0f,
+                }
+
+                + data.Occupation switch
+                {
+                    Occupation.Office => OccGeneral,
+                    Occupation.Manufacturing => OccManufacturing,
+                    Occupation.Retail => OccSales,
+                    Occupation.Professional => OccProfessional,
+                    _ => 0f,
+                }
+                + data.StudentStatus switch
+                {
+                    StudentStatus.FullTime => Student,
+                    _ => 0f
+                }
+                + data.EmploymentStatus switch
+                {
+                    TTSEmploymentStatus.FullTime => FullTime,
+                    TTSEmploymentStatus.PartTime => PartTime,
+                    _ => 0f,
+                }
+                + household.IncomeClass switch
+                {
+                    2 => Income2,
+                    3 => Income3,
+                    4 => Income4,
+                    5 => Income5,
+                    6 => Income6,
+                    var otherIncomeClass => AdditionalIncomes(otherIncomeClass),
+                }
+                + PopulationDensityBeta * _populationDensity[flatHhldZone]
+
+                // Add the combined travel times for home to work and home to school if they exist.
+                + GetWorkSchoolUtility(distanceRow, data, flatHhldZone)
+
+            ;
             // check for a non-sensible result.
             if (float.IsInfinity(v) | float.IsNaN(v))
             {
@@ -306,6 +314,79 @@ namespace Tasha.PopulationSynthesis
             // Binary logit
             var eToV = MathF.Exp(v);
             return _random.NextDouble() < (eToV / (1.0f + eToV));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        private float GetWorkSchoolUtility(float[] distanceRow, ITashaPerson data, int flatHhldZone)
+        {
+            var employmentZone = data.EmploymentZone;
+            var schoolZone = data.SchoolZone;
+            if (SchoolPlusWork)
+            {
+                var distanceUtil = DistanceToWorkSchoolBeta * (DistanceIfExists(distanceRow, employmentZone, _zones)
+                + DistanceIfExists(distanceRow, schoolZone, _zones));
+                var timeUtil = TransitPerceivedTravelTime * (TravelTimeIfExists(TransitNetwork, flatHhldZone, schoolZone, _zones, TimeToUse)
+                    + TravelTimeIfExists(TransitNetwork, flatHhldZone, employmentZone, _zones, TimeToUse));
+                return distanceUtil + timeUtil;
+            }
+            else
+            {
+                return ((data.EmploymentStatus, data.StudentStatus) switch
+                {
+                    (TTSEmploymentStatus.FullTime or TTSEmploymentStatus.WorkAtHome_FullTime, _) =>
+                        DistanceToWorkSchoolBeta * DistanceIfExists(distanceRow, employmentZone, _zones)
+                        + TransitPerceivedTravelTime * TravelTimeIfExists(TransitNetwork, flatHhldZone, employmentZone, _zones, TimeToUse),
+                    (_, StudentStatus.FullTime) =>
+                        DistanceToWorkSchoolBeta * DistanceIfExists(distanceRow, schoolZone, _zones)
+                        + TransitPerceivedTravelTime * TravelTimeIfExists(TransitNetwork, flatHhldZone, schoolZone, _zones, TimeToUse),
+                    (TTSEmploymentStatus.PartTime or TTSEmploymentStatus.WorkAtHome_PartTime, _) =>
+                        DistanceToWorkSchoolBeta * DistanceIfExists(distanceRow, employmentZone, _zones)
+                        + TransitPerceivedTravelTime * TravelTimeIfExists(TransitNetwork, flatHhldZone, employmentZone, _zones, TimeToUse),
+                    (_, StudentStatus.PartTime) =>
+                        DistanceToWorkSchoolBeta * DistanceIfExists(distanceRow, schoolZone, _zones)
+                        + TransitPerceivedTravelTime * TravelTimeIfExists(TransitNetwork, flatHhldZone, schoolZone, _zones, TimeToUse),
+                    _ => 0f,
+                });
+            }
+        }
+
+        [ModuleInformation(Description = "Provides a general way of giving a constant for a particular number of something coming from the household.")]
+        public sealed class IncomeCategory : IModule
+        {
+            [RunParameter("Category", 0, "The income category for this value.", Index = 0)]
+            public int Category;
+
+            [RunParameter("Value", 0.0f, "The value this option represents.", Index = 1)]
+            public float Value;
+
+            public string Name { get; set; }
+
+            public float Progress => 0f;
+
+            public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+        [SubModelInformation(Required = false, Description = "Additional income category constants.")]
+        public IncomeCategory[] AdditionalIncomeCategories;
+
+        private int[] _additionalIncomeCategories;
+        private float[] _additionalIncomeValues;
+
+        private float AdditionalIncomes(int incomeClass)
+        {
+            for (int i = 0; i < _additionalIncomeCategories.Length; i++)
+            {
+                if (incomeClass == _additionalIncomeCategories[i])
+                {
+                    return _additionalIncomeValues[i];
+                }
+            }
+            return 0f;
         }
 
         private void Debug(int flatHhldZone, ITashaPerson person)
