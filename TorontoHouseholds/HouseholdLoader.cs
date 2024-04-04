@@ -279,7 +279,15 @@ namespace TMG.Tasha
             parallelLoader.Wait();
             if (terminalException != null)
             {
-                throw terminalException;
+                if (terminalException is XTMFRuntimeException xtmfEx)
+                {
+                    throw new XTMFRuntimeException(xtmfEx.Module, xtmfEx.Message ?? "" + "\r\n" + xtmfEx.StackTrace);
+                }
+                else
+                {
+                    throw new XTMFRuntimeException(this, terminalException.Message ?? "" + "\r\n" + terminalException.StackTrace);
+                }
+                
             }
             NeedsReset = true;
         }

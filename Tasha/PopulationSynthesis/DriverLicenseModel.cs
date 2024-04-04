@@ -303,10 +303,6 @@ namespace Tasha.PopulationSynthesis
                 + PopulationDensityBeta * _populationDensity[flatHhldZone]
 
                 // Add the combined travel times for home to work and home to school if they exist.
-                + (TransitPerceivedTravelTime * (
-                 TravelTimeIfExists(TransitNetwork, flatHhldZone, data.EmploymentZone, _zones, TimeToUse)
-                + TravelTimeIfExists(TransitNetwork, flatHhldZone, data.SchoolZone, _zones, TimeToUse)
-                ))
                 + GetWorkSchoolUtility(distanceRow, data, flatHhldZone)
 
             ;
@@ -335,7 +331,7 @@ namespace Tasha.PopulationSynthesis
             }
             else
             {
-                var distance = ((data.EmploymentStatus, data.StudentStatus) switch
+                return ((data.EmploymentStatus, data.StudentStatus) switch
                 {
                     (TTSEmploymentStatus.FullTime or TTSEmploymentStatus.WorkAtHome_FullTime, _) =>
                         DistanceToWorkSchoolBeta * DistanceIfExists(distanceRow, employmentZone, _zones)
@@ -351,7 +347,6 @@ namespace Tasha.PopulationSynthesis
                         + TransitPerceivedTravelTime * TravelTimeIfExists(TransitNetwork, flatHhldZone, schoolZone, _zones, TimeToUse),
                     _ => 0f,
                 });
-                return distance;
             }
         }
 

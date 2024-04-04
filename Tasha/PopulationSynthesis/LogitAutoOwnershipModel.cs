@@ -19,6 +19,7 @@
 
 using Datastructure;
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -26,6 +27,7 @@ using System.Xml.Schema;
 using Tasha.Common;
 using TMG;
 using XTMF;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.PopulationSynthesis;
 
@@ -45,6 +47,9 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
 
         public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
+        [RunParameter("Constant", 0.0f, "The constant to use for this alternative.")]
+        public float Constant;
+
         [RunParameter("B_DriverLicenses", 0.0f, "A factor to apply against the total number of driver licenses.  This is in addition to any coming from the categorizes.")]
         public float B_DriverLicenses;
 
@@ -59,6 +64,9 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
 
         [RunParameter("B_Distance", 0.0f, "The factor to apply to the average distance (KM) to work or school.")]
         public float B_Distance;
+
+        [RunParameter("B_PopulationDensity", 0.0f, "The factor to apply to the household's population density, ln(popdensity + 1).")]
+        public float B_PopulationDensity;
 
         [SubModelInformation(Required = false, Description = "The utility to use for the home zone.")]
         public IDataSource<SparseArray<float>> ZoneBasedUtility;
@@ -92,30 +100,46 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
             }
         }
 
-        internal void Load()
+        internal void Load(int zoneSystemSize)
         {
-            ZoneBasedUtility.LoadData();
+            if (ZoneBasedUtility is null)
+            {
+                return;
+            }
+            var loaded = ZoneBasedUtility.Loaded;
+            if (!loaded)
+            {
+                ZoneBasedUtility.LoadData();
+            }
             _zoneUtility = ZoneBasedUtility.GiveData();
-
+            if (_zoneUtility is not null && _zoneUtility.GetFlatData().Length != zoneSystemSize)
+            {
+                throw new XTMFRuntimeException(this, $"The zonal utility size is wrong, found {_zoneUtility.GetFlatData().Length} but expected {zoneSystemSize}!");
+            }
+            if (!loaded)
+            {
+                ZoneBasedUtility.UnloadData();
+            }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        //[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         internal float GetUtility(ref NodeData nodeData)
         {
-            var v = _zoneUtility.GetFlatData()[nodeData.FlatTAZ];
+            var v = (_zoneUtility?.GetFlatData()[nodeData.FlatTAZ]) ?? 0f;
 
             // TODO: Find the specification for the rest of the parameters
-            v +=
-                (B_DriverLicenses * nodeData.DriverLicenses)
+            v += Constant
+                + (B_DriverLicenses * nodeData.DriverLicenses)
                 + (B_FTWorkers * nodeData.FTWorkers)
                 + GetLookup(DriverLicenses, nodeData.DriverLicenses)
                 + GetLookup(Incomes, nodeData.IncomeClass)
+                + B_PopulationDensity * nodeData.PopulationDensity
                 ;
 
             return v;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        //[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         private static float GetLookup(Category[] categories, int index)
         {
             foreach (var cat in categories)
@@ -154,10 +178,10 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
     /// <param name="DriverLicenses">The number of Driver Licences in the household.</param>
     /// <param name="FTWorkers">The number of full-time workers in the household. </param>
     /// <param name="AverageWorkSchoolAIVTT">The average AIVTT to get to work or school.</param>
-    /// <param name="AverageWorkSchoolAIVTT">The average TPVTT to get to work or school.</param>
-    /// <param name="AverageWorkSchoolAIVTT">The average distance (km) to get to work or school.</param>
+    /// <param name="AverageWorkSchoolTPTT">The average TPVTT to get to work or school.</param>
+    /// <param name="AverageWorkSchoolDistance">The average distance (km) to get to work or school.</param>
     internal record struct NodeData
-        (int FlatTAZ, int IncomeClass, int DriverLicenses, float FTWorkers, float AverageWorkSchoolAIVTT, float AverageWorkSchoolTPTT, float AverageWorkSchoolDistance);
+        (int FlatTAZ, int IncomeClass, int DriverLicenses, float FTWorkers, float AverageWorkSchoolAIVTT, float AverageWorkSchoolTPTT, float AverageWorkSchoolDistance, float PopulationDensity);
 
     [SubModelInformation(Required = true, Description = "The different options for the number of vehicles to generate.")]
     public AutoNode[] Nodes = null!;
@@ -172,6 +196,29 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
 
     private SparseArray<IZone> _zones = null!;
 
+    [RunParameter("Auto Network", "Auto", "The auto network to use for travel times.")]
+    public string AutoNetwork;
+
+    [RunParameter("Transit Network", "Transit", "The transit network to use for travel times.")]
+    public string TransitNetwork;
+
+    [RunParameter("Time To Use", "7:00", typeof(Time), "The time of day to use for computing travel times.")]
+    public Time TimeToUse;
+
+    [DoNotAutomate]
+    private INetworkCompleteData _autoNetwork;
+
+    [DoNotAutomate]
+    private ITripComponentCompleteData _transitNetwork;
+
+    private float[] _autoData;
+
+    private float[] _transitData;
+
+    private float[][] _distances;
+
+    private float[] _populationDensity;
+
     public void Load()
     {
         _random = new Random(RandomSeed);
@@ -180,6 +227,33 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
             Root.ZoneSystem.LoadData();
         }
         _zones = Root.ZoneSystem.ZoneArray;
+        _distances = Root.ZoneSystem.Distances.GetFlatData();
+        _autoData = _autoNetwork.GetTimePeriodData(TimeToUse);
+        _transitData = _transitNetwork.GetTimePeriodData(TimeToUse);
+        _populationDensity = LoadPopulationDensity();
+        if (_autoData is null)
+        {
+            throw new XTMFRuntimeException(this, $"The auto network does not have data for {TimeToUse}!");
+        }
+        if (_transitData is null)
+        {
+            throw new XTMFRuntimeException(this, $"The transit network does not have data for {TimeToUse}!");
+        }
+        for (int i = 0; i < Nodes.Length; i++)
+        {
+            Nodes[i].Load(_populationDensity.Length);
+        }
+    }
+
+    private float[] LoadPopulationDensity()
+    {
+        var flatZones = _zones.GetFlatData();
+        var ret = new float[flatZones.Length];
+        for (int i = 0; i < ret.Length; i++)
+        {
+            ret[i] = MathF.Log(flatZones[i].Population + 1);
+        }
+        return ret;
     }
 
     public int ProduceResult(ITashaHousehold data)
@@ -192,7 +266,7 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         }
         // Gather the data needed to compute the nodes' utilities.        
         var persons = data.Persons;
-        (float aivtt, float tptt, float distance) = GetAverageWorkSchool(persons);
+        (float aivtt, float tptt, float distance) = GetAverageWorkSchool(flatHouseholdZone, persons);
         NodeData nodeData = new()
         {
             FlatTAZ = flatHouseholdZone,
@@ -201,7 +275,8 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
             AverageWorkSchoolAIVTT = aivtt,
             AverageWorkSchoolTPTT = tptt,
             AverageWorkSchoolDistance = distance,
-            IncomeClass = data.IncomeClass
+            IncomeClass = data.IncomeClass,
+            PopulationDensity = _populationDensity[flatHouseholdZone],
         };
 
         // Note: The number of auto nodes will be very small so this is safe
@@ -222,12 +297,52 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
             }
         }
         // If we run into rounding issues, round it to be in the final bin.
-        return Nodes[^-1].NumberOfVehicles;
+        return Nodes[^1].NumberOfVehicles;
     }
 
-    private (float aivtt, float tptt, float distance) GetAverageWorkSchool(ITashaPerson[] persons)
+    private (float aivtt, float tptt, float distance) GetAverageWorkSchool(int flatHomeZone, ITashaPerson[] persons)
     {
-        return (0, 0, 0);
+        var ret = (aivtt: 0.0f, tptt: 0.0f, distance: 0.0f);
+        var normalize = 1.0f / (float)persons.Length;
+
+        foreach (var person in persons)
+        {
+            var personValues = GetPersonWorkSchool(flatHomeZone, person);
+            ret = (ret.aivtt + personValues.aivtt * normalize,
+                ret.tptt + personValues.tptt * normalize,
+                ret.distance + personValues.distance * normalize);
+        }
+        return ret;
+    }
+
+    private (float aivtt, float tptt, float distance) GetPersonWorkSchool(int flatHomeZone, ITashaPerson data)
+    {
+        return (data.EmploymentStatus, data.StudentStatus) switch
+        {
+            (TTSEmploymentStatus.FullTime or TTSEmploymentStatus.WorkAtHome_FullTime, _) =>
+                GetToIfExists(flatHomeZone, data.EmploymentZone),
+            (_, StudentStatus.FullTime) =>
+                GetToIfExists(flatHomeZone, data.SchoolZone),
+            (TTSEmploymentStatus.PartTime or TTSEmploymentStatus.WorkAtHome_PartTime, _) =>
+                GetToIfExists(flatHomeZone, data.EmploymentZone),
+            (_, StudentStatus.PartTime) =>
+                GetToIfExists(flatHomeZone, data.SchoolZone),
+            _ => (0.0f, 0.0f, 0.0f),
+        };
+    }
+
+    private (float aivtt, float tptt, float distance) GetToIfExists(int flatHomeZone, IZone zone)
+    {
+        int flatDestZone;
+        if (zone is null
+            || (flatDestZone = _zones.GetFlatIndex(zone.ZoneNumber)) < 0)
+        {
+            return (0.0f, 0.0f, 0.0f);
+        }
+        var odOffset = ((_zones.Count * flatHomeZone) + flatDestZone);
+        var autoIndex = odOffset * 2;
+        var transitIndex = odOffset * 5;
+        return (_autoData[autoIndex], _transitData[transitIndex + 4], _distances[flatHomeZone][flatDestZone]);
     }
 
     private static int GetDriverLicenses(ITashaPerson[] persons)
@@ -261,6 +376,10 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
     {
         _random = null!;
         _zones = null!;
+        for (int i = 0; i < Nodes.Length; i++)
+        {
+            Nodes[i].Unload();
+        }
     }
 
     public string Name { get; set; }
@@ -274,6 +393,23 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         if (Nodes.Length <= 0)
         {
             error = "The auto ownership module requires at least one option for the number of vehicles!";
+            return false;
+        }
+        _transitNetwork = Root.NetworkData.FirstOrDefault(net => net.NetworkType == TransitNetwork) as ITripComponentCompleteData;
+        if (TransitNetwork == null)
+        {
+            error = (Root.NetworkData.FirstOrDefault(net => net.NetworkType == TransitNetwork) != null) ?
+                $"The network specified {TransitNetwork} is not a valid transit network!" :
+                $"There was no transit network with the name {TransitNetwork} found!";
+            return false;
+        }
+
+        _autoNetwork = Root.NetworkData.FirstOrDefault(net => net.NetworkType == AutoNetwork) as INetworkCompleteData;
+        if (TransitNetwork == null)
+        {
+            error = (Root.NetworkData.FirstOrDefault(net => net.NetworkType == AutoNetwork) != null) ?
+                $"The network specified {AutoNetwork} is not a valid auto network!" :
+                $"There was no auto network with the name {AutoNetwork} found!";
             return false;
         }
         return true;
