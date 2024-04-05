@@ -601,7 +601,7 @@ namespace XTMF
                     writer.Formatting = Formatting.Indented;
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Root");
-
+                    writer.WriteAttributeString("Version", _Configuration.GetVersionString());
                     if (Description != null)
                     {
                         writer.WriteAttributeString("Description", Description);
@@ -631,6 +631,7 @@ namespace XTMF
                                 {
                                     msWriter.WriteStartDocument();
                                     msWriter.WriteStartElement("Root");
+                                    msWriter.WriteAttributeString("Version", _Configuration.GetVersionString());
                                     ms.Root.Save(msWriter);
 
                                     if (ms.LastModified.Year > 1)

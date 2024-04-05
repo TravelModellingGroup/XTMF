@@ -356,7 +356,7 @@ namespace XTMF
         internal bool ExportModelSystem(string fileName, Project project, int modelSystemIndex, ref string error)
         {
             var root = project.ModelSystemStructure[modelSystemIndex];
-            return ModelSystem.Save(fileName, root, root.Description, project.LinkedParameters[modelSystemIndex], ref error);
+            return ModelSystem.Save(fileName, root, root.Description, project.LinkedParameters[modelSystemIndex], Runtime.Configuration, ref error);
         }
 
         /// <summary>

@@ -44,7 +44,7 @@ namespace XTMF
         /// <summary>
         /// The configuration that this model system will use
         /// </summary>
-        private IConfiguration _Config;
+        private IConfiguration _config;
 
         /// <summary>
         /// Create a new instance of a model system
@@ -53,7 +53,7 @@ namespace XTMF
         /// <param name="name">The name of the model system</param>
         public ModelSystem(IConfiguration config, string name = null)
         {
-            _Config = config;
+            _config = config;
             Name = name;
             SetIsLoaded(false);
             LinkedParameters = new List<ILinkedParameter>();
@@ -87,7 +87,7 @@ namespace XTMF
         public ModelSystem Clone()
         {
             var structure = CreateEditingClone(out List<ILinkedParameter> linkedParameters, out List<IRegionDisplay> regionDisplays);
-            return new ModelSystem(_Config, Name)
+            return new ModelSystem(_config, Name)
             {
                 ModelSystemStructure = structure,
                 LinkedParameters = linkedParameters,
@@ -112,7 +112,7 @@ namespace XTMF
                 {
                     if (!_IsLoaded)
                     {
-                        Load(_Config, Name);
+                        Load(_config, Name);
                         SetIsLoaded(true);
                     }
                     return _ModelSystemStructure;
@@ -140,7 +140,7 @@ namespace XTMF
                 {
                     if (!_IsLoaded)
                     {
-                        Load(_Config, Name);
+                        Load(_config, Name);
                         SetIsLoaded(true);
                     }
                     return _LinkedParameters;
@@ -169,7 +169,7 @@ namespace XTMF
                 {
                     if (!_IsLoaded)
                     {
-                        Load(_Config, Name);
+                        Load(_config, Name);
                         SetIsLoaded(true);
                     }
                     return _regionDisplays;
@@ -184,12 +184,12 @@ namespace XTMF
 
         public bool Save(Stream stream, ref string error)
         {
-            return Save(stream, ModelSystemStructure, Description, LinkedParameters, ref error);
+            return Save(stream, ModelSystemStructure, Description, LinkedParameters, _config, ref error);
         }
 
         public bool Save(string fileName, ref string error)
         {
-            return Save(fileName, ModelSystemStructure, Description, LinkedParameters, ref error);
+            return Save(fileName, ModelSystemStructure, Description, LinkedParameters, _config, ref error);
         }
 
         /// <summary>
@@ -201,15 +201,13 @@ namespace XTMF
         /// <param name="linkedParameters"></param>
         /// <param name="error"></param>
         /// <returns></returns>
-        public static bool Save(string fileName, IModelSystemStructure root, string description, List<ILinkedParameter> linkedParameters, ref string error)
+        public static bool Save(string fileName, IModelSystemStructure root, string description, List<ILinkedParameter> linkedParameters, IConfiguration config, ref string error)
         {
             string tempFileName = Path.GetTempFileName();
             try
             {
-                using (var stream = new FileStream(tempFileName, FileMode.Create, FileAccess.Write))
-                {
-                    Save(stream, root, description, linkedParameters, ref error);
-                }
+                using var stream = new FileStream(tempFileName, FileMode.Create, FileAccess.Write);
+                Save(stream, root, description, linkedParameters, config, ref error);
             }
             catch (Exception e)
             {
@@ -223,45 +221,43 @@ namespace XTMF
         }
 
         public static bool Save(Stream stream, IModelSystemStructure root, string description,
-            List<ILinkedParameter> linkedParameters, ref string error)
+            List<ILinkedParameter> linkedParameters, IConfiguration config, ref string error)
         {
             try
             {
-                using (
-                    XmlWriter writer = XmlWriter.Create(stream,
-                        new XmlWriterSettings() { Indent = true, Encoding = Encoding.Unicode }))
+                using XmlWriter writer = XmlWriter.Create(stream,
+                        new XmlWriterSettings() { Indent = true, Encoding = Encoding.Unicode });
+                writer.WriteStartDocument();
+                writer.WriteStartElement("Root");
+                writer.WriteAttributeString("Version", config.GetVersionString());
+                writer.Flush();
+                root.Save(writer);
+                if (description != null)
                 {
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement("Root");
-                    writer.Flush();
-                    root.Save(writer);
-                    if (description != null)
+                    writer.WriteStartElement("Description");
+                    writer.WriteString(description);
+                    writer.WriteEndElement();
+                }
+                if (linkedParameters != null)
+                {
+                    foreach (var lp in linkedParameters)
                     {
-                        writer.WriteStartElement("Description");
-                        writer.WriteString(description);
-                        writer.WriteEndElement();
-                    }
-                    if (linkedParameters != null)
-                    {
-                        foreach (var lp in linkedParameters)
+                        writer.WriteStartElement("LinkedParameter");
+                        writer.WriteAttributeString("Name", lp.Name);
+                        if (lp.Value != null)
                         {
-                            writer.WriteStartElement("LinkedParameter");
-                            writer.WriteAttributeString("Name", lp.Name);
-                            if (lp.Value != null)
-                            {
-                                writer.WriteAttributeString("Value", lp.Value.ToString());
-                            }
-                            foreach (var reference in lp.Parameters)
-                            {
-                                writer.WriteStartElement("Reference");
-                                writer.WriteAttributeString("Name", LookupName(reference, root));
-                                writer.WriteEndElement();
-                            }
+                            writer.WriteAttributeString("Value", lp.Value.ToString());
+                        }
+                        foreach (var reference in lp.Parameters)
+                        {
+                            writer.WriteStartElement("Reference");
+                            writer.WriteAttributeString("Name", LookupName(reference, root));
                             writer.WriteEndElement();
                         }
+                        writer.WriteEndElement();
                     }
-                    writer.WriteEndDocument();
                 }
+                writer.WriteEndDocument();
                 return true;
             }
             catch (Exception e)
@@ -273,7 +269,7 @@ namespace XTMF
 
         public bool Save(ref string error)
         {
-            string fileName = Path.Combine(_Config.ModelSystemDirectory, Name + ".xml");
+            string fileName = Path.Combine(_config.ModelSystemDirectory, Name + ".xml");
             return Save(fileName, ref error);
         }
 
@@ -568,7 +564,7 @@ namespace XTMF
                 string error = null;
                 try
                 {
-                    var fileName = Path.Combine(_Config.ModelSystemDirectory, name + ".xml");
+                    var fileName = Path.Combine(_config.ModelSystemDirectory, name + ".xml");
                     using (Stream stream = File.OpenRead(fileName))
                     {
                         LoadFromStream(stream, config, ref error);
@@ -579,7 +575,7 @@ namespace XTMF
                     Description = string.Empty;
                     if (_ModelSystemStructure == null)
                     {
-                        _ModelSystemStructure = new ModelSystemStructure(_Config, Name, typeof(IModelSystemTemplate))
+                        _ModelSystemStructure = new ModelSystemStructure(_config, Name, typeof(IModelSystemTemplate))
                         {
                             Required = true
                         };
@@ -672,7 +668,7 @@ namespace XTMF
 
         private void ReadDescription()
         {
-            var fileName = Path.Combine(_Config.ModelSystemDirectory, Name + ".xml");
+            var fileName = Path.Combine(_config.ModelSystemDirectory, Name + ".xml");
             try
             {
                 using (XmlReader reader = XmlReader.Create(fileName))

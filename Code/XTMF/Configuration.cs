@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2018 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -20,14 +20,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
-using System.Security.AccessControl;
-using System.Security.Policy;
-using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -133,7 +128,6 @@ namespace XTMF
                 }
                 else
                 {
-
                     version = Assembly.GetEntryAssembly().GetName().Version;
                 }
             }
@@ -1132,6 +1126,8 @@ namespace XTMF
                 ReloadModelSystems();
             }
         }
+
+        public string GetVersionString() => XTMFVersion.ToString();
 
         private class ProgressReport : IProgressReport
         {

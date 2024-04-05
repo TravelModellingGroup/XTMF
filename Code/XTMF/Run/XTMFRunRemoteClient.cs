@@ -283,7 +283,7 @@ namespace XTMF.Run
                         return;
                     }
                     string error = null;
-                    ModelSystem.Save(Path.Combine(RunDirectory, "RunParameters.xml"), _Root, string.Empty, _linkedParameters, ref error);
+                    ModelSystem.Save(Path.Combine(RunDirectory, "RunParameters.xml"), _Root, string.Empty, _linkedParameters, Configuration, ref error);
                     ModelSystem.SaveQuickParameters(Path.Combine(RunDirectory, "QuickParameters.xml"), _Root);
                     ModelSystemStructureModelRoot = new ModelSystemStructureModel(null, _Root);
                     MST.Start();
