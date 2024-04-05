@@ -16,138 +16,137 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Describes what activities are possible for an
+/// ActivityEpisode
+/// </summary>
+public enum Activity
 {
     /// <summary>
-    /// Describes what activities are possible for an
-    /// ActivityEpisode
+    ///
     /// </summary>
-    public enum Activity
-    {
-        /// <summary>
-        ///
-        /// </summary>
-        PrimaryWork,
+    PrimaryWork,
 
-        /// <summary>
-        ///
-        /// </summary>
-        School,
+    /// <summary>
+    ///
+    /// </summary>
+    School,
 
-        /// <summary>
-        /// Or other types of shopping
-        /// </summary>
-        Market,
+    /// <summary>
+    /// Or other types of shopping
+    /// </summary>
+    Market,
 
-        /// <summary>
-        /// Market with a familly member
-        /// </summary>
-        JointMarket,
+    /// <summary>
+    /// Market with a familly member
+    /// </summary>
+    JointMarket,
 
-        /// <summary>
-        ///
-        /// </summary>
-        IndividualOther,
+    /// <summary>
+    ///
+    /// </summary>
+    IndividualOther,
 
-        /// <summary>
-        ///
-        /// </summary>
-        WorkBasedBusiness,
+    /// <summary>
+    ///
+    /// </summary>
+    WorkBasedBusiness,
 
-        /// <summary>
-        ///
-        /// </summary>
-        WorkAtHomeBusiness,
+    /// <summary>
+    ///
+    /// </summary>
+    WorkAtHomeBusiness,
 
-        /// <summary>
-        ///
-        /// </summary>
-        SecondaryWork,
+    /// <summary>
+    ///
+    /// </summary>
+    SecondaryWork,
 
-        /// <summary>
-        ///
-        /// </summary>
-        StayAtHome,
+    /// <summary>
+    ///
+    /// </summary>
+    StayAtHome,
 
-        /// <summary>
-        ///
-        /// </summary>
-        Home,
+    /// <summary>
+    ///
+    /// </summary>
+    Home,
 
-        /// <summary>
-        /// Lunch perhaps
-        /// </summary>
-        ReturnFromWork,
+    /// <summary>
+    /// Lunch perhaps
+    /// </summary>
+    ReturnFromWork,
 
-        /// <summary>
-        ///
-        /// </summary>
-        ReturnFromSchool,
+    /// <summary>
+    ///
+    /// </summary>
+    ReturnFromSchool,
 
-        /// <summary>
-        ///
-        /// </summary>
-        JointOther,
+    /// <summary>
+    ///
+    /// </summary>
+    JointOther,
 
-        /// <summary>
-        ///
-        /// </summary>
-        ServeDespendents,
+    /// <summary>
+    ///
+    /// </summary>
+    ServeDespendents,
 
-        /// <summary>
-        ///
-        /// </summary>
-        NullActivity,
+    /// <summary>
+    ///
+    /// </summary>
+    NullActivity,
 
-        /// <summary>
-        ///
-        /// </summary>
-        FacilitatePassenger,
+    /// <summary>
+    ///
+    /// </summary>
+    FacilitatePassenger,
 
-        /// <summary>
-        ///
-        /// </summary>
-        Unknown,
+    /// <summary>
+    ///
+    /// </summary>
+    Unknown,
 
-        /// <summary>
-        ///
-        /// </summary>
-        Daycare,
+    /// <summary>
+    ///
+    /// </summary>
+    Daycare,
 
-        /// <summary>
-        ///
-        /// </summary>
-        PickupAndReturn,
+    /// <summary>
+    ///
+    /// </summary>
+    PickupAndReturn,
 
-        /// <summary>
-        ///
-        /// </summary>
-        DropoffAndReturn,
+    /// <summary>
+    ///
+    /// </summary>
+    DropoffAndReturn,
 
-        /// <summary>
-        ///
-        /// </summary>
-        Pickup,
+    /// <summary>
+    ///
+    /// </summary>
+    Pickup,
 
-        /// <summary>
-        ///
-        /// </summary>
-        Dropoff,
+    /// <summary>
+    ///
+    /// </summary>
+    Dropoff,
 
-        /// <summary>
-        /// access station
-        /// </summary>
-        Intermediate,
+    /// <summary>
+    /// access station
+    /// </summary>
+    Intermediate,
 
-        /// <summary>
-        /// Used in the scheduler to describe a trip episode
-        /// before it is scheduled
-        /// </summary>
-        Travel,
+    /// <summary>
+    /// Used in the scheduler to describe a trip episode
+    /// before it is scheduled
+    /// </summary>
+    Travel,
 
-        /// <summary>
-        /// The number of different activities that are defined
-        /// </summary>
-        NumberOfActivities
-    }
+    /// <summary>
+    /// The number of different activities that are defined
+    /// </summary>
+    NumberOfActivities
 }

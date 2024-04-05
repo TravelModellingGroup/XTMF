@@ -23,98 +23,97 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.V2.Generation
+namespace TMG.GTAModel.V2.Generation;
+
+[ModuleInformation( Description
+    = "This module is designed to at runtime generate a full set of TMG.GTAModel.V2.PoWGeneration and preload their data."
+    + "  This class will then remove itself from the demographic category list."
+    + "  Demographic indexes are based on the Durham Model." )]
+public class BuildHBSGeneration : IDemographicCategoryGeneration
 {
-    [ModuleInformation( Description
-        = "This module is designed to at runtime generate a full set of TMG.GTAModel.V2.PoWGeneration and preload their data."
-        + "  This class will then remove itself from the demographic category list."
-        + "  Demographic indexes are based on the Durham Model." )]
-    public class BuildHBSGeneration : IDemographicCategoryGeneration
+    [Parameter( "Ages", "1-6", typeof( RangeSet ), "The age category that this generation will be generating for." )]
+    public RangeSet Ages;
+
+    [SubModelInformation( Description = "Get the 24-hour trips rates for students, by zone [0], age [1], and employment status [2]. Employment status is assumed to be 0.", Required = true )]
+    public IDataSource<SparseTriIndex<float>> LoadDailyRates;
+
+    [SubModelInformation( Description = "Get the peak hour trips rates for students, by zone [0], age [1], and employment status [2]. Employment status is assumed to be 0.", Required = true )]
+    public IDataSource<SparseTriIndex<float>> LoadTimeOfDayRates;
+
+    [ParentModel]
+    public IDemographicCategoyPurpose Parent;
+
+    [RootModule]
+    public IDemographic4StepModelSystemTemplate Root;
+
+    [RunParameter( "Save Production To File", "", typeof( FileFromOutputDirectory ), "Leave this blank to not save, otherwise enter in the file name." )]
+    public FileFromOutputDirectory SaveProduction;
+
+    public string Name
     {
-        [Parameter( "Ages", "1-6", typeof( RangeSet ), "The age category that this generation will be generating for." )]
-        public RangeSet Ages;
+        get;
+        set;
+    }
 
-        [SubModelInformation( Description = "Get the 24-hour trips rates for students, by zone [0], age [1], and employment status [2]. Employment status is assumed to be 0.", Required = true )]
-        public IDataSource<SparseTriIndex<float>> LoadDailyRates;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [SubModelInformation( Description = "Get the peak hour trips rates for students, by zone [0], age [1], and employment status [2]. Employment status is assumed to be 0.", Required = true )]
-        public IDataSource<SparseTriIndex<float>> LoadTimeOfDayRates;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [ParentModel]
-        public IDemographicCategoyPurpose Parent;
+    public void Generate(SparseArray<float> production, SparseArray<float> attractions)
+    {
+        // never gets called
+        throw new XTMFRuntimeException(this, "For '" + Name + "' this generate method should never be called!" );
+    }
 
-        [RootModule]
-        public IDemographic4StepModelSystemTemplate Root;
+    public void InitializeDemographicCategory()
+    {
+        // do nothing
+    }
 
-        [RunParameter( "Save Production To File", "", typeof( FileFromOutputDirectory ), "Leave this blank to not save, otherwise enter in the file name." )]
-        public FileFromOutputDirectory SaveProduction;
+    public bool IsContained(IPerson person)
+    {
+        return true;
+    }
 
-        public string Name
+    public bool RuntimeValidation(ref string error)
+    {
+        LoadDailyRates.LoadData();
+        LoadTimeOfDayRates.LoadData();
+        GenerateChildren();
+        LoadDailyRates.UnloadData();
+        LoadTimeOfDayRates.UnloadData();
+        return true;
+    }
+
+    private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int age)
+    {
+        SchoolGeneration gen = new()
         {
-            get;
-            set;
-        }
+            Root = Root,
+            Age = age,
+            SaveProduction = SaveProduction,
+            StudentDailyRates = LoadDailyRates.GiveData(),
+            StudentTimeOfDayRates = LoadTimeOfDayRates.GiveData()
+        };
+        list.Add( gen );
+    }
 
-        public float Progress
+    private void GenerateChildren()
+    {
+        // we need to generate our children here
+        var list = Parent.Categories;
+        list.Remove( this );
+        foreach ( var set in Ages )
         {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void Generate(SparseArray<float> production, SparseArray<float> attractions)
-        {
-            // never gets called
-            throw new XTMFRuntimeException(this, "For '" + Name + "' this generate method should never be called!" );
-        }
-
-        public void InitializeDemographicCategory()
-        {
-            // do nothing
-        }
-
-        public bool IsContained(IPerson person)
-        {
-            return true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            LoadDailyRates.LoadData();
-            LoadTimeOfDayRates.LoadData();
-            GenerateChildren();
-            LoadDailyRates.UnloadData();
-            LoadTimeOfDayRates.UnloadData();
-            return true;
-        }
-
-        private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int age)
-        {
-            SchoolGeneration gen = new SchoolGeneration
+            for ( int age = set.Start; age <= set.Stop; age++ )
             {
-                Root = Root,
-                Age = age,
-                SaveProduction = SaveProduction,
-                StudentDailyRates = LoadDailyRates.GiveData(),
-                StudentTimeOfDayRates = LoadTimeOfDayRates.GiveData()
-            };
-            list.Add( gen );
-        }
-
-        private void GenerateChildren()
-        {
-            // we need to generate our children here
-            var list = Parent.Categories;
-            list.Remove( this );
-            foreach ( var set in Ages )
-            {
-                for ( int age = set.Start; age <= set.Stop; age++ )
-                {
-                    AddNewGeneration( list, age );
-                }
+                AddNewGeneration( list, age );
             }
         }
     }

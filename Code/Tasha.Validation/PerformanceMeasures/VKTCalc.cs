@@ -25,104 +25,34 @@ using Datastructure;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Validation.PerformanceMeasures
+namespace Tasha.Validation.PerformanceMeasures;
+
+public class VKTCalc : ISelfContainedModule
 {
-    public class VKTCalc : ISelfContainedModule
+    [RootModule]
+    public ITashaRuntime Root;
+
+    [RunParameter("Cost per Km", 0.153f, "What is the cost per km used in this model system?")]
+    public float CostPerKm;
+
+    [SubModelInformation(Required = false, Description = "The different time periods you wish to calculate VKTs for")]
+    public VKTPerTimePeriod[] TimePeriods;
+
+
+    public sealed class VKTPerTimePeriod : IModule
     {
-        [RootModule]
-        public ITashaRuntime Root;
+        [RunParameter("Time Period", "AM", "Which time period do you want to analyze?")]
+        public string Label;
 
-        [RunParameter("Cost per Km", 0.153f, "What is the cost per km used in this model system?")]
-        public float CostPerKm;
+        [SubModelInformation(Required = true, Description = ".CSV File containing the ODTrips for this Time Period.")]
+        public FileLocation ODTripsData;
 
-        [SubModelInformation(Required = false, Description = "The different time periods you wish to calculate VKTs for")]
-        public VKTPerTimePeriod[] TimePeriods;
+        [SubModelInformation(Required = true, Description = "Results file in .CSV format for this Time period")]
+        // ReSharper disable once InconsistentNaming
+        public FileLocation VKTbyHomeZone;
 
-
-        public sealed class VKTPerTimePeriod : IModule
-        {
-            [RunParameter("Time Period", "AM", "Which time period do you want to analyze?")]
-            public string Label;
-
-            [SubModelInformation(Required = true, Description = ".CSV File containing the ODTrips for this Time Period.")]
-            public FileLocation ODTripsData;
-
-            [SubModelInformation(Required = true, Description = "Results file in .CSV format for this Time period")]
-            // ReSharper disable once InconsistentNaming
-            public FileLocation VKTbyHomeZone;
-
-            [SubModelInformation(Required = true, Description = "Resource that will subtract the two Cost Matrices and return a Flat Cost.")]
-            public IResource ODFlatCostMatrix;
-
-            public string Name
-            {
-                get;
-                set;
-            }
-
-            public float Progress
-            {
-                get;
-                set;
-            }
-
-            public Tuple<byte, byte, byte> ProgressColour
-            {
-                get { return new Tuple<byte, byte, byte>(120, 25, 100); }
-            }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                if (!ODFlatCostMatrix.CheckResourceType<SparseTwinIndex<float>>())
-                {
-                    error = "In '" + Name + "' the ODDistanceMatrix was not of type SparseTwinIndex<float>!";
-                    return false;
-                }
-                return true;
-            }
-        }
-
-        public void Start()
-        {
-            var invCostPerKM = 1.0f / CostPerKm;
-            foreach (var timePeriod in TimePeriods)
-            {
-                var totalVKT = new Dictionary<int, float>();
-                var odCostMatrix = timePeriod.ODFlatCostMatrix.AcquireResource<SparseTwinIndex<float>>();
-                try
-                {
-                    using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
-                    {
-                        reader.LoadLine();
-                        while (reader.LoadLine(out int columns))
-                        {
-                            if (columns >= 4)
-                            {
-                                reader.Get(out int homeZone, 0);
-                                reader.Get(out int origin, 1);
-                                reader.Get(out int destination, 2);
-                                reader.Get(out float numberOfTrips, 3);
-                                var distance = odCostMatrix[origin, destination] * invCostPerKM;
-                                totalVKT.TryGetValue(homeZone, out float vkt);
-                                totalVKT[homeZone] = vkt + numberOfTrips * distance;
-                            }
-                        }
-                    }
-                    using (StreamWriter writer = new StreamWriter(timePeriod.VKTbyHomeZone))
-                    {
-                        writer.WriteLine("Home Zone, Total VKTs");
-                        foreach (var pair in totalVKT)
-                        {
-                            writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
-                        }
-                    }
-                }
-                catch (IOException e)
-                {
-                    throw new XTMFRuntimeException(this, e);
-                }
-            }
-        }
+        [SubModelInformation(Required = true, Description = "Resource that will subtract the two Cost Matrices and return a Flat Cost.")]
+        public IResource ODFlatCostMatrix;
 
         public string Name
         {
@@ -143,7 +73,74 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public bool RuntimeValidation(ref string error)
         {
+            if (!ODFlatCostMatrix.CheckResourceType<SparseTwinIndex<float>>())
+            {
+                error = "In '" + Name + "' the ODDistanceMatrix was not of type SparseTwinIndex<float>!";
+                return false;
+            }
             return true;
         }
+    }
+
+    public void Start()
+    {
+        var invCostPerKM = 1.0f / CostPerKm;
+        foreach (var timePeriod in TimePeriods)
+        {
+            var totalVKT = new Dictionary<int, float>();
+            var odCostMatrix = timePeriod.ODFlatCostMatrix.AcquireResource<SparseTwinIndex<float>>();
+            try
+            {
+                using (CsvReader reader = new(timePeriod.ODTripsData))
+                {
+                    reader.LoadLine();
+                    while (reader.LoadLine(out int columns))
+                    {
+                        if (columns >= 4)
+                        {
+                            reader.Get(out int homeZone, 0);
+                            reader.Get(out int origin, 1);
+                            reader.Get(out int destination, 2);
+                            reader.Get(out float numberOfTrips, 3);
+                            var distance = odCostMatrix[origin, destination] * invCostPerKM;
+                            totalVKT.TryGetValue(homeZone, out float vkt);
+                            totalVKT[homeZone] = vkt + numberOfTrips * distance;
+                        }
+                    }
+                }
+                using StreamWriter writer = new(timePeriod.VKTbyHomeZone);
+                writer.WriteLine("Home Zone, Total VKTs");
+                foreach (var pair in totalVKT)
+                {
+                    writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
+                }
+            }
+            catch (IOException e)
+            {
+                throw new XTMFRuntimeException(this, e);
+            }
+        }
+    }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(120, 25, 100); }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -21,49 +21,48 @@ using System;
 using TMG.Modes;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+public class ConstantUtilityComponent : IUtilityComponent
 {
-    public class ConstantUtilityComponent : IUtilityComponent
+    [RunParameter( "Constant", 0f, "A constant value to add to the utlity of the containing mode." )]
+    public float Constant;
+
+    public string Name
     {
-        [RunParameter( "Constant", 0f, "A constant value to add to the utlity of the containing mode." )]
-        public float Constant;
+        get;
+        set;
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        public float Progress
-        {
-            get { return 0; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    [RunParameter( "Component Name", "Constant", "The name of this Utility Component.  This name should be unique for each mode." )]
+    public string UtilityComponentName
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Component Name", "Constant", "The name of this Utility Component.  This name should be unique for each mode." )]
-        public string UtilityComponentName
-        {
-            get;
-            set;
-        }
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        return Constant;
+    }
 
-        public float CalculateV(IZone origin, IZone destination, Time time)
-        {
-            return Constant;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public override string ToString()
-        {
-            return UtilityComponentName;
-        }
+    public override string ToString()
+    {
+        return UtilityComponentName;
     }
 }

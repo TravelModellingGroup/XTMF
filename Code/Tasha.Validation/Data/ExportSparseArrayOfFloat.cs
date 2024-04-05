@@ -24,67 +24,63 @@ using Datastructure;
 using TMG.Input;
 using System.IO;
 
-namespace Tasha.Validation.Data
+namespace Tasha.Validation.Data;
+
+[ModuleInformation(Description =
+@"This module is designed to export a general SparseArray<float> resource to disk."
+    )]
+public class ExportSparseArrayOfFloat : IPostIteration, IPostRun
 {
-    [ModuleInformation(Description =
- @"This module is designed to export a general SparseArray<float> resource to disk."
-        )]
-    public class ExportSparseArrayOfFloat : IPostIteration, IPostRun
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = true, Description = "The SparseArray<float> resource to output.")]
+    public IResource ToOutput;
+
+    [SubModelInformation(Required = true, Description = "The location to save the output to. CSV (SparseIndex,Value)")]
+    public FileLocation OutputFile;
+
+    public void Execute()
     {
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = true, Description = "The SparseArray<float> resource to output.")]
-        public IResource ToOutput;
-
-        [SubModelInformation(Required = true, Description = "The location to save the output to. CSV (SparseIndex,Value)")]
-        public FileLocation OutputFile;
-
-        public void Execute()
+        var sparse = ToOutput.AcquireResource<SparseArray<float>>();
+        var data = sparse.GetFlatData();
+        using StreamWriter writer = new(OutputFile);
+        writer.WriteLine("SparseIndex,Value");
+        for (int i = 0; i < data.Length; i++)
         {
-            var sparse = ToOutput.AcquireResource<SparseArray<float>>();
-            var data = sparse.GetFlatData();
-            using (StreamWriter writer = new StreamWriter(OutputFile))
-            {
-                writer.WriteLine("SparseIndex,Value");
-                for(int i = 0; i < data.Length; i++)
-                {
-                    writer.Write(sparse.GetSparseIndex(i));
-                    writer.Write(',');
-                    writer.WriteLine(data[i]);
-                }
-            }
-        }
-
-        public void Execute(int iterationNumber, int totalIterations)
-        {
-            Execute();
-        }
-
-        public void Load(IConfiguration config)
-        {
-        }
-
-        public void Load(IConfiguration config, int totalIterations)
-        {
-
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if(!ToOutput.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the resource specified is not a SparseArray<float> resource!";
-                return false;
-            }
-            return true;
+            writer.Write(sparse.GetSparseIndex(i));
+            writer.Write(',');
+            writer.WriteLine(data[i]);
         }
     }
 
+    public void Execute(int iterationNumber, int totalIterations)
+    {
+        Execute();
+    }
+
+    public void Load(IConfiguration config)
+    {
+    }
+
+    public void Load(IConfiguration config, int totalIterations)
+    {
+
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(!ToOutput.CheckResourceType<SparseArray<float>>())
+        {
+            error = "In '" + Name + "' the resource specified is not a SparseArray<float> resource!";
+            return false;
+        }
+        return true;
+    }
 }

@@ -16,15 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG.GTAModel.DataUtility
+namespace TMG.GTAModel.DataUtility;
+
+/// <summary>
+/// Provides an Interface to copy data from the given original formats to the
+/// given destination type
+/// </summary>
+/// <typeparam name="T">The type of data that we will store into</typeparam>
+public interface IDataLink<T>
 {
-    /// <summary>
-    /// Provides an Interface to copy data from the given original formats to the
-    /// given destination type
-    /// </summary>
-    /// <typeparam name="T">The type of data that we will store into</typeparam>
-    public interface IDataLink<T>
-    {
-        void Copy(T destination, object[] origin);
-    }
+    void Copy(T destination, object[] origin);
 }

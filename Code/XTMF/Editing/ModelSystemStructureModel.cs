@@ -23,7 +23,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
 using Exceptions;
@@ -149,13 +148,13 @@ namespace XTMF
                         RealModelSystemStructure.Type = value;
                         UpdateChildren();
                         Parameters = new ParametersModel(this, _Session);
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Type));
                         if (oldDirty == false)
                         {
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDirty));
                         }
 
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Parameters));
                         return true;
                     }
 
@@ -183,13 +182,13 @@ namespace XTMF
                             Parameters = oldParameters;
                             SetRealParametersToModel();
                             Dirty = oldDirty;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Type));
                             if (oldDirty ^ IsDirty)
                             {
-                                ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
+                                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDirty));
                             }
 
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Parameters));
                             return true;
                         }, apply), ref error);
                 }
@@ -223,10 +222,7 @@ namespace XTMF
         /// <param name="name">The name to use, pass a null to automatically name the module</param>
         public bool AddCollectionMember(Type type, ref string error, string name = null)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
+            ArgumentNullException.ThrowIfNull(type);
 
             if (!IsCollection)
             {
@@ -258,10 +254,7 @@ namespace XTMF
                         data.Index = RealModelSystemStructure.Children.Count - 1;
                         data.StructureInQuestion =
                             RealModelSystemStructure.Children[data.Index] as ModelSystemStructure;
-                        if (Children == null)
-                        {
-                            Children = new ObservableCollection<ModelSystemStructureModel>();
-                        }
+                        Children ??= [];
 
                         Children.Add(data.ModelInQuestion =
                             new ModelSystemStructureModel(_Session, data.StructureInQuestion, this));
@@ -292,56 +285,54 @@ namespace XTMF
         public bool Paste(ModelSystemEditingSession session, string buffer, ref string error)
         {
             // Get the data
-            using (var backing = new MemoryStream())
+            using var backing = new MemoryStream();
+            var writer = new StreamWriter(backing);
+            writer.Write(buffer);
+            writer.Flush();
+            backing.Position = 0;
+            try
             {
-                var writer = new StreamWriter(backing);
-                writer.Write(buffer);
-                writer.Flush();
-                backing.Position = 0;
-                try
+                var doc = new XmlDocument();
+                doc.Load(backing);
+                var node = doc["MultipleModules"];
+                if (node != null)
                 {
-                    var doc = new XmlDocument();
-                    doc.Load(backing);
-                    var node = doc["MultipleModules"];
-                    if (node != null)
-                    {
-                        var ret = true;
-                        string retError = null;
-                        session.ExecuteCombinedCommands(
-                            "Pasting Modules",
-                            () =>
+                    var ret = true;
+                    string retError = null;
+                    session.ExecuteCombinedCommands(
+                        "Pasting Modules",
+                        () =>
+                        {
+                            foreach (XmlNode subNode in node)
                             {
-                                foreach (XmlNode subNode in node)
+                                if (subNode.Name == "CopiedModule")
                                 {
-                                    if (subNode.Name == "CopiedModule")
+                                    string e = null;
+                                    if (!Paste(ref e,
+                                        GetModelSystemStructureFromXML(subNode["CopiedModules"]),
+                                        GetLinkedParametersFromXML(subNode["LinkedParameters"])))
                                     {
-                                        string e = null;
-                                        if (!Paste(ref e,
-                                            GetModelSystemStructureFromXML(subNode["CopiedModules"]),
-                                            GetLinkedParametersFromXML(subNode["LinkedParameters"])))
-                                        {
-                                            retError = e;
-                                            ret = false;
-                                        }
+                                        retError = e;
+                                        ret = false;
                                     }
                                 }
-                            });
-                        error = retError;
-                        return ret;
-                    }
-                    else
-                    {
-                        return Paste(ref error,
-                            GetModelSystemStructureFromXML(doc["CopiedModule"]["CopiedModules"]),
-                            GetLinkedParametersFromXML(doc["CopiedModule"]["LinkedParameters"]));
-                    }
+                            }
+                        });
+                    error = retError;
+                    return ret;
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e);
-                    error = "Unable to decode the copy buffer.\r\n" + e.Message;
-                    return false;
+                    return Paste(ref error,
+                        GetModelSystemStructureFromXML(doc["CopiedModule"]["CopiedModules"]),
+                        GetLinkedParametersFromXML(doc["CopiedModule"]["LinkedParameters"]));
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                error = "Unable to decode the copy buffer.\r\n" + e.Message;
+                return false;
             }
         }
 
@@ -747,7 +738,7 @@ namespace XTMF
             }
 
             ret.Add(builder.ToString());
-            return ret.ToArray();
+            return [.. ret];
         }
 
         private void UpdateAll()
@@ -843,7 +834,7 @@ namespace XTMF
 
             public TempLinkedParameter()
             {
-                Paths = new List<string>();
+                Paths = [];
             }
         }
 
@@ -888,18 +879,14 @@ namespace XTMF
             try
             {
                 backing = new MemoryStream();
-                using (var writer = new XmlTextWriter(backing, Encoding.Unicode))
-                {
-                    writer.Formatting = Formatting.Indented;
-                    CopyModule(writer);
-                    writer.Flush();
-                    backing.Position = 0;
-                    using (var reader = new StreamReader(backing))
-                    {
-                        backing = null;
-                        return reader.ReadToEnd();
-                    }
-                }
+                using var writer = new XmlTextWriter(backing, Encoding.Unicode);
+                writer.Formatting = Formatting.Indented;
+                CopyModule(writer);
+                writer.Flush();
+                backing.Position = 0;
+                using var reader = new StreamReader(backing);
+                backing = null;
+                return reader.ReadToEnd();
             }
             finally
             {
@@ -914,26 +901,20 @@ namespace XTMF
         /// <returns></returns>
         public static string CopyModule(List<ModelSystemStructureModel> modules)
         {
-            using (var backing = new MemoryStream())
+            using var backing = new MemoryStream();
+            using var writer = new XmlTextWriter(backing, Encoding.Unicode);
+            writer.Formatting = Formatting.Indented;
+            writer.WriteStartElement("MultipleModules");
+            foreach (var module in modules)
             {
-                using (var writer = new XmlTextWriter(backing, Encoding.Unicode))
-                {
-                    writer.Formatting = Formatting.Indented;
-                    writer.WriteStartElement("MultipleModules");
-                    foreach (var module in modules)
-                    {
-                        module.CopyModule(writer);
-                    }
-
-                    writer.WriteEndElement();
-                    writer.Flush();
-                    backing.Position = 0;
-                    using (var reader = new StreamReader(backing))
-                    {
-                        return reader.ReadToEnd();
-                    }
-                }
+                module.CopyModule(writer);
             }
+
+            writer.WriteEndElement();
+            writer.Flush();
+            backing.Position = 0;
+            using var reader = new StreamReader(backing);
+            return reader.ReadToEnd();
         }
 
         private void CopyModule(XmlTextWriter writer)
@@ -1073,21 +1054,21 @@ namespace XTMF
                         data.ModelInQuestion = Children[data.Index];
                         RealModelSystemStructure.Children.RemoveAt(data.Index);
                         Children.RemoveAt(data.Index);
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
                         return true;
                     },
                     (ref string e) =>
                     {
                         RealModelSystemStructure.Children.Insert(data.Index, data.StructureInQuestion);
                         Children.Insert(data.Index, data.ModelInQuestion);
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
                         return true;
                     },
                     (ref string e) =>
                     {
                         RealModelSystemStructure.Children.RemoveAt(data.Index);
                         Children.RemoveAt(data.Index);
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
                         return true;
                     }),
                 ref error);
@@ -1212,7 +1193,7 @@ namespace XTMF
             ObservableCollection<ModelSystemStructureModel> ret;
             if (Children == null)
             {
-                ret = new ObservableCollection<ModelSystemStructureModel>();
+                ret = [];
                 for (var i = 0; i < realModelSystemStructure.Children.Count; i++)
                 {
                     ret.Add(new ModelSystemStructureModel(session,
@@ -1433,7 +1414,7 @@ namespace XTMF
         private void UpdateChildren()
         {
             Children = CreateChildren(_Session, RealModelSystemStructure);
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
         }
 
         private bool Dirty = false;
@@ -1475,7 +1456,7 @@ namespace XTMF
             if (Dirty)
             {
                 Dirty = false;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDirty));
             }
             return true;
         }
@@ -1488,23 +1469,21 @@ namespace XTMF
         public bool Save(Stream saveTo)
         {
             // save to a temporary stream in case of a failure
-            using (var tempStream = new MemoryStream())
+            using var tempStream = new MemoryStream();
+            try
             {
-                try
-                {
-                    RealModelSystemStructure.Save(tempStream);
-                    tempStream.Position = 0;
-                    // if we have successfully saved continue by copying it to the real stream.
-                    var writer = new BinaryWriter(saveTo, Encoding.Unicode, true);
-                    writer.Write(tempStream.Length);
-                    writer.Flush();
-                    tempStream.WriteTo(saveTo);
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
+                RealModelSystemStructure.Save(tempStream);
+                tempStream.Position = 0;
+                // if we have successfully saved continue by copying it to the real stream.
+                var writer = new BinaryWriter(saveTo, Encoding.Unicode, true);
+                writer.Write(tempStream.Length);
+                writer.Flush();
+                tempStream.WriteTo(saveTo);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 

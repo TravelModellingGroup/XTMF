@@ -20,60 +20,59 @@ using XTMF;
 using Tasha.Scheduler;
 using TMG;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface IEpisode
 {
-    public interface IEpisode
-    {
-        /// <summary>
-        /// The schedule that contains the episode.
-        /// Only a schedule should set this property
-        /// </summary>
-        /// <returns></returns>
-        ISchedule ContainingSchedule { get; set; }
+    /// <summary>
+    /// The schedule that contains the episode.
+    /// Only a schedule should set this property
+    /// </summary>
+    /// <returns></returns>
+    ISchedule ContainingSchedule { get; set; }
 
-        /// <summary>
-        /// The person who owns this episode
-        /// </summary>
-        /// <returns></returns>
-        ITashaPerson Owner { get; }
+    /// <summary>
+    /// The person who owns this episode
+    /// </summary>
+    /// <returns></returns>
+    ITashaPerson Owner { get; }
 
-        /// <summary>
-        /// The activity that this episode represents
-        /// </summary>
-        /// <returns></returns>
-        Activity ActivityType { get; }
+    /// <summary>
+    /// The activity that this episode represents
+    /// </summary>
+    /// <returns></returns>
+    Activity ActivityType { get; }
 
-        /// <summary>
-        /// The time the episode ends at
-        /// </summary>
-        Time EndTime { get; }
+    /// <summary>
+    /// The time the episode ends at
+    /// </summary>
+    Time EndTime { get; }
 
-        /// <summary>
-        /// The time the episode starts at
-        /// </summary>
-        Time StartTime { get; }
+    /// <summary>
+    /// The time the episode starts at
+    /// </summary>
+    Time StartTime { get; }
 
-        /// <summary>
-        /// The duration of the episode
-        /// </summary>
-        /// <returns></returns>
-        Time Duration { get; }
+    /// <summary>
+    /// The duration of the episode
+    /// </summary>
+    /// <returns></returns>
+    Time Duration { get; }
 
-        /// <summary>
-        /// The duration of the episode when it was first created
-        /// </summary>
-        /// <returns></returns>
-        Time OriginalDuration { get; }
+    /// <summary>
+    /// The duration of the episode when it was first created
+    /// </summary>
+    /// <returns></returns>
+    Time OriginalDuration { get; }
 
-        /// <summary>
-        /// The amount of time to get to the next activity
-        /// </summary>
-        Time TravelTime { get; }
+    /// <summary>
+    /// The amount of time to get to the next activity
+    /// </summary>
+    Time TravelTime { get; }
 
-        /// <summary>
-        /// The location that this activity is at
-        /// </summary>
-        /// <returns></returns>
-        IZone Zone { get; }
-    }
+    /// <summary>
+    /// The location that this activity is at
+    /// </summary>
+    /// <returns></returns>
+    IZone Zone { get; }
 }

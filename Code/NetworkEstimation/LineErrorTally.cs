@@ -22,79 +22,78 @@ using System.Linq;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+public class LineErrorTally : IErrorTally
 {
-    public class LineErrorTally : IErrorTally
+    [RunParameter( "Absolute Error Weight", 0f, "The weight for absolute error." )]
+    public float MabsWeight;
+
+    [RunParameter( "Percent Error", false, "Use the percent of error instead of boardings." )]
+    public bool PercentError;
+
+    [RunParameter( "Root Mean Square Error Weight", 1f, "The weight for root mean square error." )]
+    public float RmseWeight;
+
+    [RunParameter( "Total Error Weight", 0f, "The weight for total error." )]
+    public float TerrorWeight;
+
+    public string Name
     {
-        [RunParameter( "Absolute Error Weight", 0f, "The weight for absolute error." )]
-        public float MabsWeight;
+        get;
+        set;
+    }
 
-        [RunParameter( "Percent Error", false, "Use the percent of error instead of boardings." )]
-        public bool PercentError;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Root Mean Square Error Weight", 1f, "The weight for root mean square error." )]
-        public float RmseWeight;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Total Error Weight", 0f, "The weight for total error." )]
-        public float TerrorWeight;
-
-        public string Name
+    public float ComputeError(ParameterSetting[] parameters, TransitLine[] truth, TransitLine[] predicted)
+    {
+        var numberOfLines = predicted.Length;
+        float rmse = 0;
+        float mabs = 0;
+        float terror = 0;
+        float[] aggToTruth = new float[truth.Length];
+        for ( int i = 0; i < numberOfLines; i++ )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public float ComputeError(ParameterSetting[] parameters, TransitLine[] truth, TransitLine[] predicted)
-        {
-            var numberOfLines = predicted.Length;
-            float rmse = 0;
-            float mabs = 0;
-            float terror = 0;
-            float[] aggToTruth = new float[truth.Length];
-            for ( int i = 0; i < numberOfLines; i++ )
+            for ( int j = 0; j < truth.Length; j++ )
             {
-                for ( int j = 0; j < truth.Length; j++ )
+                bool found = false;
+                foreach ( var line in predicted[i].Id )
                 {
-                    bool found = false;
-                    foreach ( var line in predicted[i].Id )
+                    if ( truth[j].Id.Contains( line ) )
                     {
-                        if ( truth[j].Id.Contains( line ) )
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if ( found )
-                    {
-                        aggToTruth[j] += predicted[i].Bordings;
+                        found = true;
                         break;
                     }
                 }
+                if ( found )
+                {
+                    aggToTruth[j] += predicted[i].Bordings;
+                    break;
+                }
             }
-            for ( int i = 0; i < truth.Length; i++ )
-            {
-                float error = PercentError ? Math.Abs( aggToTruth[i] - truth[i].Bordings ) / truth[i].Bordings : aggToTruth[i] - truth[i].Bordings;
-                rmse += error * error;
-                mabs += Math.Abs( error );
-                terror += error;
-            }
-            return ( rmse * RmseWeight ) + ( mabs * MabsWeight ) + ( terror * TerrorWeight );
         }
-
-        public bool RuntimeValidation(ref string error)
+        for ( int i = 0; i < truth.Length; i++ )
         {
-            return true;
+            float error = PercentError ? Math.Abs( aggToTruth[i] - truth[i].Bordings ) / truth[i].Bordings : aggToTruth[i] - truth[i].Bordings;
+            rmse += error * error;
+            mabs += Math.Abs( error );
+            terror += error;
         }
+        return ( rmse * RmseWeight ) + ( mabs * MabsWeight ) + ( terror * TerrorWeight );
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -18,36 +18,35 @@
 */
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IMode : IModeChoiceNode
 {
-    public interface IMode : IModeChoiceNode
-    {
-        /// <summary>
-        /// Get the type (name) of the network type to store the information in
-        /// </summary>
-        string NetworkType { get; }
+    /// <summary>
+    /// Get the type (name) of the network type to store the information in
+    /// </summary>
+    string NetworkType { get; }
 
-        /// <summary>
-        /// Gets if this mode does not use a personal vehicle
-        /// </summary>
-        bool NonPersonalVehicle { get; }
+    /// <summary>
+    /// Gets if this mode does not use a personal vehicle
+    /// </summary>
+    bool NonPersonalVehicle { get; }
 
-        /// <summary>
-        /// How much does it cost to go between the zones?
-        /// </summary>
-        /// <param name="origin">Where to start from</param>
-        /// <param name="destination">Where to go to</param>
-        /// <param name="time">The time to get the cost for</param>
-        /// <returns>Cost of going between the zones</returns>
-        float Cost(IZone origin, IZone destination, Time time);
+    /// <summary>
+    /// How much does it cost to go between the zones?
+    /// </summary>
+    /// <param name="origin">Where to start from</param>
+    /// <param name="destination">Where to go to</param>
+    /// <param name="time">The time to get the cost for</param>
+    /// <returns>Cost of going between the zones</returns>
+    float Cost(IZone origin, IZone destination, Time time);
 
-        /// <summary>
-        /// Get how long it will take to get between zones
-        /// </summary>
-        /// <param name="origin">The zone to start from</param>
-        /// <param name="destination">The zone to go to</param>
-        /// <param name="time">The time of the day in (hhmm.ss)</param>
-        /// <returns>Travel time in minutes between the zones, Not a Number if it is not possible</returns>
-        Time TravelTime(IZone origin, IZone destination, Time time);
-    }
+    /// <summary>
+    /// Get how long it will take to get between zones
+    /// </summary>
+    /// <param name="origin">The zone to start from</param>
+    /// <param name="destination">The zone to go to</param>
+    /// <param name="time">The time of the day in (hhmm.ss)</param>
+    /// <returns>Travel time in minutes between the zones, Not a Number if it is not possible</returns>
+    Time TravelTime(IZone origin, IZone destination, Time time);
 }

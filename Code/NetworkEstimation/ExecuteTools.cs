@@ -22,70 +22,65 @@ using System.Collections.Generic;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+public class ExecuteToolsFromResource : IModelSystemTemplate
 {
-    public class ExecuteToolsFromResource : IModelSystemTemplate
+    [SubModelInformation( Required = true, Description = "An instance of ModellerController" )]
+    public IResource ResourceToEmme;
+
+    [RunParameter( "Input Directory", "../../Input", "The directory relative to the run path that contains the input." )]
+    public string InputBaseDirectory { get; set; }
+
+    [SubModelInformation( Required = false, Description = "The list of tools to execute" )]
+    public List<IEmmeTool> Tools;
+
+    public string OutputBaseDirectory
     {
-        [SubModelInformation( Required = true, Description = "An instance of ModellerController" )]
-        public IResource ResourceToEmme;
+        get;
+        set;
+    }
 
-        [RunParameter( "Input Directory", "../../Input", "The directory relative to the run path that contains the input." )]
-        public string InputBaseDirectory { get; set; }
+    public bool ExitRequest()
+    {
+        return false;
+    }
 
-        [SubModelInformation( Required = false, Description = "The list of tools to execute" )]
-        public List<IEmmeTool> Tools;
-
-        public string OutputBaseDirectory
+    public void Start()
+    {
+        _Progress = () => 0f;
+        var controller = ResourceToEmme.AcquireResource<ModellerController>() ?? throw new XTMFRuntimeException(this, "In '' the EMME Modeller controller resource did not contain a modeller controller!");
+        int i = 0;
+        // ReSharper disable once AccessToModifiedClosure
+        _Progress = () => (float)i / Tools.Count;
+        for ( ; i < Tools.Count; i++ )
         {
-            get;
-            set;
+            Tools[i].Execute( controller );
         }
+        _Progress = () => 1f;
+    }
 
-        public bool ExitRequest()
+    public string Name { get; set; }
+
+    private Func<float> _Progress = () => 0f;
+
+    public float Progress
+    {
+        get { return _Progress(); }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( !ResourceToEmme.CheckResourceType<ModellerController>() )
         {
+            error = "In '" + Name + "' the resource must be returning a ModellerController!";
             return false;
         }
-
-        public void Start()
-        {
-            _Progress = () => 0f;
-            var controller = ResourceToEmme.AcquireResource<ModellerController>();
-            if ( controller == null )
-            {
-                throw new XTMFRuntimeException(this, "In '' the EMME Modeller controller resource did not contain a modeller controller!");
-            }
-            int i = 0;
-            // ReSharper disable once AccessToModifiedClosure
-            _Progress = () => (float)i / Tools.Count;
-            for ( ; i < Tools.Count; i++ )
-            {
-                Tools[i].Execute( controller );
-            }
-            _Progress = () => 1f;
-        }
-
-        public string Name { get; set; }
-
-        private Func<float> _Progress = () => 0f;
-
-        public float Progress
-        {
-            get { return _Progress(); }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if ( !ResourceToEmme.CheckResourceType<ModellerController>() )
-            {
-                error = "In '" + Name + "' the resource must be returning a ModellerController!";
-                return false;
-            }
-            return true;
-        }
+        return true;
     }
 }

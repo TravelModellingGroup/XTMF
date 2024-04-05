@@ -18,46 +18,45 @@
 */
 using TMG;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface IGoData : ITravelData
 {
-    public interface IGoData : ITravelData
-    {
-        float EndTime { get; }
+    float EndTime { get; }
 
-        float MinDistance { get; }
+    float MinDistance { get; }
 
-        float StartTime { get; }
+    float StartTime { get; }
 
-        float GetAccessWaitTime(int zone, int station);
+    float GetAccessWaitTime(int zone, int station);
 
-        float GetAccessWalkTime(int zone, int station);
+    float GetAccessWalkTime(int zone, int station);
 
-        float GetAutoCost(int zone, int station);
+    float GetAutoCost(int zone, int station);
 
-        float GetAutoTime(int zone, int station);
+    float GetAutoTime(int zone, int station);
 
-        int[] GetClosestStations(int zone);
+    int[] GetClosestStations(int zone);
 
-        float GetEgressWaitTime(int zone, int station);
+    float GetEgressWaitTime(int zone, int station);
 
-        float GetEgressWalkTime(int zone, int station);
+    float GetEgressWalkTime(int zone, int station);
 
-        float GetGoFair(int accessStation, int egressStation);
+    float GetGoFair(int accessStation, int egressStation);
 
-        float GetGoFrequency(int accessStation, int egressStation, float time);
+    float GetGoFrequency(int accessStation, int egressStation, float time);
 
-        float GetLineHaulTime(int accessStation, int egressStation);
+    float GetLineHaulTime(int accessStation, int egressStation);
 
-        ITransitStation GetStation(int stationNumber);
+    ITransitStation GetStation(int stationNumber);
 
-        float GetTotalTransitAccessTime(int originalZone, int accessStation);
+    float GetTotalTransitAccessTime(int originalZone, int accessStation);
 
-        float GetTotalTransitEgressTime(int egressStation, int destinationZone);
+    float GetTotalTransitEgressTime(int egressStation, int destinationZone);
 
-        float GetTransitAccessTime(int originalZone, int accessStation);
+    float GetTransitAccessTime(int originalZone, int accessStation);
 
-        float GetTransitEgressTime(int egressStation, int destinationZone);
+    float GetTransitEgressTime(int egressStation, int destinationZone);
 
-        float GetTransitFair(int zone, int station);
-    }
+    float GetTransitFair(int zone, int station);
 }

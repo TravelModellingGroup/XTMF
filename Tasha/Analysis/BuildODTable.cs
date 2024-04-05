@@ -23,142 +23,141 @@ using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Analysis
+namespace Tasha.Analysis;
+
+public class BuildODTable : IPostHousehold
 {
-    public class BuildODTable : IPostHousehold
+    [RunParameter("End Time", "28:00", typeof(Time), "The ending time of this collection.")]
+    public Time EndTime;
+
+    [RunParameter("Mode Names", "Auto", "The name of the modes that we will extract")]
+    public string ModeNames;
+
+    [RunParameter("Output File Name", "Matrix.csv", "The name of the output file for this ODTable.")]
+    public FileFromOutputDirectory OutputFileName;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    [RunParameter("Start Time", "4:00", typeof(Time), "The starting time of this collection.")]
+    public Time StartTime;
+
+    private float[][] Data;
+
+    private IMode[] Modes;
+
+    public string Name
     {
-        [RunParameter("End Time", "28:00", typeof(Time), "The ending time of this collection.")]
-        public Time EndTime;
+        get;
+        set;
+    }
 
-        [RunParameter("Mode Names", "Auto", "The name of the modes that we will extract")]
-        public string ModeNames;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter("Output File Name", "Matrix.csv", "The name of the output file for this ODTable.")]
-        public FileFromOutputDirectory OutputFileName;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
-
-        [RunParameter("Start Time", "4:00", typeof(Time), "The starting time of this collection.")]
-        public Time StartTime;
-
-        private float[][] Data;
-
-        private IMode[] Modes;
-
-        public string Name
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2002:DoNotLockOnObjectsWithWeakIdentity")]
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var zones = Root.ZoneSystem.ZoneArray;
+        var persons = household.Persons;
+        var expFactor = household.ExpansionFactor;
+        for (int personIndex = 0; personIndex < persons.Length; personIndex++)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2002:DoNotLockOnObjectsWithWeakIdentity")]
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            var zones = Root.ZoneSystem.ZoneArray;
-            var persons = household.Persons;
-            var expFactor = household.ExpansionFactor;
-            for (int personIndex = 0; personIndex < persons.Length; personIndex++)
+            var tripChains = persons[personIndex].TripChains;
+            for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
             {
-                var tripChains = persons[personIndex].TripChains;
-                for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
+                var tripChain = tripChains[tcIndex].Trips;
+                for (int trip = 0; trip < tripChain.Count; trip++)
                 {
-                    var tripChain = tripChains[tcIndex].Trips;
-                    for (int trip = 0; trip < tripChain.Count; trip++)
+                    var t = tripChain[trip];
+                    if (!(t.TripStartTime >= StartTime && t.TripStartTime <= EndTime))
                     {
-                        var t = tripChain[trip];
-                        if (!(t.TripStartTime >= StartTime && t.TripStartTime <= EndTime))
+                        continue;
+                    }
+                    var origin = zones.GetFlatIndex(t.OriginalZone.ZoneNumber);
+                    var destination = zones.GetFlatIndex(t.DestinationZone.ZoneNumber);
+                    foreach (var chosenMode in t.ModesChosen)
+                    {
+                        if ((IndexOf(Modes, chosenMode)) >= 0)
                         {
-                            continue;
-                        }
-                        var origin = zones.GetFlatIndex(t.OriginalZone.ZoneNumber);
-                        var destination = zones.GetFlatIndex(t.DestinationZone.ZoneNumber);
-                        foreach (var chosenMode in t.ModesChosen)
-                        {
-                            if ((IndexOf(Modes, chosenMode)) >= 0)
+                            lock (Data[origin])
                             {
-                                lock (Data[origin])
-                                {
-                                    Data[origin][destination] += expFactor;
-                                }
+                                Data[origin][destination] += expFactor;
                             }
                         }
                     }
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        SaveData.SaveMatrix(zones, Data, OutputFileName.GetFileName());
+    }
+
+    public void Load(int maxIterations)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        Data = new float[zones.Length][];
+        for (int i = 0; i < Data.Length; i++)
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            SaveData.SaveMatrix(zones, Data, OutputFileName.GetFileName());
+            Data[i] = new float[zones.Length];
         }
+    }
 
-        public void Load(int maxIterations)
+    public bool RuntimeValidation(ref string error)
+    {
+        var modes = Root.AllModes;
+        var modeNames = ModeNames.Split(',');
+        Modes = new IMode[modeNames.Length];
+        foreach (var mode in modes)
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            Data = new float[zones.Length][];
-            for (int i = 0; i < Data.Length; i++)
+            for (int i = 0; i < modeNames.Length; i++)
             {
-                Data[i] = new float[zones.Length];
-            }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            var modes = Root.AllModes;
-            var modeNames = ModeNames.Split(',');
-            Modes = new IMode[modeNames.Length];
-            foreach (var mode in modes)
-            {
-                for (int i = 0; i < modeNames.Length; i++)
+                if (mode.ModeName == modeNames[i])
                 {
-                    if (mode.ModeName == modeNames[i])
-                    {
-                        Modes[i] = mode;
-                    }
+                    Modes[i] = mode;
                 }
             }
-            for (int i = 0; i < Modes.Length; i++)
-            {
-                if (Modes[i] == null)
-                {
-                    error = "In '" + Name
-                        + "' we were unable to find a mode called '" + modeNames[i] + "'";
-                    return false;
-                }
-            }
-            return true;
         }
-
-        public void IterationStarting(int iteration)
+        for (int i = 0; i < Modes.Length; i++)
         {
-            for (int i = 0; i < Data.Length; i++)
+            if (Modes[i] == null)
             {
-                Array.Clear(Data[i], 0, Data[i].Length);
+                error = "In '" + Name
+                    + "' we were unable to find a mode called '" + modeNames[i] + "'";
+                return false;
             }
         }
+        return true;
+    }
 
-        private static int IndexOf<TData>(TData[] array, TData data) where TData : class
+    public void IterationStarting(int iteration)
+    {
+        for (int i = 0; i < Data.Length; i++)
         {
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (data == array[i])
-                {
-                    return i;
-                }
-            }
-            return -1;
+            Array.Clear(Data[i], 0, Data[i].Length);
         }
+    }
+
+    private static int IndexOf<TData>(TData[] array, TData data) where TData : class
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            if (data == array[i])
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 }

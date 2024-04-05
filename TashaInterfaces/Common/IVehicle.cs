@@ -18,33 +18,32 @@
 */
 using System.Collections.Generic;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Represents a vehicle type for Tasha#
+/// </summary>
+public interface IVehicle
 {
     /// <summary>
-    /// Represents a vehicle type for Tasha#
+    /// Which household does this vehicle belong to
     /// </summary>
-    public interface IVehicle
-    {
-        /// <summary>
-        /// Which household does this vehicle belong to
-        /// </summary>
-        ITashaHousehold Household { get; }
+    ITashaHousehold Household { get; }
 
-        /// <summary>
-        /// Which modes are this vehicle used for
-        /// </summary>
-        ICollection<ITashaMode> Modes { get; }
+    /// <summary>
+    /// Which modes are this vehicle used for
+    /// </summary>
+    ICollection<ITashaMode> Modes { get; }
 
-        /// <summary>
-        /// What type of vehicle is this?
-        /// </summary>
-        IVehicleType VehicleType { get; }
+    /// <summary>
+    /// What type of vehicle is this?
+    /// </summary>
+    IVehicleType VehicleType { get; }
 
-        /// <summary>
-        /// Let go of all resources and
-        /// get ready to be re-used for
-        /// another household
-        /// </summary>
-        void Recycle();
-    }
+    /// <summary>
+    /// Let go of all resources and
+    /// get ready to be re-used for
+    /// another household
+    /// </summary>
+    void Recycle();
 }

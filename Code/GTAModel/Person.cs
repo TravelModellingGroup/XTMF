@@ -16,62 +16,61 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+public sealed class Person : IPerson
 {
-    public sealed class Person : IPerson
+    public int Age
     {
-        public int Age
-        {
-            get;
-            internal set;
-        }
+        get;
+        internal set;
+    }
 
-        public bool DriversLicense
-        {
-            get;
-            internal set;
-        }
+    public bool DriversLicense
+    {
+        get;
+        internal set;
+    }
 
-        public int EmploymentStatus
-        {
-            get;
-            internal set;
-        }
+    public int EmploymentStatus
+    {
+        get;
+        internal set;
+    }
 
-        public float ExpansionFactor
-        {
-            get;
-            internal set;
-        }
+    public float ExpansionFactor
+    {
+        get;
+        internal set;
+    }
 
-        public IHousehold Household
-        {
-            get;
-            internal set;
-        }
+    public IHousehold Household
+    {
+        get;
+        internal set;
+    }
 
-        public int Occupation
-        {
-            get;
-            internal set;
-        }
+    public int Occupation
+    {
+        get;
+        internal set;
+    }
 
-        public IZone SchoolZone
-        {
-            get;
-            set;
-        }
+    public IZone SchoolZone
+    {
+        get;
+        set;
+    }
 
-        public int StudentStatus
-        {
-            get;
-            internal set;
-        }
+    public int StudentStatus
+    {
+        get;
+        internal set;
+    }
 
-        public IZone WorkZone
-        {
-            get;
-            set;
-        }
+    public IZone WorkZone
+    {
+        get;
+        set;
     }
 }

@@ -20,55 +20,54 @@ using System;
 using System.Collections.Generic;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+[ModuleInformation(Description = "This module is designed to allow the integration of ISelfContainedModules to execute during the post iteration phase in the TASHA pipeline.")]
+// ReSharper disable once InconsistentNaming
+public class PostIterationMSIntegration : IPostIteration
 {
-    [ModuleInformation(Description = "This module is designed to allow the integration of ISelfContainedModules to execute during the post iteration phase in the TASHA pipeline.")]
-    // ReSharper disable once InconsistentNaming
-    public class PostIterationMSIntegration : IPostIteration
+    [SubModelInformation( Required = false, Description = "The model systems to host after an iteration has completed." )]
+    public List<ISelfContainedModule> ModelSystems;
+
+    [RunParameter("Execute Model Systems", true, "Should we execute the contained model systems?")]
+    public bool ExecuteModelSystems;
+
+    private Func<float> GetProgress = () => 0f;
+
+    public string Name
     {
-        [SubModelInformation( Required = false, Description = "The model systems to host after an iteration has completed." )]
-        public List<ISelfContainedModule> ModelSystems;
+        get;
+        set;
+    }
 
-        [RunParameter("Execute Model Systems", true, "Should we execute the contained model systems?")]
-        public bool ExecuteModelSystems;
+    public float Progress
+    {
+        get { return GetProgress(); }
+    }
 
-        private Func<float> GetProgress = () => 0f;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public string Name
+    public void Execute(int iterationNumber, int totalIterations)
+    {
+        if(ExecuteModelSystems)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return GetProgress(); }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void Execute(int iterationNumber, int totalIterations)
-        {
-            if(ExecuteModelSystems)
+            foreach(var ms in ModelSystems)
             {
-                foreach(var ms in ModelSystems)
-                {
-                    GetProgress = () => ms.Progress;
-                    ms.Start();
-                }
+                GetProgress = () => ms.Progress;
+                ms.Start();
             }
         }
+    }
 
-        public void Load(IConfiguration config, int totalIterations)
-        {
-        }
+    public void Load(IConfiguration config, int totalIterations)
+    {
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

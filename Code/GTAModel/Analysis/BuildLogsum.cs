@@ -24,114 +24,113 @@ using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Analysis
+namespace TMG.GTAModel.Analysis;
+
+[ModuleInformation( Description =
+    @"This module is designed to read in a number of OD data sources that represent utilities and to perform an OD logsum on them.  The result will be a square CSV matrix of the combined values." )]
+public class BuildLogsum : ISelfContainedModule
 {
-    [ModuleInformation( Description =
-        @"This module is designed to read in a number of OD data sources that represent utilities and to perform an OD logsum on them.  The result will be a square CSV matrix of the combined values." )]
-    public class BuildLogsum : ISelfContainedModule
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [ModuleInformation(Description = "An entry contains a data source to read in and add to our total.")]
+    public class Entry : IModule
     {
-        [RootModule]
-        public ITravelDemandModel Root;
+        [SubModelInformation(Required = false, Description = "The data source to read in.")]
+        public IReadODData<float> DataSource;
 
-        [ModuleInformation(Description = "An entry contains a data source to read in and add to our total.")]
-        public class Entry : IModule
-        {
-            [SubModelInformation(Required = false, Description = "The data source to read in.")]
-            public IReadODData<float> DataSource;
+        [RunParameter("Raise To E", true, "Should we raise the read in values and add them after converting them to e^x, or just assume they have already in that format?")]
+        public bool RaiseToE;
 
-            [RunParameter("Raise To E", true, "Should we raise the read in values and add them after converting them to e^x, or just assume they have already in that format?")]
-            public bool RaiseToE;
-
-            public string Name { get; set; }
-
-            public float Progress => 0f;
-
-            public Tuple<byte, byte, byte> ProgressColour => null;
-
-            public void Add(SparseTwinIndex<float> data)
-            {
-                var flatData = data.GetFlatData();
-                if ( RaiseToE )
-                {
-                    foreach ( var entry in DataSource.Read() )
-                    {
-                        var o = data.GetFlatIndex( entry.O );
-                        var d = data.GetFlatIndex( entry.D );
-                        if ( o >= 0 & d >= 0 )
-                        {
-                            flatData[o][d] += (float)Math.Exp( entry.Data );
-                        }
-                    }
-                }
-                else
-                {
-                    foreach ( var entry in DataSource.Read() )
-                    {
-                        var o = data.GetFlatIndex( entry.O );
-                        var d = data.GetFlatIndex( entry.D );
-                        if ( o >= 0 & d >= 0 )
-                        {
-                            flatData[o][d] += entry.Data;
-                        }
-                    }
-                }
-            }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                return true;
-            }
-        }
-
-        [SubModelInformation(Required = false, Description = "The data to read in.")]
-        public Entry[] Entries;
-
-        [SubModelInformation( Required = true, Description = "The location to save the output matrix (csv)." )]
-        public FileLocation OutputFile;
-
-        public void Start()
-        {
-            var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var sources = Entries;
-            for ( int i = 0; i < sources.Length; i++ )
-            {
-                sources[i].Add( data );
-            }
-            LogTheMatrix( data );
-            SaveData.SaveMatrix( data, OutputFile );
-        }
-
-        /// <summary>
-        /// Take the log of each data point in the matrix.
-        /// </summary>
-        /// <param name="data">The data source to do the log on.</param>
-        private static void LogTheMatrix(SparseTwinIndex<float> data)
-        {
-            var flatData = data.GetFlatData();
-            Parallel.For( 0, flatData.Length, i =>
-            {
-                var row = flatData[i];
-                if ( row == null ) return;
-                for ( int j = 0; j < row.Length; j++ )
-                {
-                    row[j] = (float)Math.Log( row[j] );
-                }
-            } );
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
         public float Progress => 0f;
 
         public Tuple<byte, byte, byte> ProgressColour => null;
 
+        public void Add(SparseTwinIndex<float> data)
+        {
+            var flatData = data.GetFlatData();
+            if ( RaiseToE )
+            {
+                foreach ( var entry in DataSource.Read() )
+                {
+                    var o = data.GetFlatIndex( entry.O );
+                    var d = data.GetFlatIndex( entry.D );
+                    if ( o >= 0 & d >= 0 )
+                    {
+                        flatData[o][d] += (float)Math.Exp( entry.Data );
+                    }
+                }
+            }
+            else
+            {
+                foreach ( var entry in DataSource.Read() )
+                {
+                    var o = data.GetFlatIndex( entry.O );
+                    var d = data.GetFlatIndex( entry.D );
+                    if ( o >= 0 & d >= 0 )
+                    {
+                        flatData[o][d] += entry.Data;
+                    }
+                }
+            }
+        }
+
         public bool RuntimeValidation(ref string error)
         {
             return true;
         }
+    }
+
+    [SubModelInformation(Required = false, Description = "The data to read in.")]
+    public Entry[] Entries;
+
+    [SubModelInformation( Required = true, Description = "The location to save the output matrix (csv)." )]
+    public FileLocation OutputFile;
+
+    public void Start()
+    {
+        var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        var sources = Entries;
+        for ( int i = 0; i < sources.Length; i++ )
+        {
+            sources[i].Add( data );
+        }
+        LogTheMatrix( data );
+        SaveData.SaveMatrix( data, OutputFile );
+    }
+
+    /// <summary>
+    /// Take the log of each data point in the matrix.
+    /// </summary>
+    /// <param name="data">The data source to do the log on.</param>
+    private static void LogTheMatrix(SparseTwinIndex<float> data)
+    {
+        var flatData = data.GetFlatData();
+        Parallel.For( 0, flatData.Length, i =>
+        {
+            var row = flatData[i];
+            if ( row == null ) return;
+            for ( int j = 0; j < row.Length; j++ )
+            {
+                row[j] = (float)Math.Log( row[j] );
+            }
+        } );
+    }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => null;
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

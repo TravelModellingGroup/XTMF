@@ -20,10 +20,9 @@ using System.Collections.Generic;
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IAssignment : IModule
 {
-    public interface IAssignment : IModule
-    {
-        IEnumerable<SparseTwinIndex<float>> Assign();
-    }
+    IEnumerable<SparseTwinIndex<float>> Assign();
 }

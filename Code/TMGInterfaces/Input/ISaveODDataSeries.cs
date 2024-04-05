@@ -19,17 +19,16 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG.Input
+namespace TMG.Input;
+
+// ReSharper disable once InconsistentNaming
+public interface ISaveODDataSeries<T> : IModule
 {
-    // ReSharper disable once InconsistentNaming
-    public interface ISaveODDataSeries<T> : IModule
-    {
-        void Reset();
+    void Reset();
 
-        void SaveMatrix(SparseTwinIndex<T> matrix);
+    void SaveMatrix(SparseTwinIndex<T> matrix);
 
-        void SaveMatrix(T[][] data);
+    void SaveMatrix(T[][] data);
 
-        void SaveMatrix(T[] data);
-    }
+    void SaveMatrix(T[] data);
 }

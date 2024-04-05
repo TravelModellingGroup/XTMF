@@ -22,34 +22,33 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace XTMF.Gui
+namespace XTMF.Gui;
+
+/// <summary>
+/// Interaction logic for ColourSelector.xaml
+/// </summary>
+public partial class ColourSelector : UserControl
 {
-    /// <summary>
-    /// Interaction logic for ColourSelector.xaml
-    /// </summary>
-    public partial class ColourSelector : UserControl
+    public ColourSelector()
     {
-        public ColourSelector()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        public event Action<Color> ColourSelected;
+    public event Action<Color> ColourSelected;
 
-        private void RedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            ColourSelected?.Invoke(Color.FromRgb((byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value));
-            //Reset stops
-            var r = (byte)redSlider.Value;
-            var g = (byte)greenSlider.Value;
-            var b = (byte)blueSlider.Value;
-            RedStart.Color = Color.FromRgb(0, g, b);
-            GreenStart.Color = Color.FromRgb(r, 0, b);
-            BlueStart.Color = Color.FromRgb(r, g, 0);
+    private void RedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        ColourSelected?.Invoke(Color.FromRgb((byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value));
+        //Reset stops
+        var r = (byte)redSlider.Value;
+        var g = (byte)greenSlider.Value;
+        var b = (byte)blueSlider.Value;
+        RedStart.Color = Color.FromRgb(0, g, b);
+        GreenStart.Color = Color.FromRgb(r, 0, b);
+        BlueStart.Color = Color.FromRgb(r, g, 0);
 
-            RedStop.Color = Color.FromRgb(255, g, b);
-            GreenStop.Color = Color.FromRgb(r, 255, b);
-            BlueStop.Color = Color.FromRgb(r, g, 255);
-        }
+        RedStop.Color = Color.FromRgb(255, g, b);
+        GreenStop.Color = Color.FromRgb(r, 255, b);
+        BlueStop.Color = Color.FromRgb(r, g, 255);
     }
 }

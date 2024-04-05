@@ -25,89 +25,87 @@ using XTMF;
 // ReSharper disable InconsistentNaming
 
 
-namespace TMG.Frameworks.Data.Processing
+namespace TMG.Frameworks.Data.Processing;
+
+[ModuleInformation(Description = "This module is designed to condense a zone system OD matrix into a given arbitrary map.")]
+// ReSharper disable once InconsistentNaming
+public class AggregateZoneODByZoneMap : IDataSource<SparseTwinIndex<float>>
 {
-    [ModuleInformation(Description = "This module is designed to condense a zone system OD matrix into a given arbitrary map.")]
-    // ReSharper disable once InconsistentNaming
-    public class AggregateZoneODByZoneMap : IDataSource<SparseTwinIndex<float>>
+    public bool Loaded
     {
-        public bool Loaded
+        get
         {
-            get
-            {
-                return Data != null;
-            }
-        }
-
-        private SparseTwinIndex<float> Data;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = false, Description = "The zone map to use loaded from a datasource")]
-        public IDataSource<ZoneMap> ZoneMapFromDataSource;
-
-        [SubModelInformation(Required = false, Description = "The zone map to use loaded from a resource")]
-        public IResource ZoneMapFromResource;
-
-        [RunParameter("Unload Zone Source", true, "Should we unload the ZoneMap's source after loading?")]
-        public bool UnloadZoneSource;
-
-        [SubModelInformation(Required = false, Description = "The data to aggregate from a datasource")]
-        public IDataSource<SparseTwinIndex<float>> ODDataFromDataSource;
-
-        [SubModelInformation(Required = false, Description = "The data to aggregate from a resource")]
-        public IResource ODDataFromResource;
-
-        [RunParameter("Unload ODData Source", true, "Should we unload the ODData source after loading?")]
-        public bool UnloadODDataSource;
-
-        public SparseTwinIndex<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            var map = ModuleHelper.GetDataFromDatasourceOrResource(ZoneMapFromDataSource, ZoneMapFromResource, UnloadZoneSource);
-            var zoneData = ModuleHelper.GetDataFromDatasourceOrResource(ODDataFromDataSource, ODDataFromResource, UnloadODDataSource).GetFlatData();
-            var bins = map.MapValues.ToArray();
-            var mapOd = SparseArray<float>.CreateSparseArray(bins, null).CreateSquareTwinArray<float>();
-            var flatMapData = mapOd.GetFlatData();
-            var toZones = map.KeyToZoneIndex;
-            for (int originBin = 0; originBin < bins.Length; originBin++)
-            {
-                var originZones = toZones[bins[originBin]];
-                for (int i = 0; i < originZones.Count; i++)
-                {
-                    var originRow = zoneData[originZones[i]];
-                    for (int destinationBin = 0; destinationBin < bins.Length; destinationBin++)
-                    {
-                        var destinationZones = toZones[bins[destinationBin]];
-                        for (int j = 0; j < destinationZones.Count; j++)
-                        {
-                            flatMapData[originBin][destinationBin] += originRow[destinationZones[j]];
-                        }
-                    }
-                }
-            }
-            Data = mapOd;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(ZoneMapFromDataSource, ZoneMapFromResource, ref error) 
-                && this.EnsureExactlyOneAndOfSameType(ODDataFromDataSource, ODDataFromResource, ref error);
-        }
-
-
-        public void UnloadData()
-        {
-            Data = null;
+            return Data != null;
         }
     }
 
+    private SparseTwinIndex<float> Data;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = false, Description = "The zone map to use loaded from a datasource")]
+    public IDataSource<ZoneMap> ZoneMapFromDataSource;
+
+    [SubModelInformation(Required = false, Description = "The zone map to use loaded from a resource")]
+    public IResource ZoneMapFromResource;
+
+    [RunParameter("Unload Zone Source", true, "Should we unload the ZoneMap's source after loading?")]
+    public bool UnloadZoneSource;
+
+    [SubModelInformation(Required = false, Description = "The data to aggregate from a datasource")]
+    public IDataSource<SparseTwinIndex<float>> ODDataFromDataSource;
+
+    [SubModelInformation(Required = false, Description = "The data to aggregate from a resource")]
+    public IResource ODDataFromResource;
+
+    [RunParameter("Unload ODData Source", true, "Should we unload the ODData source after loading?")]
+    public bool UnloadODDataSource;
+
+    public SparseTwinIndex<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        var map = ModuleHelper.GetDataFromDatasourceOrResource(ZoneMapFromDataSource, ZoneMapFromResource, UnloadZoneSource);
+        var zoneData = ModuleHelper.GetDataFromDatasourceOrResource(ODDataFromDataSource, ODDataFromResource, UnloadODDataSource).GetFlatData();
+        var bins = map.MapValues.ToArray();
+        var mapOd = SparseArray<float>.CreateSparseArray(bins, null).CreateSquareTwinArray<float>();
+        var flatMapData = mapOd.GetFlatData();
+        var toZones = map.KeyToZoneIndex;
+        for (int originBin = 0; originBin < bins.Length; originBin++)
+        {
+            var originZones = toZones[bins[originBin]];
+            for (int i = 0; i < originZones.Count; i++)
+            {
+                var originRow = zoneData[originZones[i]];
+                for (int destinationBin = 0; destinationBin < bins.Length; destinationBin++)
+                {
+                    var destinationZones = toZones[bins[destinationBin]];
+                    for (int j = 0; j < destinationZones.Count; j++)
+                    {
+                        flatMapData[originBin][destinationBin] += originRow[destinationZones[j]];
+                    }
+                }
+            }
+        }
+        Data = mapOd;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(ZoneMapFromDataSource, ZoneMapFromResource, ref error) 
+            && this.EnsureExactlyOneAndOfSameType(ODDataFromDataSource, ODDataFromResource, ref error);
+    }
+
+
+    public void UnloadData()
+    {
+        Data = null;
+    }
 }

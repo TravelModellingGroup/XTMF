@@ -17,21 +17,13 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+namespace XTMF.Gui.UserControls.Interfaces;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace XTMF.Gui.UserControls.Interfaces
+interface ITabCloseListener
 {
-    interface ITabCloseListener
-    {
-        /// <summary>
-        /// Function to intercept a closing tab, return false to cancel closing.
-        /// </summary>
-        /// <returns></returns>
-        bool HandleTabClose();
-    }
+    /// <summary>
+    /// Function to intercept a closing tab, return false to cancel closing.
+    /// </summary>
+    /// <returns></returns>
+    bool HandleTabClose();
 }

@@ -18,31 +18,30 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Various methods to determining availability of drivers, vehicles etc for trips.
+/// </summary>
+public interface IResourceAvailability : IModule
 {
     /// <summary>
-    /// Various methods to determining availability of drivers, vehicles etc for trips.
+    /// Gets a driver for the given trip, which must use the IMode specified
+    /// as the mode of transport.
     /// </summary>
-    public interface IResourceAvailability : IModule
-    {
-        /// <summary>
-        /// Gets a driver for the given trip, which must use the IMode specified
-        /// as the mode of transport.
-        /// </summary>
-        /// <param name="trip"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
-        bool AssignPossibleDrivers(ITrip trip, ISharedMode mode);
+    /// <param name="trip"></param>
+    /// <param name="mode"></param>
+    /// <returns></returns>
+    bool AssignPossibleDrivers(ITrip trip, ISharedMode mode);
 
-        /// <summary>
-        /// Determines if a vehicle is available at the given time for the household
-        /// </summary>
-        /// <param name="veqType"></param>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        /// <param name="hh"></param>
-        /// <returns></returns>
+    /// <summary>
+    /// Determines if a vehicle is available at the given time for the household
+    /// </summary>
+    /// <param name="veqType"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="hh"></param>
+    /// <returns></returns>
 
-        int NumVehiclesAvailable(IVehicleType veqType, Time start, Time end, ITashaHousehold hh);
-    }
+    int NumVehiclesAvailable(IVehicleType veqType, Time start, Time end, ITashaHousehold hh);
 }

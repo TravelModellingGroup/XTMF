@@ -19,41 +19,40 @@
 using System;
 using Tasha.Common;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+/// <summary>
+/// This interface provides access to different types of schedules that can be produced by a
+/// factory for consumption.
+/// </summary>
+public interface ISchedule
 {
+
     /// <summary>
-    /// This interface provides access to different types of schedules that can be produced by a
-    /// factory for consumption.
+    /// Used for previous generation Tasha Schedules
     /// </summary>
-    public interface ISchedule
-    {
+    /// <returns></returns>
+    IEpisode[] Episodes { get; }
 
-        /// <summary>
-        /// Used for previous generation Tasha Schedules
-        /// </summary>
-        /// <returns></returns>
-        IEpisode[] Episodes { get; }
+    /// <summary>
+    /// Get the set of episodes in this schedule currently, in order of start time.
+    /// </summary>
+    /// <returns>A list of episodes that will be scheduled. Nulls are permitted, please make
+    /// sure to check them for null before using!</returns>
+    IActivityEpisode[] GenerateScheduledEpisodeList();
 
-        /// <summary>
-        /// Get the set of episodes in this schedule currently, in order of start time.
-        /// </summary>
-        /// <returns>A list of episodes that will be scheduled. Nulls are permitted, please make
-        /// sure to check them for null before using!</returns>
-        IActivityEpisode[] GenerateScheduledEpisodeList();
+    /// <summary>
+    /// Insert the episode into the schedule
+    /// </summary>
+    /// <param name="householdRandom">The household's random number generator.</param>
+    /// <param name="episode">The episode to insert into the schedule</param>
+    void Insert(Random householdRandom, IActivityEpisode episode);
 
-        /// <summary>
-        /// Insert the episode into the schedule
-        /// </summary>
-        /// <param name="householdRandom">The household's random number generator.</param>
-        /// <param name="episode">The episode to insert into the schedule</param>
-        void Insert(Random householdRandom, IActivityEpisode episode);
-
-        /// <summary>
-        /// Insert the episode into another episode, splitting it.
-        /// </summary>
-        /// <param name="householdRandom">The household's random number generator.</param>
-        /// <param name="episode">The episode to insert into the schedule.</param>
-        /// <param name="into">The episode that will be split in order to add in the new episode</param>
-        void InsertInside(Random householdRandom, IActivityEpisode episode, IActivityEpisode into);
-    }
+    /// <summary>
+    /// Insert the episode into another episode, splitting it.
+    /// </summary>
+    /// <param name="householdRandom">The household's random number generator.</param>
+    /// <param name="episode">The episode to insert into the schedule.</param>
+    /// <param name="into">The episode that will be split in order to add in the new episode</param>
+    void InsertInside(Random householdRandom, IActivityEpisode episode, IActivityEpisode into);
 }

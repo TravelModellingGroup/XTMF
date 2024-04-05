@@ -16,10 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
+namespace TMG;
+
+public interface IStationMode : IMode
 {
-    public interface IStationMode : IMode
-    {
-        int StationZone { get; }
-    }
+    int StationZone { get; }
 }

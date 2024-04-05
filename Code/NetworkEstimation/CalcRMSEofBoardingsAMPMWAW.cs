@@ -29,230 +29,223 @@ using XTMF;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+[ModuleInformation(Description = "Calculates Root Mean Square Error (RMSE) of transit line boardings for AM and PM time periods, including an entry for walk-all-way numbers")]
+public class CalcRMSEofBoardingsAMPMWAW : IEmmeTool
 {
-    [ModuleInformation(Description = "Calculates Root Mean Square Error (RMSE) of transit line boardings for AM and PM time periods, including an entry for walk-all-way numbers")]
-    public class CalcRMSEofBoardingsAMPMWAW : IEmmeTool
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    [RunParameter("AM Scenario", 0, "The number of the AM Emme scenario")]
+    public int AMScenarioNumber;
+
+    [RunParameter("PM Scenario", 0, "The number of the PM Emme scenario")]
+    public int PMScenarioNumber;
+
+    [Parameter("WaW Error Factor", 0.5f, "A factor applied to the error term of walk-all-way numbers (which are always compared against a truth value of 0). Therefore " +
+                "the error term (which gets included in the overall mean) for WAW is given by (ErrorFactor * ModelWalkAllWayTrips)^2. A weight of 0 will disable including " +
+                "walk-all-way numbers.")]
+    public float WawErrorFactor;
+
+    [Parameter("AM Error Factor", 1.0f, "A factor applied to the non-squared error of AM boardings.")]
+    public float AMErrorFactor;
+
+    [Parameter("PM Error Factor", 1.0f, "A factor applied to the non-squared error of PM boardings.")]
+    public float PMErrorFactor;
+
+    [SubModelInformation(Description = "AM Observed Boardings File", Required = true)]
+    public FileLocation ObservedBoardingsFileAM;
+
+    [SubModelInformation(Description = "PM Observed Boardings File", Required = true)]
+    public FileLocation ObservedBoardingsFilePM;
+
+    [SubModelInformation(Description = "Line Aggregation File", Required = true)]
+    public FileLocation LineAggregationFile;
+
+    [SubModelInformation(Required = false, Description = "Optionally where to save the aggregated boardings to file.")]
+    public FileLocation SaveAMBoardingsByAggregatedLine;
+
+    [SubModelInformation(Required = false, Description = "Optionally where to save the deltas of the aggregated boardings to file.")]
+    public FileLocation SaveAMBoardingDifferencesByAggregatedLine;
+
+    [SubModelInformation(Required = false, Description = "Optionally where to save the aggregated boardings to file.")]
+    public FileLocation SavePMBoardingsByAggregatedLine;
+
+    [SubModelInformation(Required = false, Description = "Optionally where to save the deltas of the aggregated boardings to file.")]
+    public FileLocation SavePMBoardingDifferencesByAggregatedLine;
+
+    private const string ToolName = "tmg.XTMF_internal.return_boardings_and_WAW";
+    private const string WawKey = "Walk-all-way";
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+    public bool Execute(Controller controller)
     {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
 
-        [RootModule]
-        public IEstimationClientModelSystem Root;
+        //Load the observed boardings
+        var observationsAM = LoadObservedBoardingsFile(ObservedBoardingsFileAM.GetFilePath());
+        var observationsPM = LoadObservedBoardingsFile(ObservedBoardingsFilePM.GetFilePath());
 
-        [RunParameter("AM Scenario", 0, "The number of the AM Emme scenario")]
-        public int AMScenarioNumber;
-
-        [RunParameter("PM Scenario", 0, "The number of the PM Emme scenario")]
-        public int PMScenarioNumber;
-
-        [Parameter("WaW Error Factor", 0.5f, "A factor applied to the error term of walk-all-way numbers (which are always compared against a truth value of 0). Therefore " +
-                    "the error term (which gets included in the overall mean) for WAW is given by (ErrorFactor * ModelWalkAllWayTrips)^2. A weight of 0 will disable including " +
-                    "walk-all-way numbers.")]
-        public float WawErrorFactor;
-
-        [Parameter("AM Error Factor", 1.0f, "A factor applied to the non-squared error of AM boardings.")]
-        public float AMErrorFactor;
-
-        [Parameter("PM Error Factor", 1.0f, "A factor applied to the non-squared error of PM boardings.")]
-        public float PMErrorFactor;
-
-        [SubModelInformation(Description = "AM Observed Boardings File", Required = true)]
-        public FileLocation ObservedBoardingsFileAM;
-
-        [SubModelInformation(Description = "PM Observed Boardings File", Required = true)]
-        public FileLocation ObservedBoardingsFilePM;
-
-        [SubModelInformation(Description = "Line Aggregation File", Required = true)]
-        public FileLocation LineAggregationFile;
-
-        [SubModelInformation(Required = false, Description = "Optionally where to save the aggregated boardings to file.")]
-        public FileLocation SaveAMBoardingsByAggregatedLine;
-
-        [SubModelInformation(Required = false, Description = "Optionally where to save the deltas of the aggregated boardings to file.")]
-        public FileLocation SaveAMBoardingDifferencesByAggregatedLine;
-
-        [SubModelInformation(Required = false, Description = "Optionally where to save the aggregated boardings to file.")]
-        public FileLocation SavePMBoardingsByAggregatedLine;
-
-        [SubModelInformation(Required = false, Description = "Optionally where to save the deltas of the aggregated boardings to file.")]
-        public FileLocation SavePMBoardingDifferencesByAggregatedLine;
-
-        private const string ToolName = "tmg.XTMF_internal.return_boardings_and_WAW";
-        private const string WawKey = "Walk-all-way";
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
-            }
-
-            //Load the observed boardings
-            var observationsAM = LoadObservedBoardingsFile(ObservedBoardingsFileAM.GetFilePath());
-            var observationsPM = LoadObservedBoardingsFile(ObservedBoardingsFilePM.GetFilePath());
-
-            //Load the AM Modelled Boardings
-            var args = string.Join(" ", AMScenarioNumber,
-                                        LineAggregationFile.GetFilePath(),
-                                        (WawErrorFactor != 0.0f));
-            string result = "";
-            mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-            var amModelResults = ParseResults(result);
-
-            //Load the PM Modelled Boardings
-            args = string.Join(" ", PMScenarioNumber,
+        //Load the AM Modelled Boardings
+        var args = string.Join(" ", AMScenarioNumber,
                                     LineAggregationFile.GetFilePath(),
                                     (WawErrorFactor != 0.0f));
-            result = "";
-            mc.Run(this, ToolName, args, ref result);
-            var pmModelResults = ParseResults(result);
+        string result = "";
+        mc.Run(this, ToolName, args, (p => Progress = p), ref result);
+        var amModelResults = ParseResults(result);
 
-            //Calculate the fitness
-            CalcFitness(observationsAM, observationsPM, amModelResults, pmModelResults);
+        //Load the PM Modelled Boardings
+        args = string.Join(" ", PMScenarioNumber,
+                                LineAggregationFile.GetFilePath(),
+                                (WawErrorFactor != 0.0f));
+        result = "";
+        mc.Run(this, ToolName, args, ref result);
+        var pmModelResults = ParseResults(result);
 
-            return true;
-        }
+        //Calculate the fitness
+        CalcFitness(observationsAM, observationsPM, amModelResults, pmModelResults);
 
-        private Dictionary<string, float> ParseResults(string pythonDictionary)
+        return true;
+    }
+
+    private Dictionary<string, float> ParseResults(string pythonDictionary)
+    {
+        var result = new Dictionary<string, float>();
+
+        var cleaned = pythonDictionary.Replace("{", "").Replace("}", "");
+        var cells = cleaned.Split(',');
+        int cellNumber = 0;
+        foreach (var cell in cells)
         {
-            var result = new Dictionary<string, float>();
-
-            var cleaned = pythonDictionary.Replace("{", "").Replace("}", "");
-            var cells = cleaned.Split(',');
-            int cellNumber = 0;
-            foreach (var cell in cells)
+            var pair = cell.Split(':');
+            if (pair.Length < 2)
             {
-                var pair = cell.Split(':');
-                if (pair.Length < 2)
-                {
-                    throw new XTMFRuntimeException(this, "In '" + Name + "' the results were not in the correct format in cell #" 
-                        + cellNumber + ".\r\nThe results were '" + pythonDictionary + "'.");
-                }
-                var lineId = pair[0].Replace("'", "").Trim();
-                float boardings = float.Parse(pair[1]);
+                throw new XTMFRuntimeException(this, "In '" + Name + "' the results were not in the correct format in cell #" 
+                    + cellNumber + ".\r\nThe results were '" + pythonDictionary + "'.");
+            }
+            var lineId = pair[0].Replace("'", "").Trim();
+            float boardings = float.Parse(pair[1]);
+            result[lineId] = boardings;
+            cellNumber++;
+        }
+        return result;
+    }
+
+    private Dictionary<string, float> LoadObservedBoardingsFile(string filepath)
+    {
+        var result = new Dictionary<string, float>();
+
+        using (CsvReader reader = new(filepath))
+        {
+            reader.LoadLine(); //Skip the first line                
+            while (reader.LoadLine(out int numCol))
+            {
+                reader.Get(out string lineId, 0);
+
+                if (string.IsNullOrWhiteSpace(lineId))
+                    continue; //Skip over blank lines
+
+                if (numCol < 2)
+                    throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
+
+                reader.Get(out float boardings, 1);
+
                 result[lineId] = boardings;
-                cellNumber++;
             }
-            return result;
         }
 
-        private Dictionary<string, float> LoadObservedBoardingsFile(string filepath)
+        return result;
+    }
+
+    private void CalcFitness(Dictionary<string, float> observedBoardingsAM, Dictionary<string, float> observedBoardingsPM, Dictionary<string, float> modelledBoardingsAm, Dictionary<string, float> modelledBoardingsPm)
+    {
+        double squaredErrorSum = 0.0;
+        int numberOfLines = 0;
+        if (SaveAMBoardingsByAggregatedLine != null)
         {
-            var result = new Dictionary<string, float>();
-
-            using (CsvReader reader = new CsvReader(filepath))
-            {
-                reader.LoadLine(); //Skip the first line                
-                while (reader.LoadLine(out int numCol))
-                {
-                    reader.Get(out string lineId, 0);
-
-                    if (string.IsNullOrWhiteSpace(lineId))
-                        continue; //Skip over blank lines
-
-                    if (numCol < 2)
-                        throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
-
-                    reader.Get(out float boardings, 1);
-
-                    result[lineId] = boardings;
-                }
-            }
-
-            return result;
+            SaveBoardings(SaveAMBoardingsByAggregatedLine, modelledBoardingsAm);
         }
-
-        private void CalcFitness(Dictionary<string, float> observedBoardingsAM, Dictionary<string, float> observedBoardingsPM, Dictionary<string, float> modelledBoardingsAm, Dictionary<string, float> modelledBoardingsPm)
+        if (SavePMBoardingsByAggregatedLine != null)
         {
-            double squaredErrorSum = 0.0;
-            int numberOfLines = 0;
-            if (SaveAMBoardingsByAggregatedLine != null)
-            {
-                SaveBoardings(SaveAMBoardingsByAggregatedLine, modelledBoardingsAm);
-            }
-            if (SavePMBoardingsByAggregatedLine != null)
-            {
-                SaveBoardings(SavePMBoardingsByAggregatedLine, modelledBoardingsPm);
-            }
-            //Calc error for AM boardings
-            foreach (var entry in observedBoardingsAM)
-            {
-                if (!modelledBoardingsAm.ContainsKey(entry.Key)) continue; //Skip over lines not in network
-                var modelledBoardings = modelledBoardingsAm[entry.Key];
-                squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * AMErrorFactor, 2);
-                numberOfLines++;
-            }
-
-            //Calc error for PM boardings
-            foreach (var entry in observedBoardingsAM)
-            {
-                if (!modelledBoardingsPm.ContainsKey(entry.Key)) continue; //Skip over lines not in network
-                var modelledBoardings = observedBoardingsPM[entry.Key];
-                squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * PMErrorFactor, 2);
-                numberOfLines++;
-            }
-
-            if (SaveAMBoardingDifferencesByAggregatedLine != null)
-            {
-                SaveBoardings(SaveAMBoardingDifferencesByAggregatedLine, ComputeDeltas(observedBoardingsAM, modelledBoardingsAm));
-            }
-
-            if (SavePMBoardingDifferencesByAggregatedLine != null)
-            {
-                SaveBoardings(SavePMBoardingDifferencesByAggregatedLine, ComputeDeltas(observedBoardingsPM, modelledBoardingsPm));
-            }
-
-            //Add in the values for walk-all-ways
-            if (WawErrorFactor != 0.0f)
-            {
-                squaredErrorSum += Math.Pow(modelledBoardingsAm[WawKey] * WawErrorFactor, 2) + Math.Pow(modelledBoardingsPm[WawKey] + WawErrorFactor, 2);
-                numberOfLines += 2;
-            }
-
-            Root.RetrieveValue = (() => (float)(Math.Sqrt(squaredErrorSum / numberOfLines)));
+            SaveBoardings(SavePMBoardingsByAggregatedLine, modelledBoardingsPm);
         }
-
-        private Dictionary<string, float> ComputeDeltas(Dictionary<string, float> observedBoardingsAM, Dictionary<string, float> modelledBoardingsAm)
+        //Calc error for AM boardings
+        foreach (var entry in observedBoardingsAM)
         {
-            return (from modelled in modelledBoardingsAm
-                    select new KeyValuePair<string, float>(modelled.Key, modelled.Value - observedBoardingsAM[modelled.Key])).ToDictionary(e => e.Key, e => e.Value);
+            if (!modelledBoardingsAm.ContainsKey(entry.Key)) continue; //Skip over lines not in network
+            var modelledBoardings = modelledBoardingsAm[entry.Key];
+            squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * AMErrorFactor, 2);
+            numberOfLines++;
         }
 
-        private void SaveBoardings(FileLocation location, Dictionary<string, float> periodData)
+        //Calc error for PM boardings
+        foreach (var entry in observedBoardingsAM)
         {
-            using (StreamWriter writer = new StreamWriter(location))
-            {
-                writer.WriteLine("Line,Boardings");
-                foreach (var set in periodData)
-                {
-                    writer.Write(set.Key);
-                    writer.Write(',');
-                    writer.WriteLine(set.Value);
-                }
-            }
+            if (!modelledBoardingsPm.ContainsKey(entry.Key)) continue; //Skip over lines not in network
+            var modelledBoardings = observedBoardingsPM[entry.Key];
+            squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * PMErrorFactor, 2);
+            numberOfLines++;
         }
 
-        public string Name
+        if (SaveAMBoardingDifferencesByAggregatedLine != null)
         {
-            get;
-            set;
+            SaveBoardings(SaveAMBoardingDifferencesByAggregatedLine, ComputeDeltas(observedBoardingsAM, modelledBoardingsAm));
         }
 
-        public float Progress
+        if (SavePMBoardingDifferencesByAggregatedLine != null)
         {
-            get;
-            set;
+            SaveBoardings(SavePMBoardingDifferencesByAggregatedLine, ComputeDeltas(observedBoardingsPM, modelledBoardingsPm));
         }
 
-        public Tuple<byte, byte, byte> ProgressColour
+        //Add in the values for walk-all-ways
+        if (WawErrorFactor != 0.0f)
         {
-            get { return _ProgressColour; }
+            squaredErrorSum += Math.Pow(modelledBoardingsAm[WawKey] * WawErrorFactor, 2) + Math.Pow(modelledBoardingsPm[WawKey] + WawErrorFactor, 2);
+            numberOfLines += 2;
         }
 
-        public bool RuntimeValidation(ref string error)
+        Root.RetrieveValue = (() => (float)(Math.Sqrt(squaredErrorSum / numberOfLines)));
+    }
+
+    private Dictionary<string, float> ComputeDeltas(Dictionary<string, float> observedBoardingsAM, Dictionary<string, float> modelledBoardingsAm)
+    {
+        return (from modelled in modelledBoardingsAm
+                select new KeyValuePair<string, float>(modelled.Key, modelled.Value - observedBoardingsAM[modelled.Key])).ToDictionary(e => e.Key, e => e.Value);
+    }
+
+    private void SaveBoardings(FileLocation location, Dictionary<string, float> periodData)
+    {
+        using StreamWriter writer = new(location);
+        writer.WriteLine("Line,Boardings");
+        foreach (var set in periodData)
         {
-            return true;
+            writer.Write(set.Key);
+            writer.Write(',');
+            writer.WriteLine(set.Value);
         }
+    }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

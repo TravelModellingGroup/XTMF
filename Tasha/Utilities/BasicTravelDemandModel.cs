@@ -22,90 +22,82 @@ using XTMF;
 using TMG;
 using System.Threading.Tasks;
 // ReSharper disable AccessToModifiedClosure
-namespace Tasha.Utilities
+namespace Tasha.Utilities;
+
+
+public class BasicTravelDemandModel : ITravelDemandModel, IResourceSource
 {
+    [RunParameter("Input Base Directory", "../../Input", "The directory to use for getting input.")]
+    public string InputBaseDirectory { get; set; }
 
-    public class BasicTravelDemandModel : ITravelDemandModel, IResourceSource
+    public string Name { get; set; }
+
+    public IList<INetworkData> NetworkData { get; set; }
+
+    public string OutputBaseDirectory { get; set; }
+
+    private Func<float> _Progress;
+    public float Progress { get { return _Progress == null ? 0.0f : _Progress(); } }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public IZoneSystem ZoneSystem { get; set; }
+
+    [SubModelInformation(Required = false, Description = "Shared Resources")]
+    public List<IResource> Resources { get; set; }      
+
+    [SubModelInformation(Required = false, Description = "Children to execute")]
+    public ISelfContainedModule[] ToExecute;
+
+    public bool ExitRequest()
     {
-        [RunParameter("Input Base Directory", "../../Input", "The directory to use for getting input.")]
-        public string InputBaseDirectory { get; set; }
-
-        public string Name { get; set; }
-
-        public IList<INetworkData> NetworkData { get; set; }
-
-        public string OutputBaseDirectory { get; set; }
-
-        private Func<float> _Progress;
-        public float Progress { get { return _Progress == null ? 0.0f : _Progress(); } }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public IZoneSystem ZoneSystem { get; set; }
-
-        [SubModelInformation(Required = false, Description = "Shared Resources")]
-        public List<IResource> Resources { get; set; }      
-
-        [SubModelInformation(Required = false, Description = "Children to execute")]
-        public ISelfContainedModule[] ToExecute;
-
-        public bool ExitRequest()
-        {
-            return false;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        private Func<string> _Status;
-
-        public void Start()
-        {
-            if (ZoneSystem != null)
-            {
-                ZoneSystem.LoadData();
-            }
-            int i = 0;
-            _Progress = () =>
-            {
-                if (i < ToExecute.Length)
-                {
-                    return ((float)i / ToExecute.Length) + (1.0f / ToExecute.Length) * ToExecute[i].Progress;
-                }
-                return 1.0f;
-            };
-            _Status = () =>
-            {
-                return ToExecute[i].ToString();
-            };
-            Parallel.For(0, NetworkData.Count, (int n) =>
-            {
-                NetworkData[n].LoadData();
-            });
-            for (; i < ToExecute.Length; i++)
-            {
-                ToExecute[i].Start();
-            }
-            Parallel.For(0, NetworkData.Count, (int n) =>
-            {
-                NetworkData[n].UnloadData();
-            });
-            if (ZoneSystem != null)
-            {
-                ZoneSystem.UnloadData();
-            }
-        }
-
-        public override string ToString()
-        {
-            if(_Status == null)
-            {
-                return "Initializing";
-            }
-            return _Status();
-        }
+        return false;
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    private Func<string> _Status;
+
+    public void Start()
+    {
+        ZoneSystem?.LoadData();
+        int i = 0;
+        _Progress = () =>
+        {
+            if (i < ToExecute.Length)
+            {
+                return ((float)i / ToExecute.Length) + (1.0f / ToExecute.Length) * ToExecute[i].Progress;
+            }
+            return 1.0f;
+        };
+        _Status = () =>
+        {
+            return ToExecute[i].ToString();
+        };
+        Parallel.For(0, NetworkData.Count, (int n) =>
+        {
+            NetworkData[n].LoadData();
+        });
+        for (; i < ToExecute.Length; i++)
+        {
+            ToExecute[i].Start();
+        }
+        Parallel.For(0, NetworkData.Count, (int n) =>
+        {
+            NetworkData[n].UnloadData();
+        });
+        ZoneSystem?.UnloadData();
+    }
+
+    public override string ToString()
+    {
+        if(_Status == null)
+        {
+            return "Initializing";
+        }
+        return _Status();
+    }
 }

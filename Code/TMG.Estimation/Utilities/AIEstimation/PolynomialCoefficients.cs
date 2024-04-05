@@ -18,41 +18,40 @@
 */
 
 using XTMF;
-namespace TMG.Estimation.Utilities.AIEstimation
+namespace TMG.Estimation.Utilities.AIEstimation;
+
+public class PolynomialCoefficients : TestEquation
 {
-    public class PolynomialCoefficients : TestEquation
+    [RunParameter("True A", 1.2f, "The true value for A.")]
+    public float TrueA;
+    [RunParameter("True B", -2.0f, "The true value for B.")]
+    public float TrueB;
+    [RunParameter("True C", -1.0f, "The true value for C.")]
+    public float TrueC;
+
+    [RunParameter("A", 0.0f, "The guessed value of A.")]
+    public float A;
+    [RunParameter("B", 0.0f, "The guessed value of B.")]
+    public float B;
+    [RunParameter("C", 0.0f, "The guessed value of C.")]
+    public float C;
+
+    public override float Evaluate()
     {
-        [RunParameter("True A", 1.2f, "The true value for A.")]
-        public float TrueA;
-        [RunParameter("True B", -2.0f, "The true value for B.")]
-        public float TrueB;
-        [RunParameter("True C", -1.0f, "The true value for C.")]
-        public float TrueC;
-
-        [RunParameter("A", 0.0f, "The guessed value of A.")]
-        public float A;
-        [RunParameter("B", 0.0f, "The guessed value of B.")]
-        public float B;
-        [RunParameter("C", 0.0f, "The guessed value of C.")]
-        public float C;
-
-        public override float Evaluate()
+        float error = 0.0f;
+        for(int i = 0; i < 100; i++)
         {
-            float error = 0.0f;
-            for(int i = 0; i < 100; i++)
-            {
-                var e = ErrorAtPoint(i - 50.0f);
-                error += e * e;
-            }
-            return error;
+            var e = ErrorAtPoint(i - 50.0f);
+            error += e * e;
         }
+        return error;
+    }
 
-        private float ErrorAtPoint(float x)
-        {
-            var x2 = x * x;
-            var guess = A * x2 + B * x + C;
-            var truth = TrueA * x2 + TrueB * x + TrueC;
-            return guess - truth;
-        }
+    private float ErrorAtPoint(float x)
+    {
+        var x2 = x * x;
+        var guess = A * x2 + B * x + C;
+        var truth = TrueA * x2 + TrueB * x + TrueC;
+        return guess - truth;
     }
 }

@@ -20,84 +20,83 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Processing.AST
+namespace TMG.Frameworks.Data.Processing.AST;
+
+public abstract class AstNode
 {
-    public abstract class AstNode
+    /// <summary>
+    /// The starting point of the node
+    /// </summary>
+    internal readonly int Start;
+
+    protected AstNode(int start)
     {
-        /// <summary>
-        /// The starting point of the node
-        /// </summary>
-        internal readonly int Start;
-
-        protected AstNode(int start)
-        {
-            Start = start;
-        }
-
-        public abstract ComputationResult Evaluate(IDataSource[] dataSources);
-
-        internal abstract bool OptimizeAst(ref Expression ex, ref string error);
+        Start = start;
     }
 
-    public class ComputationResult
+    public abstract ComputationResult Evaluate(IDataSource[] dataSources);
+
+    internal abstract bool OptimizeAst(ref Expression ex, ref string error);
+}
+
+public class ComputationResult
+{
+    public bool IsOdResult => OdData != null;
+
+    public bool IsVectorResult => VectorData != null;
+
+    public bool Error => ErrorMessage != null;
+
+    public string ErrorMessage { get; private set; }
+
+    public bool Accumulator { get; private set; }
+
+    public enum VectorDirection
     {
-        public bool IsOdResult => OdData != null;
+        Unassigned,
+        Horizontal,
+        Vertical
+    }
 
-        public bool IsVectorResult => VectorData != null;
+    public VectorDirection Direction { get; private set; }
 
-        public bool Error => ErrorMessage != null;
+    public SparseTwinIndex<float> OdData { get; }
+    
 
-        public string ErrorMessage { get; private set; }
+    public SparseArray<float> VectorData { get; }
 
-        public bool Accumulator { get; private set; }
+    public float LiteralValue { get; }
+    
+    public bool IsValue => !IsOdResult && !IsVectorResult && !Error;
 
-        public enum VectorDirection
-        {
-            Unassigned,
-            Horizontal,
-            Vertical
-        }
+    public ComputationResult(float value)
+    {
+        LiteralValue = value;
+    }
 
-        public VectorDirection Direction { get; private set; }
+    public ComputationResult(SparseTwinIndex<float> data, bool accumulator)
+    {
+        OdData = data;
+        Accumulator = accumulator;
+    }
 
-        public SparseTwinIndex<float> OdData { get; }
-        
+    public ComputationResult(SparseArray<float> data, bool accumulator, VectorDirection direction = VectorDirection.Unassigned)
+    {
+        VectorData = data;
+        Accumulator = accumulator;
+        Direction = direction;
+    }
 
-        public SparseArray<float> VectorData { get; }
+    public ComputationResult(ComputationResult res, VectorDirection direction)
+    {
+        OdData = res.OdData;
+        LiteralValue = res.LiteralValue;
+        VectorData = res.VectorData;
+        Direction = direction;
+    }
 
-        public float LiteralValue { get; }
-        
-        public bool IsValue => !IsOdResult && !IsVectorResult && !Error;
-
-        public ComputationResult(float value)
-        {
-            LiteralValue = value;
-        }
-
-        public ComputationResult(SparseTwinIndex<float> data, bool accumulator)
-        {
-            OdData = data;
-            Accumulator = accumulator;
-        }
-
-        public ComputationResult(SparseArray<float> data, bool accumulator, VectorDirection direction = VectorDirection.Unassigned)
-        {
-            VectorData = data;
-            Accumulator = accumulator;
-            Direction = direction;
-        }
-
-        public ComputationResult(ComputationResult res, VectorDirection direction)
-        {
-            OdData = res.OdData;
-            LiteralValue = res.LiteralValue;
-            VectorData = res.VectorData;
-            Direction = direction;
-        }
-
-        public ComputationResult(string errorMessage)
-        {
-            ErrorMessage = errorMessage;
-        }
+    public ComputationResult(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
     }
 }

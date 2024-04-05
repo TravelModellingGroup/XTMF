@@ -16,30 +16,29 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Describes how an IProject will execute.
+/// </summary>
+/// <remarks>Use this to create a system like Tasha or GTAModel</remarks>
+public interface IModelSystemTemplate : ISelfContainedModule
 {
     /// <summary>
-    /// Describes how an IProject will execute.
+    /// The base directory for input
+    /// (Should be a relative path so that XMTF can put it inside of the project)
     /// </summary>
-    /// <remarks>Use this to create a system like Tasha or GTAModel</remarks>
-    public interface IModelSystemTemplate : ISelfContainedModule
-    {
-        /// <summary>
-        /// The base directory for input
-        /// (Should be a relative path so that XMTF can put it inside of the project)
-        /// </summary>
-        string InputBaseDirectory { get; set; }
+    string InputBaseDirectory { get; set; }
 
-        /// <summary>
-        /// The base directory for output
-        /// (Should be a relative path so that XMTF can put it inside of the project)
-        /// </summary>
-        string OutputBaseDirectory { get; set; }
+    /// <summary>
+    /// The base directory for output
+    /// (Should be a relative path so that XMTF can put it inside of the project)
+    /// </summary>
+    string OutputBaseDirectory { get; set; }
 
-        /// <summary>
-        /// Setting this flag will request that the model system template will exit prematurely
-        /// </summary>
-        /// <returns>True if this model system template supports exiting (and will exit), false otherwise.</returns>
-        bool ExitRequest();
-    }
+    /// <summary>
+    /// Setting this flag will request that the model system template will exit prematurely
+    /// </summary>
+    /// <returns>True if this model system template supports exiting (and will exit), false otherwise.</returns>
+    bool ExitRequest();
 }

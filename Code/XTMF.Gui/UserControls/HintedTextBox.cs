@@ -24,109 +24,108 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+public class HintedTextBox : TextBox
 {
-    public class HintedTextBox : TextBox
+    private string _hintText;
+
+    private FormattedText HintTextImage;
+
+    private static ContextMenu _LocalContextMenu;
+
+    static HintedTextBox()
     {
-        private string _hintText;
-
-        private FormattedText HintTextImage;
-
-        private static ContextMenu _LocalContextMenu;
-
-        static HintedTextBox()
+        var contextMenu = new ContextMenu();
+        // copy
+        contextMenu.Items.Add(new MenuItem
         {
-            var contextMenu = new ContextMenu();
-            // copy
-            contextMenu.Items.Add(new MenuItem
-            {
-                Header = "Copy",
-                Command = ApplicationCommands.Copy,
-            });
-            // cut
-            contextMenu.Items.Add(new MenuItem
-            {
-                Header = "Cut",
-                Command = ApplicationCommands.Cut,
-            });
-            // paste
-            contextMenu.Items.Add(new MenuItem
-            {
-                Header = "Paste",
-                Command = ApplicationCommands.Paste,
-                
-            });
-            _LocalContextMenu = contextMenu;
-        }
-
-        public HintedTextBox()
+            Header = "Copy",
+            Command = ApplicationCommands.Copy,
+        });
+        // cut
+        contextMenu.Items.Add(new MenuItem
         {
-            ClipToBounds = true;
-            ContextMenu = _LocalContextMenu;
-            Padding = new Thickness(5, 5, 5, 5);
-        }
-
-        public string HintText
+            Header = "Cut",
+            Command = ApplicationCommands.Cut,
+        });
+        // paste
+        contextMenu.Items.Add(new MenuItem
         {
-            get => _hintText;
-            set
+            Header = "Paste",
+            Command = ApplicationCommands.Paste,
+            
+        });
+        _LocalContextMenu = contextMenu;
+    }
+
+    public HintedTextBox()
+    {
+        ClipToBounds = true;
+        ContextMenu = _LocalContextMenu;
+        Padding = new Thickness(5, 5, 5, 5);
+    }
+
+    public string HintText
+    {
+        get => _hintText;
+        set
+        {
+            _hintText = value;
+            if (!String.IsNullOrEmpty(_hintText))
             {
-                _hintText = value;
-                if (!String.IsNullOrEmpty(_hintText))
-                {
-                    Background = Brushes.Transparent;
-                }
-                RebuildFont();
+                Background = Brushes.Transparent;
             }
+            RebuildFont();
         }
+    }
 
-        protected override void OnRender(DrawingContext dc)
+    protected override void OnRender(DrawingContext dc)
+    {
+        if (ClipToBounds)
         {
-            if (ClipToBounds)
-            {
-                dc.PushClip(new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight)));
-            }
-            dc.DrawRectangle(Brushes.White, new Pen(), new Rect(0, 0, ActualWidth, ActualHeight));
-            base.OnRender(dc);
-            if (Text == String.Empty && HintTextImage != null)
-            {
-                dc.DrawText(HintTextImage, new Point(4, (ActualHeight - HintTextImage.Height) / 2));
-            }
-            if (ClipToBounds)
-            {
-                // pop the clip that we added
-                dc.Pop();
-            }
+            dc.PushClip(new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight)));
         }
-
-        protected override void OnTextChanged(TextChangedEventArgs e)
+        dc.DrawRectangle(Brushes.White, new Pen(), new Rect(0, 0, ActualWidth, ActualHeight));
+        base.OnRender(dc);
+        if (Text == String.Empty && HintTextImage != null)
         {
-            base.OnTextChanged(e);
-            InvalidateVisual();
+            dc.DrawText(HintTextImage, new Point(4, (ActualHeight - HintTextImage.Height) / 2));
         }
-
-        private void RebuildFont()
+        if (ClipToBounds)
         {
-            if (_hintText == null)
-            {
-                HintTextImage = null;
-            }
-            else
-            {
+            // pop the clip that we added
+            dc.Pop();
+        }
+    }
+
+    protected override void OnTextChanged(TextChangedEventArgs e)
+    {
+        base.OnTextChanged(e);
+        InvalidateVisual();
+    }
+
+    private void RebuildFont()
+    {
+        if (_hintText == null)
+        {
+            HintTextImage = null;
+        }
+        else
+        {
 #pragma warning disable CS0618 // Type or member is obsolete
-                HintTextImage = new FormattedText(_hintText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                    new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), FontSize, Brushes.Gray);
+            HintTextImage = new FormattedText(_hintText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), FontSize, Brushes.Gray);
 #pragma warning restore CS0618 // Type or member is obsolete
-                int constantBorder = 8;
-                if (ActualWidth > 0)
+            int constantBorder = 8;
+            if (ActualWidth > 0)
+            {
+                if (HintTextImage.Width + constantBorder > ActualWidth)
                 {
-                    if (HintTextImage.Width + constantBorder > ActualWidth)
-                    {
-                        Width = HintTextImage.Width + constantBorder;
-                    }
+                    Width = HintTextImage.Width + constantBorder;
                 }
             }
-            InvalidateVisual();
         }
+        InvalidateVisual();
     }
 }

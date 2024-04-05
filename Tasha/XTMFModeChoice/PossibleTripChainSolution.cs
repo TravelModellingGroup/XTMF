@@ -19,55 +19,54 @@
 using System;
 using Tasha.Common;
 
-namespace Tasha.XTMFModeChoice
+namespace Tasha.XTMFModeChoice;
+
+public sealed class PossibleTripChainSolution
 {
-    public sealed class PossibleTripChainSolution
+    public float U;
+
+    private float TourDependentUtility;
+
+    private ModeChoiceTripData[] BaseData;
+
+    private TourData TourData;
+
+    internal PossibleTripChainSolution(ModeChoiceTripData[] baseTripData, byte[] solution, TourData tourData)
     {
-        public float U;
-
-        private float TourDependentUtility;
-
-        private ModeChoiceTripData[] BaseData;
-
-        private TourData TourData;
-
-        internal PossibleTripChainSolution(ModeChoiceTripData[] baseTripData, byte[] solution, TourData tourData)
+        BaseData = baseTripData;
+        var modes = new byte[solution.Length];
+        for (int i = 0; i < modes.Length; i++)
         {
-            BaseData = baseTripData;
-            var modes = new byte[solution.Length];
-            for (int i = 0; i < modes.Length; i++)
-            {
-                modes[i] = solution[i];
-            }
-            if ( tourData != null )
-            {
-                TourData = tourData;
-                TourDependentUtility = TourData.TourUtilityModifiers;
-            }
-            PickedModes = modes;
-            RegenerateU();
+            modes[i] = solution[i];
         }
-
-        internal void PickSolution(Random random, ITripChain chain)
+        if ( tourData != null )
         {
-            if ( TourData == null ) return;
-            var onSolution = TourData.OnSolution;
-            for ( int i = 0; i < onSolution.Length; i++ )
-            {
-                onSolution[i]?.Invoke(random, chain);
-            }
+            TourData = tourData;
+            TourDependentUtility = TourData.TourUtilityModifiers;
         }
+        PickedModes = modes;
+        RegenerateU();
+    }
 
-        public byte[] PickedModes;
-
-        public void RegenerateU()
+    internal void PickSolution(Random random, ITripChain chain)
+    {
+        if ( TourData == null ) return;
+        var onSolution = TourData.OnSolution;
+        for ( int i = 0; i < onSolution.Length; i++ )
         {
-            float total = 0;
-            for ( int i = 0; i < BaseData.Length; i++ )
-            {
-                total += BaseData[i].V[PickedModes[i]] + BaseData[i].Error[PickedModes[i]];
-            }
-            U = total + TourDependentUtility;
+            onSolution[i]?.Invoke(random, chain);
         }
+    }
+
+    public byte[] PickedModes;
+
+    public void RegenerateU()
+    {
+        float total = 0;
+        for ( int i = 0; i < BaseData.Length; i++ )
+        {
+            total += BaseData[i].V[PickedModes[i]] + BaseData[i].Error[PickedModes[i]];
+        }
+        U = total + TourDependentUtility;
     }
 }

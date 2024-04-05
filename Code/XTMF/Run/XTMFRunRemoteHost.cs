@@ -29,452 +29,442 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace XTMF.Run
+namespace XTMF.Run;
+
+sealed class XTMFRunRemoteHost : XTMFRun
 {
-    sealed class XTMFRunRemoteHost : XTMFRun
+    private float _RemoteProgress = 0.0f;
+
+    private string _RemoteStatus = String.Empty;
+
+    private NamedPipeServerStream _Pipe;
+    /// <summary>
+    /// Bound to in order to do a wait.
+    /// This is triggered when the client has exited.
+    /// </summary>
+    private SemaphoreSlim ClientExiting = new(0);
+
+    public override bool RunsRemotely => true;
+
+    private List<ILinkedParameter> _LinkedParameters;
+    private readonly string _modelSystemAsString;
+    private bool _deleteDirectory;
+
+    public XTMFRunRemoteHost(IConfiguration configuration, ModelSystemStructureModel root, List<ILinkedParameter> linkedParameters, string runName,
+        string runDirectory, bool deleteDirectory)
+        : base(runName, runDirectory, configuration)
     {
-        private float _RemoteProgress = 0.0f;
+        ModelSystemStructureModelRoot = root;
+        _deleteDirectory = deleteDirectory;
+        _LinkedParameters = linkedParameters;
+        using MemoryStream memStream = new();
+        WriteModelSystemToStream(memStream);
+        _modelSystemAsString = Encoding.Unicode.GetString(memStream.ToArray());
+    }
 
-        private string _RemoteStatus = String.Empty;
+    private string GetXTMFRunFileName() => Path.Combine(Path.GetDirectoryName(
+            Assembly.GetEntryAssembly().Location), "XTMF.Run.exe");
 
-        private NamedPipeServerStream _Pipe;
-        /// <summary>
-        /// Bound to in order to do a wait.
-        /// This is triggered when the client has exited.
-        /// </summary>
-        private SemaphoreSlim ClientExiting = new SemaphoreSlim(0);
-
-        public override bool RunsRemotely => true;
-
-        private List<ILinkedParameter> _LinkedParameters;
-        private readonly string _modelSystemAsString;
-        private bool _deleteDirectory;
-
-        public XTMFRunRemoteHost(IConfiguration configuration, ModelSystemStructureModel root, List<ILinkedParameter> linkedParameters, string runName,
-            string runDirectory, bool deleteDirectory)
-            : base(runName, runDirectory, configuration)
+    private void StartupHost()
+    {
+        var debugMode = !((Configuration)Configuration).RunInSeperateProcess; // || Debugger.IsAttached;
+        var pipeName = debugMode ? "DEBUG_MODEL_SYSTEM" : Guid.NewGuid().ToString();
+        _Pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+        if (!debugMode)
         {
-            ModelSystemStructureModelRoot = root;
-            _deleteDirectory = deleteDirectory;
-            _LinkedParameters = linkedParameters;
-            using (MemoryStream memStream = new MemoryStream())
+            var info = new ProcessStartInfo(GetXTMFRunFileName(), "-pipe " + pipeName)
             {
-                WriteModelSystemToStream(memStream);
-                _modelSystemAsString = Encoding.Unicode.GetString(memStream.ToArray());
-            }
-        }
-
-        private string GetXTMFRunFileName() => Path.Combine(Path.GetDirectoryName(
-                Assembly.GetEntryAssembly().Location), "XTMF.Run.exe");
-
-        private void StartupHost()
-        {
-            var debugMode = !((Configuration)Configuration).RunInSeperateProcess; // || Debugger.IsAttached;
-            var pipeName = debugMode ? "DEBUG_MODEL_SYSTEM" : Guid.NewGuid().ToString();
-            _Pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-            if (!debugMode)
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            void messageHandler(object sender, DataReceivedEventArgs args)
             {
-                var info = new ProcessStartInfo(GetXTMFRunFileName(), "-pipe " + pipeName)
+                if (args.Data != null)
                 {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-                void messageHandler(object sender, DataReceivedEventArgs args)
-                {
-                    if (args.Data != null)
-                    {
-                        SendRunMessage(args.Data);
-                    }
-                }
-                var runProcess = new Process
-                {
-                    StartInfo = info,
-                    EnableRaisingEvents = true
-                };
-                runProcess.OutputDataReceived += messageHandler;
-                runProcess.ErrorDataReceived += messageHandler;
-                runProcess.Exited += RunProcess_Exited;
-                runProcess.Start();
-                runProcess.BeginOutputReadLine();
-                runProcess.BeginErrorReadLine();
-            }
-            _Pipe.WaitForConnection();
-        }
-
-        private void RunProcess_Exited(object sender, EventArgs e)
-        {
-            // make sure the pipe is destroyed if the other process has
-            // terminated
-            _Pipe?.Dispose();
-            ClientExiting.Release();
-        }
-
-        private void RequestSignal(ToClient signal)
-        {
-            lock (this)
-            {
-                BinaryWriter writer = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
-                try
-                {
-                    writer.Write((Int32)signal);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    return;
-                }
-
-            }
-        }
-
-        private void InitializeClientAndSendModelSystem()
-        {
-            lock (this)
-            {
-                BinaryWriter writer = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
-                writer.Write((Configuration as Configuration)?.ConfigurationFileName ?? "");
-            }
-            WriteModelSystemStringToPipe();
-        }
-
-        private void StartClientListener()
-        {
-            Task.Factory.StartNew(() =>
-            {
-                try
-                {
-                    BinaryReader reader = new BinaryReader(_Pipe, System.Text.Encoding.Unicode, true);
-                    while (_Pipe?.IsConnected == true)
-                    {
-                        try
-                        {
-                            switch ((ToHost)reader.ReadInt32())
-                            {
-                                case ToHost.Heartbeat:
-                                    break;
-                                case ToHost.ClientReportedProgress:
-                                    ReadProgress(reader);
-                                    break;
-                                case ToHost.ClientReportedStatus:
-                                    _RemoteStatus = reader.ReadString();
-                                    break;
-                                case ToHost.ClientErrorValidatingModelSystem:
-                                    InvokeValidationError(ReadErrors(reader));
-                                    return;
-                                case ToHost.ClientErrorWhenRunningModelSystem:
-                                    InvokeRuntimeError(ReadError(reader));
-                                    return;
-                                case ToHost.ClientCreatedProgressReport:
-                                    AddProgressReport(reader);
-                                    break;
-                                case ToHost.ClientRemovedProgressReport:
-                                    RemoveProgressReport(reader);
-                                    break;
-                                case ToHost.ClientClearedProgressReports:
-                                    ClearProgressReports();
-                                    break;
-                                case ToHost.ClientFinishedModelSystem:
-                                case ToHost.ClientExiting:
-                                    InvokeRunCompleted();
-                                    return;
-                                case ToHost.ProjectSaved:
-                                    LoadAndSignalModelSystem(reader);
-                                    break;
-                                case ToHost.ClientErrorRuntimeValidation:
-                                    InvokeRuntimeValidationError(ReadErrors(reader));
-                                    return;
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-                    }
-                    // If we get here then the client has disconnected
-                    InvokeRuntimeError(new ErrorWithPath(null, "Run process was terminated!"));
-                }
-                finally
-                {
-                    ClientExiting.Release();
-                }
-            }, TaskCreationOptions.LongRunning);
-        }
-
-        private class ProgressReport : IProgressReport
-        {
-            public Tuple<byte, byte, byte> Colour { get; set; }
-
-            public Func<float> GetProgress { get; }
-
-            internal float Progress;
-
-            public string Name { get; }
-
-            public ProgressReport(string name, byte r, byte g, byte b)
-            {
-                Name = name;
-                GetProgress = () => Progress;
-                Colour = new Tuple<byte, byte, byte>(r, g, b);
-            }
-        }
-
-        private void ClearProgressReports()
-        {
-            Configuration.DeleteAllProgressReport();
-        }
-
-        private void AddProgressReport(BinaryReader reader)
-        {
-            Configuration.ProgressReports.Add(new ProgressReport(reader.ReadString(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
-        }
-
-        private void RemoveProgressReport(BinaryReader reader)
-        {
-            var name = reader.ReadString();
-            var toRemove = Configuration.ProgressReports.FirstOrDefault(rep => rep.Name == name);
-            if (toRemove != null)
-            {
-                Configuration.ProgressReports.Remove(toRemove);
-            }
-        }
-
-        private void ReadProgress(BinaryReader reader)
-        {
-            _RemoteProgress = reader.ReadSingle();
-            var length = reader.ReadInt32();
-            if (length > 0)
-            {
-                var reports = Configuration.ProgressReports;
-                lock (((ICollection)reports).SyncRoot)
-                {
-                    var givenReports = new List<(string name, float progress, byte r, byte g, byte b)>(length);
-                    for (int i = 0; i < length; i++)
-                    {
-                        givenReports.Add((reader.ReadString(), reader.ReadSingle(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
-                    }
-                    foreach (var (name, progress, r, g, b) in givenReports)
-                    {
-                        foreach (var holdRep in reports)
-                        {
-                            if (name == holdRep.Name)
-                            {
-                                if (holdRep is ProgressReport remoteProgress)
-                                {
-                                    remoteProgress.Progress = progress;
-                                }
-                                break;
-                            }
-                        }
-                    }
+                    SendRunMessage(args.Data);
                 }
             }
+            var runProcess = new Process
+            {
+                StartInfo = info,
+                EnableRaisingEvents = true
+            };
+            runProcess.OutputDataReceived += messageHandler;
+            runProcess.ErrorDataReceived += messageHandler;
+            runProcess.Exited += RunProcess_Exited;
+            runProcess.Start();
+            runProcess.BeginOutputReadLine();
+            runProcess.BeginErrorReadLine();
         }
+        _Pipe.WaitForConnection();
+    }
 
-        private void LoadAndSignalModelSystem(BinaryReader reader)
+    private void RunProcess_Exited(object sender, EventArgs e)
+    {
+        // make sure the pipe is destroyed if the other process has
+        // terminated
+        _Pipe?.Dispose();
+        ClientExiting.Release();
+    }
+
+    private void RequestSignal(ToClient signal)
+    {
+        lock (this)
         {
+            BinaryWriter writer = new(_Pipe, System.Text.Encoding.Unicode, true);
             try
             {
-                var length = (int)reader.ReadInt64();
-                byte[] msText = new byte[length];
-                var soFar = 0;
-                while (soFar < length)
-                {
-                    soFar += reader.Read(msText, soFar, length - soFar);
-                }
-                using (var stream = new MemoryStream(msText))
-                {
-                    var mss = ModelSystemStructure.Load(stream, Configuration);
-                    SendProjectSaved(mss as ModelSystemStructure);
-                }
+                writer.Write((Int32)signal);
             }
             catch (Exception e)
             {
-                SendRunMessage(e.Message + "\r\n" + e.StackTrace);
+                Console.WriteLine(e);
+                return;
             }
-        }
 
-        private static List<ErrorWithPath> ReadErrors(BinaryReader reader)
-        {
-            int numberOfErrors = reader.ReadInt32();
-            List<ErrorWithPath> errors = new List<ErrorWithPath>(numberOfErrors);
-            for (int i = 0; i < numberOfErrors; i++)
-            {
-                errors.Add(ReadError(reader));
-            }
-            return errors;
         }
+    }
 
-        private static ErrorWithPath ReadError(BinaryReader reader)
+    private void InitializeClientAndSendModelSystem()
+    {
+        lock (this)
         {
-            int pathSize = reader.ReadInt32();
-            List<int> path = null;
-            if (pathSize > 0)
-            {
-                path = new List<int>(pathSize);
-                for (int j = 0; j < pathSize; j++)
-                {
-                    path.Add(reader.ReadInt32());
-                }
-            }
-            var message = reader.ReadString();
-            var stackTrace = reader.ReadString();
-            var moduleName = reader.ReadString();
-            if (String.IsNullOrWhiteSpace(stackTrace))
-            {
-                stackTrace = null;
-            }
-            return new ErrorWithPath(path, message, stackTrace, moduleName);
+            BinaryWriter writer = new(_Pipe, System.Text.Encoding.Unicode, true);
+            writer.Write((Configuration as Configuration)?.ConfigurationFileName ?? "");
         }
+        WriteModelSystemStringToPipe();
+    }
 
-        private static string LookupName(IModuleParameter reference, IModelSystemStructure current)
+    private void StartClientListener()
+    {
+        Task.Factory.StartNew(() =>
         {
-            var param = current.Parameters;
-            if (param != null)
+            try
             {
-                int index = param.Parameters.IndexOf(reference);
-                if (index >= 0)
+                BinaryReader reader = new(_Pipe, System.Text.Encoding.Unicode, true);
+                while (_Pipe?.IsConnected == true)
                 {
-                    return current.Parameters.Parameters[index].Name;
-                }
-            }
-            var childrenList = current.Children;
-            if (childrenList != null)
-            {
-                for (int i = 0; i < childrenList.Count; i++)
-                {
-                    var res = LookupName(reference, childrenList[i]);
-                    if (res != null)
+                    try
                     {
-                        // make sure to use an escape character before the . to avoid making the mistake of reading it as another index
-                        return string.Concat(current.IsCollection ? i.ToString()
-                            : childrenList[i].ParentFieldName.Replace(".", "\\."), '.', res);
+                        switch ((ToHost)reader.ReadInt32())
+                        {
+                            case ToHost.Heartbeat:
+                                break;
+                            case ToHost.ClientReportedProgress:
+                                ReadProgress(reader);
+                                break;
+                            case ToHost.ClientReportedStatus:
+                                _RemoteStatus = reader.ReadString();
+                                break;
+                            case ToHost.ClientErrorValidatingModelSystem:
+                                InvokeValidationError(ReadErrors(reader));
+                                return;
+                            case ToHost.ClientErrorWhenRunningModelSystem:
+                                InvokeRuntimeError(ReadError(reader));
+                                return;
+                            case ToHost.ClientCreatedProgressReport:
+                                AddProgressReport(reader);
+                                break;
+                            case ToHost.ClientRemovedProgressReport:
+                                RemoveProgressReport(reader);
+                                break;
+                            case ToHost.ClientClearedProgressReports:
+                                ClearProgressReports();
+                                break;
+                            case ToHost.ClientFinishedModelSystem:
+                            case ToHost.ClientExiting:
+                                InvokeRunCompleted();
+                                return;
+                            case ToHost.ProjectSaved:
+                                LoadAndSignalModelSystem(reader);
+                                break;
+                            case ToHost.ClientErrorRuntimeValidation:
+                                InvokeRuntimeValidationError(ReadErrors(reader));
+                                return;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
                     }
                 }
+                // If we get here then the client has disconnected
+                InvokeRuntimeError(new ErrorWithPath(null, "Run process was terminated!"));
             }
-            return null;
-        }
-
-        private void WriteModelSystemStringToPipe()
-        {
-            lock (this)
+            finally
             {
-                using (var memStream = new MemoryStream())
-                {
-                    BinaryWriter pipeWriter = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
-                    WriteModelSystemToStream(memStream);
-                    pipeWriter.Write((UInt32)ToClient.RunModelSystem);
-                    pipeWriter.Write(RunName);
-                    pipeWriter.Write(RunDirectory);
-                    pipeWriter.Write(_deleteDirectory);
-                    pipeWriter.Write(_modelSystemAsString);
-
-                }
-            }
-        }
-
-        private void WriteModelSystemToStream(MemoryStream memStream)
-        {
-            using (XmlWriter xml = XmlTextWriter.Create(memStream, new XmlWriterSettings() { Encoding = Encoding.Unicode }))
-            {
-                xml.WriteStartDocument();
-                xml.WriteStartElement("Root");
-                var root = ModelSystemStructureModelRoot.RealModelSystemStructure;
-                root.Save(xml);
-                xml.WriteStartElement("LinkedParameters");
-                foreach (var lp in _LinkedParameters)
-                {
-                    xml.WriteStartElement("LinkedParameter");
-                    xml.WriteAttributeString("Name", lp.Name);
-                    xml.WriteAttributeString("Value", lp.Value ?? String.Empty);
-                    foreach (var reference in lp.Parameters)
-                    {
-                        xml.WriteStartElement("Reference");
-                        xml.WriteAttributeString("Name", LookupName(reference, root));
-                        xml.WriteEndElement();
-                    }
-                    xml.WriteEndElement();
-                }
-                xml.WriteEndElement();
-                xml.WriteEndElement();
-                xml.WriteEndDocument();
-                xml.Flush();
-            }
-        }
-
-        public override bool ExitRequest()
-        {
-            if (_runStarted)
-            {
-                RequestSignal(ToClient.KillModelRun);
-            }
-            else
-            {
-                InvokeRunCompleted();
-            }
-            return true;
-        }
-
-        public override Tuple<byte, byte, byte> PollColour() => new Tuple<byte, byte, byte>(50, 150, 50);
-
-        public override float PollProgress()
-        {
-            RequestSignal(ToClient.RequestProgress);
-            return _RemoteProgress;
-        }
-
-        public override string PollStatusMessage()
-        {
-            RequestSignal(ToClient.RequestStatus);
-            return _RemoteStatus;
-        }
-
-        public override bool DeepExitRequest()
-        {
-            RequestSignal(ToClient.KillModelRun);
-            return true;
-        }
-
-        private volatile bool _runStarted = false;
-
-        public override void Start()
-        {
-            if (!File.Exists(GetXTMFRunFileName()))
-            {
-                throw new Exception($"Unable to find the program '{GetXTMFRunFileName()}' to run the model system!  Please close XTMF and reset it up.");
-            }
-            Task.Run(() =>
-            {
-                StartupHost();
-                StartClientListener();
-                _runStarted = true;
-                // Send the instructions to run the model system
-                InitializeClientAndSendModelSystem();
-                SetStatusToRunning();
-            });
-        }
-
-        public override void Wait() => ClientExiting.Wait();
-
-        public override void TerminateRun()
-        {
-            if (_runStarted)
-            {
-                RequestSignal(ToClient.KillModelRun);
-            }
-            else
-            {
-                InvokeRunCompleted();
                 ClientExiting.Release();
             }
-        }
+        }, TaskCreationOptions.LongRunning);
+    }
 
-        protected override void Dispose(bool disposing)
+    private class ProgressReport : IProgressReport
+    {
+        public Tuple<byte, byte, byte> Colour { get; set; }
+
+        public Func<float> GetProgress { get; }
+
+        internal float Progress;
+
+        public string Name { get; }
+
+        public ProgressReport(string name, byte r, byte g, byte b)
         {
-            base.Dispose(disposing);
-            _Pipe?.Dispose();
-            ClientExiting?.Dispose();
+            Name = name;
+            GetProgress = () => Progress;
+            Colour = new Tuple<byte, byte, byte>(r, g, b);
         }
+    }
+
+    private void ClearProgressReports()
+    {
+        Configuration.DeleteAllProgressReport();
+    }
+
+    private void AddProgressReport(BinaryReader reader)
+    {
+        Configuration.ProgressReports.Add(new ProgressReport(reader.ReadString(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
+    }
+
+    private void RemoveProgressReport(BinaryReader reader)
+    {
+        var name = reader.ReadString();
+        var toRemove = Configuration.ProgressReports.FirstOrDefault(rep => rep.Name == name);
+        if (toRemove != null)
+        {
+            Configuration.ProgressReports.Remove(toRemove);
+        }
+    }
+
+    private void ReadProgress(BinaryReader reader)
+    {
+        _RemoteProgress = reader.ReadSingle();
+        var length = reader.ReadInt32();
+        if (length > 0)
+        {
+            var reports = Configuration.ProgressReports;
+            lock (((ICollection)reports).SyncRoot)
+            {
+                var givenReports = new List<(string name, float progress, byte r, byte g, byte b)>(length);
+                for (int i = 0; i < length; i++)
+                {
+                    givenReports.Add((reader.ReadString(), reader.ReadSingle(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()));
+                }
+                foreach (var (name, progress, r, g, b) in givenReports)
+                {
+                    foreach (var holdRep in reports)
+                    {
+                        if (name == holdRep.Name)
+                        {
+                            if (holdRep is ProgressReport remoteProgress)
+                            {
+                                remoteProgress.Progress = progress;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void LoadAndSignalModelSystem(BinaryReader reader)
+    {
+        try
+        {
+            var length = (int)reader.ReadInt64();
+            byte[] msText = new byte[length];
+            var soFar = 0;
+            while (soFar < length)
+            {
+                soFar += reader.Read(msText, soFar, length - soFar);
+            }
+            using var stream = new MemoryStream(msText);
+            var mss = ModelSystemStructure.Load(stream, Configuration);
+            SendProjectSaved(mss as ModelSystemStructure);
+        }
+        catch (Exception e)
+        {
+            SendRunMessage(e.Message + "\r\n" + e.StackTrace);
+        }
+    }
+
+    private static List<ErrorWithPath> ReadErrors(BinaryReader reader)
+    {
+        int numberOfErrors = reader.ReadInt32();
+        List<ErrorWithPath> errors = new(numberOfErrors);
+        for (int i = 0; i < numberOfErrors; i++)
+        {
+            errors.Add(ReadError(reader));
+        }
+        return errors;
+    }
+
+    private static ErrorWithPath ReadError(BinaryReader reader)
+    {
+        int pathSize = reader.ReadInt32();
+        List<int> path = null;
+        if (pathSize > 0)
+        {
+            path = new List<int>(pathSize);
+            for (int j = 0; j < pathSize; j++)
+            {
+                path.Add(reader.ReadInt32());
+            }
+        }
+        var message = reader.ReadString();
+        var stackTrace = reader.ReadString();
+        var moduleName = reader.ReadString();
+        if (String.IsNullOrWhiteSpace(stackTrace))
+        {
+            stackTrace = null;
+        }
+        return new ErrorWithPath(path, message, stackTrace, moduleName);
+    }
+
+    private static string LookupName(IModuleParameter reference, IModelSystemStructure current)
+    {
+        var param = current.Parameters;
+        if (param != null)
+        {
+            int index = param.Parameters.IndexOf(reference);
+            if (index >= 0)
+            {
+                return current.Parameters.Parameters[index].Name;
+            }
+        }
+        var childrenList = current.Children;
+        if (childrenList != null)
+        {
+            for (int i = 0; i < childrenList.Count; i++)
+            {
+                var res = LookupName(reference, childrenList[i]);
+                if (res != null)
+                {
+                    // make sure to use an escape character before the . to avoid making the mistake of reading it as another index
+                    return string.Concat(current.IsCollection ? i.ToString()
+                        : childrenList[i].ParentFieldName.Replace(".", "\\."), '.', res);
+                }
+            }
+        }
+        return null;
+    }
+
+    private void WriteModelSystemStringToPipe()
+    {
+        lock (this)
+        {
+            using var memStream = new MemoryStream();
+            BinaryWriter pipeWriter = new(_Pipe, System.Text.Encoding.Unicode, true);
+            WriteModelSystemToStream(memStream);
+            pipeWriter.Write((UInt32)ToClient.RunModelSystem);
+            pipeWriter.Write(RunName);
+            pipeWriter.Write(RunDirectory);
+            pipeWriter.Write(_deleteDirectory);
+            pipeWriter.Write(_modelSystemAsString);
+        }
+    }
+
+    private void WriteModelSystemToStream(MemoryStream memStream)
+    {
+        using XmlWriter xml = XmlTextWriter.Create(memStream, new XmlWriterSettings() { Encoding = Encoding.Unicode });
+        xml.WriteStartDocument();
+        xml.WriteStartElement("Root");
+        var root = ModelSystemStructureModelRoot.RealModelSystemStructure;
+        root.Save(xml);
+        xml.WriteStartElement("LinkedParameters");
+        foreach (var lp in _LinkedParameters)
+        {
+            xml.WriteStartElement("LinkedParameter");
+            xml.WriteAttributeString("Name", lp.Name);
+            xml.WriteAttributeString("Value", lp.Value ?? String.Empty);
+            foreach (var reference in lp.Parameters)
+            {
+                xml.WriteStartElement("Reference");
+                xml.WriteAttributeString("Name", LookupName(reference, root));
+                xml.WriteEndElement();
+            }
+            xml.WriteEndElement();
+        }
+        xml.WriteEndElement();
+        xml.WriteEndElement();
+        xml.WriteEndDocument();
+        xml.Flush();
+    }
+
+    public override bool ExitRequest()
+    {
+        if (_runStarted)
+        {
+            RequestSignal(ToClient.KillModelRun);
+        }
+        else
+        {
+            InvokeRunCompleted();
+        }
+        return true;
+    }
+
+    public override Tuple<byte, byte, byte> PollColour() => new(50, 150, 50);
+
+    public override float PollProgress()
+    {
+        RequestSignal(ToClient.RequestProgress);
+        return _RemoteProgress;
+    }
+
+    public override string PollStatusMessage()
+    {
+        RequestSignal(ToClient.RequestStatus);
+        return _RemoteStatus;
+    }
+
+    public override bool DeepExitRequest()
+    {
+        RequestSignal(ToClient.KillModelRun);
+        return true;
+    }
+
+    private volatile bool _runStarted = false;
+
+    public override void Start()
+    {
+        if (!File.Exists(GetXTMFRunFileName()))
+        {
+            throw new Exception($"Unable to find the program '{GetXTMFRunFileName()}' to run the model system!  Please close XTMF and reset it up.");
+        }
+        Task.Run(() =>
+        {
+            StartupHost();
+            StartClientListener();
+            _runStarted = true;
+            // Send the instructions to run the model system
+            InitializeClientAndSendModelSystem();
+            SetStatusToRunning();
+        });
+    }
+
+    public override void Wait() => ClientExiting.Wait();
+
+    public override void TerminateRun()
+    {
+        if (_runStarted)
+        {
+            RequestSignal(ToClient.KillModelRun);
+        }
+        else
+        {
+            InvokeRunCompleted();
+            ClientExiting.Release();
+        }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        _Pipe?.Dispose();
+        ClientExiting?.Dispose();
     }
 }

@@ -19,48 +19,47 @@
 using System;
 using System.IO;
 
-namespace TMG.Input
-{
-    public class FileFromInputDirectory
-    {
-        private string FileName;
+namespace TMG.Input;
 
-        public static bool TryParse(ref string error, string input, out FileFromInputDirectory output)
+public class FileFromInputDirectory
+{
+    private string FileName;
+
+    public static bool TryParse(ref string error, string input, out FileFromInputDirectory output)
+    {
+        var length = input.Length;
+        var invalidCharacters = Path.GetInvalidPathChars();
+        for ( int i = 0; i < length; i++ )
         {
-            var length = input.Length;
-            var invalidCharacters = Path.GetInvalidPathChars();
-            for ( int i = 0; i < length; i++ )
+            var c = input[i];
+            for ( int j = 0; j < invalidCharacters.Length; j++ )
             {
-                var c = input[i];
-                for ( int j = 0; j < invalidCharacters.Length; j++ )
+                if ( c == invalidCharacters[j] )
                 {
-                    if ( c == invalidCharacters[j] )
-                    {
-                        error = "At position " + i + ", we found an invalid character '" + invalidCharacters[j] + "'!";
-                        output = null;
-                        return false;
-                    }
+                    error = "At position " + i + ", we found an invalid character '" + invalidCharacters[j] + "'!";
+                    output = null;
+                    return false;
                 }
             }
-            output = new FileFromInputDirectory() { FileName = input };
-
-            return true;
         }
+        output = new FileFromInputDirectory() { FileName = input };
 
-        public bool ContainsFileName()
-        {
-            return !String.IsNullOrWhiteSpace( FileName );
-        }
+        return true;
+    }
 
-        public string GetFileName(string inputFileDirectory)
-        {
-            return Path.IsPathRooted( FileName ) ? FileName :
-                Path.Combine( inputFileDirectory, FileName );
-        }
+    public bool ContainsFileName()
+    {
+        return !String.IsNullOrWhiteSpace( FileName );
+    }
 
-        public override string ToString()
-        {
-            return FileName;
-        }
+    public string GetFileName(string inputFileDirectory)
+    {
+        return Path.IsPathRooted( FileName ) ? FileName :
+            Path.Combine( inputFileDirectory, FileName );
+    }
+
+    public override string ToString()
+    {
+        return FileName;
     }
 }

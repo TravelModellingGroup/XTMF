@@ -20,76 +20,75 @@ using Datastructure;
 using System;
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+/// <summary>
+/// Used for calibrating the start time of activity
+/// episodes.
+/// </summary>
+public sealed class StartTimeAdjustment : IModule
 {
-    /// <summary>
-    /// Used for calibrating the start time of activity
-    /// episodes.
-    /// </summary>
-    public sealed class StartTimeAdjustment : IModule
+    [RunParameter("Distribution ID Range", "0-262", typeof(RangeSet), 0, "The distribution ID's to alter.")]
+    public RangeSet DistributionIDs;
+
+    [RunParameter("Home Planning Districts", "1-46", typeof(RangeSet), 1, "The planning districts to alter.  The home zone is used for comparison.")]
+    public RangeSet HomePlanningDistricts;
+
+    [RunParameter("Work Planning District", "0-46", typeof(RangeSet), 2, "The planning district of work for the person, or 0 if there is no work zone.")]
+    public RangeSet WorkPlanningDistrict;
+
+    [RunParameter("StartTime", "6:00", typeof(Time), 3, "The start time that this will apply to.")]
+    public Time StartTime
     {
-        [RunParameter("Distribution ID Range", "0-262", typeof(RangeSet), 0, "The distribution ID's to alter.")]
-        public RangeSet DistributionIDs;
-
-        [RunParameter("Home Planning Districts", "1-46", typeof(RangeSet), 1, "The planning districts to alter.  The home zone is used for comparison.")]
-        public RangeSet HomePlanningDistricts;
-
-        [RunParameter("Work Planning District", "0-46", typeof(RangeSet), 2, "The planning district of work for the person, or 0 if there is no work zone.")]
-        public RangeSet WorkPlanningDistrict;
-
-        [RunParameter("StartTime", "6:00", typeof(Time), 3, "The start time that this will apply to.")]
-        public Time StartTime
+        get { return _startTime; }
+        set
         {
-            get { return _startTime; }
-            set
-            {
-                _startTime = value;
-                StartTimeQuantum = TimeToQuantum(value);
-            }
+            _startTime = value;
+            StartTimeQuantum = TimeToQuantum(value);
         }
+    }
 
-        private Time _startTime;
+    private Time _startTime;
 
-        [RunParameter("EndTime", "9:00", typeof(Time), 4, "The end time that this will apply to.")]
-        public Time EndTime
+    [RunParameter("EndTime", "9:00", typeof(Time), 4, "The end time that this will apply to.")]
+    public Time EndTime
+    {
+        get { return _endTime; }
+        set
         {
-            get { return _endTime; }
-            set
-            {
-                _endTime = value;
-                EndTimeQuantum = TimeToQuantum(value);
-            }
+            _endTime = value;
+            EndTimeQuantum = TimeToQuantum(value);
         }
+    }
 
-        private Time _endTime;
+    private Time _endTime;
 
-        private static int TimeToQuantum(Time time)
-        {
-            return (int)(time - Time.StartOfDay).ToMinutes() / 15;
-        }
+    private static int TimeToQuantum(Time time)
+    {
+        return (int)(time - Time.StartOfDay).ToMinutes() / 15;
+    }
 
-        [RunParameter("Factor", 1.0f, 5, "The factor to apply to this modification for start time rates in the time range.")]
-        public float Factor;
+    [RunParameter("Factor", 1.0f, 5, "The factor to apply to this modification for start time rates in the time range.")]
+    public float Factor;
 
-        /// <summary>
-        /// The start time quantum 15 minute index
-        /// </summary>
-        public int StartTimeQuantum;
+    /// <summary>
+    /// The start time quantum 15 minute index
+    /// </summary>
+    public int StartTimeQuantum;
 
-        /// <summary>
-        /// The end time quantum 15 minute index
-        /// </summary>
-        public int EndTimeQuantum;
+    /// <summary>
+    /// The end time quantum 15 minute index
+    /// </summary>
+    public int EndTimeQuantum;
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress => 0f;
+    public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

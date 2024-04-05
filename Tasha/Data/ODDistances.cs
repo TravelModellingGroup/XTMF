@@ -21,69 +21,67 @@ using Datastructure;
 using TMG;
 using XTMF;
 using TMG.Functions;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module provides an OD matrix with the distances between zonal centroids.")]
+public class ODDistances : IDataSource<SparseTwinIndex<float>>
 {
-    [ModuleInformation(Description = "This module provides an OD matrix with the distances between zonal centroids.")]
-    public class ODDistances : IDataSource<SparseTwinIndex<float>>
+    public bool Loaded
     {
-        public bool Loaded
+        get; set;
+    }
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseTwinIndex<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter("Convert to KM", false, "Should we divide the distances by 1k to convert to KM?")]
+    public bool ConvertToKM;
+
+    public SparseTwinIndex<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+
+        if (!Root.ZoneSystem.Loaded)
         {
-            get; set;
+            Root.ZoneSystem.LoadData();
         }
 
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseTwinIndex<float> Data;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [RunParameter("Convert to KM", false, "Should we divide the distances by 1k to convert to KM?")]
-        public bool ConvertToKM;
-
-        public SparseTwinIndex<float> GiveData()
+        SparseTwinIndex<float> distances = Root.ZoneSystem.Distances;
+        if (!ConvertToKM)
         {
-            return Data;
+            Data = distances;
         }
-
-        public void LoadData()
+        else
         {
-
-            if (!Root.ZoneSystem.Loaded)
+            var flatDistances = distances.GetFlatData();
+            Data = distances.CreateSimilarArray<float>();
+            var local = Data.GetFlatData();
+            for (int i = 0; i < local.Length; i++)
             {
-                Root.ZoneSystem.LoadData();
+                VectorHelper.Multiply(local[i], 0, flatDistances[i], 0, 0.001f, local.Length);
             }
-
-            SparseTwinIndex<float> distances = Root.ZoneSystem.Distances;
-            if (!ConvertToKM)
-            {
-                Data = distances;
-            }
-            else
-            {
-                var flatDistances = distances.GetFlatData();
-                Data = distances.CreateSimilarArray<float>();
-                var local = Data.GetFlatData();
-                for (int i = 0; i < local.Length; i++)
-                {
-                    VectorHelper.Multiply(local[i], 0, flatDistances[i], 0, 0.001f, local.Length);
-                }
-            }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Loaded = false;
         }
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+    }
 }

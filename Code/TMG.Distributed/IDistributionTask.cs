@@ -18,10 +18,9 @@
 */
 
 using XTMF;
-namespace TMG.Distributed
+namespace TMG.Distributed;
+
+public interface IDistributionTask : IModule
 {
-    public interface IDistributionTask : IModule
-    {
-        void BeginInvoke();
-    }
+    void BeginInvoke();
 }

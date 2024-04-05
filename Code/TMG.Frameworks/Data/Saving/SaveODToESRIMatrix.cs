@@ -19,91 +19,87 @@
 using System;
 using TMG.Input;
 using XTMF;
-using TMG.DataUtility;
 using System.IO;
 using Datastructure;
 
-namespace TMG.Frameworks.Data.Saving
+namespace TMG.Frameworks.Data.Saving;
+
+[ModuleInformation(Description = "Saves the given matrix into the ESRI json matrix format.")]
+public sealed class SaveODToESRIMatrix : ISelfContainedModule
 {
-    [ModuleInformation(Description = "Saves the given matrix into the ESRI json matrix format.")]
-    public sealed class SaveODToESRIMatrix : ISelfContainedModule
+    public string Name { get; set; }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+    [SubModelInformation(Required = true, Description = "The location to save the file to.")]
+    public FileLocation SaveTo;
+
+    [SubModelInformation(Required = true, Description = "The matrix to save.")]
+    public IDataSource<SparseTwinIndex<float>> MatrixToSave;
+
+    public bool RuntimeValidation(ref string error)
     {
-        public string Name { get; set; }
+        return true;
+    }
 
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
-
-        [SubModelInformation(Required = true, Description = "The location to save the file to.")]
-        public FileLocation SaveTo;
-
-        [SubModelInformation(Required = true, Description = "The matrix to save.")]
-        public IDataSource<SparseTwinIndex<float>> MatrixToSave;
-
-        public bool RuntimeValidation(ref string error)
+    private static SparseTwinIndex<float> LoadMatrix(IDataSource<SparseTwinIndex<float>> matrixSource)
+    {
+        var wasLoaded = matrixSource.Loaded;
+        if (!wasLoaded)
         {
-            return true;
+            matrixSource.LoadData();
         }
-
-        private static SparseTwinIndex<float> LoadMatrix(IDataSource<SparseTwinIndex<float>> matrixSource)
+        var ret = matrixSource.GiveData();
+        if (!wasLoaded)
         {
-            var wasLoaded = matrixSource.Loaded;
-            if (!wasLoaded)
-            {
-                matrixSource.LoadData();
-            }
-            var ret = matrixSource.GiveData();
-            if (!wasLoaded)
-            {
-                matrixSource.UnloadData();
-            }
-            return ret;
+            matrixSource.UnloadData();
         }
+        return ret;
+    }
 
-        public void Start()
+    public void Start()
+    {
+        var matrix = LoadMatrix(MatrixToSave);
+        var zones = matrix.ValidIndexArray();
+        var data = matrix.GetFlatData();
+        try
         {
-            var matrix = LoadMatrix(MatrixToSave);
-            var zones = matrix.ValidIndexArray();
-            var data = matrix.GetFlatData();
-            try
+            using var writer = new StreamWriter(SaveTo);
+            writer.Write("{\"zone_ids\":[");
+            for (int i = 0; i < zones.Length; i++)
             {
-                using (var writer = new StreamWriter(SaveTo))
+                if (i > 0)
                 {
-                    writer.Write("{\"zone_ids\":[");
-                    for (int i = 0; i < zones.Length; i++)
-                    {
-                        if (i > 0)
-                        {
-                            writer.Write(',');
-                        }
-                        writer.Write(zones[i]);
-                    }
-                    writer.Write("],\"data\":[");
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        if (i > 0)
-                        {
-                            writer.Write(',');
-                        }
-                        writer.Write('[');
-                        for (int j = 0; j < data[i].Length; j++)
-                        {
-                            if (j > 0)
-                            {
-                                writer.Write(',');
-                            }
-                            // The format requests that data is rounding to two decimal places
-                            writer.Write("{0:0.00}", data[i][j]);
-                        }
-                        writer.Write(']');
-                    }
-                    writer.Write("]}");
+                    writer.Write(',');
                 }
+                writer.Write(zones[i]);
             }
-            catch (IOException e)
+            writer.Write("],\"data\":[");
+            for (int i = 0; i < data.Length; i++)
             {
-                throw new XTMFRuntimeException(this, e);
+                if (i > 0)
+                {
+                    writer.Write(',');
+                }
+                writer.Write('[');
+                for (int j = 0; j < data[i].Length; j++)
+                {
+                    if (j > 0)
+                    {
+                        writer.Write(',');
+                    }
+                    // The format requests that data is rounding to two decimal places
+                    writer.Write("{0:0.00}", data[i][j]);
+                }
+                writer.Write(']');
             }
+            writer.Write("]}");
+        }
+        catch (IOException e)
+        {
+            throw new XTMFRuntimeException(this, e);
         }
     }
 }

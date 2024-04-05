@@ -18,14 +18,8 @@
 */
 using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
 using XTMF.Run;
 using System.Collections.Generic;
-using System.IO.Pipes;
-using System.Diagnostics;
-using System.Reflection;
 using log4net;
 using log4net.Appender;
 using log4net.Config;
@@ -33,365 +27,362 @@ using log4net.Filter;
 using log4net.Layout;
 using XTMF.Logging;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// This class encapsulates the concept of a Model System run.
+/// Subclasses of this will allow for remote model system execution.
+/// </summary>
+public abstract class XTMFRun : IDisposable
 {
+    public IModelSystemTemplate MST { get; protected set; }
     /// <summary>
-    /// This class encapsulates the concept of a Model System run.
-    /// Subclasses of this will allow for remote model system execution.
+    /// The link to XTMF's settings
     /// </summary>
-    public abstract class XTMFRun : IDisposable
+    public IConfiguration Configuration { get; private set; }
+
+    /// <summary>
+    /// The name of this run
+    /// </summary>
+    public string RunName { get; protected set; }
+
+    /// <summary>
+    /// The model system root if we are using a past run
+    /// </summary>
+    public ModelSystemStructureModel ModelSystemStructureModelRoot { get; protected set; }
+
+    public string RunDirectory { get; private set; }
+
+    public abstract bool RunsRemotely { get; }
+
+    private const string Pattern = "%logger***%message%newline";
+
+    private static ILogger _globalLogger;
+
+    public static ILogger GlobalLogger => _globalLogger;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="runName"></param>
+    /// <param name="runDirectory"></param>
+    /// <param name="config"></param>
+    protected XTMFRun(string runName, string runDirectory, IConfiguration config)
     {
-        public IModelSystemTemplate MST { get; protected set; }
-        /// <summary>
-        /// The link to XTMF's settings
-        /// </summary>
-        public IConfiguration Configuration { get; private set; }
+        RunName = runName;
+        RunDirectory = runDirectory;
+        Configuration = config;
+        ConfigureLog4Net();
+    }
 
-        /// <summary>
-        /// The name of this run
-        /// </summary>
-        public string RunName { get; protected set; }
-
-        /// <summary>
-        /// The model system root if we are using a past run
-        /// </summary>
-        public ModelSystemStructureModel ModelSystemStructureModelRoot { get; protected set; }
-
-        public string RunDirectory { get; private set; }
-
-        public abstract bool RunsRemotely { get; }
-
-        private const string Pattern = "%logger***%message%newline";
-
-        private static ILogger _globalLogger;
-
-        public static ILogger GlobalLogger => _globalLogger;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="runName"></param>
-        /// <param name="runDirectory"></param>
-        /// <param name="config"></param>
-        protected XTMFRun(string runName, string runDirectory, IConfiguration config)
+    /// <summary>
+    /// Configures log4net using a basic console appender
+    /// </summary>
+    private void ConfigureLog4Net()
+    {
+        PatternLayout layout = new(
+                    Pattern);
+        ConsoleAppender appender =
+            new() {Layout = layout};
+        //create logger (console) unrelated to global logging under XTMFRun
+        LoggerMatchFilter filter = new()
         {
-            RunName = runName;
-            RunDirectory = runDirectory;
-            Configuration = config;
-            ConfigureLog4Net();
-        }
+            AcceptOnMatch = false,
+            LoggerToMatch = "XTMFRun"
+        };
+        appender.AddFilter(filter);
+        appender.ActivateOptions();
 
-        /// <summary>
-        /// Configures log4net using a basic console appender
-        /// </summary>
-        private void ConfigureLog4Net()
+        //create logger (file) for global logging using name XTMFRun
+        filter = new LoggerMatchFilter
         {
-            PatternLayout layout = new PatternLayout(
-                        Pattern);
-            ConsoleAppender appender =
-                new ConsoleAppender() {Layout = layout};
-            //create logger (console) unrelated to global logging under XTMFRun
-            LoggerMatchFilter filter = new LoggerMatchFilter
-            {
-                AcceptOnMatch = false,
-                LoggerToMatch = "XTMFRun"
-            };
-            appender.AddFilter(filter);
-            appender.ActivateOptions();
+            AcceptOnMatch = true,
+            LoggerToMatch = "XTMFRun"
+        };
+        BasicConfigurator.Configure(appender);
+        _globalLogger = new Logger(LogManager.GetLogger("XTMFRun"));
+    }
 
-            //create logger (file) for global logging using name XTMFRun
-            filter = new LoggerMatchFilter
-            {
-                AcceptOnMatch = true,
-                LoggerToMatch = "XTMFRun"
-            };
-            BasicConfigurator.Configure(appender);
-            _globalLogger = new Logger(LogManager.GetLogger("XTMFRun"));
-        }
+    public static XTMFRun CreateLocalRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
+    {
+        return new XTMFRunLocal(project, modelSystemIndex, root, config, runName, overwrite);
+    }
 
-        public static XTMFRun CreateLocalRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
+    public static XTMFRun CreateRemoteHost(Project project, int modelSystemIndex, ModelSystemModel root,
+        Configuration config, string runName, bool overwrite = false)
+    {
+        return new XTMFRunRemoteHost(config, root.Root, project.LinkedParameters[modelSystemIndex], runName, Path.Combine(config.ProjectDirectory, project.Name, runName),
+            overwrite);
+    }
+
+    public static XTMFRun CreateLocalRun(Project project, ModelSystemModel model, Configuration configuration, string runName, bool overwrite = false)
+    {
+        return new XTMFRunLocal(project, model, configuration, runName, overwrite);
+    }
+
+    public static XTMFRun CreateRemoteHost(Project project, ModelSystemStructureModel root, Configuration config, string runName, bool overwrite = false)
+    {
+        return new XTMFRunRemoteHost(config, root, [], runName, Path.Combine(config.ProjectDirectory, project.Name, runName),
+            overwrite);
+    }
+
+    public static XTMFRun CreateRemoteClient(Configuration configuration, string runName, string runDirectory, string modelSystem)
+    {
+        return new XTMFRunRemoteClient(configuration, runName, runDirectory, modelSystem);
+    }
+   
+    protected static void ClearFolder(string path)
+    {
+        DirectoryInfo directory = new(path);
+        if (!directory.Exists)
         {
-            return new XTMFRunLocal(project, modelSystemIndex, root, config, runName, overwrite);
+            return;
         }
+        directory.Delete(true);
+    }
 
-        public static XTMFRun CreateRemoteHost(Project project, int modelSystemIndex, ModelSystemModel root,
-            Configuration config, string runName, bool overwrite = false)
-        {
-            return new XTMFRunRemoteHost(config, root.Root, project.LinkedParameters[modelSystemIndex], runName, Path.Combine(config.ProjectDirectory, project.Name, runName),
-                overwrite);
-        }
+    /// <summary>
+    /// An event that is fired when the run sends back a message
+    /// </summary>
+    public event Action<string> RunMessage;
 
-        public static XTMFRun CreateLocalRun(Project project, ModelSystemModel model, Configuration configuration, string runName, bool overwrite = false)
-        {
-            return new XTMFRunLocal(project, model, configuration, runName, overwrite);
-        }
+    /// <summary>
+    /// An event that fires when the run completes successfully
+    /// </summary>
+    public event Action RunCompleted;
 
-        public static XTMFRun CreateRemoteHost(Project project, ModelSystemStructureModel root, Configuration config, string runName, bool overwrite = false)
-        {
-            return new XTMFRunRemoteHost(config, root, new List<ILinkedParameter>(), runName, Path.Combine(config.ProjectDirectory, project.Name, runName),
-                overwrite);
-        }
+    /// <summary>
+    /// An event that fires when all of the validation has completed and the model system
+    /// has started executing.
+    /// </summary>
+    public event Action RunStarted;
 
-        public static XTMFRun CreateRemoteClient(Configuration configuration, string runName, string runDirectory, string modelSystem)
+    /// <summary>
+    /// An event that fires if a runtime error occurs, this includes out of memory exceptions
+    /// </summary>
+    public event Action<ErrorWithPath> RuntimeError;
+
+    /// <summary>
+    /// An event that fires when the model ends in an error during runtime validation
+    /// </summary>
+    public event Action<List<ErrorWithPath>> RuntimeValidationError;
+
+    /// <summary>
+    /// An event that fires when the Model does not pass validation
+    /// </summary>
+    public event Action<List<ErrorWithPath>> ValidationError;
+
+    /// <summary>
+    /// An event that fires when Model Validation starts
+    /// </summary>
+    public event Action ValidationStarting;
+
+    /// <summary>
+    /// An event the fires when the running project has saved itself
+    /// </summary>
+    public event Action<XTMFRun, ModelSystemStructure> ProjectSavedByRun;
+
+    /// <summary>
+    /// Attempt to ask the model system to exit.
+    /// Even if this returns true it will not happen right away.
+    /// </summary>
+    /// <returns>If the model system accepted the exit request</returns>
+    public abstract bool ExitRequest();
+
+    /// <summary>
+    /// Get the currently requested colour from the model system
+    /// </summary>
+    /// <returns>The colour requested by the model system</returns>
+    public abstract Tuple<byte, byte, byte> PollColour();
+    
+    /// <summary>
+    /// Get the current progress for this run
+    /// </summary>
+    /// <returns>The current progress between 0 and 1</returns>
+    public abstract float PollProgress();
+
+
+    /// <summary>
+    /// Get the status message for this run
+    /// </summary>
+    /// <returns></returns>
+    public abstract string PollStatusMessage();
+
+    /// <summary>
+    /// Attempts to notify all modules part of the current model system structure
+    /// with an exit request usually generated by user interaction. Any module inheriting
+    /// IModelSystemTemplate will be sent an ExitRequest.
+    /// </summary>
+    /// <returns></returns>
+    public abstract bool DeepExitRequest();
+
+    /// <summary>
+    /// Start the run on a different thread.
+    /// </summary>
+    public abstract void Start();
+
+    /// <summary>
+    /// Blocks execution until the run has completed.
+    /// </summary>
+    public abstract void Wait();
+
+    public abstract void TerminateRun();
+
+    protected void AlertValidationStarting()
+    {
+        ValidationStarting?.Invoke();
+    }
+
+    protected void InvokeRunCompleted()
+    {
+        RunCompleted?.Invoke();
+    }
+
+    protected void InvokeRuntimeError(ErrorWithPath error)
+    {
+        SaveErrorMessage(error);
+        RuntimeError?.Invoke(error);
+    }
+
+    private static Exception GetTopRootException(Exception value)
+    {
+        if (value is AggregateException agg)
         {
-            return new XTMFRunRemoteClient(configuration, runName, runDirectory, modelSystem);
+            return GetTopRootException(agg.InnerException);
         }
+        return value;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="error"></param>
+    protected static void SaveErrorMessage(ErrorWithPath error)
+    {
+        using var writer = new StreamWriter("XTMF.ErrorLog.txt", true);
+        writer.WriteLine(error.Message);
+        writer.WriteLine();
+        writer.WriteLine(error.StackTrace);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="errorMessage"></param>
+    protected void InvokeRuntimeValidationError(List<ErrorWithPath> errorMessage)
+    {
+        RuntimeValidationError?.Invoke(errorMessage);
+    }
+
+
+    protected void InvokeValidationError(List<ErrorWithPath> errorMessage)
+    {
+        ValidationError?.Invoke(errorMessage);
+    }
+
+    protected void SetStatusToRunning()
+    {
+        RunStarted?.Invoke();
+    }
+
+    private bool _disposedValue = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
        
-        protected static void ClearFolder(string path)
+        if (!_disposedValue)
         {
-            DirectoryInfo directory = new DirectoryInfo(path);
-            if (!directory.Exists)
+            if (disposing)
             {
-                return;
+                RunCompleted = null;
+                RuntimeError = null;
+                ValidationError = null;
+                ValidationStarting = null;
+                RuntimeValidationError = null;
             }
-            directory.Delete(true);
+            _disposedValue = true;
         }
+    }
 
-        /// <summary>
-        /// An event that is fired when the run sends back a message
-        /// </summary>
-        public event Action<string> RunMessage;
+    ~XTMFRun()
+    {
+       Dispose(false);
+    }
 
-        /// <summary>
-        /// An event that fires when the run completes successfully
-        /// </summary>
-        public event Action RunCompleted;
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        /// <summary>
-        /// An event that fires when all of the validation has completed and the model system
-        /// has started executing.
-        /// </summary>
-        public event Action RunStarted;
+    protected static List<ErrorWithPath> CreateFromSingleError(ErrorWithPath error)
+    {
+        return
+        [
+            error
+        ];
+    }
 
-        /// <summary>
-        /// An event that fires if a runtime error occurs, this includes out of memory exceptions
-        /// </summary>
-        public event Action<ErrorWithPath> RuntimeError;
-
-        /// <summary>
-        /// An event that fires when the model ends in an error during runtime validation
-        /// </summary>
-        public event Action<List<ErrorWithPath>> RuntimeValidationError;
-
-        /// <summary>
-        /// An event that fires when the Model does not pass validation
-        /// </summary>
-        public event Action<List<ErrorWithPath>> ValidationError;
-
-        /// <summary>
-        /// An event that fires when Model Validation starts
-        /// </summary>
-        public event Action ValidationStarting;
-
-        /// <summary>
-        /// An event the fires when the running project has saved itself
-        /// </summary>
-        public event Action<XTMFRun, ModelSystemStructure> ProjectSavedByRun;
-
-        /// <summary>
-        /// Attempt to ask the model system to exit.
-        /// Even if this returns true it will not happen right away.
-        /// </summary>
-        /// <returns>If the model system accepted the exit request</returns>
-        public abstract bool ExitRequest();
-
-        /// <summary>
-        /// Get the currently requested colour from the model system
-        /// </summary>
-        /// <returns>The colour requested by the model system</returns>
-        public abstract Tuple<byte, byte, byte> PollColour();
-        
-        /// <summary>
-        /// Get the current progress for this run
-        /// </summary>
-        /// <returns>The current progress between 0 and 1</returns>
-        public abstract float PollProgress();
-
-
-        /// <summary>
-        /// Get the status message for this run
-        /// </summary>
-        /// <returns></returns>
-        public abstract string PollStatusMessage();
-
-        /// <summary>
-        /// Attempts to notify all modules part of the current model system structure
-        /// with an exit request usually generated by user interaction. Any module inheriting
-        /// IModelSystemTemplate will be sent an ExitRequest.
-        /// </summary>
-        /// <returns></returns>
-        public abstract bool DeepExitRequest();
-
-        /// <summary>
-        /// Start the run on a different thread.
-        /// </summary>
-        public abstract void Start();
-
-        /// <summary>
-        /// Blocks execution until the run has completed.
-        /// </summary>
-        public abstract void Wait();
-
-        public abstract void TerminateRun();
-
-        protected void AlertValidationStarting()
+    protected static void GetInnermostError(ref Exception caughtError)
+    {
+        while (caughtError is AggregateException agg)
         {
-            ValidationStarting?.Invoke();
+            caughtError = agg.InnerException;
         }
+    }
 
-        protected void InvokeRunCompleted()
+    /// <summary>
+    /// Do a runtime validation check for the currently running model system
+    /// </summary>
+    /// <param name="error">This parameter gets the error message if any is generated</param>
+    /// <param name="currentPoint">The module to look at, set this to the root to begin.</param>
+    /// <returns>This will be false if there is an error, true otherwise</returns>
+    protected static bool RunTimeValidation(List<int> path, List<ErrorWithPath> errors, IModelSystemStructure currentPoint)
+    {
+        var ret = true;
+        if (currentPoint.Module != null)
         {
-            RunCompleted?.Invoke();
-        }
-
-        protected void InvokeRuntimeError(ErrorWithPath error)
-        {
-            SaveErrorMessage(error);
-            RuntimeError?.Invoke(error);
-        }
-
-        private static Exception GetTopRootException(Exception value)
-        {
-            if (value is AggregateException agg)
+            string error = null;
+            if (!currentPoint.Module.RuntimeValidation(ref error))
             {
-                return GetTopRootException(agg.InnerException);
-            }
-            return value;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="error"></param>
-        protected static void SaveErrorMessage(ErrorWithPath error)
-        {
-            using (var writer = new StreamWriter("XTMF.ErrorLog.txt", true))
-            {
-                writer.WriteLine(error.Message);
-                writer.WriteLine();
-                writer.WriteLine(error.StackTrace);
+                errors.Add(new ErrorWithPath(path, 
+                    $"Runtime Validation Error in {currentPoint.Name}\r\n{error}",
+                    null,
+                    currentPoint.Module.Name));
+                ret = false;
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="errorMessage"></param>
-        protected void InvokeRuntimeValidationError(List<ErrorWithPath> errorMessage)
+        // check to see if there are descendants that need to be checked
+        if (currentPoint.Children != null)
         {
-            RuntimeValidationError?.Invoke(errorMessage);
-        }
-
-
-        protected void InvokeValidationError(List<ErrorWithPath> errorMessage)
-        {
-            ValidationError?.Invoke(errorMessage);
-        }
-
-        protected void SetStatusToRunning()
-        {
-            RunStarted?.Invoke();
-        }
-
-        private bool _disposedValue = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
-        {
-           
-            if (!_disposedValue)
+            path.Add(0);
+            foreach (var module in currentPoint.Children)
             {
-                if (disposing)
+                if (!RunTimeValidation(path, errors, module))
                 {
-                    RunCompleted = null;
-                    RuntimeError = null;
-                    ValidationError = null;
-                    ValidationStarting = null;
-                    RuntimeValidationError = null;
-                }
-                _disposedValue = true;
-            }
-        }
-
-        ~XTMFRun()
-        {
-           Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected static List<ErrorWithPath> CreateFromSingleError(ErrorWithPath error)
-        {
-            return new List<ErrorWithPath>(1)
-            {
-                error
-            };
-        }
-
-        protected static void GetInnermostError(ref Exception caughtError)
-        {
-            while (caughtError is AggregateException agg)
-            {
-                caughtError = agg.InnerException;
-            }
-        }
-
-        /// <summary>
-        /// Do a runtime validation check for the currently running model system
-        /// </summary>
-        /// <param name="error">This parameter gets the error message if any is generated</param>
-        /// <param name="currentPoint">The module to look at, set this to the root to begin.</param>
-        /// <returns>This will be false if there is an error, true otherwise</returns>
-        protected static bool RunTimeValidation(List<int> path, List<ErrorWithPath> errors, IModelSystemStructure currentPoint)
-        {
-            var ret = true;
-            if (currentPoint.Module != null)
-            {
-                string error = null;
-                if (!currentPoint.Module.RuntimeValidation(ref error))
-                {
-                    errors.Add(new ErrorWithPath(path, 
-                        $"Runtime Validation Error in {currentPoint.Name}\r\n{error}",
-                        null,
-                        currentPoint.Module.Name));
                     ret = false;
                 }
+                path[path.Count - 1] += 1;
             }
-            // check to see if there are descendants that need to be checked
-            if (currentPoint.Children != null)
-            {
-                path.Add(0);
-                foreach (var module in currentPoint.Children)
-                {
-                    if (!RunTimeValidation(path, errors, module))
-                    {
-                        ret = false;
-                    }
-                    path[path.Count - 1] += 1;
-                }
-                path.RemoveAt(path.Count - 1);
-            }
-            return ret;
+            path.RemoveAt(path.Count - 1);
         }
+        return ret;
+    }
 
-        /// <summary>
-        /// Report back that a message has been sent through the console.
-        /// </summary>
-        /// <param name="message"></param>
-        protected void SendRunMessage(string message)
+    /// <summary>
+    /// Report back that a message has been sent through the console.
+    /// </summary>
+    /// <param name="message"></param>
+    protected void SendRunMessage(string message)
+    {
+        lock (this)
         {
-            lock (this)
-            {
-                RunMessage?.Invoke(message);
-            }
+            RunMessage?.Invoke(message);
         }
+    }
 
-        protected void SendProjectSaved(ModelSystemStructure mss)
-        {
-            ProjectSavedByRun?.Invoke(this, mss);
-        }
+    protected void SendProjectSaved(ModelSystemStructure mss)
+    {
+        ProjectSavedByRun?.Invoke(this, mss);
     }
 }

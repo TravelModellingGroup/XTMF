@@ -23,128 +23,125 @@ using System.IO;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Validation.ValidateModeChoice
+namespace Tasha.Validation.ValidateModeChoice;
+
+public class ValidatePass : IPostHouseholdIteration
 {
-    public class ValidatePass : IPostHouseholdIteration
+    [RunParameter( "Chart Height", 768, "The height of the chart to make." )]
+    public int CharHeight;
+
+    [RunParameter( "Chart Width", 1024, "The width of the chart to make." )]
+    public int CharWidth;
+
+    [RunParameter( "Output File", "PassengerValidation.csv", "The file where we can store problems" )]
+    public string OutputFile;
+
+    [RunParameter( "Passenger Mode", "Passenger", "The name of the passenger mode, leave blank to not processes them specially." )]
+    public string PassengerModeName;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private ConcurrentDictionary<float, List<float>> Data = new();
+
+    private int PassengerIndex;
+
+    public string Name
     {
-        [RunParameter( "Chart Height", 768, "The height of the chart to make." )]
-        public int CharHeight;
+        get;
+        set;
+    }
 
-        [RunParameter( "Chart Width", 1024, "The width of the chart to make." )]
-        public int CharWidth;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Output File", "PassengerValidation.csv", "The file where we can store problems" )]
-        public string OutputFile;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Passenger Mode", "Passenger", "The name of the passenger mode, leave blank to not processes them specially." )]
-        public string PassengerModeName;
+    public void HouseholdComplete(ITashaHousehold household, bool success)
+    {
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
-
-        private ConcurrentDictionary<float, List<float>> Data = new ConcurrentDictionary<float, List<float>>();
-
-        private int PassengerIndex;
-
-        public string Name
+    public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    {
+        for ( int i = 0; i < household.Persons.Length; i++ )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get;
-            set;
-        }
-
-        public void HouseholdComplete(ITashaHousehold household, bool success)
-        {
-        }
-
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
-        {
-            for ( int i = 0; i < household.Persons.Length; i++ )
+            for ( int j = 0; j < household.Persons[i].TripChains.Count; j++ )
             {
-                for ( int j = 0; j < household.Persons[i].TripChains.Count; j++ )
+                if ( household.Persons[i].TripChains[j].JointTrip && !household.Persons[i].TripChains[j].JointTripRep )
                 {
-                    if ( household.Persons[i].TripChains[j].JointTrip && !household.Persons[i].TripChains[j].JointTripRep )
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    for ( int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++ )
-                    {
-                        var trip = household.Persons[i].TripChains[j].Trips[k];
+                for ( int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++ )
+                {
+                    var trip = household.Persons[i].TripChains[j].Trips[k];
 
-                        if ( trip.Mode == Root.AllModes[PassengerIndex] )
+                    if ( trip.Mode == Root.AllModes[PassengerIndex] )
+                    {
+                        using StreamWriter writer = new(OutputFile, true);
+                        var originalTrip = (ITrip)trip["Driver"];
+                        var passengerDistance = Root.ZoneSystem.Distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
+                        var firstLeg = originalTrip.OriginalZone == trip.OriginalZone ? 0 : Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, trip.OriginalZone.ZoneNumber];
+                        var secondLeg = originalTrip.DestinationZone == trip.DestinationZone ? 0 : Root.ZoneSystem.Distances[trip.DestinationZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
+                        var newDistance = (passengerDistance + firstLeg + secondLeg);
+
+                        if (Data.Keys.Contains(passengerDistance))
                         {
-                            using ( StreamWriter writer = new StreamWriter( OutputFile, true ) )
-                            {
-                                var originalTrip = (ITrip) trip["Driver"];
-                                var passengerDistance = Root.ZoneSystem.Distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
-                                var firstLeg = originalTrip.OriginalZone == trip.OriginalZone ? 0 : Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, trip.OriginalZone.ZoneNumber];
-                                var secondLeg = originalTrip.DestinationZone == trip.DestinationZone ? 0 : Root.ZoneSystem.Distances[trip.DestinationZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
-                                var newDistance = ( passengerDistance + firstLeg + secondLeg );
-
-                                if ( Data.Keys.Contains( passengerDistance ) )
-                                {
-                                    Data[passengerDistance].Add( newDistance );
-                                }
-                                else
-                                {
-                                    Data.TryAdd( passengerDistance, new List<float>() );
-                                    Data[passengerDistance].Add( newDistance );
-                                }
-
-                                writer.WriteLine( "{0}, {1}, {2}, {3}, {4}", household.HouseholdId, household.Persons[i].Id, originalTrip.TripChain.Person.Id, passengerDistance, newDistance );
-                            }
+                            Data[passengerDistance].Add(newDistance);
                         }
+                        else
+                        {
+                            Data.TryAdd(passengerDistance, []);
+                            Data[passengerDistance].Add(newDistance);
+                        }
+
+                        writer.WriteLine("{0}, {1}, {2}, {3}, {4}", household.HouseholdId, household.Persons[i].Id, originalTrip.TripChain.Person.Id, passengerDistance, newDistance);
                     }
                 }
             }
         }
+    }
 
-        public void HouseholdStart(ITashaHousehold household, int householdIterations)
-        {
-        }
+    public void HouseholdStart(ITashaHousehold household, int householdIterations)
+    {
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        PassengerIndex = -1;
+        if ( !String.IsNullOrWhiteSpace( PassengerModeName ) )
         {
-            PassengerIndex = -1;
-            if ( !String.IsNullOrWhiteSpace( PassengerModeName ) )
+            for ( int i = 0; i < Root.AllModes.Count; i++ )
             {
-                for ( int i = 0; i < Root.AllModes.Count; i++ )
+                if ( Root.AllModes[i].ModeName == PassengerModeName )
                 {
-                    if ( Root.AllModes[i].ModeName == PassengerModeName )
-                    {
-                        PassengerIndex = i;
-                        break;
-                    }
-                }
-                if ( PassengerIndex <= 0 )
-                {
-                    error = "In '" + Name + "' we were unable to find any passenger mode with the name '" + PassengerModeName + "'.";
-                    return false;
+                    PassengerIndex = i;
+                    break;
                 }
             }
-            return true;
+            if ( PassengerIndex <= 0 )
+            {
+                error = "In '" + Name + "' we were unable to find any passenger mode with the name '" + PassengerModeName + "'.";
+                return false;
+            }
         }
+        return true;
+    }
 
-        public void IterationStarting(int iteration, int totalIterations)
-        {
-            
-        }
+    public void IterationStarting(int iteration, int totalIterations)
+    {
+        
+    }
 
-        public void IterationFinished(int iteration, int totalIterations)
-        {
-            
-        }
+    public void IterationFinished(int iteration, int totalIterations)
+    {
+        
     }
 }

@@ -19,40 +19,39 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IZoneSystem : IDataSource<IZoneSystem>
 {
-    public interface IZoneSystem : IDataSource<IZoneSystem>
-    {
-        /// <summary>
-        /// A 2D Sparse representation of the distances between the zones
-        /// </summary>
-        SparseTwinIndex<float> Distances { get; }
+    /// <summary>
+    /// A 2D Sparse representation of the distances between the zones
+    /// </summary>
+    SparseTwinIndex<float> Distances { get; }
 
-        /// <summary>
-        /// Get the number of External Zones
-        /// </summary>
-        int NumberOfExternalZones { get; }
+    /// <summary>
+    /// Get the number of External Zones
+    /// </summary>
+    int NumberOfExternalZones { get; }
 
-        /// <summary>
-        /// Get the number of Internal Zones
-        /// </summary>
-        int NumberOfInternalZones { get; }
+    /// <summary>
+    /// Get the number of Internal Zones
+    /// </summary>
+    int NumberOfInternalZones { get; }
 
-        /// <summary>
-        /// The number of zones
-        /// </summary>
-        int NumberOfZones { get; }
+    /// <summary>
+    /// The number of zones
+    /// </summary>
+    int NumberOfZones { get; }
 
-        /// <summary>
-        /// The zone number for roaming places of work
-        /// </summary>
-        int RoamingZoneNumber { get; set; }
+    /// <summary>
+    /// The zone number for roaming places of work
+    /// </summary>
+    int RoamingZoneNumber { get; set; }
 
-        /// <summary>
-        /// A sparse representation of the zone system
-        /// </summary>
-        SparseArray<IZone> ZoneArray { get; }
+    /// <summary>
+    /// A sparse representation of the zone system
+    /// </summary>
+    SparseArray<IZone> ZoneArray { get; }
 
-        IZone Get(int zoneNumber);
-    }
+    IZone Get(int zoneNumber);
 }

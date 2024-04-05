@@ -22,54 +22,53 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Analysis
+namespace TMG.GTAModel.Analysis;
+
+public class ValidateAges : ISelfContainedModule
 {
-    public class ValidateAges : ISelfContainedModule
+    [RootModule]
+    public IDemographicsModelSystemTemplate Root;
+
+    [SubModelInformation( Required = true, Description = "Where to save the analysis. (CSV)" )]
+    public FileLocation SaveTo;
+
+    public void Start()
     {
-        [RootModule]
-        public IDemographicsModelSystemTemplate Root;
-
-        [SubModelInformation( Required = true, Description = "Where to save the analysis. (CSV)" )]
-        public FileLocation SaveTo;
-
-        public void Start()
+        Progress = 0f;
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var ageRates = Root.Demographics.AgeRates.GetFlatData();
+        var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
+        using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
         {
-            Progress = 0f;
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var ageRates = Root.Demographics.AgeRates.GetFlatData();
-            var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
-            using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
+            writer.WriteLine( "Zone,AgeCategory,Persons" );
+            for ( int i = 0; i < ageRates.Length; i++ )
             {
-                writer.WriteLine( "Zone,AgeCategory,Persons" );
-                for ( int i = 0; i < ageRates.Length; i++ )
+                var rates = ageRates[i];
+                var pop = zones[i].Population;
+                var zoneNumber = zones[i].ZoneNumber;
+                for ( int age = 0; age < rates.Length; age++ )
                 {
-                    var rates = ageRates[i];
-                    var pop = zones[i].Population;
-                    var zoneNumber = zones[i].ZoneNumber;
-                    for ( int age = 0; age < rates.Length; age++ )
-                    {
-                        writer.Write( zoneNumber );
-                        writer.Write( ',' );
-                        writer.Write( ageCategories[age] );
-                        writer.Write( ',' );
-                        writer.WriteLine( pop * rates[age] );
-                    }
-                    // Update our progress
-                    Progress = (float)i / zones.Length;
+                    writer.Write( zoneNumber );
+                    writer.Write( ',' );
+                    writer.Write( ageCategories[age] );
+                    writer.Write( ',' );
+                    writer.WriteLine( pop * rates[age] );
                 }
+                // Update our progress
+                Progress = (float)i / zones.Length;
             }
-            Progress = 1f;
         }
+        Progress = 1f;
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress { get; set; }
+    public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour => null;
+    public Tuple<byte, byte, byte> ProgressColour => null;
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

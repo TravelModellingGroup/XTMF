@@ -22,71 +22,67 @@ using XTMF;
 using TMG.DataUtility;
 using System.IO;
 
-namespace TMG.Emme
+namespace TMG.Emme;
+
+public class ExportNetworkPackage : IEmmeTool
 {
-    public class ExportNetworkPackage : IEmmeTool
+    [RunParameter("Scenario", 0, "The Emme scenario to export")]
+    public int ScenarioNumber;
+
+    [RunParameter("Attributes to Export", "", "A list of extra attribute IDs to include in the NWP file (including the '@' symbol).  If you enter in 'All' all attributes will be exported.")]
+    public StringList AttributeIdsToExport;
+
+    [SubModelInformation(Description = "Network Package File", Required = true)]
+    public FileLocation ExportFile;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+    private const string ToolName = "tmg.input_output.export_network_package";
+    private const string OldToolName = "TMG2.IO.ExportScenario";
+
+    public bool Execute(Controller controller)
     {
-        [RunParameter("Scenario", 0, "The Emme scenario to export")]
-        public int ScenarioNumber;
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        var s = string.Join(",", [.. AttributeIdsToExport]);
 
-        [RunParameter("Attributes to Export", "", "A list of extra attribute IDs to include in the NWP file (including the '@' symbol).  If you enter in 'All' all attributes will be exported.")]
-        public StringList AttributeIdsToExport;
+        if(string.IsNullOrWhiteSpace(AttributeIdsToExport.ToString()))
+            s += "\"\"";
 
-        [SubModelInformation(Description = "Network Package File", Required = true)]
-        public FileLocation ExportFile;
+        var args = string.Join(" ", ScenarioNumber,
+                                    "\"" + Path.GetFullPath(ExportFile.GetFilePath()) + "\"",
+                                    s);
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string ToolName = "tmg.input_output.export_network_package";
-        private const string OldToolName = "TMG2.IO.ExportScenario";
+        Console.WriteLine("Export network from scenario " + ScenarioNumber.ToString() + " to file " + ExportFile.GetFilePath());
 
-        public bool Execute(Controller controller)
+        var result = "";
+        if(mc.CheckToolExists(this, ToolName))
         {
-            var mc = controller as ModellerController;
-            if(mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-
-            var s = string.Join(",", AttributeIdsToExport.ToArray());
-
-            if(string.IsNullOrWhiteSpace(AttributeIdsToExport.ToString()))
-                s += "\"\"";
-
-            var args = string.Join(" ", ScenarioNumber,
-                                        "\"" + Path.GetFullPath(ExportFile.GetFilePath()) + "\"",
-                                        s);
-
-            Console.WriteLine("Export network from scenario " + ScenarioNumber.ToString() + " to file " + ExportFile.GetFilePath());
-
-            var result = "";
-            if(mc.CheckToolExists(this, ToolName))
-            {
-                return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-            }
-            else
-            {
-                return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
-            }
+            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
         }
-
-        public string Name
+        else
         {
-            get;
-            set;
+            return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
         }
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

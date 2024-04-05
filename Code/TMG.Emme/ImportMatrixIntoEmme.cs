@@ -21,64 +21,61 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme
+namespace TMG.Emme;
+
+public class ImportMatrixIntoEmme : IEmmeTool
 {
-    public class ImportMatrixIntoEmme : IEmmeTool
+    [SubModelInformation(Description= "Demand Matrix File", Required= true)]
+    public FileLocation MatrixFile;
+
+    [RunParameter("Scenario", 0, "The number of the Emme scenario")]
+    public int ScenarioNumber;
+
+    private const string ToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+    private const string OldToolName = "TMG2.XTMF.ImportMatrix";
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+    public bool Execute(Controller controller)
     {
-        [SubModelInformation(Description= "Demand Matrix File", Required= true)]
-        public FileLocation MatrixFile;
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        var pathToUse = Path.GetFullPath(MatrixFile.GetFilePath());
+        var args = string.Join(" ", "\""+ pathToUse + "\"",
+                                    ScenarioNumber);
 
-        [RunParameter("Scenario", 0, "The number of the Emme scenario")]
-        public int ScenarioNumber;
+        Console.WriteLine("Importing matrix into scenario " + ScenarioNumber.ToString() + " from file " + pathToUse);
 
-        private const string ToolName = "tmg.XTMF_internal.import_matrix_batch_file";
-        private const string OldToolName = "TMG2.XTMF.ImportMatrix";
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-
-        public bool Execute(Controller controller)
+        var result = "";
+        if(mc.CheckToolExists(this, ToolName))
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            var pathToUse = Path.GetFullPath(MatrixFile.GetFilePath());
-            var args = string.Join(" ", "\""+ pathToUse + "\"",
-                                        ScenarioNumber);
-
-            Console.WriteLine("Importing matrix into scenario " + ScenarioNumber.ToString() + " from file " + pathToUse);
-
-            var result = "";
-            if(mc.CheckToolExists(this, ToolName))
-            {
-                return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-            }
-            else
-            {
-                return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
-            }
+            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
         }
-
-        public string Name
+        else
         {
-            get;
-            set;
+            return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
         }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
     }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
 }

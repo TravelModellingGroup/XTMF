@@ -24,147 +24,146 @@ using TMG;
 using XTMF;
 using TashaProject = Tasha.Scheduler.IProject;
 
-namespace Tasha.XTMFScheduler
+namespace Tasha.XTMFScheduler;
+
+public class Scheduler : ITashaScheduler
 {
-    public class Scheduler : ITashaScheduler
+    [SubModelInformation( Required = false, Description = "The different projects that will be available." )]
+    public List<TashaProject> Projects;
+
+    [SubModelInformation( Required = true, Description = "Combines episodes into a schedule and generates trips." )]
+    public IScheduleFactory SchedulingAgorithm;
+
+    [RunParameter( "Random Seed", 12345, "A number to fix the starting point of the random number generation." )]
+    public int Seed;
+
+    public string Name
     {
-        [SubModelInformation( Required = false, Description = "The different projects that will be available." )]
-        public List<TashaProject> Projects;
+        get;
+        set;
+    }
 
-        [SubModelInformation( Required = true, Description = "Combines episodes into a schedule and generates trips." )]
-        public IScheduleFactory SchedulingAgorithm;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        [RunParameter( "Random Seed", 12345, "A number to fix the starting point of the random number generation." )]
-        public int Seed;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public string Name
+    public void LoadOneTimeLocalData()
+    {
+    }
+
+    public void Run(ITashaHousehold household)
+    {
+        Random householdRandom = new( Seed * household.HouseholdId );
+        var persons = household.Persons;
+        List<IActivityEpisode>[] episodes = InitializeEpisodes( persons );
+        GenerateEpisodes( household, householdRandom, persons, episodes );
+        OrderPriorities( episodes );
+        ScheduleEpisodes(householdRandom, episodes );
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public Time TravelTime(ITashaPerson person, IZone origin, IZone destination, Time tashaTime)
+    {
+        return Time.Zero;
+    }
+
+    private static void BubbleSortList(List<IActivityEpisode> list)
+    {
+        for ( int i = 0; i < list.Count; i++ )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void LoadOneTimeLocalData()
-        {
-        }
-
-        public void Run(ITashaHousehold household)
-        {
-            Random householdRandom = new Random( Seed * household.HouseholdId );
-            var persons = household.Persons;
-            List<IActivityEpisode>[] episodes = InitializeEpisodes( persons );
-            GenerateEpisodes( household, householdRandom, persons, episodes );
-            OrderPriorities( episodes );
-            ScheduleEpisodes(householdRandom, episodes );
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public Time TravelTime(ITashaPerson person, IZone origin, IZone destination, Time tashaTime)
-        {
-            return Time.Zero;
-        }
-
-        private static void BubbleSortList(List<IActivityEpisode> list)
-        {
-            for ( int i = 0; i < list.Count; i++ )
+            for ( int j = i + 1; j < list.Count; j++ )
             {
-                for ( int j = i + 1; j < list.Count; j++ )
+                if ( list[i].Priority > list[i - 1].Priority )
                 {
-                    if ( list[i].Priority > list[i - 1].Priority )
-                    {
-                        var temp = list[i - 1];
-                        list[i - 1] = list[i];
-                        list[i] = temp;
-                    }
+                    var temp = list[i - 1];
+                    list[i - 1] = list[i];
+                    list[i] = temp;
                 }
             }
         }
+    }
 
-        private static List<IActivityEpisode>[] InitializeEpisodes(ITashaPerson[] persons)
+    private static List<IActivityEpisode>[] InitializeEpisodes(ITashaPerson[] persons)
+    {
+        List<IActivityEpisode>[] episodes = new List<IActivityEpisode>[persons.Length];
+        for ( int p = 0; p < persons.Length; p++ )
         {
-            List<IActivityEpisode>[] episodes = new List<IActivityEpisode>[persons.Length];
+            episodes[p] = [];
+        }
+        return episodes;
+    }
+
+    private static void OrderPriorities(List<IActivityEpisode>[] episodes)
+    {
+        for ( int i = 0; i < episodes.Length; i++ )
+        {
+            BubbleSortList( episodes[i] );
+        }
+    }
+
+    private int CountEpisodes(List<IActivityEpisode>[] episodes)
+    {
+        var total = episodes[0].Count;
+        for ( int i = 1; i < episodes.Length; i++ )
+        {
+            total += episodes[i].Count;
+        }
+        return total;
+    }
+
+    private void GenerateEpisodes(ITashaHousehold household, Random householdsRandom, ITashaPerson[] persons, List<IActivityEpisode>[] episodes)
+    {
+        for ( int i = 0; i < Projects.Count; i++ )
+        {
             for ( int p = 0; p < persons.Length; p++ )
             {
-                episodes[p] = new List<IActivityEpisode>();
-            }
-            return episodes;
-        }
-
-        private static void OrderPriorities(List<IActivityEpisode>[] episodes)
-        {
-            for ( int i = 0; i < episodes.Length; i++ )
-            {
-                BubbleSortList( episodes[i] );
+                Projects[i].Generate( household, persons[p], episodes[p], householdsRandom );
             }
         }
+    }
 
-        private int CountEpisodes(List<IActivityEpisode>[] episodes)
+    private void ScheduleEpisodes(Random householdRandom, List<IActivityEpisode>[] episodes)
+    {
+        int totalEpisodes = CountEpisodes( episodes );
+        int[] index = new int[episodes.Length];
+        ISchedule[] schedules = new ISchedule[episodes.Length];
+        for ( int i = 0; i < schedules.Length; i++ )
         {
-            var total = episodes[0].Count;
-            for ( int i = 1; i < episodes.Length; i++ )
-            {
-                total += episodes[i].Count;
-            }
-            return total;
+            schedules[i] = SchedulingAgorithm.Generate();
         }
-
-        private void GenerateEpisodes(ITashaHousehold household, Random householdsRandom, ITashaPerson[] persons, List<IActivityEpisode>[] episodes)
+        // insert into the schedule
+        for ( int episodeIndex = 0; episodeIndex < totalEpisodes; episodeIndex++ )
         {
-            for ( int i = 0; i < Projects.Count; i++ )
+            int personToRun = -1;
+            int maxPriority = int.MinValue;
+            for ( int i = 0; i < index.Length; i++ )
             {
-                for ( int p = 0; p < persons.Length; p++ )
+                // make sure there is another episode to run
+                if ( index[i] < episodes[i].Count )
                 {
-                    Projects[i].Generate( household, persons[p], episodes[p], householdsRandom );
-                }
-            }
-        }
-
-        private void ScheduleEpisodes(Random householdRandom, List<IActivityEpisode>[] episodes)
-        {
-            int totalEpisodes = CountEpisodes( episodes );
-            int[] index = new int[episodes.Length];
-            ISchedule[] schedules = new ISchedule[episodes.Length];
-            for ( int i = 0; i < schedules.Length; i++ )
-            {
-                schedules[i] = SchedulingAgorithm.Generate();
-            }
-            // insert into the schedule
-            for ( int episodeIndex = 0; episodeIndex < totalEpisodes; episodeIndex++ )
-            {
-                int personToRun = -1;
-                int maxPriority = int.MinValue;
-                for ( int i = 0; i < index.Length; i++ )
-                {
-                    // make sure there is another episode to run
-                    if ( index[i] < episodes[i].Count )
+                    var episode = episodes[i][index[i]];
+                    if ( maxPriority < episode.Priority )
                     {
-                        var episode = episodes[i][index[i]];
-                        if ( maxPriority < episode.Priority )
-                        {
-                            maxPriority = episode.Priority;
-                            personToRun = i;
-                        }
+                        maxPriority = episode.Priority;
+                        personToRun = i;
                     }
                 }
-                if ( personToRun < 0 )
-                {
-                    break;
-                }
-                schedules[personToRun].Insert( householdRandom, episodes[personToRun][index[personToRun]] );
             }
+            if ( personToRun < 0 )
+            {
+                break;
+            }
+            schedules[personToRun].Insert( householdRandom, episodes[personToRun][index[personToRun]] );
         }
     }
 }

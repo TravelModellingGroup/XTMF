@@ -1,114 +1,110 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF.Interfaces;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// 
+/// </summary>
+public class RegionGroup : IRegionGroup, INotifyPropertyChanged
 {
+    private string _name;
+
+    private List<IModelSystemStructure> _modules;
+
+    public event EventHandler ModulesUpdated;
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public RegionDisplay ParentDisplay { get; set; }
+
+    public string Name
+    {
+        get
+        {
+            return _name;
+        }
+        set
+        {
+            _name = value;
+            OnPropertyChanged(nameof(Name));
+
+        }
+    }
+    public List<IModelSystemStructure> Modules {
+        get
+        {
+            return _modules;
+        }
+        set
+        {
+
+        }
+
+    }
+
     /// <summary>
     /// 
     /// </summary>
-    public class RegionGroup : IRegionGroup, INotifyPropertyChanged
+    /// <param name="group"></param>
+    public void UpdateModules(IRegionGroup group)
     {
-        private string _name;
+        ModulesUpdated?.Invoke(group,new EventArgs());
+    }
 
-        private List<IModelSystemStructure> _modules;
 
-        public event EventHandler ModulesUpdated;
-        public event PropertyChangedEventHandler PropertyChanged;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    private void OnPropertyChanged(string name)
+    {
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
 
-        public RegionDisplay ParentDisplay { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="parent"></param>
+    public RegionGroup(RegionDisplay parent)
+    {
+        _modules = [];
+        ParentDisplay = parent;
+    }
 
-        public string Name
+   /// <summary>
+   /// 
+   /// </summary>
+   /// <param name="clone"></param>
+   /// <param name="cloneStructure"></param>
+   /// <param name="parent"></param>
+    public RegionGroup(IRegionGroup clone, IModelSystemStructure cloneStructure, IRegionDisplay parent)
+    {
+        _modules = [];
+        Name = clone.Name;
+        ParentDisplay = (RegionDisplay)parent;
+
+        foreach (var module in clone.Modules)
         {
-            get
-            {
-                return _name;
-            }
-            set
-            {
-                _name = value;
-                OnPropertyChanged(nameof(Name));
+            _modules.Add(GetSiblingModule(module,cloneStructure));
 
-            }
-        }
-        public List<IModelSystemStructure> Modules {
-            get
-            {
-                return _modules;
-            }
-            set
-            {
-
-            }
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="group"></param>
-        public void UpdateModules(IRegionGroup group)
-        {
-            ModulesUpdated?.Invoke(group,new EventArgs());
-        }
+        return;
+    }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="original"></param>
+    /// <param name="cloneRoot"></param>
+    /// <returns></returns>
+    private IModelSystemStructure GetSiblingModule(IModelSystemStructure original, IModelSystemStructure cloneRoot)
+    {
+        var path = ModelSystemStructure.GetModuleReferencePath(original, []);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        private void OnPropertyChanged(string name)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="parent"></param>
-        public RegionGroup(RegionDisplay parent)
-        {
-            _modules = new List<IModelSystemStructure>();
-            ParentDisplay = parent;
-        }
-
-       /// <summary>
-       /// 
-       /// </summary>
-       /// <param name="clone"></param>
-       /// <param name="cloneStructure"></param>
-       /// <param name="parent"></param>
-        public RegionGroup(IRegionGroup clone, IModelSystemStructure cloneStructure, IRegionDisplay parent)
-        {
-            _modules = new List<IModelSystemStructure>();
-            Name = clone.Name;
-            ParentDisplay = (RegionDisplay)parent;
-
-            foreach (var module in clone.Modules)
-            {
-                _modules.Add(GetSiblingModule(module,cloneStructure));
-
-
-            }
-
-            return;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="original"></param>
-        /// <param name="cloneRoot"></param>
-        /// <returns></returns>
-        private IModelSystemStructure GetSiblingModule(IModelSystemStructure original, IModelSystemStructure cloneRoot)
-        {
-            var path = ModelSystemStructure.GetModuleReferencePath(original, new List<string>());
-
-            return ModelSystemStructure.GetModuleFromReference(path, cloneRoot);
-        }
+        return ModelSystemStructure.GetModuleFromReference(path, cloneRoot);
     }
 }

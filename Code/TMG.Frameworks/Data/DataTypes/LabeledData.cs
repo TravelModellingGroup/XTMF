@@ -19,10 +19,9 @@
 
 using System.Collections.Generic;
 
-namespace TMG.Frameworks.Data.DataTypes
+namespace TMG.Frameworks.Data.DataTypes;
+
+public class LabeledData<T> : Dictionary<string, T>
 {
-    public class LabeledData<T> : Dictionary<string, T>
-    {
-        
-    }
+    
 }

@@ -19,16 +19,15 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IPurpose : IModule
 {
-    public interface IPurpose : IModule
-    {
-        List<TreeData<float[][]>> Flows { get; }
+    List<TreeData<float[][]>> Flows { get; }
 
-        IMultiModeSplit ModeSplit { get; set; }
+    IMultiModeSplit ModeSplit { get; set; }
 
-        string PurposeName { get; }
+    string PurposeName { get; }
 
-        void Run();
-    }
+    void Run();
 }

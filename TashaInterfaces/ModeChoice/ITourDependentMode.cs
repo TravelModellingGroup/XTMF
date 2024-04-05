@@ -18,18 +18,17 @@
 */
 using System;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface ITourDependentMode : ITashaMode
 {
-    public interface ITourDependentMode : ITashaMode
-    {
-        /// <summary>
-        /// Calculates the tour dependent portion of the utility for the trip
-        /// </summary>
-        /// <param name="chain">The trip chain to evaluate</param>
-        /// <param name="tripIndex">The index in the chain that we are computing</param>
-        /// <param name="dependentUtility">The utility to add to the independent portion of the utility</param>
-        /// <param name="onSelection">A function that can act on the trip chain.  This will be executed before passenger mode is evaluated.</param>
-        /// <returns>True if the tour is feasible</returns>
-        bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<Random, ITripChain> onSelection);
-    }
+    /// <summary>
+    /// Calculates the tour dependent portion of the utility for the trip
+    /// </summary>
+    /// <param name="chain">The trip chain to evaluate</param>
+    /// <param name="tripIndex">The index in the chain that we are computing</param>
+    /// <param name="dependentUtility">The utility to add to the independent portion of the utility</param>
+    /// <param name="onSelection">A function that can act on the trip chain.  This will be executed before passenger mode is evaluated.</param>
+    /// <returns>True if the tour is feasible</returns>
+    bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<Random, ITripChain> onSelection);
 }

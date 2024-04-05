@@ -24,182 +24,181 @@ using Tasha.Common;
 using TMG.Input;
 using Datastructure;
 
-namespace Tasha.Validation.Convergence
+namespace Tasha.Validation.Convergence;
+
+
+public sealed class ODMatrixConvergence : IPostIteration, ISelfContainedModule, IDisposable
 {
 
-    public sealed class ODMatrixConvergence : IPostIteration, ISelfContainedModule, IDisposable
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private StreamWriter Writer;
+
+    [SubModelInformation(Required = true, Description = "The first matrix to compare.")]
+    public IResource FirstMatrix;
+
+    [SubModelInformation(Required = true, Description = "The second matrix to compare.")]
+    public IResource SecondMatrix;
+
+    [RunParameter("Sum First", true, "Should we also provide a sum of the first matrix?")]
+    public bool SumFirst;
+
+    [SubModelInformation(Required = true, Description = "The location to save the report to.")]
+    public FileLocation ReportFile;
+
+    public enum AnalysisType
     {
+        Average = 0,
+        Max = 1
+    }
 
-        public string Name { get; set; }
+    [RunParameter("Analysis", "Average", typeof(AnalysisType), "The type of analysis to execute.  Options are 'Average', and 'Max'.")]
+    public AnalysisType AnalysisToRun;
 
-        public float Progress { get; set; }
+    public void Dispose()
+    {
+        Dispose(true);
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private StreamWriter Writer;
-
-        [SubModelInformation(Required = true, Description = "The first matrix to compare.")]
-        public IResource FirstMatrix;
-
-        [SubModelInformation(Required = true, Description = "The second matrix to compare.")]
-        public IResource SecondMatrix;
-
-        [RunParameter("Sum First", true, "Should we also provide a sum of the first matrix?")]
-        public bool SumFirst;
-
-        [SubModelInformation(Required = true, Description = "The location to save the report to.")]
-        public FileLocation ReportFile;
-
-        public enum AnalysisType
+    private void Dispose(bool managed)
+    {
+        if (managed)
         {
-            Average = 0,
-            Max = 1
+            GC.SuppressFinalize(this);
         }
+        Writer?.Dispose();
+        Writer = null;
+    }
 
-        [RunParameter("Analysis", "Average", typeof(AnalysisType), "The type of analysis to execute.  Options are 'Average', and 'Max'.")]
-        public AnalysisType AnalysisToRun;
+    ~ODMatrixConvergence()
+    {
+        Dispose(false);
+    }
 
-        public void Dispose()
+    public void Execute(int iterationNumber, int totalIterations)
+    {
+        if (Writer == null)
         {
-            Dispose(true);
+            Writer = new StreamWriter(ReportFile);
+            WriteHeader();
         }
-
-        private void Dispose(bool managed)
+        RecordData(iterationNumber);
+        // if this is the last iteration dispose
+        if (iterationNumber >= totalIterations - 1)
         {
-            if (managed)
-            {
-                GC.SuppressFinalize(this);
-            }
-            Writer?.Dispose();
+            Writer.Dispose();
             Writer = null;
         }
+    }
 
-        ~ODMatrixConvergence()
+    private void WriteHeader()
+    {
+        switch (AnalysisToRun)
         {
-            Dispose(false);
+            case AnalysisType.Average:
+                Writer.Write("Iteration,Average");
+                break;
+            case AnalysisType.Max:
+                Writer.Write("Iteration,Max");
+                break;
+            default:
+                break;
         }
+        Writer.WriteLine(SumFirst ? ",SumOfFirst" : "");
+    }
 
-        public void Execute(int iterationNumber, int totalIterations)
+    private void RecordData(int iterationNumber)
+    {
+        var first = FirstMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+        var second = SecondMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+        float value = 0.0f;
+        switch (AnalysisToRun)
         {
-            if (Writer == null)
+            case AnalysisType.Average:
+                value = GetAverage(first, second);
+                break;
+            case AnalysisType.Max:
+                value = GetMax(first, second);
+                break;
+        }
+        Writer.Write(iterationNumber + 1);
+        Writer.Write(',');
+        Writer.Write(value);
+        if (SumFirst)
+        {
+            var sum = 0.0f;
+            for (int i = 0; i < first.Length; i++)
             {
-                Writer = new StreamWriter(ReportFile);
+                sum += VectorHelper.Sum(first[i], 0, first[i].Length);
+            }
+            Writer.Write(',');
+            Writer.Write(sum);
+        }
+        Writer.WriteLine();
+    }
+
+    public void Start()
+    {
+        bool exists = new FileInfo(ReportFile).Exists;
+        using (Writer = new StreamWriter(ReportFile, true))
+        {
+            if(!exists)
+            {
                 WriteHeader();
             }
-            RecordData(iterationNumber);
-            // if this is the last iteration dispose
-            if (iterationNumber >= totalIterations - 1)
-            {
-                Writer.Dispose();
-                Writer = null;
-            }
+            RecordData(Iteration++);
         }
+    }
 
-        private void WriteHeader()
+    private int Iteration;
+
+    private float GetAverage(float[][] first, float[][] second)
+    {
+        var diff = 0.0f;
+        for (int i = 0; i < first.Length; i++)
         {
-            switch (AnalysisToRun)
-            {
-                case AnalysisType.Average:
-                    Writer.Write("Iteration,Average");
-                    break;
-                case AnalysisType.Max:
-                    Writer.Write("Iteration,Max");
-                    break;
-                default:
-                    break;
-            }
-            Writer.WriteLine(SumFirst ? ",SumOfFirst" : "");
+            diff += VectorHelper.AbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
         }
 
-        private void RecordData(int iterationNumber)
+        diff = diff / first.Length;
+        FirstMatrix.ReleaseResource();
+        SecondMatrix.ReleaseResource();
+        return diff;
+    }
+
+    private float GetMax(float[][] first, float[][] second)
+    {
+        var diff = 0.0f;
+        for (int i = 0; i < first.Length; i++)
         {
-            var first = FirstMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var second = SecondMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            float value = 0.0f;
-            switch (AnalysisToRun)
-            {
-                case AnalysisType.Average:
-                    value = GetAverage(first, second);
-                    break;
-                case AnalysisType.Max:
-                    value = GetMax(first, second);
-                    break;
-            }
-            Writer.Write(iterationNumber + 1);
-            Writer.Write(',');
-            Writer.Write(value);
-            if (SumFirst)
-            {
-                var sum = 0.0f;
-                for (int i = 0; i < first.Length; i++)
-                {
-                    sum += VectorHelper.Sum(first[i], 0, first[i].Length);
-                }
-                Writer.Write(',');
-                Writer.Write(sum);
-            }
-            Writer.WriteLine();
+            diff = Math.Max(VectorHelper.AbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
         }
+        FirstMatrix.ReleaseResource();
+        SecondMatrix.ReleaseResource();
+        return diff;
+    }
 
-        public void Start()
+    public void Load(IConfiguration config, int totalIterations)
+    {
+
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (!FirstMatrix.CheckResourceType<SparseTwinIndex<float>>())
         {
-            bool exists = new FileInfo(ReportFile).Exists;
-            using (Writer = new StreamWriter(ReportFile, true))
-            {
-                if(!exists)
-                {
-                    WriteHeader();
-                }
-                RecordData(Iteration++);
-            }
+            error = "In '" + Name + "' the FirstMatrix resource is not of type 'SparseTwinIndex<float>'!";
+            return false;
         }
-
-        private int Iteration;
-
-        private float GetAverage(float[][] first, float[][] second)
+        if (!SecondMatrix.CheckResourceType<SparseTwinIndex<float>>())
         {
-            var diff = 0.0f;
-            for (int i = 0; i < first.Length; i++)
-            {
-                diff += VectorHelper.AbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
-            }
-
-            diff = diff / first.Length;
-            FirstMatrix.ReleaseResource();
-            SecondMatrix.ReleaseResource();
-            return diff;
+            error = "In '" + Name + "' the SecondMatrix resource is not of type 'SparseTwinIndex<float>'!";
+            return false;
         }
-
-        private float GetMax(float[][] first, float[][] second)
-        {
-            var diff = 0.0f;
-            for (int i = 0; i < first.Length; i++)
-            {
-                diff = Math.Max(VectorHelper.AbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
-            }
-            FirstMatrix.ReleaseResource();
-            SecondMatrix.ReleaseResource();
-            return diff;
-        }
-
-        public void Load(IConfiguration config, int totalIterations)
-        {
-
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (!FirstMatrix.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the FirstMatrix resource is not of type 'SparseTwinIndex<float>'!";
-                return false;
-            }
-            if (!SecondMatrix.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the SecondMatrix resource is not of type 'SparseTwinIndex<float>'!";
-                return false;
-            }
-            return true;
-        }
+        return true;
     }
 }

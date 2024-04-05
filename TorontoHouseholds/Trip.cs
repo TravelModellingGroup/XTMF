@@ -22,165 +22,164 @@ using System.Collections.Generic;
 using TMG;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// This class is designed to represent abstract single trip
+/// </summary>
+
+public class Trip : Attachable, ITrip
 {
-    /// <summary>
-    /// This class is designed to represent abstract single trip
-    /// </summary>
+    #region ITrip Members
 
-    public class Trip : Attachable, ITrip
+    public IZone DestinationZone
     {
-        #region ITrip Members
-
-        public IZone DestinationZone
-        {
-            get;
-            set;
-        }
-
-        public IZone IntermediateZone
-        {
-            get;
-            set;
-        }
-
-        public ITashaMode Mode
-        {
-            get;
-            set;
-        }
-
-        public IZone OriginalZone
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// TODO: Relate this to cPurpose
-        /// </summary>
-        public Activity Purpose
-        {
-            get;
-            set;
-        }
-
-        public ITashaPerson SharedModeDriver { get; set; }
-
-        public ITripChain TripChain
-        {
-            get;
-            set;
-        }
-
-        #endregion ITrip Members
-
-        private static ConcurrentQueue<Trip> Trips = new ConcurrentQueue<Trip>();
-
-        public Trip(ITripChain chain, IZone origin, IZone destination, Activity purpose, Time startTime, int householdIterations)
-        {
-            TripChain = chain;
-            TripStartTime = startTime;
-            OriginalZone = origin;
-            DestinationZone = destination;
-            Purpose = purpose;
-            IntermediateZone = null;
-            Passengers = new List<ITashaPerson>();
-            ModesChosen = new ITashaMode[householdIterations];
-        }
-
-        private Trip(int householdIterations)
-        {
-            ModesChosen = new ITashaMode[householdIterations];
-        }
-
-        /// <summary>
-        /// What time does this trip start at?
-        /// </summary>
-        public Time ActivityStartTime
-        {
-            get
-            {
-                return Mode == null ? TripStartTime : TripStartTime + Mode.TravelTime( OriginalZone, DestinationZone, TripStartTime );
-            }
-        }
-
-        public ITashaMode[] ModesChosen
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets a trip off of the stack
-        /// </summary>
-        /// <returns>A Trip to use</returns>
-        public static Trip GetTrip(int householdIterations)
-        {
-            if (!Trips.TryDequeue(out Trip t))
-            {
-                return new Trip(householdIterations);
-            }
-            return t;
-        }
-
-        public ITrip Clone()
-        {
-            return (ITrip)MemberwiseClone();
-        }
-
-        public void Recycle()
-        {
-            Release();
-            Array.Clear( ModesChosen, 0, ModesChosen.Length );
-            Mode = null;
-            TripChain = null;
-            Trips.Enqueue( this );
-        }
-
-        internal static void ReleaseTripPool()
-        {
-            Trips = new ConcurrentQueue<Trip>();
-        }
-
-        #region ITrip Members
-
-        public int TripNumber
-        {
-            get;
-            set;
-        }
-
-        #endregion ITrip Members
-
-        #region ITrip Members
-
-        public Time TripStartTime
-        {
-            get;
-            set;
-        }
-
-        #endregion ITrip Members
-
-        #region ITrip Members
-
-        public Time TravelTime
-        {
-            get;
-            set;
-        }
-
-        #endregion ITrip Members
-
-        #region ITrip Members
-
-        public List<ITashaPerson> Passengers
-        {
-            get;
-            set;
-        }
-
-        #endregion ITrip Members
+        get;
+        set;
     }
+
+    public IZone IntermediateZone
+    {
+        get;
+        set;
+    }
+
+    public ITashaMode Mode
+    {
+        get;
+        set;
+    }
+
+    public IZone OriginalZone
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// TODO: Relate this to cPurpose
+    /// </summary>
+    public Activity Purpose
+    {
+        get;
+        set;
+    }
+
+    public ITashaPerson SharedModeDriver { get; set; }
+
+    public ITripChain TripChain
+    {
+        get;
+        set;
+    }
+
+    #endregion ITrip Members
+
+    private static ConcurrentQueue<Trip> Trips = new();
+
+    public Trip(ITripChain chain, IZone origin, IZone destination, Activity purpose, Time startTime, int householdIterations)
+    {
+        TripChain = chain;
+        TripStartTime = startTime;
+        OriginalZone = origin;
+        DestinationZone = destination;
+        Purpose = purpose;
+        IntermediateZone = null;
+        Passengers = [];
+        ModesChosen = new ITashaMode[householdIterations];
+    }
+
+    private Trip(int householdIterations)
+    {
+        ModesChosen = new ITashaMode[householdIterations];
+    }
+
+    /// <summary>
+    /// What time does this trip start at?
+    /// </summary>
+    public Time ActivityStartTime
+    {
+        get
+        {
+            return Mode == null ? TripStartTime : TripStartTime + Mode.TravelTime( OriginalZone, DestinationZone, TripStartTime );
+        }
+    }
+
+    public ITashaMode[] ModesChosen
+    {
+        get;
+        private set;
+    }
+
+    /// <summary>
+    /// Gets a trip off of the stack
+    /// </summary>
+    /// <returns>A Trip to use</returns>
+    public static Trip GetTrip(int householdIterations)
+    {
+        if (!Trips.TryDequeue(out Trip t))
+        {
+            return new Trip(householdIterations);
+        }
+        return t;
+    }
+
+    public ITrip Clone()
+    {
+        return (ITrip)MemberwiseClone();
+    }
+
+    public void Recycle()
+    {
+        Release();
+        Array.Clear( ModesChosen, 0, ModesChosen.Length );
+        Mode = null;
+        TripChain = null;
+        Trips.Enqueue( this );
+    }
+
+    internal static void ReleaseTripPool()
+    {
+        Trips = new ConcurrentQueue<Trip>();
+    }
+
+    #region ITrip Members
+
+    public int TripNumber
+    {
+        get;
+        set;
+    }
+
+    #endregion ITrip Members
+
+    #region ITrip Members
+
+    public Time TripStartTime
+    {
+        get;
+        set;
+    }
+
+    #endregion ITrip Members
+
+    #region ITrip Members
+
+    public Time TravelTime
+    {
+        get;
+        set;
+    }
+
+    #endregion ITrip Members
+
+    #region ITrip Members
+
+    public List<ITashaPerson> Passengers
+    {
+        get;
+        set;
+    }
+
+    #endregion ITrip Members
 }

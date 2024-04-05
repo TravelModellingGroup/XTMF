@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF.Networking;
 
 namespace XTMF.Run;
@@ -49,7 +46,7 @@ public class ConfigurationProxy : IConfiguration
     {
         _realConfiguration = realConfig;
         ProjectRepository = new ProjectRepositoryProxy(_realConfiguration.ProjectRepository, activeProject);
-        ProgressReports = new BindingListWithRemoving<IProgressReport>();
+        ProgressReports = [];
     }
 
     public string ConfigurationDirectory => _realConfiguration.ConfigurationDirectory;
@@ -108,7 +105,7 @@ public class ConfigurationProxy : IConfiguration
         throw new NotSupportedException("Installing modules is not supported from a model run!");
     }
 
-    public IClient RetriveCurrentNetworkingClient() => _realConfiguration.RetriveCurrentNetworkingClient();
+    public IClient RetrieveCurrentNetworkingClient() => _realConfiguration.RetrieveCurrentNetworkingClient();
 
     public void Save() => _realConfiguration.Save();
 

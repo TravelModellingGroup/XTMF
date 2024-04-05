@@ -19,20 +19,19 @@
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+/// <summary>
+/// Used to support a more moduler form of calculating error
+/// </summary>
+public interface IErrorTally : IModule
 {
     /// <summary>
-    /// Used to support a more moduler form of calculating error
+    /// Compute the error
     /// </summary>
-    public interface IErrorTally : IModule
-    {
-        /// <summary>
-        /// Compute the error
-        /// </summary>
-        /// <param name="parameters">The parameters that we are running</param>
-        /// <param name="truth">The truth data for the lines</param>
-        /// <param name="predicted">The predicted data for the lines</param>
-        /// <returns>The computed error value</returns>
-        float ComputeError(ParameterSetting[] parameters, TransitLine[] truth, TransitLine[] predicted);
-    }
+    /// <param name="parameters">The parameters that we are running</param>
+    /// <param name="truth">The truth data for the lines</param>
+    /// <param name="predicted">The predicted data for the lines</param>
+    /// <returns>The computed error value</returns>
+    float ComputeError(ParameterSetting[] parameters, TransitLine[] truth, TransitLine[] predicted);
 }

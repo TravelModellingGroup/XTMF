@@ -17,20 +17,15 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace XTMF
+namespace XTMF;
+
+public class RedirectModule : Attribute
 {
-    public class RedirectModule : Attribute
-    {
-        public string FromType { get; }
+    public string FromType { get; }
 
-        public RedirectModule(string fromType)
-        {
-            FromType = fromType;
-        }
-    } 
-}
+    public RedirectModule(string fromType)
+    {
+        FromType = fromType;
+    }
+} 

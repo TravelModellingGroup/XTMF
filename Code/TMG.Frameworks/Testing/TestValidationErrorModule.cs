@@ -18,41 +18,35 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
-namespace TMG.Frameworks.Testing
+namespace TMG.Frameworks.Testing;
+
+[ModuleInformation(Description =
+    @"A test module that simulates validation errors. ",
+    IconURI = "TestTube")]
+public class TestValidationErrorModule : ISelfContainedModule
 {
-    [ModuleInformation(Description =
-        @"A test module that simulates validation errors. ",
-        IconURI = "TestTube")]
-    public class TestValidationErrorModule : ISelfContainedModule
+    public string Name { get; set; } = "TestValidationErrorModule";
+    public float Progress { get; }
+    public Tuple<byte, byte, byte> ProgressColour { get; }
+
+    [SubModelInformation(Required = true)]
+    public IModule RequiredSubModule { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="error"></param>
+    /// <returns></returns>
+    public bool RuntimeValidation(ref string error)
     {
-        public string Name { get; set; } = "TestValidationErrorModule";
-        public float Progress { get; }
-        public Tuple<byte, byte, byte> ProgressColour { get; }
-
-        [SubModelInformation(Required = true)]
-        public IModule RequiredSubModule { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        public bool RuntimeValidation(ref string error)
-        {
-            error = "Generic Validation Error";
-            return false;
-        }
-
-        public void Start()
-        {
-            
-        }
+        error = "Generic Validation Error";
+        return false;
     }
 
+    public void Start()
+    {
+        
+    }
 }

@@ -20,68 +20,66 @@ using System;
 using XTMF;
 using TMG;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+
+public abstract class IterationConditional : IModule
 {
+    [RootModule]
+    public IIterativeModel Root;
 
-    public abstract class IterationConditional : IModule
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public enum Condition
     {
-        [RootModule]
-        public IIterativeModel Root;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public enum Condition
-        {
-            LessThan,
-            GreaterThan,
-            LessThanOrEqualTo,
-            GreaterThanOrEqualTo,
-            Equals,
-            NotEquals
-        }
-
-        [RunParameter("Iteration Condition", "Equals", typeof(Condition), "Checks to see if the current iteration is X compared to our input.")]
-        public Condition IterationCondition;
-
-        [RunParameter("Value", 0, "The value to compare the iteration again.  For example (CurrentIteration < Value).")]
-        public int Value;
-
-        protected bool DoesIterationPass()
-        {
-            var currentIteration = Root.CurrentIteration;
-            var ret = false;
-            switch(IterationCondition)
-            {
-                case Condition.LessThan:
-                    ret = currentIteration < Value;
-                    break;
-                case Condition.GreaterThan:
-                    ret = currentIteration > Value;
-                    break;
-                case Condition.LessThanOrEqualTo:
-                    ret = currentIteration <= Value;
-                    break;
-                case Condition.GreaterThanOrEqualTo:
-                    ret = currentIteration >= Value;
-                    break;
-                case Condition.Equals:
-                    ret = currentIteration == Value;
-                    break;
-                case Condition.NotEquals:
-                    ret = currentIteration != Value;
-                    break;
-            }
-            return ret;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        LessThan,
+        GreaterThan,
+        LessThanOrEqualTo,
+        GreaterThanOrEqualTo,
+        Equals,
+        NotEquals
     }
 
+    [RunParameter("Iteration Condition", "Equals", typeof(Condition), "Checks to see if the current iteration is X compared to our input.")]
+    public Condition IterationCondition;
+
+    [RunParameter("Value", 0, "The value to compare the iteration again.  For example (CurrentIteration < Value).")]
+    public int Value;
+
+    protected bool DoesIterationPass()
+    {
+        var currentIteration = Root.CurrentIteration;
+        var ret = false;
+        switch(IterationCondition)
+        {
+            case Condition.LessThan:
+                ret = currentIteration < Value;
+                break;
+            case Condition.GreaterThan:
+                ret = currentIteration > Value;
+                break;
+            case Condition.LessThanOrEqualTo:
+                ret = currentIteration <= Value;
+                break;
+            case Condition.GreaterThanOrEqualTo:
+                ret = currentIteration >= Value;
+                break;
+            case Condition.Equals:
+                ret = currentIteration == Value;
+                break;
+            case Condition.NotEquals:
+                ret = currentIteration != Value;
+                break;
+        }
+        return ret;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 }

@@ -16,24 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
-{
-    /*
-        C Combination/Dual Pass
-        G GO Transit Pass
-        M Metro Pass
-        N None
-        O Other Agency Pass
-        9 Refused/Unknown
-     */
+namespace Tasha.Common;
 
-    public enum TransitPass
-    {
-        Combination = 'C',
-        Go = 'G',
-        Metro = 'M',
-        None = 'N',
-        Other = 'O',
-        Unknown = 'U'
-    }
+/*
+    C Combination/Dual Pass
+    G GO Transit Pass
+    M Metro Pass
+    N None
+    O Other Agency Pass
+    9 Refused/Unknown
+ */
+
+public enum TransitPass
+{
+    Combination = 'C',
+    Go = 'G',
+    Metro = 'M',
+    None = 'N',
+    Other = 'O',
+    Unknown = 'U'
 }

@@ -25,166 +25,165 @@ using TMG;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation.ModeChoice
+namespace Tasha.Validation.ModeChoice;
+
+public class ZonalModeSplits : IPostHouseholdIteration
 {
-    public class ZonalModeSplits : IPostHouseholdIteration
+    public string Name { get; set; }
+
+    public float Progress
     {
-        public string Name { get; set; }
-
-        public float Progress
+        get
         {
-            get
+            return 0f;
+        }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
+        {
+            return null;
+        }
+    }
+
+    public void HouseholdComplete(ITashaHousehold household, bool success)
+    {
+
+    }
+
+    [RunParameter("Start time", "6:00AM", typeof(Time), "The start time to capture (inclusive).")]
+    public Time StartTime;
+
+    [RunParameter("End time", "9:00AM", typeof(Time), "The end time (exclusive) to capture.")]
+    public Time EndTime;
+
+    [RunParameter("Minimum Age", 11, "The minimum age allowed for the person's trip to _Count.")]
+    public int MinimumAge;
+
+    public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    {
+        foreach(var person in household.Persons)
+        {
+            if(person.Age < MinimumAge)
             {
-                return 0f;
+                continue;
             }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get
+            var expansionFactor = person.ExpansionFactor;
+            foreach(var tripChain in person.TripChains)
             {
-                return null;
-            }
-        }
-
-        public void HouseholdComplete(ITashaHousehold household, bool success)
-        {
-
-        }
-
-        [RunParameter("Start time", "6:00AM", typeof(Time), "The start time to capture (inclusive).")]
-        public Time StartTime;
-
-        [RunParameter("End time", "9:00AM", typeof(Time), "The end time (exclusive) to capture.")]
-        public Time EndTime;
-
-        [RunParameter("Minimum Age", 11, "The minimum age allowed for the person's trip to _Count.")]
-        public int MinimumAge;
-
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
-        {
-            foreach(var person in household.Persons)
-            {
-                if(person.Age < MinimumAge)
+                foreach(var trip in tripChain.Trips)
                 {
-                    continue;
-                }
-                var expansionFactor = person.ExpansionFactor;
-                foreach(var tripChain in person.TripChains)
-                {
-                    foreach(var trip in tripChain.Trips)
+                    var tripTime = trip.TripStartTime;
+                    if(tripTime >= StartTime && tripTime < EndTime)
                     {
-                        var tripTime = trip.TripStartTime;
-                        if(tripTime >= StartTime && tripTime < EndTime)
+                        var index = GetIndex(trip.Mode);
+                        var oIndex = ZoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber);
+                        var dIndex = ZoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+                        if(oIndex >= 0 & dIndex >= 0)
                         {
-                            var index = GetIndex(trip.Mode);
-                            var oIndex = ZoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber);
-                            var dIndex = ZoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
-                            if(oIndex >= 0 & dIndex >= 0)
+                            bool taken = false;
+                            DataLock[index].Enter(ref taken);
+                            if(taken)
                             {
-                                bool taken = false;
-                                DataLock[index].Enter(ref taken);
-                                if(taken)
-                                {
-                                    Data[index][oIndex][dIndex] += expansionFactor;
-                                    DataLock[index].Exit(true);
-                                }
+                                Data[index][oIndex][dIndex] += expansionFactor;
+                                DataLock[index].Exit(true);
                             }
                         }
                     }
                 }
             }
         }
+    }
 
-        private int GetIndex(ITashaMode mode)
+    private int GetIndex(ITashaMode mode)
+    {
+        for(int i = 0; i < Modes.Length; i++)
         {
-            for(int i = 0; i < Modes.Length; i++)
+            if(Modes[i] == mode)
             {
-                if(Modes[i] == mode)
-                {
-                    return i;
-                }
+                return i;
             }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '" + mode.ModeName + "'");
         }
+        throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '" + mode.ModeName + "'");
+    }
 
-        public void HouseholdStart(ITashaHousehold household, int householdIterations)
+    public void HouseholdStart(ITashaHousehold household, int householdIterations)
+    {
+
+    }
+
+    [SubModelInformation(Required = true, Description = "The location to save the file.")]
+    public FileLocation SaveLocation;
+
+    public void IterationFinished(int iteration, int totalIterations)
+    {
+        var zones = ZoneSystem.ValidIndexArray();
+        using (StreamWriter writer = new(SaveLocation))
         {
-
-        }
-
-        [SubModelInformation(Required = true, Description = "The location to save the file.")]
-        public FileLocation SaveLocation;
-
-        public void IterationFinished(int iteration, int totalIterations)
-        {
-            var zones = ZoneSystem.ValidIndexArray();
-            using (StreamWriter writer = new StreamWriter(SaveLocation))
+            writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
+            for(int m = 0; m < Data.Length; m++)
             {
-                writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
-                for(int m = 0; m < Data.Length; m++)
+                string modeName = Modes[m].ModeName + ",";
+                var oRow = Data[m];
+                for(int o = 0; o < oRow.Length; o++)
                 {
-                    string modeName = Modes[m].ModeName + ",";
-                    var oRow = Data[m];
-                    for(int o = 0; o < oRow.Length; o++)
+                    var dRow = oRow[o];
+                    for(int d = 0; d < dRow.Length; d++)
                     {
-                        var dRow = oRow[o];
-                        for(int d = 0; d < dRow.Length; d++)
+                        if(dRow[d] > 0)
                         {
-                            if(dRow[d] > 0)
-                            {
-                                // this includes the comma already
-                                writer.Write(modeName);
-                                writer.Write(zones[o]);
-                                writer.Write(',');
-                                writer.Write(zones[d]);
-                                writer.Write(',');
-                                writer.WriteLine(dRow[d]);
-                            }
+                            // this includes the comma already
+                            writer.Write(modeName);
+                            writer.Write(zones[o]);
+                            writer.Write(',');
+                            writer.Write(zones[d]);
+                            writer.Write(',');
+                            writer.WriteLine(dRow[d]);
                         }
                     }
                 }
             }
-            Data = null;
         }
+        Data = null;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    [RootModule]
+    public ITashaRuntime Root;
 
-        private SparseArray<IZone> ZoneSystem;
-        private ITashaMode[] Modes;
-        private float[][][] Data;
-        private SpinLock[] DataLock;
+    private SparseArray<IZone> ZoneSystem;
+    private ITashaMode[] Modes;
+    private float[][][] Data;
+    private SpinLock[] DataLock;
 
-        public void IterationStarting(int iteration, int totalIterations)
+    public void IterationStarting(int iteration, int totalIterations)
+    {
+        var zoneSystem = Root.ZoneSystem.ZoneArray;
+        var zones = zoneSystem.GetFlatData();
+        var modes = Root.AllModes.ToArray();
+        // setup the data collection
+        var data = new float[modes.Length][][];
+        for(int i = 0; i < data.Length; i++)
         {
-            var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var zones = zoneSystem.GetFlatData();
-            var modes = Root.AllModes.ToArray();
-            // setup the data collection
-            var data = new float[modes.Length][][];
-            for(int i = 0; i < data.Length; i++)
+            var row = data[i] = new float[zones.Length][];
+            for(int j = 0; j < row.Length; j++)
             {
-                var row = data[i] = new float[zones.Length][];
-                for(int j = 0; j < row.Length; j++)
-                {
-                    row[j] = new float[zones.Length];
-                }
+                row[j] = new float[zones.Length];
             }
-            // setup the instance variables
-            DataLock = new SpinLock[modes.Length];
-            for(int i = 0; i < DataLock.Length; i++)
-            {
-                DataLock[i] = new SpinLock(false);
-            }
-            Data = data;
-            Modes = modes;
-            ZoneSystem = zoneSystem;
         }
-
-        public bool RuntimeValidation(ref string error)
+        // setup the instance variables
+        DataLock = new SpinLock[modes.Length];
+        for(int i = 0; i < DataLock.Length; i++)
         {
-            return true;
+            DataLock[i] = new SpinLock(false);
         }
+        Data = data;
+        Modes = modes;
+        ZoneSystem = zoneSystem;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

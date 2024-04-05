@@ -22,76 +22,72 @@ using System.Text;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+[ModuleInformation( Name = "Extract Transit Travel Time Matrices",
+                    Description = "Extracts average in-vehicle, walking, waiting, and boarding time" +
+                                "matrices from a strategy-based assignment." )]
+public class ExtractTransitTravelTimes : IEmmeTool
 {
-    [ModuleInformation( Name = "Extract Transit Travel Time Matrices",
-                        Description = "Extracts average in-vehicle, walking, waiting, and boarding time" +
-                                    "matrices from a strategy-based assignment." )]
-    public class ExtractTransitTravelTimes : IEmmeTool
+    [RunParameter( "Boarding Matrix Number", 4, "The number of the FULL matrix to store average total boarding times" )]
+    public int BoardingMatrixNumber;
+
+    [RunParameter( "IVTT Matrix Number", 1, "The number of the FULL matrix to store average total in-vehicle travel times." )]
+    public int IVTTMatrixNumber;
+
+    [RunParameter( "Modes", "blmstuvwy", "A list of single-character modes used in the assignment." )]
+    public string ModeString;
+
+    [RunParameter( "Scenario Number", 0, "The scenario number with transit results." )]
+    public int ScenarioNumber;
+
+    [RunParameter( "Wait Matrix Number", 3, "The number of the FULL matrix to store average total waiting times." )]
+    public int WaitMatrixNumber;
+
+    [RunParameter( "Walk Matrix Number", 2, "The number of the FULL matrix to store average total walk (auxilliary transit) times." )]
+    public int WalkMatrixNumber;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+    private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_LOS_matrices";
+    private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractTravelTimeMatrices";
+
+    public string Name
     {
-        [RunParameter( "Boarding Matrix Number", 4, "The number of the FULL matrix to store average total boarding times" )]
-        public int BoardingMatrixNumber;
+        get;
+        set;
+    }
 
-        [RunParameter( "IVTT Matrix Number", 1, "The number of the FULL matrix to store average total in-vehicle travel times." )]
-        public int IVTTMatrixNumber;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Modes", "blmstuvwy", "A list of single-character modes used in the assignment." )]
-        public string ModeString;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        [RunParameter( "Scenario Number", 0, "The scenario number with transit results." )]
-        public int ScenarioNumber;
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
+        var args = new StringBuilder();
+        args.AppendFormat( "{0} {1} {2} {3} {4} {5}",
+            ScenarioNumber, ModeString, IVTTMatrixNumber, WalkMatrixNumber, WaitMatrixNumber, BoardingMatrixNumber );
 
-        [RunParameter( "Wait Matrix Number", 3, "The number of the FULL matrix to store average total waiting times." )]
-        public int WaitMatrixNumber;
-
-        [RunParameter( "Walk Matrix Number", 2, "The number of the FULL matrix to store average total walk (auxilliary transit) times." )]
-        public int WalkMatrixNumber;
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_LOS_matrices";
-        private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractTravelTimeMatrices";
-
-        public string Name
+        var toolName = ToolName;
+        if (!mc.CheckToolExists(this, toolName))
         {
-            get;
-            set;
+            toolName = AlternateToolName;
         }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+        string result = null;
+        return mc.Run(this, toolName, args.ToString(), (p => Progress = p), ref result);
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
-            var args = new StringBuilder();
-            args.AppendFormat( "{0} {1} {2} {3} {4} {5}",
-                ScenarioNumber, ModeString, IVTTMatrixNumber, WalkMatrixNumber, WaitMatrixNumber, BoardingMatrixNumber );
-
-            var toolName = ToolName;
-            if (!mc.CheckToolExists(this, toolName))
-            {
-                toolName = AlternateToolName;
-            }
-
-            string result = null;
-            return mc.Run(this, toolName, args.ToString(), (p => Progress = p), ref result);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            //No checking required
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        //No checking required
+        return true;
     }
 }

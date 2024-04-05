@@ -18,12 +18,12 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// This attribute is used to tell XTMF to specifically not automate the loading of a given model field/property
+/// </summary>
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+public class DoNotAutomate : Attribute
 {
-    /// <summary>
-    /// This attribute is used to tell XTMF to specifically not automate the loading of a given model field/property
-    /// </summary>
-    public class DoNotAutomate : Attribute
-    {
-    }
 }

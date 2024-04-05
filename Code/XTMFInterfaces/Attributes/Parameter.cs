@@ -18,85 +18,84 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Provides information for XTMF to use for
+/// working with configurations
+/// </summary>
+public class ParameterAttribute : Attribute
 {
     /// <summary>
-    /// Provides information for XTMF to use for
-    /// working with configurations
+    /// Provides the information for
+    /// configuration files
     /// </summary>
-    public class ParameterAttribute : Attribute
+    /// <param name="defaultValue">The default value of this field</param>
+    /// <param name="description">A description of what this field is supposed to be used for</param>
+    /// <param name="name">The name of the parameter</param>
+    public ParameterAttribute(string name, object defaultValue, string description)
+        : this(name, defaultValue, 0, description)
     {
-        /// <summary>
-        /// Provides the information for
-        /// configuration files
-        /// </summary>
-        /// <param name="defaultValue">The default value of this field</param>
-        /// <param name="description">A description of what this field is supposed to be used for</param>
-        /// <param name="name">The name of the parameter</param>
-        public ParameterAttribute(string name, object defaultValue, string description)
-            : this(name, defaultValue, 0, description)
-        {
 
-        }
+    }
 
-        public ParameterAttribute(string name, object defaultValue, int index, string description)
-        {
-            Name = name;
-            Description = description;
-            DefaultValue = defaultValue;
-            Index = index;
-        }
+    public ParameterAttribute(string name, object defaultValue, int index, string description)
+    {
+        Name = name;
+        Description = description;
+        DefaultValue = defaultValue;
+        Index = index;
+    }
 
-        public ParameterAttribute(string name, string defaultValue, Type type, string description)
-            : this(name, defaultValue, type, 0, description)
-        {
+    public ParameterAttribute(string name, string defaultValue, Type type, string description)
+        : this(name, defaultValue, type, 0, description)
+    {
 
-        }
+    }
 
-        /// <summary>
-        /// Create a default value of the given type for a parameter
-        /// </summary>
-        /// <param name="defaultValue">The default value of this field</param>
-        /// <param name="description">A description of what this field is supposed to be used for</param>
-        /// <param name="type">The type to process</param>
-        /// <param name="name">The name of the parameter</param>
-        public ParameterAttribute(string name, string defaultValue, Type type, int index, string description)
-        {
-            Name = name;
-            Description = description;
-            string? error = null;
-            Index = index;
-            DefaultValue = ArbitraryParameterParser.ArbitraryParameterParse(type, defaultValue, ref error);
-        }
+    /// <summary>
+    /// Create a default value of the given type for a parameter
+    /// </summary>
+    /// <param name="defaultValue">The default value of this field</param>
+    /// <param name="description">A description of what this field is supposed to be used for</param>
+    /// <param name="type">The type to process</param>
+    /// <param name="name">The name of the parameter</param>
+    public ParameterAttribute(string name, string defaultValue, Type type, int index, string description)
+    {
+        Name = name;
+        Description = description;
+        string? error = null;
+        Index = index;
+        DefaultValue = ArbitraryParameterParser.ArbitraryParameterParse(type, defaultValue, ref error);
+    }
 
-        public int Index { get; set; }
+    public int Index { get; set; }
 
-        public bool AttachedToField { get; set; }
+    public bool AttachedToField { get; set; }
 
-        /// <summary>
-        /// The default value for this parameter
-        /// </summary>
-        public object? DefaultValue { get; set; }
+    /// <summary>
+    /// The default value for this parameter
+    /// </summary>
+    public object? DefaultValue { get; set; }
 
-        /// <summary>
-        /// Describes what this parameter is used for
-        /// </summary>
-        public string Description { get; set; }
+    /// <summary>
+    /// Describes what this parameter is used for
+    /// </summary>
+    public string Description { get; set; }
 
-        /// <summary>
-        /// The name of this parameter
-        /// </summary>
-        public string Name { get; set; }
+    /// <summary>
+    /// The name of this parameter
+    /// </summary>
+    public string Name { get; set; }
 
-        public string? VariableName { get; set; }
+    public string? VariableName { get; set; }
 
-        /// <summary>
-        /// Gives a quick description of what this parameter is for the debugger
-        /// </summary>
-        /// <returns>A quick description of what type of parameter it is, and what it describes</returns>
-        public override string ToString()
-        {
-            return String.Format("{0}-> Default:{1}, {2}", GetType().Name, DefaultValue, Description);
-        }
+    /// <summary>
+    /// Gives a quick description of what this parameter is for the debugger
+    /// </summary>
+    /// <returns>A quick description of what type of parameter it is, and what it describes</returns>
+    public override string ToString()
+    {
+        return String.Format("{0}-> Default:{1}, {2}", GetType().Name, DefaultValue, Description);
     }
 }

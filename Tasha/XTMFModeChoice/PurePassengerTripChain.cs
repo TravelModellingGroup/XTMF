@@ -21,92 +21,91 @@ using System.Collections.Generic;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.XTMFModeChoice
+namespace Tasha.XTMFModeChoice;
+
+internal class PurePassengerTripChain : Attachable, ITripChain
 {
-    internal class PurePassengerTripChain : Attachable, ITripChain
+    public PurePassengerTripChain()
     {
-        public PurePassengerTripChain()
-        {
-            Trips = new List<ITrip>( 1 );
-        }
+        Trips = new List<ITrip>( 1 );
+    }
 
-        public Time EndTime
+    public Time EndTime
+    {
+        get
         {
-            get
-            {
-                return Trips[0].ActivityStartTime;
-            }
+            return Trips[0].ActivityStartTime;
         }
+    }
 
-        public ITripChain GetRepTripChain
+    public ITripChain GetRepTripChain
+    {
+        get { return null; }
+    }
+
+    public bool JointTrip
+    {
+        get { return false; }
+    }
+
+    public List<ITripChain> JointTripChains
+    {
+        get { return null; }
+    }
+
+    public int JointTripID
+    {
+        get { return -1; }
+    }
+
+    public bool JointTripRep
+    {
+        get { return false; }
+    }
+
+    public List<ITashaPerson> Passengers
+    {
+        get { return null; }
+    }
+
+    public ITashaPerson Person
+    {
+        get;
+        set;
+    }
+
+    public List<IVehicleType> RequiresVehicle
+    {
+        get { return null; }
+    }
+
+    public Time StartTime
+    {
+        get
         {
-            get { return null; }
+            return Trips[0].TripStartTime;
         }
+    }
 
-        public bool JointTrip
-        {
-            get { return false; }
-        }
+    public bool TripChainRequiresPV
+    {
+        get { return false; }
+    }
 
-        public List<ITripChain> JointTripChains
-        {
-            get { return null; }
-        }
+    public List<ITrip> Trips { get; set; }
 
-        public int JointTripID
-        {
-            get { return -1; }
-        }
+    public ITripChain Clone()
+    {
+        return null;
+    }
 
-        public bool JointTripRep
-        {
-            get { return false; }
-        }
+    public ITripChain DeepClone()
+    {
+        return null;
+    }
 
-        public List<ITashaPerson> Passengers
-        {
-            get { return null; }
-        }
-
-        public ITashaPerson Person
-        {
-            get;
-            set;
-        }
-
-        public List<IVehicleType> RequiresVehicle
-        {
-            get { return null; }
-        }
-
-        public Time StartTime
-        {
-            get
-            {
-                return Trips[0].TripStartTime;
-            }
-        }
-
-        public bool TripChainRequiresPV
-        {
-            get { return false; }
-        }
-
-        public List<ITrip> Trips { get; set; }
-
-        public ITripChain Clone()
-        {
-            return null;
-        }
-
-        public ITripChain DeepClone()
-        {
-            return null;
-        }
-
-        public void Recycle()
-        {
-            
-        }
+    public void Recycle()
+    {
+        
     }
 }

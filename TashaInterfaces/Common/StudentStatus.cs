@@ -16,31 +16,30 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Describes the current educational status of a person
+/// </summary>
+public enum StudentStatus
 {
     /// <summary>
-    /// Describes the current educational status of a person
+    /// This person is not a student
     /// </summary>
-    public enum StudentStatus
-    {
-        /// <summary>
-        /// This person is not a student
-        /// </summary>
-        NotStudent = 'O',
+    NotStudent = 'O',
 
-        /// <summary>
-        /// Part time student
-        /// </summary>
-        PartTime = 'P',
+    /// <summary>
+    /// Part time student
+    /// </summary>
+    PartTime = 'P',
 
-        /// <summary>
-        /// Full time student
-        /// </summary>
-        FullTime = 'S',
+    /// <summary>
+    /// Full time student
+    /// </summary>
+    FullTime = 'S',
 
-        /// <summary>
-        /// We don't know what type of student they are
-        /// </summary>
-        Unknown = '9'
-    }
+    /// <summary>
+    /// We don't know what type of student they are
+    /// </summary>
+    Unknown = '9'
 }

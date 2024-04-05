@@ -20,74 +20,73 @@ using System;
 using Tasha.Common;
 using TMG;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+internal sealed class TravelEpisode : Episode
 {
-    internal sealed class TravelEpisode : Episode
+    internal TravelEpisode(TimeWindow timeWindow, Episode from, Episode to)
+        : base( timeWindow )
     {
-        internal TravelEpisode(TimeWindow timeWindow, Episode from, Episode to)
-            : base( timeWindow )
-        {
-            ActivityType = to.ActivityType;
-            //-----
-            From = from;
-            To = to;
-        }
+        ActivityType = to.ActivityType;
+        //-----
+        From = from;
+        To = to;
+    }
 
-        public override int Adults
-        {
-            get { throw new NotImplementedException(); }
-        }
+    public override int Adults
+    {
+        get { throw new NotImplementedException(); }
+    }
 
-        public override IZone Zone
-        {
-            get;
-            internal set;
-        }
+    public override IZone Zone
+    {
+        get;
+        internal set;
+    }
 
-        internal IZone Destination
+    internal IZone Destination
+    {
+        get
         {
-            get
-            {
-                return To.Zone;
-            }
+            return To.Zone;
         }
+    }
 
-        internal Episode From
-        {
-            get;
-            set;
-        }
+    internal Episode From
+    {
+        get;
+        set;
+    }
 
-        internal IZone Origin
+    internal IZone Origin
+    {
+        get
         {
-            get
-            {
-                return From.Zone;
-            }
+            return From.Zone;
         }
+    }
 
-        internal Episode To
-        {
-            get;
-            set;
-        }
+    internal Episode To
+    {
+        get;
+        set;
+    }
 
-        public override bool IsPersonIncluded(ITashaPerson person)
+    public override bool IsPersonIncluded(ITashaPerson person)
+    {
+        if ( From != null )
         {
-            if ( From != null )
-            {
-                return From.IsOwner( person );
-            }
-            if ( To != null )
-            {
-                return To.IsOwner( person );
-            }
-            return false;
+            return From.IsOwner( person );
         }
+        if ( To != null )
+        {
+            return To.IsOwner( person );
+        }
+        return false;
+    }
 
-        internal override void AddPerson(ITashaPerson person)
-        {
-            throw new NotImplementedException();
-        }
+    internal override void AddPerson(ITashaPerson person)
+    {
+        throw new NotImplementedException();
     }
 }

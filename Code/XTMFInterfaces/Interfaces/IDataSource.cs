@@ -16,26 +16,25 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Do not use this interface directly, instead use IDataSource(T)
+/// </summary>
+public interface IDataSource : IModule
 {
-    /// <summary>
-    /// Do not use this interface directly, instead use IDataSource(T)
-    /// </summary>
-    public interface IDataSource : IModule
-    {
-        bool Loaded { get; }
+    bool Loaded { get; }
 
-        void LoadData();
+    void LoadData();
 
-        void UnloadData();
-    }
+    void UnloadData();
+}
 
-    /// <summary>
-    /// Provides access to the data
-    /// </summary>
-    /// <typeparam name="T">The type of data that this will use</typeparam>
-    public interface IDataSource<T> : IDataSource
-    {
-        T? GiveData();
-    }
+/// <summary>
+/// Provides access to the data
+/// </summary>
+/// <typeparam name="T">The type of data that this will use</typeparam>
+public interface IDataSource<T> : IDataSource
+{
+    T? GiveData();
 }

@@ -27,89 +27,82 @@ using TMG.Estimation.Utilities;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+[ModuleInformation( Description = "Maintains an on-going CSV report for each Task assigned to a client, reporting Generation, Task index, " +
+                                "Emme transit line boardings by mode and operator, and parameters." +
+                                "<br><br>Results are reported in the following columns (in order):" +
+                                "<ol><li>Generation<li>Index<li>Fitness<li>Brampton<li>Durham<li>GO Bus<li>GO Train<li>Halton<li>Hamilton<li>" +
+                                "Mississauga<li>Streetcar<li><Subway<li>TTC Bus<li>VIVA<li>YRT</ol>" +
+                                "<br>Subsequent columns report the value for each parameter being estimated (same order as Results.csv)")]
+public sealed class V4ClientEstimationReport : ClientFileAggregation, IEmmeTool
 {
-    [ModuleInformation( Description = "Maintains an on-going CSV report for each Task assigned to a client, reporting Generation, Task index, " +
-                                    "Emme transit line boardings by mode and operator, and parameters." +
-                                    "<br><br>Results are reported in the following columns (in order):" +
-                                    "<ol><li>Generation<li>Index<li>Fitness<li>Brampton<li>Durham<li>GO Bus<li>GO Train<li>Halton<li>Hamilton<li>" +
-                                    "Mississauga<li>Streetcar<li><Subway<li>TTC Bus<li>VIVA<li>YRT</ol>" +
-                                    "<br>Subsequent columns report the value for each parameter being estimated (same order as Results.csv)")]
-    public sealed class V4ClientEstimationReport : ClientFileAggregation, IEmmeTool
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    [RunParameter( "Scenario", 0, "The Emme scenario from which to extract results." )]
+    public int ScenarioNumber;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+    private const string ToolName = "tmg.XTMF_internal.return_grouped_boardings";
+
+    [SubModelInformation(Required = false, Description = "Save to this file instead of sending over the network.")]
+    public FileLocation SaveToFile;
+
+    public bool Execute(Controller controller)
     {
-        [RootModule]
-        public IEstimationClientModelSystem Root;
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController" );
+        string result = "";
+        mc.Run(this, ToolName, ScenarioNumber.ToString(), ( p => _Progress = p ), ref result );
 
-        [RunParameter( "Scenario", 0, "The Emme scenario from which to extract results." )]
-        public int ScenarioNumber;
+        StringBuilder builder = new();
+        builder.Append(Root.CurrentTask.Generation);
+        builder.Append(',');
+        builder.Append(Root.CurrentTask.Index);
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string ToolName = "tmg.XTMF_internal.return_grouped_boardings";
+        //Append the fitness value for this task
+        builder.Append(',');
+        var func = Root.RetrieveValue;
+        builder.Append((func == null) ? "null" : func().ToString(CultureInfo.InvariantCulture));
 
-        [SubModelInformation(Required = false, Description = "Save to this file instead of sending over the network.")]
-        public FileLocation SaveToFile;
+        //Results coming out of Emme/Python are already a string of comma-separated values
+        builder.Append(',');
+        builder.Append(result);
 
-        public bool Execute(Controller controller)
+        foreach ( var val in Root.CurrentTask.ParameterValues )
         {
-            var mc = controller as ModellerController;
-            if ( mc == null )
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController" );
-            }
-            string result = "";
-            mc.Run(this, ToolName, ScenarioNumber.ToString(), ( p => _Progress = p ), ref result );
-
-            StringBuilder builder = new StringBuilder();
-            builder.Append(Root.CurrentTask.Generation);
-            builder.Append(',');
-            builder.Append(Root.CurrentTask.Index);
-
-            //Append the fitness value for this task
-            builder.Append(',');
-            var func = Root.RetrieveValue;
-            builder.Append((func == null) ? "null" : func().ToString(CultureInfo.InvariantCulture));
-
-            //Results coming out of Emme/Python are already a string of comma-separated values
-            builder.Append(',');
-            builder.Append(result);
-
-            foreach ( var val in Root.CurrentTask.ParameterValues )
-            {
-                builder.Append( ',' );
-                builder.Append( val.ToString(CultureInfo.InvariantCulture) );
-            }
-            builder.AppendLine();
-            if(SaveToFile == null)
-            {
-                //now that we have built up the data, send it to the host
-                SendToHost(builder.ToString());
-            }
-            else
-            {
-                using (StreamWriter writer = new StreamWriter(SaveToFile) )
-                {
-                    writer.WriteLine(builder.ToString());
-                }
-            }
-            return true;
+            builder.Append( ',' );
+            builder.Append( val.ToString(CultureInfo.InvariantCulture) );
         }
-
-        private float _Progress;
-
-        override public float Progress
+        builder.AppendLine();
+        if(SaveToFile == null)
         {
-            get { return _Progress; }
+            //now that we have built up the data, send it to the host
+            SendToHost(builder.ToString());
         }
-
-        override public Tuple<byte, byte, byte> ProgressColour
+        else
         {
-            get { return _ProgressColour; }
+            using StreamWriter writer = new(SaveToFile);
+            writer.WriteLine(builder.ToString());
         }
-
-        override public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
+        return true;
     }
+
+    private float _Progress;
+
+    override public float Progress
+    {
+        get { return _Progress; }
+    }
+
+    override public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    override public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
 }

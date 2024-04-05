@@ -18,23 +18,22 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface ITashaModeChoice : IModule
 {
-    public interface ITashaModeChoice : IModule
-    {
-        /// <summary>
-        /// Load the data that the Mode Choice needs to initialize
-        /// </summary>
-        void LoadOneTimeLocalData();
+    /// <summary>
+    /// Load the data that the Mode Choice needs to initialize
+    /// </summary>
+    void LoadOneTimeLocalData();
 
-        void IterationStarted(int iteration, int totalIterations);
+    void IterationStarted(int iteration, int totalIterations);
 
-        /// <summary>
-        /// Run the mode choice on the given household
-        /// </summary>
-        /// <param name="household"></param>
-        bool Run(ITashaHousehold household);
+    /// <summary>
+    /// Run the mode choice on the given household
+    /// </summary>
+    /// <param name="household"></param>
+    bool Run(ITashaHousehold household);
 
-        void IterationFinished(int iteration, int totalIterations);
-    }
+    void IterationFinished(int iteration, int totalIterations);
 }

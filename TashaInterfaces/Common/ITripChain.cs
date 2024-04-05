@@ -19,73 +19,72 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// The interface for how to interact with a
+/// Trip Chain
+/// </summary>
+public interface ITripChain : IAttachable
 {
     /// <summary>
-    /// The interface for how to interact with a
-    /// Trip Chain
+    /// When does this trip chain end?
     /// </summary>
-    public interface ITripChain : IAttachable
-    {
-        /// <summary>
-        /// When does this trip chain end?
-        /// </summary>
-        Time EndTime { get; }
+    Time EndTime { get; }
 
-        /// <summary>
-        ///
-        /// </summary>
-        ITripChain GetRepTripChain { get; }
+    /// <summary>
+    ///
+    /// </summary>
+    ITripChain GetRepTripChain { get; }
 
-        /// <summary>
-        /// Is this a joint trip?
-        /// </summary>
-        bool JointTrip { get; }
+    /// <summary>
+    /// Is this a joint trip?
+    /// </summary>
+    bool JointTrip { get; }
 
-        /// <summary>
-        /// Returns a list of all trip chains on the the same joint tour as this one
-        /// (if it is on a joint tour)
-        /// </summary>
-        List<ITripChain> JointTripChains { get; }
+    /// <summary>
+    /// Returns a list of all trip chains on the the same joint tour as this one
+    /// (if it is on a joint tour)
+    /// </summary>
+    List<ITripChain> JointTripChains { get; }
 
-        /// <summary>
-        /// What is the ID for this joint trip
-        /// </summary>
-        int JointTripID { get; }
+    /// <summary>
+    /// What is the ID for this joint trip
+    /// </summary>
+    int JointTripID { get; }
 
-        /// <summary>
-        /// Is this person the representative of the joint trip?
-        /// </summary>
-        bool JointTripRep { get; }
+    /// <summary>
+    /// Is this person the representative of the joint trip?
+    /// </summary>
+    bool JointTripRep { get; }
 
-        List<ITashaPerson> Passengers { get; }
+    List<ITashaPerson> Passengers { get; }
 
-        /// <summary>
-        /// The person this chain belongs to
-        /// </summary>
-        ITashaPerson Person { get; set; }
+    /// <summary>
+    /// The person this chain belongs to
+    /// </summary>
+    ITashaPerson Person { get; set; }
 
-        List<IVehicleType> RequiresVehicle { get; }
+    List<IVehicleType> RequiresVehicle { get; }
 
-        /// <summary>
-        /// When does this trip chain start?
-        /// </summary>
-        Time StartTime { get; }
+    /// <summary>
+    /// When does this trip chain start?
+    /// </summary>
+    Time StartTime { get; }
 
-        /// <summary>
-        /// Trip Chain Requires Personal Vehicle
-        /// </summary>
-        bool TripChainRequiresPV { get; }
+    /// <summary>
+    /// Trip Chain Requires Personal Vehicle
+    /// </summary>
+    bool TripChainRequiresPV { get; }
 
-        /// <summary>
-        /// The trips that belong in this chain
-        /// </summary>
-        List<ITrip> Trips { get; set; }
+    /// <summary>
+    /// The trips that belong in this chain
+    /// </summary>
+    List<ITrip> Trips { get; set; }
 
-        ITripChain Clone();
+    ITripChain Clone();
 
-        ITripChain DeepClone();
+    ITripChain DeepClone();
 
-        void Recycle();
-    }
+    void Recycle();
 }

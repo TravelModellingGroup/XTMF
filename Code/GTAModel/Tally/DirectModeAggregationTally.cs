@@ -22,268 +22,267 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using XTMF;
 
-namespace TMG.GTAModel
-{
-    [ModuleInformation(Description=
-        @"DirectModeAggregationTally provides a way to aggregate the OD demand from multiple 
+namespace TMG.GTAModel;
+
+[ModuleInformation(Description=
+    @"DirectModeAggregationTally provides a way to aggregate the OD demand from multiple 
 purposes and modes for building an aggregate assignment, such as building demand for EMME/3. 
 Leaving any of the options blank will select all of the given type (purposes or modes)." )]
-    public class DirectModeAggregationTally : IModeAggregationTally
+public class DirectModeAggregationTally : IModeAggregationTally
+{
+    [RunParameter( "Modes", "Auto", "Ex \"Auto,Taxi,Passenger\" the modes you want to process." )]
+    public string ModeNames;
+
+    [RunParameter( "Purposes", "", "Leave blank to do all purposes, otherwise Ex. \"A,B,D,E\" if you want to exclude C." )]
+    public string PurposeNames;
+
+    [RootModule]
+    public I4StepModel Root;
+
+    /// <summary>
+    /// The mode indexes to process
+    /// </summary>
+    protected int[] ModeIndexes;
+
+    /// <summary>
+    /// The purpose indexes to process
+    /// </summary>
+    protected int[] PurposeIndexes;
+
+    public string Name
     {
-        [RunParameter( "Modes", "Auto", "Ex \"Auto,Taxi,Passenger\" the modes you want to process." )]
-        public string ModeNames;
+        get;
+        set;
+    }
 
-        [RunParameter( "Purposes", "", "Leave blank to do all purposes, otherwise Ex. \"A,B,D,E\" if you want to exclude C." )]
-        public string PurposeNames;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public I4StepModel Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+        set;
+    }
 
-        /// <summary>
-        /// The mode indexes to process
-        /// </summary>
-        protected int[] ModeIndexes;
-
-        /// <summary>
-        /// The purpose indexes to process
-        /// </summary>
-        protected int[] PurposeIndexes;
-
-        public string Name
+    public virtual void IncludeTally(float[][] currentTally)
+    {
+        var purposes = Root.Purpose;
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var numberOfZones = zones.Length;
+        for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get;
-            set;
-        }
-
-        public virtual void IncludeTally(float[][] currentTally)
-        {
-            var purposes = Root.Purpose;
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var numberOfZones = zones.Length;
-            for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
+            var purpose = purposes[PurposeIndexes[purp]];
+            for ( int m = 0; m < ModeIndexes.Length; m++ )
             {
-                var purpose = purposes[PurposeIndexes[purp]];
-                for ( int m = 0; m < ModeIndexes.Length; m++ )
+                var data = GetResult( purpose.Flows, ModeIndexes[m] );
+                // if there is no data continue on to the next mode
+                if ( data == null ) continue;
+                Parallel.For( 0, numberOfZones, delegate(int o)
                 {
-                    var data = GetResult( purpose.Flows, ModeIndexes[m] );
-                    // if there is no data continue on to the next mode
-                    if ( data == null ) continue;
-                    Parallel.For( 0, numberOfZones, delegate(int o)
+                    if ( data[o] == null ) return;
+                    for ( int d = 0; d < numberOfZones; d++ )
                     {
-                        if ( data[o] == null ) return;
-                        for ( int d = 0; d < numberOfZones; d++ )
-                        {
-                            currentTally[o][d] += data[o][d];
-                        }
-                    } );
-                }
+                        currentTally[o][d] += data[o][d];
+                    }
+                } );
             }
         }
+    }
 
-        public virtual bool RuntimeValidation(ref string error)
+    public virtual bool RuntimeValidation(ref string error)
+    {
+        if ( !ProcessModeNames( ref error ) )
         {
-            if ( !ProcessModeNames( ref error ) )
-            {
-                return false;
-            }
-            if ( !ProcessPurposeNames( ref error ) )
-            {
-                return false;
-            }
-            return true;
+            return false;
         }
-
-        protected IModeChoiceNode GetMode(int index)
+        if ( !ProcessPurposeNames( ref error ) )
         {
-            var modes = Root.Modes;
-            var length = modes.Count;
-            int current = 0;
-            for ( int i = 0; i < length; i++ )
-            {
-                var m = GetMode( ref current, index, modes[i] );
-                if ( m != null )
-                {
-                    return m;
-                }
-            }
-            return null;
+            return false;
         }
+        return true;
+    }
 
-        protected float[][] GetResult(List<TreeData<float[][]>> list, int modeIndex)
+    protected IModeChoiceNode GetMode(int index)
+    {
+        var modes = Root.Modes;
+        var length = modes.Count;
+        int current = 0;
+        for ( int i = 0; i < length; i++ )
         {
-            var length = list.Count;
-            int current = 0;
-            for ( int i = 0; i < length; i++ )
+            var m = GetMode( ref current, index, modes[i] );
+            if ( m != null )
             {
-                float[][] temp = GetResult( list[i], modeIndex, ref current );
+                return m;
+            }
+        }
+        return null;
+    }
+
+    protected float[][] GetResult(List<TreeData<float[][]>> list, int modeIndex)
+    {
+        var length = list.Count;
+        int current = 0;
+        for ( int i = 0; i < length; i++ )
+        {
+            float[][] temp = GetResult( list[i], modeIndex, ref current );
+            if ( temp != null )
+            {
+                return temp;
+            }
+        }
+        return null;
+    }
+
+    protected float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
+    {
+        if ( modeIndex == current )
+        {
+            return node.Result;
+        }
+        current++;
+        if ( node.Children != null )
+        {
+            for ( int i = 0; i < node.Children.Length; i++ )
+            {
+                float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
                 if ( temp != null )
                 {
                     return temp;
                 }
             }
-            return null;
         }
+        return null;
+    }
 
-        protected float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
+    private IModeChoiceNode GetMode(ref int current, int index, IModeChoiceNode mode)
+    {
+        if ( current == index )
         {
-            if ( modeIndex == current )
+            return mode;
+        }
+        current++;
+        if (mode is IModeCategory cat)
+        {
+            var length = cat.Children.Count;
+            for (int i = 0; i < length; i++)
             {
-                return node.Result;
-            }
-            current++;
-            if ( node.Children != null )
-            {
-                for ( int i = 0; i < node.Children.Length; i++ )
+                var m = GetMode(ref current, index, cat.Children[i]);
+                if (m != null)
                 {
-                    float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
-                    if ( temp != null )
-                    {
-                        return temp;
-                    }
+                    return m;
                 }
             }
-            return null;
         }
+        return null;
+    }
 
-        private IModeChoiceNode GetMode(ref int current, int index, IModeChoiceNode mode)
+    private int GetModeIndex(string trimmed)
+    {
+        var modes = Root.Modes;
+        var length = modes.Count;
+        int index = 0;
+        for ( int i = 0; i < length; i++ )
         {
-            if ( current == index )
+            if ( GetModeIndex( trimmed, modes[i], ref index ) )
             {
-                return mode;
+                return index;
             }
-            current++;
-            if (mode is IModeCategory cat)
+        }
+        return -1;
+    }
+
+    private bool GetModeIndex(string trimmed, IModeChoiceNode node, ref int index)
+    {
+        if ( node.ModeName == trimmed )
+        {
+            return true;
+        }
+        index++;
+        if (node is IModeCategory cat)
+        {
+            var length = cat.Children.Count;
+            for (int i = 0; i < length; i++)
             {
-                var length = cat.Children.Count;
-                for (int i = 0; i < length; i++)
+                if (GetModeIndex(trimmed, cat.Children[i], ref index))
                 {
-                    var m = GetMode(ref current, index, cat.Children[i]);
-                    if (m != null)
-                    {
-                        return m;
-                    }
+                    return true;
                 }
             }
-            return null;
         }
+        return false;
+    }
 
-        private int GetModeIndex(string trimmed)
+    private bool ProcessModeNames(ref string error)
+    {
+        List<int> care = [];
+        if ( String.IsNullOrWhiteSpace( ModeNames ) )
         {
-            var modes = Root.Modes;
-            var length = modes.Count;
-            int index = 0;
+            // if nothing is given return the top level
+            var length = Root.Modes.Count;
             for ( int i = 0; i < length; i++ )
             {
-                if ( GetModeIndex( trimmed, modes[i], ref index ) )
-                {
-                    return index;
-                }
+                care.Add( GetModeIndex( Root.Modes[i].ModeName ) );
             }
-            return -1;
+            return true;
         }
-
-        private bool GetModeIndex(string trimmed, IModeChoiceNode node, ref int index)
+        string[] parts = ModeNames.Split( ',' );
+        foreach ( var part in parts )
         {
-            if ( node.ModeName == trimmed )
+            var trimmed = part.Trim();
+            int index = GetModeIndex( trimmed );
+
+            if ( index == -1 )
             {
-                return true;
+                error = "In " + Name + "We were unable to find a mode with the name \"" + trimmed + "\"!";
+                return false;
             }
-            index++;
-            if (node is IModeCategory cat)
-            {
-                var length = cat.Children.Count;
-                for (int i = 0; i < length; i++)
-                {
-                    if (GetModeIndex(trimmed, cat.Children[i], ref index))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            care.Add( index );
         }
+        ModeIndexes = [.. care];
+        return true;
+    }
 
-        private bool ProcessModeNames(ref string error)
+    private bool ProcessPurposeNames(ref string error)
+    {
+        if ( String.IsNullOrWhiteSpace( PurposeNames ) )
         {
-            List<int> care = new List<int>();
-            if ( String.IsNullOrWhiteSpace( ModeNames ) )
+            var length = Root.Purpose.Count;
+            PurposeIndexes = new int[length];
+            for ( int i = 0; i < length; i++ )
             {
-                // if nothing is given return the top level
-                var length = Root.Modes.Count;
-                for ( int i = 0; i < length; i++ )
-                {
-                    care.Add( GetModeIndex( Root.Modes[i].ModeName ) );
-                }
-                return true;
+                PurposeIndexes[i] = i;
             }
-            string[] parts = ModeNames.Split( ',' );
+        }
+        else
+        {
+            string[] parts = PurposeNames.Split( ',' );
+            List<int> care = [];
+            var purposes = Root.Purpose;
+            var numberOfPurposes = purposes.Count;
             foreach ( var part in parts )
             {
                 var trimmed = part.Trim();
-                int index = GetModeIndex( trimmed );
-
-                if ( index == -1 )
+                bool found = false;
+                for ( int i = 0; i < numberOfPurposes; i++ )
                 {
-                    error = "In " + Name + "We were unable to find a mode with the name \"" + trimmed + "\"!";
+                    if ( purposes[i].PurposeName == trimmed )
+                    {
+                        care.Add( i );
+                        found = true;
+                        break;
+                    }
+                }
+                if ( !found )
+                {
+                    error = "We were unable to find a purpose with the name \"" + trimmed + "\"!";
                     return false;
                 }
-                care.Add( index );
             }
-            ModeIndexes = care.ToArray();
-            return true;
+            PurposeIndexes = [.. care];
         }
-
-        private bool ProcessPurposeNames(ref string error)
-        {
-            if ( String.IsNullOrWhiteSpace( PurposeNames ) )
-            {
-                var length = Root.Purpose.Count;
-                PurposeIndexes = new int[length];
-                for ( int i = 0; i < length; i++ )
-                {
-                    PurposeIndexes[i] = i;
-                }
-            }
-            else
-            {
-                string[] parts = PurposeNames.Split( ',' );
-                List<int> care = new List<int>();
-                var purposes = Root.Purpose;
-                var numberOfPurposes = purposes.Count;
-                foreach ( var part in parts )
-                {
-                    var trimmed = part.Trim();
-                    bool found = false;
-                    for ( int i = 0; i < numberOfPurposes; i++ )
-                    {
-                        if ( purposes[i].PurposeName == trimmed )
-                        {
-                            care.Add( i );
-                            found = true;
-                            break;
-                        }
-                    }
-                    if ( !found )
-                    {
-                        error = "We were unable to find a purpose with the name \"" + trimmed + "\"!";
-                        return false;
-                    }
-                }
-                PurposeIndexes = care.ToArray();
-            }
-            return true;
-        }
+        return true;
     }
 }

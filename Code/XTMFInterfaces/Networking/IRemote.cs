@@ -16,44 +16,43 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace XTMF.Networking
+namespace XTMF.Networking;
+
+/// <summary>
+/// Describes the Client for the XTMF Host
+/// This is not to be used by the Client side
+/// </summary>
+public interface IRemoteXTMF
 {
+    bool Connected { get; set; }
+
     /// <summary>
-    /// Describes the Client for the XTMF Host
-    /// This is not to be used by the Client side
+    /// The name of the remote machine
     /// </summary>
-    public interface IRemoteXTMF
-    {
-        bool Connected { get; set; }
+    string MachineName { get; }
 
-        /// <summary>
-        /// The name of the remote machine
-        /// </summary>
-        string MachineName { get; }
+    /// <summary>
+    /// The last reported progress for this client
+    /// </summary>
+    float Progress { get; }
 
-        /// <summary>
-        /// The last reported progress for this client
-        /// </summary>
-        float Progress { get; }
+    /// <summary>
+    /// The ID of the Remote XTMF Client
+    /// </summary>
+    string UniqueID { get; }
 
-        /// <summary>
-        /// The ID of the Remote XTMF Client
-        /// </summary>
-        string UniqueID { get; }
+    /// <summary>
+    /// Manually request an update for progress
+    /// </summary>
+    void PollProgress();
 
-        /// <summary>
-        /// Manually request an update for progress
-        /// </summary>
-        void PollProgress();
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="reason"></param>
+    void SendCancel(string reason);
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="reason"></param>
-        void SendCancel(string reason);
+    void SendCustomMessage(object data, int customMessageNumber);
 
-        void SendCustomMessage(object data, int customMessageNumber);
-
-        void SendModelSystem(IModelSystemStructure structure);
-    }
+    void SendModelSystem(IModelSystemStructure structure);
 }

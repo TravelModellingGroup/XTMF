@@ -18,17 +18,16 @@
 */
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+/// <summary>
+/// This interface is used for combining the output of different purposes.
+/// </summary>
+public interface IModeAggregationTally : IModule
 {
     /// <summary>
-    /// This interface is used for combining the output of different purposes.
+    /// Adds the tally into the currently accumulated tally
     /// </summary>
-    public interface IModeAggregationTally : IModule
-    {
-        /// <summary>
-        /// Adds the tally into the currently accumulated tally
-        /// </summary>
-        /// <param name="currentTally">The current tally for assignment</param>
-        void IncludeTally(float[][] currentTally);
-    }
+    /// <param name="currentTally">The current tally for assignment</param>
+    void IncludeTally(float[][] currentTally);
 }

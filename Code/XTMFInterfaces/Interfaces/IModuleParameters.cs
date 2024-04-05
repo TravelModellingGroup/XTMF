@@ -18,32 +18,31 @@
 */
 using System.Collections.Generic;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Allows access to the parameters that a module uses
+/// </summary>
+public interface IModuleParameters : IEnumerable<IModuleParameter>
 {
     /// <summary>
-    /// Allows access to the parameters that a module uses
+    /// The module that these parameters belong to
     /// </summary>
-    public interface IModuleParameters : IEnumerable<IModuleParameter>
-    {
-        /// <summary>
-        /// The module that these parameters belong to
-        /// </summary>
-        IModelSystemStructure BelongsTo { get; }
+    IModelSystemStructure BelongsTo { get; }
 
-        /// <summary>
-        /// The list of parameters that the model uses
-        /// </summary>
-        IList<IModuleParameter> Parameters { get; }
+    /// <summary>
+    /// The list of parameters that the model uses
+    /// </summary>
+    IList<IModuleParameter> Parameters { get; }
 
-        /// <summary>
-        /// Make a new copy of the parameters
-        /// </summary>
-        /// <returns>The copy of the parameters</returns>
-        IModuleParameters Clone();
+    /// <summary>
+    /// Make a new copy of the parameters
+    /// </summary>
+    /// <returns>The copy of the parameters</returns>
+    IModuleParameters Clone();
 
-        /// <summary>
-        /// Save this list of parameters for the module
-        /// </summary>
-        void Save();
-    }
+    /// <summary>
+    /// Save this list of parameters for the module
+    /// </summary>
+    void Save();
 }

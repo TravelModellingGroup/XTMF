@@ -16,49 +16,44 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace XTMF.Gui.Collections
+namespace XTMF.Gui.Collections;
+
+internal sealed class ProxyList<T> : IList<T>
 {
-    internal sealed class ProxyList<T> : IList<T>
+    private IList<T> _TrueList;
+
+    public ProxyList(IList<T> proxyThis) => _TrueList = proxyThis;
+
+    public T this[int index]
     {
-        private IList<T> _TrueList;
-
-        public ProxyList(IList<T> proxyThis) => _TrueList = proxyThis;
-
-        public T this[int index]
-        {
-            get => _TrueList[index];
-            set => _TrueList[index] = value;
-        }
-
-        public int Count => _TrueList.Count;
-
-        public bool IsReadOnly => _TrueList.IsReadOnly;
-
-        public void Add(T item) => _TrueList.Add(item);
-
-        public void Clear() => _TrueList.Clear();
-
-        public bool Contains(T item) => _TrueList.Contains(item);
-
-        public void CopyTo(T[] array, int arrayIndex) => _TrueList.CopyTo(array, arrayIndex);
-
-        public IEnumerator<T> GetEnumerator() => GetEnumerator();
-
-        public int IndexOf(T item) => _TrueList.IndexOf(item);
-
-        public void Insert(int index, T item) => _TrueList.Insert(index, item);
-
-        public bool Remove(T item) => _TrueList.Remove(item);
-
-        public void RemoveAt(int index) => _TrueList.RemoveAt(index);
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)(_TrueList)).GetEnumerator();
+        get => _TrueList[index];
+        set => _TrueList[index] = value;
     }
+
+    public int Count => _TrueList.Count;
+
+    public bool IsReadOnly => _TrueList.IsReadOnly;
+
+    public void Add(T item) => _TrueList.Add(item);
+
+    public void Clear() => _TrueList.Clear();
+
+    public bool Contains(T item) => _TrueList.Contains(item);
+
+    public void CopyTo(T[] array, int arrayIndex) => _TrueList.CopyTo(array, arrayIndex);
+
+    public IEnumerator<T> GetEnumerator() => GetEnumerator();
+
+    public int IndexOf(T item) => _TrueList.IndexOf(item);
+
+    public void Insert(int index, T item) => _TrueList.Insert(index, item);
+
+    public bool Remove(T item) => _TrueList.Remove(item);
+
+    public void RemoveAt(int index) => _TrueList.RemoveAt(index);
+
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)(_TrueList)).GetEnumerator();
 }

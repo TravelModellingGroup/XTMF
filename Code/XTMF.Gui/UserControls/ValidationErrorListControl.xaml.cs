@@ -16,72 +16,57 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using XTMF.Gui.Annotations;
 
-namespace XTMF.Gui.UserControls 
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for ListViewControl.xaml
+/// </summary>
+public partial class ValidationErrorListControl : UserControl, INotifyPropertyChanged
 {
-    /// <summary>
-    /// Interaction logic for ListViewControl.xaml
-    /// </summary>
-    public partial class ValidationErrorListControl : UserControl, INotifyPropertyChanged
+    public static readonly DependencyProperty ErrorStringDependencyProperty = 
+        DependencyProperty.Register("ErrorString", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata("Test"));
+
+    public static readonly DependencyProperty ModuleNameDependencyProperty =
+        DependencyProperty.Register("ModuleName", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty IsSelectedDependencyProperty =
+        DependencyProperty.Register("IsSelected", typeof(bool), typeof(ValidationErrorListControl), new PropertyMetadata(true));
+
+    public ValidationErrorListControl()
     {
-        public static readonly DependencyProperty ErrorStringDependencyProperty = 
-            DependencyProperty.Register("ErrorString", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata("Test"));
-
-        public static readonly DependencyProperty ModuleNameDependencyProperty =
-            DependencyProperty.Register("ModuleName", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty IsSelectedDependencyProperty =
-            DependencyProperty.Register("IsSelected", typeof(bool), typeof(ValidationErrorListControl), new PropertyMetadata(true));
-
-        public ValidationErrorListControl()
-        {
-            InitializeComponent();
-        }
-
-        public bool IsSelected
-        {
-            get => (bool)GetValue(IsSelectedDependencyProperty);
-            set => SetValue(IsSelectedDependencyProperty, value);
-        }
-
-        public string ErrorString
-        {
-            get => (string)GetValue(ErrorStringDependencyProperty);
-            set
-            {
-                SetValue(ErrorStringDependencyProperty, value);
-                ErrorStringTextBlock.Text = value;
-            }
-        }
-
-        public string ModuleName
-        {
-            get => (string)GetValue(ModuleNameDependencyProperty);
-            set
-            { 
-                SetValue(ModuleNameDependencyProperty, value);
-                ModuleNameLabel.Content = value;
-            }
-        }
-
-        #pragma warning disable CS0067
-        public event PropertyChangedEventHandler PropertyChanged;
+        InitializeComponent();
     }
+
+    public bool IsSelected
+    {
+        get => (bool)GetValue(IsSelectedDependencyProperty);
+        set => SetValue(IsSelectedDependencyProperty, value);
+    }
+
+    public string ErrorString
+    {
+        get => (string)GetValue(ErrorStringDependencyProperty);
+        set
+        {
+            SetValue(ErrorStringDependencyProperty, value);
+            ErrorStringTextBlock.Text = value;
+        }
+    }
+
+    public string ModuleName
+    {
+        get => (string)GetValue(ModuleNameDependencyProperty);
+        set
+        { 
+            SetValue(ModuleNameDependencyProperty, value);
+            ModuleNameLabel.Content = value;
+        }
+    }
+
+    #pragma warning disable CS0067
+    public event PropertyChangedEventHandler PropertyChanged;
 }

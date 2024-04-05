@@ -16,13 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
+namespace TMG;
+
+public enum DwellingType
 {
-    public enum DwellingType
-    {
-        House = 1,
-        Apartment = 2,
-        Townhouse = 3,
-        Uknown = 9,
-    }
+    House = 1,
+    Apartment = 2,
+    Townhouse = 3,
+    Uknown = 9,
 }

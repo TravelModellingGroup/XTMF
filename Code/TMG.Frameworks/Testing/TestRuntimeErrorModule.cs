@@ -18,65 +18,60 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
-namespace TMG.Frameworks.Testing
+namespace TMG.Frameworks.Testing;
+
+[ModuleInformation(Description =
+    @"A test module that will generate a runtime exception at the start of this module's execution. A divide by 0 error is generated in the module's Start() method.",
+    IconURI = "TestTube")]
+public class TestRuntimeErrorModule : ISelfContainedModule
 {
-    [ModuleInformation(Description =
-        @"A test module that will generate a runtime exception at the start of this module's execution. A divide by 0 error is generated in the module's Start() method.",
-        IconURI = "TestTube")]
-    public class TestRuntimeErrorModule : ISelfContainedModule
+    private float _progress = 0;
+    public string Name { get; set; }
+    public float Progress { get => _progress; }
+    public Tuple<byte, byte, byte> ProgressColour { get; }
+
+    [RunParameter("XTMF Runtime exception", false, "Should the runtime exception be an XTMF Runtime exception?")]
+    public bool ThrowXTMFRuntimeException;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="error"></param>
+    /// <returns></returns>
+    public bool RuntimeValidation(ref string error)
     {
-        private float _progress = 0;
-        public string Name { get; set; }
-        public float Progress { get => _progress; }
-        public Tuple<byte, byte, byte> ProgressColour { get; }
-
-        [RunParameter("XTMF Runtime exception", false, "Should the runtime exception be an XTMF Runtime exception?")]
-        public bool ThrowXTMFRuntimeException;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        public bool RuntimeValidation(ref string error)
-        {
-            //nothing to validate
-            return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Start()
-        {
-            //throw new dummy exception
-            if (ThrowXTMFRuntimeException)
-            {
-                throw new XTMFRuntimeException(this, "The requested runtime exception has been generated!");
-            }
-            else
-            {
-                var p = 0;
-                var s = 10 / p;
-            }
-        }
+        //nothing to validate
+        return true;
     }
 
-    public class GenericRuntimeError : Exception
+    /// <summary>
+    /// 
+    /// </summary>
+    public void Start()
     {
-        /// <summary>
-        /// Creates a generic runtime error with message s.
-        /// </summary>
-        /// <param name="s"></param>
-        public GenericRuntimeError(string s) : base(s)
+        //throw new dummy exception
+        if (ThrowXTMFRuntimeException)
         {
-
+            throw new XTMFRuntimeException(this, "The requested runtime exception has been generated!");
         }
+        else
+        {
+            var p = 0;
+            var s = 10 / p;
+        }
+    }
+}
+
+public class GenericRuntimeError : Exception
+{
+    /// <summary>
+    /// Creates a generic runtime error with message s.
+    /// </summary>
+    /// <param name="s"></param>
+    public GenericRuntimeError(string s) : base(s)
+    {
+
     }
 }

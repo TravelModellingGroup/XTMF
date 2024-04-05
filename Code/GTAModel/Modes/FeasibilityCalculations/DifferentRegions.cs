@@ -22,46 +22,45 @@ using Datastructure;
 using TMG.GTAModel.DataUtility;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.FeasibilityCalculations
-{
-    [ModuleInformation( Description =
-        @"This module is designed to return true if the first data point is in a different region from the second.  It will 
+namespace TMG.GTAModel.Modes.FeasibilityCalculations;
+
+[ModuleInformation( Description =
+    @"This module is designed to return true if the first data point is in a different region from the second.  It will 
 also return true if the region is inside of the 'Excepted Regions'.  This is likely to be used as part of a mode feasibility test." )]
-    public class DifferentRegions : ICalculation<Pair<IZone, IZone>, bool>
+public class DifferentRegions : ICalculation<Pair<IZone, IZone>, bool>
+{
+    [RunParameter( "Excepted Regions", "1", typeof( NumberList ), "The regions to excuse from this feasibility calculation." )]
+    public NumberList Exceptions;
+
+    public void Load()
     {
-        [RunParameter( "Excepted Regions", "1", typeof( NumberList ), "The regions to excuse from this feasibility calculation." )]
-        public NumberList Exceptions;
 
-        public void Load()
-        {
+    }
 
-        }
-
-        public bool ProduceResult(Pair<IZone, IZone> data)
-        {
-            var first = data.First.RegionNumber;
-            if ( first != data.Second.RegionNumber )
-            {
-                return true;
-            }
-            // the only other way for it to work is if they are in the excepted list
-            return Exceptions.Contains( first );
-        }
-
-        public void Unload()
-        {
-
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get { return 0f; } }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
-
-        public bool RuntimeValidation(ref string error)
+    public bool ProduceResult(Pair<IZone, IZone> data)
+    {
+        var first = data.First.RegionNumber;
+        if ( first != data.Second.RegionNumber )
         {
             return true;
         }
+        // the only other way for it to work is if they are in the excepted list
+        return Exceptions.Contains( first );
+    }
+
+    public void Unload()
+    {
+
+    }
+
+    public string Name { get; set; }
+
+    public float Progress { get { return 0f; } }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

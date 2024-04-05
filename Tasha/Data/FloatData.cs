@@ -19,58 +19,57 @@
 using System;
 using XTMF;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module provides a way of storing a single floating point number.  It also provides the interface to set its value.")]
+public class FloatData : ISetableDataSource<float>
 {
-    [ModuleInformation(Description = "This module provides a way of storing a single floating point number.  It also provides the interface to set its value.")]
-    public class FloatData : ISetableDataSource<float>
+    [RunParameter("Initial Value", 0.0f, "The value to initially set this data source to.")]
+    public float InitialValue { get { return Data; } set { Data = value; } }
+
+    private float Data;
+
+    public float GiveData()
     {
-        [RunParameter("Initial Value", 0.0f, "The value to initially set this data source to.")]
-        public float InitialValue { get { return Data; } set { Data = value; } }
+        return Data;
+    }
 
-        private float Data;
+    public bool Loaded
+    {
+        get; set;
+    }
 
-        public float GiveData()
-        {
-            return Data;
-        }
+    public void LoadData()
+    {
+        Data = InitialValue;
+        Loaded = true;
+    }
 
-        public bool Loaded
-        {
-            get; set;
-        }
+    public void UnloadData()
+    {
+        Data = InitialValue;
+        Loaded = false;
+    }
 
-        public void LoadData()
-        {
-            Data = InitialValue;
-            Loaded = true;
-        }
+    public string Name { get; set; }
 
-        public void UnloadData()
-        {
-            Data = InitialValue;
-            Loaded = false;
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public string Name { get; set; }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void SetData(float newValue)
-        {
-            Data = newValue;
-        }
+    public void SetData(float newValue)
+    {
+        Data = newValue;
     }
 }

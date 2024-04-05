@@ -20,61 +20,57 @@ using System;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme
+namespace TMG.Emme;
+
+[ModuleInformation(Description = "Exports the network transaction file (e.g., using Module 2.11) for a given scenario.")]
+public class ExtractEmmeNetworkBacthFile : IEmmeTool
 {
-    [ModuleInformation(Description = "Exports the network transaction file (e.g., using Module 2.11) for a given scenario.")]
-    public class ExtractEmmeNetworkBacthFile : IEmmeTool
+    [RunParameter("Scenario", 0, "The number of the Emme Scenario from which to extract the base network.")]
+    public int ScenarioNumber;
+
+    [SubModelInformation(Description = "Network Batch File", Required = true)]
+    public FileLocation ExportFile;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+    private const string ToolName = "tmg.XTMF_internal.export_network_batch_file";
+    private const string OldToolName = "TMG2.XTMF.exportNetworkBatchFile";
+
+    public bool Execute(Controller controller)
     {
-        [RunParameter("Scenario", 0, "The number of the Emme Scenario from which to extract the base network.")]
-        public int ScenarioNumber;
-
-        [SubModelInformation(Description = "Network Batch File", Required = true)]
-        public FileLocation ExportFile;
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string ToolName = "tmg.XTMF_internal.export_network_batch_file";
-        private const string OldToolName = "TMG2.XTMF.exportNetworkBatchFile";
-
-        public bool Execute(Controller controller)
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        var args = string.Join(" ", ScenarioNumber,
+                                    ExportFile.GetFilePath());
+        var result = "";
+        if(mc.CheckToolExists(this, ToolName))
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
-            var args = string.Join(" ", ScenarioNumber,
-                                        ExportFile.GetFilePath());
-            var result = "";
-            if(mc.CheckToolExists(this, ToolName))
-            {
-
-                return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-            }
-            else
-            {
-                return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
-            }
+            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
         }
-
-        public string Name
+        else
         {
-            get;
-            set;
+            return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
         }
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -18,29 +18,28 @@
 */
 using System.Collections.Generic;
 
-namespace TMG.AgentBased.Tours
+namespace TMG.AgentBased.Tours;
+
+public interface ITripChain : ICollection<ITrip>
 {
-    public interface ITripChain : ICollection<ITrip>
+    /// <summary>
+    /// The person that this trip chain belongs to
+    /// </summary>
+    IPerson Person { get; }
+
+    /// <summary>
+    /// The index number of this trip chain for
+    /// the person.
+    /// </summary>
+    int TripChainIndex { get; set; }
+
+    /// <summary>
+    /// Get the trip in the trip chain
+    /// </summary>
+    /// <param name="index">The index to get at</param>
+    /// <returns></returns>
+    ITrip this[int index]
     {
-        /// <summary>
-        /// The person that this trip chain belongs to
-        /// </summary>
-        IPerson Person { get; }
-
-        /// <summary>
-        /// The index number of this trip chain for
-        /// the person.
-        /// </summary>
-        int TripChainIndex { get; set; }
-
-        /// <summary>
-        /// Get the trip in the trip chain
-        /// </summary>
-        /// <param name="index">The index to get at</param>
-        /// <returns></returns>
-        ITrip this[int index]
-        {
-            get;
-        }
+        get;
     }
 }

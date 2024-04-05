@@ -17,17 +17,16 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace TMG.Emme
-{
-    public class ModellerControllerParameter
-    {
-        internal string Name;
-        internal string Value;
+namespace TMG.Emme;
 
-        public ModellerControllerParameter(string name, string value)
-        {
-            Name = name;
-            Value = value;
-        }
+public class ModellerControllerParameter
+{
+    internal string Name;
+    internal string Value;
+
+    public ModellerControllerParameter(string name, string value)
+    {
+        Name = name;
+        Value = value;
     }
 }

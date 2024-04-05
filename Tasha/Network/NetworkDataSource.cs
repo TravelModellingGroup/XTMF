@@ -20,45 +20,44 @@ using System;
 using TMG;
 using XTMF;
 
-namespace Tasha.Network
+namespace Tasha.Network;
+
+public class NetworkDataSource : IDataSource<INetworkAssignment>
 {
-    public class NetworkDataSource : IDataSource<INetworkAssignment>
+    public INetworkAssignment Data;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        public INetworkAssignment Data;
+        get { return 0f; }
+    }
 
-        public string Name { get; set; }
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
+    public INetworkAssignment GiveData()
+    {
+        return Data;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public void LoadData()
+    {
+    }
 
-        public INetworkAssignment GiveData()
-        {
-            return Data;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void LoadData()
-        {
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-        }
+    public void UnloadData()
+    {
     }
 }

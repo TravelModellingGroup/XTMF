@@ -20,56 +20,50 @@ using System;
 using System.IO;
 using TMG.Input;
 using XTMF;
-namespace TMG.Emme.Tools
+namespace TMG.Emme.Tools;
+
+
+public class ExportWorksheetTable : IEmmeTool
 {
 
-    public class ExportWorksheetTable : IEmmeTool
+    const string ToolName = "tmg.XTMF_internal.export_worksheet_table";
+
+    [RunParameter("Scenario Number", 0, "The scenario number to export.")]
+    public int ScenarioNumber;
+
+    [SubModelInformation(Required = true, Description = "The path to the worksheet to load.")]
+    public FileLocation WorksheetPath;
+
+    [SubModelInformation(Required = true, Description = "The location to save this worksheet to.")]
+    public FileLocation OutputLocation;
+
+    [RunParameter("File Name", "", "Optional parameter to set file names different from default.")]
+    public String FileName;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool Execute(Controller controller)
     {
-
-        const string ToolName = "tmg.XTMF_internal.export_worksheet_table";
-
-        [RunParameter("Scenario Number", 0, "The scenario number to export.")]
-        public int ScenarioNumber;
-
-        [SubModelInformation(Required = true, Description = "The path to the worksheet to load.")]
-        public FileLocation WorksheetPath;
-
-        [SubModelInformation(Required = true, Description = "The location to save this worksheet to.")]
-        public FileLocation OutputLocation;
-
-        [RunParameter("File Name", "", "Optional parameter to set file names different from default.")]
-        public String FileName;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if(mc == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
-            }
-            return mc.Run(this, ToolName,GetArguments());
-        }
-
-        private string GetArguments()
-        {
-            return string.Join(" ", ScenarioNumber, AddQuotes(Path.GetFullPath(WorksheetPath)), AddQuotes(Path.GetFullPath(OutputLocation)), AddQuotes(FileName));
-        }
-
-        private static string AddQuotes(string toQuote)
-        {
-            return "\"" + toQuote.Replace("\"", "\\\"") + "\"";
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
+        return mc.Run(this, ToolName,GetArguments());
     }
 
+    private string GetArguments()
+    {
+        return string.Join(" ", ScenarioNumber, AddQuotes(Path.GetFullPath(WorksheetPath)), AddQuotes(Path.GetFullPath(OutputLocation)), AddQuotes(FileName));
+    }
+
+    private static string AddQuotes(string toQuote)
+    {
+        return "\"" + toQuote.Replace("\"", "\\\"") + "\"";
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 }

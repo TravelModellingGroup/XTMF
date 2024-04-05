@@ -25,321 +25,318 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using XTMF.Annotations;
 using XTMF.Gui.UserControls;
 
-namespace XTMF.Gui.Models
+namespace XTMF.Gui.Models;
+
+public class ModelSystemStructureDisplayModel : INotifyPropertyChanged
 {
-    public class ModelSystemStructureDisplayModel : INotifyPropertyChanged
+    private ObservableCollection<ModelSystemStructureModel> _BaseChildren;
+
+    private bool _IsExpanded;
+
+    private bool _isSelected;
+
+    private Visibility _ModuleVisibility;
+    internal ModelSystemStructureModel BaseModel;
+
+    public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel,
+        ModelSystemStructureDisplayModel parent, int index)
     {
-        private ObservableCollection<ModelSystemStructureModel> _BaseChildren;
+        //BaseChildren.
+        Parent = parent;
+        Index = index;
+        BaseModel = baseModel;
+        _BaseChildren = baseModel.Children;
+        UpdateChildren(baseModel);
+        BaseModel.PropertyChanged += BaseModel_PropertyChanged;
+        if (_BaseChildren != null) _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
+    }
 
-        private bool _IsExpanded;
+    public int Index { get; set; }
 
-        private bool _isSelected;
+    public ModelSystemStructureDisplayModel Parent { get; }
 
-        private Visibility _ModuleVisibility;
-        internal ModelSystemStructureModel BaseModel;
+    public ModelSystemStructureDisplayModel BackingDisplayModel => this;
 
-        public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel,
-            ModelSystemStructureDisplayModel parent, int index)
+    public string Name => BaseModel.Name;
+
+    public string Description => BaseModel.Description;
+
+    public ObservableCollection<ModelSystemStructureDisplayModel> Children { get; private set; }
+
+    public ModuleTreeViewItem ControlTreeViewItem { get; set; }
+
+    public Type Type
+    {
+        get => BaseModel.Type;
+        set => BaseModel.Type = value;
+    }
+
+
+    public bool IsCollection => BaseModel.IsCollection;
+
+    public bool IsExpanded
+    {
+        get => _IsExpanded;
+        set
         {
-            //BaseChildren.
-            Parent = parent;
-            Index = index;
-            BaseModel = baseModel;
-            _BaseChildren = baseModel.Children;
-            UpdateChildren(baseModel);
-            BaseModel.PropertyChanged += BaseModel_PropertyChanged;
-            if (_BaseChildren != null) _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
+            _IsExpanded = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsExpanded)));
         }
+    }
 
-        public int Index { get; set; }
-
-        public ModelSystemStructureDisplayModel Parent { get; }
-
-        public ModelSystemStructureDisplayModel BackingDisplayModel => this;
-
-        public string Name => BaseModel.Name;
-
-        public string Description => BaseModel.Description;
-
-        public ObservableCollection<ModelSystemStructureDisplayModel> Children { get; private set; }
-
-        public ModuleTreeViewItem ControlTreeViewItem { get; set; }
-
-        public Type Type
+    public Visibility ModuleVisibility
+    {
+        get => _ModuleVisibility;
+        set
         {
-            get => BaseModel.Type;
-            set => BaseModel.Type = value;
-        }
-
-
-        public bool IsCollection => BaseModel.IsCollection;
-
-        public bool IsExpanded
-        {
-            get => _IsExpanded;
-            set
+            if (_ModuleVisibility != value)
             {
-                _IsExpanded = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsExpanded"));
+                _ModuleVisibility = value;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(ModuleVisibility));
+            }
+        }
+    }
+
+    public ParametersModel ParametersModel => BaseModel.Parameters;
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (_isSelected != value)
+            {
+                _isSelected = value;
+
+                OnPropertyChanged(nameof(IsSelected));
+            }
+        }
+    }
+
+    public bool IsDisabled => BaseModel.IsDisabled;
+
+    public bool IsMetaModule => BaseModel.IsMetaModule;
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
+    /// </summary>
+    /// <param name="baseModel"></param>
+    private void UpdateChildren(ModelSystemStructureModel baseModel)
+    {
+        if (baseModel.IsMetaModule || _BaseChildren == null)
+        {
+            Children = [];
+        }
+        else
+        {
+            Children = [];
+            var i = 0;
+            foreach (var item in baseModel.Children)
+            {
+                var s = new ModelSystemStructureDisplayModel(item, this, i);
+                Children.Add(s);
+                i++;
             }
         }
 
-        public Visibility ModuleVisibility
+        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void BaseChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
         {
-            get => _ModuleVisibility;
-            set
+            case NotifyCollectionChangedAction.Add:
             {
-                if (_ModuleVisibility != value)
+                var insertAt = e.NewStartingIndex;
+                foreach (var item in e.NewItems)
                 {
-                    _ModuleVisibility = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "ModuleVisibility");
+                    var s2 = new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel, this,
+                        insertAt);
+                    //s2.ModelSystemStructureChanged = this.ModelSystemStructureChanged;
+                    Children.Insert(insertAt, s2);
+                    insertAt++;
                 }
             }
+                break;
+            case NotifyCollectionChangedAction.Move:
+                Children.Move(e.OldStartingIndex, e.NewStartingIndex);
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                if (Children.Count > 0) Children.RemoveAt(e.OldStartingIndex);
+
+                break;
+            case NotifyCollectionChangedAction.Replace:
+                var s = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel, this,
+                    e.OldStartingIndex);
+                //s.ModelSystemStructureChanged = this.ModelSystemStructureChanged;
+                Children[e.OldStartingIndex] = s;
+                break;
+            case NotifyCollectionChangedAction.Reset:
+                Children.Clear();
+                break;
+            default:
+                throw new NotImplementedException("An unknown action was performed!");
         }
 
-        public ParametersModel ParametersModel => BaseModel.Parameters;
+        UpdateIndices();
+        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
+    }
 
-        public bool IsSelected
+    private void UpdateIndices()
+    {
+        for(int i = 0; i < Children.Count;i++)
         {
-            get => _isSelected;
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-
-                    OnPropertyChanged(nameof(IsSelected));
-                }
-            }
+            Children[i].Index = i;
         }
+    }
 
-        public bool IsDisabled => BaseModel.IsDisabled;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
 
-        public bool IsMetaModule => BaseModel.IsMetaModule;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// </summary>
-        /// <param name="baseModel"></param>
-        private void UpdateChildren(ModelSystemStructureModel baseModel)
+    private void BaseModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        var ev = PropertyChanged;
+        if (ev != null)
         {
-            if (baseModel.IsMetaModule || _BaseChildren == null)
+            switch (e.PropertyName)
             {
-                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
-            }
-            else
-            {
-                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
-                var i = 0;
-                foreach (var item in baseModel.Children)
-                {
-                    var s = new ModelSystemStructureDisplayModel(item, this, i);
-                    Children.Add(s);
-                    i++;
-                }
-            }
+                case "Children":
+                    if (_BaseChildren != null) _BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
 
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
-        }
+                    _BaseChildren = BaseModel.Children;
+                    if (_BaseChildren != null) _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BaseChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                {
-                    var insertAt = e.NewStartingIndex;
-                    foreach (var item in e.NewItems)
-                    {
-                        var s2 = new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel, this,
-                            insertAt);
-                        //s2.ModelSystemStructureChanged = this.ModelSystemStructureChanged;
-                        Children.Insert(insertAt, s2);
-                        insertAt++;
-                    }
-                }
                     break;
-                case NotifyCollectionChangedAction.Move:
-                    Children.Move(e.OldStartingIndex, e.NewStartingIndex);
+                case "IsMetaModule":
+                    UpdateChildren(BaseModel);
+                    ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                    ModelHelper.PropertyChanged(ev, this, "HighlightColour");
                     break;
-                case NotifyCollectionChangedAction.Remove:
-                    if (Children.Count > 0) Children.RemoveAt(e.OldStartingIndex);
+                case "IsDisabled":
+                case "Type":
 
+                    ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                    ModelHelper.PropertyChanged(ev, this, "HighlightColour");
                     break;
-                case NotifyCollectionChangedAction.Replace:
-                    var s = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel, this,
-                        e.OldStartingIndex);
-                    //s.ModelSystemStructureChanged = this.ModelSystemStructureChanged;
-                    Children[e.OldStartingIndex] = s;
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    Children.Clear();
-                    break;
-                default:
-                    throw new NotImplementedException("An unknown action was performed!");
             }
 
-            UpdateIndices();
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+            ModelHelper.PropertyChanged(ev, this, e.PropertyName);
+        }
+    }
+
+    internal ObservableCollection<ParameterModel> GetParameters()
+    {
+        return !BaseModel.IsMetaModule ? BaseModel.Parameters.GetParameters() : GetMetaModuleParamters();
+    }
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    private ObservableCollection<ParameterModel> GetMetaModuleParamters()
+    {
+        var ret = new ObservableCollection<ParameterModel>();
+        var toGet = new Stack<ModelSystemStructureModel>();
+        toGet.Push(BaseModel);
+        while (toGet.Count > 0)
+        {
+            var current = toGet.Pop();
+            foreach (var p in current.Parameters.GetParameters()) ret.Add(p);
+
+            if (current.Children != null)
+                foreach (var c in current.Children)
+                    toGet.Push(c);
         }
 
-        private void UpdateIndices()
+        return ret;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public static ObservableCollection<ParameterModel> GetMetaModuleParamters(ModelSystemStructureModel model)
+    {
+        var ret = new ObservableCollection<ParameterModel>();
+        var toGet = new Stack<ModelSystemStructureModel>();
+        toGet.Push(model);
+        while (toGet.Count > 0)
         {
-            for(int i = 0; i < Children.Count;i++)
-            {
-                Children[i].Index = i;
-            }
+            var current = toGet.Pop();
+            foreach (var p in current.Parameters.GetParameters()) ret.Add(p);
+
+            if (current.Children != null)
+                foreach (var c in current.Children)
+                    toGet.Push(c);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        return ret;
+    }
 
-        private void BaseModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            var ev = PropertyChanged;
-            if (ev != null)
+    internal void CopyModule()
+    {
+        Clipboard.SetDataObject(BaseModel.CopyModule());
+    }
+
+    internal static void CopyModules(List<ModelSystemStructureDisplayModel> toCopy)
+    {
+        Clipboard.SetDataObject(ModelSystemStructureModel.CopyModule(toCopy.Select(m => m.BaseModel).ToList()));
+    }
+
+    internal bool Paste(ModelSystemEditingSession session, string toPaste, ref string error)
+    {
+        return BaseModel.Paste(session, toPaste, ref error);
+    }
+
+    internal List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected)
+    {
+        return BuildChainTo(selected, this);
+    }
+
+    private static List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected,
+        ModelSystemStructureDisplayModel current)
+    {
+        if (selected == current) return [current];
+
+        var children = current.Children;
+        if (children != null)
+            foreach (var child in children)
             {
-                switch (e.PropertyName)
+                var ret = BuildChainTo(selected, child);
+                if (ret != null)
                 {
-                    case "Children":
-                        if (_BaseChildren != null) _BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
-
-                        _BaseChildren = BaseModel.Children;
-                        if (_BaseChildren != null) _BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
-
-                        break;
-                    case "IsMetaModule":
-                        UpdateChildren(BaseModel);
-                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
-                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
-                        break;
-                    case "IsDisabled":
-                    case "Type":
-
-                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
-                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
-                        break;
+                    ret.Insert(0, current);
+                    return ret;
                 }
-
-                ModelHelper.PropertyChanged(ev, this, e.PropertyName);
-            }
-        }
-
-        internal ObservableCollection<ParameterModel> GetParameters()
-        {
-            return !BaseModel.IsMetaModule ? BaseModel.Parameters.GetParameters() : GetMetaModuleParamters();
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private ObservableCollection<ParameterModel> GetMetaModuleParamters()
-        {
-            var ret = new ObservableCollection<ParameterModel>();
-            var toGet = new Stack<ModelSystemStructureModel>();
-            toGet.Push(BaseModel);
-            while (toGet.Count > 0)
-            {
-                var current = toGet.Pop();
-                foreach (var p in current.Parameters.GetParameters()) ret.Add(p);
-
-                if (current.Children != null)
-                    foreach (var c in current.Children)
-                        toGet.Push(c);
             }
 
-            return ret;
-        }
+        return null;
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public static ObservableCollection<ParameterModel> GetMetaModuleParamters(ModelSystemStructureModel model)
-        {
-            var ret = new ObservableCollection<ParameterModel>();
-            var toGet = new Stack<ModelSystemStructureModel>();
-            toGet.Push(model);
-            while (toGet.Count > 0)
-            {
-                var current = toGet.Pop();
-                foreach (var p in current.Parameters.GetParameters()) ret.Add(p);
+    internal bool SetDisabled(bool disabled, ref string error)
+    {
+        return BaseModel.SetDisabled(disabled, ref error);
+    }
 
-                if (current.Children != null)
-                    foreach (var c in current.Children)
-                        toGet.Push(c);
-            }
-
-            return ret;
-        }
-
-        internal void CopyModule()
-        {
-            Clipboard.SetDataObject(BaseModel.CopyModule());
-        }
-
-        internal static void CopyModules(List<ModelSystemStructureDisplayModel> toCopy)
-        {
-            Clipboard.SetDataObject(ModelSystemStructureModel.CopyModule(toCopy.Select(m => m.BaseModel).ToList()));
-        }
-
-        internal bool Paste(ModelSystemEditingSession session, string toPaste, ref string error)
-        {
-            return BaseModel.Paste(session, toPaste, ref error);
-        }
-
-        internal List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected)
-        {
-            return BuildChainTo(selected, this);
-        }
-
-        private static List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected,
-            ModelSystemStructureDisplayModel current)
-        {
-            if (selected == current) return new List<ModelSystemStructureDisplayModel> {current};
-
-            var children = current.Children;
-            if (children != null)
-                foreach (var child in children)
-                {
-                    var ret = BuildChainTo(selected, child);
-                    if (ret != null)
-                    {
-                        ret.Insert(0, current);
-                        return ret;
-                    }
-                }
-
-            return null;
-        }
-
-        internal bool SetDisabled(bool disabled, ref string error)
-        {
-            return BaseModel.SetDisabled(disabled, ref error);
-        }
-
-        internal bool SetMetaModule(bool set, ref string error)
-        {
-            return BaseModel.SetMetaModule(set, ref error);
-        }
+    internal bool SetMetaModule(bool set, ref string error)
+    {
+        return BaseModel.SetMetaModule(set, ref error);
     }
 }

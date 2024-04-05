@@ -18,28 +18,27 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Defines a class of vehicle
+/// </summary>
+public interface IVehicleType : IModule
 {
     /// <summary>
-    /// Defines a class of vehicle
+    /// Are there a limited set of this type of vehicle
     /// </summary>
-    public interface IVehicleType : IModule
-    {
-        /// <summary>
-        /// Are there a limited set of this type of vehicle
-        /// </summary>
-        bool Finite { get; }
+    bool Finite { get; }
 
-        /// <summary>
-        /// The name for this class of vehicle
-        /// </summary>
-        string VehicleName { get; }
+    /// <summary>
+    /// The name for this class of vehicle
+    /// </summary>
+    string VehicleName { get; }
 
-        /// <summary>
-        /// Can the person use this type of vehicle
-        /// </summary>
-        /// <param name="person">The person to test for</param>
-        /// <returns>If the person can use it</returns>
-        bool CanUse(ITashaPerson person);
-    }
+    /// <summary>
+    /// Can the person use this type of vehicle
+    /// </summary>
+    /// <param name="person">The person to test for</param>
+    /// <returns>If the person can use it</returns>
+    bool CanUse(ITashaPerson person);
 }

@@ -16,20 +16,19 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG.ParameterDatabase
+namespace TMG.ParameterDatabase;
+
+public class Parameter
 {
-    public class Parameter
+    public Parameter(string name)
     {
-        public Parameter(string name)
-        {
-            ParameterName = name;
-        }
-
-        /// <summary>
-        /// The name of the parameter
-        /// </summary>
-        public string ParameterName { get; private set; }
-
-        public string Value { get; set; }
+        ParameterName = name;
     }
+
+    /// <summary>
+    /// The name of the parameter
+    /// </summary>
+    public string ParameterName { get; private set; }
+
+    public string Value { get; set; }
 }

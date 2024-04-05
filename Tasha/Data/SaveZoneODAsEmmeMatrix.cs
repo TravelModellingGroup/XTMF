@@ -24,46 +24,44 @@ using TMG;
 using TMG.Input;
 using TMG.Functions;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module is designed to save a matrix data source to file.")]
+public class SaveZoneODAsEmmeMatrix : ISelfContainedModule, IEmmeTool
 {
-    [ModuleInformation(Description = "This module is designed to save a matrix data source to file.")]
-    public class SaveZoneODAsEmmeMatrix : ISelfContainedModule, IEmmeTool
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool Execute(Controller controller)
     {
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool Execute(Controller controller)
-        {
-            Start();
-            return true;
-        }
-
-        [SubModelInformation(Required = false, Description = "The matrix resource to save.")]
-        public IResource MatrixToSave;
-
-        [SubModelInformation(Required = false, Description = "Optionally a raw data source to use.")]
-        public IDataSource<SparseTwinIndex<float>> MatrixToSaveRaw;
-
-        [SubModelInformation(Required = true, Description = "The place to save the file.")]
-        public FileLocation OutputFile;
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(MatrixToSaveRaw, MatrixToSave, ref error);
-        }
-
-        public void Start()
-        {
-            var matrix = new EmmeMatrix(Root.ZoneSystem.ZoneArray, ModuleHelper.GetDataFromDatasourceOrResource(MatrixToSaveRaw, MatrixToSave, MatrixToSaveRaw != null).GetFlatData());
-            matrix.Save(OutputFile, true);
-        }
+        Start();
+        return true;
     }
 
+    [SubModelInformation(Required = false, Description = "The matrix resource to save.")]
+    public IResource MatrixToSave;
+
+    [SubModelInformation(Required = false, Description = "Optionally a raw data source to use.")]
+    public IDataSource<SparseTwinIndex<float>> MatrixToSaveRaw;
+
+    [SubModelInformation(Required = true, Description = "The place to save the file.")]
+    public FileLocation OutputFile;
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(MatrixToSaveRaw, MatrixToSave, ref error);
+    }
+
+    public void Start()
+    {
+        var matrix = new EmmeMatrix(Root.ZoneSystem.ZoneArray, ModuleHelper.GetDataFromDatasourceOrResource(MatrixToSaveRaw, MatrixToSave, MatrixToSaveRaw != null).GetFlatData());
+        matrix.Save(OutputFile, true);
+    }
 }

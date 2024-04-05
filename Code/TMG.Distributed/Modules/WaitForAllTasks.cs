@@ -19,42 +19,41 @@
 using System;
 using XTMF;
 
-namespace TMG.Distributed.Modules
+namespace TMG.Distributed.Modules;
+
+[ModuleInformation(
+    Description = "This module is designed to allow a model system wait for all previously issued distributed tasks to have been executed before continuing."
+    )]
+public class WaitForAllTasks : ISelfContainedModule
 {
-    [ModuleInformation(
-        Description = "This module is designed to allow a model system wait for all previously issued distributed tasks to have been executed before continuing."
-        )]
-    public class WaitForAllTasks : ISelfContainedModule
+    [RootModule]
+    public IHostDistributionManager Root;
+
+    public string Name { get;set; }
+
+    public float Progress
     {
-        [RootModule]
-        public IHostDistributionManager Root;
-
-        public string Name { get;set; }
-
-        public float Progress
+        get
         {
-            get
-            {
-                return 0.0f;
-            }
+            return 0.0f;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void Start()
-        {
-            Root.WaitAll();
-        }
+    public void Start()
+    {
+        Root.WaitAll();
     }
 }

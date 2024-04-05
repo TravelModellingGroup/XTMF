@@ -18,37 +18,36 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Provides a common interface to view Modules
+/// </summary>
+/// <remarks>Please do not implement this interface directly.  Instead use
+/// one of IModelExecution(I/O/IO) to describe the inputs and outputs of your model</remarks>
+public interface IModule
 {
     /// <summary>
-    /// Provides a common interface to view Modules
+    /// The name of the instance of model
     /// </summary>
-    /// <remarks>Please do not implement this interface directly.  Instead use
-    /// one of IModelExecution(I/O/IO) to describe the inputs and outputs of your model</remarks>
-    public interface IModule
-    {
-        /// <summary>
-        /// The name of the instance of model
-        /// </summary>
-        string Name { get; set; }
+    string Name { get; set; }
 
-        /// <summary>
-        /// The current level of progress between 0 and 1
-        /// </summary>
-        float Progress { get; }
+    /// <summary>
+    /// The current level of progress between 0 and 1
+    /// </summary>
+    float Progress { get; }
 
-        /// <summary>
-        /// R,G,B colour used for progress bars
-        /// </summary>
-        Tuple<byte, byte, byte> ProgressColour { get; }
+    /// <summary>
+    /// R,G,B colour used for progress bars
+    /// </summary>
+    Tuple<byte, byte, byte> ProgressColour { get; }
 
-        /// <summary>
-        /// Called to check before the start of a Model System in order to ensure that all modules included
-        /// are alright with their parameters.  If there is an error it will return false and describe the error
-        /// in detail in the error string.
-        /// </summary>
-        /// <param name="error">The error string returned by a model that has an error</param>
-        /// <returns>True if there are no problems with the configuration of this module</returns>
-        bool RuntimeValidation(ref string? error);
-    }
+    /// <summary>
+    /// Called to check before the start of a Model System in order to ensure that all modules included
+    /// are alright with their parameters.  If there is an error it will return false and describe the error
+    /// in detail in the error string.
+    /// </summary>
+    /// <param name="error">The error string returned by a model that has an error</param>
+    /// <returns>True if there are no problems with the configuration of this module</returns>
+    bool RuntimeValidation(ref string? error);
 }

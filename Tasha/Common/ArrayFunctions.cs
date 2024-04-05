@@ -20,44 +20,43 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Tasha.Common
-{
-    public static class ArrayFunctions
-    {
-        public static IList<T> FindCommonElements<T>(IList<T> listA, IList<T> listB, Func<T, T, bool> equalityComparer)
-        {
-            IList<T> commonList = new List<T>( listA.Count );
+namespace Tasha.Common;
 
-            foreach ( var itemA in listA )
+public static class ArrayFunctions
+{
+    public static IList<T> FindCommonElements<T>(IList<T> listA, IList<T> listB, Func<T, T, bool> equalityComparer)
+    {
+        IList<T> commonList = new List<T>( listA.Count );
+
+        foreach ( var itemA in listA )
+        {
+            foreach ( var itemB in listB )
             {
-                foreach ( var itemB in listB )
+                if ( equalityComparer( itemA, itemB ) )
                 {
-                    if ( equalityComparer( itemA, itemB ) )
-                    {
-                        commonList.Add( itemA );
-                        break;
-                    }
+                    commonList.Add( itemA );
+                    break;
                 }
             }
-
-            return commonList;
         }
 
-        public static IList<T> FindCommonElements<T>(Func<T, T, bool> equalityComparer, params IList<T>[] lists)
+        return commonList;
+    }
+
+    public static IList<T> FindCommonElements<T>(Func<T, T, bool> equalityComparer, params IList<T>[] lists)
+    {
+        if ( lists.Count() == 0 )
         {
-            if ( lists.Count() == 0 )
-            {
-                return new List<T>();
-            }
-
-            IList<T> commonList = new List<T>( lists[0] );
-
-            for ( int i = 1; i < lists.Count(); i++ )
-            {
-                commonList = FindCommonElements( commonList, lists[i], equalityComparer );
-            }
-
-            return commonList;
+            return new List<T>();
         }
+
+        IList<T> commonList = new List<T>( lists[0] );
+
+        for ( int i = 1; i < lists.Count(); i++ )
+        {
+            commonList = FindCommonElements( commonList, lists[i], equalityComparer );
+        }
+
+        return commonList;
     }
 }

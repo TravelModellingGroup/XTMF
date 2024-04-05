@@ -25,119 +25,118 @@ using Datastructure;
 using TMG.Functions;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
-namespace Tasha.Validation.School
-{
-    [ModuleInformation(
-        Description = @"This module is designed to capture the assignment of student's from household zone to school zone.  This can then be used to validate PoRPoS models.  Built for GTAModelV4.0+.
+namespace Tasha.Validation.School;
+
+[ModuleInformation(
+    Description = @"This module is designed to capture the assignment of student's from household zone to school zone.  This can then be used to validate PoRPoS models.  Built for GTAModelV4.0+.
 <br/>
 The matrix will be saved in the OD square csv format."
-        )]
-    public sealed class ProduceStudentMatrix : IPostHousehold, IDisposable
+    )]
+public sealed class ProduceStudentMatrix : IPostHousehold, IDisposable
+{
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation( Required = true, Description = "The location to save the file in csv OD matrix format." )]
+    public FileLocation Output;
+
+    [RunParameter( "Ages", "0-11", typeof( RangeSet ), "The range of ages to gather together to form the matrix." )]
+    public RangeSet Ages;
+
+    private SparseTwinIndex<float> ExpandedStudents;
+
+    private Task SaveTask;
+
+    private BlockingCollection<Assignment> ToSave;
+
+    private struct Assignment
     {
+        internal readonly int HouseholdZone;
+        internal readonly int SchoolZone;
+        internal readonly float Expanded;
 
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [SubModelInformation( Required = true, Description = "The location to save the file in csv OD matrix format." )]
-        public FileLocation Output;
-
-        [RunParameter( "Ages", "0-11", typeof( RangeSet ), "The range of ages to gather together to form the matrix." )]
-        public RangeSet Ages;
-
-        private SparseTwinIndex<float> ExpandedStudents;
-
-        private Task SaveTask;
-
-        private BlockingCollection<Assignment> ToSave;
-
-        private struct Assignment
+        internal Assignment(int householdZone, int schoolZone, float expanded)
         {
-            internal readonly int HouseholdZone;
-            internal readonly int SchoolZone;
-            internal readonly float Expanded;
-
-            internal Assignment(int householdZone, int schoolZone, float expanded)
-            {
-                HouseholdZone = householdZone;
-                SchoolZone = schoolZone;
-                Expanded = expanded;
-            }
+            HouseholdZone = householdZone;
+            SchoolZone = schoolZone;
+            Expanded = expanded;
         }
+    }
 
-        public void Execute(ITashaHousehold household, int iteration)
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var householdZone = household.HomeZone.ZoneNumber;
+        var persons = household.Persons;
+        lock ( this )
         {
-            var householdZone = household.HomeZone.ZoneNumber;
-            var persons = household.Persons;
-            lock ( this )
+            for ( int i = 0; i < persons.Length; i++ )
             {
-                for ( int i = 0; i < persons.Length; i++ )
+                var schoolZone = persons[i].SchoolZone;
+                if ( schoolZone != null && Ages.Contains( persons[i].Age ) )
                 {
-                    var schoolZone = persons[i].SchoolZone;
-                    if ( schoolZone != null && Ages.Contains( persons[i].Age ) )
-                    {
-                        ToSave.Add( new Assignment( householdZone, schoolZone.ZoneNumber, persons[i].ExpansionFactor ) );
-                    }
+                    ToSave.Add( new Assignment( householdZone, schoolZone.ZoneNumber, persons[i].ExpansionFactor ) );
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        ToSave.CompleteAdding();
+        SaveTask.Wait();
+        SaveData.SaveMatrix( ExpandedStudents, Output );
+    }
+
+    public void Load(int maxIterations)
+    {
+
+    }
+
+    ~ProduceStudentMatrix()
+    {
+        Dispose();
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        ExpandedStudents = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        ToSave = [];
+        SaveTask = Task.Factory.StartNew( () =>
+            {
+                var students = ExpandedStudents;
+                foreach ( var assignment in ToSave.GetConsumingEnumerable() )
+                {
+                    students[assignment.HouseholdZone, assignment.SchoolZone] += assignment.Expanded;
+                }
+            }, TaskCreationOptions.LongRunning );
+    }
+
+    public void Dispose()
+    {
+        if ( ToSave != null )
         {
             ToSave.CompleteAdding();
-            SaveTask.Wait();
-            SaveData.SaveMatrix( ExpandedStudents, Output );
+            ToSave = null;
         }
-
-        public void Load(int maxIterations)
-        {
-
-        }
-
-        ~ProduceStudentMatrix()
-        {
-            Dispose();
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            ExpandedStudents = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            ToSave = new BlockingCollection<Assignment>();
-            SaveTask = Task.Factory.StartNew( () =>
-                {
-                    var students = ExpandedStudents;
-                    foreach ( var assignment in ToSave.GetConsumingEnumerable() )
-                    {
-                        students[assignment.HouseholdZone, assignment.SchoolZone] += assignment.Expanded;
-                    }
-                }, TaskCreationOptions.LongRunning );
-        }
-
-        public void Dispose()
-        {
-            if ( ToSave != null )
-            {
-                ToSave.CompleteAdding();
-                ToSave = null;
-            }
-            SaveTask = null;
-        }
+        SaveTask = null;
+    }
 
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

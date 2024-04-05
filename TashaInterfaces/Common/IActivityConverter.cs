@@ -16,14 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface IActivityConverter
 {
-    public interface IActivityConverter
-    {
-        Activity GetActivity(char destination);
+    Activity GetActivity(char destination);
 
-        char GetActivityChar(Activity activity);
+    char GetActivityChar(Activity activity);
 
-        void GetTripActivities(ITrip trip, ITripChain chain, out char origin, out char destination);
-    }
+    void GetTripActivities(ITrip trip, ITripChain chain, out char origin, out char destination);
 }

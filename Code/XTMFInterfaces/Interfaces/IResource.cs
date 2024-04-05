@@ -18,50 +18,49 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+public interface IResource : IModule
 {
-    public interface IResource : IModule
-    {
-        /// <summary>
-        /// The unique name for this resource
-        /// </summary>
-        string ResourceName { get; }
+    /// <summary>
+    /// The unique name for this resource
+    /// </summary>
+    string ResourceName { get; }
 
-        /// <summary>
-        /// Provides access to the resource
-        /// </summary>
-        /// <typeparam name="T">The type of the resource to try to acquire.</typeparam>
-        /// <returns>Returns null if the resource is not of the given type, otherwise provides the resource.</returns>
-        T AcquireResource<T>();
+    /// <summary>
+    /// Provides access to the resource
+    /// </summary>
+    /// <typeparam name="T">The type of the resource to try to acquire.</typeparam>
+    /// <returns>Returns null if the resource is not of the given type, otherwise provides the resource.</returns>
+    T AcquireResource<T>();
 
-        /// <summary>
-        /// Checks to see if the resource is of the given type
-        /// </summary>
-        /// <returns></returns>
-        bool CheckResourceType(Type dataType);
+    /// <summary>
+    /// Checks to see if the resource is of the given type
+    /// </summary>
+    /// <returns></returns>
+    bool CheckResourceType(Type dataType);
 
-        /// <summary>
-        /// Checks to see if the resource is of the given type
-        /// </summary>
-        /// <typeparam name="T">The type to check for.</typeparam>
-        /// <returns></returns>
-        bool CheckResourceType<T>();
+    /// <summary>
+    /// Checks to see if the resource is of the given type
+    /// </summary>
+    /// <typeparam name="T">The type to check for.</typeparam>
+    /// <returns></returns>
+    bool CheckResourceType<T>();
 
-        /// <summary>
-        /// Release the usage of this resource
-        /// </summary>
-        void ReleaseResource();
+    /// <summary>
+    /// Release the usage of this resource
+    /// </summary>
+    void ReleaseResource();
 
-        /// <summary>
-        /// Gets the raw data-source contained by this resource.
-        /// </summary>
-        /// <returns>The contained datasource</returns>
-        IDataSource GetDataSource();
+    /// <summary>
+    /// Gets the raw data-source contained by this resource.
+    /// </summary>
+    /// <returns>The contained datasource</returns>
+    IDataSource GetDataSource();
 
-        /// <summary>
-        /// Get the type that this resource holds
-        /// </summary>
-        /// <returns>The type that this resource holds</returns>
-        Type GetResourceType();
-    }
+    /// <summary>
+    /// Get the type that this resource holds
+    /// </summary>
+    /// <returns>The type that this resource holds</returns>
+    Type GetResourceType();
 }

@@ -21,134 +21,133 @@ using System.Globalization;
 using System.Linq;
 using XTMF;
 
-namespace TMG.Estimation
+namespace TMG.Estimation;
+
+public class LocalClient : IEstimationClientModelSystem
 {
-    public class LocalClient : IEstimationClientModelSystem
+
+    [RootModule]
+    public LocalEstimationHost Root;
+
+    private IModelSystemStructure ClientStructure;
+
+    private IConfiguration XtmfConfig;
+    public LocalClient(IConfiguration config)
     {
+        XtmfConfig = config;
+    }
 
-        [RootModule]
-        public LocalEstimationHost Root;
+    private volatile bool Exit;
 
-        private IModelSystemStructure ClientStructure;
+    public ClientTask CurrentTask
+    {
+        get;
+        set;
+    }
 
-        private IConfiguration XtmfConfig;
-        public LocalClient(IConfiguration config)
+    public string InputBaseDirectory { get; set; }
+
+    public IModelSystemTemplate MainClient { get; set; }
+
+    public string Name { get; set; }
+
+    public string OutputBaseDirectory { get; set; }
+
+    public ParameterSetting[] Parameters { get; set; }
+
+    [RunParameter("Save Parameters", false, "Should we save the parameters into the model system?")]
+    public bool SaveParameters;
+
+
+    public float Progress => MainClient.Progress;
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            XtmfConfig = config;
+            return new Tuple<byte, byte, byte>(50, 150, 50);
         }
+    }
 
-        private volatile bool Exit;
+    public Func<float> RetrieveValue { get; set; }
 
-        public ClientTask CurrentTask
+    private void InitializeParameters(ClientTask task)
+    {
+        string error = null;
+        for (int i = 0; i < task.ParameterValues.Length && i < Parameters.Length; i++)
         {
-            get;
-            set;
-        }
-
-        public string InputBaseDirectory { get; set; }
-
-        public IModelSystemTemplate MainClient { get; set; }
-
-        public string Name { get; set; }
-
-        public string OutputBaseDirectory { get; set; }
-
-        public ParameterSetting[] Parameters { get; set; }
-
-        [RunParameter("Save Parameters", false, "Should we save the parameters into the model system?")]
-        public bool SaveParameters;
-
-
-        public float Progress => MainClient.Progress;
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get
+            for(int j = 0; j < Parameters[i].Names.Length; j++)
             {
-                return new Tuple<byte, byte, byte>(50, 150, 50);
+                
+                if (
+                    !Functions.ModelSystemReflection.AssignValue(XtmfConfig, ClientStructure, Parameters[i].Names[j],
+                        task.ParameterValues[i].ToString(CultureInfo.InvariantCulture), ref error))
+                {
+                    throw new XTMFRuntimeException(this, $"In '{Name}' we encountered an error when trying to assign parameters.\r\n{error}");
+                }
             }
         }
+        SaveParametersIfNeeded();
+    }
 
-        public Func<float> RetrieveValue { get; set; }
-
-        private void InitializeParameters(ClientTask task)
+    private void SaveParametersIfNeeded()
+    {
+        if(SaveParameters)
         {
             string error = null;
-            for (int i = 0; i < task.ParameterValues.Length && i < Parameters.Length; i++)
+            if(!XtmfConfig.ProjectRepository.ActiveProject.Save(ref error))
             {
-                for(int j = 0; j < Parameters[i].Names.Length; j++)
-                {
-                    
-                    if (
-                        !Functions.ModelSystemReflection.AssignValue(XtmfConfig, ClientStructure, Parameters[i].Names[j],
-                            task.ParameterValues[i].ToString(CultureInfo.InvariantCulture), ref error))
-                    {
-                        throw new XTMFRuntimeException(this, $"In '{Name}' we encountered an error when trying to assign parameters.\r\n{error}");
-                    }
-                }
-            }
-            SaveParametersIfNeeded();
-        }
-
-        private void SaveParametersIfNeeded()
-        {
-            if(SaveParameters)
-            {
-                string error = null;
-                if(!XtmfConfig.ProjectRepository.ActiveProject.Save(ref error))
-                {
-                    throw new XTMFRuntimeException(this, "We were unable to save the project! " + error);
-                }
+                throw new XTMFRuntimeException(this, "We were unable to save the project! " + error);
             }
         }
+    }
 
-        public bool ExitRequest()
+    public bool ExitRequest()
+    {
+        Exit = true;
+        return false;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (!Functions.ModelSystemReflection.FindModuleStructure(XtmfConfig, MainClient, ref ClientStructure))
         {
-            Exit = true;
+            error = "In '" + Name + "' we were unable to find the Client Model System!";
             return false;
         }
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public void Start()
+    {
+        Exit = false;
+        Parameters = [.. Root.Parameters];
+        Job job;
+        while(Exit != true && (job = Root.GiveJob()) != null)
         {
-            if (!Functions.ModelSystemReflection.FindModuleStructure(XtmfConfig, MainClient, ref ClientStructure))
-            {
-                error = "In '" + Name + "' we were unable to find the Client Model System!";
-                return false;
-            }
-            return true;
+            CreateClientTask(job);
+            InitializeParameters(CurrentTask);
+            MainClient.Start();
+            ReportResult();
         }
+        Exit = true;
+    }
 
-        public void Start()
+    private void CreateClientTask(Job job)
+    {
+        CurrentTask = new ClientTask()
         {
-            Exit = false;
-            Parameters = Root.Parameters.ToArray();
-            Job job;
-            while(Exit != true && (job = Root.GiveJob()) != null)
-            {
-                CreateClientTask(job);
-                InitializeParameters(CurrentTask);
-                MainClient.Start();
-                ReportResult();
-            }
-            Exit = true;
-        }
+            Generation = -1,
+            Index = -1,
+            ParameterValues = (from param in job.Parameters
+                               select param.Current).ToArray(),
+            Result = float.NaN
+        };
+    }
 
-        private void CreateClientTask(Job job)
-        {
-            CurrentTask = new ClientTask()
-            {
-                Generation = -1,
-                Index = -1,
-                ParameterValues = (from param in job.Parameters
-                                   select param.Current).ToArray(),
-                Result = float.NaN
-            };
-        }
-
-        private void ReportResult()
-        {
-            var result = RetrieveValue == null ? float.NaN : RetrieveValue();
-            Root.SaveResult(result);
-        }
+    private void ReportResult()
+    {
+        var result = RetrieveValue == null ? float.NaN : RetrieveValue();
+        Root.SaveResult(result);
     }
 }

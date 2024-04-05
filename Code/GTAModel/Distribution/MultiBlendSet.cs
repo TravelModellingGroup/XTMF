@@ -21,32 +21,31 @@ using System;
 using System.Collections.Generic;
 using XTMF;
 
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+[ModuleInformation( Description =
+    "The module is designed to bring together a set of blended sets in order to help implement a "
+    + "finer grain of control over blended sets." )]
+public class MultiBlendSet : IModule
 {
-    [ModuleInformation( Description =
-        "The module is designed to bring together a set of blended sets in order to help implement a "
-        + "finer grain of control over blended sets." )]
-    public class MultiBlendSet : IModule
+    [SubModelInformation( Description = "A description of a list of sets that will be blended seperatly.", Required = true )]
+    public List<BlendSet> Subsets;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [SubModelInformation( Description = "A description of a list of sets that will be blended seperatly.", Required = true )]
-        public List<BlendSet> Subsets;
+        get;
+        set;
+    }
 
-        public string Name { get; set; }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

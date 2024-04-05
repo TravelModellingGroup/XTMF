@@ -20,114 +20,113 @@ using System;
 using TMG;
 using XTMF;
 using Datastructure;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description =
+    @"This module is designed to multiply two rates together for each zone.")]
+public class MultiplyRatesForZones : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation(Description =
-        @"This module is designed to multiply two rates together for each zone.")]
-    public class MultiplyRatesForZones : IDataSource<SparseArray<float>>
+    private SparseArray<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation(Required = true, Description = "The rates to use for each planning district.")]
+    public IResource FirstRateToApply;
+
+    [SubModelInformation(Required = true, Description = "The rates to use for each planning district.")]
+    public IResource SecondRateToApply;
+
+    [RunParameter("First Rate PD", true, "Are the rates based on planning districts (true) or zones (false).")]
+    public bool FirstRateBasedOnPD;
+
+    [RunParameter("Second Rate PD", true, "Are the rates based on planning districts (true) or zones (false).")]
+    public bool SecondRateBasedOnPD;
+
+    [RunParameter("Save by PD", true, "Should we save our combined rate by PD?  If true then all rates are treated as if by PD!")]
+    public bool SaveRatesBasedOnPD;
+
+    public SparseArray<float> GiveData()
     {
-        private SparseArray<float> Data;
+        return Data;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        [SubModelInformation(Required = true, Description = "The rates to use for each planning district.")]
-        public IResource FirstRateToApply;
-
-        [SubModelInformation(Required = true, Description = "The rates to use for each planning district.")]
-        public IResource SecondRateToApply;
-
-        [RunParameter("First Rate PD", true, "Are the rates based on planning districts (true) or zones (false).")]
-        public bool FirstRateBasedOnPD;
-
-        [RunParameter("Second Rate PD", true, "Are the rates based on planning districts (true) or zones (false).")]
-        public bool SecondRateBasedOnPD;
-
-        [RunParameter("Save by PD", true, "Should we save our combined rate by PD?  If true then all rates are treated as if by PD!")]
-        public bool SaveRatesBasedOnPD;
-
-        public SparseArray<float> GiveData()
+    public void LoadData()
+    {
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        var zones = zoneArray.GetFlatData();
+        var firstRate = FirstRateToApply.AcquireResource<SparseArray<float>>();
+        var secondRate = SecondRateToApply.AcquireResource<SparseArray<float>>();
+        SparseArray<float> data;
+        if(SaveRatesBasedOnPD)
         {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
-            var firstRate = FirstRateToApply.AcquireResource<SparseArray<float>>();
-            var secondRate = SecondRateToApply.AcquireResource<SparseArray<float>>();
-            SparseArray<float> data;
-            if(SaveRatesBasedOnPD)
+            data = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(zoneArray);
+            var pds = data.ValidIndexArray();
+            for(int i = 0; i < pds.Length; i++)
             {
-                data = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(zoneArray);
-                var pds = data.ValidIndexArray();
-                for(int i = 0; i < pds.Length; i++)
-                {
-                    var pd = pds[i];
-                    data[pd] = firstRate[pd] * secondRate[pd];
-                }
+                var pd = pds[i];
+                data[pd] = firstRate[pd] * secondRate[pd];
             }
-            else
-            {
-                // then we are outputting by zone
-                data = zoneArray.CreateSimilarArray<float>();
-                var flatData = data.GetFlatData();
-                for(int i = 0; i < flatData.Length; i++)
-                {
-                    var pd = zones[i].PlanningDistrict;
-                    var zone = zones[i].ZoneNumber;
-                    flatData[i] = firstRate[FirstRateBasedOnPD ? pd : zone] * secondRate[SecondRateBasedOnPD ? pd : zone];
-                }
-            }
-            Data = data;
         }
-
-        public void UnloadData()
+        else
         {
-            Data = null;
+            // then we are outputting by zone
+            data = zoneArray.CreateSimilarArray<float>();
+            var flatData = data.GetFlatData();
+            for(int i = 0; i < flatData.Length; i++)
+            {
+                var pd = zones[i].PlanningDistrict;
+                var zone = zones[i].ZoneNumber;
+                flatData[i] = firstRate[FirstRateBasedOnPD ? pd : zone] * secondRate[SecondRateBasedOnPD ? pd : zone];
+            }
         }
+        Data = data;
+    }
 
-        public string Name { get; set; }
+    public void UnloadData()
+    {
+        Data = null;
+    }
 
-        public float Progress
+    public string Name { get; set; }
+
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(!FirstRateToApply.CheckResourceType<SparseArray<float>>())
         {
-            get { return 0f; }
+            error = "In '" + Name + "' the first rates resource is not of type SparseArray<float>!";
+            return false;
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        if(!SecondRateToApply.CheckResourceType<SparseArray<float>>())
         {
-            get { return null; }
+            error = "In '" + Name + "' the second rate resource is not of type SparseArray<float>!";
+            return false;
         }
-
-        public bool RuntimeValidation(ref string error)
+        if(SaveRatesBasedOnPD & !FirstRateBasedOnPD)
         {
-            if(!FirstRateToApply.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the first rates resource is not of type SparseArray<float>!";
-                return false;
-            }
-            if(!SecondRateToApply.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the second rate resource is not of type SparseArray<float>!";
-                return false;
-            }
-            if(SaveRatesBasedOnPD & !FirstRateBasedOnPD)
-            {
-                error = "In '" + Name + "', if you save rates by PD the input rates must be read in by PD.  The first rate is being read in by zone!";
-                return false;
-            }
-            if(SaveRatesBasedOnPD & !SecondRateBasedOnPD)
-            {
-                error = "In '" + Name + "', if you save rates by PD the input rates must be read in by PD.  The second rate is being read in by zone";
-                return false;
-            }
-            return true;
+            error = "In '" + Name + "', if you save rates by PD the input rates must be read in by PD.  The first rate is being read in by zone!";
+            return false;
         }
+        if(SaveRatesBasedOnPD & !SecondRateBasedOnPD)
+        {
+            error = "In '" + Name + "', if you save rates by PD the input rates must be read in by PD.  The second rate is being read in by zone";
+            return false;
+        }
+        return true;
     }
 }

@@ -20,41 +20,40 @@
 using System;
 using XTMF;
 
-namespace TMG.GTAModel.Purpose
+namespace TMG.GTAModel.Purpose;
+
+public class Airport : IModule
 {
-    public class Airport : IModule
+    [RunParameter( "Base", 0f, "The number of boardings in the base year." )]
+    public float Base;
+
+    [RunParameter( "Base Time Period Trips", 0f, "The number of [Time-Period] boardings in the base year. (AM/PM/OP)\r\nOnly used for primary airports." )]
+    public float BaseTimePeriod;
+
+    [RunParameter( "Future Prediction", 0f, "The number of boardings expected in this year. (0 means ignore)" )]
+    public float FuturePrediction;
+
+    [RunParameter( "Zone Number", 0, "The zone number that this airport belongs to. (0 means ignore)" )]
+    public int ZoneNumber;
+
+    public string Name
     {
-        [RunParameter( "Base", 0f, "The number of boardings in the base year." )]
-        public float Base;
+        get;
+        set;
+    }
 
-        [RunParameter( "Base Time Period Trips", 0f, "The number of [Time-Period] boardings in the base year. (AM/PM/OP)\r\nOnly used for primary airports." )]
-        public float BaseTimePeriod;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        [RunParameter( "Future Prediction", 0f, "The number of boardings expected in this year. (0 means ignore)" )]
-        public float FuturePrediction;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Zone Number", 0, "The zone number that this airport belongs to. (0 means ignore)" )]
-        public int ZoneNumber;
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

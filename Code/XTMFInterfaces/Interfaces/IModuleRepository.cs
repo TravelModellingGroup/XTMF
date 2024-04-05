@@ -19,33 +19,32 @@
 using System;
 using System.Collections.Generic;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Provides access to all of the loaded
+/// models in XTMF
+/// </summary>
+public interface IModuleRepository : IEnumerable<Type>
 {
     /// <summary>
-    /// Provides access to all of the loaded
-    /// models in XTMF
+    /// Provides access to the modules that
+    /// exist in this XTMF installation
     /// </summary>
-    public interface IModuleRepository : IEnumerable<Type>
-    {
-        /// <summary>
-        /// Provides access to the modules that
-        /// exist in this XTMF installation
-        /// </summary>
-        IList<Type> Modules { get; }
+    IList<Type> Modules { get; }
 
-        /// <summary>
-        /// Add a new module to the module repository
-        /// </summary>
-        /// <param name="module">The module that you wish to add</param>
-        /// <returns>If the module was able to be added successfully</returns>
-        bool AddModule(Type module);
+    /// <summary>
+    /// Add a new module to the module repository
+    /// </summary>
+    /// <param name="module">The module that you wish to add</param>
+    /// <returns>If the module was able to be added successfully</returns>
+    bool AddModule(Type module);
 
-        Type GetModuleType(string typeName);
+    Type GetModuleType(string typeName);
 
-        /// <summary>
-        /// Unload a type from the repository
-        /// </summary>
-        /// <param name="type">The type to remove from the IModuleRepository</param>
-        void Unload(Type type);
-    }
+    /// <summary>
+    /// Unload a type from the repository
+    /// </summary>
+    /// <param name="type">The type to remove from the IModuleRepository</param>
+    void Unload(Type type);
 }

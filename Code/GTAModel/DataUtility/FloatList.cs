@@ -22,70 +22,96 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TMG.GTAModel.DataUtility
+namespace TMG.GTAModel.DataUtility;
+
+public class FloatList : IList<float>
 {
-    public class FloatList : IList<float>
+    protected float[] Values;
+
+    public int Count
     {
-        protected float[] Values;
+        get { return Values.Length; }
+    }
 
-        public int Count
+    public bool IsReadOnly
+    {
+        get { return false; }
+    }
+
+    public float this[int index]
+    {
+        get
         {
-            get { return Values.Length; }
+            return Values[index];
         }
 
-        public bool IsReadOnly
+        set
         {
-            get { return false; }
+            Values[index] = value;
         }
+    }
 
-        public float this[int index]
+    public static bool TryParse(string input, out FloatList data)
+    {
+        string error = null;
+        return TryParse( ref error, input, out data );
+    }
+
+    public static bool TryParse(ref string error, string input, out FloatList data)
+    {
+        data = null;
+        var values = new List<float>();
+        var i = 0;
+        BurnWhiteSpace( ref i, input );
+        var length = input.Length;
+        while ( i < length )
         {
-            get
+            float p;
+            var c = input[i];
+            var exponential = false;
+            var negative = false;
+            var negativeExponential = false;
+            // Read in the Data
+            var pastDecimal = -1;
+            var exponent = 0;
+            p = 0;
+            do
             {
-                return Values[index];
-            }
-
-            set
-            {
-                Values[index] = value;
-            }
-        }
-
-        public static bool TryParse(string input, out FloatList data)
-        {
-            string error = null;
-            return TryParse( ref error, input, out data );
-        }
-
-        public static bool TryParse(ref string error, string input, out FloatList data)
-        {
-            data = null;
-            var values = new List<float>();
-            var i = 0;
-            BurnWhiteSpace( ref i, input );
-            var length = input.Length;
-            while ( i < length )
-            {
-                float p;
-                var c = input[i];
-                var exponential = false;
-                var negative = false;
-                var negativeExponential = false;
-                // Read in the Data
-                var pastDecimal = -1;
-                var exponent = 0;
-                p = 0;
-                do
+                if ( exponential )
                 {
-                    if ( exponential )
+                    if ( c == '-' )
                     {
-                        if ( c == '-' )
+                        negativeExponential = true;
+                    }
+                    else if ( c == '+' )
+                    {
+                        // do nothing
+                    }
+                    else if ( ( c < '0' | c > '9' ) )
+                    {
+                        error = "We found a " + c + " while trying to read in the data!";
+                        return false;
+                    }
+                    else
+                    {
+                        exponent = exponent * 10 + ( c - '0' );
+                    }
+                }
+                else
+                {
+                    if ( ( c == '.' ) )
+                    {
+                        pastDecimal = 0;
+                    }
+                    else
+                    {
+                        if ( c == 'e' | c == 'E' )
                         {
-                            negativeExponential = true;
+                            exponential = true;
                         }
-                        else if ( c == '+' )
+                        else if ( c == '-' )
                         {
-                            // do nothing
+                            negative = true;
                         }
                         else if ( ( c < '0' | c > '9' ) )
                         {
@@ -94,153 +120,126 @@ namespace TMG.GTAModel.DataUtility
                         }
                         else
                         {
-                            exponent = exponent * 10 + ( c - '0' );
-                        }
-                    }
-                    else
-                    {
-                        if ( ( c == '.' ) )
-                        {
-                            pastDecimal = 0;
-                        }
-                        else
-                        {
-                            if ( c == 'e' | c == 'E' )
+                            p = p * 10 + ( c - '0' );
+                            if ( pastDecimal >= 0 )
                             {
-                                exponential = true;
-                            }
-                            else if ( c == '-' )
-                            {
-                                negative = true;
-                            }
-                            else if ( ( c < '0' | c > '9' ) )
-                            {
-                                error = "We found a " + c + " while trying to read in the data!";
-                                return false;
-                            }
-                            else
-                            {
-                                p = p * 10 + ( c - '0' );
-                                if ( pastDecimal >= 0 )
-                                {
-                                    pastDecimal++;
-                                }
+                                pastDecimal++;
                             }
                         }
                     }
-                } while ( ++i < length && ( ( c = input[i] ) != '\t' & c != '\n' & c != '\r' & c != ' ' & c != ',' ) );
-                if ( negativeExponential )
-                {
-                    exponent = -exponent;
                 }
-                if ( pastDecimal > 0 )
-                {
-                    p = p * (float)Math.Pow( 0.1, pastDecimal - exponent );
-                }
-                if ( negative )
-                {
-                    p = -p;
-                }
-                BurnWhiteSpace( ref i, input );
-                values.Add( p );
-            }
-            data = new FloatList();
-            data.Values = values.ToArray();
-            return true;
-        }
-
-        public void Add(float item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void Clear()
-        {
-            throw new NotSupportedException();
-        }
-
-        public bool Contains(float item)
-        {
-            return IndexOf( item ) != -1;
-        }
-
-        public void CopyTo(float[] array, int arrayIndex)
-        {
-            Array.Copy( Values, 0, array, arrayIndex, Values.Length );
-        }
-
-        public IEnumerator<float> GetEnumerator()
-        {
-            for ( var i = 0; i < Values.Length; i++ )
+            } while ( ++i < length && ( ( c = input[i] ) != '\t' & c != '\n' & c != '\r' & c != ' ' & c != ',' ) );
+            if ( negativeExponential )
             {
-                yield return Values[i];
+                exponent = -exponent;
             }
-        }
-
-        public int IndexOf(float item)
-        {
-            for ( var i = 0; i < Values.Length; i++ )
+            if ( pastDecimal > 0 )
             {
-                // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if ( item == Values[i] )
-                {
-                    return i;
-                }
+                p = p * (float)Math.Pow( 0.1, pastDecimal - exponent );
             }
-            return -1;
-        }
-
-        public void Insert(int index, float item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public bool Remove(float item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void RemoveAt(int index)
-        {
-            throw new NotSupportedException();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Values.GetEnumerator();
-        }
-
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-            for ( var i = 0; i < Values.Length; i++ )
+            if ( negative )
             {
-                builder.Append( Values[i] );
-                builder.Append( ',' );
+                p = -p;
             }
-            return builder.ToString( 0, builder.Length - 1 );
+            BurnWhiteSpace( ref i, input );
+            values.Add( p );
         }
+        data = [];
+        data.Values = [.. values];
+        return true;
+    }
 
-        private static void BurnWhiteSpace(ref int i, string input)
+    public void Add(float item)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void Clear()
+    {
+        throw new NotSupportedException();
+    }
+
+    public bool Contains(float item)
+    {
+        return IndexOf( item ) != -1;
+    }
+
+    public void CopyTo(float[] array, int arrayIndex)
+    {
+        Array.Copy( Values, 0, array, arrayIndex, Values.Length );
+    }
+
+    public IEnumerator<float> GetEnumerator()
+    {
+        for ( var i = 0; i < Values.Length; i++ )
         {
-            while ( i < input.Length && WhiteSpace( input[i] ) )
+            yield return Values[i];
+        }
+    }
+
+    public int IndexOf(float item)
+    {
+        for ( var i = 0; i < Values.Length; i++ )
+        {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if ( item == Values[i] )
             {
-                i++;
+                return i;
             }
         }
+        return -1;
+    }
 
-        private static bool WhiteSpace(char p)
+    public void Insert(int index, float item)
+    {
+        throw new NotSupportedException();
+    }
+
+    public bool Remove(float item)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void RemoveAt(int index)
+    {
+        throw new NotSupportedException();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return Values.GetEnumerator();
+    }
+
+    public override string ToString()
+    {
+        var builder = new StringBuilder();
+        for ( var i = 0; i < Values.Length; i++ )
         {
-            switch ( p )
-            {
-                case '\t':
-                case ' ':
-                case ',':
-                    return true;
+            builder.Append( Values[i] );
+            builder.Append( ',' );
+        }
+        return builder.ToString( 0, builder.Length - 1 );
+    }
 
-                default:
-                    return false;
-            }
+    private static void BurnWhiteSpace(ref int i, string input)
+    {
+        while ( i < input.Length && WhiteSpace( input[i] ) )
+        {
+            i++;
+        }
+    }
+
+    private static bool WhiteSpace(char p)
+    {
+        switch ( p )
+        {
+            case '\t':
+            case ' ':
+            case ',':
+                return true;
+
+            default:
+                return false;
         }
     }
 }

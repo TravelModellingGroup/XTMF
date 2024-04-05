@@ -16,12 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+namespace XTMF.Testing;
 
-namespace XTMF.Testing
+[TestClass]
+public class ModelParameterTest : XTMFTestBase
 {
-    [TestClass]
-    public class ModelParameterTest : XTMFTestBase
-    {
-    }
 }

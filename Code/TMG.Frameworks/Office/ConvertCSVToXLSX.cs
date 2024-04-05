@@ -24,37 +24,22 @@ using Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
 using System.IO;
 #pragma warning disable CA1416 // Validate platform compatibility
-namespace TMG.Frameworks.Office
+namespace TMG.Frameworks.Office;
+
+[ModuleInformation(Description =
+    "This module converts a CSV file to an XLSX file using Microsoft Excel.  Excel 14+ is required for this to operate."
+    )]
+// ReSharper disable once InconsistentNaming
+public class ConvertCSVToXLSX : ISelfContainedModule
 {
-    [ModuleInformation(Description =
-        "This module converts a CSV file to an XLSX file using Microsoft Excel.  Excel 14+ is required for this to operate."
-        )]
-    // ReSharper disable once InconsistentNaming
-    public class ConvertCSVToXLSX : ISelfContainedModule
+
+    public class ToConvert : XTMF.IModule
     {
+        [SubModelInformation(Required = true, Description = "The CSV file to read in.")]
+        public FileLocation InputFile;
 
-        public class ToConvert : XTMF.IModule
-        {
-            [SubModelInformation(Required = true, Description = "The CSV file to read in.")]
-            public FileLocation InputFile;
-
-            [SubModelInformation(Required = true, Description = "The XLSX file to read write out.")]
-            public FileLocation OutputFile;
-
-            public string Name { get; set; }
-
-            public float Progress { get; set; }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                return true;
-            }
-        }
-
-        [SubModelInformation(Required = false, Description = "The files to convert from CSV to XLSX")]
-        public List<ToConvert> FilesToConvert;
+        [SubModelInformation(Required = true, Description = "The XLSX file to read write out.")]
+        public FileLocation OutputFile;
 
         public string Name { get; set; }
 
@@ -66,100 +51,114 @@ namespace TMG.Frameworks.Office
         {
             return true;
         }
+    }
 
-        private class ConversionDetails
+    [SubModelInformation(Required = false, Description = "The files to convert from CSV to XLSX")]
+    public List<ToConvert> FilesToConvert;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    private class ConversionDetails
+    {
+        internal string OriginPath;
+        internal string DestinationPath;
+        public ConversionDetails(string origin, string destination)
         {
-            internal string OriginPath;
-            internal string DestinationPath;
-            public ConversionDetails(string origin, string destination)
+            OriginPath = origin;
+            DestinationPath = destination;
+        }
+    }
+
+    public void Start()
+    {
+        Progress = 0.0f;
+        var excel = new Application();
+        Workbooks workbooks = null;
+        // be very careful here to make sure that excel is actually going to close properly
+        try
+        {
+            workbooks = excel.Workbooks;
+            List<ConversionDetails> filesToConvert = [];
+            foreach(var toConvert in FilesToConvert)
             {
-                OriginPath = origin;
-                DestinationPath = destination;
+
+                var inPath = toConvert.InputFile.GetFilePath();
+                if(Directory.Exists(inPath))
+                {
+                    AddDirectory(filesToConvert, new DirectoryInfo(inPath), new DirectoryInfo(toConvert.OutputFile.GetFilePath()));
+                }
+                else
+                {
+                    AddFile(filesToConvert, inPath, toConvert.OutputFile.GetFilePath());
+                }
+
+            }
+            for (int i = 0; i < filesToConvert.Count; i++)
+            {
+                Progress = (float)i / filesToConvert.Count;
+                Save(workbooks, filesToConvert[i]);
+
             }
         }
-
-        public void Start()
+        finally
         {
-            Progress = 0.0f;
-            var excel = new Application();
-            Workbooks workbooks = null;
-            // be very careful here to make sure that excel is actually going to close properly
-            try
+            if(workbooks != null)
             {
-                workbooks = excel.Workbooks;
-                List<ConversionDetails> filesToConvert = new();
-                foreach(var toConvert in FilesToConvert)
-                {
-
-                    var inPath = toConvert.InputFile.GetFilePath();
-                    if(Directory.Exists(inPath))
-                    {
-                        AddDirectory(filesToConvert, new DirectoryInfo(inPath), new DirectoryInfo(toConvert.OutputFile.GetFilePath()));
-                    }
-                    else
-                    {
-                        AddFile(filesToConvert, inPath, toConvert.OutputFile.GetFilePath());
-                    }
-
-                }
-                for (int i = 0; i < filesToConvert.Count; i++)
-                {
-                    Progress = (float)i / filesToConvert.Count;
-                    Save(workbooks, filesToConvert[i]);
-
-                }
+                workbooks.Close();
+                Marshal.FinalReleaseComObject(workbooks);
             }
-            finally
-            {
-                if(workbooks != null)
-                {
-                    workbooks.Close();
-                    Marshal.FinalReleaseComObject(workbooks);
-                }
-                excel.Quit();
-                Marshal.FinalReleaseComObject(excel);
-            }
-            Progress = 1.0f;
+            excel.Quit();
+            Marshal.FinalReleaseComObject(excel);
         }
+        Progress = 1.0f;
+    }
 
-        private void Save(Workbooks workbooks, ConversionDetails toConvert)
+    private void Save(Workbooks workbooks, ConversionDetails toConvert)
+    {
+        Workbook workbook = null;
+        try
         {
-            Workbook workbook = null;
-            try
+            workbook = workbooks.Open(toConvert.OriginPath);
+            workbook.SaveAs(toConvert.DestinationPath, XlFileFormat.xlWorkbookDefault);
+        }
+        finally
+        {
+            if (workbook != null)
             {
-                workbook = workbooks.Open(toConvert.OriginPath);
-                workbook.SaveAs(toConvert.DestinationPath, XlFileFormat.xlWorkbookDefault);
-            }
-            finally
-            {
-                if (workbook != null)
-                {
-                    workbook.Close();
-                    Marshal.FinalReleaseComObject(workbook);
-                }
+                workbook.Close();
+                Marshal.FinalReleaseComObject(workbook);
             }
         }
+    }
 
-        private void AddDirectory(List<ConversionDetails> files, DirectoryInfo currentInputDirectory, DirectoryInfo currentOutputDirectory)
+    private void AddDirectory(List<ConversionDetails> files, DirectoryInfo currentInputDirectory, DirectoryInfo currentOutputDirectory)
+    {
+        foreach(var subDir in currentInputDirectory.GetDirectories())
         {
-            foreach(var subDir in currentInputDirectory.GetDirectories())
-            {
-                AddDirectory(files, subDir, currentOutputDirectory.CreateSubdirectory(subDir.Name));
-            }
-            foreach(var file in currentInputDirectory.GetFiles( "*.csv", SearchOption.TopDirectoryOnly))
-            {
-                if(!currentOutputDirectory.Exists)
-                {
-                    currentOutputDirectory.Create();
-                }
-                AddFile(files, file.FullName, Path.Combine(currentOutputDirectory.FullName, Path.GetFileNameWithoutExtension(file.Name) + ".xlsx"));
-            }
+            AddDirectory(files, subDir, currentOutputDirectory.CreateSubdirectory(subDir.Name));
         }
+        foreach(var file in currentInputDirectory.GetFiles( "*.csv", SearchOption.TopDirectoryOnly))
+        {
+            if(!currentOutputDirectory.Exists)
+            {
+                currentOutputDirectory.Create();
+            }
+            AddFile(files, file.FullName, Path.Combine(currentOutputDirectory.FullName, Path.GetFileNameWithoutExtension(file.Name) + ".xlsx"));
+        }
+    }
 
-        private static void AddFile(List<ConversionDetails> files, string inPath, string outPath)
-        {
-            files.Add(new ConversionDetails(inPath, outPath));
-        }
+    private static void AddFile(List<ConversionDetails> files, string inPath, string outPath)
+    {
+        files.Add(new ConversionDetails(inPath, outPath));
     }
 }
 #pragma warning restore CA1416 // Validate platform compatibility

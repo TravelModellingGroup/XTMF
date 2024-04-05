@@ -17,45 +17,42 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Animation;
 
-namespace XTMF.Gui
+namespace XTMF.Gui;
+
+/// <summary>
+/// Interaction logic for CollapsePanel.xaml
+/// </summary>
+public partial class CollapsePanel : UserControl
 {
-    /// <summary>
-    /// Interaction logic for CollapsePanel.xaml
-    /// </summary>
-    public partial class CollapsePanel : UserControl
+    private double _internalHeight;
+
+    public CollapsePanel()
     {
-        private double _internalHeight;
+        InitializeComponent();
+    }
 
-        public CollapsePanel()
+    public double InternalHeight
+    {
+        get => _internalHeight;
+        set => InnerContentContainer.Height = _internalHeight = value;
+    }
+
+    public void Add(UIElement element)
+    {
+        lock ( this )
         {
-            InitializeComponent();
+            InnerContents.Children.Add( element );
         }
+    }
 
-        public double InternalHeight
+    public void Remove(UIElement element)
+    {
+        lock ( this )
         {
-            get => _internalHeight;
-            set => InnerContentContainer.Height = _internalHeight = value;
-        }
-
-        public void Add(UIElement element)
-        {
-            lock ( this )
-            {
-                InnerContents.Children.Add( element );
-            }
-        }
-
-        public void Remove(UIElement element)
-        {
-            lock ( this )
-            {
-                InnerContents.Children.Remove( element );
-            }
+            InnerContents.Children.Remove( element );
         }
     }
 }

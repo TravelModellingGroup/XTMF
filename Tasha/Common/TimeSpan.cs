@@ -18,23 +18,22 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public struct TashaTimeSpan
 {
-    public struct TashaTimeSpan
+    public Time End;
+    public Time Start;
+
+    public TashaTimeSpan(Time s, Time e)
     {
-        public Time End;
-        public Time Start;
+        Start = s;
+        End = e;
+    }
 
-        public TashaTimeSpan(Time s, Time e)
-        {
-            Start = s;
-            End = e;
-        }
-
-        public bool InTimeSpan(Time time)
-        {
-            // Don't take out the && since both of these are actually a method call
-            return ( ( time >= Start ) && ( time <= End ) );
-        }
+    public bool InTimeSpan(Time time)
+    {
+        // Don't take out the && since both of these are actually a method call
+        return ( ( time >= Start ) && ( time <= End ) );
     }
 }

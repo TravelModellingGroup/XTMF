@@ -21,71 +21,71 @@ using System.Collections.Concurrent;
 using System.Threading;
 using XTMF;
 
-namespace TMG.Frameworks.Extensibility
+namespace TMG.Frameworks.Extensibility;
+
+
+[ModuleInformation(
+    Description = "This module is designed to execute the given submodules in parallel.  This module will finish its execution when all of the sub modules have completed."
+    )]
+public class ExecuteInParallel : ISelfContainedModule
 {
 
-    [ModuleInformation(
-        Description = "This module is designed to execute the given submodules in parallel.  This module will finish its execution when all of the sub modules have completed."
-        )]
-    public class ExecuteInParallel : ISelfContainedModule
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        [SubModelInformation(Description = "The modules to run in parallel.")]
-        public ISelfContainedModule[] RunInParallel;
-
-        public void Start()
-        {
-            /* we are going to avoid using the thread-pool here
-             to make sure that all of these are running in parallel in case of deadlocks
-             or IO bound work */
-            Thread[] threads = new Thread[RunInParallel.Length];
-            ConcurrentQueue<Exception> errorList = new ConcurrentQueue<Exception>();
-            for (int i = 0; i < threads.Length; i++)
-            {
-                var avoidSharingI = i;
-                threads[i] = new Thread(() =>
-                {
-                    try
-                    {
-                        RunInParallel[avoidSharingI].Start();
-                    }
-                    catch (Exception e)
-                    {
-                        errorList.Enqueue(e);
-                    }
-                });
-                threads[i].IsBackground = true;
-                threads[i].Start();
-            }
-            // after creating all of the threads wait until each one is complete before continuing
-            for (int i = 0; i < threads.Length; i++)
-            {
-                threads[i].Join();
-            }
-            if (errorList.TryDequeue(out var firstError))
-            {
-                if(firstError is AggregateException agg)
-                {
-                    firstError = agg?.InnerException ?? firstError;
-                }
-                if(firstError is XTMFRuntimeException)
-                {
-                    throw firstError;
-                }
-                throw new XTMFRuntimeException(this, firstError);
-            }
-        }
+        return true;
     }
 
+    [SubModelInformation(Description = "The modules to run in parallel.")]
+    public ISelfContainedModule[] RunInParallel;
+
+    public void Start()
+    {
+        /* we are going to avoid using the thread-pool here
+         to make sure that all of these are running in parallel in case of deadlocks
+         or IO bound work */
+        Thread[] threads = new Thread[RunInParallel.Length];
+        ConcurrentQueue<Exception> errorList = new();
+        for (int i = 0; i < threads.Length; i++)
+        {
+            var avoidSharingI = i;
+            threads[i] = new Thread(() =>
+            {
+                try
+                {
+                    RunInParallel[avoidSharingI].Start();
+                }
+                catch (Exception e)
+                {
+                    errorList.Enqueue(e);
+                }
+            })
+            {
+                IsBackground = true
+            };
+            threads[i].Start();
+        }
+        // after creating all of the threads wait until each one is complete before continuing
+        for (int i = 0; i < threads.Length; i++)
+        {
+            threads[i].Join();
+        }
+        if (errorList.TryDequeue(out var firstError))
+        {
+            if(firstError is AggregateException agg)
+            {
+                firstError = agg?.InnerException ?? firstError;
+            }
+            if(firstError is XTMFRuntimeException)
+            {
+                throw firstError;
+            }
+            throw new XTMFRuntimeException(this, firstError);
+        }
+    }
 }

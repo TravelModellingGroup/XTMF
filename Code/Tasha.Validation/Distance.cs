@@ -23,129 +23,126 @@ using Tasha.Common;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+[ModuleInformation(
+    Description = "This module is used to validate the Trip Distance of the TASHA results. " +
+                    "As an input, it takes in the currently scheduled households and uses " +
+                    "the trip chains of each member and calculates the Manhattan distance " +
+                    "between the origin and destination of each trip. Finally, it outputs a file which " +
+                    "has the frequency of all distances traveled."
+    )]
+public class Distance : IPostHousehold
 {
-    [ModuleInformation(
-        Description = "This module is used to validate the Trip Distance of the TASHA results. " +
-                        "As an input, it takes in the currently scheduled households and uses " +
-                        "the trip chains of each member and calculates the Manhattan distance " +
-                        "between the origin and destination of each trip. Finally, it outputs a file which " +
-                        "has the frequency of all distances traveled."
-        )]
-    public class Distance : IPostHousehold
+    [SubModelInformation(Required = true, Description = "The location to save the validation data.")]
+    public FileLocation OutputFile;
+
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private class DistanceCount
     {
-        [SubModelInformation(Required = true, Description = "The location to save the validation data.")]
-        public FileLocation OutputFile;
-
-
-        [RootModule]
-        public ITashaRuntime Root;
-
-        private class DistanceCount
+        internal float TotalDistance;
+        internal int Records;
+        public DistanceCount(float totalDistance, int records)
         {
-            internal float TotalDistance;
-            internal int Records;
-            public DistanceCount(float totalDistance, int records)
+            TotalDistance = totalDistance;
+            Records = records;
+        }
+    }
+
+    private Dictionary<Activity, DistanceCount> DistancesDictionary = [];
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 100, 100, 100 ); }
+    }
+
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        // only run on the last iteration
+        if ( iteration == Root.TotalIterations - 1 )
+        {
+            lock (this)
             {
-                TotalDistance = totalDistance;
-                Records = records;
-            }
-        }
-
-        private Dictionary<Activity, DistanceCount> DistancesDictionary = new Dictionary<Activity, DistanceCount>();
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 100, 100, 100 ); }
-        }
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            // only run on the last iteration
-            if ( iteration == Root.TotalIterations - 1 )
-            {
-                lock (this)
+                foreach ( var person in household.Persons )
                 {
-                    foreach ( var person in household.Persons )
+                    foreach ( var tripChain in person.TripChains )
                     {
-                        foreach ( var tripChain in person.TripChains )
+                        foreach ( var trip in tripChain.Trips )
                         {
-                            foreach ( var trip in tripChain.Trips )
+                            float currentDistance = 0;
+                            if ( trip.Mode == null )
                             {
-                                float currentDistance = 0;
-                                if ( trip.Mode == null )
-                                {
-                                    continue;
-                                }
+                                continue;
+                            }
 
-                                if ( trip.OriginalZone == trip.DestinationZone )
-                                {
-                                    currentDistance += trip.OriginalZone.InternalDistance;
-                                }
-                                else
-                                {
-                                    currentDistance += ( Math.Abs( trip.OriginalZone.X - trip.DestinationZone.X ) + Math.Abs( trip.OriginalZone.Y - trip.DestinationZone.Y ) );
-                                }
+                            if ( trip.OriginalZone == trip.DestinationZone )
+                            {
+                                currentDistance += trip.OriginalZone.InternalDistance;
+                            }
+                            else
+                            {
+                                currentDistance += ( Math.Abs( trip.OriginalZone.X - trip.DestinationZone.X ) + Math.Abs( trip.OriginalZone.Y - trip.DestinationZone.Y ) );
+                            }
 
-                                if ( DistancesDictionary.ContainsKey( trip.Purpose ) )
-                                {
-                                    var record = DistancesDictionary[trip.Purpose];
-                                    record.TotalDistance += currentDistance * 0.001f;
-                                    record.Records++;
-                                }
-                                else
-                                {
-                                    DistancesDictionary.Add( trip.Purpose, new DistanceCount( currentDistance * 0.001f, 1 ) );
-                                }
+                            if ( DistancesDictionary.ContainsKey( trip.Purpose ) )
+                            {
+                                var record = DistancesDictionary[trip.Purpose];
+                                record.TotalDistance += currentDistance * 0.001f;
+                                record.Records++;
+                            }
+                            else
+                            {
+                                DistancesDictionary.Add( trip.Purpose, new DistanceCount( currentDistance * 0.001f, 1 ) );
                             }
                         }
                     }
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        if ( iteration == Root.TotalIterations - 1 )
         {
-            if ( iteration == Root.TotalIterations - 1 )
+            using StreamWriter writer = new(OutputFile, true);
+            writer.WriteLine("Iteration,Activity,AverageDistance");
+            lock (this)
             {
-                using (StreamWriter writer = new StreamWriter( OutputFile, true ))
+                foreach (var pair in DistancesDictionary)
                 {
-                    writer.WriteLine( "Iteration,Activity,AverageDistance" );
-                    lock (this)
-                    {
-                        foreach ( var pair in DistancesDictionary )
-                        {
-                            float averageDistance = pair.Value.TotalDistance / pair.Value.Records;
-                            writer.WriteLine( "{2}, {0}, {1}", pair.Key, averageDistance, iteration );
-                        }
-                    }
+                    float averageDistance = pair.Value.TotalDistance / pair.Value.Records;
+                    writer.WriteLine("{2}, {0}, {1}", pair.Key, averageDistance, iteration);
                 }
             }
         }
+    }
 
-        public void Load(int maxIterations)
-        {
-        }
+    public void Load(int maxIterations)
+    {
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void IterationStarting(int iteration)
-        {
-        }
+    public void IterationStarting(int iteration)
+    {
     }
 }

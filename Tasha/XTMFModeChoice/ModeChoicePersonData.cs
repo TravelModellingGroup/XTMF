@@ -19,18 +19,17 @@
 using System.Collections.Generic;
 using Tasha.Common;
 
-namespace Tasha.XTMFModeChoice
+namespace Tasha.XTMFModeChoice;
+
+public struct ModeChoicePersonData
 {
-    public struct ModeChoicePersonData
+    public ModeChoiceTripChainData[] TripChainData;
+    public ModeChoicePersonData(List<ITripChain> tripChains, int numberOfModes, int numberOfVehicleTypes)
     {
-        public ModeChoiceTripChainData[] TripChainData;
-        public ModeChoicePersonData(List<ITripChain> tripChains, int numberOfModes, int numberOfVehicleTypes)
+        var chains = TripChainData = new ModeChoiceTripChainData[tripChains.Count];
+        for ( int i = 0; i < chains.Length; i++ )
         {
-            var chains = TripChainData = new ModeChoiceTripChainData[tripChains.Count];
-            for ( int i = 0; i < chains.Length; i++ )
-            {
-                chains[i] = new ModeChoiceTripChainData( tripChains[i], numberOfModes, numberOfVehicleTypes );
-            }
+            chains[i] = new ModeChoiceTripChainData( tripChains[i], numberOfModes, numberOfVehicleTypes );
         }
     }
 }

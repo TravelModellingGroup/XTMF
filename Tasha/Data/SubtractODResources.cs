@@ -23,53 +23,51 @@ using TMG.Input;
 using XTMF;
 using TMG.Functions;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module streams the results of the subtraction of two resources of type SparseTwinIndex<Float>.")]
+public class SubtractODResources : IReadODData<float>
 {
-    [ModuleInformation(Description = "This module streams the results of the subtraction of two resources of type SparseTwinIndex<Float>.")]
-    public class SubtractODResources : IReadODData<float>
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
+    public IResource First;
+
+    [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
+    public IDataSource<SparseTwinIndex<float>> FirstRaw;
+
+    [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
+    public IResource Second;
+
+    [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
+    public IDataSource<SparseTwinIndex<float>> SecondRaw;
+
+    public IEnumerable<ODData<float>> Read()
     {
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
-        public IResource First;
-
-        [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
-        public IDataSource<SparseTwinIndex<float>> FirstRaw;
-
-        [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
-        public IResource Second;
-
-        [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
-        public IDataSource<SparseTwinIndex<float>> SecondRaw;
-
-        public IEnumerable<ODData<float>> Read()
+        var firstSparse = First.AcquireResource<SparseTwinIndex<float>>();
+        var first = firstSparse.GetFlatData();
+        var second = Second.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+        ODData<float> point = new();
+        for(int i = 0; i < first.Length; i++)
         {
-            var firstSparse = First.AcquireResource<SparseTwinIndex<float>>();
-            var first = firstSparse.GetFlatData();
-            var second = Second.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            ODData<float> point = new ODData<float>();
-            for(int i = 0; i < first.Length; i++)
+            point.O = firstSparse.GetSparseIndex(i);
+            for(int j = 0; j < first[i].Length; j++)
             {
-                point.O = firstSparse.GetSparseIndex(i);
-                for(int j = 0; j < first[i].Length; j++)
-                {
-                    point.D = firstSparse.GetSparseIndex(i, j);
-                    point.Data = first[i][j] - second[i][j];
-                    yield return point;
-                }
+                point.D = firstSparse.GetSparseIndex(i, j);
+                point.Data = first[i][j] - second[i][j];
+                yield return point;
             }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(FirstRaw, First, ref error)
-                && this.EnsureExactlyOneAndOfSameType(SecondRaw, Second, ref error);
         }
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(FirstRaw, First, ref error)
+            && this.EnsureExactlyOneAndOfSameType(SecondRaw, Second, ref error);
+    }
 }

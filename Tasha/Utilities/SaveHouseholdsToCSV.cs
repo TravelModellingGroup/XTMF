@@ -17,97 +17,92 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using Tasha.Common;
 using TMG.Input;
 using XTMF;
 using TMG;
 
-namespace Tasha.Utilities
+namespace Tasha.Utilities;
+
+public sealed class SaveHouseholdsToCSV : IPostHousehold, IDisposable
 {
-    public sealed class SaveHouseholdsToCSV : IPostHousehold, IDisposable
+    [RootModule]
+    public ITashaRuntime Root;
+
+    public string Name { get; set; }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
+
+    [SubModelInformation(Required = true, Description = "The location to save the household information to.")]
+    public FileLocation SaveTo;
+    private bool disposedValue;
+
+    private StreamWriter _writer;
+
+    public void Execute(ITashaHousehold household, int iteration)
     {
-        [RootModule]
-        public ITashaRuntime Root;
+        _writer.WriteLine($"{household.HouseholdId},{household.HomeZone.ZoneNumber},{household.ExpansionFactor}," +
+            $"{DwellingTypeToStr(household.DwellingType)},{household.Persons.Length},{household.Vehicles.Length},{household.IncomeClass}");
+    }
 
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
-
-        [SubModelInformation(Required = true, Description = "The location to save the household information to.")]
-        public FileLocation SaveTo;
-        private bool disposedValue;
-
-        private StreamWriter _writer;
-
-        public void Execute(ITashaHousehold household, int iteration)
+    private string DwellingTypeToStr(DwellingType dwellingType)
+    {
+        switch(dwellingType)
         {
-            _writer.WriteLine($"{household.HouseholdId},{household.HomeZone.ZoneNumber},{household.ExpansionFactor}," +
-                $"{DwellingTypeToStr(household.DwellingType)},{household.Persons.Length},{household.Vehicles.Length},{household.IncomeClass}");
+            case DwellingType.Apartment:
+                return "2";
+            case DwellingType.House:
+                return "1";
+            case DwellingType.Townhouse:
+                return "3";
+            default:
+                return "9";
         }
+    }
 
-        private string DwellingTypeToStr(DwellingType dwellingType)
+    public void IterationFinished(int iteration)
+    {
+        _writer?.Dispose();
+        _writer = null;
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        _writer?.Dispose();
+        _writer = new StreamWriter(SaveTo);
+        _writer.WriteLine("HouseholdID,Zone,ExpansionFactor,DwellingType,NumberOfPersons,NumberOfVehicles,Income");
+    }
+
+    public void Load(int maxIterations)
+    {
+        
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposedValue)
         {
-            switch(dwellingType)
+            if (disposing)
             {
-                case DwellingType.Apartment:
-                    return "2";
-                case DwellingType.House:
-                    return "1";
-                case DwellingType.Townhouse:
-                    return "3";
-                default:
-                    return "9";
+                _writer?.Dispose();
+                _writer = null;
             }
+            disposedValue = true;
         }
+    }
 
-        public void IterationFinished(int iteration)
-        {
-            _writer?.Dispose();
-            _writer = null;
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            _writer?.Dispose();
-            _writer = new StreamWriter(SaveTo);
-            _writer.WriteLine("HouseholdID,Zone,ExpansionFactor,DwellingType,NumberOfPersons,NumberOfVehicles,Income");
-        }
-
-        public void Load(int maxIterations)
-        {
-            
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _writer?.Dispose();
-                    _writer = null;
-                }
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

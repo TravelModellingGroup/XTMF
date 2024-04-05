@@ -24,121 +24,120 @@ using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel
-{
-    [ModuleInformation(Description=
-        @"The demographic purpose module glues together a list of IDemographicCategoryGeneration, 
+namespace TMG.GTAModel;
+
+[ModuleInformation(Description=
+    @"The demographic purpose module glues together a list of IDemographicCategoryGeneration, 
 runs them through the IDemographicDistribution, and then finally performs an IUtilityModifyModesplit. 
 As all IPurpose, it provides the final flows per mode for the network assignment stage.
 This module requires the root module of the model system to be an 'I4StepModel'." )]
-    public sealed class DemographicPurpose : PurposeBase, IDemographicCategoyPurpose
+public sealed class DemographicPurpose : PurposeBase, IDemographicCategoyPurpose
+{
+    [SubModelInformation( Description = "Trip Distribution", Required = true )]
+    public IDemographicDistribution Distribution;
+
+    [RunParameter( "Save Output", false, "Should we save the output?" )]
+    public bool SaveOutput;
+
+    [RunParameter( "Transpose Mode Choice", false, "Should we transpose the output of the mode choice?" )]
+    public bool Transpose;
+
+    private bool Generation = true;
+
+    [SubModelInformation( Description = "Demographic Categories", Required = false )]
+    public List<IDemographicCategoryGeneration> Categories { get; set; }
+
+    public override float Progress
     {
-        [SubModelInformation( Description = "Trip Distribution", Required = true )]
-        public IDemographicDistribution Distribution;
+        get { return Generation ? 0f : ModeSplit.Progress; }
+    }
 
-        [RunParameter( "Save Output", false, "Should we save the output?" )]
-        public bool SaveOutput;
+    public override void Run()
+    {
+        var numberOfCategories = Categories.Count;
+        SparseArray<float>[] o = new SparseArray<float>[numberOfCategories];
+        SparseArray<float>[] d = new SparseArray<float>[numberOfCategories];
 
-        [RunParameter( "Transpose Mode Choice", false, "Should we transpose the output of the mode choice?" )]
-        public bool Transpose;
-
-        private bool Generation = true;
-
-        [SubModelInformation( Description = "Demographic Categories", Required = false )]
-        public List<IDemographicCategoryGeneration> Categories { get; set; }
-
-        public override float Progress
+        Generation = true;
+        for ( int i = 0; i < numberOfCategories; i++ )
         {
-            get { return Generation ? 0f : ModeSplit.Progress; }
+            o[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            d[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            Categories[i].Generate( o[i], d[i] );
         }
+        Generation = false;
 
-        public override void Run()
+        var modeSplit = ModeSplit.ModeSplit( Distribution.Distribute( o, d, Categories ), Categories.Count );
+        if ( Transpose )
         {
-            var numberOfCategories = Categories.Count;
-            SparseArray<float>[] o = new SparseArray<float>[numberOfCategories];
-            SparseArray<float>[] d = new SparseArray<float>[numberOfCategories];
-
-            Generation = true;
-            for ( int i = 0; i < numberOfCategories; i++ )
-            {
-                o[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                d[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                Categories[i].Generate( o[i], d[i] );
-            }
-            Generation = false;
-
-            var modeSplit = ModeSplit.ModeSplit( Distribution.Distribute( o, d, Categories ), Categories.Count );
-            if ( Transpose )
-            {
-                TransposeMatrix( modeSplit );
-            }
-            if ( SaveOutput )
-            {
-                if ( !Directory.Exists( PurposeName ) )
-                {
-                    Directory.CreateDirectory( PurposeName );
-                }
-                for ( int i = 0; i < modeSplit.Count; i++ )
-                {
-                    WriteModeSplit( modeSplit[i], Root.Modes[i], PurposeName );
-                }
-            }
-            Flows = modeSplit;
+            TransposeMatrix( modeSplit );
         }
-
-        private static void TransposeMatrix(TreeData<float[][]> treeData)
+        if ( SaveOutput )
         {
-            // no need to code this in parallel since we are doing all of them in parallel
-            var matrix = treeData.Result;
-            var length = matrix.Length;
-            var halfLength = length / 2;
-            // fill in the array
-            for ( int i = 0; i < length; i++ )
+            if ( !Directory.Exists( PurposeName ) )
             {
-                if ( matrix[i] == null )
-                {
-                    matrix[i] = new float[length];
-                }
+                Directory.CreateDirectory( PurposeName );
             }
-            for ( int i = 0; i < length; i++ )
-            {
-                for ( int j = 0; j < halfLength; j++ )
-                {
-                    var temp = matrix[i][j];
-                    matrix[i][j] = matrix[j][i];
-                    matrix[j][i] = temp;
-                }
-            }
-        }
-
-        private void GatherModes(List<TreeData<float[][]>> flatModes, TreeData<float[][]> treeData)
-        {
-            if ( treeData.Result != null )
-            {
-                flatModes.Add( treeData );
-            }
-            var children = treeData.Children;
-            if ( children != null )
-            {
-                for ( var i = 0; i < children.Length; i++ )
-                {
-                    GatherModes( flatModes, children[i] );
-                }
-            }
-        }
-
-        private void TransposeMatrix(List<TreeData<float[][]>> modeSplit)
-        {
-            List<TreeData<float[][]>> flatModes = new List<TreeData<float[][]>>();
             for ( int i = 0; i < modeSplit.Count; i++ )
             {
-                GatherModes( flatModes, modeSplit[i] );
+                WriteModeSplit( modeSplit[i], Root.Modes[i], PurposeName );
             }
-            Parallel.For( 0, flatModes.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                delegate(int i)
-                {
-                    TransposeMatrix( flatModes[i] );
-                } );
         }
+        Flows = modeSplit;
+    }
+
+    private static void TransposeMatrix(TreeData<float[][]> treeData)
+    {
+        // no need to code this in parallel since we are doing all of them in parallel
+        var matrix = treeData.Result;
+        var length = matrix.Length;
+        var halfLength = length / 2;
+        // fill in the array
+        for ( int i = 0; i < length; i++ )
+        {
+            if ( matrix[i] == null )
+            {
+                matrix[i] = new float[length];
+            }
+        }
+        for ( int i = 0; i < length; i++ )
+        {
+            for ( int j = 0; j < halfLength; j++ )
+            {
+                var temp = matrix[i][j];
+                matrix[i][j] = matrix[j][i];
+                matrix[j][i] = temp;
+            }
+        }
+    }
+
+    private void GatherModes(List<TreeData<float[][]>> flatModes, TreeData<float[][]> treeData)
+    {
+        if ( treeData.Result != null )
+        {
+            flatModes.Add( treeData );
+        }
+        var children = treeData.Children;
+        if ( children != null )
+        {
+            for ( var i = 0; i < children.Length; i++ )
+            {
+                GatherModes( flatModes, children[i] );
+            }
+        }
+    }
+
+    private void TransposeMatrix(List<TreeData<float[][]>> modeSplit)
+    {
+        List<TreeData<float[][]>> flatModes = [];
+        for ( int i = 0; i < modeSplit.Count; i++ )
+        {
+            GatherModes( flatModes, modeSplit[i] );
+        }
+        Parallel.For( 0, flatModes.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            delegate(int i)
+            {
+                TransposeMatrix( flatModes[i] );
+            } );
     }
 }

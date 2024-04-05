@@ -16,12 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
-{
-    public interface IHousehold
-    {
-        int Cars { get; }
+namespace TMG;
 
-        IZone Zone { get; }
-    }
+public interface IHousehold
+{
+    int Cars { get; }
+
+    IZone Zone { get; }
 }

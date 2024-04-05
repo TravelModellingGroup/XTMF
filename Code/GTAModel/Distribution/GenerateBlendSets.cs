@@ -21,26 +21,27 @@ using System.Collections.Generic;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.Distribution
-{
-    public sealed class GenerateBlendSets : BlendSet
-    {
-        [ParentModel]
-        public MultiBlendSet Parent;
+namespace TMG.GTAModel.Distribution;
 
-        public override bool RuntimeValidation(ref string error)
+public sealed class GenerateBlendSets : BlendSet
+{
+    [ParentModel]
+    public MultiBlendSet Parent;
+
+    public override bool RuntimeValidation(ref string error)
+    {
+        Parent.Subsets.Remove(this);
+        foreach (var set in Set)
         {
-            Parent.Subsets.Remove(this);
-            foreach (var set in Set)
+            for (var i = set.Start; i <= set.Stop; i++)
             {
-                for (var i = set.Start; i <= set.Stop; i++)
+                var item = new List<Range>(1)
                 {
-                    var item = new List<Range>(1);
-                    item.Add(new Range(i, i));
-                    Parent.Subsets.Add(new BlendSet { Set = new RangeSet(item) });
-                }
+                    new(i, i)
+                };
+                Parent.Subsets.Add(new BlendSet { Set = new RangeSet(item) });
             }
-            return true;
         }
+        return true;
     }
 }

@@ -22,64 +22,60 @@ using System.Text;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+[ModuleInformation(Name = "Extract Cost Matrix",
+                    Description = "Extracts average total cost (fares) matrix from a fare-based transit assignment,"
+                    + "assuming that operator-access fares are stored on walk links in '@tfare', and that in-line or"
+                    + "zonal fares are stored in 'us3'.")]
+public class ExtractCostMatrix : IEmmeTool
 {
-    [ModuleInformation(Name = "Extract Cost Matrix",
-                        Description = "Extracts average total cost (fares) matrix from a fare-based transit assignment,"
-                        + "assuming that operator-access fares are stored on walk links in '@tfare', and that in-line or"
-                        + "zonal fares are stored in 'us3'.")]
-    public class ExtractCostMatrix : IEmmeTool
+    [RunParameter("Matrix Result Number", 8, "The number of the FULL matrix in which to store transit costs, in $.")]
+    public int MatrixResultNumber;
+
+    [RunParameter("Scenario Number", 0, "The number of the scenario with FBTA results to analyze.")]
+    public int ScenarioNumber;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+    private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_cost_matrix";
+    private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractCostMatrix";
+
+    public string Name
     {
-        [RunParameter("Matrix Result Number", 8, "The number of the FULL matrix in which to store transit costs, in $.")]
-        public int MatrixResultNumber;
+        get;
+        set;
+    }
 
-        [RunParameter("Scenario Number", 0, "The number of the scenario with FBTA results to analyze.")]
-        public int ScenarioNumber;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_cost_matrix";
-        private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractCostMatrix";
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        public string Name
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
+        var sb = new StringBuilder();
+        sb.AppendFormat("{0} {1}",
+            ScenarioNumber, MatrixResultNumber);
+        string result = null;
+
+        var toolName = ToolName;
+        if (!mc.CheckToolExists(this, toolName))
         {
-            get;
-            set;
+            toolName = AlternateToolName;
         }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+        return mc.Run(this, toolName, sb.ToString(), (p => Progress = p), ref result);
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
-
-            var sb = new StringBuilder();
-            sb.AppendFormat("{0} {1}",
-                ScenarioNumber, MatrixResultNumber);
-            string result = null;
-
-            var toolName = ToolName;
-            if (!mc.CheckToolExists(this, toolName))
-            {
-                toolName = AlternateToolName;
-            }
-
-            return mc.Run(this, toolName, sb.ToString(), (p => Progress = p), ref result);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

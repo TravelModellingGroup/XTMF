@@ -22,86 +22,79 @@ using System.IO;
 using System.IO.Compression;
 using XTMF;
 
-namespace TMG.Functions
+namespace TMG.Functions;
+
+/// <summary>
+/// Provides several methods for compressing files and streams.
+/// </summary>
+public static class Compression
 {
     /// <summary>
-    /// Provides several methods for compressing files and streams.
+    ///
     /// </summary>
-    public static class Compression
+    /// <param name="fileName"></param>
+    /// <param name="outputFileName"></param>
+    /// <returns></returns>
+    public static bool CompressFile(string fileName, string outputFileName = null)
     {
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="outputFileName"></param>
-        /// <returns></returns>
-        public static bool CompressFile(string fileName, string outputFileName = null)
+        FileStream inputStream;
+        try
         {
-            FileStream inputStream;
-            try
-            {
-                inputStream = File.OpenRead( fileName );
-            }
-            catch
+            inputStream = File.OpenRead( fileName );
+        }
+        catch
+        {
+            return false;
+        }
+        using ( inputStream )
+        {
+            var directoryName = Path.GetDirectoryName(fileName) ?? throw new XTMFRuntimeException(null, $"Unable to get the directory name for the file path '{fileName}'");
+            return CompressStream( inputStream, outputFileName ?? Path.Combine(directoryName,
+                fileName + ".gz"));
+        }
+    }
+
+    /// <summary>
+    /// Compress a set of files, the output files will have the additional extension .gz
+    /// </summary>
+    /// <param name="files">The files to compress</param>
+    /// <returns>If the compression is successful and completes, true.</returns>
+    public static bool CompressFiles(ICollection<string> files)
+    {
+        foreach ( var file in files )
+        {
+            if ( !CompressFile( file ) )
             {
                 return false;
             }
-            using ( inputStream )
-            {
-                var directoryName = Path.GetDirectoryName(fileName);
-                if (directoryName == null)
-                {
-                    throw new XTMFRuntimeException(null, $"Unable to get the directory name for the file path '{fileName}'");
-                }
-                return CompressStream( inputStream, outputFileName ?? Path.Combine(directoryName,
-                    fileName + ".gz"));
-            }
         }
+        return true;
+    }
 
-        /// <summary>
-        /// Compress a set of files, the output files will have the additional extension .gz
-        /// </summary>
-        /// <param name="files">The files to compress</param>
-        /// <returns>If the compression is successful and completes, true.</returns>
-        public static bool CompressFiles(ICollection<string> files)
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="inputStream"></param>
+    /// <param name="outputFileName"></param>
+    /// <returns></returns>
+    public static bool CompressStream(Stream inputStream, string outputFileName)
+    {
+        FileStream writer = null;
+        try
         {
-            foreach ( var file in files )
-            {
-                if ( !CompressFile( file ) )
-                {
-                    return false;
-                }
-            }
-            return true;
+            writer = new FileStream( outputFileName, FileMode.Create );
+            using GZipStream stream = new(writer, CompressionMode.Compress);
+            writer = null;
+            inputStream.CopyTo(stream);
         }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="inputStream"></param>
-        /// <param name="outputFileName"></param>
-        /// <returns></returns>
-        public static bool CompressStream(Stream inputStream, string outputFileName)
+        catch ( Exception e )
         {
-            FileStream writer = null;
-            try
-            {
-                writer = new FileStream( outputFileName, FileMode.Create );
-                using ( GZipStream stream = new GZipStream( writer, CompressionMode.Compress ) )
-                {
-                    writer = null;
-                    inputStream.CopyTo( stream );
-                }
-            }
-            catch ( Exception e )
-            {
-                throw new XTMFRuntimeException( null,e.Message );
-            }
-            finally
-            {
-                writer?.Dispose();
-            }
-            return true;
+            throw new XTMFRuntimeException( null,e.Message );
         }
+        finally
+        {
+            writer?.Dispose();
+        }
+        return true;
     }
 }

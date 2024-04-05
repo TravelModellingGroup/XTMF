@@ -21,52 +21,46 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme.Tools.Analysis.Traffic
+namespace TMG.Emme.Tools.Analysis.Traffic;
+
+
+public class ExportStationBoardingsAlightings : IEmmeTool
 {
+    private const string ToolName = "tmg.analysis.transit.export_station_boarding_alighting";
+    public string Name { get; set; }
 
-    public class ExportStationBoardingsAlightings : IEmmeTool
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
+    public int ScenarioNumber;                                      
+
+    [SubModelInformation(Required = true, Description = "The location to save the results to")]
+    public FileLocation ResultsFile;
+
+    [SubModelInformation(Required = true, Description = "The location for the definition file for station nodes")]
+    public FileLocation StationNodeFile;
+
+
+    public bool Execute(Controller controller)
     {
-        private const string ToolName = "tmg.analysis.transit.export_station_boarding_alighting";
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
-        public int ScenarioNumber;                                      
-
-        [SubModelInformation(Required = true, Description = "The location to save the results to")]
-        public FileLocation ResultsFile;
-
-        [SubModelInformation(Required = true, Description = "The location for the definition file for station nodes")]
-        public FileLocation StationNodeFile;
-
-
-        public bool Execute(Controller controller)
-        {
-            var modeller = controller as ModellerController;
-            if (modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
-            }
-            return modeller.Run(this, ToolName, GetParameters());
-        }
-
-        private string GetParameters()
-        {
-            return string.Join(" ", ScenarioNumber, AddQuotes(Path.GetFullPath(ResultsFile.GetFilePath())), AddQuotes(StationNodeFile));
-        }
-
-        private static string AddQuotes(string toQuote)
-        {
-            return String.Concat("\"", toQuote, "\"");
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {            
-            return true;
-        }
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
+        return modeller.Run(this, ToolName, GetParameters());
     }
 
+    private string GetParameters()
+    {
+        return string.Join(" ", ScenarioNumber, AddQuotes(Path.GetFullPath(ResultsFile.GetFilePath())), AddQuotes(StationNodeFile));
+    }
+
+    private static string AddQuotes(string toQuote)
+    {
+        return String.Concat("\"", toQuote, "\"");
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {            
+        return true;
+    }
 }

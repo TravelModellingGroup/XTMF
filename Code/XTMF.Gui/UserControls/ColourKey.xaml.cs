@@ -20,33 +20,32 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace XTMF.Gui
-{
-    /// <summary>
-    /// Interaction logic for ColourKey.xaml
-    /// </summary>
-    public partial class ColourKey : UserControl
-    {
-        public ColourKey()
-        {
-            InitializeComponent();
-        }
+namespace XTMF.Gui;
 
-        public bool EditMode
+/// <summary>
+/// Interaction logic for ColourKey.xaml
+/// </summary>
+public partial class ColourKey : UserControl
+{
+    public ColourKey()
+    {
+        InitializeComponent();
+    }
+
+    public bool EditMode
+    {
+        get => OptionalColour.Visibility == Visibility.Visible;
+        set
         {
-            get => OptionalColour.Visibility == Visibility.Visible;
-            set
+            if ( value )
             {
-                if ( value )
-                {
-                    OptionalColour.Visibility = Visibility.Visible;
-                    OptionalText.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    OptionalColour.Visibility = Visibility.Collapsed;
-                    OptionalText.Visibility = Visibility.Collapsed;
-                }
+                OptionalColour.Visibility = Visibility.Visible;
+                OptionalText.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                OptionalColour.Visibility = Visibility.Collapsed;
+                OptionalText.Visibility = Visibility.Collapsed;
             }
         }
     }

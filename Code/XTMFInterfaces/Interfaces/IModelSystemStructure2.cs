@@ -18,18 +18,17 @@
 */
 using System.Collections.Generic;
 
-namespace XTMF
-{
-    public interface IModelSystemStructure2 : IModelSystemStructure
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        List<IModuleMetaProperty> ModuleMetaProperties {get;}
+namespace XTMF;
 
-        /// <summary>
-        /// Should this module get included during runs?
-        /// </summary>
-        bool IsDisabled { get; set; }
-    }
+public interface IModelSystemStructure2 : IModelSystemStructure
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    List<IModuleMetaProperty> ModuleMetaProperties {get;}
+
+    /// <summary>
+    /// Should this module get included during runs?
+    /// </summary>
+    bool IsDisabled { get; set; }
 }

@@ -22,53 +22,52 @@ using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.Tally
+namespace TMG.GTAModel.Tally;
+
+public class FromDataSourceTally : IModeAggregationTally
 {
-    public class FromDataSourceTally : IModeAggregationTally
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation( Required = true, Description = "The data source used for the tally." )]
+    public IDataSource<SparseTwinIndex<float>> Source;
+
+    public string Name
     {
-        [RootModule]
-        public ITravelDemandModel Root;
+        get;
+        set;
+    }
 
-        [SubModelInformation( Required = true, Description = "The data source used for the tally." )]
-        public IDataSource<SparseTwinIndex<float>> Source;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void IncludeTally(float[][] currentTally)
-        {
-            Source.LoadData();
-            var data = Source.GiveData().GetFlatData();
-            Source.UnloadData();
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            Parallel.For( 0, zones.Length, i =>
+    public void IncludeTally(float[][] currentTally)
+    {
+        Source.LoadData();
+        var data = Source.GiveData().GetFlatData();
+        Source.UnloadData();
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        Parallel.For( 0, zones.Length, i =>
+            {
+                var row = currentTally[i];
+                var dataRow = data[i];
+                if ( row == null | dataRow == null ) return;
+                for ( int j = 0; j < zones.Length; j++ )
                 {
-                    var row = currentTally[i];
-                    var dataRow = data[i];
-                    if ( row == null | dataRow == null ) return;
-                    for ( int j = 0; j < zones.Length; j++ )
-                    {
-                        row[j] += dataRow[j];
-                    }
-                } );
-        }
+                    row[j] += dataRow[j];
+                }
+            } );
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

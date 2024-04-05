@@ -18,20 +18,19 @@
 */
 using XTMF;
 
-namespace TMG
-{
-    public interface IDemographicCategory : IModule
-    {
-        /// <summary>
-        /// Allow the category to setup its environment
-        /// </summary>
-        void InitializeDemographicCategory();
+namespace TMG;
 
-        /// <summary>
-        /// Check if the person is part of the demographic category
-        /// </summary>
-        /// <param name="person">The person to test</param>
-        /// <returns>If the person is inside this category, true otherwise false.</returns>
-        bool IsContained(IPerson person);
-    }
+public interface IDemographicCategory : IModule
+{
+    /// <summary>
+    /// Allow the category to setup its environment
+    /// </summary>
+    void InitializeDemographicCategory();
+
+    /// <summary>
+    /// Check if the person is part of the demographic category
+    /// </summary>
+    /// <param name="person">The person to test</param>
+    /// <returns>If the person is inside this category, true otherwise false.</returns>
+    bool IsContained(IPerson person);
 }

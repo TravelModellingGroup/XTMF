@@ -22,102 +22,101 @@ using System.Threading;
 using Tasha.Common;
 using TMG.Input;
 using XTMF;
-namespace Tasha.Validation.ModeChoice
+namespace Tasha.Validation.ModeChoice;
+
+public class ModeSplit : IPostHousehold
 {
-    public class ModeSplit : IPostHousehold
+    [RootModule]
+    public ITashaRuntime Root;
+
+    [SubModelInformation(Required = true, Description = "The location to save the mode splits to.")]
+    public FileLocation OutputFileLocation;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RootModule]
-        public ITashaRuntime Root;
-
-        [SubModelInformation(Required = true, Description = "The location to save the mode splits to.")]
-        public FileLocation OutputFileLocation;
-
-        public string Name { get; set; }
-
-        public float Progress
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return 0f;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        ITashaMode[] Modes;
-        float[] Counts;
-        SpinLock WriteLock = new SpinLock(false);
+    ITashaMode[] Modes;
+    float[] Counts;
+    SpinLock WriteLock = new(false);
 
-        public void Execute(ITashaHousehold household, int iteration)
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var persons = household.Persons;
+        bool taken = false;
+        WriteLock.Enter(ref taken);
+        for(int i = 0; i < persons.Length; i++)
         {
-            var persons = household.Persons;
-            bool taken = false;
-            WriteLock.Enter(ref taken);
-            for(int i = 0; i < persons.Length; i++)
+            var expanionFactor = persons[i].ExpansionFactor;
+            var tripChains = persons[i].TripChains;
+            for(int j = 0; j < tripChains.Count; j++)
             {
-                var expanionFactor = persons[i].ExpansionFactor;
-                var tripChains = persons[i].TripChains;
-                for(int j = 0; j < tripChains.Count; j++)
+                var tripChain = tripChains[j].Trips;
+                for(int k = 0; k < tripChain.Count; k++)
                 {
-                    var tripChain = tripChains[j].Trips;
-                    for(int k = 0; k < tripChain.Count; k++)
+                    var mode = tripChain[k].Mode;
+                    for(int l = 0; l < Modes.Length; l++)
                     {
-                        var mode = tripChain[k].Mode;
-                        for(int l = 0; l < Modes.Length; l++)
+                        if(Modes[l] == mode)
                         {
-                            if(Modes[l] == mode)
-                            {
-                                Counts[l] += expanionFactor;
-                                break;
-                            }
+                            Counts[l] += expanionFactor;
+                            break;
                         }
                     }
                 }
             }
-            if(taken) WriteLock.Exit(true);
         }
+        if(taken) WriteLock.Exit(true);
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        using(var writer = new StreamWriter(OutputFileLocation, true))
         {
-            using(var writer = new StreamWriter(OutputFileLocation, true))
+            writer.Write("Iteration: ");
+            writer.WriteLine(iteration);
+            writer.WriteLine("Mode,ExpandedTrips");
+            for(int i = 0; i < Modes.Length; i++)
             {
-                writer.Write("Iteration: ");
-                writer.WriteLine(iteration);
-                writer.WriteLine("Mode,ExpandedTrips");
-                for(int i = 0; i < Modes.Length; i++)
-                {
-                    writer.Write(Modes[i].ModeName);
-                    writer.Write(',');
-                    writer.WriteLine(Counts[i]);
-                }
-            }
-            for(int i = 0; i < Counts.Length; i++)
-            {
-                Counts[i] = 0.0f;
+                writer.Write(Modes[i].ModeName);
+                writer.Write(',');
+                writer.WriteLine(Counts[i]);
             }
         }
-
-        public void Load(int maxIterations)
+        for(int i = 0; i < Counts.Length; i++)
         {
-
+            Counts[i] = 0.0f;
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public void Load(int maxIterations)
+    {
+
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
 
-        public void IterationStarting(int iteration)
-        {
-            Modes = Root.AllModes.ToArray();
-            Counts = new float[Modes.Length];
-        }
+    public void IterationStarting(int iteration)
+    {
+        Modes = [.. Root.AllModes];
+        Counts = new float[Modes.Length];
     }
 }

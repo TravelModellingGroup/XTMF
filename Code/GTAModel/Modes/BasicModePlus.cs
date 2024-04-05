@@ -21,34 +21,33 @@ using System.Collections.Generic;
 using TMG.Modes;
 using XTMF;
 
-namespace TMG.GTAModel.Modes
+namespace TMG.GTAModel.Modes;
+
+[ModuleInformation( Description = "This module provides all of the features of TMG.GTAModel.Modes.BasicMode with the addition of having support for IUtilityComponent modules to allow for more specific calculations." )]
+public class BasicModePlus : BasicMode, IUtilityComponentMode
 {
-    [ModuleInformation( Description = "This module provides all of the features of TMG.GTAModel.Modes.BasicMode with the addition of having support for IUtilityComponent modules to allow for more specific calculations." )]
-    public class BasicModePlus : BasicMode, IUtilityComponentMode
+    [SubModelInformation( Description = "Additional systematic utility functions.", Required = false )]
+    public List<IUtilityComponent> UtilityComponents
     {
-        [SubModelInformation( Description = "Additional systematic utility functions.", Required = false )]
-        public List<IUtilityComponent> UtilityComponents
-        {
-            get;
-            set;
-        }
+        get;
+        set;
+    }
 
-        public override float CalculateV(IZone originZone, IZone destinationZone, Time time)
-        {
-            return base.CalculateV( originZone, destinationZone, time ) + CalculateUtilityComponents( originZone, destinationZone, time );
-        }
+    public override float CalculateV(IZone originZone, IZone destinationZone, Time time)
+    {
+        return base.CalculateV( originZone, destinationZone, time ) + CalculateUtilityComponents( originZone, destinationZone, time );
+    }
 
-        private float CalculateUtilityComponents(IZone originZone, IZone destinationZone, Time time)
+    private float CalculateUtilityComponents(IZone originZone, IZone destinationZone, Time time)
+    {
+        float total = 0f;
+        if ( UtilityComponents != null )
         {
-            float total = 0f;
-            if ( UtilityComponents != null )
+            foreach ( var uc in UtilityComponents )
             {
-                foreach ( var uc in UtilityComponents )
-                {
-                    total += uc.CalculateV( originZone, destinationZone, time );
-                }
+                total += uc.CalculateV( originZone, destinationZone, time );
             }
-            return total;
         }
+        return total;
     }
 }

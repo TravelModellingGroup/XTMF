@@ -18,28 +18,14 @@
 */
 using System;
 
-namespace TMG.Frameworks.Data.Synthesis.Gibbs
+namespace TMG.Frameworks.Data.Synthesis.Gibbs;
+
+
+public class Attribute : XTMF.IModule
 {
 
-    public class Attribute : XTMF.IModule
+    public class Value : XTMF.IModule
     {
-
-        public class Value : XTMF.IModule
-        {
-
-            public string Name { get; set; }
-
-            public float Progress { get; set; }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                return true;
-            }
-        }
-
-        public Value[] PossibleValues;
 
         public string Name { get; set; }
 
@@ -53,4 +39,16 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
         }
     }
 
+    public Value[] PossibleValues;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 }

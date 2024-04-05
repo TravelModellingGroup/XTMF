@@ -23,102 +23,99 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ReadCommentedTriIndexSingleFloat : IDataSource<SparseTriIndex<float>>
 {
-    public class ReadCommentedTriIndexSingleFloat : IDataSource<SparseTriIndex<float>>
+    [RunParameter( "File Name", "Data.txt", "The file that we will be loading in as a Tri-Indexed data source relative to the mdel systems input directory." )]
+    public FileFromInputDirectory FileName;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    protected SparseTriIndex<float> Data;
+
+    public string Name
     {
-        [RunParameter( "File Name", "Data.txt", "The file that we will be loading in as a Tri-Indexed data source relative to the mdel systems input directory." )]
-        public FileFromInputDirectory FileName;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public IModelSystemTemplate Root;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        protected SparseTriIndex<float> Data;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public string Name
+    public SparseTriIndex<float> GiveData()
+    {
+        return Data;
+    }
+
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
+
+    public void LoadData()
+    {
+        if ( Data == null )
         {
-            get;
-            set;
+            LoadTriIndexedData();
         }
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public void UnloadData()
+    {
+        Data = null;
+    }
 
-        public SparseTriIndex<float> GiveData()
+    /// <summary>
+    /// Override this method in order to provide the ability to load different formats
+    /// </summary>
+    /// <param name="first">The first dimension sparse address</param>
+    /// <param name="second">The second dimension sparse address</param>
+    /// <param name="third">The third dimension sparse address</param>
+    /// <param name="data">The data to be stored at the address</param>
+    protected virtual void StoreData(List<int> first, List<int> second, List<int> third, List<float> data)
+    {
+        using CommentedCsvReader reader = new(FileName.GetFileName(Root.InputBaseDirectory));
+        while (reader.NextLine())
         {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            if ( Data == null )
+            // skip blank lines
+            if (reader.NumberOfCurrentCells < 4)
             {
-                LoadTriIndexedData();
+                continue;
             }
+            reader.Get(out int f, 0);
+            reader.Get(out int s, 1);
+            reader.Get(out int t, 2);
+            reader.Get(out float d, 3);
+            first.Add(f);
+            second.Add(s);
+            third.Add(t);
+            data.Add(d);
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-        }
-
-        /// <summary>
-        /// Override this method in order to provide the ability to load different formats
-        /// </summary>
-        /// <param name="first">The first dimension sparse address</param>
-        /// <param name="second">The second dimension sparse address</param>
-        /// <param name="third">The third dimension sparse address</param>
-        /// <param name="data">The data to be stored at the address</param>
-        protected virtual void StoreData(List<int> first, List<int> second, List<int> third, List<float> data)
-        {
-            using ( CommentedCsvReader reader = new CommentedCsvReader( FileName.GetFileName( Root.InputBaseDirectory ) ) )
-            {
-                while ( reader.NextLine() )
-                {
-                    // skip blank lines
-                    if ( reader.NumberOfCurrentCells < 4 )
-                    {
-                        continue;
-                    }
-                    reader.Get(out int f, 0);
-                    reader.Get( out int s, 1 );
-                    reader.Get( out int t, 2 );
-                    reader.Get( out float d, 3 );
-                    first.Add( f );
-                    second.Add( s );
-                    third.Add( t );
-                    data.Add( d );
-                }
-            }
-        }
-
-        private void LoadTriIndexedData()
-        {
-            // first 2 columns are the first 2, the remaineder are the last dimension enumerated
-            List<int> first = new List<int>();
-            List<int> second = new List<int>();
-            List<int> third = new List<int>();
-            List<float> data = new List<float>();
-            StoreData( first, second, third, data );
-            Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
-        }
+    private void LoadTriIndexedData()
+    {
+        // first 2 columns are the first 2, the remaineder are the last dimension enumerated
+        List<int> first = [];
+        List<int> second = [];
+        List<int> third = [];
+        List<float> data = [];
+        StoreData( first, second, third, data );
+        Data = SparseTriIndex<float>.CreateSparseTriIndex([.. first], [.. second], [.. third], [.. data]);
     }
 }

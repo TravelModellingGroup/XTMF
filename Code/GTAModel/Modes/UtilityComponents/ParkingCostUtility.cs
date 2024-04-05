@@ -21,44 +21,43 @@ using System;
 using TMG.Modes;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+public class ParkingCostUtility : IUtilityComponent
 {
-    public class ParkingCostUtility : IUtilityComponent
+    [RunParameter( "Parking Factor", 1f, "The factor applied to the cost of the parking in the destination zone." )]
+    public float ParkingFactor;
+
+    public string Name
     {
-        [RunParameter( "Parking Factor", 1f, "The factor applied to the cost of the parking in the destination zone." )]
-        public float ParkingFactor;
+        get;
+        set;
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    [RunParameter( "Utility Component Name", "Parking", "The unique name of this component to link with the mode parameter database." )]
+    public string UtilityComponentName
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Utility Component Name", "Parking", "The unique name of this component to link with the mode parameter database." )]
-        public string UtilityComponentName
-        {
-            get;
-            set;
-        }
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        return destination.ParkingCost * ParkingFactor;
+    }
 
-        public float CalculateV(IZone origin, IZone destination, Time time)
-        {
-            return destination.ParkingCost * ParkingFactor;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

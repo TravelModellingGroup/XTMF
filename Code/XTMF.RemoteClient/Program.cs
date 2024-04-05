@@ -17,38 +17,36 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using Microsoft.Win32;
 
-namespace XTMF.RemoteClient
+namespace XTMF.RemoteClient;
+
+internal class Program
 {
-    internal class Program
+    private static void Main(string[] args)
     {
-        private static void Main(string[] args)
+        if (args.Length < 2)
         {
-            if (args.Length < 2)
-            {
-                Console.WriteLine("Usage: XTMF.RemoteClient.exe serverAddress severPort [<Optional>ConfigurationFile]");
-                return;
-            }
-            if ( !int.TryParse( args[1], out int port ) )
-            {
-                Console.WriteLine( "The port needs to be number!\r\nUsage: XTMF.RemoteClient.exe [serverAddress] [severPort] [<Optional>ConfigurationFile]" );
-                return;
-            }
-            Configuration config = null;
-            if (args.Length >= 3 )
-            {
-                Console.WriteLine( "Using alternative configuration file '" + args[2] + "'" );
-                config = new Configuration( args[2] );
-            }
-            XTMFRuntime xtmf = new XTMFRuntime(config);
-            // fire up the remote client engine
-            if ( xtmf.InitializeRemoteClient( args[0], port ) == null )
-            {
-                Console.WriteLine( "We were unable to start up the remote client.  Please ensure that the server address and port were correct!" );
-                return;
-            }
-            Console.WriteLine( "Remote Client Activated" );
+            Console.WriteLine("Usage: XTMF.RemoteClient.exe serverAddress severPort [<Optional>ConfigurationFile]");
+            return;
         }
+        if ( !int.TryParse( args[1], out int port ) )
+        {
+            Console.WriteLine( "The port needs to be number!\r\nUsage: XTMF.RemoteClient.exe [serverAddress] [severPort] [<Optional>ConfigurationFile]" );
+            return;
+        }
+        Configuration config = null;
+        if (args.Length >= 3 )
+        {
+            Console.WriteLine( "Using alternative configuration file '" + args[2] + "'" );
+            config = new Configuration( args[2] );
+        }
+        XTMFRuntime xtmf = new(config);
+        // fire up the remote client engine
+        if ( xtmf.InitializeRemoteClient( args[0], port ) == null )
+        {
+            Console.WriteLine( "We were unable to start up the remote client.  Please ensure that the server address and port were correct!" );
+            return;
+        }
+        Console.WriteLine( "Remote Client Activated" );
     }
 }

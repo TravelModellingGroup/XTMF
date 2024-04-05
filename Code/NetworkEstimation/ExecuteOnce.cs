@@ -20,43 +20,42 @@
 using System;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+[ModuleInformation( Description =
+    @"This module is designed to foce something else to only be able to be executed once." )]
+public class ExecuteOnce : ISelfContainedModule
 {
-    [ModuleInformation( Description =
-        @"This module is designed to foce something else to only be able to be executed once." )]
-    public class ExecuteOnce : ISelfContainedModule
+    [SubModelInformation( Required = true, Description = "The thing to only run once." )]
+    public ISelfContainedModule ToRun;
+
+    private bool Ran;
+
+    public void Start()
     {
-        [SubModelInformation( Required = true, Description = "The thing to only run once." )]
-        public ISelfContainedModule ToRun;
-
-        private bool Ran;
-
-        public void Start()
+        if ( !Ran )
         {
-            if ( !Ran )
-            {
-                ToRun.Start();
-                Ran = true;
-            }
+            ToRun.Start();
+            Ran = true;
         }
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        public float Progress => ToRun.Progress;
+    public float Progress => ToRun.Progress;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return ToRun.ProgressColour; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return ToRun.ProgressColour; }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            Ran = false;
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        Ran = false;
+        return true;
     }
 }

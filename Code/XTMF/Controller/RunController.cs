@@ -17,277 +17,266 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace XTMF.Controller
+namespace XTMF.Controller;
+
+/// <summary>
+/// This controller is responsible for the organization of the runs currently executing or
+/// that are scheduled to run.
+/// </summary>
+public sealed class RunController
 {
+    private object _Lock = new();
+
+    private ObservableCollection<XTMFRun> _Backlog = [];
+
+    private ObservableCollection<XTMFRun> _CurrentlyExecuting = [];
+
+    private ObservableCollection<(DateTime startTime, XTMFRun run)> _DelayedRuns = [];
+
     /// <summary>
-    /// This controller is responsible for the organization of the runs currently executing or
-    /// that are scheduled to run.
+    /// Get a reference to all of the runs that are waiting to execute
     /// </summary>
-    public sealed class RunController
+    public ReadOnlyObservableCollection<XTMFRun> RunPipeline
     {
-        private object _Lock = new object();
-
-        private ObservableCollection<XTMFRun> _Backlog = new ObservableCollection<XTMFRun>();
-
-        private ObservableCollection<XTMFRun> _CurrentlyExecuting = new ObservableCollection<XTMFRun>();
-
-        private ObservableCollection<(DateTime startTime, XTMFRun run)> _DelayedRuns = new ObservableCollection<(DateTime, XTMFRun)>();
-
-        /// <summary>
-        /// Get a reference to all of the runs that are waiting to execute
-        /// </summary>
-        public ReadOnlyObservableCollection<XTMFRun> RunPipeline
+        get
         {
-            get
+            lock (_Lock) { return new ReadOnlyObservableCollection<XTMFRun>(_Backlog); }
+        }
+    }
+
+    /// <summary>
+    /// Get a reference to all of the runs that are waiting to execute
+    /// </summary>
+    public ReadOnlyObservableCollection<XTMFRun> CurrentlyExecuting
+    {
+        get
+        {
+            lock (_Lock) { return new ReadOnlyObservableCollection<XTMFRun>(_CurrentlyExecuting); }
+        }
+    }
+
+    /// <summary>
+    /// Get a reference to all of the runs that are being delayed to start at a given time.
+    /// </summary>
+    public ReadOnlyObservableCollection<(DateTime, XTMFRun)> DelayedRuns
+    {
+        get
+        {
+            lock (_Lock) { return new ReadOnlyObservableCollection<(DateTime, XTMFRun)>(_DelayedRuns); }
+        }
+    }
+
+    /// <summary>
+    /// Setup a run for management by XTMF.
+    /// </summary>
+    /// <param name="run">The run to work with.</param>
+    /// <param name="executeNow">Should the run be added to the back of the queue or executed right now?</param>
+    public void ExecuteRun(XTMFRun run, bool executeNow)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        run.RunCompleted += () => TerminateRun(run);
+        run.ValidationError += (e) => TerminateRun(run);
+        run.RuntimeValidationError += (e) => TerminateRun(run);
+        run.RuntimeError += (e) => TerminateRun(run);
+        lock (_Lock)
+        {
+            if (executeNow || _CurrentlyExecuting.Count == 0)
             {
-                lock (_Lock) { return new ReadOnlyObservableCollection<XTMFRun>(_Backlog); }
+                _CurrentlyExecuting.Add(run);
+                try
+                {
+                    run.Start();
+                }
+                catch(Exception e)
+                {
+                    ErrorLaunchingModel?.Invoke(e.Message);
+                    TerminateRun(run);
+                }
+            }
+            else
+            {
+                _Backlog.Add(run);
             }
         }
+    }
 
-        /// <summary>
-        /// Get a reference to all of the runs that are waiting to execute
-        /// </summary>
-        public ReadOnlyObservableCollection<XTMFRun> CurrentlyExecuting
+    /// <summary>
+    /// 
+    /// </summary>
+    public event Action<string> ErrorLaunchingModel;
+
+    /// <summary>
+    /// Reinserts (moves) the specified run into the new queue position
+    /// </summary>
+    /// <param name="run"></param>
+    /// <param name="newQueueIndex"></param>
+    public void ReorderQueuedRun(XTMFRun run, int newQueueIndex)
+    {
+        if (newQueueIndex >= _Backlog.Count || newQueueIndex < 0 )
         {
-            get
-            {
-                lock (_Lock) { return new ReadOnlyObservableCollection<XTMFRun>(_CurrentlyExecuting); }
-            }
+            throw new ArgumentOutOfRangeException();
         }
+        var oldIndex = _Backlog.IndexOf(run);
+       
+        _Backlog.Move(oldIndex, newQueueIndex);
+    }
 
-        /// <summary>
-        /// Get a reference to all of the runs that are being delayed to start at a given time.
-        /// </summary>
-        public ReadOnlyObservableCollection<(DateTime, XTMFRun)> DelayedRuns
+    public void CancelRun(XTMFRun run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        lock (_Lock)
         {
-            get
+            // If we are currently executing the run find it's index and send an exit request
+            int index = _CurrentlyExecuting.IndexOf(run);
+            if (index >= 0)
             {
-                lock (_Lock) { return new ReadOnlyObservableCollection<(DateTime, XTMFRun)>(_DelayedRuns); }
+                _CurrentlyExecuting[index].ExitRequest();
             }
-        }
-
-        /// <summary>
-        /// Setup a run for management by XTMF.
-        /// </summary>
-        /// <param name="run">The run to work with.</param>
-        /// <param name="executeNow">Should the run be added to the back of the queue or executed right now?</param>
-        public void ExecuteRun(XTMFRun run, bool executeNow)
-        {
-            if (run == null)
+            else
             {
-                throw new ArgumentNullException(nameof(run));
-            }
-            run.RunCompleted += () => TerminateRun(run);
-            run.ValidationError += (e) => TerminateRun(run);
-            run.RuntimeValidationError += (e) => TerminateRun(run);
-            run.RuntimeError += (e) => TerminateRun(run);
-            lock (_Lock)
-            {
-                if (executeNow || _CurrentlyExecuting.Count == 0)
-                {
-                    _CurrentlyExecuting.Add(run);
-                    try
-                    {
-                        run.Start();
-                    }
-                    catch(Exception e)
-                    {
-                        ErrorLaunchingModel?.Invoke(e.Message);
-                        TerminateRun(run);
-                    }
-                }
-                else
-                {
-                    _Backlog.Add(run);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public event Action<string> ErrorLaunchingModel;
-
-        /// <summary>
-        /// Reinserts (moves) the specified run into the new queue position
-        /// </summary>
-        /// <param name="run"></param>
-        /// <param name="newQueueIndex"></param>
-        public void ReorderQueuedRun(XTMFRun run, int newQueueIndex)
-        {
-            if (newQueueIndex >= _Backlog.Count || newQueueIndex < 0 )
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-            var oldIndex = _Backlog.IndexOf(run);
-           
-            _Backlog.Move(oldIndex, newQueueIndex);
-        }
-
-        public void CancelRun(XTMFRun run)
-        {
-            if (run == null)
-            {
-                throw new ArgumentNullException(nameof(run));
-            }
-            lock (_Lock)
-            {
-                // If we are currently executing the run find it's index and send an exit request
-                int index = _CurrentlyExecuting.IndexOf(run);
-                if (index >= 0)
-                {
-                    _CurrentlyExecuting[index].ExitRequest();
-                }
-                else
-                {
-                    // if it is not running already, just remove it from the queue
-                    _Backlog.Remove(run);
-                    if (_DelayedRuns.Count > 0)
-                    {
-                        for (int i = 0; i < _DelayedRuns.Count; i++)
-                        {
-                            if (_DelayedRuns[i].run == run)
-                            {
-                                _DelayedRuns.RemoveAt(i);
-                            }
-                        }
-                    }
-                    run.TerminateRun();
-                }
-            }
-        }
-
-        private Thread _timedRunThread;
-
-        /// <summary>
-        /// This method deals with managing the delayed model system runs
-        /// </summary>
-        private void ManageTimedThreads()
-        {
-            while (true)
-            {
-                Thread.Sleep(5000);
-                XTMFRun run = null;
-                lock (_Lock)
-                {
-                    if (_DelayedRuns.Count > 0)
-                    {
-                        if (_DelayedRuns[0].startTime < DateTime.Now)
-                        {
-                            run = _DelayedRuns[0].run;
-                            _DelayedRuns.RemoveAt(0);
-                        }
-                    }
-                }
-                // execute the ready run if one exists
-                if (run != null)
-                {
-                    ExecuteRun(run, false);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Setup a run for management by XTMF to start at a given time.
-        /// </summary>
-        /// <param name="startTime"></param>
-        /// <param name="run"></param>
-        public void ExecuteDelayedRun(XTMFRun run, DateTime startTime)
-        {
-            lock (_Lock)
-            {
-                if (_timedRunThread == null)
-                {
-                    // make sure that XTMF will not be kept alive by this
-                    _timedRunThread = new Thread(ManageTimedThreads)
-                    {
-                        IsBackground = true,
-                        Priority = ThreadPriority.Lowest
-                    };
-                    _timedRunThread.Start();
-                }
-
-                if (startTime <= DateTime.Now)
-                {
-                    ExecuteRun(run, false);
-                    return;
-                }
-                // Add this in order
-                int index = 0;
-                for (; index < _DelayedRuns.Count; index++)
-                {
-                    if (_DelayedRuns[index].startTime > startTime)
-                    {
-                        break;
-                    }
-                }
-                _DelayedRuns.Insert(index, (startTime, run));
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="run"></param>
-        private void TerminateRun(XTMFRun run)
-        {
-            void RemoveDelayedRun(XTMFRun run)
-            {
-                for (int i = 0; i < _DelayedRuns.Count; i++)
-                {
-                    if (_DelayedRuns[i].run == run)
-                    {
-                        _DelayedRuns.RemoveAt(i);
-                        break;
-                    }
-                }
-            }
-            lock (_Lock)
-            {
-                if(!_CurrentlyExecuting.Remove(run))
-                {
-                    if(!_Backlog.Remove(run))
-                    {
-                        RemoveDelayedRun(run);
-                    }
-                }
-                while (_CurrentlyExecuting.Count == 0 && _Backlog.Count > 0)
-                {
-                    if (_Backlog.Count > 0)
-                    {
-                        var _backlogRun = _Backlog[0];
-                        _Backlog.RemoveAt(0);
-                        _CurrentlyExecuting.Add(_backlogRun);
-                        try
-                        {
-                            _backlogRun.Start();
-   
-                        }
-                        catch (Exception e)
-                        {
-                            _CurrentlyExecuting.Remove(_backlogRun);
-                            RemoveDelayedRun(_backlogRun);
-                            ErrorLaunchingModel?.Invoke(e.Message);
-                        }
-                    }
-                }
-                // make sure the run was not in the backlog or the delayed runs
+                // if it is not running already, just remove it from the queue
                 _Backlog.Remove(run);
-                if(_DelayedRuns.Count > 0)
+                if (_DelayedRuns.Count > 0)
                 {
-                    for(int i = 0; i < _DelayedRuns.Count; i++)
+                    for (int i = 0; i < _DelayedRuns.Count; i++)
                     {
-                        if(_DelayedRuns[i].run == run)
+                        if (_DelayedRuns[i].run == run)
                         {
                             _DelayedRuns.RemoveAt(i);
                         }
+                    }
+                }
+                run.TerminateRun();
+            }
+        }
+    }
+
+    private Thread _timedRunThread;
+
+    /// <summary>
+    /// This method deals with managing the delayed model system runs
+    /// </summary>
+    private void ManageTimedThreads()
+    {
+        while (true)
+        {
+            Thread.Sleep(5000);
+            XTMFRun run = null;
+            lock (_Lock)
+            {
+                if (_DelayedRuns.Count > 0)
+                {
+                    if (_DelayedRuns[0].startTime < DateTime.Now)
+                    {
+                        run = _DelayedRuns[0].run;
+                        _DelayedRuns.RemoveAt(0);
+                    }
+                }
+            }
+            // execute the ready run if one exists
+            if (run != null)
+            {
+                ExecuteRun(run, false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Setup a run for management by XTMF to start at a given time.
+    /// </summary>
+    /// <param name="startTime"></param>
+    /// <param name="run"></param>
+    public void ExecuteDelayedRun(XTMFRun run, DateTime startTime)
+    {
+        lock (_Lock)
+        {
+            if (_timedRunThread == null)
+            {
+                // make sure that XTMF will not be kept alive by this
+                _timedRunThread = new Thread(ManageTimedThreads)
+                {
+                    IsBackground = true,
+                    Priority = ThreadPriority.Lowest
+                };
+                _timedRunThread.Start();
+            }
+
+            if (startTime <= DateTime.Now)
+            {
+                ExecuteRun(run, false);
+                return;
+            }
+            // Add this in order
+            int index = 0;
+            for (; index < _DelayedRuns.Count; index++)
+            {
+                if (_DelayedRuns[index].startTime > startTime)
+                {
+                    break;
+                }
+            }
+            _DelayedRuns.Insert(index, (startTime, run));
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="run"></param>
+    private void TerminateRun(XTMFRun run)
+    {
+        void RemoveDelayedRun(XTMFRun run)
+        {
+            for (int i = 0; i < _DelayedRuns.Count; i++)
+            {
+                if (_DelayedRuns[i].run == run)
+                {
+                    _DelayedRuns.RemoveAt(i);
+                    break;
+                }
+            }
+        }
+        lock (_Lock)
+        {
+            if(!_CurrentlyExecuting.Remove(run))
+            {
+                if(!_Backlog.Remove(run))
+                {
+                    RemoveDelayedRun(run);
+                }
+            }
+            while (_CurrentlyExecuting.Count == 0 && _Backlog.Count > 0)
+            {
+                if (_Backlog.Count > 0)
+                {
+                    var _backlogRun = _Backlog[0];
+                    _Backlog.RemoveAt(0);
+                    _CurrentlyExecuting.Add(_backlogRun);
+                    try
+                    {
+                        _backlogRun.Start();
+
+                    }
+                    catch (Exception e)
+                    {
+                        _CurrentlyExecuting.Remove(_backlogRun);
+                        RemoveDelayedRun(_backlogRun);
+                        ErrorLaunchingModel?.Invoke(e.Message);
+                    }
+                }
+            }
+            // make sure the run was not in the backlog or the delayed runs
+            _Backlog.Remove(run);
+            if(_DelayedRuns.Count > 0)
+            {
+                for(int i = 0; i < _DelayedRuns.Count; i++)
+                {
+                    if(_DelayedRuns[i].run == run)
+                    {
+                        _DelayedRuns.RemoveAt(i);
                     }
                 }
             }

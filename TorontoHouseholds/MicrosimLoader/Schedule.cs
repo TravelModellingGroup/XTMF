@@ -17,36 +17,31 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tasha.Common;
 using Tasha.Scheduler;
 
-namespace TMG.Tasha.MicrosimLoader
+namespace TMG.Tasha.MicrosimLoader;
+
+/// <summary>
+/// This is a dummy schedule to use for executing the location choice
+/// for RemoveActivities.
+/// </summary>
+public sealed class Schedule : ISchedule
 {
-    /// <summary>
-    /// This is a dummy schedule to use for executing the location choice
-    /// for RemoveActivities.
-    /// </summary>
-    public sealed class Schedule : ISchedule
+    public IEpisode[] Episodes { get; set; }
+
+    public IActivityEpisode[] GenerateScheduledEpisodeList()
     {
-        public IEpisode[] Episodes { get; set; }
+        throw new NotImplementedException();
+    }
 
-        public IActivityEpisode[] GenerateScheduledEpisodeList()
-        {
-            throw new NotImplementedException();
-        }
+    public void Insert(Random householdRandom, IActivityEpisode episode)
+    {
+        throw new NotImplementedException();
+    }
 
-        public void Insert(Random householdRandom, IActivityEpisode episode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertInside(Random householdRandom, IActivityEpisode episode, IActivityEpisode into)
-        {
-            throw new NotImplementedException();
-        }
+    public void InsertInside(Random householdRandom, IActivityEpisode episode, IActivityEpisode into)
+    {
+        throw new NotImplementedException();
     }
 }

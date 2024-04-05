@@ -19,59 +19,56 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Describes an error with a path to the module that
+/// generated it.
+/// </summary>
+public struct ErrorWithPath
 {
     /// <summary>
-    /// Describes an error with a path to the module that
-    /// generated it.
+    /// The path through the model system structure's children
+    /// to get to the offending module.  This is null if the path
+    /// is unknowable.  An empty list is the root module.
     /// </summary>
-    public struct ErrorWithPath
+    public IReadOnlyList<int> Path { get; }
+
+    /// <summary>
+    /// The error message to pass on.
+    /// </summary>
+    public string Message { get; }
+
+    /// <summary>
+    /// The stack trace at the point of the error.  This is null in the case
+    /// of validation.
+    /// </summary>
+    public string StackTrace { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string ModuleName { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public Exception Exception { get; }
+
+    /// <summary>
+    /// Creates a new error with the given path.
+    /// </summary>
+    /// <param name="path">The path to use, a copy will be stored.</param>
+    /// <param name="message"></param>
+    /// <param name="stackTrace"></param>
+    public ErrorWithPath(List<int> path, string message, string stackTrace = null, string moduleName = null, Exception exception = null)
     {
-        /// <summary>
-        /// The path through the model system structure's children
-        /// to get to the offending module.  This is null if the path
-        /// is unknowable.  An empty list is the root module.
-        /// </summary>
-        public IReadOnlyList<int> Path { get; }
-
-        /// <summary>
-        /// The error message to pass on.
-        /// </summary>
-        public string Message { get; }
-
-        /// <summary>
-        /// The stack trace at the point of the error.  This is null in the case
-        /// of validation.
-        /// </summary>
-        public string StackTrace { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string ModuleName { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Exception Exception { get; }
-
-        /// <summary>
-        /// Creates a new error with the given path.
-        /// </summary>
-        /// <param name="path">The path to use, a copy will be stored.</param>
-        /// <param name="message"></param>
-        /// <param name="stackTrace"></param>
-        public ErrorWithPath(List<int> path, string message, string stackTrace = null, string moduleName = null, Exception exception = null)
-        {
-            // Make a copy of the path
-            Path = path?.ToList();
-            Message = message;
-            StackTrace = stackTrace;
-            ModuleName = moduleName;
-            Exception = exception;
-        }
+        // Make a copy of the path
+        Path = path?.ToList();
+        Message = message;
+        StackTrace = stackTrace;
+        ModuleName = moduleName;
+        Exception = exception;
     }
 }

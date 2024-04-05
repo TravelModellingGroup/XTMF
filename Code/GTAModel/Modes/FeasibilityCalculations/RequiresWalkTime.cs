@@ -21,72 +21,71 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.FeasibilityCalculations
+namespace TMG.GTAModel.Modes.FeasibilityCalculations;
+
+public class RequiresWalkTime : ICalculation<Pair<IZone, IZone>, bool>
 {
-    public class RequiresWalkTime : ICalculation<Pair<IZone, IZone>, bool>
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter( "Trip Time", "7:00AM", typeof( Time ), "The time to test to see if walk is available for." )]
+    public Time TripTime;
+
+    private ITripComponentData NetworkData;
+
+    public string Name { get; set; }
+
+    [RunParameter( "Network Name", "Transit", "The name of the network data to use." )]
+    public string NetworkType { get; set; }
+
+    public float Progress
     {
-        [RootModule]
-        public ITravelDemandModel Root;
+        get { return 0f; }
+    }
 
-        [RunParameter( "Trip Time", "7:00AM", typeof( Time ), "The time to test to see if walk is available for." )]
-        public Time TripTime;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        private ITripComponentData NetworkData;
+    public void Load()
+    {
+    }
 
-        public string Name { get; set; }
+    public bool ProduceResult(Pair<IZone, IZone> data)
+    {
+        return NetworkData.WalkTime( data.First, data.Second, TripTime ) > Time.Zero;
+    }
 
-        [RunParameter( "Network Name", "Transit", "The name of the network data to use." )]
-        public string NetworkType { get; set; }
+    public bool RuntimeValidation(ref string error)
+    {
+        // Load in the network data
+        return LoadNetworkData( ref error );
+    }
 
-        public float Progress
+    public void Unload()
+    {
+    }
+
+    /// <summary>
+    /// Find and Load in the network data
+    /// </summary>
+    private bool LoadNetworkData(ref string error)
+    {
+        foreach ( var dataSource in Root.NetworkData )
         {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void Load()
-        {
-        }
-
-        public bool ProduceResult(Pair<IZone, IZone> data)
-        {
-            return NetworkData.WalkTime( data.First, data.Second, TripTime ) > Time.Zero;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            // Load in the network data
-            return LoadNetworkData( ref error );
-        }
-
-        public void Unload()
-        {
-        }
-
-        /// <summary>
-        /// Find and Load in the network data
-        /// </summary>
-        private bool LoadNetworkData(ref string error)
-        {
-            foreach ( var dataSource in Root.NetworkData )
+            if ( dataSource.NetworkType == NetworkType )
             {
-                if ( dataSource.NetworkType == NetworkType )
+                if (dataSource is ITripComponentData advancedData)
                 {
-                    if (dataSource is ITripComponentData advancedData)
-                    {
-                        NetworkData = advancedData;
-                        return true;
-                    }
-                    error = "In '" + Name + "' the given network data '" + NetworkType + "' is not ITripComponentData compliant!";
-                    return false;
+                    NetworkData = advancedData;
+                    return true;
                 }
+                error = "In '" + Name + "' the given network data '" + NetworkType + "' is not ITripComponentData compliant!";
+                return false;
             }
-            error = "In '" + Name + "' we were unable to find any network data with the name '" + NetworkType + "'!";
-            return false;
         }
+        error = "In '" + Name + "' we were unable to find any network data with the name '" + NetworkType + "'!";
+        return false;
     }
 }

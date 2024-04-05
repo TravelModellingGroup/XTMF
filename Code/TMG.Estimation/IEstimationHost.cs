@@ -19,18 +19,17 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace TMG.Estimation
-{
-    public interface IEstimationHost : IIterativeModel, IModelSystemTemplate
-    {
-        /// <summary>
-        /// The current jobs that are being processed
-        /// </summary>
-        List<Job> CurrentJobs { get; }
+namespace TMG.Estimation;
 
-        /// <summary>
-        /// The parameters that are being estimated
-        /// </summary>
-        List<ParameterSetting> Parameters { get; }
-    }
+public interface IEstimationHost : IIterativeModel, IModelSystemTemplate
+{
+    /// <summary>
+    /// The current jobs that are being processed
+    /// </summary>
+    List<Job> CurrentJobs { get; }
+
+    /// <summary>
+    /// The parameters that are being estimated
+    /// </summary>
+    List<ParameterSetting> Parameters { get; }
 }

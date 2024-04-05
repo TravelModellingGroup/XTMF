@@ -20,45 +20,44 @@ using System;
 using System.IO;
 using XTMF;
 using XTMF.Networking;
-namespace TMG.Estimation.Utilities
+namespace TMG.Estimation.Utilities;
+
+public abstract class ClientFileAggregation : IModule
 {
-    public abstract class ClientFileAggregation : IModule
+    public IClient Client;
+
+    [RunParameter( "DataChannel", 11, "The networking channel to use, must be unique and the same as the host!" )]
+    public int DataChannel;
+
+    private bool Loaded;
+
+    protected void SendToHost(string toSend)
     {
-        public IClient Client;
-
-        [RunParameter( "DataChannel", 11, "The networking channel to use, must be unique and the same as the host!" )]
-        public int DataChannel;
-
-        private bool Loaded;
-
-        protected void SendToHost(string toSend)
+        if ( !Loaded )
         {
-            if ( !Loaded )
-            {
-                Client.RegisterCustomSender( DataChannel, (data, stream) =>
-                    {
-                        BinaryWriter writer = new BinaryWriter( stream );
-                        var str = ( (string)data ).ToCharArray();
-                        writer.Write( str, 0, str.Length );
-                        writer.Flush();
-                    } );
-                Loaded = true;
-            }
-            Client.SendCustomMessage( toSend, DataChannel );
+            Client.RegisterCustomSender( DataChannel, (data, stream) =>
+                {
+                    BinaryWriter writer = new( stream );
+                    var str = ( (string)data ).ToCharArray();
+                    writer.Write( str, 0, str.Length );
+                    writer.Flush();
+                } );
+            Loaded = true;
         }
-
-        public string Name { get; set; }
-
-        public abstract float Progress
-        {
-            get;
-        }
-
-        public abstract Tuple<byte, byte, byte> ProgressColour
-        {
-            get;
-        }
-
-        public abstract bool RuntimeValidation(ref string error);
+        Client.SendCustomMessage( toSend, DataChannel );
     }
+
+    public string Name { get; set; }
+
+    public abstract float Progress
+    {
+        get;
+    }
+
+    public abstract Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+    }
+
+    public abstract bool RuntimeValidation(ref string error);
 }

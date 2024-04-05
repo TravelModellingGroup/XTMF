@@ -16,24 +16,19 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using XTMF.Gui.UserControls;
-namespace XTMF.Gui.Controllers
+namespace XTMF.Gui.Controllers;
+
+public static class ModelSystemEditingController
 {
-    public static class ModelSystemEditingController
+    public static void HelpRequested(ModelSystemStructureModel modelSystemStructure)
     {
-        public static void HelpRequested(ModelSystemStructureModel modelSystemStructure)
+        if(modelSystemStructure != null)
         {
-            if(modelSystemStructure != null)
-            {
-                var documentationControl = new DocumentationControl() { Type = modelSystemStructure.Type };
-                MainWindow.Us.NewHelpWindow(documentationControl);
-                Keyboard.Focus(documentationControl);
-            }
+            var documentationControl = new DocumentationControl() { Type = modelSystemStructure.Type };
+            MainWindow.Us.NewHelpWindow(documentationControl);
+            Keyboard.Focus(documentationControl);
         }
     }
 }

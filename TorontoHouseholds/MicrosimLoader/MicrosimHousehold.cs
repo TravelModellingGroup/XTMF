@@ -16,103 +16,98 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using TMG.Input;
 using Datastructure;
 
-namespace TMG.Tasha.MicrosimLoader
+namespace TMG.Tasha.MicrosimLoader;
+
+/// <summary>
+/// A record storing the results of the household data from Microsim
+/// </summary>
+internal sealed class MicrosimHousehold
 {
     /// <summary>
-    /// A record storing the results of the household data from Microsim
+    /// The unique identifier for the household
     /// </summary>
-    internal sealed class MicrosimHousehold
+    internal readonly int HouseholdID;
+
+    /// <summary>
+    /// The zone number that the household resides in
+    /// </summary>
+    internal readonly int HomeZone;
+
+    /// <summary>
+    /// The expansion factor for this household
+    /// </summary>
+    internal readonly float Weight;
+
+    /// <summary>
+    /// The Dwelling type index for the household
+    /// </summary>
+    internal readonly int DwellingType;
+
+    /// <summary>
+    /// The number of vehicles that the household has
+    /// </summary>
+    internal readonly int Vehicles;
+
+    /// <summary>
+    /// The TTS income class for the household
+    /// </summary>
+    internal readonly int IncomeClass;
+
+    private MicrosimHousehold(int householdID, int homeZone, float weight, int dwellingType, int vehicles, int incomeClass)
     {
-        /// <summary>
-        /// The unique identifier for the household
-        /// </summary>
-        internal readonly int HouseholdID;
+        HouseholdID = householdID;
+        HomeZone = homeZone;
+        Weight = weight;
+        DwellingType = dwellingType;
+        Vehicles = vehicles;
+        IncomeClass = incomeClass;
+    }
 
-        /// <summary>
-        /// The zone number that the household resides in
-        /// </summary>
-        internal readonly int HomeZone;
-
-        /// <summary>
-        /// The expansion factor for this household
-        /// </summary>
-        internal readonly float Weight;
-
-        /// <summary>
-        /// The Dwelling type index for the household
-        /// </summary>
-        internal readonly int DwellingType;
-
-        /// <summary>
-        /// The number of vehicles that the household has
-        /// </summary>
-        internal readonly int Vehicles;
-
-        /// <summary>
-        /// The TTS income class for the household
-        /// </summary>
-        internal readonly int IncomeClass;
-
-        private MicrosimHousehold(int householdID, int homeZone, float weight, int dwellingType, int vehicles, int incomeClass)
+    /// <summary>
+    /// Read in a dictionary of household records from the given Microsim file
+    /// </summary>
+    /// <param name="callingModule">The module requesting this read.</param>
+    /// <param name="householdsFile">The location to read from.</param>
+    /// <returns>A mapping based on household number to get the record.</returns>
+    internal static HashSet<MicrosimHousehold> LoadHouseholds(IModule callingModule, FileLocation householdsFile)
+    {
+        var fileInfo = new FileInfo(householdsFile.GetFilePath());
+        if (!fileInfo.Exists)
         {
-            HouseholdID = householdID;
-            HomeZone = homeZone;
-            Weight = weight;
-            DwellingType = dwellingType;
-            Vehicles = vehicles;
-            IncomeClass = incomeClass;
+            throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
         }
-
-        /// <summary>
-        /// Read in a dictionary of household records from the given Microsim file
-        /// </summary>
-        /// <param name="callingModule">The module requesting this read.</param>
-        /// <param name="householdsFile">The location to read from.</param>
-        /// <returns>A mapping based on household number to get the record.</returns>
-        internal static HashSet<MicrosimHousehold> LoadHouseholds(IModule callingModule, FileLocation householdsFile)
+        var ret = new HashSet<MicrosimHousehold>();
+        using (var reader = new CsvReader(fileInfo))
         {
-            var fileInfo = new FileInfo(householdsFile.GetFilePath());
-            if (!fileInfo.Exists)
+            // burn the header
+            reader.LoadLine();
+            try
             {
-                throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
-            }
-            var ret = new HashSet<MicrosimHousehold>();
-            using (var reader = new CsvReader(fileInfo))
-            {
-                // burn the header
-                reader.LoadLine();
-                try
+                while (reader.LoadLine(out var columns))
                 {
-                    while (reader.LoadLine(out var columns))
+                    if (columns >= 7)
                     {
-                        if (columns >= 7)
-                        {
-                            reader.Get(out int householdID, 0);
-                            reader.Get(out int homeZone, 1);
-                            reader.Get(out float weight, 2);
-                            reader.Get(out int dwellingType, 4);
-                            reader.Get(out int vehicles, 5);
-                            reader.Get(out int incomeClass, 6);
-                            ret.Add(new MicrosimHousehold(householdID, homeZone, weight, dwellingType, vehicles, incomeClass));
-                        }
+                        reader.Get(out int householdID, 0);
+                        reader.Get(out int homeZone, 1);
+                        reader.Get(out float weight, 2);
+                        reader.Get(out int dwellingType, 4);
+                        reader.Get(out int vehicles, 5);
+                        reader.Get(out int incomeClass, 6);
+                        ret.Add(new MicrosimHousehold(householdID, homeZone, weight, dwellingType, vehicles, incomeClass));
                     }
                 }
-                catch(IOException e)
-                {
-                    throw new XTMFRuntimeException(callingModule, e, $"Failed when reading in the households in file \"{fileInfo.FullName}\" on line number {reader.LineNumber}!\r\n{e.Message}");
-                }
             }
-            return ret;
+            catch(IOException e)
+            {
+                throw new XTMFRuntimeException(callingModule, e, $"Failed when reading in the households in file \"{fileInfo.FullName}\" on line number {reader.LineNumber}!\r\n{e.Message}");
+            }
         }
+        return ret;
     }
 }

@@ -18,18 +18,17 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface IPostHouseholdIteration : IModule
 {
-    public interface IPostHouseholdIteration : IModule
-    {
-        void HouseholdComplete(ITashaHousehold household, bool success);
+    void HouseholdComplete(ITashaHousehold household, bool success);
 
-        void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations);
+    void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations);
 
-        void HouseholdStart(ITashaHousehold household, int householdIterations);
+    void HouseholdStart(ITashaHousehold household, int householdIterations);
 
-        void IterationStarting(int iteration, int totalIterations);
+    void IterationStarting(int iteration, int totalIterations);
 
-        void IterationFinished(int iteration, int totalIterations);
-    }
+    void IterationFinished(int iteration, int totalIterations);
 }

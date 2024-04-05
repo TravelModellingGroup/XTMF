@@ -24,114 +24,113 @@ using Tasha.Common;
 using TMG;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+[ModuleInformation(
+    Description = "A validation module which takes in Household data and then counts and records " +
+                    "the amount of trips created for each trip purpose. This is an important validation " +
+                    "step as one needs to make sure that the distribution of trips between the different " +
+                    "trip purposes is logical. \nNote: The Expanded trips parameter lets the user choose " +
+                    "whether or not he/she wants to look at expansion factors or just frequencies. "
+    )]
+public class TripPurposeValidate : IPostHousehold
 {
-    [ModuleInformation(
-        Description = "A validation module which takes in Household data and then counts and records " +
-                        "the amount of trips created for each trip purpose. This is an important validation " +
-                        "step as one needs to make sure that the distribution of trips between the different " +
-                        "trip purposes is logical. \nNote: The Expanded trips parameter lets the user choose " +
-                        "whether or not he/she wants to look at expansion factors or just frequencies. "
-        )]
-    public class TripPurposeValidate : IPostHousehold
+    [RunParameter("Expanded Trips?", true, "Did you want to look at expanded trips (false = number of non-expanded trips")]
+    public bool ExpandedTrips;
+
+    [RunParameter("Results File", "TripPurposeValidate.csv", "Where do you want us to store the results")]
+    public string FileName;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private Dictionary<Activity, float> PurposeDictionary;
+
+    private SparseTwinIndex<Dictionary<Activity, float>> ODPurposeDictionary;
+
+    public string Name
     {
-        [RunParameter("Expanded Trips?", true, "Did you want to look at expanded trips (false = number of non-expanded trips")]
-        public bool ExpandedTrips;
+        get;
+        set;
+    }
 
-        [RunParameter("Results File", "TripPurposeValidate.csv", "Where do you want us to store the results")]
-        public string FileName;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(120, 25, 100); }
+    }
 
-        private Dictionary<Activity, float> PurposeDictionary;
+    [RunParameter("StartTime", "6:00AM", typeof(Time), "The time to start recording.")]
+    public Time StartTime;
 
-        private SparseTwinIndex<Dictionary<Activity, float>> ODPurposeDictionary;
+    [RunParameter("EndTime", "9:00AM", typeof(Time), "The time to end recording (exclusive).")]
+    public Time EndTime;
 
-        public string Name
+    [RunParameter("Min Age", 11, "The minimum age to record the purposes for.")]
+    public int MinAge;
+
+    [RunParameter("Origin Zones", "1-9999", typeof(RangeSet), "The origin zones to select for.")]
+    public RangeSet OriginZones;
+
+    [RunParameter("Destination Zones", "1-9999", typeof(RangeSet), "The destination zones to select for.")]
+    public RangeSet DestinationZones;
+
+    [RunParameter("Save as Zone OD", false, "Save as OD Pair")]
+    public bool SaveOD;
+
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        // only run on the last iteration
+        if(iteration == Root.TotalIterations - 1)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(120, 25, 100); }
-        }
-
-        [RunParameter("StartTime", "6:00AM", typeof(Time), "The time to start recording.")]
-        public Time StartTime;
-
-        [RunParameter("EndTime", "9:00AM", typeof(Time), "The time to end recording (exclusive).")]
-        public Time EndTime;
-
-        [RunParameter("Min Age", 11, "The minimum age to record the purposes for.")]
-        public int MinAge;
-
-        [RunParameter("Origin Zones", "1-9999", typeof(RangeSet), "The origin zones to select for.")]
-        public RangeSet OriginZones;
-
-        [RunParameter("Destination Zones", "1-9999", typeof(RangeSet), "The destination zones to select for.")]
-        public RangeSet DestinationZones;
-
-        [RunParameter("Save as Zone OD", false, "Save as OD Pair")]
-        public bool SaveOD;
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            // only run on the last iteration
-            if(iteration == Root.TotalIterations - 1)
+            lock (this)
             {
-                lock (this)
+                float amountToAddPerTrip;
+
+                foreach(var person in household.Persons)
                 {
-                    float amountToAddPerTrip;
-
-                    foreach(var person in household.Persons)
+                    if (ExpandedTrips)
                     {
-                        if (ExpandedTrips)
-                        {
-                            amountToAddPerTrip = person.ExpansionFactor;
-                        }
-                        else
-                        {
-                            amountToAddPerTrip = 1;
-                        }
+                        amountToAddPerTrip = person.ExpansionFactor;
+                    }
+                    else
+                    {
+                        amountToAddPerTrip = 1;
+                    }
 
-                        if(person.Age < MinAge)
+                    if(person.Age < MinAge)
+                    {
+                        continue;
+                    }
+                    foreach(var tripChain in person.TripChains)
+                    {
+                        foreach(var trip in tripChain.Trips)
                         {
-                            continue;
-                        }
-                        foreach(var tripChain in person.TripChains)
-                        {
-                            foreach(var trip in tripChain.Trips)
+                            IZone originalZone = trip.OriginalZone;
+                            IZone destinationZone = trip.DestinationZone;
+                            if(OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
                             {
-                                IZone originalZone = trip.OriginalZone;
-                                IZone destinationZone = trip.DestinationZone;
-                                if(OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
+                                var tripStartTime = trip.TripStartTime;
+                                if(tripStartTime >= StartTime && tripStartTime < EndTime)
                                 {
-                                    var tripStartTime = trip.TripStartTime;
-                                    if(tripStartTime >= StartTime && tripStartTime < EndTime)
+                                    if(SaveOD)
                                     {
-                                        if(SaveOD)
+                                        var dictionary = ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber];
+                                        if(dictionary == null)
                                         {
-                                            var dictionary = ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber];
-                                            if(dictionary == null)
-                                            {
-                                                ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber] = dictionary = new Dictionary<Activity, float>();
-                                            }
-                                            AddTripToDictionary(dictionary, amountToAddPerTrip, trip);
-                                            
+                                            ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber] = dictionary = [];
                                         }
-                                        else
-                                        {
-                                            AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip);
-                                        }
+                                        AddTripToDictionary(dictionary, amountToAddPerTrip, trip);
+                                        
+                                    }
+                                    else
+                                    {
+                                        AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip);
                                     }
                                 }
                             }
@@ -140,95 +139,93 @@ namespace Tasha.Validation
                 }
             }
         }
+    }
 
-        private void AddTripToDictionary(Dictionary<Activity,float> dictionary, float occurance, ITrip trip)
+    private void AddTripToDictionary(Dictionary<Activity,float> dictionary, float occurance, ITrip trip)
+    {
+        if(dictionary.ContainsKey(trip.Purpose))
         {
-            if(dictionary.ContainsKey(trip.Purpose))
-            {
-                dictionary[trip.Purpose] += occurance;
-            }
-            else
-            {
-                dictionary.Add(trip.Purpose, occurance);
-            }
+            dictionary[trip.Purpose] += occurance;
         }
-
-        public void IterationFinished(int iteration)
+        else
         {
-            // only run on the last iteration
-            // Important for not saving too much data
-            if(iteration == Root.TotalIterations - 1)
+            dictionary.Add(trip.Purpose, occurance);
+        }
+    }
+
+    public void IterationFinished(int iteration)
+    {
+        // only run on the last iteration
+        // Important for not saving too much data
+        if(iteration == Root.TotalIterations - 1)
+        {
+            var dir = Path.GetDirectoryName(FileName);
+            if(dir != null)
             {
-                var dir = Path.GetDirectoryName(FileName);
-                if(dir != null)
+                DirectoryInfo dirInfo = new(dir);
+                if(!dirInfo.Exists)
                 {
-                    DirectoryInfo dirInfo = new DirectoryInfo(dir);
-                    if(!dirInfo.Exists)
-                    {
-                        dirInfo.Create();
-                    }
+                    dirInfo.Create();
                 }
-                using (StreamWriter writer = new StreamWriter(FileName))
+            }
+            using StreamWriter writer = new(FileName);
+            if (SaveOD)
+            {
+                writer.WriteLine("OriginZone,DestinationZone,TripPurpose,NumberOfOccurrences");
+                foreach (var origin in ODPurposeDictionary.ValidIndexes())
                 {
-                    if(SaveOD)
+                    var originStr = origin.ToString();
+                    foreach (var destintation in ODPurposeDictionary.ValidIndexes(origin))
                     {
-                        writer.WriteLine("OriginZone,DestinationZone,TripPurpose,NumberOfOccurrences");
-                        foreach(var origin in ODPurposeDictionary.ValidIndexes())
+                        var destStr = destintation.ToString();
+                        var dictionary = ODPurposeDictionary[origin, destintation];
+                        if (dictionary != null)
                         {
-                            var originStr = origin.ToString();
-                            foreach(var destintation in ODPurposeDictionary.ValidIndexes(origin))
+                            foreach (var pair in dictionary)
                             {
-                                var destStr = destintation.ToString();
-                                var dictionary = ODPurposeDictionary[origin, destintation];
-                                if(dictionary != null)
-                                {
-                                    foreach(var pair in dictionary)
-                                    {
-                                        writer.WriteLine("{0},{1},{2},{3}", originStr, destStr, pair.Key, pair.Value);
-                                   } 
-                                }
+                                writer.WriteLine("{0},{1},{2},{3}", originStr, destStr, pair.Key, pair.Value);
                             }
                         }
                     }
-                    else
-                    {
-                        writer.WriteLine("Trip Purpose, Number of Occurrences");
-                        foreach(var pair in PurposeDictionary)
-                        {
-                            writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
-                        }
-                    }
-                }
-            }            
-        }
-
-        public void Load(int maxIterations)
-        {
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            if(iteration == Root.TotalIterations - 1)
-            {
-                if(SaveOD)
-                {
-                    ODPurposeDictionary = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<Dictionary<Activity, float>>();
-                }
-                else
-                {
-                    PurposeDictionary = new Dictionary<Activity, float>();
                 }
             }
-        }
+            else
+            {
+                writer.WriteLine("Trip Purpose, Number of Occurrences");
+                foreach (var pair in PurposeDictionary)
+                {
+                    writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
+                }
+            }
+        }            
+    }
 
-        public override string ToString()
+    public void Load(int maxIterations)
+    {
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        if(iteration == Root.TotalIterations - 1)
         {
-            return "Currently Validating Trip Purposes!";
+            if(SaveOD)
+            {
+                ODPurposeDictionary = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<Dictionary<Activity, float>>();
+            }
+            else
+            {
+                PurposeDictionary = [];
+            }
         }
+    }
+
+    public override string ToString()
+    {
+        return "Currently Validating Trip Purposes!";
     }
 }

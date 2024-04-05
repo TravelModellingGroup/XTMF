@@ -16,29 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace XTMF.Gui.Models
+namespace XTMF.Gui.Models;
+
+public class ModelSystemInfoTemplateSelector : DataTemplateSelector
 {
-    public class ModelSystemInfoTemplateSelector : DataTemplateSelector
+    public DataTemplate ModuleDisabled { get; set; }
+
+    public DataTemplate ModuleEnabled { get; set; }
+
+    public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
-        public DataTemplate ModuleDisabled { get; set; }
-
-        public DataTemplate ModuleEnabled { get; set; }
-
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        if (item is ModelSystemStructureDisplayModel param)
         {
-            if (item is ModelSystemStructureDisplayModel param)
-            {
-                return !param.IsDisabled ? ModuleEnabled : ModuleDisabled;
-            }
-            return ModuleDisabled;
+            return !param.IsDisabled ? ModuleEnabled : ModuleDisabled;
         }
+        return ModuleDisabled;
     }
 }

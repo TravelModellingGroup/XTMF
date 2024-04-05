@@ -16,19 +16,15 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
 using System.ComponentModel;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections.ObjectModel;
 
-namespace XTMF
-{
-    public static class ModelHelper
-    {
-        public static void PropertyChanged(PropertyChangedEventHandler ev, object source, string propertyName) => ev?.Invoke(source, new PropertyChangedEventArgs(propertyName));
+namespace XTMF;
 
-        public static ObservableCollection<T> ToObservableCollection<T>(this List<T> us) => new ObservableCollection<T>(us);
-    }
+public static class ModelHelper
+{
+    public static void PropertyChanged(PropertyChangedEventHandler ev, object source, string propertyName) => ev?.Invoke(source, new PropertyChangedEventArgs(propertyName));
+
+    public static ObservableCollection<T> ToObservableCollection<T>(this List<T> us) => new(us);
 }

@@ -23,111 +23,108 @@ using System.Text;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Modes
+namespace Tasha.Modes;
+
+[ModuleInformation( Name = "Enumerate Tour Types",
+    Description = "Analyzes trip chain data to enumerate all tour structures (e.g., HWH, HSH, HWOWMH, etc..)" )]
+public class EnumerateTourTypes : IPostHousehold
 {
-    [ModuleInformation( Name = "Enumerate Tour Types",
-        Description = "Analyzes trip chain data to enumerate all tour structures (e.g., HWH, HSH, HWOWMH, etc..)" )]
-    public class EnumerateTourTypes : IPostHousehold
+    [RunParameter( "Home Anchor Override", "", "The name of the variable used to store an agent's initial activity. If blank, this will default to 'Home'" )]
+    public string HomeAnchorOverrideName;
+
+    [RunParameter( "Results File", "tourTypeResults.csv", "The file to save results into." )]
+    public string ResultsFile;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    [RunParameter( "Expansion Factor Flag", true, "Set to 'true' to report the weighted sum of observations; 'false' to enumerate number of observed records." )]
+    public bool UseExpansionFactor;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+    private Dictionary<string, double> Data;
+
+    public string Name
     {
-        [RunParameter( "Home Anchor Override", "", "The name of the variable used to store an agent's initial activity. If blank, this will default to 'Home'" )]
-        public string HomeAnchorOverrideName;
+        get;
+        set;
+    }
 
-        [RunParameter( "Results File", "tourTypeResults.csv", "The file to save results into." )]
-        public string ResultsFile;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        [RunParameter( "Expansion Factor Flag", true, "Set to 'true' to report the weighted sum of observations; 'false' to enumerate number of observed records." )]
-        public bool UseExpansionFactor;
+    private StringBuilder _builder = new();
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private Dictionary<string, double> Data;
-
-        public string Name
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        lock ( this )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        private StringBuilder _builder = new StringBuilder();
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            lock ( this )
+            _builder.Clear();
+            foreach ( var p in household.Persons )
             {
-                _builder.Clear();
-                foreach ( var p in household.Persons )
+                if ( p.TripChains.Count < 1 )
                 {
-                    if ( p.TripChains.Count < 1 )
-                    {
-                        continue; //Skip people with no trips
-                    }
-                    if ( string.IsNullOrEmpty( HomeAnchorOverrideName ) )
-                    {
-                        _builder.Append( Activity.Home );
-                    }
-                    else
-                    {
-                        var x = p.TripChains[0].GetVariable( HomeAnchorOverrideName );
-                        if ( x != null ) _builder.Append( x );
-                        else _builder.Append( Activity.Home );
-                    }
-
-                    foreach ( var trip in p.TripChains[0].Trips )
-                    {
-                        _builder.Append(',');
-                        _builder.Append(trip.Purpose);
-                    }
-                    var key = _builder.ToString();
-                    if(!Data.TryGetValue(key, out var value))
-                    {
-                        value = 0.0;
-                    }
-                    Data[key] = UseExpansionFactor ? value + household.ExpansionFactor : 1.0;
+                    continue; //Skip people with no trips
                 }
+                if ( string.IsNullOrEmpty( HomeAnchorOverrideName ) )
+                {
+                    _builder.Append( Activity.Home );
+                }
+                else
+                {
+                    var x = p.TripChains[0].GetVariable( HomeAnchorOverrideName );
+                    if ( x != null ) _builder.Append( x );
+                    else _builder.Append( Activity.Home );
+                }
+
+                foreach ( var trip in p.TripChains[0].Trips )
+                {
+                    _builder.Append(',');
+                    _builder.Append(trip.Purpose);
+                }
+                var key = _builder.ToString();
+                if(!Data.TryGetValue(key, out var value))
+                {
+                    value = 0.0;
+                }
+                Data[key] = UseExpansionFactor ? value + household.ExpansionFactor : 1.0;
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        using var sw = new StreamWriter(ResultsFile);
+        sw.WriteLine("TOUR ENUMERATION");
+        sw.WriteLine();
+        sw.WriteLine("Frequency,[List of activities]");
+        foreach (var e in Data)
         {
-            using (var sw = new StreamWriter(ResultsFile))
-            {
-                sw.WriteLine("TOUR ENUMERATION");
-                sw.WriteLine();
-                sw.WriteLine("Frequency,[List of activities]");
-                foreach (var e in Data)
-                {
-                    sw.WriteLine(e.Value + "," + e.Key);
-                }
-                Data.Clear();
-            }
+            sw.WriteLine(e.Value + "," + e.Key);
         }
+        Data.Clear();
+    }
 
-        public void Load(int maxIterations)
-        {
-            Data = new Dictionary<string, double>();
-        }
+    public void Load(int maxIterations)
+    {
+        Data = [];
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void IterationStarting(int iteration)
-        {
-            
-        }
+    public void IterationStarting(int iteration)
+    {
+        
     }
 }

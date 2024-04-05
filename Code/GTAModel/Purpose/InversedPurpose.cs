@@ -24,206 +24,203 @@ using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
 
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+public class InversedPurpose : IPurpose
 {
-    public class InversedPurpose : IPurpose
+    [RunParameter( "Other Purpose Name", "Work", "The name of the purpose to inverse." )]
+    public string OtherPurposeName;
+
+    [RootModule]
+    public I4StepModel Root;
+
+    [RunParameter( "Save Mode Split Output", false, "Should we save the output?" )]
+    public bool SaveModeChoiceOutput;
+
+    private int NumberOfModes = 1;
+
+    [DoNotAutomate]
+    private IPurpose OtherPurpose;
+
+    public List<TreeData<float[][]>> Flows
     {
-        [RunParameter( "Other Purpose Name", "Work", "The name of the purpose to inverse." )]
-        public string OtherPurposeName;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public I4StepModel Root;
+    [DoNotAutomate]
+    public IMultiModeSplit ModeSplit { get; set; }
 
-        [RunParameter( "Save Mode Split Output", false, "Should we save the output?" )]
-        public bool SaveModeChoiceOutput;
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        private int NumberOfModes = 1;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [DoNotAutomate]
-        private IPurpose OtherPurpose;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+        set;
+    }
 
-        public List<TreeData<float[][]>> Flows
+    [RunParameter( "Purpose Name", "Inverse", "The name of the purpose." )]
+    public string PurposeName
+    {
+        get;
+        set;
+    }
+
+    public void Run()
+    {
+        Progress = 0;
+        Flows = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
+        LoadFlows();
+        Progress = 1;
+        if ( SaveModeChoiceOutput )
         {
-            get;
-            set;
-        }
-
-        [DoNotAutomate]
-        public IMultiModeSplit ModeSplit { get; set; }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get;
-            set;
-        }
-
-        [RunParameter( "Purpose Name", "Inverse", "The name of the purpose." )]
-        public string PurposeName
-        {
-            get;
-            set;
-        }
-
-        public void Run()
-        {
-            Progress = 0;
-            Flows = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
-            LoadFlows();
-            Progress = 1;
-            if ( SaveModeChoiceOutput )
+            if ( !Directory.Exists( PurposeName ) )
             {
-                if ( !Directory.Exists( PurposeName ) )
-                {
-                    Directory.CreateDirectory( PurposeName );
-                }
-                for ( int i = 0; i < Flows.Count; i++ )
-                {
-                    WriteModeSplit( Flows[i], Root.Modes[i], PurposeName );
-                }
+                Directory.CreateDirectory( PurposeName );
+            }
+            for ( int i = 0; i < Flows.Count; i++ )
+            {
+                WriteModeSplit( Flows[i], Root.Modes[i], PurposeName );
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        foreach ( var purp in Root.Purpose )
         {
-            foreach ( var purp in Root.Purpose )
+            if ( purp.PurposeName == OtherPurposeName )
             {
-                if ( purp.PurposeName == OtherPurposeName )
-                {
-                    OtherPurpose = purp;
-                    break;
-                }
+                OtherPurpose = purp;
+                break;
             }
-            if ( OtherPurpose == null )
-            {
-                error = "The purpose " + OtherPurposeName + " can not be found by " + PurposeName + " in order to be inversed!";
-                return false;
-            }
-            return true;
         }
-
-        private int CountNumberOfModes()
+        if ( OtherPurpose == null )
         {
-            int index = 0;
-            var length = Flows.Count;
+            error = "The purpose " + OtherPurposeName + " can not be found by " + PurposeName + " in order to be inversed!";
+            return false;
+        }
+        return true;
+    }
+
+    private int CountNumberOfModes()
+    {
+        int index = 0;
+        var length = Flows.Count;
+        for ( int i = 0; i < length; i++ )
+        {
+            CountNumberOfModes( Flows[i], ref index );
+        }
+        return index;
+    }
+
+    private void CountNumberOfModes(TreeData<float[][]> treeData, ref int index)
+    {
+        index++;
+        if ( treeData.Children != null )
+        {
+            for ( int i = 0; i < treeData.Children.Length; i++ )
+            {
+                CountNumberOfModes( treeData.Children[i], ref index );
+            }
+        }
+    }
+
+    private void LoadFlows()
+    {
+        var length = Flows.Count;
+        int index = 0;
+        NumberOfModes = CountNumberOfModes();
+        for ( int i = 0; i < length; i++ )
+        {
+            LoadFlows( Flows[i], OtherPurpose.Flows[i], ref index );
+        }
+    }
+
+    private void LoadFlows(TreeData<float[][]> ourNode, TreeData<float[][]> copyNode, ref int index)
+    {
+        if ( ourNode.Children != null )
+        {
+            var length = ourNode.Children.Length;
             for ( int i = 0; i < length; i++ )
             {
-                CountNumberOfModes( Flows[i], ref index );
-            }
-            return index;
-        }
-
-        private void CountNumberOfModes(TreeData<float[][]> treeData, ref int index)
-        {
-            index++;
-            if ( treeData.Children != null )
-            {
-                for ( int i = 0; i < treeData.Children.Length; i++ )
-                {
-                    CountNumberOfModes( treeData.Children[i], ref index );
-                }
+                LoadFlows( ourNode.Children[i], copyNode, ref index );
             }
         }
-
-        private void LoadFlows()
+        var otherData = copyNode.Result;
+        if ( otherData == null ) return;
+        var numberOfZones = otherData.Length;
+        var data = new float[numberOfZones][];
+        for ( int j = 0; j < numberOfZones; j++ )
         {
-            var length = Flows.Count;
-            int index = 0;
-            NumberOfModes = CountNumberOfModes();
-            for ( int i = 0; i < length; i++ )
-            {
-                LoadFlows( Flows[i], OtherPurpose.Flows[i], ref index );
-            }
+            data[j] = new float[numberOfZones];
         }
-
-        private void LoadFlows(TreeData<float[][]> ourNode, TreeData<float[][]> copyNode, ref int index)
+        Progress = (float)index / NumberOfModes;
+        index++;
+        Parallel.For( 0, numberOfZones, delegate(int i)
         {
-            if ( ourNode.Children != null )
-            {
-                var length = ourNode.Children.Length;
-                for ( int i = 0; i < length; i++ )
-                {
-                    LoadFlows( ourNode.Children[i], copyNode, ref index );
-                }
-            }
-            var otherData = copyNode.Result;
-            if ( otherData == null ) return;
-            var numberOfZones = otherData.Length;
-            var data = new float[numberOfZones][];
+            var row = otherData[i];
+            if ( row == null ) return;
             for ( int j = 0; j < numberOfZones; j++ )
             {
-                data[j] = new float[numberOfZones];
+                data[j][i] = row[j];
             }
-            Progress = (float)index / NumberOfModes;
-            index++;
-            Parallel.For( 0, numberOfZones, delegate(int i)
-            {
-                var row = otherData[i];
-                if ( row == null ) return;
-                for ( int j = 0; j < numberOfZones; j++ )
-                {
-                    data[j][i] = row[j];
-                }
-            } );
-            ourNode.Result = data;
-        }
+        } );
+        ourNode.Result = data;
+    }
 
-        private void WriteModeSplit(TreeData<float[][]> split, IModeChoiceNode modeNode, string directoryName)
+    private void WriteModeSplit(TreeData<float[][]> split, IModeChoiceNode modeNode, string directoryName)
+    {
+        if ( !Directory.Exists( directoryName ) )
         {
-            if ( !Directory.Exists( directoryName ) )
-            {
-                Directory.CreateDirectory( directoryName );
-            }
-            Task writeTask = new Task( delegate
-            {
-                    using ( StreamWriter writer = new StreamWriter( Path.Combine( directoryName, modeNode.ModeName + ".csv" ) ) )
-                    {
-                        var header = true;
-                        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                        for ( int i = 0; i < zones.Length; i++ )
-                        {
-                            if ( header )
-                            {
-                                header = false;
-                                writer.Write( "Zones O\\D" );
-                                for ( int j = 0; j < zones.Length; j++ )
-                                {
-                                    writer.Write( ',' );
-                                    writer.Write( zones[j].ZoneNumber );
-                                }
-                                writer.WriteLine();
-                            }
-                            var row = split.Result == null ? null : split.Result[i];
-                            writer.Write( zones[i].ZoneNumber );
-                            for ( int j = 0; j < zones.Length; j++ )
-                            {
-                                writer.Write( ',' );
-                                writer.Write( row == null ? 0 : row[j] );
-                            }
-                            writer.WriteLine();
-                        }
-                    }
-                } );
-            writeTask.Start();
-            if ( split.Children != null )
-            {
-                for ( int i = 0; i < split.Children.Length; i++ )
-                {
-                    WriteModeSplit( split.Children[i], ( (IModeCategory)modeNode ).Children[i], directoryName );
-                }
-            }
-            writeTask.Wait();
+            Directory.CreateDirectory( directoryName );
         }
+        Task writeTask = new( delegate
+        {
+            using StreamWriter writer = new(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
+            var header = true;
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            for (int i = 0; i < zones.Length; i++)
+            {
+                if (header)
+                {
+                    header = false;
+                    writer.Write("Zones O\\D");
+                    for (int j = 0; j < zones.Length; j++)
+                    {
+                        writer.Write(',');
+                        writer.Write(zones[j].ZoneNumber);
+                    }
+                    writer.WriteLine();
+                }
+                var row = split.Result?[i];
+                writer.Write(zones[i].ZoneNumber);
+                for (int j = 0; j < zones.Length; j++)
+                {
+                    writer.Write(',');
+                    writer.Write(row == null ? 0 : row[j]);
+                }
+                writer.WriteLine();
+            }
+        } );
+        writeTask.Start();
+        if ( split.Children != null )
+        {
+            for ( int i = 0; i < split.Children.Length; i++ )
+            {
+                WriteModeSplit( split.Children[i], ( (IModeCategory)modeNode ).Children[i], directoryName );
+            }
+        }
+        writeTask.Wait();
     }
 }

@@ -20,57 +20,55 @@ using System;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+
+public class SumOD : IDataSource<float>
 {
-
-    public class SumOD : IDataSource<float>
+    public bool Loaded
     {
-        public bool Loaded
-        {
-            get; set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private float Data;
-
-        [SubModelInformation(Required = false, Description = "Sum a raw data source, only one can be used.")]
-        public IDataSource<SparseTwinIndex<float>> RawDataSource;
-
-        [SubModelInformation(Required = false, Description = "Sum a raw resource, only one can be used.")]
-        public IResource ResourceDataSource;
-
-        public float GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            float[][] operateOnMe = ModuleHelper.GetDataFromDatasourceOrResource(RawDataSource, ResourceDataSource, RawDataSource != null).GetFlatData();
-            var sum = 0.0f;
-            for (int i = 0; i < operateOnMe.Length; i++)
-            {
-                sum += VectorHelper.Sum(operateOnMe[i], 0, operateOnMe[i].Length);
-            }
-            Data = sum;
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(RawDataSource, ResourceDataSource, ref error);
-        }
-
-        public void UnloadData()
-        {
-            Data = 0f;
-            Loaded = false;
-        }
+        get; set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private float Data;
+
+    [SubModelInformation(Required = false, Description = "Sum a raw data source, only one can be used.")]
+    public IDataSource<SparseTwinIndex<float>> RawDataSource;
+
+    [SubModelInformation(Required = false, Description = "Sum a raw resource, only one can be used.")]
+    public IResource ResourceDataSource;
+
+    public float GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        float[][] operateOnMe = ModuleHelper.GetDataFromDatasourceOrResource(RawDataSource, ResourceDataSource, RawDataSource != null).GetFlatData();
+        var sum = 0.0f;
+        for (int i = 0; i < operateOnMe.Length; i++)
+        {
+            sum += VectorHelper.Sum(operateOnMe[i], 0, operateOnMe[i].Length);
+        }
+        Data = sum;
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(RawDataSource, ResourceDataSource, ref error);
+    }
+
+    public void UnloadData()
+    {
+        Data = 0f;
+        Loaded = false;
+    }
 }

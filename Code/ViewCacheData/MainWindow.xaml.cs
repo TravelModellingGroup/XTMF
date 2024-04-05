@@ -22,109 +22,110 @@ using System.Windows;
 using System.Windows.Controls;
 using Datastructure;
 
-namespace ViewCacheData
+namespace ViewCacheData;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+    private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
 
-        private void DBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-        }
+    private void DBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+    }
 
-        private void OBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-        }
+    private void OBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+    }
 
-        private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+    private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        var open = new Microsoft.Win32.OpenFileDialog
         {
-            var open = new Microsoft.Win32.OpenFileDialog();
-            open.Filter = "OD Cache (.odc)|*.odc|Zone File Cache (.zfc)|.zfc";
-            open.FilterIndex = 0;
-            open.CheckPathExists = true;
-            open.CheckFileExists = true;
-            open.AddExtension = true;
-            open.DereferenceLinks = true;
-            if ( open.ShowDialog() == true )
+            Filter = "OD Cache (.odc)|*.odc|Zone File Cache (.zfc)|.zfc",
+            FilterIndex = 0,
+            CheckPathExists = true,
+            CheckFileExists = true,
+            AddExtension = true,
+            DereferenceLinks = true
+        };
+        if ( open.ShowDialog() == true )
+        {
+            var fileName = open.FileName;
+            var ext = System.IO.Path.GetExtension( fileName )?.ToLowerInvariant();
+            switch ( ext )
             {
-                var fileName = open.FileName;
-                var ext = System.IO.Path.GetExtension( fileName )?.ToLowerInvariant();
-                switch ( ext )
-                {
-                    case ".zfc":
+                case ".zfc":
+                    {
+                        OdControlGrid.IsEnabled = false;
+                        Task t = new( delegate
                         {
-                            OdControlGrid.IsEnabled = false;
-                            Task t = new Task( delegate
+                            PresentationGrid.DataContext = null;
+                            try
                             {
-                                PresentationGrid.DataContext = null;
-                                try
-                                {
-                                    var odc = new OdCache( fileName );
-                                    odc.Release();
-                                }
-                                catch
-                                {
-                                    MessageBox.Show( this, "Unable to load the file", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
-                                }
-                            } );
-                            t.Start();
-                        }
-                        break;
+                                var odc = new OdCache( fileName );
+                                odc.Release();
+                            }
+                            catch
+                            {
+                                MessageBox.Show( this, "Unable to load the file", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
+                            }
+                        } );
+                        t.Start();
+                    }
+                    break;
 
-                    case ".odc":
+                case ".odc":
+                    {
+                        OdControlGrid.IsEnabled = true;
+                        Task t = new( delegate
                         {
-                            OdControlGrid.IsEnabled = true;
-                            Task t = new Task( delegate
+                            try
                             {
-                                try
-                                {
-                                    var odc = new OdCache( fileName );
-                                    var allData = odc.StoreAll().GetFlatData();
-                                    Dispatcher.BeginInvoke(
-                                        new Action( delegate
+                                var odc = new OdCache( fileName );
+                                var allData = odc.StoreAll().GetFlatData();
+                                Dispatcher.BeginInvoke(
+                                    new Action( delegate
+                                    {
+                                        try
                                         {
-                                            try
+                                            PresentationGrid.Items.Clear();
+                                            for ( int i = 0; i < 1; i++ )
                                             {
-                                                PresentationGrid.Items.Clear();
-                                                for ( int i = 0; i < 1; i++ )
+                                                for ( int j = 0; j < 1; j++ )
                                                 {
-                                                    for ( int j = 0; j < 1; j++ )
-                                                    {
-                                                        PresentationGrid.ItemsSource = allData[i][j];
-                                                    }
+                                                    PresentationGrid.ItemsSource = allData[i][j];
                                                 }
                                             }
-                                            catch
-                                            {
-                                                MessageBox.Show( this, "Unable to display the data", "Loading Fail", MessageBoxButton.OK, MessageBoxImage.Error );
-                                            }
-                                        } ) );
-                                    odc.Release();
-                                }
-                                catch
-                                {
-                                    MessageBox.Show( this, "Unable to load the file", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
-                                }
-                            } );
-                            t.Start();
-                        }
-                        break;
+                                        }
+                                        catch
+                                        {
+                                            MessageBox.Show( this, "Unable to display the data", "Loading Fail", MessageBoxButton.OK, MessageBoxImage.Error );
+                                        }
+                                    } ) );
+                                odc.Release();
+                            }
+                            catch
+                            {
+                                MessageBox.Show( this, "Unable to load the file", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
+                            }
+                        } );
+                        t.Start();
+                    }
+                    break;
 
-                    default:
-                        MessageBox.Show( this, "Unable to load the extension " + ext + ".", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
-                        break;
-                }
+                default:
+                    MessageBox.Show( this, "Unable to load the extension " + ext + ".", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
+                    break;
             }
         }
     }

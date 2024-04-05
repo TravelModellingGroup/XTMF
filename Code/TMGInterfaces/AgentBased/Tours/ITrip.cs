@@ -18,62 +18,61 @@
 */
 using XTMF;
 
-namespace TMG.AgentBased.Tours
+namespace TMG.AgentBased.Tours;
+
+/// <summary>
+/// This interface describes the basic
+/// requirements for what a trip is.
+/// </summary>
+public interface ITrip
 {
     /// <summary>
-    /// This interface describes the basic
-    /// requirements for what a trip is.
+    /// The time that the
     /// </summary>
-    public interface ITrip
-    {
-        /// <summary>
-        /// The time that the
-        /// </summary>
-        Time ActivityStartTime { get; set; }
+    Time ActivityStartTime { get; set; }
 
-        /// <summary>
-        /// This is the chosen primary mode.
-        /// It will not reflect changes when adding
-        /// Intermediate chains
-        /// </summary>
-        IMode ChosenMode { get; set; }
+    /// <summary>
+    /// This is the chosen primary mode.
+    /// It will not reflect changes when adding
+    /// Intermediate chains
+    /// </summary>
+    IMode ChosenMode { get; set; }
 
-        /// <summary>
-        /// The time that the trip leaves at
-        /// </summary>
-        Time DepartureTime { get; set; }
+    /// <summary>
+    /// The time that the trip leaves at
+    /// </summary>
+    Time DepartureTime { get; set; }
 
-        /// <summary>
-        /// The location that this trip ends at
-        /// </summary>
-        IZone Destination { get; }
+    /// <summary>
+    /// The location that this trip ends at
+    /// </summary>
+    IZone Destination { get; }
 
-        /// <summary>
-        /// The activity that the person is going to.
-        /// </summary>
-        IActivity DestinationActivity { get; }
+    /// <summary>
+    /// The activity that the person is going to.
+    /// </summary>
+    IActivity DestinationActivity { get; }
 
-        /// <summary>
-        /// If this trip is going to be diverted
-        /// from its original destination, this
-        /// field will contain the replaned tour.
-        /// </summary>
-        ITripChain IntermediateChain { get; set; }
+    /// <summary>
+    /// If this trip is going to be diverted
+    /// from its original destination, this
+    /// field will contain the replaned tour.
+    /// </summary>
+    ITripChain IntermediateChain { get; set; }
 
-        /// <summary>
-        /// The location that this trip starts at
-        /// </summary>
-        IZone Origin { get; }
+    /// <summary>
+    /// The location that this trip starts at
+    /// </summary>
+    IZone Origin { get; }
 
-        /// <summary>
-        /// The trip chain that this trip belongs to
-        /// </summary>
-        ITripChain TripChain { get; }
+    /// <summary>
+    /// The trip chain that this trip belongs to
+    /// </summary>
+    ITripChain TripChain { get; }
 
-        /// <summary>
-        /// The index into the trip chain for
-        /// this trip
-        /// </summary>
-        int TripIndex { get; set; }
-    }
+    /// <summary>
+    /// The index into the trip chain for
+    /// this trip
+    /// </summary>
+    int TripIndex { get; set; }
 }

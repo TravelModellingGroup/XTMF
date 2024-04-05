@@ -21,43 +21,41 @@ using Tasha.Common;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation.PopulationSynthesis
+namespace Tasha.Validation.PopulationSynthesis;
+
+
+public class ValidateOccupationResidence : IPostHousehold
 {
 
-    public class ValidateOccupationResidence : IPostHousehold
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = true, Description = "The location to save the validation to.")]
+    public FileLocation ResultLocation;
+
+    public void Execute(ITashaHousehold household, int iteration)
     {
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = true, Description = "The location to save the validation to.")]
-        public FileLocation ResultLocation;
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-        }
-
-        public void IterationFinished(int iteration)
-        {
-
-        }
-
-        public void IterationStarting(int iteration)
-        {
-
-        }
-
-        public void Load(int maxIterations)
-        {
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
     }
 
+    public void IterationFinished(int iteration)
+    {
+
+    }
+
+    public void IterationStarting(int iteration)
+    {
+
+    }
+
+    public void Load(int maxIterations)
+    {
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 }

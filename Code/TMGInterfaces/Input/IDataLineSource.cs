@@ -18,10 +18,9 @@
 */
 using System.Collections.Generic;
 
-namespace TMG.Input
+namespace TMG.Input;
+
+public interface IDataLineSource<T> : XTMF.IModule
 {
-    public interface IDataLineSource<T> : XTMF.IModule
-    {
-        IEnumerable<T> Read();
-    }
+    IEnumerable<T> Read();
 }

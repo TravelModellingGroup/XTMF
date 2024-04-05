@@ -16,15 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
+namespace TMG;
+
+public enum HouseholdType
 {
-    public enum HouseholdType
-    {
-        CoupleWithoutChildren = 0,
-        CoupleWithChildren = 1,
-        LoneParentFamily = 2,
-        OtherFamily = 3,
-        OnePerson = 4,
-        TwoOrMorePerson = 5
-    }
+    CoupleWithoutChildren = 0,
+    CoupleWithChildren = 1,
+    LoneParentFamily = 2,
+    OtherFamily = 3,
+    OnePerson = 4,
+    TwoOrMorePerson = 5
 }

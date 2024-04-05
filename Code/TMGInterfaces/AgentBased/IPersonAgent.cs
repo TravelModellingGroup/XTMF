@@ -19,12 +19,11 @@
 using System.Collections.Generic;
 using TMG.AgentBased.Tours;
 
-namespace TMG.AgentBased.Agents
-{
-    public interface IPersonAgent : IPerson
-    {
-        List<IActivity> Activities { get; }
+namespace TMG.AgentBased.Agents;
 
-        List<ITripChain> TripChains { get; }
-    }
+public interface IPersonAgent : IPerson
+{
+    List<IActivity> Activities { get; }
+
+    List<ITripChain> TripChains { get; }
 }

@@ -19,53 +19,51 @@
 using System;
 using XTMF;
 
-namespace TMG.Emme.Utilities
+namespace TMG.Emme.Utilities;
+
+[ModuleInformation(
+    Description = "This module is used in order to help organize the model system by grouping EMME tools together."
+    )]
+// ReSharper disable once InconsistentNaming
+public class ChainEMMETools : IEmmeTool
 {
-    [ModuleInformation(
-        Description = "This module is used in order to help organize the model system by grouping EMME tools together."
-        )]
-    // ReSharper disable once InconsistentNaming
-    public class ChainEMMETools : IEmmeTool
+
+    public string Name { get; set; }
+
+    public float Progress { get { return _progress != null ? _progress() : 0.0f; } }
+
+    private Func<float> _progress;
+    private Func<string> _status;
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = false, Description = "The tools to execute")]
+    public IEmmeTool[] Tools;
+
+    public bool Execute(Controller controller)
     {
-
-        public string Name { get; set; }
-
-        public float Progress { get { return _progress != null ? _progress() : 0.0f; } }
-
-        private Func<float> _progress;
-        private Func<string> _status;
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = false, Description = "The tools to execute")]
-        public IEmmeTool[] Tools;
-
-        public bool Execute(Controller controller)
+        int i = 0;
+        // ReSharper disable AccessToModifiedClosure
+        _progress = () => ((float)i / Tools.Length) + (Tools[i].Progress / Tools.Length);
+        _status = () => i < Tools.Length ? Tools[i].ToString() : base.ToString();
+        for (; i < Tools.Length; i++)
         {
-            int i = 0;
-            // ReSharper disable AccessToModifiedClosure
-            _progress = () => ((float)i / Tools.Length) + (Tools[i].Progress / Tools.Length);
-            _status = () => i < Tools.Length ? Tools[i].ToString() : base.ToString();
-            for (; i < Tools.Length; i++)
+            if (!Tools[i].Execute(controller))
             {
-                if (!Tools[i].Execute(controller))
-                {
-                    return false;
-                }
+                return false;
             }
-            _progress = null;
-            return true;
         }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public override string ToString()
-        {
-            return _status?.Invoke() ?? base.ToString();
-        }
+        _progress = null;
+        return true;
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public override string ToString()
+    {
+        return _status?.Invoke() ?? base.ToString();
+    }
 }

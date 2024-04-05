@@ -21,32 +21,31 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+[ModuleInformation( Description = "This module is designed to allow the representation of a set of ranges."
+    + "Typically this is used for expressing indexing into a dataset such as "
+    + " which generations should be combined in order to do distribution." )]
+public class BlendSet : IModule
 {
-    [ModuleInformation( Description = "This module is designed to allow the representation of a set of ranges."
-        + "Typically this is used for expressing indexing into a dataset such as "
-        + " which generations should be combined in order to do distribution." )]
-    public class BlendSet : IModule
+    [RunParameter( "Blend Set", "1", "The set of index to blend together." )]
+    public RangeSet Set;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter( "Blend Set", "1", "The set of index to blend together." )]
-        public RangeSet Set;
+        get;
+        set;
+    }
 
-        public string Name { get; set; }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public virtual bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public virtual bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -18,16 +18,15 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface IPostScheduler : IModule
 {
-    public interface IPostScheduler : IModule
-    {
-        void Execute(ITashaHousehold household);
+    void Execute(ITashaHousehold household);
 
-        void IterationFinished(int iterationNumber);
+    void IterationFinished(int iterationNumber);
 
-        void Load(int iteration);
+    void Load(int iteration);
 
-        void IterationStarting(int iterationNumber);
-    }
+    void IterationStarting(int iterationNumber);
 }

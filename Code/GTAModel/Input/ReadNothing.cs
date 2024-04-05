@@ -22,37 +22,36 @@ using System.Collections.Generic;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
-{
-    [ModuleInformation(Description=
-        @"This module is designed to provide <em>No Data</em>.  
+namespace TMG.GTAModel.Input;
+
+[ModuleInformation(Description=
+    @"This module is designed to provide <em>No Data</em>.  
 This can be used to get around required modules for validation or to quickly provide 'all zeros'.")]
-    public sealed class ReadNothing : IReadODData<float>
+public sealed class ReadNothing : IReadODData<float>
+{
+    public string Name
     {
-        public string Name
-        {
-            get;
-            set;
-        }
+        get;
+        set;
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public IEnumerable<ODData<float>> Read()
-        {
-            yield break;
-        }
+    public IEnumerable<ODData<float>> Read()
+    {
+        yield break;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

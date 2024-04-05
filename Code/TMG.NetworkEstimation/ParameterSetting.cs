@@ -18,19 +18,18 @@
 */
 using System;
 
-namespace TMG.NetworkEstimation
-{
-    public struct ParameterSetting
-    {
-        public float Current;
-        public int MsNumber;
-        public string ParameterName;
-        public float Start;
-        public float Stop;
+namespace TMG.NetworkEstimation;
 
-        public override string ToString()
-        {
-            return String.Concat( ParameterName, ":", Start, "->", Current, "->", Stop );
-        }
+public struct ParameterSetting
+{
+    public float Current;
+    public int MsNumber;
+    public string ParameterName;
+    public float Start;
+    public float Stop;
+
+    public override string ToString()
+    {
+        return String.Concat( ParameterName, ":", Start, "->", Current, "->", Stop );
     }
 }

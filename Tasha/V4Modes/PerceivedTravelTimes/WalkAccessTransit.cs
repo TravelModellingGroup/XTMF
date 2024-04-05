@@ -22,366 +22,365 @@ using Tasha.Common;
 using XTMF;
 using TMG;
 using Datastructure;
-namespace Tasha.V4Modes.PerceivedTravelTimes
+namespace Tasha.V4Modes.PerceivedTravelTimes;
+
+[ModuleInformation(Description =
+    @"This module is designed to implement the Walk access transit mode for GTAModel V4.0+.")]
+public class WalkAccessTransit : ITashaMode, IIterationSensitive
 {
-    [ModuleInformation(Description =
-        @"This module is designed to implement the Walk access transit mode for GTAModel V4.0+.")]
-    public class WalkAccessTransit : ITashaMode, IIterationSensitive
+    [RootModule]
+    public ITashaRuntime Root;
+
+    [RunParameter("MarketFlag", 0f, "Added to the utility if the trip's purpose is market.")]
+    public float MarketFlag;
+
+    [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
+    public float OtherFlag;
+
+    private float ProfessionalCost;
+    private float GeneralCost;
+    private float SalesCost;
+    private float ManufacturingCost;
+    private float StudentCost;
+    private float NonWorkerStudentCost;
+
+    [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
+    public float ProfessionalConstant;
+    [RunParameter("GeneralConstant", 0f, "The constant applied to the person type.")]
+    public float GeneralConstant;
+    [RunParameter("SalesConstant", 0f, "The constant applied to the person type.")]
+    public float SalesConstant;
+    [RunParameter("ManufacturingConstant", 0f, "The constant applied to the person type.")]
+    public float ManufacturingConstant;
+    [RunParameter("StudentConstant", 0f, "The constant applied to the person type.")]
+    public float StudentConstant;
+    [RunParameter("NonWorkerStudentConstant", 0f, "The constant applied to the person type.")]
+    public float NonWorkerStudentConstant;
+
+    [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float ProfessionalTimeFactor;
+    [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float GeneralTimeFactor;
+    [RunParameter("SalesTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float SalesTimeFactor;
+    [RunParameter("ManufacturingTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float ManufacturingTimeFactor;
+    [RunParameter("StudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float StudentTimeFactor;
+    [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float NonWorkerStudentTimeFactor;
+
+
+    [RunParameter("ProfessionalTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float ProfessionalCostFactor;
+    [RunParameter("GeneralTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float GeneralCostFactor;
+    [RunParameter("SalesTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float SalesCostFactor;
+    [RunParameter("ManufacturingTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float ManufacturingCostFactor;
+    [RunParameter("StudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float StudentCostFactor;
+    [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float NonWorkerStudentCostFactor;
+
+    [RunParameter("ChildFlag", 0f, "A factor to apply if the person is a child [0-10].")]
+    public float ChildFlag;
+
+    [RunParameter("YouthFlag", 0f, "A factor to apply if the person is a child [11-15].")]
+    public float YouthFlag;
+
+    private ITripComponentData Network;
+
+    [Parameter("Feasible", 1f, "Is the mode feasible?(1)")]
+    public float CurrentlyFeasible { get; set; }
+
+    [Parameter("Mode Name", "WAT", "The name of the mode.")]
+    public string ModeName { get; set; }
+
+    public string Name { get; set; }
+
+    [RunParameter("Network Name", "Transit", "The name of the network to use for times.")]
+    public string NetworkType { get; set; }
+
+    [RunParameter("ToActivityDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
+    public float ToActivityDensityFactor;
+
+    [RunParameter("ToHomeDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
+    public float ToHomeDensityFactor;
+
+    public bool NonPersonalVehicle
     {
-        [RootModule]
-        public ITashaRuntime Root;
+        get { return RequiresVehicle == null; }
+    }
 
-        [RunParameter("MarketFlag", 0f, "Added to the utility if the trip's purpose is market.")]
-        public float MarketFlag;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
-        public float OtherFlag;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        private float ProfessionalCost;
-        private float GeneralCost;
-        private float SalesCost;
-        private float ManufacturingCost;
-        private float StudentCost;
-        private float NonWorkerStudentCost;
+    [DoNotAutomate]
+    public IVehicleType RequiresVehicle { get; set; }
 
-        [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
-        public float ProfessionalConstant;
-        [RunParameter("GeneralConstant", 0f, "The constant applied to the person type.")]
-        public float GeneralConstant;
-        [RunParameter("SalesConstant", 0f, "The constant applied to the person type.")]
-        public float SalesConstant;
-        [RunParameter("ManufacturingConstant", 0f, "The constant applied to the person type.")]
-        public float ManufacturingConstant;
-        [RunParameter("StudentConstant", 0f, "The constant applied to the person type.")]
-        public float StudentConstant;
-        [RunParameter("NonWorkerStudentConstant", 0f, "The constant applied to the person type.")]
-        public float NonWorkerStudentConstant;
+    [RunParameter("Variance Scale", 1.0, "The factor applied to the error term.")]
+    public double VarianceScale { get; set; }
 
-        [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float ProfessionalTimeFactor;
-        [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float GeneralTimeFactor;
-        [RunParameter("SalesTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float SalesTimeFactor;
-        [RunParameter("ManufacturingTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float ManufacturingTimeFactor;
-        [RunParameter("StudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float StudentTimeFactor;
-        [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float NonWorkerStudentTimeFactor;
+    private SparseArray<IZone> ZoneArray;
 
-
-        [RunParameter("ProfessionalTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float ProfessionalCostFactor;
-        [RunParameter("GeneralTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float GeneralCostFactor;
-        [RunParameter("SalesTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float SalesCostFactor;
-        [RunParameter("ManufacturingTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float ManufacturingCostFactor;
-        [RunParameter("StudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float StudentCostFactor;
-        [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float NonWorkerStudentCostFactor;
-
-        [RunParameter("ChildFlag", 0f, "A factor to apply if the person is a child [0-10].")]
-        public float ChildFlag;
-
-        [RunParameter("YouthFlag", 0f, "A factor to apply if the person is a child [11-15].")]
-        public float YouthFlag;
-
-        private ITripComponentData Network;
-
-        [Parameter("Feasible", 1f, "Is the mode feasible?(1)")]
-        public float CurrentlyFeasible { get; set; }
-
-        [Parameter("Mode Name", "WAT", "The name of the mode.")]
-        public string ModeName { get; set; }
-
-        public string Name { get; set; }
-
-        [RunParameter("Network Name", "Transit", "The name of the network to use for times.")]
-        public string NetworkType { get; set; }
-
-        [RunParameter("ToActivityDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
-        public float ToActivityDensityFactor;
-
-        [RunParameter("ToHomeDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
-        public float ToHomeDensityFactor;
-
-        public bool NonPersonalVehicle
+    public double CalculateV(ITrip trip)
+    {
+        // compute the non human factors
+        IZone originalZone = trip.OriginalZone;
+        var o = ZoneArray.GetFlatIndex(originalZone.ZoneNumber);
+        IZone destinationZone = trip.DestinationZone;
+        var d = ZoneArray.GetFlatIndex(destinationZone.ZoneNumber);
+        var p = trip.TripChain.Person;
+        GetPersonVariables(p, out float constant, out float perceivedTimeFactor, out float costFactor);
+        float v = constant;
+        if (Network.GetAllData(o, d, trip.TripStartTime, out float ivtt, out float walk, out float wait, out float perceivedTime, out float cost))
         {
-            get { return RequiresVehicle == null; }
+            v += perceivedTime * perceivedTimeFactor
+                + cost * costFactor;
         }
-
-        public float Progress
+        else
         {
-            get { return 0f; }
+            return float.NegativeInfinity;
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        //Apply trip purpose factors
+        switch (trip.Purpose)
         {
-            get { return null; }
+            case Activity.Market:
+                v += MarketFlag + ZonalDensityForActivitiesArray[d];
+                break;
+            case Activity.IndividualOther:
+                v += OtherFlag + ZonalDensityForActivitiesArray[d];
+                break;
+            case Activity.Home:
+                v += ZonalDensityForHomeArray[d];
+                break;
+            default:
+                v += ZonalDensityForActivitiesArray[d];
+                break;
         }
+        v += p.Child ? ChildFlag : 0f;
+        v += p.Youth ? YouthFlag : 0f;
+        v += GetPlanningDistrictConstant(trip.TripStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
+        return v;
+    }
 
-        [DoNotAutomate]
-        public IVehicleType RequiresVehicle { get; set; }
-
-        [RunParameter("Variance Scale", 1.0, "The factor applied to the error term.")]
-        public double VarianceScale { get; set; }
-
-        private SparseArray<IZone> ZoneArray;
-
-        public double CalculateV(ITrip trip)
+    private void GetPersonVariables(ITashaPerson person, out float constant, out float perceivedTime, out float cost)
+    {
+        if (person.EmploymentStatus == TTSEmploymentStatus.FullTime)
         {
-            // compute the non human factors
-            IZone originalZone = trip.OriginalZone;
-            var o = ZoneArray.GetFlatIndex(originalZone.ZoneNumber);
-            IZone destinationZone = trip.DestinationZone;
-            var d = ZoneArray.GetFlatIndex(destinationZone.ZoneNumber);
-            var p = trip.TripChain.Person;
-            GetPersonVariables(p, out float constant, out float perceivedTimeFactor, out float costFactor);
-            float v = constant;
-            if (Network.GetAllData(o, d, trip.TripStartTime, out float ivtt, out float walk, out float wait, out float perceivedTime, out float cost))
+            switch (person.Occupation)
             {
-                v += perceivedTime * perceivedTimeFactor
-                    + cost * costFactor;
-            }
-            else
-            {
-                return float.NegativeInfinity;
-            }
-            //Apply trip purpose factors
-            switch (trip.Purpose)
-            {
-                case Activity.Market:
-                    v += MarketFlag + ZonalDensityForActivitiesArray[d];
-                    break;
-                case Activity.IndividualOther:
-                    v += OtherFlag + ZonalDensityForActivitiesArray[d];
-                    break;
-                case Activity.Home:
-                    v += ZonalDensityForHomeArray[d];
-                    break;
-                default:
-                    v += ZonalDensityForActivitiesArray[d];
-                    break;
-            }
-            v += p.Child ? ChildFlag : 0f;
-            v += p.Youth ? YouthFlag : 0f;
-            v += GetPlanningDistrictConstant(trip.TripStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
-            return v;
-        }
-
-        private void GetPersonVariables(ITashaPerson person, out float constant, out float perceivedTime, out float cost)
-        {
-            if (person.EmploymentStatus == TTSEmploymentStatus.FullTime)
-            {
-                switch (person.Occupation)
-                {
-                    case Occupation.Professional:
-                        cost = ProfessionalCost;
-                        constant = ProfessionalConstant;
-                        perceivedTime = ProfessionalTimeFactor;
-                        return;
-                    case Occupation.Office:
-                        cost = GeneralCost;
-                        constant = GeneralConstant;
-                        perceivedTime = GeneralTimeFactor;
-                        return;
-                    case Occupation.Retail:
-                        cost = SalesCost;
-                        constant = SalesConstant;
-                        perceivedTime = SalesTimeFactor;
-                        return;
-                    case Occupation.Manufacturing:
-                        cost = ManufacturingCost;
-                        constant = ManufacturingConstant;
-                        perceivedTime = ManufacturingTimeFactor;
-                        return;
-                }
-            }
-            switch (person.StudentStatus)
-            {
-                case StudentStatus.FullTime:
-                case StudentStatus.PartTime:
-                    cost = StudentCost;
-                    constant = StudentConstant;
-                    perceivedTime = StudentTimeFactor;
+                case Occupation.Professional:
+                    cost = ProfessionalCost;
+                    constant = ProfessionalConstant;
+                    perceivedTime = ProfessionalTimeFactor;
+                    return;
+                case Occupation.Office:
+                    cost = GeneralCost;
+                    constant = GeneralConstant;
+                    perceivedTime = GeneralTimeFactor;
+                    return;
+                case Occupation.Retail:
+                    cost = SalesCost;
+                    constant = SalesConstant;
+                    perceivedTime = SalesTimeFactor;
+                    return;
+                case Occupation.Manufacturing:
+                    cost = ManufacturingCost;
+                    constant = ManufacturingConstant;
+                    perceivedTime = ManufacturingTimeFactor;
                     return;
             }
-            if (person.EmploymentStatus == TTSEmploymentStatus.PartTime)
+        }
+        switch (person.StudentStatus)
+        {
+            case StudentStatus.FullTime:
+            case StudentStatus.PartTime:
+                cost = StudentCost;
+                constant = StudentConstant;
+                perceivedTime = StudentTimeFactor;
+                return;
+        }
+        if (person.EmploymentStatus == TTSEmploymentStatus.PartTime)
+        {
+            switch (person.Occupation)
             {
-                switch (person.Occupation)
-                {
-                    case Occupation.Professional:
-                        cost = ProfessionalCost;
-                        constant = ProfessionalConstant;
-                        perceivedTime = ProfessionalTimeFactor;
-                        return;
-                    case Occupation.Office:
-                        cost = GeneralCost;
-                        constant = GeneralConstant;
-                        perceivedTime = GeneralTimeFactor;
-                        return;
-                    case Occupation.Retail:
-                        cost = SalesCost;
-                        constant = SalesConstant;
-                        perceivedTime = SalesTimeFactor;
-                        return;
-                    case Occupation.Manufacturing:
-                        cost = ManufacturingCost;
-                        constant = ManufacturingConstant;
-                        perceivedTime = ManufacturingTimeFactor;
-                        return;
-                }
+                case Occupation.Professional:
+                    cost = ProfessionalCost;
+                    constant = ProfessionalConstant;
+                    perceivedTime = ProfessionalTimeFactor;
+                    return;
+                case Occupation.Office:
+                    cost = GeneralCost;
+                    constant = GeneralConstant;
+                    perceivedTime = GeneralTimeFactor;
+                    return;
+                case Occupation.Retail:
+                    cost = SalesCost;
+                    constant = SalesConstant;
+                    perceivedTime = SalesTimeFactor;
+                    return;
+                case Occupation.Manufacturing:
+                    cost = ManufacturingCost;
+                    constant = ManufacturingConstant;
+                    perceivedTime = ManufacturingTimeFactor;
+                    return;
             }
-            cost = NonWorkerStudentCost;
-            constant = NonWorkerStudentConstant;
-            perceivedTime = NonWorkerStudentTimeFactor;
         }
+        cost = NonWorkerStudentCost;
+        constant = NonWorkerStudentConstant;
+        perceivedTime = NonWorkerStudentTimeFactor;
+    }
 
-        public float CalculateV(IZone origin, IZone destination, Time time)
-        {
-            return 0f;
-        }
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        return 0f;
+    }
 
-        public float Cost(IZone origin, IZone destination, Time time)
-        {
-            return Network.TravelCost(origin, destination, time);
-        }
+    public float Cost(IZone origin, IZone destination, Time time)
+    {
+        return Network.TravelCost(origin, destination, time);
+    }
 
-        public bool Feasible(ITrip trip)
-        {
-            IZone originalZone = trip.OriginalZone;
-            var o = ZoneArray.GetFlatIndex(originalZone.ZoneNumber);
-            IZone destinationZone = trip.DestinationZone;
-            var d = ZoneArray.GetFlatIndex(destinationZone.ZoneNumber);
-            return Network.ValidOd(o, d, trip.TripStartTime);
-        }
+    public bool Feasible(ITrip trip)
+    {
+        IZone originalZone = trip.OriginalZone;
+        var o = ZoneArray.GetFlatIndex(originalZone.ZoneNumber);
+        IZone destinationZone = trip.DestinationZone;
+        var d = ZoneArray.GetFlatIndex(destinationZone.ZoneNumber);
+        return Network.ValidOd(o, d, trip.TripStartTime);
+    }
 
-        public bool Feasible(ITripChain tripChain)
-        {
-            return true;
-        }
+    public bool Feasible(ITripChain tripChain)
+    {
+        return true;
+    }
 
-        public bool Feasible(IZone origin, IZone destination, Time time)
-        {
-            return true;
-        }
+    public bool Feasible(IZone origin, IZone destination, Time time)
+    {
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        var networks = Root.NetworkData;
+        if (string.IsNullOrWhiteSpace(NetworkType))
         {
-            var networks = Root.NetworkData;
-            if (string.IsNullOrWhiteSpace(NetworkType))
-            {
-                error = "There was no network type selected for the " + (string.IsNullOrWhiteSpace(ModeName) ? "Walk access transit" : ModeName) + " mode!";
-                return false;
-            }
-            if (!ZonalDensityForActivities.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the resource for Zonal Density For Activities was of the wrong type!";
-                return false;
-            }
-            if (!ZonalDensityForHome.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the resource for Zonal Density For Home was of the wrong type!";
-                return false;
-            }
-            if (networks == null)
-            {
-                error = "There was no Auto Network loaded for the Transit Mode!";
-                return false;
-            }
-            if (!AssignNetwork(networks))
-            {
-                error = "We were unable to find the network data with the name \"" + NetworkType + "\" in this Model System!";
-                return false;
-            }
-            return true;
-        }
-
-        public Time TravelTime(IZone origin, IZone destination, Time time)
-        {
-            return Network.TravelTime(origin, destination, time);
-        }
-
-        private bool AssignNetwork(IList<INetworkData> networks)
-        {
-            foreach (var network in networks)
-            {
-                if (network.NetworkType == NetworkType)
-                {
-                    Network = network as ITripComponentData;
-                    return Network != null;
-                }
-            }
+            error = "There was no network type selected for the " + (string.IsNullOrWhiteSpace(ModeName) ? "Walk access transit" : ModeName) + " mode!";
             return false;
         }
-
-        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        if (!ZonalDensityForActivities.CheckResourceType<SparseArray<float>>())
         {
-            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            error = "In '" + Name + "' the resource for Zonal Density For Activities was of the wrong type!";
+            return false;
+        }
+        if (!ZonalDensityForHome.CheckResourceType<SparseArray<float>>())
+        {
+            error = "In '" + Name + "' the resource for Zonal Density For Home was of the wrong type!";
+            return false;
+        }
+        if (networks == null)
+        {
+            error = "There was no Auto Network loaded for the Transit Mode!";
+            return false;
+        }
+        if (!AssignNetwork(networks))
+        {
+            error = "We were unable to find the network data with the name \"" + NetworkType + "\" in this Model System!";
+            return false;
+        }
+        return true;
+    }
+
+    public Time TravelTime(IZone origin, IZone destination, Time time)
+    {
+        return Network.TravelTime(origin, destination, time);
+    }
+
+    private bool AssignNetwork(IList<INetworkData> networks)
+    {
+        foreach (var network in networks)
+        {
+            if (network.NetworkType == NetworkType)
             {
-                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
-                {
-                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
-                }
+                Network = network as ITripComponentData;
+                return Network != null;
             }
-            return 0f;
+        }
+        return false;
+    }
+
+    public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+    {
+        for (int i = 0; i < TimePeriodConstants.Length; i++)
+        {
+            if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+            {
+                return TimePeriodConstants[i].GetConstant(pdO, pdD);
+            }
+        }
+        return 0f;
+    }
+
+    [SubModelInformation(Description = "Constants for time of day")]
+    public TimePeriodSpatialConstant[] TimePeriodConstants;
+
+    [SubModelInformation(Required = true, Description = "The density of zones for activities")]
+    public IResource ZonalDensityForActivities;
+
+    [SubModelInformation(Required = true, Description = "The density of zones for home")]
+    public IResource ZonalDensityForHome;
+
+    private float[] ZonalDensityForActivitiesArray;
+    private float[] ZonalDensityForHomeArray;
+
+    public void IterationStarting(int iterationNumber, int maxIterations)
+    {
+        var zoneSystem = Root.ZoneSystem;
+        ZoneArray = zoneSystem.ZoneArray;
+        // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
+        for (int i = 0; i < TimePeriodConstants.Length; i++)
+        {
+            TimePeriodConstants[i].BuildMatrix();
+        }
+        ZonalDensityForActivitiesArray = (float[]) ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
+        ZonalDensityForHomeArray = (float[]) ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
+        for (int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
+        {
+            ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
+            ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
         }
 
-        [SubModelInformation(Description = "Constants for time of day")]
-        public TimePeriodSpatialConstant[] TimePeriodConstants;
+        ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, ProfessionalTimeFactor);
+        GeneralCost = ConvertCostFactor(GeneralCostFactor, GeneralTimeFactor);
+        SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
+        ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
+        StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
+        NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+    }
 
-        [SubModelInformation(Required = true, Description = "The density of zones for activities")]
-        public IResource ZonalDensityForActivities;
-
-        [SubModelInformation(Required = true, Description = "The density of zones for home")]
-        public IResource ZonalDensityForHome;
-
-        private float[] ZonalDensityForActivitiesArray;
-        private float[] ZonalDensityForHomeArray;
-
-        public void IterationStarting(int iterationNumber, int maxIterations)
+    private float ConvertCostFactor(float costFactor, float timeFactor)
+    {
+        var ret = costFactor * timeFactor;
+        if (ret > 0)
         {
-            var zoneSystem = Root.ZoneSystem;
-            ZoneArray = zoneSystem.ZoneArray;
-            // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
-            for (int i = 0; i < TimePeriodConstants.Length; i++)
-            {
-                TimePeriodConstants[i].BuildMatrix();
-            }
-            ZonalDensityForActivitiesArray = (float[]) ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
-            ZonalDensityForHomeArray = (float[]) ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
-            for (int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
-            {
-                ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
-                ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
-            }
-
-            ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, ProfessionalTimeFactor);
-            GeneralCost = ConvertCostFactor(GeneralCostFactor, GeneralTimeFactor);
-            SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
-            ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
-            StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
-            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
         }
+        return ret;
+    }
 
-        private float ConvertCostFactor(float costFactor, float timeFactor)
-        {
-            var ret = costFactor * timeFactor;
-            if (ret > 0)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
-            }
-            return ret;
-        }
-
-        public void IterationEnding(int iterationNumber, int maxIterations)
-        {
-            ZonalDensityForActivities.ReleaseResource();
-            ZonalDensityForHome.ReleaseResource();
-        }
+    public void IterationEnding(int iterationNumber, int maxIterations)
+    {
+        ZonalDensityForActivities.ReleaseResource();
+        ZonalDensityForHome.ReleaseResource();
     }
 }

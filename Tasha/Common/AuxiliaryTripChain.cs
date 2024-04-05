@@ -20,171 +20,170 @@ using System;
 using System.Collections.Generic;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+///
+/// </summary>
+public class AuxiliaryTripChain : Attachable, ITripChain
 {
+    #region ITripChain Members
+
     /// <summary>
     ///
     /// </summary>
-    public class AuxiliaryTripChain : Attachable, ITripChain
+    public AuxiliaryTripChain()
     {
-        #region ITripChain Members
+        Trips = new List<ITrip>( 2 );
+    }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public AuxiliaryTripChain()
+    /// <summary>
+    ///
+    /// </summary>
+    public Time EndTime
+    {
+        get
         {
-            Trips = new List<ITrip>( 2 );
+            return Trips[Trips.Count - 1].ActivityStartTime;
         }
+    }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public Time EndTime
+    /// <summary>
+    ///
+    /// </summary>
+    public ITripChain GetRepTripChain => null;
+
+    /// <summary>
+    ///
+    /// </summary>
+    public bool JointTrip => false;
+
+    /// <summary>
+    ///
+    /// </summary>
+    public List<ITripChain> JointTripChains
+    {
+        get { return null; }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public int JointTripID
+    {
+        get { return -1; }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public bool JointTripRep
+    {
+        get { return false; }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public ITashaPerson Person
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public Time StartTime
+    {
+        get
         {
-            get
+            return Trips[0].TripStartTime;
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public bool TripChainRequiresPV
+    {
+        get { return false; }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public List<ITrip> Trips { get; set; }
+
+    #endregion ITripChain Members
+
+    #region ITripChain Members
+
+    public List<ITashaPerson> Passengers
+    {
+        get
+        {
+            List<ITashaPerson> pass = [];
+            foreach ( var trip in Trips )
             {
-                return Trips[Trips.Count - 1].ActivityStartTime;
+                pass.AddRange( trip.Passengers );
             }
+            return pass;
         }
+    }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public ITripChain GetRepTripChain => null;
+    #endregion ITripChain Members
 
-        /// <summary>
-        ///
-        /// </summary>
-        public bool JointTrip => false;
-
-        /// <summary>
-        ///
-        /// </summary>
-        public List<ITripChain> JointTripChains
+    public void Recycle()
+    {
+        Release();
+        foreach ( var t in Trips )
         {
-            get { return null; }
+            t.Recycle();
         }
+        Trips.Clear();
+    }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public int JointTripID
-        {
-            get { return -1; }
-        }
+    #region ITripChain Members
 
-        /// <summary>
-        ///
-        /// </summary>
-        public bool JointTripRep
+    public List<IVehicleType> RequiresVehicle
+    {
+        get
         {
-            get { return false; }
-        }
+            List<IVehicleType> v = [];
 
-        /// <summary>
-        ///
-        /// </summary>
-        public ITashaPerson Person
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public Time StartTime
-        {
-            get
+            foreach ( var trip in Trips )
             {
-                return Trips[0].TripStartTime;
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public bool TripChainRequiresPV
-        {
-            get { return false; }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public List<ITrip> Trips { get; set; }
-
-        #endregion ITripChain Members
-
-        #region ITripChain Members
-
-        public List<ITashaPerson> Passengers
-        {
-            get
-            {
-                List<ITashaPerson> pass = new List<ITashaPerson>();
-                foreach ( var trip in Trips )
+                if ( trip.Mode.RequiresVehicle != null )
                 {
-                    pass.AddRange( trip.Passengers );
-                }
-                return pass;
-            }
-        }
-
-        #endregion ITripChain Members
-
-        public void Recycle()
-        {
-            Release();
-            foreach ( var t in Trips )
-            {
-                t.Recycle();
-            }
-            Trips.Clear();
-        }
-
-        #region ITripChain Members
-
-        public List<IVehicleType> RequiresVehicle
-        {
-            get
-            {
-                List<IVehicleType> v = new List<IVehicleType>();
-
-                foreach ( var trip in Trips )
-                {
-                    if ( trip.Mode.RequiresVehicle != null )
+                    if ( !v.Contains( trip.Mode.RequiresVehicle ) )
                     {
-                        if ( !v.Contains( trip.Mode.RequiresVehicle ) )
-                        {
-                            v.Add( trip.Mode.RequiresVehicle );
-                        }
+                        v.Add( trip.Mode.RequiresVehicle );
                     }
                 }
-
-                return v;
             }
+
+            return v;
         }
-
-        #endregion ITripChain Members
-
-        #region ITripChain Members
-
-        public ITripChain Clone()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion ITripChain Members
-
-        #region ITripChain Members
-
-        public ITripChain DeepClone()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion ITripChain Members
     }
+
+    #endregion ITripChain Members
+
+    #region ITripChain Members
+
+    public ITripChain Clone()
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion ITripChain Members
+
+    #region ITripChain Members
+
+    public ITripChain DeepClone()
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion ITripChain Members
 }

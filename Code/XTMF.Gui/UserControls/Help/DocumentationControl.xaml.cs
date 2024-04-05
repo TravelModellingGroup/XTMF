@@ -20,243 +20,234 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using XTMF.Gui.Annotations;
-using Brush = System.Drawing.Brush;
-using ColorConverter = System.Windows.Media.ColorConverter;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for DocumentationControl.xaml
+/// </summary>
+public partial class DocumentationControl : UserControl
 {
-    /// <summary>
-    /// Interaction logic for DocumentationControl.xaml
-    /// </summary>
-    public partial class DocumentationControl : UserControl
+
+    public Type Type
     {
+        get => (Type)GetValue(TypeProperty);
+        set => SetValue(TypeProperty, value);
+    }
 
-        public Type Type
+    public string ModuleName
+    {
+        get => (string)GetValue(ModuleNameProperty);
+        set => SetValue(ModuleNameProperty, value);
+    }
+
+    public string ModuleNamespace
+    {
+        get => (string)GetValue(ModuleNamespaceProperty);
+        set => SetValue(ModuleNamespaceProperty, value);
+    }
+
+    public string ModuleDescription
+    {
+        get => (string)GetValue(ModuleDescriptionProperty);
+        set => SetValue(ModuleDescriptionProperty, value);
+    }
+
+    public Parameter[] ModuleParameters
+    {
+        get => (Parameter[])GetValue(ModuleParametersProperty);
+        set => SetValue(ModuleParametersProperty, value);
+    }
+
+    public SubModule[] ModuleSubmodules
+    {
+        get => (SubModule[])GetValue(ModuleSubmodulesProperty);
+        set => SetValue(ModuleSubmodulesProperty, value);
+    }
+
+    public static readonly DependencyProperty TypeProperty =
+        DependencyProperty.Register("Type", typeof(Type), typeof(DocumentationControl), new PropertyMetadata(null, OnTypeChanged));
+
+    public static readonly DependencyProperty ModuleNameProperty =
+        DependencyProperty.Register("ModuleName", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public static readonly DependencyProperty ModuleNamespaceProperty =
+        DependencyProperty.Register("ModuleNamespace", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public static readonly DependencyProperty ModuleDescriptionProperty =
+        DependencyProperty.Register("ModuleDescription", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public static readonly DependencyProperty ModuleParametersProperty = 
+        DependencyProperty.Register("ModuleParameters", typeof(Parameter[]), typeof(DocumentationControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public static readonly DependencyProperty ModuleSubmodulesProperty =
+        DependencyProperty.Register("ModuleSubmodules", typeof(SubModule[]), typeof(DocumentationControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public string TypeNameText { get { var t = Type; return t == null ? "No Type!" : t.Name; } }
+    public DocumentationControl()
+    {
+        DataContext = this;
+        InitializeComponent();
+    }
+
+    private static void OnTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var newType = e.NewValue as Type;
+        var us = d as DocumentationControl;
+        if (newType == null)
         {
-            get => (Type)GetValue(TypeProperty);
-            set => SetValue(TypeProperty, value);
+            us.ModuleName = "No Type Loaded";
+            us.ModuleNamespace = string.Empty;
+            us.ModuleDescription = string.Empty;
+            us.ModuleParameters = null;
+            us.ModuleSubmodules = null;
         }
-
-        public string ModuleName
+        else
         {
-            get => (string)GetValue(ModuleNameProperty);
-            set => SetValue(ModuleNameProperty, value);
+            us.ModuleName = newType.Name;
+            us.ModuleNamespace = newType.FullName;
+            SetDescription(us, GetDescription(newType), newType);
+            us.ModuleParameters = GetParameters(newType);
+            us.ModuleSubmodules = GetSubmodules(newType);
         }
+    }
 
-        public string ModuleNamespace
+    private static string GetDescription(Type type)
+    {
+        var attributes = type.GetCustomAttributes(true);
+        string description = "No Description";
+        foreach (var at in attributes)
         {
-            get => (string)GetValue(ModuleNamespaceProperty);
-            set => SetValue(ModuleNamespaceProperty, value);
-        }
-
-        public string ModuleDescription
-        {
-            get => (string)GetValue(ModuleDescriptionProperty);
-            set => SetValue(ModuleDescriptionProperty, value);
-        }
-
-        public Parameter[] ModuleParameters
-        {
-            get => (Parameter[])GetValue(ModuleParametersProperty);
-            set => SetValue(ModuleParametersProperty, value);
-        }
-
-        public SubModule[] ModuleSubmodules
-        {
-            get => (SubModule[])GetValue(ModuleSubmodulesProperty);
-            set => SetValue(ModuleSubmodulesProperty, value);
-        }
-
-        public static readonly DependencyProperty TypeProperty =
-            DependencyProperty.Register("Type", typeof(Type), typeof(DocumentationControl), new PropertyMetadata(null, OnTypeChanged));
-
-        public static readonly DependencyProperty ModuleNameProperty =
-            DependencyProperty.Register("ModuleName", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public static readonly DependencyProperty ModuleNamespaceProperty =
-            DependencyProperty.Register("ModuleNamespace", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public static readonly DependencyProperty ModuleDescriptionProperty =
-            DependencyProperty.Register("ModuleDescription", typeof(string), typeof(DocumentationControl), new FrameworkPropertyMetadata("No module loaded", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public static readonly DependencyProperty ModuleParametersProperty = 
-            DependencyProperty.Register("ModuleParameters", typeof(Parameter[]), typeof(DocumentationControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public static readonly DependencyProperty ModuleSubmodulesProperty =
-            DependencyProperty.Register("ModuleSubmodules", typeof(SubModule[]), typeof(DocumentationControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string TypeNameText { get { var t = Type; return t == null ? "No Type!" : t.Name; } }
-        public DocumentationControl()
-        {
-            DataContext = this;
-            InitializeComponent();
-        }
-
-        private static void OnTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var newType = e.NewValue as Type;
-            var us = d as DocumentationControl;
-            if (newType == null)
+            if (at is ModuleInformationAttribute info)
             {
-                us.ModuleName = "No Type Loaded";
-                us.ModuleNamespace = string.Empty;
-                us.ModuleDescription = string.Empty;
-                us.ModuleParameters = null;
-                us.ModuleSubmodules = null;
+                description = info.Description;
+                break;
             }
-            else
-            {
-                us.ModuleName = newType.Name;
-                us.ModuleNamespace = newType.FullName;
-                SetDescription(us, GetDescription(newType), newType);
-                us.ModuleParameters = GetParameters(newType);
-                us.ModuleSubmodules = GetSubmodules(newType);
-            }
         }
+        return description;
+    }
 
-        private static string GetDescription(Type type)
+    private static void SetDescription(DocumentationControl window, string description, Type module)
+    {
+        window.ModuleDescription = description;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    private static Parameter[] GetParameters(Type type)
+    {
+        var list = Project.GetParameters(type);
+        if (list == null)
         {
-            var attributes = type.GetCustomAttributes(true);
-            string description = "No Description";
-            foreach (var at in attributes)
-            {
-                if (at is ModuleInformationAttribute info)
-                {
-                    description = info.Description;
-                    break;
-                }
-            }
-            return description;
+            return null;
         }
-
-        private static void SetDescription(DocumentationControl window, string description, Type module)
+        var length = list.Parameters.Count;
+        Parameter[] ret = new Parameter[length];
+        for (int i = 0; i < length; i++)
         {
-            window.ModuleDescription = description;
+            ret[i] = new Parameter
+            {
+                Type = list.Parameters[i].Type == null ? "No Type" : ConvertTypeName(list.Parameters[i].Type),
+                Name = list.Parameters[i].Name,
+                Description = list.Parameters[i].Description
+            };
         }
+        return ret;
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private static Parameter[] GetParameters(Type type)
+    private static SubModule[] GetSubmodules(Type type)
+    {
+        List<SubModule> submodules = [];
+        var fields = type.GetFields();
+        foreach (var f in fields)
         {
-            var list = Project.GetParameters(type);
-            if (list == null)
+            var attributes = f.GetCustomAttributes(true);
+            submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
             {
-                return null;
-            }
-            var length = list.Parameters.Count;
-            Parameter[] ret = new Parameter[length];
-            for (int i = 0; i < length; i++)
-            {
-                ret[i] = new Parameter
-                {
-                    Type = list.Parameters[i].Type == null ? "No Type" : ConvertTypeName(list.Parameters[i].Type),
-                    Name = list.Parameters[i].Name,
-                    Description = list.Parameters[i].Description
-                };
-            }
-            return ret;
+                Name = f.Name,
+                Description = param.Description,
+                Type = ConvertTypeName(f.FieldType)
+            }));
         }
-
-        private static SubModule[] GetSubmodules(Type type)
+        var properties = type.GetProperties();
+        foreach (var f in properties)
         {
-            List<SubModule> submodules = new List<SubModule>();
-            var fields = type.GetFields();
-            foreach (var f in fields)
+            var attributes = f.GetCustomAttributes(true);
+            if (attributes != null)
             {
-                var attributes = f.GetCustomAttributes(true);
                 submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
                 {
                     Name = f.Name,
                     Description = param.Description,
-                    Type = ConvertTypeName(f.FieldType)
+                    Type = ConvertTypeName(f.PropertyType)
                 }));
             }
-            var properties = type.GetProperties();
-            foreach (var f in properties)
-            {
-                var attributes = f.GetCustomAttributes(true);
-                if (attributes != null)
-                {
-                    submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
-                    {
-                        Name = f.Name,
-                        Description = param.Description,
-                        Type = ConvertTypeName(f.PropertyType)
-                    }));
-                }
-            }
-            return submodules.ToArray();
         }
-
-        private static string ConvertTypeName(Type type)
-        {
-            if (!type.IsGenericType)
-            {
-                return type.Name;
-            }
-            StringBuilder builder = new StringBuilder();
-            builder.Append(type.Name, 0, type.Name.IndexOf('`'));
-            builder.Append('<');
-            var inside = type.GetGenericArguments();
-            var first = true;
-            foreach (var t in inside)
-            {
-                if (!first)
-                {
-                    builder.Append(',');
-                }
-                first = false;
-                builder.Append(t.Name);
-            }
-            builder.Append('>');
-            return builder.ToString();
-        }   
-    }
-    public class Parameter : INotifyPropertyChanged
-    {
-        public string Description { get; internal set; }
-
-        public string Name { get; internal set; }
-
-        public string Type { get; internal set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        return [.. submodules];
     }
 
-    public class SubModule : INotifyPropertyChanged
+    private static string ConvertTypeName(Type type)
     {
-        public string Description { get; internal set; }
-
-        public string Name { get; internal set; }
-
-        public bool Required { get; internal set; }
-
-        public string Type { get; internal set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        if (!type.IsGenericType)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            return type.Name;
         }
+        StringBuilder builder = new();
+        builder.Append(type.Name, 0, type.Name.IndexOf('`'));
+        builder.Append('<');
+        var inside = type.GetGenericArguments();
+        var first = true;
+        foreach (var t in inside)
+        {
+            if (!first)
+            {
+                builder.Append(',');
+            }
+            first = false;
+            builder.Append(t.Name);
+        }
+        builder.Append('>');
+        return builder.ToString();
+    }   
+}
+public class Parameter : INotifyPropertyChanged
+{
+    public string Description { get; internal set; }
+
+    public string Name { get; internal set; }
+
+    public string Type { get; internal set; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
+
+public class SubModule : INotifyPropertyChanged
+{
+    public string Description { get; internal set; }
+
+    public string Name { get; internal set; }
+
+    public bool Required { get; internal set; }
+
+    public string Type { get; internal set; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

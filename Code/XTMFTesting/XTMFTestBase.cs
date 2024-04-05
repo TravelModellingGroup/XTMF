@@ -17,22 +17,20 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+[TestClass]
+public abstract class XTMFTestBase
 {
-    [TestClass]
-    public abstract class XTMFTestBase
+    protected IConfiguration Configuration;
+
+    // ReSharper disable once NotAccessedField.Global
+    protected XTMFRuntime XTMF;
+
+    [TestInitialize]
+    public void InitializeXTMF(string configurationFileName = "")
     {
-        protected IConfiguration Configuration;
-
-        // ReSharper disable once NotAccessedField.Global
-        protected XTMFRuntime XTMF;
-
-        [TestInitialize]
-        public void InitializeXTMF(string configurationFileName = "")
-        {
-            Configuration = new Configuration(configurationFileName);
-            XTMF = new XTMFRuntime((Configuration)Configuration);
-        }
+        Configuration = new Configuration(configurationFileName);
+        XTMF = new XTMFRuntime((Configuration)Configuration);
     }
 }

@@ -19,70 +19,69 @@
 
 using System.Windows;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+///     Interaction logic for ErrorWindow.xaml
+/// </summary>
+public partial class ErrorWindow : Window
 {
-    /// <summary>
-    ///     Interaction logic for ErrorWindow.xaml
-    /// </summary>
-    public partial class ErrorWindow : Window
+    public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register("ErrorMessage",
+        typeof(string), typeof(ErrorWindow),
+        new FrameworkPropertyMetadata(OnErrorMessageChanged));
+
+    public static readonly DependencyProperty ErrorStackTraceProperty =
+        DependencyProperty.Register("ErrorStackTrace", typeof(string), typeof(ErrorWindow),
+            new FrameworkPropertyMetadata(OnErrorStackTraceChanged));
+
+    public ErrorWindow()
     {
-        public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register("ErrorMessage",
-            typeof(string), typeof(ErrorWindow),
-            new FrameworkPropertyMetadata(OnErrorMessageChanged));
+        DataContext = this;
+        InitializeComponent();
+    }
 
-        public static readonly DependencyProperty ErrorStackTraceProperty =
-            DependencyProperty.Register("ErrorStackTrace", typeof(string), typeof(ErrorWindow),
-                new FrameworkPropertyMetadata(OnErrorStackTraceChanged));
+    public string ErrorMessage
+    {
+        get => GetValue(ErrorMessageProperty) as string;
+        set => SetValue(ErrorMessageProperty, value);
+    }
 
-        public ErrorWindow()
-        {
-            DataContext = this;
-            InitializeComponent();
-        }
+    public string ErrorStackTrace
+    {
+        get => GetValue(ErrorStackTraceProperty) as string;
+        set => SetValue(ErrorStackTraceProperty, value);
+    }
 
-        public string ErrorMessage
-        {
-            get => GetValue(ErrorMessageProperty) as string;
-            set => SetValue(ErrorMessageProperty, value);
-        }
+    public void Continue(object bob) => Close();
 
-        public string ErrorStackTrace
-        {
-            get => GetValue(ErrorStackTraceProperty) as string;
-            set => SetValue(ErrorStackTraceProperty, value);
-        }
+    private static void OnErrorStackTraceChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+    {
+        (source as ErrorWindow).StackTraceBox.Text = e.NewValue is string value ? value : "No error found!";
+    }
 
-        public void Continue(object bob) => Close();
+    private static void OnErrorMessageChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+    {
+        (source as ErrorWindow).MessageBox.Text = e.NewValue is string value ? value : "No error found!";
+    }
 
-        private static void OnErrorStackTraceChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-            (source as ErrorWindow).StackTraceBox.Text = e.NewValue is string value ? value : "No error found!";
-        }
+    public void Copy(object bob)
+    {
+        SetToClipboard(ErrorStackTrace == null ?
+            ErrorMessage :
+            ErrorMessage + "\r\n" + ErrorStackTrace);
+    }
 
-        private static void OnErrorMessageChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-            (source as ErrorWindow).MessageBox.Text = e.NewValue is string value ? value : "No error found!";
-        }
+    private void SetToClipboard(string str) => Clipboard.SetText(str);
 
-        public void Copy(object bob)
-        {
-            SetToClipboard(ErrorStackTrace == null ?
-                ErrorMessage :
-                ErrorMessage + "\r\n" + ErrorStackTrace);
-        }
+    private void ContinueButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
 
-        private void SetToClipboard(string str) => Clipboard.SetText(str);
-
-        private void ContinueButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void CopyButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            SetToClipboard(ErrorStackTrace == null ?
-                ErrorMessage :
-                ErrorMessage + "\r\n" + ErrorStackTrace);
-        }
+    private void CopyButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        SetToClipboard(ErrorStackTrace == null ?
+            ErrorMessage :
+            ErrorMessage + "\r\n" + ErrorStackTrace);
     }
 }

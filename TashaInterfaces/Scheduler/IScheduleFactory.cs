@@ -18,10 +18,9 @@
 */
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+public interface IScheduleFactory : IModule
 {
-    public interface IScheduleFactory : IModule
-    {
-        ISchedule Generate();
-    }
+    ISchedule Generate();
 }

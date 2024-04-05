@@ -16,23 +16,22 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Datastructure
+namespace Datastructure;
+
+public struct SparseIndexing
 {
-    public struct SparseIndexing
-    {
-        public SparseSet[] Indexes;
-    }
+    public SparseSet[] Indexes;
+}
 
-    public struct SparseSet
-    {
-        public SparseIndexing SubIndex;
-        public int BaseLocation;
-        public int Start;
-        public int Stop;
+public struct SparseSet
+{
+    public SparseIndexing SubIndex;
+    public int BaseLocation;
+    public int Start;
+    public int Stop;
 
-        public override string ToString()
-        {
-            return Start + "->" + Stop;
-        }
+    public override string ToString()
+    {
+        return Start + "->" + Stop;
     }
 }

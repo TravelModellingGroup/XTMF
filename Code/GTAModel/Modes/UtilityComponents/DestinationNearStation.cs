@@ -23,79 +23,78 @@ using TMG.Input;
 using TMG.Modes;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+public class DestinationNearStation : IUtilityComponent
 {
-    public class DestinationNearStation : IUtilityComponent
+    [RunParameter( "Constant", 0f, "The utility to add if there is a station at the destination." )]
+    public float Constant;
+
+    [SubModelInformation( Description = "The source for the station information.", Required = true )]
+    public IDataLineSource<float[]> DataSource;
+
+    [RunParameter( "Station Index", 0, "The 0 indexed index for the station column." )]
+    public int StationIndex;
+
+    [RunParameter( "Zone Index", 0, "The 0 indexed index for the zone column." )]
+    public int ZoneIndex;
+
+    private Dictionary<int, bool> Data;
+
+    private volatile bool Loaded;
+
+    public string Name
     {
-        [RunParameter( "Constant", 0f, "The utility to add if there is a station at the destination." )]
-        public float Constant;
+        get;
+        set;
+    }
 
-        [SubModelInformation( Description = "The source for the station information.", Required = true )]
-        public IDataLineSource<float[]> DataSource;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter( "Station Index", 0, "The 0 indexed index for the station column." )]
-        public int StationIndex;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Zone Index", 0, "The 0 indexed index for the zone column." )]
-        public int ZoneIndex;
+    [RunParameter( "Component Name", "UniqueName", "The unique name for this utility component." )]
+    public string UtilityComponentName
+    {
+        get;
+        set;
+    }
 
-        private Dictionary<int, bool> Data;
-
-        private volatile bool Loaded;
-
-        public string Name
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        if ( !Loaded )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        [RunParameter( "Component Name", "UniqueName", "The unique name for this utility component." )]
-        public string UtilityComponentName
-        {
-            get;
-            set;
-        }
-
-        public float CalculateV(IZone origin, IZone destination, Time time)
-        {
-            if ( !Loaded )
+            lock ( this )
             {
-                lock ( this )
-                {
-                    Load();
-                    Loaded = true;
-                }
+                Load();
+                Loaded = true;
             }
-            if (Data.TryGetValue(destination.ZoneNumber, out bool station) & station)
-            {
-                return Constant;
-            }
-            return 0f;
         }
-
-        public bool RuntimeValidation(ref string error)
+        if (Data.TryGetValue(destination.ZoneNumber, out bool station) & station)
         {
-            return true;
+            return Constant;
         }
+        return 0f;
+    }
 
-        private void Load()
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    private void Load()
+    {
+        var data = new Dictionary<int, bool>();
+        foreach ( var line in DataSource.Read() )
         {
-            var data = new Dictionary<int, bool>();
-            foreach ( var line in DataSource.Read() )
-            {
-                data[(int)line[ZoneIndex]] = ( line[StationIndex] > 0 );
-            }
-            Data = data;
+            data[(int)line[ZoneIndex]] = ( line[StationIndex] > 0 );
         }
+        Data = data;
     }
 }

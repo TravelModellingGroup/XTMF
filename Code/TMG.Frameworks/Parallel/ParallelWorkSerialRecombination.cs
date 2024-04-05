@@ -21,258 +21,257 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using ThreadParallel = System.Threading.Tasks.Parallel;
-namespace TMG.Frameworks.Parallel
+namespace TMG.Frameworks.Parallel;
+
+/// <summary>
+/// This is used for helping work through different parallel programming problems
+/// where there is a section of code that can be run in parallel but the results
+/// need to be aggregated in order to ensure reproducibility.
+/// </summary>
+/// <typeparam name="TData"></typeparam>
+/// <typeparam name="TIntermediate"></typeparam>
+public static class ParallelWorkSerialRecombination<TData, TIntermediate>
 {
-    /// <summary>
-    /// This is used for helping work through different parallel programming problems
-    /// where there is a section of code that can be run in parallel but the results
-    /// need to be aggregated in order to ensure reproducibility.
-    /// </summary>
-    /// <typeparam name="TData"></typeparam>
-    /// <typeparam name="TIntermediate"></typeparam>
-    public static class ParallelWorkSerialRecombination<TData, TIntermediate>
+    private struct TaggedBaseData
     {
-        private struct TaggedBaseData
-        {
-            internal readonly TData Data;
-            internal readonly int TaskNumber;
+        internal readonly TData Data;
+        internal readonly int TaskNumber;
 
-            public TaggedBaseData(TData d, int taskNumber)
+        public TaggedBaseData(TData d, int taskNumber)
+        {
+            Data = d;
+            TaskNumber = taskNumber;
+        }
+    }
+
+    private struct TaggedIntermediate
+    {
+        internal readonly TIntermediate ProcessedData;
+        internal readonly int TaskNumber;
+
+        public TaggedIntermediate(TIntermediate d, int taskNumber)
+        {
+            ProcessedData = d;
+            TaskNumber = taskNumber;
+        }
+    }
+
+    /// <summary>
+    /// Processed Partition
+    /// </summary>
+    private struct ProcessedPartition
+    {
+        internal readonly IEnumerable<TIntermediate> ProcessedData;
+        internal readonly int TaskNumber;
+
+        public ProcessedPartition(IEnumerable<TIntermediate> d, int taskNumber)
+        {
+            ProcessedData = d;
+            TaskNumber = taskNumber;
+        }
+    }
+
+    public static void ComputeInParallel(IList<TData> baseData, Func<TData, TIntermediate> parallelWork, Action<TIntermediate> recombination, int numberOfPartitions)
+    {
+        var intermediateResults = new BlockingCollection<ProcessedPartition>();
+        ThreadParallel.Invoke(() =>
+        {
+            try
             {
-                Data = d;
-                TaskNumber = taskNumber;
+                var partitionSize = (int)Math.Ceiling(baseData.Count / (float)numberOfPartitions);
+                ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)).GroupBy(d => d.TaskNumber / partitionSize), g =>
+                {
+                    intermediateResults.Add(new ProcessedPartition(g.Select(d => parallelWork(d.Data)), g.Key));
+                });
             }
-        }
-
-        private struct TaggedIntermediate
-        {
-            internal readonly TIntermediate ProcessedData;
-            internal readonly int TaskNumber;
-
-            public TaggedIntermediate(TIntermediate d, int taskNumber)
+            finally
             {
-                ProcessedData = d;
-                TaskNumber = taskNumber;
+                intermediateResults.CompleteAdding();
             }
-        }
-
-        /// <summary>
-        /// Processed Partition
-        /// </summary>
-        private struct ProcessedPartition
+        }, () =>
         {
-            internal readonly IEnumerable<TIntermediate> ProcessedData;
-            internal readonly int TaskNumber;
-
-            public ProcessedPartition(IEnumerable<TIntermediate> d, int taskNumber)
+            int expecting = 0;
+            var backlog = new Dictionary<int, IEnumerable<TIntermediate>>();
+            foreach (var group in intermediateResults.GetConsumingEnumerable())
             {
-                ProcessedData = d;
-                TaskNumber = taskNumber;
+                if (group.TaskNumber != expecting)
+                {
+                    // if we are not ready for this yet add it to the backlog
+                    backlog[group.TaskNumber] = group.ProcessedData;
+                    continue;
+                }
+                IEnumerable<TIntermediate> toProcess = group.ProcessedData;
+                while (true)
+                {
+                    foreach (var element in toProcess)
+                    {
+                        recombination(element);
+                    }
+                    expecting++;
+                    // now see if we can combine with the backlog
+                    if (!backlog.TryGetValue(expecting, out toProcess))
+                    {
+                        // if we can't find the next task wait for another
+                        // task to finish
+                        break;
+                    }
+                    else
+                    {
+                        backlog.Remove(expecting);
+                    }
+                }
             }
-        }
+        });
+    }
 
-        public static void ComputeInParallel(IList<TData> baseData, Func<TData, TIntermediate> parallelWork, Action<TIntermediate> recombination, int numberOfPartitions)
+    public static void ComputeInParallel(IList<TData> baseData, Func<TData, int, TIntermediate> parallelWork, Action<TIntermediate, int> recombination, int numberOfPartitions)
+    {
+        var intermediateResults = new BlockingCollection<ProcessedPartition>();
+        ThreadParallel.Invoke(() =>
         {
-            var intermediateResults = new BlockingCollection<ProcessedPartition>();
-            ThreadParallel.Invoke(() =>
+            try
             {
-                try
+                var partitionSize = (int)Math.Ceiling(baseData.Count / (float)numberOfPartitions);
+                ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)).GroupBy(d => d.TaskNumber / partitionSize), g =>
                 {
-                    var partitionSize = (int)Math.Ceiling(baseData.Count / (float)numberOfPartitions);
-                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)).GroupBy(d => d.TaskNumber / partitionSize), g =>
-                    {
-                        intermediateResults.Add(new ProcessedPartition(g.Select(d => parallelWork(d.Data)), g.Key));
-                    });
-                }
-                finally
-                {
-                    intermediateResults.CompleteAdding();
-                }
-            }, () =>
+                    intermediateResults.Add(new ProcessedPartition(g.Select(d => parallelWork(d.Data, g.Key)), g.Key));
+                });
+            }
+            finally
             {
-                int expecting = 0;
-                var backlog = new Dictionary<int, IEnumerable<TIntermediate>>();
-                foreach (var group in intermediateResults.GetConsumingEnumerable())
+                intermediateResults.CompleteAdding();
+            }
+        }, () =>
+        {
+            int expecting = 0;
+            var backlog = new Dictionary<int, IEnumerable<TIntermediate>>();
+            foreach (var group in intermediateResults.GetConsumingEnumerable())
+            {
+                if (group.TaskNumber != expecting)
                 {
-                    if (group.TaskNumber != expecting)
+                    // if we are not ready for this yet add it to the backlog
+                    backlog[group.TaskNumber] = group.ProcessedData;
+                    continue;
+                }
+                IEnumerable<TIntermediate> toProcess = group.ProcessedData;
+                while (true)
+                {
+                    foreach (var element in toProcess)
                     {
-                        // if we are not ready for this yet add it to the backlog
-                        backlog[group.TaskNumber] = group.ProcessedData;
-                        continue;
+                        recombination(element, expecting);
                     }
-                    IEnumerable<TIntermediate> toProcess = group.ProcessedData;
-                    while (true)
+                    expecting++;
+                    // now see if we can combine with the backlog
+                    if (!backlog.TryGetValue(expecting, out toProcess))
                     {
-                        foreach (var element in toProcess)
-                        {
-                            recombination(element);
-                        }
-                        expecting++;
-                        // now see if we can combine with the backlog
-                        if (!backlog.TryGetValue(expecting, out toProcess))
-                        {
-                            // if we can't find the next task wait for another
-                            // task to finish
-                            break;
-                        }
-                        else
-                        {
-                            backlog.Remove(expecting);
-                        }
+                        // if we can't find the next task wait for another
+                        // task to finish
+                        break;
+                    }
+                    else
+                    {
+                        backlog.Remove(expecting);
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        public static void ComputeInParallel(IList<TData> baseData, Func<TData, int, TIntermediate> parallelWork, Action<TIntermediate, int> recombination, int numberOfPartitions)
-        {
-            var intermediateResults = new BlockingCollection<ProcessedPartition>();
-            ThreadParallel.Invoke(() =>
-            {
-                try
-                {
-                    var partitionSize = (int)Math.Ceiling(baseData.Count / (float)numberOfPartitions);
-                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)).GroupBy(d => d.TaskNumber / partitionSize), g =>
-                    {
-                        intermediateResults.Add(new ProcessedPartition(g.Select(d => parallelWork(d.Data, g.Key)), g.Key));
-                    });
-                }
-                finally
-                {
-                    intermediateResults.CompleteAdding();
-                }
-            }, () =>
-            {
-                int expecting = 0;
-                var backlog = new Dictionary<int, IEnumerable<TIntermediate>>();
-                foreach (var group in intermediateResults.GetConsumingEnumerable())
-                {
-                    if (group.TaskNumber != expecting)
-                    {
-                        // if we are not ready for this yet add it to the backlog
-                        backlog[group.TaskNumber] = group.ProcessedData;
-                        continue;
-                    }
-                    IEnumerable<TIntermediate> toProcess = group.ProcessedData;
-                    while (true)
-                    {
-                        foreach (var element in toProcess)
-                        {
-                            recombination(element, expecting);
-                        }
-                        expecting++;
-                        // now see if we can combine with the backlog
-                        if (!backlog.TryGetValue(expecting, out toProcess))
-                        {
-                            // if we can't find the next task wait for another
-                            // task to finish
-                            break;
-                        }
-                        else
-                        {
-                            backlog.Remove(expecting);
-                        }
-                    }
-                }
-            });
-        }
-
-        public static void ComputeInParallel(IList<TData> baseData, Func<TData, TIntermediate> parallelWork, Action<TIntermediate> recombination)
-        {
-            var intermediateResults = new BlockingCollection<TaggedIntermediate>();
-            ThreadParallel.Invoke(() =>
+    public static void ComputeInParallel(IList<TData> baseData, Func<TData, TIntermediate> parallelWork, Action<TIntermediate> recombination)
+    {
+        var intermediateResults = new BlockingCollection<TaggedIntermediate>();
+        ThreadParallel.Invoke(() =>
+       {
+           try
            {
-               try
-               {
-                   ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)), d =>
-                  {
-                      intermediateResults.Add(new TaggedIntermediate(parallelWork(d.Data), d.TaskNumber));
-                  });
-               }
-               finally
-               {
-                   intermediateResults.CompleteAdding();
-               }
-           }, () =>
+               ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)), d =>
+              {
+                  intermediateResults.Add(new TaggedIntermediate(parallelWork(d.Data), d.TaskNumber));
+              });
+           }
+           finally
            {
-               int expecting = 0;
-               var backlog = new Dictionary<int, TIntermediate>();
-               foreach (var newData in intermediateResults.GetConsumingEnumerable())
+               intermediateResults.CompleteAdding();
+           }
+       }, () =>
+       {
+           int expecting = 0;
+           var backlog = new Dictionary<int, TIntermediate>();
+           foreach (var newData in intermediateResults.GetConsumingEnumerable())
+           {
+               if (newData.TaskNumber != expecting)
                {
-                   if (newData.TaskNumber != expecting)
+                   // if we are not ready for this yet add it to the backlog
+                   backlog[newData.TaskNumber] = newData.ProcessedData;
+                   continue;
+               }
+               TIntermediate toProcess = newData.ProcessedData;
+               while (true)
+               {
+                   recombination(toProcess);
+                   expecting++;
+                   // now see if we can combine with the backlog
+                   if (!backlog.TryGetValue(expecting, out toProcess))
                    {
-                       // if we are not ready for this yet add it to the backlog
-                       backlog[newData.TaskNumber] = newData.ProcessedData;
-                       continue;
+                       // if we can't find the next task wait for another
+                       // task to finish
+                       break;
                    }
-                   TIntermediate toProcess = newData.ProcessedData;
-                   while (true)
+                   else
                    {
-                       recombination(toProcess);
-                       expecting++;
-                       // now see if we can combine with the backlog
-                       if (!backlog.TryGetValue(expecting, out toProcess))
-                       {
-                           // if we can't find the next task wait for another
-                           // task to finish
-                           break;
-                       }
-                       else
-                       {
-                           backlog.Remove(expecting);
-                       }
+                       backlog.Remove(expecting);
                    }
                }
-           });
-        }
+           }
+       });
+    }
 
-        public static void ComputeInParallel(IList<TData> baseData, Func<TData, int, TIntermediate> parallelWork, Action<TIntermediate, int> recombination)
+    public static void ComputeInParallel(IList<TData> baseData, Func<TData, int, TIntermediate> parallelWork, Action<TIntermediate, int> recombination)
+    {
+        var intermediateResults = new BlockingCollection<TaggedIntermediate>();
+        ThreadParallel.Invoke(() =>
         {
-            var intermediateResults = new BlockingCollection<TaggedIntermediate>();
-            ThreadParallel.Invoke(() =>
+            try
             {
-                try
+                ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)), d =>
                 {
-                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)), d =>
-                    {
-                        intermediateResults.Add(new TaggedIntermediate(parallelWork(d.Data, d.TaskNumber), d.TaskNumber));
-                    });
-                }
-                finally
-                {
-                    intermediateResults.CompleteAdding();
-                }
-            }, () =>
+                    intermediateResults.Add(new TaggedIntermediate(parallelWork(d.Data, d.TaskNumber), d.TaskNumber));
+                });
+            }
+            finally
             {
-                int expecting = 0;
-                var backlog = new Dictionary<int, TIntermediate>();
-                foreach (var newData in intermediateResults.GetConsumingEnumerable())
+                intermediateResults.CompleteAdding();
+            }
+        }, () =>
+        {
+            int expecting = 0;
+            var backlog = new Dictionary<int, TIntermediate>();
+            foreach (var newData in intermediateResults.GetConsumingEnumerable())
+            {
+                if (newData.TaskNumber != expecting)
                 {
-                    if (newData.TaskNumber != expecting)
+                    // if we are not ready for this yet add it to the backlog
+                    backlog[newData.TaskNumber] = newData.ProcessedData;
+                    continue;
+                }
+                TIntermediate toProcess = newData.ProcessedData;
+                while (true)
+                {
+                    recombination(toProcess, expecting);
+                    expecting++;
+                    // now see if we can combine with the backlog
+                    if (!backlog.TryGetValue(expecting, out toProcess))
                     {
-                        // if we are not ready for this yet add it to the backlog
-                        backlog[newData.TaskNumber] = newData.ProcessedData;
-                        continue;
+                        // if we can't find the next task wait for another
+                        // task to finish
+                        break;
                     }
-                    TIntermediate toProcess = newData.ProcessedData;
-                    while (true)
+                    else
                     {
-                        recombination(toProcess, expecting);
-                        expecting++;
-                        // now see if we can combine with the backlog
-                        if (!backlog.TryGetValue(expecting, out toProcess))
-                        {
-                            // if we can't find the next task wait for another
-                            // task to finish
-                            break;
-                        }
-                        else
-                        {
-                            backlog.Remove(expecting);
-                        }
+                        backlog.Remove(expecting);
                     }
                 }
-            });
-        }
+            }
+        });
     }
 }

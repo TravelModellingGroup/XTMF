@@ -23,67 +23,66 @@ using Tasha.Scheduler;
 using XTMF;
 using TashaProject = Tasha.Scheduler.IProject;
 
-namespace Tasha.XTMFScheduler
+namespace Tasha.XTMFScheduler;
+
+public class WorkSchoolProject : TashaProject
 {
-    public class WorkSchoolProject : TashaProject
+    [SubModelInformation( Required = true, Description = "The project that will generate school episodes." )]
+    public TashaProject School;
+
+    [SubModelInformation( Required = true, Description = "The project that will generate work episodes." )]
+    public TashaProject Work;
+
+    public bool IsHouseholdProject
     {
-        [SubModelInformation( Required = true, Description = "The project that will generate school episodes." )]
-        public TashaProject School;
+        get { return false; }
+    }
 
-        [SubModelInformation( Required = true, Description = "The project that will generate work episodes." )]
-        public TashaProject Work;
+    public string Name { get; set; }
 
-        public bool IsHouseholdProject
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool AssignStartTime(ITashaPerson person, int personIndex, ISchedule[] schedule, IActivityEpisode episode, Random rand)
+    {
+        throw new NotImplementedException( "This method should never be called, either the work or school project should be invoked." );
+    }
+
+    public void Generate(ITashaHousehold household, ITashaPerson person, List<IActivityEpisode> episodes, Random rand)
+    {
+        if ( person.StudentStatus == StudentStatus.FullTime )
         {
-            get { return false; }
+            School.Generate( household, person, episodes, rand );
+            Work.Generate( household, person, episodes, rand );
         }
-
-        public string Name { get; set; }
-
-        public float Progress
+        else
         {
-            get { return 0f; }
+            Work.Generate( household, person, episodes, rand );
+            School.Generate( household, person, episodes, rand );
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public void IterationComplete(int currentIteration, int totalIterations)
+    {
+        Work.IterationComplete( currentIteration, totalIterations );
+        School.IterationComplete( currentIteration, totalIterations );
+    }
 
-        public bool AssignStartTime(ITashaPerson person, int personIndex, ISchedule[] schedule, IActivityEpisode episode, Random rand)
-        {
-            throw new NotImplementedException( "This method should never be called, either the work or school project should be invoked." );
-        }
+    public void IterationStart(int currentIteration, int totalIterations)
+    {
+        Work.IterationStart( currentIteration, totalIterations );
+        School.IterationStart( currentIteration, totalIterations );
+    }
 
-        public void Generate(ITashaHousehold household, ITashaPerson person, List<IActivityEpisode> episodes, Random rand)
-        {
-            if ( person.StudentStatus == StudentStatus.FullTime )
-            {
-                School.Generate( household, person, episodes, rand );
-                Work.Generate( household, person, episodes, rand );
-            }
-            else
-            {
-                Work.Generate( household, person, episodes, rand );
-                School.Generate( household, person, episodes, rand );
-            }
-        }
-
-        public void IterationComplete(int currentIteration, int totalIterations)
-        {
-            Work.IterationComplete( currentIteration, totalIterations );
-            School.IterationComplete( currentIteration, totalIterations );
-        }
-
-        public void IterationStart(int currentIteration, int totalIterations)
-        {
-            Work.IterationStart( currentIteration, totalIterations );
-            School.IterationStart( currentIteration, totalIterations );
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

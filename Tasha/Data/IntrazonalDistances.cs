@@ -20,59 +20,57 @@ using System;
 using Datastructure;
 using TMG;
 using XTMF;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module copies the intrazonal distances loaded into the zones to a SparseArray<float>.")]
+public class IntrazonalDistances : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation(Description = "This module copies the intrazonal distances loaded into the zones to a SparseArray<float>.")]
-    public class IntrazonalDistances : IDataSource<SparseArray<float>>
+    public bool Loaded
     {
-        public bool Loaded
-        {
-            get;set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseArray<float> Data;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            if(!Root.ZoneSystem.Loaded)
-            {
-                Root.ZoneSystem.LoadData();
-            }
-            var internalDistanceSparseMatrix = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            var distances = Root.ZoneSystem.Distances.GetFlatData();
-            var internalDistances = internalDistanceSparseMatrix.GetFlatData();
-            for(int i = 0; i < internalDistances.Length; i++)
-            {
-                internalDistances[i] = distances[i][i];
-            }
-            Data = internalDistanceSparseMatrix;
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Loaded = false;
-        }
+        get;set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseArray<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public SparseArray<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        if(!Root.ZoneSystem.Loaded)
+        {
+            Root.ZoneSystem.LoadData();
+        }
+        var internalDistanceSparseMatrix = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+        var distances = Root.ZoneSystem.Distances.GetFlatData();
+        var internalDistances = internalDistanceSparseMatrix.GetFlatData();
+        for(int i = 0; i < internalDistances.Length; i++)
+        {
+            internalDistances[i] = distances[i][i];
+        }
+        Data = internalDistanceSparseMatrix;
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+    }
 }

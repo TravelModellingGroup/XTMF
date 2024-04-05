@@ -18,23 +18,22 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Implement this to be automatically loaded to run after Tasha# finishes processing all iterations
+/// </summary>
+public interface IPostRun : IModule
 {
     /// <summary>
-    /// Implement this to be automatically loaded to run after Tasha# finishes processing all iterations
+    /// This will be run after Tasha has finished
     /// </summary>
-    public interface IPostRun : IModule
-    {
-        /// <summary>
-        /// This will be run after Tasha has finished
-        /// </summary>
-        void Execute();
+    void Execute();
 
-        /// <summary>
-        /// Load all of the data you need from
-        /// the global configuration.
-        /// </summary>
-        /// <param name="config">Access to the configuration</param>
-        void Load(IConfiguration config);
-    }
+    /// <summary>
+    /// Load all of the data you need from
+    /// the global configuration.
+    /// </summary>
+    /// <param name="config">Access to the configuration</param>
+    void Load(IConfiguration config);
 }

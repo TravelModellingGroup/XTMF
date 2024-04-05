@@ -21,58 +21,54 @@ using System;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAssignment
+namespace TMG.GTAModel.NetworkAssignment;
+
+[ModuleInformation( Description = "Loads a scenario and checks that all referenced functions (link VDF, transit segment TTF, " +
+                    "and turn TPF) are defined in the emmebank. It will raise an error listing all missing functions." )]
+public class CheckScenarioFunctions : IEmmeTool
 {
-    [ModuleInformation( Description = "Loads a scenario and checks that all referenced functions (link VDF, transit segment TTF, " +
-                        "and turn TPF) are defined in the emmebank. It will raise an error listing all missing functions." )]
-    public class CheckScenarioFunctions : IEmmeTool
+    [RunParameter( "Scenario Number", 0, "The number of the Emme scenario." )]
+    public int ScenarioNumber;
+
+    private const string ToolName = "tmg.assignment.preprocessing.check_scenario_functions";
+    private const string AlternateToolName = "TMG.Assignment.CheckFunctions";
+
+    private static Tuple<byte, byte, byte> _progressColour = new( 100, 100, 150 );
+
+    public string Name
     {
-        [RunParameter( "Scenario Number", 0, "The number of the Emme scenario." )]
-        public int ScenarioNumber;
+        get;
+        set;
+    }
 
-        private const string ToolName = "tmg.assignment.preprocessing.check_scenario_functions";
-        private const string AlternateToolName = "TMG.Assignment.CheckFunctions";
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _progressColour; }
+    }
 
-        public string Name
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
+        string result = null;
+
+        var toolName = ToolName;
+        if (!mc.CheckToolExists(this, toolName))
         {
-            get;
-            set;
+            toolName = AlternateToolName;
         }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _progressColour; }
-        }
+        return mc.Run(this, toolName, ScenarioNumber.ToString(), (p => Progress = p), ref result);
+    }
 
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
-            string result = null;
-
-            var toolName = ToolName;
-            if (!mc.CheckToolExists(this, toolName))
-            {
-                toolName = AlternateToolName;
-            }
-
-
-            return mc.Run(this, toolName, ScenarioNumber.ToString(), (p => Progress = p), ref result);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

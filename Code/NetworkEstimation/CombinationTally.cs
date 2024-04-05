@@ -21,48 +21,47 @@ using System;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+public class CombinationTally : IErrorTally
 {
-    public class CombinationTally : IErrorTally
+    [SubModelInformation( Description = "The first tally to compute.", Required = true )]
+    public IErrorTally FirstTally;
+
+    [RunParameter( "First Weight", 0.03f, "The weighting for the line tally." )]
+    public float FirstWeight;
+
+    [SubModelInformation( Description = "The second tally to compute.", Required = true )]
+    public IErrorTally SecondTally;
+
+    [RunParameter( "Second Weight", 0.06f, "The weighting for the region tally." )]
+    public float SecondWeight;
+
+    public string Name
     {
-        [SubModelInformation( Description = "The first tally to compute.", Required = true )]
-        public IErrorTally FirstTally;
+        get;
+        set;
+    }
 
-        [RunParameter( "First Weight", 0.03f, "The weighting for the line tally." )]
-        public float FirstWeight;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        [SubModelInformation( Description = "The second tally to compute.", Required = true )]
-        public IErrorTally SecondTally;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Second Weight", 0.06f, "The weighting for the region tally." )]
-        public float SecondWeight;
+    public float ComputeError(ParameterSetting[] parameters, TransitLine[] truth, TransitLine[] predicted)
+    {
+        var first = FirstTally.ComputeError( parameters, truth, predicted );
+        var second = SecondTally.ComputeError( parameters, truth, predicted );
+        return ( first * FirstWeight ) + ( second * SecondWeight );
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public float ComputeError(ParameterSetting[] parameters, TransitLine[] truth, TransitLine[] predicted)
-        {
-            var first = FirstTally.ComputeError( parameters, truth, predicted );
-            var second = SecondTally.ComputeError( parameters, truth, predicted );
-            return ( first * FirstWeight ) + ( second * SecondWeight );
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

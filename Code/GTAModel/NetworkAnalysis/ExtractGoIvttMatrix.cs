@@ -21,54 +21,49 @@ using System;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+public class ExtractGoIvttMatrix : IEmmeTool
 {
-    public class ExtractGoIvttMatrix : IEmmeTool
+    [RunParameter("Scenario", 0, "The number of the Emme scenario from which to extract results.")]
+    public int ScenarioNumber;
+
+    [RunParameter("Result Matrix", 5, "The number of the full matrix in which to store extracted results. It will be created if it does not already exist.")]
+    public int ResultMatrixNumber;
+
+    private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_rail_IVTT_matrix";
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+
+    public string Name
     {
-        [RunParameter("Scenario", 0, "The number of the Emme scenario from which to extract results.")]
-        public int ScenarioNumber;
-
-        [RunParameter("Result Matrix", 5, "The number of the full matrix in which to store extracted results. It will be created if it does not already exist.")]
-        public int ResultMatrixNumber;
-
-        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_rail_IVTT_matrix";
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-
-
-            string args = string.Join(" ", ScenarioNumber, "mf" + ResultMatrixNumber);
-            string result = null;
-            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
+        get;
+        set;
     }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        string args = string.Join(" ", ScenarioNumber, "mf" + ResultMatrixNumber);
+        string result = null;
+        return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
 }

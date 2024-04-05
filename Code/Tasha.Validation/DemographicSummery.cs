@@ -23,88 +23,85 @@ using Tasha.Common;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+public class DemographicSummery : IPostHousehold
 {
-    public class DemographicSummery : IPostHousehold
+    [RunParameter( "Age Sets", "0-10,11-15,16-18,19-25,26-30,31-100", typeof( RangeSet ), "The different age categories to break the population into." )]
+    public RangeSet AgeSets;
+
+    [SubModelInformation( Required = true, Description = "The name/location of the csv file to save to." )]
+    public FileLocation OutputFileName;
+
+    private float[] AgeSetCount;
+
+    private int TotalIterations;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter( "Age Sets", "0-10,11-15,16-18,19-25,26-30,31-100", typeof( RangeSet ), "The different age categories to break the population into." )]
-        public RangeSet AgeSets;
+        get { return 0f; }
+    }
 
-        [SubModelInformation( Required = true, Description = "The name/location of the csv file to save to." )]
-        public FileLocation OutputFileName;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        private float[] AgeSetCount;
-
-        private int TotalIterations;
-
-        public string Name { get; set; }
-
-        public float Progress
+    [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Reliability", "CA2002:DoNotLockOnObjectsWithWeakIdentity" )]
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        // we only want to process this data on our last iteration
+        if ( iteration < TotalIterations - 1 )
         {
-            get { return 0f; }
+            return;
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        var expansionFactor = household.ExpansionFactor;
+        foreach ( var person in household.Persons )
         {
-            get { return null; }
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Reliability", "CA2002:DoNotLockOnObjectsWithWeakIdentity" )]
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            // we only want to process this data on our last iteration
-            if ( iteration < TotalIterations - 1 )
+            var index = AgeSets.IndexOf( person.Age );
+            if ( index >= 0 )
             {
-                return;
-            }
-            var expansionFactor = household.ExpansionFactor;
-            foreach ( var person in household.Persons )
-            {
-                var index = AgeSets.IndexOf( person.Age );
-                if ( index >= 0 )
+                lock ( AgeSetCount )
                 {
-                    lock ( AgeSetCount )
-                    {
-                        AgeSetCount[index] += expansionFactor;
-                    }
+                    AgeSetCount[index] += expansionFactor;
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        // if we are on the last iteration then process the data
+        if ( iteration < TotalIterations - 1 )
         {
-            // if we are on the last iteration then process the data
-            if ( iteration < TotalIterations - 1 )
-            {
-                return;
-            }
-            using ( StreamWriter writer = new StreamWriter( OutputFileName.GetFilePath() ) )
-            {
-                writer.WriteLine( "AgeRange,ExpandedPersons" );
-                for ( int i = 0; i < AgeSets.Count; i++ )
-                {
-                    writer.Write( AgeSets[i].Start );
-                    writer.Write( '-' );
-                    writer.Write( AgeSets[i].Stop );
-                    writer.Write( ',' );
-                    writer.WriteLine( AgeSetCount[i] );
-                }
-            }
+            return;
         }
+        using StreamWriter writer = new(OutputFileName.GetFilePath());
+        writer.WriteLine("AgeRange,ExpandedPersons");
+        for (int i = 0; i < AgeSets.Count; i++)
+        {
+            writer.Write(AgeSets[i].Start);
+            writer.Write('-');
+            writer.Write(AgeSets[i].Stop);
+            writer.Write(',');
+            writer.WriteLine(AgeSetCount[i]);
+        }
+    }
 
-        public void Load(int maxIterations)
-        {
-            TotalIterations = maxIterations;
-            AgeSetCount = new float[AgeSets.Count];
-        }
+    public void Load(int maxIterations)
+    {
+        TotalIterations = maxIterations;
+        AgeSetCount = new float[AgeSets.Count];
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void IterationStarting(int iteration)
-        {
-        }
+    public void IterationStarting(int iteration)
+    {
     }
 }

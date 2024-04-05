@@ -22,59 +22,58 @@ using System.IO;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel
-{
-    [ModuleInformation(Description=
-        @"This module provides one of the basic types of purposes used by GTAModel. 
+namespace TMG.GTAModel;
+
+[ModuleInformation(Description=
+    @"This module provides one of the basic types of purposes used by GTAModel. 
 An assignment purpose is similar to any in a four step model however the generation and distribution 
 step have been fused since they work at an individual agent level. The AssignmentPurpose module takes 
 in an IAssignment sub-module, a list of IDemographicCategory modules and an IUtilityModifyModeSplit module.
 This module requires the root module of the model system to be an ‘I4StepModel’." )]
-    public sealed class AssignmentPurpose : PurposeBase
+public sealed class AssignmentPurpose : PurposeBase
+{
+    [SubModelInformation( Description = "Assignment Distribution", Required = true )]
+    public IAssignment AssignmentDistribution;
+
+    [RunParameter( "Number of Categories", 1, "The number of demographic categories that the assignment will be processing." )]
+    public int NumberOfCategories;
+
+    [RunParameter( "Save Mode Split Output", false, "Should we save the output?" )]
+    public bool SaveModeChoiceOutput;
+
+    private int CurrentCategory;
+
+    public override float Progress
     {
-        [SubModelInformation( Description = "Assignment Distribution", Required = true )]
-        public IAssignment AssignmentDistribution;
+        get { return ( (float)CurrentCategory / NumberOfCategories ) + ( ModeSplit.Progress / NumberOfCategories ); }
+    }
 
-        [RunParameter( "Number of Categories", 1, "The number of demographic categories that the assignment will be processing." )]
-        public int NumberOfCategories;
-
-        [RunParameter( "Save Mode Split Output", false, "Should we save the output?" )]
-        public bool SaveModeChoiceOutput;
-
-        private int CurrentCategory;
-
-        public override float Progress
+    public override void Run()
+    {
+        // For Each Demographic Category
+        var modeSplit = ModeSplit.ModeSplit( EnumerateDistributions(), NumberOfCategories );
+        if ( SaveModeChoiceOutput )
         {
-            get { return ( (float)CurrentCategory / NumberOfCategories ) + ( ModeSplit.Progress / NumberOfCategories ); }
-        }
-
-        public override void Run()
-        {
-            // For Each Demographic Category
-            var modeSplit = ModeSplit.ModeSplit( EnumerateDistributions(), NumberOfCategories );
-            if ( SaveModeChoiceOutput )
+            if ( !Directory.Exists( PurposeName ) )
             {
-                if ( !Directory.Exists( PurposeName ) )
-                {
-                    Directory.CreateDirectory( PurposeName );
-                }
-                for ( int i = 0; i < modeSplit.Count; i++ )
-                {
-                    WriteModeSplit( modeSplit[i], Root.Modes[i], PurposeName );
-                }
+                Directory.CreateDirectory( PurposeName );
             }
-            Flows = modeSplit;
-        }
-
-        private IEnumerable<SparseTwinIndex<float>> EnumerateDistributions()
-        {
-            CurrentCategory = 0;
-            foreach ( var demographic in AssignmentDistribution.Assign() )
+            for ( int i = 0; i < modeSplit.Count; i++ )
             {
-                // let it setup the modes so we can compute friction
-                yield return demographic;
-                CurrentCategory++;
+                WriteModeSplit( modeSplit[i], Root.Modes[i], PurposeName );
             }
+        }
+        Flows = modeSplit;
+    }
+
+    private IEnumerable<SparseTwinIndex<float>> EnumerateDistributions()
+    {
+        CurrentCategory = 0;
+        foreach ( var demographic in AssignmentDistribution.Assign() )
+        {
+            // let it setup the modes so we can compute friction
+            yield return demographic;
+            CurrentCategory++;
         }
     }
 }

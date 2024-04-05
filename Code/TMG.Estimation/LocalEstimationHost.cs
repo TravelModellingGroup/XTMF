@@ -23,201 +23,198 @@ using System.Text;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Estimation
+namespace TMG.Estimation;
+
+[RedirectModule("TMG.Estimation.LocalEstimatinHost, TMG.Estimation, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = null")]
+public class LocalEstimationHost : IEstimationHost
 {
-    [RedirectModule("TMG.Estimation.LocalEstimatinHost, TMG.Estimation, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = null")]
-    public class LocalEstimationHost : IEstimationHost
+
+    [SubModelInformation(Required = true, Description = "The AI to explore the parameter space.")]
+    // ReSharper disable once InconsistentNaming
+    public IEstimationAI AI;
+
+    [SubModelInformation(Required = true, Description = "The client model system to execute.")]
+    public IEstimationClientModelSystem ClientModelSystem;
+
+    public bool Exit = false;
+
+    [RunParameter("Hold Onto Result File", true, "Should we maintain the lock on the estimation file?")]
+    public bool HoldOnToResultFile;
+
+    [SubModelInformation(Required = false, Description = "The host model system to execute.")]
+    public IModelSystemTemplate HostModelSystem;
+
+    [SubModelInformation(Required = true, Description = "The logic to load in parameters.")]
+    public IDataSource<List<ParameterSetting>> ParameterLoader;
+
+    [SubModelInformation(Required = true, Description = "The location to save the estimation results.")]
+    public FileLocation ResultFile;
+
+    [RunParameter("SkipReportingResults", false, "Skip Reporting Results.  Only turn this on for increased performance during the estimation of AI's.")]
+    public bool SkipReportingResults;
+
+    public int CurrentIteration { get; set; }
+
+    [RunParameter("Generations", "100", typeof(int), "The total number of iterations we should push the AI through.")]
+    public int TotalIterations { get; set; }
+
+    public List<Job> CurrentJobs { get; set; }
+
+    [RunParameter("Input Directory", "../../Input", "The directory containing the model's input.")]
+    public string InputBaseDirectory { get; set; }
+
+    public string Name { get; set; }
+
+    public string OutputBaseDirectory { get; set; }
+
+    public List<ParameterSetting> Parameters { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour
     {
-
-        [SubModelInformation(Required = true, Description = "The AI to explore the parameter space.")]
-        // ReSharper disable once InconsistentNaming
-        public IEstimationAI AI;
-
-        [SubModelInformation(Required = true, Description = "The client model system to execute.")]
-        public IEstimationClientModelSystem ClientModelSystem;
-
-        public bool Exit = false;
-
-        [RunParameter("Hold Onto Result File", true, "Should we maintain the lock on the estimation file?")]
-        public bool HoldOnToResultFile;
-
-        [SubModelInformation(Required = false, Description = "The host model system to execute.")]
-        public IModelSystemTemplate HostModelSystem;
-
-        [SubModelInformation(Required = true, Description = "The logic to load in parameters.")]
-        public IDataSource<List<ParameterSetting>> ParameterLoader;
-
-        [SubModelInformation(Required = true, Description = "The location to save the estimation results.")]
-        public FileLocation ResultFile;
-
-        [RunParameter("SkipReportingResults", false, "Skip Reporting Results.  Only turn this on for increased performance during the estimation of AI's.")]
-        public bool SkipReportingResults;
-
-        public int CurrentIteration { get; set; }
-
-        [RunParameter("Generations", "100", typeof(int), "The total number of iterations we should push the AI through.")]
-        public int TotalIterations { get; set; }
-
-        public List<Job> CurrentJobs { get; set; }
-
-        [RunParameter("Input Directory", "../../Input", "The directory containing the model's input.")]
-        public string InputBaseDirectory { get; set; }
-
-        public string Name { get; set; }
-
-        public string OutputBaseDirectory { get; set; }
-
-        public List<ParameterSetting> Parameters { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        get
         {
-            get
+            return new Tuple<byte, byte, byte>(50, 150, 50);
+        }
+    }
+
+    public bool ExitRequest()
+    {
+        return false;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void Start()
+    {
+        InitializeHost();
+        LoadParameters();
+        RunIterations();
+        Status = () => "Run Complete";
+    }
+
+    private int CurrentJobIndex;
+
+
+    public event Action<Job, int, float> FitnessFunctionEvaluated;
+
+    private void RunIterations()
+    {
+        Progress = 0.0f;
+        Status = () => "Running iteration " + (CurrentIteration + 1) + " of " + TotalIterations;
+        for (CurrentIteration = 0; !Exit & CurrentIteration < TotalIterations; CurrentIteration++)
+        {
+            Progress = (float)CurrentIteration / TotalIterations;
+            CurrentJobIndex = 0;
+            CurrentJobs = AI.CreateJobsForIteration();
+            ClientModelSystem.Start();
+            if (!SkipReportingResults)
             {
-                return new Tuple<byte, byte, byte>(50, 150, 50);
+                SaveResultsToDisk();
             }
+            AI.IterationComplete();
         }
+        Progress = 1.0f;
+    }
 
-        public bool ExitRequest()
+    private void SaveResultsToDisk()
+    {
+        while (true)
         {
-            return false;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            InitializeHost();
-            LoadParameters();
-            RunIterations();
-            Status = () => "Run Complete";
-        }
-
-        private int CurrentJobIndex;
-
-
-        public event Action<Job, int, float> FitnessFunctionEvaluated;
-
-        private void RunIterations()
-        {
-            Progress = 0.0f;
-            Status = () => "Running iteration " + (CurrentIteration + 1) + " of " + TotalIterations;
-            for (CurrentIteration = 0; !Exit & CurrentIteration < TotalIterations; CurrentIteration++)
+            try
             {
-                Progress = (float)CurrentIteration / TotalIterations;
-                CurrentJobIndex = 0;
-                CurrentJobs = AI.CreateJobsForIteration();
-                ClientModelSystem.Start();
-                if (!SkipReportingResults)
+                using var writer = new StreamWriter(ResultFile.GetFilePath(), true);
+                if (CurrentIteration == 0)
                 {
-                    SaveResultsToDisk();
-                }
-                AI.IterationComplete();
-            }
-            Progress = 1.0f;
-        }
-
-        private void SaveResultsToDisk()
-        {
-            while (true)
-            {
-                try
-                {
-                    using (var writer = new StreamWriter(ResultFile.GetFilePath(), true))
+                    // write header here
+                    StringBuilder header = new();
+                    header.Append("Generation,Value");
+                    for (int i = 0; i < Parameters.Count; i++)
                     {
-                        if (CurrentIteration == 0)
+                        for (int j = 0; j < Parameters[i].Names.Length; j++)
                         {
-                            // write header here
-                            StringBuilder header = new StringBuilder();
-                            header.Append("Generation,Value");
-                            for (int i = 0; i < Parameters.Count; i++)
-                            {
-                                for (int j = 0; j < Parameters[i].Names.Length; j++)
-                                {
-                                    header.Append(',');
-                                    header.Append('"');
-                                    header.Append(Parameters[i].Names[j]);
-                                    header.Append('"');
-                                }
-                            }
-                            writer.WriteLine(header.ToString());
+                            header.Append(',');
+                            header.Append('"');
+                            header.Append(Parameters[i].Names[j]);
+                            header.Append('"');
                         }
-                        for (int i = 0; i < CurrentJobs.Count; i++)
-                        {
-                            var currentJob = CurrentJobs[i];
-                            writer.Write(CurrentIteration);
-                            writer.Write(',');
-                            writer.Write(currentJob.Value);
-                            for (int j = 0; j < currentJob.Parameters.Length; j++)
-                            {
-                                for (int k = 0; k < Parameters[j].Names.Length; k++)
-                                {
-                                    writer.Write(',');
-                                    // this uses the i th value since they are all the same
-                                    writer.Write(currentJob.Parameters[j].Current);
-                                }
-                            }
-                            writer.WriteLine();
-                        }
-                        break;
                     }
+                    writer.WriteLine(header.ToString());
                 }
-                catch
+                for (int i = 0; i < CurrentJobs.Count; i++)
                 {
-                    Status = () => "Unable to write to results file.";
-                    // let them close the file
-                    System.Threading.Thread.Sleep(10);
-                    if (Exit) break;
+                    var currentJob = CurrentJobs[i];
+                    writer.Write(CurrentIteration);
+                    writer.Write(',');
+                    writer.Write(currentJob.Value);
+                    for (int j = 0; j < currentJob.Parameters.Length; j++)
+                    {
+                        for (int k = 0; k < Parameters[j].Names.Length; k++)
+                        {
+                            writer.Write(',');
+                            // this uses the i th value since they are all the same
+                            writer.Write(currentJob.Parameters[j].Current);
+                        }
+                    }
+                    writer.WriteLine();
                 }
+                break;
             }
-        }
-
-        public Job GiveJob()
-        {
-            if (!Exit & CurrentJobIndex < CurrentJobs.Count)
+            catch
             {
-                return CurrentJobs[CurrentJobIndex];
-            }
-            return null;
-        }
-
-        public void SaveResult(float result)
-        {
-            if (CurrentJobIndex < CurrentJobs.Count)
-            {
-                CurrentJobs[CurrentJobIndex].Value = result;
-                FitnessFunctionEvaluated?.Invoke(CurrentJobs[CurrentJobIndex], CurrentIteration, result);
-                CurrentJobIndex++;
-            }
-            Progress = ((float)CurrentIteration / TotalIterations) + ((float)CurrentJobIndex) / (CurrentJobs.Count * TotalIterations);
-        }
-
-        private void InitializeHost()
-        {
-            if (HostModelSystem != null)
-            {
-                Status = () => "Running host model system";
-                HostModelSystem.Start();
+                Status = () => "Unable to write to results file.";
+                // let them close the file
+                System.Threading.Thread.Sleep(10);
+                if (Exit) break;
             }
         }
+    }
 
-        private void LoadParameters()
+    public Job GiveJob()
+    {
+        if (!Exit & CurrentJobIndex < CurrentJobs.Count)
         {
-            Status = () => "Loading Parameters";
-            ParameterLoader.LoadData();
-            Parameters = ParameterLoader.GiveData();
-            ParameterLoader.UnloadData();
+            return CurrentJobs[CurrentJobIndex];
         }
+        return null;
+    }
 
-        private Func<string> Status = () => "Initializing";
-
-        public override string ToString()
+    public void SaveResult(float result)
+    {
+        if (CurrentJobIndex < CurrentJobs.Count)
         {
-            return Status();
+            CurrentJobs[CurrentJobIndex].Value = result;
+            FitnessFunctionEvaluated?.Invoke(CurrentJobs[CurrentJobIndex], CurrentIteration, result);
+            CurrentJobIndex++;
         }
+        Progress = ((float)CurrentIteration / TotalIterations) + ((float)CurrentJobIndex) / (CurrentJobs.Count * TotalIterations);
+    }
+
+    private void InitializeHost()
+    {
+        if (HostModelSystem != null)
+        {
+            Status = () => "Running host model system";
+            HostModelSystem.Start();
+        }
+    }
+
+    private void LoadParameters()
+    {
+        Status = () => "Loading Parameters";
+        ParameterLoader.LoadData();
+        Parameters = ParameterLoader.GiveData();
+        ParameterLoader.UnloadData();
+    }
+
+    private Func<string> Status = () => "Initializing";
+
+    public override string ToString()
+    {
+        return Status();
     }
 }

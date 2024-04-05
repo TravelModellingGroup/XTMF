@@ -18,68 +18,67 @@
 */
 using System;
 using XTMF;
-namespace TMG.Emme
-{
-    [ModuleInformation(Description =
+namespace TMG.Emme;
+
+[ModuleInformation(Description =
 @"This module is designed to execute a series of emme tools from a modeller controller that is stored in an XTMF resource.")]
-    public class ExecuteToolsFromModellerResource : ISelfContainedModule
+public class ExecuteToolsFromModellerResource : ISelfContainedModule
+{
+    [SubModelInformation(Required = false, Description = "The tools to run in order.")]
+    public IEmmeTool[] Tools;
+
+    [SubModelInformation(Required = true, Description = "The name of the resource that has modeller.")]
+    public IResource EmmeModeller;
+
+    public void Start()
     {
-        [SubModelInformation(Required = false, Description = "The tools to run in order.")]
-        public IEmmeTool[] Tools;
-
-        [SubModelInformation(Required = true, Description = "The name of the resource that has modeller.")]
-        public IResource EmmeModeller;
-
-        public void Start()
+        var modeller = EmmeModeller.AcquireResource<ModellerController>();
+        var tools = Tools;
+        int i = 0;
+        // ReSharper disable AccessToModifiedClosure
+        _Progress = () => (((float)i / tools.Length) + tools[i].Progress * (1.0f / tools.Length));
+        Status = () => tools[i].ToString();
+        for (; i < tools.Length; i++)
         {
-            var modeller = EmmeModeller.AcquireResource<ModellerController>();
-            var tools = Tools;
-            int i = 0;
-            // ReSharper disable AccessToModifiedClosure
-            _Progress = () => (((float)i / tools.Length) + tools[i].Progress * (1.0f / tools.Length));
-            Status = () => tools[i].ToString();
-            for (; i < tools.Length; i++)
-            {
-                tools[i].Execute(modeller);
-            }
-            _Progress = () => 0f;
+            tools[i].Execute(modeller);
         }
+        _Progress = () => 0f;
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
-        private Func<float> _Progress = () => 0f;
-        public float Progress
-        {
-            get { return _Progress(); }
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
+    private Func<float> _Progress = () => 0f;
+    public float Progress
+    {
+        get { return _Progress(); }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(50, 150, 50); }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(50, 150, 50); }
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        if (!EmmeModeller.CheckResourceType<ModellerController>())
         {
-            if (!EmmeModeller.CheckResourceType<ModellerController>())
-            {
-                error = "In '" + Name + "' the resource 'EmmeModeller' did not contain an Emme ModellerController!";
-                return false;
-            }
-            return true;
+            error = "In '" + Name + "' the resource 'EmmeModeller' did not contain an Emme ModellerController!";
+            return false;
         }
+        return true;
+    }
 
-        private Func<string> Status;
+    private Func<string> Status;
 
-        public override string ToString()
+    public override string ToString()
+    {
+        if (Status == null)
         {
-            if (Status == null)
-            {
-                return "Connecting to EMME";
-            }
-            return Status();
+            return "Connecting to EMME";
         }
+        return Status();
     }
 }

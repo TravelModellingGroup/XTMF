@@ -19,28 +19,27 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IModeCategory : IModeChoiceNode
 {
-    public interface IModeCategory : IModeChoiceNode
-    {
-        /// <summary>
-        /// The children of this category
-        /// </summary>
-        List<IModeChoiceNode> Children { get; }
+    /// <summary>
+    /// The children of this category
+    /// </summary>
+    List<IModeChoiceNode> Children { get; }
 
-        /// <summary>
-        /// The relation between the nested modes
-        /// </summary>
-        float Correlation { get; }
+    /// <summary>
+    /// The relation between the nested modes
+    /// </summary>
+    float Correlation { get; }
 
-        /// <summary>
-        /// Calculate the V component for this upper level
-        /// without the logsum of the children
-        /// </summary>
-        /// <param name="origin">Where we are starting from</param>
-        /// <param name="destination">Where we are going to</param>
-        /// <param name="time">The time of day the trip starts at</param>
-        /// <returns>The utility of the upper level</returns>
-        float CalculateCombinedV(IZone origin, IZone destination, Time time);
-    }
+    /// <summary>
+    /// Calculate the V component for this upper level
+    /// without the logsum of the children
+    /// </summary>
+    /// <param name="origin">Where we are starting from</param>
+    /// <param name="destination">Where we are going to</param>
+    /// <param name="time">The time of day the trip starts at</param>
+    /// <returns>The utility of the upper level</returns>
+    float CalculateCombinedV(IZone origin, IZone destination, Time time);
 }

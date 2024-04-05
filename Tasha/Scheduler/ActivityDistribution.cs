@@ -22,95 +22,94 @@ using System.Linq;
 using Datastructure;
 using TMG;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+/// <summary>
+/// This class provides access to the activity
+/// distributions
+/// </summary>
+internal static class ActivityDistribution
 {
     /// <summary>
-    /// This class provides access to the activity
-    /// distributions
+    /// Our link to the information for activities for each zone
     /// </summary>
-    internal static class ActivityDistribution
+    [ThreadStatic]
+    private static ZoneCache<ActivityInformation> ActivityData;
+
+    internal static float GetDistribution(IZone zone, int type)
     {
-        /// <summary>
-        /// Our link to the information for activities for each zone
-        /// </summary>
-        [ThreadStatic]
-        private static ZoneCache<ActivityInformation> ActivityData;
-
-        internal static float GetDistribution(IZone zone, int type)
+        switch ( type )
         {
-            switch ( type )
+            case 0:
+                return ActivityData[zone.ZoneNumber].RetailActivityLevel;
+
+            case 1:
+                return ActivityData[zone.ZoneNumber].OtherActivityLevel;
+
+            default:
+                return ActivityData[zone.ZoneNumber].WorkActivityLevel;
+        }
+    }
+
+    /// <summary>
+    /// Called once by the Scheduler, loads the ability to read the distributions
+    /// </summary>
+    internal static void LoadDistributions(string fileName, SparseArray<IZone> zoneArray)
+    {
+        if ( ActivityData == null )
+        {
+            if ( !File.Exists( fileName ) )
             {
-                case 0:
-                    return ActivityData[zone.ZoneNumber].RetailActivityLevel;
+                GenerateActivityLevels( fileName, zoneArray );
+            }
+            ActivityData = new ZoneCache<ActivityInformation>( fileName, Convert );
 
-                case 1:
-                    return ActivityData[zone.ZoneNumber].OtherActivityLevel;
+            //(TashaConfiguration.GetInputFile(TashaConfiguration.GetDirectory("Scheduler"),"ActivityLevels"),
 
-                default:
-                    return ActivityData[zone.ZoneNumber].WorkActivityLevel;
+            //  convert);
+        }
+    }
+
+    private static ActivityInformation Convert(int zone, float[] data)
+    {
+        ActivityInformation info;
+        info.RetailActivityLevel = data[0];
+        info.OtherActivityLevel = data[1];
+        info.WorkActivityLevel = data[2];
+        return info;
+    }
+
+    private static void GenerateActivityLevels(string fileName, SparseArray<IZone> zoneArray)
+    {
+        var zones = zoneArray.GetFlatData();
+        string csvFileName = Path.GetTempFileName();
+        using ( StreamWriter writer = new( csvFileName ) )
+        {
+            writer.WriteLine( "Zone,Retail Level,Other Level,Work Level" );
+            for ( int i = 0; i < zones.Length; i++ )
+            {
+                writer.Write( zones[i].ZoneNumber );
+                writer.Write( ',' );
+                writer.Write( zones[i].RetailActivityLevel );
+                writer.Write( ',' );
+                writer.Write( zones[i].OtherActivityLevel );
+                writer.Write( ',' );
+                writer.WriteLine( zones[i].WorkActivityLevel );
             }
         }
+        SparseZoneCreator creator = new( zones.Last().ZoneNumber + 1, 3 );
+        creator.LoadCsv( csvFileName, true );
+        creator.Save( fileName );
+        File.Delete( csvFileName );
+    }
 
-        /// <summary>
-        /// Called once by the Scheduler, loads the ability to read the distributions
-        /// </summary>
-        internal static void LoadDistributions(string fileName, SparseArray<IZone> zoneArray)
-        {
-            if ( ActivityData == null )
-            {
-                if ( !File.Exists( fileName ) )
-                {
-                    GenerateActivityLevels( fileName, zoneArray );
-                }
-                ActivityData = new ZoneCache<ActivityInformation>( fileName, Convert );
-
-                //(TashaConfiguration.GetInputFile(TashaConfiguration.GetDirectory("Scheduler"),"ActivityLevels"),
-
-                //  convert);
-            }
-        }
-
-        private static ActivityInformation Convert(int zone, float[] data)
-        {
-            ActivityInformation info;
-            info.RetailActivityLevel = data[0];
-            info.OtherActivityLevel = data[1];
-            info.WorkActivityLevel = data[2];
-            return info;
-        }
-
-        private static void GenerateActivityLevels(string fileName, SparseArray<IZone> zoneArray)
-        {
-            var zones = zoneArray.GetFlatData();
-            string csvFileName = Path.GetTempFileName();
-            using ( StreamWriter writer = new StreamWriter( csvFileName ) )
-            {
-                writer.WriteLine( "Zone,Retail Level,Other Level,Work Level" );
-                for ( int i = 0; i < zones.Length; i++ )
-                {
-                    writer.Write( zones[i].ZoneNumber );
-                    writer.Write( ',' );
-                    writer.Write( zones[i].RetailActivityLevel );
-                    writer.Write( ',' );
-                    writer.Write( zones[i].OtherActivityLevel );
-                    writer.Write( ',' );
-                    writer.WriteLine( zones[i].WorkActivityLevel );
-                }
-            }
-            SparseZoneCreator creator = new SparseZoneCreator( zones.Last().ZoneNumber + 1, 3 );
-            creator.LoadCsv( csvFileName, true );
-            creator.Save( fileName );
-            File.Delete( csvFileName );
-        }
-
-        /// <summary>
-        /// How we actually store the information
-        /// </summary>
-        private struct ActivityInformation
-        {
-            internal float OtherActivityLevel;
-            internal float RetailActivityLevel;
-            internal float WorkActivityLevel;
-        }
+    /// <summary>
+    /// How we actually store the information
+    /// </summary>
+    private struct ActivityInformation
+    {
+        internal float OtherActivityLevel;
+        internal float RetailActivityLevel;
+        internal float WorkActivityLevel;
     }
 }

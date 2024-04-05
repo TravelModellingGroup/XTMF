@@ -17,93 +17,86 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace XTMF.Editing
+namespace XTMF.Editing;
+
+/// <summary>
+/// The base class for internal XTMF commands
+/// </summary>
+public abstract class XTMFCommand
 {
     /// <summary>
-    /// The base class for internal XTMF commands
+    /// The name of the executing command
     /// </summary>
-    public abstract class XTMFCommand
+    public readonly string Name;
+
+    public XTMFCommand(string name)
     {
-        /// <summary>
-        /// The name of the executing command
-        /// </summary>
-        public readonly string Name;
+        Name = name;
+    }
 
-        public XTMFCommand(string name)
+    /// <summary>
+    /// Check to see if a command can be undone
+    /// </summary>
+    /// <returns></returns>
+    public abstract bool CanUndo();
+
+    /// <summary>
+    /// Run the command for the first time
+    /// </summary>
+    public abstract bool Do(ref string error);
+
+    /// <summary>
+    /// Undo the command
+    /// </summary>
+    public abstract bool Undo(ref string error);
+
+    /// <summary>
+    /// Reapply the command
+    /// </summary>
+    public abstract bool Redo(ref string error);
+
+    public delegate bool XTMFCommandMethod(ref string error);
+
+    /// <summary>
+    /// This class provides an easy way to generate commands through our factory
+    /// </summary>
+    private class DelegateCommand : XTMFCommand
+    {
+        private readonly XTMFCommandMethod _OnDo;
+        private readonly XTMFCommandMethod _OnUndo;
+        private readonly XTMFCommandMethod _OnRedo;
+
+        public DelegateCommand(string name, XTMFCommandMethod onDo, XTMFCommandMethod onUndo = null, XTMFCommandMethod onRedo = null) : base(name)
         {
-            Name = name;
+            _OnDo = onDo;
+            _OnUndo = onUndo;
+            _OnRedo = onRedo;
         }
 
-        /// <summary>
-        /// Check to see if a command can be undone
-        /// </summary>
-        /// <returns></returns>
-        public abstract bool CanUndo();
+        public override bool CanUndo() => _OnUndo != null;
 
-        /// <summary>
-        /// Run the command for the first time
-        /// </summary>
-        public abstract bool Do(ref string error);
+        public override bool Do(ref string error) => _OnDo?.Invoke(ref error) == true;
 
-        /// <summary>
-        /// Undo the command
-        /// </summary>
-        public abstract bool Undo(ref string error);
+        public override bool Redo(ref string error) => _OnRedo?.Invoke(ref error) == true;
 
-        /// <summary>
-        /// Reapply the command
-        /// </summary>
-        public abstract bool Redo(ref string error);
+        public override bool Undo(ref string error) => _OnUndo?.Invoke(ref error) == true;
+    }
 
-        public delegate bool XTMFCommandMethod(ref string error);
-
-        /// <summary>
-        /// This class provides an easy way to generate commands through our factory
-        /// </summary>
-        private class DelegateCommand : XTMFCommand
+    /// <summary>
+    /// Generate a new command given delegates.  If you use OnUndo you must also provide a OnRedo.
+    /// </summary>
+    /// <param name="OnDo">The action to perform</param>
+    /// <param name="OnUndo">The inverse of the action to perform</param>
+    /// <param name="OnRedo">The inverse of the inverse of the action to perform</param>
+    /// <returns>A command with this behaviour.</returns>
+    public static XTMFCommand CreateCommand(string name, XTMFCommandMethod OnDo, XTMFCommandMethod OnUndo = null, XTMFCommandMethod OnRedo = null)
+    {
+        ArgumentNullException.ThrowIfNull(OnDo);
+        if ((OnUndo == null) != (OnRedo == null))
         {
-            private readonly XTMFCommandMethod _OnDo;
-            private readonly XTMFCommandMethod _OnUndo;
-            private readonly XTMFCommandMethod _OnRedo;
-
-            public DelegateCommand(string name, XTMFCommandMethod onDo, XTMFCommandMethod onUndo = null, XTMFCommandMethod onRedo = null) : base(name)
-            {
-                _OnDo = onDo;
-                _OnUndo = onUndo;
-                _OnRedo = onRedo;
-            }
-
-            public override bool CanUndo() => _OnUndo != null;
-
-            public override bool Do(ref string error) => _OnDo?.Invoke(ref error) == true;
-
-            public override bool Redo(ref string error) => _OnRedo?.Invoke(ref error) == true;
-
-            public override bool Undo(ref string error) => _OnUndo?.Invoke(ref error) == true;
+            throw new ArgumentException("Both OnUndo and OnRedo must be null or both have delegates.");
         }
-
-        /// <summary>
-        /// Generate a new command given delegates.  If you use OnUndo you must also provide a OnRedo.
-        /// </summary>
-        /// <param name="OnDo">The action to perform</param>
-        /// <param name="OnUndo">The inverse of the action to perform</param>
-        /// <param name="OnRedo">The inverse of the inverse of the action to perform</param>
-        /// <returns>A command with this behaviour.</returns>
-        public static XTMFCommand CreateCommand(string name, XTMFCommandMethod OnDo, XTMFCommandMethod OnUndo = null, XTMFCommandMethod OnRedo = null)
-        {
-            if (OnDo == null)
-            {
-                throw new ArgumentNullException(nameof(OnDo));
-            }
-            if ((OnUndo == null) != (OnRedo == null))
-            {
-                throw new ArgumentException("Both OnUndo and OnRedo must be null or both have delegates.");
-            }
-            return new DelegateCommand(name, OnDo, OnUndo, OnRedo);
-        }
+        return new DelegateCommand(name, OnDo, OnUndo, OnRedo);
     }
 }

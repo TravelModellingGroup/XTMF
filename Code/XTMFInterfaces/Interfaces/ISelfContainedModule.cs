@@ -16,10 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace XTMF
+namespace XTMF;
+
+public interface ISelfContainedModule : IModule
 {
-    public interface ISelfContainedModule : IModule
-    {
-        void Start();
-    }
+    void Start();
 }

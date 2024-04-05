@@ -21,111 +21,110 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.FeasibilityCalculations
+namespace TMG.GTAModel.Modes.FeasibilityCalculations;
+
+[ModuleInformation(
+    Description = "This feasibility rule will describes the interaction of going into a radius, where origin has to be outside of it and the destination is inside."
+    + "  This is primarly used for the V2 Drive Access Subway mode.  A set of zones is used to compute the minimum distance zone to use as the radius"
+    )]
+public class RadialDistanceRequirment : ICalculation<Pair<IZone, IZone>, bool>
 {
-    [ModuleInformation(
-        Description = "This feasibility rule will describes the interaction of going into a radius, where origin has to be outside of it and the destination is inside."
-        + "  This is primarly used for the V2 Drive Access Subway mode.  A set of zones is used to compute the minimum distance zone to use as the radius"
-        )]
-    public class RadialDistanceRequirment : ICalculation<Pair<IZone, IZone>, bool>
+    [RunParameter( "PointX", 0f, "The X coordinate of the point in space where we are going to measure from." )]
+    public float PointX;
+
+    [RunParameter( "PointY", 0f, "The Y coordinate of the point in space where we are going to measure from." )]
+    public float PointY;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter( "Zones", "", typeof( RangeSet ), "The closest zone to point will be used as the minimum distance allowed." )]
+    public RangeSet TestAgainstZones;
+
+    // we are going to use a double here since sqrt will be a double which means less conversions aka faster
+    private double MinimumDistance = -1f;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter( "PointX", 0f, "The X coordinate of the point in space where we are going to measure from." )]
-        public float PointX;
+        get { return 0; }
+    }
 
-        [RunParameter( "PointY", 0f, "The Y coordinate of the point in space where we are going to measure from." )]
-        public float PointY;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [RunParameter( "Zones", "", typeof( RangeSet ), "The closest zone to point will be used as the minimum distance allowed." )]
-        public RangeSet TestAgainstZones;
-
-        // we are going to use a double here since sqrt will be a double which means less conversions aka faster
-        private double MinimumDistance = -1f;
-
-        public string Name { get; set; }
-
-        public float Progress
+    public void Load()
+    {
+        double minDistance = double.PositiveInfinity;
+        var zones = Root.ZoneSystem.ZoneArray;
+        bool any = false;
+        for ( int i = 0; i < TestAgainstZones.Count; i++ )
         {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void Load()
-        {
-            double minDistance = double.PositiveInfinity;
-            var zones = Root.ZoneSystem.ZoneArray;
-            bool any = false;
-            for ( int i = 0; i < TestAgainstZones.Count; i++ )
+            for ( int j = TestAgainstZones[i].Start; j <= TestAgainstZones[i].Stop; j++ )
             {
-                for ( int j = TestAgainstZones[i].Start; j <= TestAgainstZones[i].Stop; j++ )
+                var zone = zones[j];
+                if ( zone != null )
                 {
-                    var zone = zones[j];
-                    if ( zone != null )
+                    any = true;
+                    var distance = CalcDistance( zone );
+                    if ( distance < minDistance )
                     {
-                        any = true;
-                        var distance = CalcDistance( zone );
-                        if ( distance < minDistance )
-                        {
-                            minDistance = distance;
-                        }
+                        minDistance = distance;
                     }
                 }
             }
-            if ( !any )
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any zone number in the range '" + TestAgainstZones + "' in order to compute the minimum distance!" );
-            }
-            MinimumDistance = minDistance;
         }
-
-        public bool ProduceResult(Pair<IZone, IZone> data)
+        if ( !any )
         {
-            if ( MinimumDistance < 0 )
-            {
-                Load();
-            }
-            return TestOrigin( data.First ) && TestDestination( data.Second );
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any zone number in the range '" + TestAgainstZones + "' in order to compute the minimum distance!" );
         }
+        MinimumDistance = minDistance;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool ProduceResult(Pair<IZone, IZone> data)
+    {
+        if ( MinimumDistance < 0 )
         {
-            if ( TestAgainstZones.Count <= 0 )
-            {
-                error = "In '" + Name + "' you need to select at least one zone to be used to compute the minimum distance for the origin, and the containment for the destination!.";
-                return false;
-            }
-            return true;
+            Load();
         }
+        return TestOrigin( data.First ) && TestDestination( data.Second );
+    }
 
-        public void Unload()
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( TestAgainstZones.Count <= 0 )
         {
-            MinimumDistance = -1.0;
+            error = "In '" + Name + "' you need to select at least one zone to be used to compute the minimum distance for the origin, and the containment for the destination!.";
+            return false;
         }
+        return true;
+    }
 
-        private double CalcDistance(IZone zone)
-        {
-            var x = zone.X;
-            var y = zone.Y;
-            return Math.Sqrt( ( x - PointX ) * ( x - PointX )
-                            + ( y - PointY ) * ( y - PointY ) );
-        }
+    public void Unload()
+    {
+        MinimumDistance = -1.0;
+    }
 
-        private bool TestDestination(IZone destination)
-        {
-            // the origin needs to be outside of the radius
-            return CalcDistance( destination ) <= MinimumDistance;
-        }
+    private double CalcDistance(IZone zone)
+    {
+        var x = zone.X;
+        var y = zone.Y;
+        return Math.Sqrt( ( x - PointX ) * ( x - PointX )
+                        + ( y - PointY ) * ( y - PointY ) );
+    }
 
-        private bool TestOrigin(IZone origin)
-        {
-            // the origin needs to be outside of the radius
-            return CalcDistance( origin ) >= MinimumDistance;
-        }
+    private bool TestDestination(IZone destination)
+    {
+        // the origin needs to be outside of the radius
+        return CalcDistance( destination ) <= MinimumDistance;
+    }
+
+    private bool TestOrigin(IZone origin)
+    {
+        // the origin needs to be outside of the radius
+        return CalcDistance( origin ) >= MinimumDistance;
     }
 }

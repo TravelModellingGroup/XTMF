@@ -19,49 +19,48 @@
 
 using XTMF;
 
-namespace YourLibraryNameHere
+namespace YourLibraryNameHere;
+
+/// <summary>
+/// This is an example interface to extend the functionality of a model.
+///
+/// Here we are going to add more requirements for a model, in this case
+/// so that it can handle iteration.
+///
+/// In your Model Systems you can then have a field of type "IIterationModel"
+/// and then only models that provide this interface can be loaded into it by
+/// XTMF.
+/// </summary>
+/// <typeparam name="T">Here we provide a generic type for whatever data needs to be processed</typeparam>
+public interface IIterativeModel<T> : IModule
 {
     /// <summary>
-    /// This is an example interface to extend the functionality of a model.
-    ///
-    /// Here we are going to add more requirements for a model, in this case
-    /// so that it can handle iteration.
-    ///
-    /// In your Model Systems you can then have a field of type "IIterationModel"
-    /// and then only models that provide this interface can be loaded into it by
-    /// XTMF.
+    /// Another example of something that is useful is a call at the end of an iteration.
+    /// This could be used to release files or to save the data that it has collected.
     /// </summary>
-    /// <typeparam name="T">Here we provide a generic type for whatever data needs to be processed</typeparam>
-    public interface IIterativeModel<T> : IModule
-    {
-        /// <summary>
-        /// Another example of something that is useful is a call at the end of an iteration.
-        /// This could be used to release files or to save the data that it has collected.
-        /// </summary>
-        void EndIteration();
+    void EndIteration();
 
-        /// <summary>
-        /// This could be used for saving things that might have been collecting
-        /// over multiple iterations.
-        /// </summary>
-        void PostRun();
+    /// <summary>
+    /// This could be used for saving things that might have been collecting
+    /// over multiple iterations.
+    /// </summary>
+    void PostRun();
 
-        /// <summary>
-        /// This could be called to preload data that does not need to be loaded each iteration
-        /// </summary>
-        void PreRun();
+    /// <summary>
+    /// This could be called to preload data that does not need to be loaded each iteration
+    /// </summary>
+    void PreRun();
 
-        /// <summary>
-        /// Process the given data
-        /// </summary>
-        /// <param name="t">The type of the data that needs to be processed</param>
-        void Process(T t);
+    /// <summary>
+    /// Process the given data
+    /// </summary>
+    /// <param name="t">The type of the data that needs to be processed</param>
+    void Process(T t);
 
-        /// <summary>
-        /// For an example, here we have a method that gets called at the start of an iteration
-        /// (the calling of such is up to the IModelSystem code).
-        /// This could be used to load data.
-        /// </summary>
-        void StartIteration();
-    }
+    /// <summary>
+    /// For an example, here we have a method that gets called at the start of an iteration
+    /// (the calling of such is up to the IModelSystem code).
+    /// This could be used to load data.
+    /// </summary>
+    void StartIteration();
 }

@@ -18,23 +18,22 @@
 */
 using Tasha.Common;
 
-namespace Tasha.Scheduler
-{
-    internal class HouseholdProject : Project
-    {
-        public HouseholdProject(ITashaHousehold household, Schedule schedule)
-            : base( schedule )
-        {
-            Household = household;
-        }
+namespace Tasha.Scheduler;
 
-        /// <summary>
-        /// The household this project belongs to
-        /// </summary>
-        public ITashaHousehold Household
-        {
-            get;
-            private set;
-        }
+internal class HouseholdProject : Project
+{
+    public HouseholdProject(ITashaHousehold household, Schedule schedule)
+        : base( schedule )
+    {
+        Household = household;
+    }
+
+    /// <summary>
+    /// The household this project belongs to
+    /// </summary>
+    public ITashaHousehold Household
+    {
+        get;
+        private set;
     }
 }

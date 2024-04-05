@@ -23,111 +23,101 @@ using System.Xml;
 using TMG.Input;
 using System.IO;
 
-namespace TMG.Estimation
+namespace TMG.Estimation;
+
+public class BasicParameterLoader : IDataSource<List<ParameterSetting>>
 {
-    public class BasicParameterLoader : IDataSource<List<ParameterSetting>>
+    List<ParameterSetting> Parameters;
+
+    [SubModelInformation(Required = true, Description = "The location of the parameter file.")]
+    public FileLocation ParameterFileLocation;
+
+    public List<ParameterSetting> GiveData()
     {
-        List<ParameterSetting> Parameters;
+        return Parameters;
+    }
 
-        [SubModelInformation(Required = true, Description = "The location of the parameter file.")]
-        public FileLocation ParameterFileLocation;
+    public bool Loaded
+    {
+        get { return Parameters != null; }
+    }
 
-        public List<ParameterSetting> GiveData()
+    public void LoadData()
+    {
+
+        if(!File.Exists(ParameterFileLocation.GetFilePath()))
         {
-            return Parameters;
+            throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' does not exist!");
         }
-
-        public bool Loaded
+        XmlDocument doc = new();
+        doc.Load( ParameterFileLocation.GetFilePath() );
+        List<ParameterSetting> parameters = [];
+        var root = doc["Root"] ?? throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' contained an invalid parameter file!");
+        foreach ( XmlNode child in root.ChildNodes )
         {
-            get { return Parameters != null; }
-        }
-
-        public void LoadData()
-        {
-
-            if(!File.Exists(ParameterFileLocation.GetFilePath()))
+            if ( child.Name == "Parameter" )
             {
-                throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' does not exist!");
-            }
-            XmlDocument doc = new XmlDocument();
-            doc.Load( ParameterFileLocation.GetFilePath() );
-            List<ParameterSetting> parameters = new List<ParameterSetting>();
-            var root = doc["Root"];
-            if (root == null)
-            {
-                throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' contained an invalid parameter file!");
-
-            }
-            foreach ( XmlNode child in root.ChildNodes )
-            {
-                if ( child.Name == "Parameter" )
+                ParameterSetting current = new();
+                if (child.HasChildNodes)
                 {
-                    ParameterSetting current = new ParameterSetting();
-                    if (child.HasChildNodes)
+                    var nodes = child.ChildNodes;
+                    current.Names = new string[nodes.Count];
+                    for (int i = 0; i < nodes.Count; i++)
                     {
-                        var nodes = child.ChildNodes;
-                        current.Names = new string[nodes.Count];
-                        for (int i = 0; i < nodes.Count; i++)
-                        {
-                            XmlNode name = nodes[i];
-                            var parameterPath = name.Attributes?["ParameterPath"]?.InnerText;
-                            current.Names[i] = parameterPath ?? throw new XTMFRuntimeException(this, $"In {Name} Parameter Path was not defined in {child.OuterXml}!");
-                        }
+                        XmlNode name = nodes[i];
+                        var parameterPath = name.Attributes?["ParameterPath"]?.InnerText;
+                        current.Names[i] = parameterPath ?? throw new XTMFRuntimeException(this, $"In {Name} Parameter Path was not defined in {child.OuterXml}!");
                     }
-                    else
-                    {
-                        var parameterAttribute = child.Attributes?["ParameterPath"];
-                        if (parameterAttribute == null)
-                        {
-                            throw new XTMFRuntimeException(this, $"In {Name} ParameterPath was not defined in {child.OuterXml}!");
-                        }
-                        var parameterPath = parameterAttribute.InnerText;
-                        current.Names = new[] { parameterPath };
-                    }
-                    var minimumAttribute = child.Attributes?["Minimum"];
-                    var maximumAttribute = child.Attributes?["Maximum"];
-                    if (minimumAttribute == null)
-                    {
-                        throw new XTMFRuntimeException(this, $"In {Name} The Minimum attribute was not defined in {child.OuterXml}!");
-                    }
-                    if (maximumAttribute == null)
-                    {
-                        throw new XTMFRuntimeException(this, $"In {Name} The Maximum attribute was not defined in {child.OuterXml}!");
-                    }
-                    current.Minimum = float.Parse( minimumAttribute.InnerText);
-                    current.Maximum = float.Parse( maximumAttribute.InnerText);
-                    current.Current = current.Minimum;
-                    XmlAttribute nullHypothesis;
-                    if ( ( nullHypothesis = child.Attributes["NullHypothesis"] ) != null )
-                    {
-                        current.NullHypothesis = float.Parse( nullHypothesis.InnerText );
-                    }
-                    parameters.Add( current );
                 }
+                else
+                {
+                    var parameterAttribute = (child.Attributes?["ParameterPath"]) ?? throw new XTMFRuntimeException(this, $"In {Name} ParameterPath was not defined in {child.OuterXml}!");
+                    var parameterPath = parameterAttribute.InnerText;
+                    current.Names = [parameterPath];
+                }
+                var minimumAttribute = child.Attributes?["Minimum"];
+                var maximumAttribute = child.Attributes?["Maximum"];
+                if (minimumAttribute == null)
+                {
+                    throw new XTMFRuntimeException(this, $"In {Name} The Minimum attribute was not defined in {child.OuterXml}!");
+                }
+                if (maximumAttribute == null)
+                {
+                    throw new XTMFRuntimeException(this, $"In {Name} The Maximum attribute was not defined in {child.OuterXml}!");
+                }
+                current.Minimum = float.Parse( minimumAttribute.InnerText);
+                current.Maximum = float.Parse( maximumAttribute.InnerText);
+                current.Current = current.Minimum;
+                XmlAttribute nullHypothesis;
+                if ( ( nullHypothesis = child.Attributes["NullHypothesis"] ) != null )
+                {
+                    current.NullHypothesis = float.Parse( nullHypothesis.InnerText );
+                }
+                parameters.Add( current );
             }
-            Parameters = parameters;
         }
+        Parameters = parameters;
+    }
 
-        public void UnloadData()
-        {
-            Parameters = null;
-        }
+    public void UnloadData()
+    {
+        Parameters = null;
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

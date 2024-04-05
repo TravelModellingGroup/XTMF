@@ -28,215 +28,211 @@ using Tasha.Common;
 using XTMF;
 
 
-namespace Tasha.Validation.PerformanceMeasures
+namespace Tasha.Validation.PerformanceMeasures;
+
+public class AccessibilityCalculations : ISelfContainedModule
 {
-    public class AccessibilityCalculations : ISelfContainedModule
+    [RootModule]
+    public ITashaRuntime Root;
+    
+    [RunParameter("Population Zones to Analyze", "1-1000", typeof(RangeSet), "The zones that you want to do the accessibility calculations for")]
+    public RangeSet PopZoneRange;
+
+    [RunParameter("Employment Zones to Analyze", "1-9999", typeof(RangeSet), "Which employment zones do you want to do accessibility calculations for")]
+    public RangeSet EmpZoneRange;
+
+    [SubModelInformation(Required = true, Description = "File containing the NIA data")]
+    public IResource NIAData;
+
+    [SubModelInformation(Required = true, Description = "File containing the employment data")]
+    public IResource EmploymentData;
+
+    [SubModelInformation(Required = true, Description = "The auto time matrix")]
+    public IResource AutoTimeMatrix;
+
+    [SubModelInformation(Required = true, Description = "The transit IVTT matrix")]
+    public IResource TransitIVTTMatrix; 
+
+    [SubModelInformation(Required = true, Description = "The resource that will add all three transit time matrices")]
+    public IResource TotalTransitTimeMatrix;
+
+    [RunParameter("Accessibility Times to Analyze", "10,15,20,30,45,60,90", typeof(NumberList), "A comma separated list of accessibility times to execute this against.")]
+    public NumberList AccessibilityTimes;
+
+    [SubModelInformation(Required = true, Description = "Results file in .CSV format ")]
+    public FileLocation ResultsFile;
+
+    Dictionary<int, float> AutoAccessibilityResults = [];
+    Dictionary<int, float> TransitIVTTAccessibilityResults = [];
+    Dictionary<int, float> TransitAccessibilityResults = [];
+
+    public void Start()
     {
-        [RootModule]
-        public ITashaRuntime Root;
-        
-        [RunParameter("Population Zones to Analyze", "1-1000", typeof(RangeSet), "The zones that you want to do the accessibility calculations for")]
-        public RangeSet PopZoneRange;
+        var zoneSystem = Root.ZoneSystem.ZoneArray;
+        var zones = zoneSystem.GetFlatData();
+        var niApop = NIAData.AcquireResource<SparseArray<float>>().GetFlatData();
+        var employmentByZone = EmploymentData.AcquireResource<SparseArray<float>>().GetFlatData();            
+        var autoTimes = AutoTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+        var transitIVTT = TransitIVTTMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+        var totalTransitTimes = TotalTransitTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();            
 
-        [RunParameter("Employment Zones to Analyze", "1-9999", typeof(RangeSet), "Which employment zones do you want to do accessibility calculations for")]
-        public RangeSet EmpZoneRange;
+        float[] zonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
+                                       select (float)z.Population).ToArray();
 
-        [SubModelInformation(Required = true, Description = "File containing the NIA data")]
-        public IResource NIAData;
+        float analyzedpopulationSum = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
+                                       where PopZoneRange.Contains(z.ZoneNumber)
+                                        select z.Population).Sum();
 
-        [SubModelInformation(Required = true, Description = "File containing the employment data")]
-        public IResource EmploymentData;
+        float employmentSum = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
+                               where EmpZoneRange.Contains(z.ZoneNumber)
+                               select employmentByZone[zoneSystem.GetFlatIndex(z.ZoneNumber)]).Sum();
 
-        [SubModelInformation(Required = true, Description = "The auto time matrix")]
-        public IResource AutoTimeMatrix;
+        float niAsum = niApop.Sum();
+        var normalDenominator = 1.0f / (analyzedpopulationSum * employmentSum);
+        var niaDenominator = 1.0f / (niAsum * employmentSum);
 
-        [SubModelInformation(Required = true, Description = "The transit IVTT matrix")]
-        public IResource TransitIVTTMatrix; 
+        using StreamWriter writer = new(ResultsFile);
+        CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, zonePopulation, false);
+        writer.WriteLine("Analyzed Population Accessibility");
+        WriteToFile(normalDenominator, writer);
+        writer.WriteLine();
 
-        [SubModelInformation(Required = true, Description = "The resource that will add all three transit time matrices")]
-        public IResource TotalTransitTimeMatrix;
+        AutoAccessibilityResults.Clear();
+        TransitIVTTAccessibilityResults.Clear();
+        TransitAccessibilityResults.Clear();
 
-        [RunParameter("Accessibility Times to Analyze", "10,15,20,30,45,60,90", typeof(NumberList), "A comma separated list of accessibility times to execute this against.")]
-        public NumberList AccessibilityTimes;
+        CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, niApop, true);
+        writer.WriteLine("NIA Zone Accessibility");
+        WriteToFile(niaDenominator, writer);
 
-        [SubModelInformation(Required = true, Description = "Results file in .CSV format ")]
-        public FileLocation ResultsFile;
+        AutoAccessibilityResults.Clear();
+        TransitIVTTAccessibilityResults.Clear();
+        TransitAccessibilityResults.Clear();
+    }
 
-        Dictionary<int, float> AutoAccessibilityResults = new Dictionary<int, float>();
-        Dictionary<int, float> TransitIVTTAccessibilityResults = new Dictionary<int, float>();
-        Dictionary<int, float> TransitAccessibilityResults = new Dictionary<int, float>();
-
-        public void Start()
+    private void WriteToFile(float denominator, StreamWriter writer)
+    {
+        writer.WriteLine("Auto Accessibility");
+        writer.WriteLine("Time(mins), Percentage Accessible");
+        foreach (var pair in AutoAccessibilityResults)
         {
-            var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var zones = zoneSystem.GetFlatData();
-            var niApop = NIAData.AcquireResource<SparseArray<float>>().GetFlatData();
-            var employmentByZone = EmploymentData.AcquireResource<SparseArray<float>>().GetFlatData();            
-            var autoTimes = AutoTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var transitIVTT = TransitIVTTMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var totalTransitTimes = TotalTransitTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();            
-
-            float[] zonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
-                                           select (float)z.Population).ToArray();
-
-            float analyzedpopulationSum = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
-                                           where PopZoneRange.Contains(z.ZoneNumber)
-                                            select z.Population).Sum();
-
-            float employmentSum = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
-                                   where EmpZoneRange.Contains(z.ZoneNumber)
-                                   select employmentByZone[zoneSystem.GetFlatIndex(z.ZoneNumber)]).Sum();
-
-            float niAsum = niApop.Sum();
-            var normalDenominator = 1.0f / (analyzedpopulationSum * employmentSum);
-            var niaDenominator = 1.0f / (niAsum * employmentSum);            
-
-            using(StreamWriter writer = new StreamWriter(ResultsFile))
-            {
-                CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, zonePopulation, false);
-                writer.WriteLine("Analyzed Population Accessibility");                
-                WriteToFile(normalDenominator, writer);
-                writer.WriteLine();
-
-                AutoAccessibilityResults.Clear();
-                TransitIVTTAccessibilityResults.Clear();
-                TransitAccessibilityResults.Clear();
-                
-                CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, niApop, true);
-                writer.WriteLine("NIA Zone Accessibility");
-                WriteToFile(niaDenominator, writer);
-
-                AutoAccessibilityResults.Clear();
-                TransitIVTTAccessibilityResults.Clear();
-                TransitAccessibilityResults.Clear();
-
-            }
+            var percentageAccessible = AutoAccessibilityResults[pair.Key] * denominator;
+            writer.WriteLine("{0},{1}", pair.Key, percentageAccessible);
         }
 
-        private void WriteToFile(float denominator, StreamWriter writer)
+        writer.WriteLine("Transit IVTT Accessibility");
+        writer.WriteLine("Time(mins), Percentage Accessible");
+        foreach (var pair in TransitIVTTAccessibilityResults)
         {
-            writer.WriteLine("Auto Accessibility");
-            writer.WriteLine("Time(mins), Percentage Accessible");
-            foreach (var pair in AutoAccessibilityResults)
-            {
-                var percentageAccessible = AutoAccessibilityResults[pair.Key] * denominator;
-                writer.WriteLine("{0},{1}", pair.Key, percentageAccessible);
-            }
-
-            writer.WriteLine("Transit IVTT Accessibility");
-            writer.WriteLine("Time(mins), Percentage Accessible");
-            foreach (var pair in TransitIVTTAccessibilityResults)
-            {
-                var percentageAccessible = TransitIVTTAccessibilityResults[pair.Key] * denominator;
-                writer.WriteLine("{0},{1}", pair.Key, percentageAccessible);
-            }
-
-            writer.WriteLine("Total Transit Time Accessibility");
-            writer.WriteLine("Time(mins), Percentage Accessible");
-            foreach (var pair in TransitAccessibilityResults)
-            {
-                var percentageAccessible = TransitAccessibilityResults[pair.Key] * denominator;
-                writer.WriteLine("{0},{1}", pair.Key, percentageAccessible);
-            }
+            var percentageAccessible = TransitIVTTAccessibilityResults[pair.Key] * denominator;
+            writer.WriteLine("{0},{1}", pair.Key, percentageAccessible);
         }
 
-        private void CalculateAccessibility(IZone[] zones, float[] employmentByZone, float[][] autoTimes, float[][] transitIVTT, 
-            float[][] totalTransitTimes, float[] zonePopulation, bool niaCalc)
+        writer.WriteLine("Total Transit Time Accessibility");
+        writer.WriteLine("Time(mins), Percentage Accessible");
+        foreach (var pair in TransitAccessibilityResults)
         {
-            float accessiblePopulation;
+            var percentageAccessible = TransitAccessibilityResults[pair.Key] * denominator;
+            writer.WriteLine("{0},{1}", pair.Key, percentageAccessible);
+        }
+    }
 
-            foreach (var accessTime in AccessibilityTimes)
+    private void CalculateAccessibility(IZone[] zones, float[] employmentByZone, float[][] autoTimes, float[][] transitIVTT, 
+        float[][] totalTransitTimes, float[] zonePopulation, bool niaCalc)
+    {
+        float accessiblePopulation;
+
+        foreach (var accessTime in AccessibilityTimes)
+        {
+            AddToResults(0, accessTime, AutoAccessibilityResults);
+            AddToResults(0, accessTime, TransitIVTTAccessibilityResults);
+            AddToResults(0, accessTime, TransitAccessibilityResults);
+            for (int i = 0; i < zonePopulation.Length; i++)
             {
-                AddToResults(0, accessTime, AutoAccessibilityResults);
-                AddToResults(0, accessTime, TransitIVTTAccessibilityResults);
-                AddToResults(0, accessTime, TransitAccessibilityResults);
-                for (int i = 0; i < zonePopulation.Length; i++)
+                if (PopZoneRange.Contains(zones[i].ZoneNumber) || niaCalc)
                 {
-                    if (PopZoneRange.Contains(zones[i].ZoneNumber) || niaCalc)
+                    for (int j = 0; j < employmentByZone.Length; j++)
                     {
-                        for (int j = 0; j < employmentByZone.Length; j++)
+                        if (EmpZoneRange.Contains(zones[j].ZoneNumber))
                         {
-                            if (EmpZoneRange.Contains(zones[j].ZoneNumber))
+                            if (autoTimes[i][j] < accessTime)
                             {
-                                if (autoTimes[i][j] < accessTime)
-                                {
-                                    accessiblePopulation = (zonePopulation[i] * employmentByZone[j]);
-                                    AddToResults(accessiblePopulation, accessTime, AutoAccessibilityResults);
-                                }
-                                if (transitIVTT[i][j] < accessTime)
-                                {
-                                    accessiblePopulation = zonePopulation[i] * employmentByZone[j];
-                                    AddToResults(accessiblePopulation, accessTime, TransitIVTTAccessibilityResults);
-                                }
-                                if (totalTransitTimes[i][j] < accessTime)
-                                {
-                                    accessiblePopulation = zonePopulation[i] * employmentByZone[j];
-                                    AddToResults(accessiblePopulation, accessTime, TransitAccessibilityResults);
-                                }
+                                accessiblePopulation = (zonePopulation[i] * employmentByZone[j]);
+                                AddToResults(accessiblePopulation, accessTime, AutoAccessibilityResults);
+                            }
+                            if (transitIVTT[i][j] < accessTime)
+                            {
+                                accessiblePopulation = zonePopulation[i] * employmentByZone[j];
+                                AddToResults(accessiblePopulation, accessTime, TransitIVTTAccessibilityResults);
+                            }
+                            if (totalTransitTimes[i][j] < accessTime)
+                            {
+                                accessiblePopulation = zonePopulation[i] * employmentByZone[j];
+                                AddToResults(accessiblePopulation, accessTime, TransitAccessibilityResults);
                             }
                         }
                     }
                 }
             }
         }
+    }
 
 
-        public void AddToResults(float population, int accessTime, Dictionary<int, float> results)
+    public void AddToResults(float population, int accessTime, Dictionary<int, float> results)
+    {
+        if(results.ContainsKey(accessTime))
         {
-            if(results.ContainsKey(accessTime))
-            {
-                results[accessTime] += population;
-            }
-            else 
-            {
-                results.Add(accessTime, population);
-            }
+            results[accessTime] += population;
+        }
+        else 
+        {
+            results.Add(accessTime, population);
+        }
+    }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(120, 25, 100); }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (!EmploymentData.CheckResourceType<SparseArray<float>>())
+        {
+            error = "In '" + Name + "' the ODEmployment was not of type SparseArray<float>!";
+            return false;
         }
 
-        public string Name
+        else if (!AutoTimeMatrix.CheckResourceType<SparseTwinIndex<float>>())
         {
-            get;
-            set;
+            error = "In '" + Name + "' the AutoTimeMatrix was not of type SparseTwinIndex<float>!";
+            return false;
         }
 
-        public float Progress
+        else if (!TransitIVTTMatrix.CheckResourceType<SparseTwinIndex<float>>())
         {
-            get;
-            set;
+            error = "In '" + Name + "' the AutoTimeMatrix was not of type SparseTwinIndex<float>!";
+            return false;
         }
 
-        public Tuple<byte, byte, byte> ProgressColour
+        else if (!NIAData.CheckResourceType<SparseArray<float>>())
         {
-            get { return new Tuple<byte, byte, byte>(120, 25, 100); }
+            error = "In '" + Name + "' the NIAData was not of type SparseTwinIndex<float>!";
+            return false;
         }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            if (!EmploymentData.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the ODEmployment was not of type SparseArray<float>!";
-                return false;
-            }
-
-            else if (!AutoTimeMatrix.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the AutoTimeMatrix was not of type SparseTwinIndex<float>!";
-                return false;
-            }
-
-            else if (!TransitIVTTMatrix.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the AutoTimeMatrix was not of type SparseTwinIndex<float>!";
-                return false;
-            }
-
-            else if (!NIAData.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the NIAData was not of type SparseTwinIndex<float>!";
-                return false;
-            }
-
-            return true;  
-        }
+        return true;  
     }
 }

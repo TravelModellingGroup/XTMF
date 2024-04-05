@@ -21,181 +21,180 @@ using System.IO;
 using System.Reflection;
 using XTMF;
 
-namespace TMG.Input
+namespace TMG.Input;
+
+public abstract class FileLocation : IModule
 {
-    public abstract class FileLocation : IModule
+    public string Name { get; set; }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => null;
+
+    public abstract string GetFilePath();
+
+    public abstract bool IsPathEmpty();
+
+    public bool RuntimeValidation(ref string error)
     {
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => null;
-
-        public abstract string GetFilePath();
-
-        public abstract bool IsPathEmpty();
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public static implicit operator String(FileLocation fileLocation)
-        {
-            return fileLocation.GetFilePath();
-        }
+        return true;
     }
 
-    [ModuleInformation(
-        Description = "This module provides the ability to specify a file path, broken into two parts.  The directory is relative to the input directory unless a full path is given."
-        )]
-    public class DirectorySeperatedPathFromInputDirectory : FileLocation
+    public static implicit operator String(FileLocation fileLocation)
     {
-        [RunParameter("Directory Relative To Input Directory", "", typeof(FileFromInputDirectory), "A directory path to represent relative to the input directory.")]
-        public FileFromInputDirectory DirectoryName;
-
-        [RunParameter("File Name", "File.Type", "The file relative to the given directory path.")]
-        public string FileName;
-
-        [RootModule]
-        public IModelSystemTemplate Root;
-
-        public override string GetFilePath()
-        {
-            try
-            {
-                var directoryName = DirectoryName.GetFileName(Root.InputBaseDirectory);
-                if (String.IsNullOrEmpty(directoryName))
-                {
-                    return FileName;
-                }
-                if (!Directory.Exists(directoryName))
-                {
-                    Directory.CreateDirectory(directoryName);
-                }
-                return Path.Combine(directoryName, FileName);
-            }
-            catch (Exception e)
-            {
-                throw new XTMFRuntimeException(this, e);
-            }
-        }
-
-        public override bool IsPathEmpty()
-        {
-            return !DirectoryName.ContainsFileName() && String.IsNullOrWhiteSpace(FileName);
-        }
+        return fileLocation.GetFilePath();
     }
+}
 
-    [ModuleInformation(
-    Description = "This module provides the ability to specify a file path relative to the input directory unless a full path is given."
+[ModuleInformation(
+    Description = "This module provides the ability to specify a file path, broken into two parts.  The directory is relative to the input directory unless a full path is given."
     )]
-    public class FilePathFromInputDirectory : FileLocation
+public class DirectorySeperatedPathFromInputDirectory : FileLocation
+{
+    [RunParameter("Directory Relative To Input Directory", "", typeof(FileFromInputDirectory), "A directory path to represent relative to the input directory.")]
+    public FileFromInputDirectory DirectoryName;
+
+    [RunParameter("File Name", "File.Type", "The file relative to the given directory path.")]
+    public string FileName;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    public override string GetFilePath()
     {
-        [RunParameter("File From Input Directory", "Filename.type", typeof(FileFromInputDirectory), "A file path to represent relative to the input directory.")]
-        public FileFromInputDirectory FileName;
-
-        [RootModule]
-        public IModelSystemTemplate Root;
-
-        public override string GetFilePath()
+        try
         {
-            return FileName.GetFileName(Root.InputBaseDirectory);
+            var directoryName = DirectoryName.GetFileName(Root.InputBaseDirectory);
+            if (String.IsNullOrEmpty(directoryName))
+            {
+                return FileName;
+            }
+            if (!Directory.Exists(directoryName))
+            {
+                Directory.CreateDirectory(directoryName);
+            }
+            return Path.Combine(directoryName, FileName);
         }
-
-        public override bool IsPathEmpty()
+        catch (Exception e)
         {
-            return !FileName.ContainsFileName();
+            throw new XTMFRuntimeException(this, e);
         }
     }
 
-    [ModuleInformation(
-    Description = "This module provides the ability to specify a file path, broken into two parts.  The directory is relative to the output directory unless a full path is given."
-    )]
-    public class DirectorySeperatedPathFromOutputDirectory : FileLocation
+    public override bool IsPathEmpty()
     {
-        [RunParameter("Directory Relative To Run Directory", "", typeof(FileFromInputDirectory), "A directory path to represent relative to the run directory.")]
-        public FileFromOutputDirectory DirectoryName;
+        return !DirectoryName.ContainsFileName() && String.IsNullOrWhiteSpace(FileName);
+    }
+}
 
-        [RunParameter("File Name", "File.Type", "The file relative to the given directory path.")]
-        public string FileName;
+[ModuleInformation(
+Description = "This module provides the ability to specify a file path relative to the input directory unless a full path is given."
+)]
+public class FilePathFromInputDirectory : FileLocation
+{
+    [RunParameter("File From Input Directory", "Filename.type", typeof(FileFromInputDirectory), "A file path to represent relative to the input directory.")]
+    public FileFromInputDirectory FileName;
 
-        [RootModule]
-        public IModelSystemTemplate Root;
+    [RootModule]
+    public IModelSystemTemplate Root;
 
-        public override string GetFilePath()
+    public override string GetFilePath()
+    {
+        return FileName.GetFileName(Root.InputBaseDirectory);
+    }
+
+    public override bool IsPathEmpty()
+    {
+        return !FileName.ContainsFileName();
+    }
+}
+
+[ModuleInformation(
+Description = "This module provides the ability to specify a file path, broken into two parts.  The directory is relative to the output directory unless a full path is given."
+)]
+public class DirectorySeperatedPathFromOutputDirectory : FileLocation
+{
+    [RunParameter("Directory Relative To Run Directory", "", typeof(FileFromInputDirectory), "A directory path to represent relative to the run directory.")]
+    public FileFromOutputDirectory DirectoryName;
+
+    [RunParameter("File Name", "File.Type", "The file relative to the given directory path.")]
+    public string FileName;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    public override string GetFilePath()
+    {
+        try
         {
-            try
+            var directoryName = DirectoryName.GetFileName();
+            var fullPath = String.IsNullOrWhiteSpace(directoryName) ? FileName : Path.Combine(directoryName, FileName);
+            var fullPathDir = Path.GetDirectoryName(fullPath);
+            if (!String.IsNullOrWhiteSpace(fullPathDir) && !Directory.Exists(fullPathDir))
             {
-                var directoryName = DirectoryName.GetFileName();
-                var fullPath = String.IsNullOrWhiteSpace(directoryName) ? FileName : Path.Combine(directoryName, FileName);
-                var fullPathDir = Path.GetDirectoryName(fullPath);
-                if (!String.IsNullOrWhiteSpace(fullPathDir) && !Directory.Exists(fullPathDir))
-                {
-                    Directory.CreateDirectory(fullPathDir);
-                }
-                return fullPath;
+                Directory.CreateDirectory(fullPathDir);
             }
-            catch (Exception e)
-            {
-                throw new XTMFRuntimeException(this, e);
-            }
+            return fullPath;
         }
-
-        public override bool IsPathEmpty()
+        catch (Exception e)
         {
-            return !DirectoryName.ContainsFileName() && String.IsNullOrWhiteSpace(FileName);
+            throw new XTMFRuntimeException(this, e);
         }
     }
 
-    [ModuleInformation(
+    public override bool IsPathEmpty()
+    {
+        return !DirectoryName.ContainsFileName() && String.IsNullOrWhiteSpace(FileName);
+    }
+}
+
+[ModuleInformation(
 Description = "This module provides the ability to specify a file path relative to the output directory unless a full path is given."
 )]
-    [RedirectModule("TMG.Input.FilePathFromOuputDirectory, TMGInterfaces, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = null")]
-    public class FilePathFromOutputDirectory : FileLocation
+[RedirectModule("TMG.Input.FilePathFromOuputDirectory, TMGInterfaces, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = null")]
+public class FilePathFromOutputDirectory : FileLocation
+{
+    [RunParameter("File From Output Directory", "Filename.type", typeof(FileFromOutputDirectory), "A file path to represent relative to the run's directory.")]
+    public FileFromOutputDirectory FileName;
+
+    public override string GetFilePath()
     {
-        [RunParameter("File From Output Directory", "Filename.type", typeof(FileFromOutputDirectory), "A file path to represent relative to the run's directory.")]
-        public FileFromOutputDirectory FileName;
-
-        public override string GetFilePath()
-        {
-            return FileName.GetFileName();
-        }
-
-        public override bool IsPathEmpty()
-        {
-            return !FileName.ContainsFileName();
-        }
+        return FileName.GetFileName();
     }
 
-    [ModuleInformation(
+    public override bool IsPathEmpty()
+    {
+        return !FileName.ContainsFileName();
+    }
+}
+
+[ModuleInformation(
 Description = "This module provides the ability to specify a file path relative to the directory that contains XTMF unless a full path is given."
 )]
+// ReSharper disable once InconsistentNaming
+public class FilePathFromXTMFDirectory : FileLocation
+{
+    [RunParameter("File From XTMF Installation", "Filename.type", typeof(FileFromOutputDirectory), "A path relative to the installation directory of XTMF.")]
     // ReSharper disable once InconsistentNaming
-    public class FilePathFromXTMFDirectory : FileLocation
+    public FileFromOutputDirectory PathFromXTMFInstall;
+
+    public override string GetFilePath()
     {
-        [RunParameter("File From XTMF Installation", "Filename.type", typeof(FileFromOutputDirectory), "A path relative to the installation directory of XTMF.")]
-        // ReSharper disable once InconsistentNaming
-        public FileFromOutputDirectory PathFromXTMFInstall;
-
-        public override string GetFilePath()
+        var relativePath = PathFromXTMFInstall.GetFileName();
+        if(Path.IsPathRooted(relativePath))
         {
-            var relativePath = PathFromXTMFInstall.GetFileName();
-            if(Path.IsPathRooted(relativePath))
-            {
-                return relativePath;
-            }
-            return Path.Combine(GetXTMFDirectory(), relativePath);
+            return relativePath;
         }
+        return Path.Combine(GetXTMFDirectory(), relativePath);
+    }
 
-        public override bool IsPathEmpty()
-        {
-            return !PathFromXTMFInstall.ContainsFileName();
-        }
+    public override bool IsPathEmpty()
+    {
+        return !PathFromXTMFInstall.ContainsFileName();
+    }
 
-        private string GetXTMFDirectory()
-        {
-            return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location.Replace("file:///", String.Empty)));
-        }
+    private string GetXTMFDirectory()
+    {
+        return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location.Replace("file:///", String.Empty)));
     }
 }

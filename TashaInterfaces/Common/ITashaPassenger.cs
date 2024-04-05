@@ -16,17 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface ITashaPassenger : ISharedMode
 {
-    public interface ITashaPassenger : ISharedMode
-    {
-        /// <summary>
-        /// Calculate the V of the aux tour of the driver plus the passenger
-        /// </summary>
-        /// <param name="driverOriginalTrip">The original trip that the driver is taking</param>
-        /// <param name="passengerTrip">The original trip tha the passenger is taking</param>
-        /// <param name="v">The systematic utility of the combined sub-tour.</param>
-        /// <returns>If passenger is feasible</returns>
-        bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v);
-    }
+    /// <summary>
+    /// Calculate the V of the aux tour of the driver plus the passenger
+    /// </summary>
+    /// <param name="driverOriginalTrip">The original trip that the driver is taking</param>
+    /// <param name="passengerTrip">The original trip tha the passenger is taking</param>
+    /// <param name="v">The systematic utility of the combined sub-tour.</param>
+    /// <returns>If passenger is feasible</returns>
+    bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v);
 }

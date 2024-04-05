@@ -18,33 +18,32 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Used by IModel's to describe what this model is for
+/// </summary>
+[AttributeUsage(AttributeTargets.Class)]
+public class ModuleInformationAttribute : Attribute
 {
     /// <summary>
-    /// Used by IModel's to describe what this model is for
+    /// What this model does, or should do
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class ModuleInformationAttribute : Attribute
-    {
-        /// <summary>
-        /// What this model does, or should do
-        /// </summary>
-        public string Description { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 
-        /// <summary>
-        /// The location of the image to use for this module.
-        /// Leave blank to use the default icon.
-        /// </summary>
-        public string IconURI { get; set; } = string.Empty;
+    /// <summary>
+    /// The location of the image to use for this module.
+    /// Leave blank to use the default icon.
+    /// </summary>
+    public string IconURI { get; set; } = string.Empty;
 
-        /// <summary>
-        /// The name of this module
-        /// </summary>
-        public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// The name of this module
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
 
-        /// <summary>
-        /// A link to the documentation for this module.
-        /// </summary>
-        public string DocURL { get; set; } = string.Empty;
-    }
+    /// <summary>
+    /// A link to the documentation for this module.
+    /// </summary>
+    public string DocURL { get; set; } = string.Empty;
 }

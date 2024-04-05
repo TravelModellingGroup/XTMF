@@ -21,55 +21,52 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+public class ExportTransitBoardings : IEmmeTool
 {
-    public class ExportTransitBoardings : IEmmeTool
+    [RunParameter("Scenario", 0, "The Emme scenario from which to extract results.")]
+    public int ScenarioNumber;
+
+    [SubModelInformation(Description = "Report File", Required = true)]
+    public FileLocation ReportFile;
+
+    [SubModelInformation(Description = "Line Aggregation File", Required = false)]
+    public FileLocation LineAggregationFile;
+
+    [RunParameter("WriteIndividualRoutes", true, "If a line is not included in an aggregation file, should it be written out separately in the repot file?")]
+    public bool WriteIndividualRoutes;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+    private const string ToolName = "tmg.analysis.transit.export_boardings";
+
+    public bool Execute(Controller controller)
     {
-        [RunParameter("Scenario", 0, "The Emme scenario from which to extract results.")]
-        public int ScenarioNumber;
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        var result = "";
+        return mc.Run(this, ToolName,
+        [
+            new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+            new ModellerControllerParameter("ReportFile", ReportFile.GetFilePath()),
+            new ModellerControllerParameter("LineAggregationFile", LineAggregationFile?.GetFilePath() ?? ""),
+            new ModellerControllerParameter("WriteIndividualRoutesFlag", WriteIndividualRoutes.ToString())
+        ], (p => Progress = p), ref result);
+    }
 
-        [SubModelInformation(Description = "Report File", Required = true)]
-        public FileLocation ReportFile;
+    public string Name
+    {
+        get; set;
+    }
 
-        [SubModelInformation(Description = "Line Aggregation File", Required = false)]
-        public FileLocation LineAggregationFile;
+    public float Progress
+    {
+        get; private set;
+    }
 
-        [RunParameter("WriteIndividualRoutes", true, "If a line is not included in an aggregation file, should it be written out separately in the repot file?")]
-        public bool WriteIndividualRoutes;
+    public Tuple<byte, byte, byte> ProgressColour => _ProgressColour;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string ToolName = "tmg.analysis.transit.export_boardings";
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            var result = "";
-            return mc.Run(this, ToolName, new []
-            {
-                new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
-                new ModellerControllerParameter("ReportFile", ReportFile.GetFilePath()),
-                new ModellerControllerParameter("LineAggregationFile", LineAggregationFile?.GetFilePath() ?? ""),
-                new ModellerControllerParameter("WriteIndividualRoutesFlag", WriteIndividualRoutes.ToString())
-            }, (p => Progress = p), ref result);
-        }
-
-        public string Name
-        {
-            get; set;
-        }
-
-        public float Progress
-        {
-            get; private set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour => _ProgressColour;
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

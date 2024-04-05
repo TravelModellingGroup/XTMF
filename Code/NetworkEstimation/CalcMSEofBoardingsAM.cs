@@ -27,138 +27,132 @@ using XTMF;
 
 // ReSharper disable InconsistentNaming
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+public class CalcMSEofBoardingsAM : IEmmeTool
 {
-    public class CalcMSEofBoardingsAM : IEmmeTool
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    [RunParameter("Scenario", 0, "The number of the Emme scenario")]
+    public int ScenarioNumber;
+
+    [SubModelInformation(Description= "Observed Boardings File", Required= true)]
+    public FileLocation ObservedBoardingsFile;
+
+    [SubModelInformation(Description = "Line Aggregation File", Required = true)]
+    public FileLocation LineAggregationFile;
+
+    private const string _ToolName = "TMG2.XTMF.returnBoardings";
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+    public bool Execute(Controller controller)
     {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
+        var args = string.Join(" ", ScenarioNumber, LineAggregationFile.GetFilePath());
+        string result = "";
+        mc.Run(this, _ToolName, args, (p => Progress = p), ref result);
 
-        [RootModule]
-        public IEstimationClientModelSystem Root;
+        var modelResults = ParseResults(result);
+        var observations = LoadObservedBoardingsFile();
 
-        [RunParameter("Scenario", 0, "The number of the Emme scenario")]
-        public int ScenarioNumber;
+        CalcFitness(observations, modelResults);
 
-        [SubModelInformation(Description= "Observed Boardings File", Required= true)]
-        public FileLocation ObservedBoardingsFile;
+        return true;
+    }
 
-        [SubModelInformation(Description = "Line Aggregation File", Required = true)]
-        public FileLocation LineAggregationFile;
+    private Dictionary<string, float> ParseResults(string pythonDictionary)
+    {
+        var result = new Dictionary<string, float>();
 
-        private const string _ToolName = "TMG2.XTMF.returnBoardings";
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-
-        public bool Execute(Controller controller)
+        var cleaned = pythonDictionary.Replace("{", "").Replace("}", "");
+        var cells = cleaned.Split(',');
+        foreach (var cell in cells)
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
+            var pair = cell.Split(':');
+            var lineId = pair[0].Replace("'", "").Trim();
+            float boardings = float.Parse(pair[1]);
+            result[lineId] = boardings;
+        }
+        return result;
+    }
+
+    private Dictionary<string, float> LoadObservedBoardingsFile()
+    {
+        var result = new Dictionary<string, float>();
+
+        using (CsvReader reader = new(ObservedBoardingsFile.GetFilePath()))
+        {
+            reader.LoadLine(); //Skip the first line                
+            while (reader.LoadLine(out int numCol))
             {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
+                if (numCol < 2)
+                    throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
+
+                reader.Get(out string lineId, 0);
+                reader.Get(out float amBoardings, 1);
+
+                result[lineId] = amBoardings;
+            }
+        }
+
+        return result;
+    }
+
+    private void CalcFitness(Dictionary<string, float> observedBoardings, Dictionary<string, float> modelledBoardings)
+    {
+        double squaredErrorSum = 0.0;
+        int numberOfLines = 0;
+
+        var badMappings = new List<string>();
+
+        foreach (var key in modelledBoardings.Keys)
+        {
+            if (!observedBoardings.ContainsKey(key))
+            {
+                badMappings.Add(key);
+                continue;
             }
 
-            var args = string.Join(" ", ScenarioNumber, LineAggregationFile.GetFilePath());
-            string result = "";
-            mc.Run(this, _ToolName, args, (p => Progress = p), ref result);
+            float lineObservedBoardings = observedBoardings[key];
+            float lineModelledBoardings = modelledBoardings[key];
 
-            var modelResults = ParseResults(result);
-            var observations = LoadObservedBoardingsFile();
+            float error = lineModelledBoardings - lineObservedBoardings;
+            float squaredError = error * error;
 
-            CalcFitness(observations, modelResults);
-
-            return true;
+            squaredErrorSum += squaredError;
+            numberOfLines++;
         }
 
-        private Dictionary<string, float> ParseResults(string pythonDictionary)
+        if (badMappings.Count > 0)
         {
-            var result = new Dictionary<string, float>();
+            Console.WriteLine("Found " + badMappings.Count + " lines in the network that are missing in the observation file");
 
-            var cleaned = pythonDictionary.Replace("{", "").Replace("}", "");
-            var cells = cleaned.Split(',');
-            foreach (var cell in cells)
-            {
-                var pair = cell.Split(':');
-                var lineId = pair[0].Replace("'", "").Trim();
-                float boardings = float.Parse(pair[1]);
-                result[lineId] = boardings;
-            }
-            return result;
         }
 
-        private Dictionary<string, float> LoadObservedBoardingsFile()
-        {
-            var result = new Dictionary<string, float>();
+        Root.RetrieveValue = (() => (float)(squaredErrorSum / numberOfLines));
+    }
 
-            using (CsvReader reader = new CsvReader(ObservedBoardingsFile.GetFilePath()))
-            {
-                reader.LoadLine(); //Skip the first line                
-                while (reader.LoadLine(out int numCol))
-                {
-                    if (numCol < 2)
-                        throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
+    public string Name
+    {
+        get;
+        set;
+    }
 
-                    reader.Get(out string lineId, 0);
-                    reader.Get(out float amBoardings, 1);
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-                    result[lineId] = amBoardings;
-                }
-            }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-            return result;
-        }
-
-        private void CalcFitness(Dictionary<string, float> observedBoardings, Dictionary<string, float> modelledBoardings)
-        {
-            double squaredErrorSum = 0.0;
-            int numberOfLines = 0;
-
-            var badMappings = new List<string>();
-
-            foreach (var key in modelledBoardings.Keys)
-            {
-                if (!observedBoardings.ContainsKey(key))
-                {
-                    badMappings.Add(key);
-                    continue;
-                }
-
-                float lineObservedBoardings = observedBoardings[key];
-                float lineModelledBoardings = modelledBoardings[key];
-
-                float error = lineModelledBoardings - lineObservedBoardings;
-                float squaredError = error * error;
-
-                squaredErrorSum += squaredError;
-                numberOfLines++;
-            }
-
-            if (badMappings.Count > 0)
-            {
-                Console.WriteLine("Found " + badMappings.Count + " lines in the network that are missing in the observation file");
-
-            }
-
-            Root.RetrieveValue = (() => (float)(squaredErrorSum / numberOfLines));
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

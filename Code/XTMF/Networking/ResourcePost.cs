@@ -16,12 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace XTMF.Networking
+namespace XTMF.Networking;
+
+internal struct ResourcePost
 {
-    internal struct ResourcePost
-    {
 #pragma warning disable CS0649
-        internal object Data;
-        internal string Name;
-    }
+    internal object Data;
+    internal string Name;
 }

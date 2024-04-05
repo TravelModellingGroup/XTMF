@@ -21,102 +21,101 @@ using System;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+public class LinearSearchAi : INetworkEstimationAI
 {
-    public class LinearSearchAi : INetworkEstimationAI
+    [SubModelInformation(Description = "The module to tally the errors", Required = true)]
+    public IErrorTally ErrorTally;
+
+    [RunParameter("Interval", 0.1f, "The (0 to 1) interval to increase by per exploration, where 0.1 would be 10% of the parameter space.")]
+    public float Interval;
+
+    [RunParameter("MABS Weight", 1f, "The weight applied to the mean absolute error in the evaluation function")]
+    public float MabsWeight;
+
+    [RunParameter("RMSE Weight", 1f, "The weight applied to the root mean square error in the evaluation function")]
+    public float RmseWeight;
+
+    [RunParameter("TotalError Weight", 1f, "The weight applied to the total error in the evaluation function")]
+    public float ErrorWeight;
+
+    private Tuple<byte, byte, byte> _Colour = new(50, 150, 50);
+
+    private bool Exit;
+
+    public string Name
     {
-        [SubModelInformation(Description = "The module to tally the errors", Required = true)]
-        public IErrorTally ErrorTally;
+        get;
+        set;
+    }
 
-        [RunParameter("Interval", 0.1f, "The (0 to 1) interval to increase by per exploration, where 0.1 would be 10% of the parameter space.")]
-        public float Interval;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("MABS Weight", 1f, "The weight applied to the mean absolute error in the evaluation function")]
-        public float MabsWeight;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _Colour; }
+    }
 
-        [RunParameter("RMSE Weight", 1f, "The weight applied to the root mean square error in the evaluation function")]
-        public float RmseWeight;
+    public bool UseComplexErrorFunction
+    {
+        get { return true; }
+    }
 
-        [RunParameter("TotalError Weight", 1f, "The weight applied to the total error in the evaluation function")]
-        public float ErrorWeight;
+    public void CancelExploration()
+    {
+        Exit = true;
+    }
 
-        private Tuple<byte, byte, byte> _Colour = new Tuple<byte, byte, byte>(50, 150, 50);
+    public float ComplexErrorFunction(ParameterSetting[] parameters, TransitLine[] transitLine, TransitLine[] predicted, float[] aggToTruth)
+    {
+        return ErrorTally.ComputeError(parameters, transitLine, predicted);
+    }
 
-        private bool Exit;
+    public float ErrorCombinationFunction(double rmse, double mabs, double terror)
+    {
+        return (float)((RmseWeight * rmse
+                        + MabsWeight * mabs
+                        + ErrorWeight * terror));
+    }
 
-        public string Name
+    public void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction)
+    {
+        Exit = false;
+        Progress = 0;
+        Explore(parameters, updateProgress, evaluationfunction, 0);
+        Progress = 1;
+        updateProgress();
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    private void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction, int parameterIndex)
+    {
+        float point = parameters[parameterIndex].Start;
+        for (; point < parameters[parameterIndex].Stop; point += (parameters[parameterIndex].Stop - parameters[parameterIndex].Start) * Interval)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _Colour; }
-        }
-
-        public bool UseComplexErrorFunction
-        {
-            get { return true; }
-        }
-
-        public void CancelExploration()
-        {
-            Exit = true;
-        }
-
-        public float ComplexErrorFunction(ParameterSetting[] parameters, TransitLine[] transitLine, TransitLine[] predicted, float[] aggToTruth)
-        {
-            return ErrorTally.ComputeError(parameters, transitLine, predicted);
-        }
-
-        public float ErrorCombinationFunction(double rmse, double mabs, double terror)
-        {
-            return (float)((RmseWeight * rmse
-                            + MabsWeight * mabs
-                            + ErrorWeight * terror));
-        }
-
-        public void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction)
-        {
-            Exit = false;
-            Progress = 0;
-            Explore(parameters, updateProgress, evaluationfunction, 0);
-            Progress = 1;
-            updateProgress();
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        private void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction, int parameterIndex)
-        {
-            float point = parameters[parameterIndex].Start;
-            for (; point < parameters[parameterIndex].Stop; point += (parameters[parameterIndex].Stop - parameters[parameterIndex].Start) * Interval)
+            parameters[parameterIndex].Current = point;
+            if (parameterIndex >= parameters.Length - 1)
             {
-                parameters[parameterIndex].Current = point;
-                if (parameterIndex >= parameters.Length - 1)
-                {
-                    evaluationfunction(parameters);
-                    Progress = Progress + (1f / (float)Math.Pow(1f / Interval, parameters.Length));
-                    updateProgress();
-                }
-                else
-                {
-                    Explore(parameters, updateProgress, evaluationfunction, parameterIndex + 1);
-                }
-                if (Exit)
-                {
-                    break;
-                }
+                evaluationfunction(parameters);
+                Progress = Progress + (1f / (float)Math.Pow(1f / Interval, parameters.Length));
+                updateProgress();
+            }
+            else
+            {
+                Explore(parameters, updateProgress, evaluationfunction, parameterIndex + 1);
+            }
+            if (Exit)
+            {
+                break;
             }
         }
     }

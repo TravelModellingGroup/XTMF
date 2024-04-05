@@ -18,45 +18,40 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace XTMF.Gui.Converters
-{
-    public class IndexConverter : IValueConverter
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="TargetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object Convert(object value, Type TargetType, object parameter, CultureInfo culture)
-        {
-            ListViewItem item = (ListViewItem)value;
-            ListView listView = ItemsControl.ItemsControlFromItemContainer(item) as ListView;
-            int index = listView.ItemContainerGenerator.IndexFromContainer(item) + 1;
-            return index.ToString();
-        }
+namespace XTMF.Gui.Converters;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+public class IndexConverter : IValueConverter
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="TargetType"></param>
+    /// <param name="parameter"></param>
+    /// <param name="culture"></param>
+    /// <returns></returns>
+    public object Convert(object value, Type TargetType, object parameter, CultureInfo culture)
+    {
+        ListViewItem item = (ListViewItem)value;
+        ListView listView = ItemsControl.ItemsControlFromItemContainer(item) as ListView;
+        int index = listView.ItemContainerGenerator.IndexFromContainer(item) + 1;
+        return index.ToString();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="targetType"></param>
+    /// <param name="parameter"></param>
+    /// <param name="culture"></param>
+    /// <returns></returns>
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
     }
 }

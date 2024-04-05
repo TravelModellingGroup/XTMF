@@ -19,85 +19,84 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// The base class of the common objects.
+/// This allows for the attaching of properties to the objects
+/// </summary>
+public abstract class Attachable : IAttachable
 {
     /// <summary>
-    /// The base class of the common objects.
-    /// This allows for the attaching of properties to the objects
+    /// Where we store all of the attached objects
     /// </summary>
-    public abstract class Attachable : IAttachable
+    protected SortedList<string, object> Variables;
+
+    /// <summary>
+    /// Creates a new attachable object
+    /// </summary>
+    protected Attachable()
     {
-        /// <summary>
-        /// Where we store all of the attached objects
-        /// </summary>
-        protected SortedList<string, object> Variables;
-
-        /// <summary>
-        /// Creates a new attachable object
-        /// </summary>
-        protected Attachable()
-        {
-            // we don't expect it to contain tooo many
-            Variables = new SortedList<string, object>( 5 );
-        }
-
-        /// <summary>
-        /// Attempts to access a variable from the object
-        /// </summary>
-        /// <param name="name">The name of the variable to look for</param>
-        /// <returns>The variable you wanted</returns>
-        public object this[string name]
-        {
-            get
-            {
-                if (!Variables.TryGetValue(name, out object o))
-                {
-                    return null;
-                }
-                return o;
-            }
-
-            set
-            {
-                Attach( name, value );
-            }
-        }
-
-        /// <summary>
-        /// Attaches a new variable to this object
-        /// </summary>
-        /// <param name="name">The name of the variable (MUST BE UNIQUE!)</param>
-        /// <param name="value">The object to store to this name</param>
-        public void Attach(string name, object value)
-        {
-            Variables[name] = value ?? throw new XTMFRuntimeException(null, "Attempted to attach a NULL to an object!" );
-        }
-
-        /// <summary>
-        /// Synonymous with Attachable[name].
-        /// </summary>
-        /// <param name="name">The name of the variable you want</param>
-        /// <returns>The variable you wanted</returns>
-        public object GetVariable(string name)
-        {
-            return this[name];
-        }
-
-        #region IAttachable Members
-
-        /// <summary>
-        /// Gets the keys associated with this object
-        /// </summary>
-        public IEnumerable<string> Keys
-        {
-            get { return Variables.Keys; }
-        }
-
-        public void Release()
-        {
-            Variables.Clear();
-        }
-
-        #endregion IAttachable Members
+        // we don't expect it to contain tooo many
+        Variables = new SortedList<string, object>( 5 );
     }
+
+    /// <summary>
+    /// Attempts to access a variable from the object
+    /// </summary>
+    /// <param name="name">The name of the variable to look for</param>
+    /// <returns>The variable you wanted</returns>
+    public object this[string name]
+    {
+        get
+        {
+            if (!Variables.TryGetValue(name, out object o))
+            {
+                return null;
+            }
+            return o;
+        }
+
+        set
+        {
+            Attach( name, value );
+        }
+    }
+
+    /// <summary>
+    /// Attaches a new variable to this object
+    /// </summary>
+    /// <param name="name">The name of the variable (MUST BE UNIQUE!)</param>
+    /// <param name="value">The object to store to this name</param>
+    public void Attach(string name, object value)
+    {
+        Variables[name] = value ?? throw new XTMFRuntimeException(null, "Attempted to attach a NULL to an object!" );
+    }
+
+    /// <summary>
+    /// Synonymous with Attachable[name].
+    /// </summary>
+    /// <param name="name">The name of the variable you want</param>
+    /// <returns>The variable you wanted</returns>
+    public object GetVariable(string name)
+    {
+        return this[name];
+    }
+
+    #region IAttachable Members
+
+    /// <summary>
+    /// Gets the keys associated with this object
+    /// </summary>
+    public IEnumerable<string> Keys
+    {
+        get { return Variables.Keys; }
+    }
+
+    public void Release()
+    {
+        Variables.Clear();
+    }
+
+    #endregion IAttachable Members
 }

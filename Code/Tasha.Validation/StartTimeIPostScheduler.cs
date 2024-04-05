@@ -23,105 +23,102 @@ using Tasha.Common;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+[ModuleInformation(
+    Description = "This module is used for validation purposes. It computes and records " +
+                    "the start times of activities immediately after the scheduler is finished. " +
+                    "This is important as it allows for the analysis of the planned schedule before mode choice occurs."
+
+    )]
+public class StartTimeIPostScheduler : IPostScheduler
 {
-    [ModuleInformation(
-        Description = "This module is used for validation purposes. It computes and records " +
-                        "the start times of activities immediately after the scheduler is finished. " +
-                        "This is important as it allows for the analysis of the planned schedule before mode choice occurs."
+    [SubModelInformation(Required = true, Description = "The location to store the data.")]
+    public FileLocation OutputFile;
 
-        )]
-    public class StartTimeIPostScheduler : IPostScheduler
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private Dictionary<Activity, Dictionary<int, float>> ActivityStartTimeDictionaries = [];
+
+    public string Name
     {
-        [SubModelInformation(Required = true, Description = "The location to store the data.")]
-        public FileLocation OutputFile;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        private Dictionary<Activity, Dictionary<int, float>> ActivityStartTimeDictionaries = new Dictionary<Activity, Dictionary<int, float>>();
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(100, 100, 100); }
+    }
 
-        public string Name
+    public void Execute(ITashaHousehold household)
+    {
+        lock (this)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(100, 100, 100); }
-        }
-
-        public void Execute(ITashaHousehold household)
-        {
-            lock (this)
+            foreach(var person in household.Persons)
             {
-                foreach(var person in household.Persons)
+                var expFactor = person.ExpansionFactor;
+                foreach(var tripChain in person.TripChains)
                 {
-                    var expFactor = person.ExpansionFactor;
-                    foreach(var tripChain in person.TripChains)
+                    foreach(var trip in tripChain.Trips)
                     {
-                        foreach(var trip in tripChain.Trips)
+                        Dictionary<int, float> activityDictionary = GetDictionary(trip.Purpose);
+                        int hour = trip.ActivityStartTime.Hours;
+                        if(activityDictionary.ContainsKey(hour))
                         {
-                            Dictionary<int, float> activityDictionary = GetDictionary(trip.Purpose);
-                            int hour = trip.ActivityStartTime.Hours;
-                            if(activityDictionary.ContainsKey(hour))
-                            {
-                                activityDictionary[hour] += expFactor;
-                            }
-                            else
-                            {
-                                activityDictionary.Add(hour, expFactor);
-                            }
+                            activityDictionary[hour] += expFactor;
+                        }
+                        else
+                        {
+                            activityDictionary.Add(hour, expFactor);
                         }
                     }
                 }
             }
         }
+    }
 
-        private Dictionary<int, float> GetDictionary(Activity purpose)
+    private Dictionary<int, float> GetDictionary(Activity purpose)
+    {
+        if (!ActivityStartTimeDictionaries.TryGetValue(purpose, out Dictionary<int, float> ret))
         {
-            if (!ActivityStartTimeDictionaries.TryGetValue(purpose, out Dictionary<int, float> ret))
-            {
-                ret = new Dictionary<int, float>();
-                ActivityStartTimeDictionaries[purpose] = ret;
-            }
-            return ret;
+            ret = [];
+            ActivityStartTimeDictionaries[purpose] = ret;
         }
+        return ret;
+    }
 
-        public void IterationFinished(int iterationNumber)
+    public void IterationFinished(int iterationNumber)
+    {
+        using StreamWriter writer = new(OutputFile);
+        foreach (var activityDictionary in ActivityStartTimeDictionaries)
         {
-            using (StreamWriter writer = new StreamWriter(OutputFile))
+            var activityStr = activityDictionary.Key.ToString();
+            foreach (var e in activityDictionary.Value)
             {
-                foreach(var activityDictionary in ActivityStartTimeDictionaries)
-                {
-                    var activityStr = activityDictionary.Key.ToString();
-                    foreach(var e in activityDictionary.Value)
-                    {
-                        writer.WriteLine("{2},{0},{1}", e.Key, e.Value, activityStr);
-                    }
-                }
+                writer.WriteLine("{2},{0},{1}", e.Key, e.Value, activityStr);
             }
         }
+    }
 
-        public void Load(int maxIterations)
-        {
-        }
+    public void Load(int maxIterations)
+    {
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void IterationStarting(int iteration)
-        {
-            ActivityStartTimeDictionaries.Clear();
-        }
+    public void IterationStarting(int iteration)
+    {
+        ActivityStartTimeDictionaries.Clear();
     }
 }

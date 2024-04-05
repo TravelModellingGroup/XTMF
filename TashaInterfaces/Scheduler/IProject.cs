@@ -21,18 +21,17 @@ using System.Collections.Generic;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+public interface IProject : IModule
 {
-    public interface IProject : IModule
-    {
-        bool IsHouseholdProject { get; }
+    bool IsHouseholdProject { get; }
 
-        bool AssignStartTime(ITashaPerson person, int personIndex, ISchedule[] schedule, IActivityEpisode episode, Random rand);
+    bool AssignStartTime(ITashaPerson person, int personIndex, ISchedule[] schedule, IActivityEpisode episode, Random rand);
 
-        void Generate(ITashaHousehold household, ITashaPerson person, List<IActivityEpisode> episodes, Random rand);
+    void Generate(ITashaHousehold household, ITashaPerson person, List<IActivityEpisode> episodes, Random rand);
 
-        void IterationComplete(int iterationNumber, int totalIterations);
+    void IterationComplete(int iterationNumber, int totalIterations);
 
-        void IterationStart(int iterationNumber, int totalIterations);
-    }
+    void IterationStart(int iterationNumber, int totalIterations);
 }

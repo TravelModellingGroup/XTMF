@@ -20,10 +20,9 @@ using System.Collections.Generic;
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IDemographicDistribution : IModule
 {
-    public interface IDemographicDistribution : IModule
-    {
-        IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category);
-    }
+    IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category);
 }

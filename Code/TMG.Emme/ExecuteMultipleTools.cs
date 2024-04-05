@@ -21,64 +21,63 @@ using System.Collections.Generic;
 
 using XTMF;
 
-namespace TMG.Emme
-{
-    [ModuleInformation(
-        Description = @"Is another model system template very similar to ExecuteModeller however 
+namespace TMG.Emme;
+
+[ModuleInformation(
+    Description = @"Is another model system template very similar to ExecuteModeller however 
 instead of containing the tool that you want to run, it takes in a list of IEmmeTool to execute. 
 For that list you will probably use EmmeTool as the module to fill in for that, or a new custom module."
-        )]
-    public class ExecuteMultipleTools : IModelSystemTemplate
+    )]
+public class ExecuteMultipleTools : IModelSystemTemplate
+{
+    [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
+    public string EmmeProjectFile;
+
+    [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+    public string EmmeDatabank;
+
+    [RunParameter("Execute EMME", true, "Should we execute EMME?  Set this to false in order to not run EMME.")]
+    public bool Execute;
+
+    [SubModelInformation(Required = false, Description = "The tools to execute")]
+    public List<IEmmeTool> Tools;
+
+    [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+    public string EmmePath;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(50, 150, 50);
+
+    private Func<float> CalculateProgress;
+
+    [RunParameter("Input Directory", "../../Input", "The input directory for the Model System")]
+    public string InputBaseDirectory { get; set; }
+
+    public string Name { get; set; }
+
+    public string OutputBaseDirectory { get; set; }
+
+    public float Progress => CalculateProgress == null ? 0 : CalculateProgress();
+
+    public Tuple<byte, byte, byte> ProgressColour => _ProgressColour;
+
+    public bool ExitRequest() => false;
+
+    public bool RuntimeValidation(ref string error) => true;
+
+    public void Start()
     {
-        [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
-        public string EmmeProjectFile;
-
-        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
-        public string EmmeDatabank;
-
-        [RunParameter("Execute EMME", true, "Should we execute EMME?  Set this to false in order to not run EMME.")]
-        public bool Execute;
-
-        [SubModelInformation(Required = false, Description = "The tools to execute")]
-        public List<IEmmeTool> Tools;
-
-        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
-        public string EmmePath;
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
-
-        private Func<float> CalculateProgress;
-
-        [RunParameter("Input Directory", "../../Input", "The input directory for the Model System")]
-        public string InputBaseDirectory { get; set; }
-
-        public string Name { get; set; }
-
-        public string OutputBaseDirectory { get; set; }
-
-        public float Progress => CalculateProgress == null ? 0 : CalculateProgress();
-
-        public Tuple<byte, byte, byte> ProgressColour => _ProgressColour;
-
-        public bool ExitRequest() => false;
-
-        public bool RuntimeValidation(ref string error) => true;
-
-        public void Start()
+        if (Tools.Count == 0 | !Execute) return;
+        using (Controller controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath))
         {
-            if (Tools.Count == 0 | !Execute) return;
-            using (Controller controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath))
+            var length = Tools.Count;
+            int i = 0;
+            // ReSharper disable AccessToModifiedClosure
+            CalculateProgress = () => Tools[i].Progress * (1.0f / length) + (i / (float)length);
+            for (; i < length; i++)
             {
-                var length = Tools.Count;
-                int i = 0;
-                // ReSharper disable AccessToModifiedClosure
-                CalculateProgress = () => Tools[i].Progress * (1.0f / length) + (i / (float)length);
-                for (; i < length; i++)
-                {
-                    Tools[i].Execute(controller);
-                }
+                Tools[i].Execute(controller);
             }
-            CalculateProgress = null;
         }
+        CalculateProgress = null;
     }
 }

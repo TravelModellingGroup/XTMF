@@ -21,37 +21,36 @@ using System;
 using XTMF;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.GTAModel.Modes
-{
-    [ModuleInformation(Description=
-        @"This mode category provides the ability to include densities into the systematic 
+namespace TMG.GTAModel.Modes;
+
+[ModuleInformation(Description=
+    @"This mode category provides the ability to include densities into the systematic 
 utility of at the nested level." )]
-    public class DensityCompositeMode : NestedChoice
+public class DensityCompositeMode : NestedChoice
+{
+    [RunParameter( "Destination Employment Density", 0.0f, "The weight to use for the employment density of the destination zone." )]
+    public float DestinationEmploymentDensity;
+
+    [RunParameter( "Destination Population Density", 0.0f, "The weight to use for the population density of the destination zone." )]
+    public float DestinationPopulationDensity;
+
+    [RunParameter( "Origin Employment Density", 0.0f, "The weight to use for the employment density of the origin zone." )]
+    public float OriginEmploymentDensity;
+
+    [RunParameter( "Origin Population Density", 0.0f, "The weight to use for the population density of the origin zone." )]
+    public float OriginPopulationDensity;
+
+    public override float CalculateCombinedV(IZone origin, IZone destination, Time time)
     {
-        [RunParameter( "Destination Employment Density", 0.0f, "The weight to use for the employment density of the destination zone." )]
-        public float DestinationEmploymentDensity;
-
-        [RunParameter( "Destination Population Density", 0.0f, "The weight to use for the population density of the destination zone." )]
-        public float DestinationPopulationDensity;
-
-        [RunParameter( "Origin Employment Density", 0.0f, "The weight to use for the employment density of the origin zone." )]
-        public float OriginEmploymentDensity;
-
-        [RunParameter( "Origin Population Density", 0.0f, "The weight to use for the population density of the origin zone." )]
-        public float OriginPopulationDensity;
-
-        public override float CalculateCombinedV(IZone origin, IZone destination, Time time)
-        {
-            // the factors convert the unit measured to the amount per km^2 of the zone
-            // inversed so that we can use multiplication to process faster
-            var originFactor = 1f / ( 1000f / origin.InternalArea );
-            var destinationFactor = 1f / ( 1000f / destination.InternalArea );
-            return (float)(
-                ( OriginPopulationDensity != 0 ? Math.Log( origin.Population * originFactor + 1 ) * OriginPopulationDensity : 0f )
-                + ( DestinationPopulationDensity != 0 ? Math.Log( destination.Population * destinationFactor + 1 ) * DestinationPopulationDensity : 0 )
-                + ( OriginEmploymentDensity != 0 ? Math.Log( origin.Employment * originFactor + 1 ) * OriginEmploymentDensity : 0 )
-                + ( DestinationEmploymentDensity != 0 ? Math.Log( destination.Employment * destinationFactor + 1 ) * DestinationEmploymentDensity : 0 )
-                );
-        }
+        // the factors convert the unit measured to the amount per km^2 of the zone
+        // inversed so that we can use multiplication to process faster
+        var originFactor = 1f / ( 1000f / origin.InternalArea );
+        var destinationFactor = 1f / ( 1000f / destination.InternalArea );
+        return (float)(
+            ( OriginPopulationDensity != 0 ? Math.Log( origin.Population * originFactor + 1 ) * OriginPopulationDensity : 0f )
+            + ( DestinationPopulationDensity != 0 ? Math.Log( destination.Population * destinationFactor + 1 ) * DestinationPopulationDensity : 0 )
+            + ( OriginEmploymentDensity != 0 ? Math.Log( origin.Employment * originFactor + 1 ) * OriginEmploymentDensity : 0 )
+            + ( DestinationEmploymentDensity != 0 ? Math.Log( destination.Employment * destinationFactor + 1 ) * DestinationEmploymentDensity : 0 )
+            );
     }
 }

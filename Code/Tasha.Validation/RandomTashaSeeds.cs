@@ -20,76 +20,75 @@ using System;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+public class RandomTashaSeeds : IModelSystemTemplate
 {
-    public class RandomTashaSeeds : IModelSystemTemplate
+    [RunParameter( "Iterations", 100, "Number of iterations to run." )]
+    public int Iterations;
+
+    [RunParameter( "RandomSeed", 12345, "The random seed to generate the random seeds" )]
+    public int RandomSeed;
+
+    [SubModelInformation( Description = "The tasha to run", Required = true )]
+    public ITashaRuntime Tasha;
+
+    private int CurrentIteration;
+
+    public string InputBaseDirectory
     {
-        [RunParameter( "Iterations", 100, "Number of iterations to run." )]
-        public int Iterations;
+        get;
+        set;
+    }
 
-        [RunParameter( "RandomSeed", 12345, "The random seed to generate the random seeds" )]
-        public int RandomSeed;
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        [SubModelInformation( Description = "The tasha to run", Required = true )]
-        public ITashaRuntime Tasha;
+    public string OutputBaseDirectory
+    {
+        get;
+        set;
+    }
 
-        private int CurrentIteration;
-
-        public string InputBaseDirectory
+    public float Progress
+    {
+        get
         {
-            get;
-            set;
+            return ( CurrentIteration / (float)Iterations ) + ( 1 / (float)Iterations ) * Tasha.Progress;
         }
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+    }
 
-        public string OutputBaseDirectory
-        {
-            get;
-            set;
-        }
+    public bool ExitRequest()
+    {
+        return false;
+    }
 
-        public float Progress
-        {
-            get
-            {
-                return ( CurrentIteration / (float)Iterations ) + ( 1 / (float)Iterations ) * Tasha.Progress;
-            }
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public void Start()
+    {
+        Random r = new( RandomSeed );
+        for ( int i = 0; i < Iterations; i++ )
         {
-            get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+            CurrentIteration = i;
+            Tasha.RandomSeed = r.Next();
+            Tasha.Start();
         }
+    }
 
-        public bool ExitRequest()
-        {
-            return false;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            Random r = new Random( RandomSeed );
-            for ( int i = 0; i < Iterations; i++ )
-            {
-                CurrentIteration = i;
-                Tasha.RandomSeed = r.Next();
-                Tasha.Start();
-            }
-        }
-
-        public override string ToString()
-        {
-            return Tasha.ToString();
-        }
+    public override string ToString()
+    {
+        return Tasha.ToString();
     }
 }

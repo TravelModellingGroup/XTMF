@@ -25,84 +25,81 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ReadODMatrixCSV : IReadODData<float>
 {
-    public class ReadODMatrixCSV : IReadODData<float>
+    [RunParameter("File Name", "data.csv", typeof(FileFromInputDirectory), "The file to read in.  If UseInputDirectory is false we will use the run directory instead.")]
+    public FileFromInputDirectory FileName;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter("Use Input Directory", false, "Should we use the model system's input directory as a base?")]
+    public bool UseInputDirectory;
+
+    public string Name
     {
-        [RunParameter("File Name", "data.csv", typeof(FileFromInputDirectory), "The file to read in.  If UseInputDirectory is false we will use the run directory instead.")]
-        public FileFromInputDirectory FileName;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter("Use Input Directory", false, "Should we use the model system's input directory as a base?")]
-        public bool UseInputDirectory;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public string Name
+    public IEnumerable<ODData<float>> Read()
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var path = FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".");
+        if(!File.Exists(path))
         {
-            get;
-            set;
+            throw new XTMFRuntimeException(this, $"Unable to find a file named: {path}");
         }
-
-        public float Progress
+        using CsvReader reader = new(path);
+        ODData<float> point;
+        int length;
+        var anyLinesRead = false;
+        // burn header
+        length = reader.LoadLine();
+        var destinationMap = new int[length - 1];
+        var zonesNumbers = zones.Select(z => z.ZoneNumber).ToArray();
+        for (int i = 1; i < length; i++)
         {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public IEnumerable<ODData<float>> Read()
-        {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var path = FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".");
-            if(!File.Exists(path))
+            reader.Get(out int zoneNumber, i);
+            destinationMap[i - 1] = zoneNumber;
+            if (Array.BinarySearch(zonesNumbers, zoneNumber) < 0)
             {
-                throw new XTMFRuntimeException(this, $"Unable to find a file named: {path}");
-            }
-            using (CsvReader reader = new CsvReader(path))
-            {
-                ODData<float> point;
-                int length;
-                var anyLinesRead = false;
-                // burn header
-                length = reader.LoadLine();
-                var destinationMap = new int[length - 1];
-                var zonesNumbers = zones.Select(z => z.ZoneNumber).ToArray();
-                for (int i = 1; i < length; i++)
-                {
-                    reader.Get(out int zoneNumber, i);
-                    destinationMap[i - 1] = zoneNumber;
-                    if (Array.BinarySearch(zonesNumbers, zoneNumber) < 0)
-                    {
-                        throw new XTMFRuntimeException(this, $"In {Name} we were found a zone number {zoneNumber} that is not contained in the zone system!");
-                    }
-                }
-                // now read in data
-                while (!reader.EndOfFile)
-                {
-                    length = reader.LoadLine();
-                    anyLinesRead = true;
-                    reader.Get(out point.O, 0);
-                    for (int i = 1; i < length && i <= destinationMap.Length; i++)
-                    {
-                        point.D = destinationMap[i - 1];
-                        reader.Get(out point.Data, i);
-                        yield return point;
-                    }
-                }
-                if (!anyLinesRead)
-                {
-                    throw new XTMFRuntimeException(this, $"In {Name} when reading the file '{FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".")}' we did not load any information!");
-                }
+                throw new XTMFRuntimeException(this, $"In {Name} we were found a zone number {zoneNumber} that is not contained in the zone system!");
             }
         }
-
-        public bool RuntimeValidation(ref string error)
+        // now read in data
+        while (!reader.EndOfFile)
         {
-            return true;
+            length = reader.LoadLine();
+            anyLinesRead = true;
+            reader.Get(out point.O, 0);
+            for (int i = 1; i < length && i <= destinationMap.Length; i++)
+            {
+                point.D = destinationMap[i - 1];
+                reader.Get(out point.Data, i);
+                yield return point;
+            }
         }
+        if (!anyLinesRead)
+        {
+            throw new XTMFRuntimeException(this, $"In {Name} when reading the file '{FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".")}' we did not load any information!");
+        }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

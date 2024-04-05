@@ -18,23 +18,22 @@
 */
 using System;
 using XTMF;
-namespace TMG.Frameworks.Data
+namespace TMG.Frameworks.Data;
+
+[ModuleInformation(Description = "This module is designed to provide a general solution for the parent module to get a list of data.")]
+public sealed class DataModule<TType> : IModule
 {
-    [ModuleInformation(Description = "This module is designed to provide a general solution for the parent module to get a list of data.")]
-    public sealed class DataModule<TType> : IModule
+    [RunParameter("Data", "", null, "The data to supply to the parent.")]
+    public TType Data;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-        [RunParameter("Data", "", null, "The data to supply to the parent.")]
-        public TType Data;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        return true;
     }
 }

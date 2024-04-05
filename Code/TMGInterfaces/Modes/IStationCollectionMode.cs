@@ -19,23 +19,22 @@
 using System;
 using XTMF;
 
-namespace TMG.Modes
-{
-    public interface IStationCollectionMode : IMode
-    {
-        /// <summary>
-        /// Is this mode in access or egress mode?
-        /// </summary>
-        bool Access { get; set; }
+namespace TMG.Modes;
 
-        /// <summary>
-        /// Gets the choices for an origin/destination and stores where the access station is
-        /// </summary>
-        /// <param name="origin">Where the trip will be starting from</param>
-        /// <param name="destination">Where the trip will be going to</param>
-        /// <param name="time">The time of day of the trip</param>
-        /// <returns>An array of access station zones and another array of the
-        /// correlated probabilities of using that access station</returns>
-        Tuple<IZone[], IZone[], float[]> GetSubchoiceSplit(IZone origin, IZone destination, Time time);
-    }
+public interface IStationCollectionMode : IMode
+{
+    /// <summary>
+    /// Is this mode in access or egress mode?
+    /// </summary>
+    bool Access { get; set; }
+
+    /// <summary>
+    /// Gets the choices for an origin/destination and stores where the access station is
+    /// </summary>
+    /// <param name="origin">Where the trip will be starting from</param>
+    /// <param name="destination">Where the trip will be going to</param>
+    /// <param name="time">The time of day of the trip</param>
+    /// <returns>An array of access station zones and another array of the
+    /// correlated probabilities of using that access station</returns>
+    Tuple<IZone[], IZone[], float[]> GetSubchoiceSplit(IZone origin, IZone destination, Time time);
 }

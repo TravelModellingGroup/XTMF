@@ -19,68 +19,67 @@
 using System.Collections.Generic;
 using TMG;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Defines how to interface with a household
+/// </summary>
+public interface ITashaHousehold : IAttachable
 {
+    DwellingType DwellingType { get; }
+
     /// <summary>
-    /// Defines how to interface with a household
+    /// How many households this represents
     /// </summary>
-    public interface ITashaHousehold : IAttachable
-    {
-        DwellingType DwellingType { get; }
+    float ExpansionFactor { get; set; }
 
-        /// <summary>
-        /// How many households this represents
-        /// </summary>
-        float ExpansionFactor { get; set; }
+    HouseholdType HhType { get; }
 
-        HouseholdType HhType { get; }
+    /// <summary>
+    /// The zone this household is in
+    /// </summary>
+    IZone HomeZone { get; set; }
 
-        /// <summary>
-        /// The zone this household is in
-        /// </summary>
-        IZone HomeZone { get; set; }
+    /// <summary>
+    /// Gives identification to the household
+    /// This can be used for ordering of the output
+    /// </summary>
+    int HouseholdId { get; set; }
 
-        /// <summary>
-        /// Gives identification to the household
-        /// This can be used for ordering of the output
-        /// </summary>
-        int HouseholdId { get; set; }
+    Dictionary<int, List<ITripChain>> JointTours { get; }
 
-        Dictionary<int, List<ITripChain>> JointTours { get; }
+    int NumberOfAdults { get; }
 
-        int NumberOfAdults { get; }
+    int NumberOfChildren { get; }
 
-        int NumberOfChildren { get; }
+    int IncomeClass { get; }
 
-        int IncomeClass { get; }
+    /// <summary>
+    /// The people in this household
+    /// </summary>
+    ITashaPerson[] Persons { get; set; }
 
-        /// <summary>
-        /// The people in this household
-        /// </summary>
-        ITashaPerson[] Persons { get; set; }
+    /// <summary>
+    /// The vehicles that belong to this household
+    /// </summary>
+    IVehicle[] Vehicles { get; }
 
-        /// <summary>
-        /// The vehicles that belong to this household
-        /// </summary>
-        IVehicle[] Vehicles { get; }
+    ITashaHousehold Clone();
 
-        ITashaHousehold Clone();
+    /// <summary>
+    /// Gets a List of Persons associated wit the given tour ID
+    /// </summary>
+    /// <param name="tourID"></param>
+    /// <returns>The List of Persons on the tour</returns>
+    List<ITashaPerson> GetJointTourMembers(int tourID);
 
-        /// <summary>
-        /// Gets a List of Persons associated wit the given tour ID
-        /// </summary>
-        /// <param name="tourID"></param>
-        /// <returns>The List of Persons on the tour</returns>
-        List<ITashaPerson> GetJointTourMembers(int tourID);
+    /// <summary>
+    /// Gets a List of Persons associated with the given tour ID
+    /// </summary>
+    /// <param name="tourID"></param>
+    /// <param name="person"></param>
+    /// <returns>The List of Persons on the tour</returns>
+    ITripChain GetJointTourTripChain(int tourID, ITashaPerson person);
 
-        /// <summary>
-        /// Gets a List of Persons associated with the given tour ID
-        /// </summary>
-        /// <param name="tourID"></param>
-        /// <param name="person"></param>
-        /// <returns>The List of Persons on the tour</returns>
-        ITripChain GetJointTourTripChain(int tourID, ITashaPerson person);
-
-        void Recycle();
-    }
+    void Recycle();
 }

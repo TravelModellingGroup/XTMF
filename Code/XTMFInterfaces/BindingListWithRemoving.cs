@@ -19,16 +19,15 @@
 using System;
 using System.ComponentModel;
 
-namespace XTMF
-{
-    public class BindingListWithRemoving<T> : BindingList<T>
-    {
-        public event EventHandler<ListChangedEventArgs>? BeforeRemove;
+namespace XTMF;
 
-        protected override void RemoveItem(int index)
-        {
-            BeforeRemove?.Invoke(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
-            base.RemoveItem( index );
-        }
+public class BindingListWithRemoving<T> : BindingList<T>
+{
+    public event EventHandler<ListChangedEventArgs>? BeforeRemove;
+
+    protected override void RemoveItem(int index)
+    {
+        BeforeRemove?.Invoke(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
+        base.RemoveItem( index );
     }
 }

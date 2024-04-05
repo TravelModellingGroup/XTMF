@@ -20,387 +20,386 @@ using System;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+internal sealed class ProjectSchedule : Schedule
 {
-    internal sealed class ProjectSchedule : Schedule
+    public override bool CheckEpisodeInsert(IEpisode episode, ref TimeWindow feasibleWindow)
     {
-        public override bool CheckEpisodeInsert(IEpisode episode, ref TimeWindow feasibleWindow)
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
+    }
 
-        public override Time CheckOverlap(Episode episode)
+    public override Time CheckOverlap(Episode episode)
+    {
+        Time total = Time.Zero;
+        for(int i = 0; i < EpisodeCount; i++)
         {
-            Time total = Time.Zero;
-            for(int i = 0; i < EpisodeCount; i++)
+            if(Episodes[i].StartTime <= episode.StartTime
+                && Episodes[i].EndTime >= episode.EndTime)
             {
-                if(Episodes[i].StartTime <= episode.StartTime
-                    && Episodes[i].EndTime >= episode.EndTime)
-                {
-                    // this [i] completely covers the given episode
-                    total += episode.Duration;
-                }
-                else if(Episodes[i].StartTime >= episode.StartTime
-                    && Episodes[i].EndTime >= episode.EndTime)
-                {
-                    // if the episode happens before we start, but we end after
-                    total += episode.EndTime - Episodes[i].StartTime;
-                }
-                else if(Episodes[i].StartTime <= episode.StartTime
-                    && Episodes[i].EndTime <= episode.EndTime)
-                {
-                    //if we started before this episode, but we finished first
-                    total += Episodes[i].EndTime - episode.StartTime;
-                }
-                else if(Episodes[i].StartTime >= episode.StartTime
-                    && Episodes[i].EndTime <= episode.EndTime)
-                {
-                    // if the episode is larger and 100% covering this [i]
-                    total += Episodes[i].Duration;
-                }
+                // this [i] completely covers the given episode
+                total += episode.Duration;
             }
-            return total;
-        }
-
-        public override int CleanUp(Time minPrimaryWorkLength)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool ForcedEpisodeInsert(Episode ep)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void GenerateTrips(ITashaHousehold household, int householdIteration, Time minimumAtHomeTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Insert(Episode ep, Random random)
-        {
-            /* This is where episodes are first put near their other common types
-             * RULES:
-             * 1) Unless it is a Work Business episode, we are not allowed to have a "split" conflict type
-             * 2) We are not allowed to squish things past the threshold allowed (50% by default)
-            */
-            // Learn what type of case we are going to be in
-            ConflictReport conflict = InsertCase(null, ep, false);
-            switch(conflict.Type)
+            else if(Episodes[i].StartTime >= episode.StartTime
+                && Episodes[i].EndTime >= episode.EndTime)
             {
-                case ScheduleConflictType.NoConflict:
+                // if the episode happens before we start, but we end after
+                total += episode.EndTime - Episodes[i].StartTime;
+            }
+            else if(Episodes[i].StartTime <= episode.StartTime
+                && Episodes[i].EndTime <= episode.EndTime)
+            {
+                //if we started before this episode, but we finished first
+                total += Episodes[i].EndTime - episode.StartTime;
+            }
+            else if(Episodes[i].StartTime >= episode.StartTime
+                && Episodes[i].EndTime <= episode.EndTime)
+            {
+                // if the episode is larger and 100% covering this [i]
+                total += Episodes[i].Duration;
+            }
+        }
+        return total;
+    }
+
+    public override int CleanUp(Time minPrimaryWorkLength)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool ForcedEpisodeInsert(Episode ep)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void GenerateTrips(ITashaHousehold household, int householdIteration, Time minimumAtHomeTime)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool Insert(Episode ep, Random random)
+    {
+        /* This is where episodes are first put near their other common types
+         * RULES:
+         * 1) Unless it is a Work Business episode, we are not allowed to have a "split" conflict type
+         * 2) We are not allowed to squish things past the threshold allowed (50% by default)
+        */
+        // Learn what type of case we are going to be in
+        ConflictReport conflict = InsertCase(null, ep, false);
+        switch(conflict.Type)
+        {
+            case ScheduleConflictType.NoConflict:
+                {
+                    InsertAt(ep, conflict.Position);
+                    return true;
+                }
+            case ScheduleConflictType.Split:
+                {
+                    if((ep.ActivityType != Activity.WorkBasedBusiness) & (ep.ActivityType != Activity.ReturnFromWork)) return false;
+                    if(Episodes[conflict.Position].ActivityType != Activity.PrimaryWork) return false;
+                    // Since it is a primary work episode we need to split it
+                    var postEp = new ActivityEpisode(new TimeWindow(ep.EndTime, Episodes[conflict.Position].EndTime), Activity.PrimaryWork,
+                         Episodes[conflict.Position].Owner)
+                    {
+                        Zone = Episodes[conflict.Position].Zone
+                    };
+                    ((Episode)Episodes[conflict.Position]).EndTime = ep.StartTime;
+                    InsertAt(ep, conflict.Position + 1);
+                    InsertAt(postEp, conflict.Position + 2);
+                    return true;
+                }
+            case ScheduleConflictType.Posterior:
+                {
+                    // the given position is the element we need to go after
+                    Time earlyTimeBound = Time.StartOfDay;
+                    Time lateTimeBound = Time.EndOfDay;
+                    Episode prior = (Episode)Episodes[conflict.Position];
+                    Episode middle = ep;
+                    Episode post = (Episode)((conflict.Position < EpisodeCount - 1)
+                        ? Episodes[conflict.Position + 1] : null);
+                    if(conflict.Position >= 1)
+                    {
+                        earlyTimeBound = Episodes[conflict.Position - 1].EndTime;
+                    }
+                    if(EpisodeCount - conflict.Position > 2)
+                    {
+                        lateTimeBound = Episodes[conflict.Position + 2].StartTime;
+                    }
+                    if(Insert(earlyTimeBound, prior, middle, post, lateTimeBound))
+                    {
+                        InsertAt(ep, conflict.Position + 1);
+                        return true;
+                    }
+                    return false;
+                }
+            case ScheduleConflictType.Prior:
+                {
+                    // The given position is the element we need to go before
+                    Time earlyTimeBound = Time.StartOfDay;
+                    Time lateTimeBound = Time.EndOfDay;
+                    Episode prior = (Episode)(conflict.Position > 0 ? Episodes[conflict.Position - 1] : null);
+                    Episode middle = ep;
+                    Episode post = (Episode)Episodes[conflict.Position];
+                    if(conflict.Position >= 2)
+                    {
+                        earlyTimeBound = Episodes[conflict.Position - 2].EndTime;
+                    }
+                    if(EpisodeCount - conflict.Position > 1)
+                    {
+                        lateTimeBound = Episodes[conflict.Position + 1].StartTime;
+                    }
+                    if(Insert(earlyTimeBound, prior, middle, post, lateTimeBound))
                     {
                         InsertAt(ep, conflict.Position);
                         return true;
                     }
-                case ScheduleConflictType.Split:
-                    {
-                        if((ep.ActivityType != Activity.WorkBasedBusiness) & (ep.ActivityType != Activity.ReturnFromWork)) return false;
-                        if(Episodes[conflict.Position].ActivityType != Activity.PrimaryWork) return false;
-                        // Since it is a primary work episode we need to split it
-                        var postEp = new ActivityEpisode(new TimeWindow(ep.EndTime, Episodes[conflict.Position].EndTime), Activity.PrimaryWork,
-                             Episodes[conflict.Position].Owner)
-                        {
-                            Zone = Episodes[conflict.Position].Zone
-                        };
-                        ((Episode)Episodes[conflict.Position]).EndTime = ep.StartTime;
-                        InsertAt(ep, conflict.Position + 1);
-                        InsertAt(postEp, conflict.Position + 2);
-                        return true;
-                    }
-                case ScheduleConflictType.Posterior:
-                    {
-                        // the given position is the element we need to go after
-                        Time earlyTimeBound = Time.StartOfDay;
-                        Time lateTimeBound = Time.EndOfDay;
-                        Episode prior = (Episode)Episodes[conflict.Position];
-                        Episode middle = ep;
-                        Episode post = (Episode)((conflict.Position < EpisodeCount - 1)
-                            ? Episodes[conflict.Position + 1] : null);
-                        if(conflict.Position >= 1)
-                        {
-                            earlyTimeBound = Episodes[conflict.Position - 1].EndTime;
-                        }
-                        if(EpisodeCount - conflict.Position > 2)
-                        {
-                            lateTimeBound = Episodes[conflict.Position + 2].StartTime;
-                        }
-                        if(Insert(earlyTimeBound, prior, middle, post, lateTimeBound))
-                        {
-                            InsertAt(ep, conflict.Position + 1);
-                            return true;
-                        }
-                        return false;
-                    }
-                case ScheduleConflictType.Prior:
-                    {
-                        // The given position is the element we need to go before
-                        Time earlyTimeBound = Time.StartOfDay;
-                        Time lateTimeBound = Time.EndOfDay;
-                        Episode prior = (Episode)(conflict.Position > 0 ? Episodes[conflict.Position - 1] : null);
-                        Episode middle = ep;
-                        Episode post = (Episode)Episodes[conflict.Position];
-                        if(conflict.Position >= 2)
-                        {
-                            earlyTimeBound = Episodes[conflict.Position - 2].EndTime;
-                        }
-                        if(EpisodeCount - conflict.Position > 1)
-                        {
-                            lateTimeBound = Episodes[conflict.Position + 1].StartTime;
-                        }
-                        if(Insert(earlyTimeBound, prior, middle, post, lateTimeBound))
-                        {
-                            InsertAt(ep, conflict.Position);
-                            return true;
-                        }
-                        return false;
-                    }
-                case ScheduleConflictType.CompleteOverlap:
-                    {
-                        // There are no cases where a complete overlap is allowed
-                        return false;
-                    }
-                default:
-                    {
-                        // We came across a type of conflict that we do not know how to handle!
-                        throw new NotImplementedException(String.Format("This conflict type \"{0}\" has not been coded for yet!",
-                            Enum.GetName(typeof(ScheduleConflictType), conflict.Type)));
-                    }
-            }
-        }
-
-        public override bool TestInsert(Episode episode)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static bool FillInGaps(Episode middle, ref Time priorOverlap, ref Time postOverlap)
-        {
-            if(priorOverlap <= Time.Zero)
-            {
-                // check to see if there is enough time to move the middle closer to the prior
-                if(postOverlap <= -priorOverlap)
-                {
-                    Relocate(middle, (middle.StartTime - postOverlap));
-                    return true;
+                    return false;
                 }
-                // prior overlap < 0, so just add it
-                Relocate(middle, (middle.StartTime + priorOverlap));
-                // subtract out the reduced time
-                postOverlap += priorOverlap;
-            }
-            if(postOverlap <= Time.Zero)
-            {
-                // check to see if there is enough time to move the middle closer to the prior
-                if(priorOverlap <= -postOverlap)
+            case ScheduleConflictType.CompleteOverlap:
                 {
-                    Relocate(middle, (middle.StartTime + priorOverlap));
-                    return true;
+                    // There are no cases where a complete overlap is allowed
+                    return false;
                 }
-                // prior overlap < 0, so subtract it
+            default:
+                {
+                    // We came across a type of conflict that we do not know how to handle!
+                    throw new NotImplementedException(String.Format("This conflict type \"{0}\" has not been coded for yet!",
+                        Enum.GetName(typeof(ScheduleConflictType), conflict.Type)));
+                }
+        }
+    }
+
+    public override bool TestInsert(Episode episode)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static bool FillInGaps(Episode middle, ref Time priorOverlap, ref Time postOverlap)
+    {
+        if(priorOverlap <= Time.Zero)
+        {
+            // check to see if there is enough time to move the middle closer to the prior
+            if(postOverlap <= -priorOverlap)
+            {
                 Relocate(middle, (middle.StartTime - postOverlap));
-                // subtract out the reduced time
-                priorOverlap += postOverlap;
-            }
-            return false;
-        }
-
-        private static void FixDurationToInsert(ref Time earlyTimeBound, Episode prior, Episode middle, Episode post, ref Time lateTimeBound)
-        {
-            // If we get here then we need to calculate the ratios and then assign the start times accordingly
-            Time totalOriginalDuration = (prior != null ? prior.OriginalDuration : Time.Zero)
-                + middle.OriginalDuration
-                + (post != null ? post.OriginalDuration : Time.Zero);
-            Time minPrior = (prior != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * prior.OriginalDuration : Time.Zero);
-            Time minMid = Tasha.Scheduler.Scheduler.PercentOverlapAllowed * middle.OriginalDuration;
-            Time minPost = (post != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * post.OriginalDuration : Time.Zero);
-            Time remainder = (lateTimeBound - earlyTimeBound) - (minPrior + minMid + minPost);
-            float ratioPrior;
-            float ratioMiddle;
-            if(prior != null)
-            {
-                prior.StartTime = earlyTimeBound;
-                ratioPrior = prior.OriginalDuration / totalOriginalDuration;
-                prior.EndTime = prior.StartTime + minPrior + (ratioPrior * remainder);
-                middle.StartTime = prior.EndTime;
-            }
-            else
-            {
-                middle.StartTime = earlyTimeBound;
-            }
-            ratioMiddle = middle.OriginalDuration / totalOriginalDuration;
-            middle.EndTime = middle.StartTime + minMid + (ratioMiddle * remainder);
-            if(post != null)
-            {
-                // we do not need to include the ratio calculation for post since we know it needs to end at the end of the allowed time
-                // and that it needs to start right after the middle
-                post.StartTime = middle.EndTime;
-                post.EndTime = lateTimeBound;
-            }
-        }
-
-        private static bool MiddlePostInsert(ref Time earlyTimeBound, Episode middle, Episode post)
-        {
-            Time overlap = (middle.EndTime) - post.StartTime;
-            if(overlap <= Time.Zero)
-            {
                 return true;
             }
-            // if we can move forward, move forward
-            if((middle.StartTime) - earlyTimeBound > overlap)
+            // prior overlap < 0, so just add it
+            Relocate(middle, (middle.StartTime + priorOverlap));
+            // subtract out the reduced time
+            postOverlap += priorOverlap;
+        }
+        if(postOverlap <= Time.Zero)
+        {
+            // check to see if there is enough time to move the middle closer to the prior
+            if(priorOverlap <= -postOverlap)
             {
-                Relocate(middle, (middle.StartTime - overlap));
+                Relocate(middle, (middle.StartTime + priorOverlap));
                 return true;
             }
-            // if that is not enough, move as forward as we can
-            Relocate(middle, (earlyTimeBound));
-            overlap = (middle.EndTime) - post.StartTime;
-            Relocate(post, (post.StartTime + overlap));
+            // prior overlap < 0, so subtract it
+            Relocate(middle, (middle.StartTime - postOverlap));
+            // subtract out the reduced time
+            priorOverlap += postOverlap;
+        }
+        return false;
+    }
+
+    private static void FixDurationToInsert(ref Time earlyTimeBound, Episode prior, Episode middle, Episode post, ref Time lateTimeBound)
+    {
+        // If we get here then we need to calculate the ratios and then assign the start times accordingly
+        Time totalOriginalDuration = (prior != null ? prior.OriginalDuration : Time.Zero)
+            + middle.OriginalDuration
+            + (post != null ? post.OriginalDuration : Time.Zero);
+        Time minPrior = (prior != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * prior.OriginalDuration : Time.Zero);
+        Time minMid = Tasha.Scheduler.Scheduler.PercentOverlapAllowed * middle.OriginalDuration;
+        Time minPost = (post != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * post.OriginalDuration : Time.Zero);
+        Time remainder = (lateTimeBound - earlyTimeBound) - (minPrior + minMid + minPost);
+        float ratioPrior;
+        float ratioMiddle;
+        if(prior != null)
+        {
+            prior.StartTime = earlyTimeBound;
+            ratioPrior = prior.OriginalDuration / totalOriginalDuration;
+            prior.EndTime = prior.StartTime + minPrior + (ratioPrior * remainder);
+            middle.StartTime = prior.EndTime;
+        }
+        else
+        {
+            middle.StartTime = earlyTimeBound;
+        }
+        ratioMiddle = middle.OriginalDuration / totalOriginalDuration;
+        middle.EndTime = middle.StartTime + minMid + (ratioMiddle * remainder);
+        if(post != null)
+        {
+            // we do not need to include the ratio calculation for post since we know it needs to end at the end of the allowed time
+            // and that it needs to start right after the middle
+            post.StartTime = middle.EndTime;
+            post.EndTime = lateTimeBound;
+        }
+    }
+
+    private static bool MiddlePostInsert(ref Time earlyTimeBound, Episode middle, Episode post)
+    {
+        Time overlap = (middle.EndTime) - post.StartTime;
+        if(overlap <= Time.Zero)
+        {
             return true;
         }
-
-        private static bool PriorMiddleInsert(Episode prior, Episode middle, ref Time lateTimeBound)
+        // if we can move forward, move forward
+        if((middle.StartTime) - earlyTimeBound > overlap)
         {
-            Time overlap = (prior.EndTime) - middle.StartTime;
-            if(overlap <= Time.Zero)
-            {
-                return true;
-            }
-            // if we can move back, move back
-            if(lateTimeBound - (middle.EndTime) > overlap)
-            {
-                Relocate(middle, (prior.EndTime));
-                return true;
-            }
-            // move back as far as we can
-            Relocate(middle, (lateTimeBound - middle.Duration));
-            // recalculate the overlap
-            overlap = (prior.EndTime) - middle.StartTime;
-            Relocate(prior, prior.StartTime - overlap);
+            Relocate(middle, (middle.StartTime - overlap));
             return true;
         }
+        // if that is not enough, move as forward as we can
+        Relocate(middle, (earlyTimeBound));
+        overlap = (middle.EndTime) - post.StartTime;
+        Relocate(post, (post.StartTime + overlap));
+        return true;
+    }
 
-        private static void Relocate(Episode ep, Time startTime)
+    private static bool PriorMiddleInsert(Episode prior, Episode middle, ref Time lateTimeBound)
+    {
+        Time overlap = (prior.EndTime) - middle.StartTime;
+        if(overlap <= Time.Zero)
         {
-            var dur = ep.Duration;
-            ep.EndTime = (ep.StartTime = startTime) + dur;
-        }
-
-        private bool AllThreeInsert(ref Time earlyTimeBound, Episode prior, Episode middle, Episode post, ref Time lateTimeBound)
-        {
-            Time priorOverlap = (prior.EndTime) - middle.StartTime;
-            Time postOverlap = (middle.EndTime) - post.StartTime;
-            // see if we can just fill in the gaps
-            if(FillInGaps(middle, ref priorOverlap, ref postOverlap))
-            {
-                return true;
-            }
-            // push the episodes away from the middle with a proportion to what they overlap it with
-            if(priorOverlap < Time.Zero) priorOverlap = Time.Zero;
-            if(postOverlap < Time.Zero) postOverlap = Time.Zero;
-            // make sure that there is actually an overlap
-            var overlap = priorOverlap + postOverlap;
-            if(overlap == Time.Zero) return true;
-            overlap = Time.Zero;
-            var newPriorStartTime = prior.StartTime - priorOverlap;
-            bool priorFailed = false;
-            if(newPriorStartTime < earlyTimeBound)
-            {
-                overlap = earlyTimeBound - newPriorStartTime;
-                newPriorStartTime = earlyTimeBound;
-                priorFailed = true;
-            }
-            var newPostStartTime = post.StartTime + postOverlap;
-            if(newPostStartTime + post.Duration > lateTimeBound)
-            {
-                overlap += (newPostStartTime + post.Duration) - lateTimeBound;
-                newPostStartTime = lateTimeBound - post.Duration;
-            }
-            Relocate(prior, newPriorStartTime);
-            Relocate(post, newPostStartTime);
-            if(overlap == Time.Zero) return true;
-            if(priorFailed)
-            {
-                Relocate(middle, middle.StartTime + overlap);
-                Relocate(post, middle.EndTime);
-            }
-            else
-            {
-                Relocate(middle, middle.StartTime - overlap);
-                Relocate(prior, middle.StartTime - prior.Duration);
-            }
-            // Sanity Check
-            if(post.EndTime > lateTimeBound)
-            {
-                throw new XTMFRuntimeException(Scheduler, "We ended too late when inserting with 3 into a person schedule!\r\n"
-                    + Dump(this));
-            }
-            if(prior.StartTime < earlyTimeBound)
-            {
-                throw new XTMFRuntimeException(Scheduler, "We started too early when inserting with 3 into a person schedule!\r\n"
-                                               + Dump(this));
-            }
             return true;
         }
-
-        /// <summary>
-        /// Run a quick check to see if it is at all possible to place all of the 3 episodes in the given time bounds
-        /// </summary>
-        /// <param name="earlyTimeBound">The earliest point</param>
-        /// <param name="prior">the first episode in the batch (possibly null if there is no episode prior)</param>
-        /// <param name="middle">the second episode in the batch</param>
-        /// <param name="post">the last episode in the batch (possibly null if there is no episode post)</param>
-        /// <param name="lateTimeBound">the latest point</param>
-        /// <returns>If we can fit them all in properly</returns>
-        private bool InitialInsertCheckPossible(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound)
+        // if we can move back, move back
+        if(lateTimeBound - (middle.EndTime) > overlap)
         {
-            Time minPrior = (prior != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * prior.OriginalDuration : Time.Zero);
-            Time minMid = Tasha.Scheduler.Scheduler.PercentOverlapAllowed * middle.OriginalDuration;
-            Time minPost = (post != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * post.OriginalDuration : Time.Zero);
-            // it is possible to fit in if the bounds are larger than the minimum size of all three episodes
-            return (lateTimeBound - earlyTimeBound) >= (minPrior + minMid + minPost);
-        }
-
-        private bool Insert(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound)
-        {
-            // Do a quick check to see if it is even possible to fit everything in together
-            if(!InitialInsertCheckPossible(earlyTimeBound, prior, middle, post, lateTimeBound)) return false;
-            // if we get here we know that there is a way to insert the episodes successfully
-            if(UnableToJustMoveToInsert(earlyTimeBound, prior, middle, post, lateTimeBound))
-            {
-                FixDurationToInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
-            }
-            else
-            {
-                return ShiftToInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
-            }
+            Relocate(middle, (prior.EndTime));
             return true;
         }
+        // move back as far as we can
+        Relocate(middle, (lateTimeBound - middle.Duration));
+        // recalculate the overlap
+        overlap = (prior.EndTime) - middle.StartTime;
+        Relocate(prior, prior.StartTime - overlap);
+        return true;
+    }
 
-        private bool ShiftToInsert(ref Time earlyTimeBound, Episode prior, Episode middle, Episode post, ref Time lateTimeBound)
-        {
-            if(prior != null & post != null)
-            {
-                return AllThreeInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
-            }
-            if(prior != null)
-            {
-                return PriorMiddleInsert(prior, middle, ref lateTimeBound);
-            }
-            if(post != null)
-            {
-                return MiddlePostInsert(ref earlyTimeBound, middle, post);
-            }
-            throw new XTMFRuntimeException(Scheduler, "Unexpected shift to insert case!");
-        }
+    private static void Relocate(Episode ep, Time startTime)
+    {
+        var dur = ep.Duration;
+        ep.EndTime = (ep.StartTime = startTime) + dur;
+    }
 
-        private bool UnableToJustMoveToInsert(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound)
+    private bool AllThreeInsert(ref Time earlyTimeBound, Episode prior, Episode middle, Episode post, ref Time lateTimeBound)
+    {
+        Time priorOverlap = (prior.EndTime) - middle.StartTime;
+        Time postOverlap = (middle.EndTime) - post.StartTime;
+        // see if we can just fill in the gaps
+        if(FillInGaps(middle, ref priorOverlap, ref postOverlap))
         {
-            // if the amount of time that we have to work with is larger then we are unable to just move to insert
-            return (lateTimeBound - earlyTimeBound)
-                < (prior != null ? prior.Duration : Time.Zero)
-                + middle.Duration
-                + (post != null ? post.Duration : Time.Zero);
+            return true;
         }
+        // push the episodes away from the middle with a proportion to what they overlap it with
+        if(priorOverlap < Time.Zero) priorOverlap = Time.Zero;
+        if(postOverlap < Time.Zero) postOverlap = Time.Zero;
+        // make sure that there is actually an overlap
+        var overlap = priorOverlap + postOverlap;
+        if(overlap == Time.Zero) return true;
+        overlap = Time.Zero;
+        var newPriorStartTime = prior.StartTime - priorOverlap;
+        bool priorFailed = false;
+        if(newPriorStartTime < earlyTimeBound)
+        {
+            overlap = earlyTimeBound - newPriorStartTime;
+            newPriorStartTime = earlyTimeBound;
+            priorFailed = true;
+        }
+        var newPostStartTime = post.StartTime + postOverlap;
+        if(newPostStartTime + post.Duration > lateTimeBound)
+        {
+            overlap += (newPostStartTime + post.Duration) - lateTimeBound;
+            newPostStartTime = lateTimeBound - post.Duration;
+        }
+        Relocate(prior, newPriorStartTime);
+        Relocate(post, newPostStartTime);
+        if(overlap == Time.Zero) return true;
+        if(priorFailed)
+        {
+            Relocate(middle, middle.StartTime + overlap);
+            Relocate(post, middle.EndTime);
+        }
+        else
+        {
+            Relocate(middle, middle.StartTime - overlap);
+            Relocate(prior, middle.StartTime - prior.Duration);
+        }
+        // Sanity Check
+        if(post.EndTime > lateTimeBound)
+        {
+            throw new XTMFRuntimeException(Scheduler, "We ended too late when inserting with 3 into a person schedule!\r\n"
+                + Dump(this));
+        }
+        if(prior.StartTime < earlyTimeBound)
+        {
+            throw new XTMFRuntimeException(Scheduler, "We started too early when inserting with 3 into a person schedule!\r\n"
+                                           + Dump(this));
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Run a quick check to see if it is at all possible to place all of the 3 episodes in the given time bounds
+    /// </summary>
+    /// <param name="earlyTimeBound">The earliest point</param>
+    /// <param name="prior">the first episode in the batch (possibly null if there is no episode prior)</param>
+    /// <param name="middle">the second episode in the batch</param>
+    /// <param name="post">the last episode in the batch (possibly null if there is no episode post)</param>
+    /// <param name="lateTimeBound">the latest point</param>
+    /// <returns>If we can fit them all in properly</returns>
+    private bool InitialInsertCheckPossible(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound)
+    {
+        Time minPrior = (prior != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * prior.OriginalDuration : Time.Zero);
+        Time minMid = Tasha.Scheduler.Scheduler.PercentOverlapAllowed * middle.OriginalDuration;
+        Time minPost = (post != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * post.OriginalDuration : Time.Zero);
+        // it is possible to fit in if the bounds are larger than the minimum size of all three episodes
+        return (lateTimeBound - earlyTimeBound) >= (minPrior + minMid + minPost);
+    }
+
+    private bool Insert(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound)
+    {
+        // Do a quick check to see if it is even possible to fit everything in together
+        if(!InitialInsertCheckPossible(earlyTimeBound, prior, middle, post, lateTimeBound)) return false;
+        // if we get here we know that there is a way to insert the episodes successfully
+        if(UnableToJustMoveToInsert(earlyTimeBound, prior, middle, post, lateTimeBound))
+        {
+            FixDurationToInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
+        }
+        else
+        {
+            return ShiftToInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
+        }
+        return true;
+    }
+
+    private bool ShiftToInsert(ref Time earlyTimeBound, Episode prior, Episode middle, Episode post, ref Time lateTimeBound)
+    {
+        if(prior != null & post != null)
+        {
+            return AllThreeInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
+        }
+        if(prior != null)
+        {
+            return PriorMiddleInsert(prior, middle, ref lateTimeBound);
+        }
+        if(post != null)
+        {
+            return MiddlePostInsert(ref earlyTimeBound, middle, post);
+        }
+        throw new XTMFRuntimeException(Scheduler, "Unexpected shift to insert case!");
+    }
+
+    private bool UnableToJustMoveToInsert(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound)
+    {
+        // if the amount of time that we have to work with is larger then we are unable to just move to insert
+        return (lateTimeBound - earlyTimeBound)
+            < (prior != null ? prior.Duration : Time.Zero)
+            + middle.Duration
+            + (post != null ? post.Duration : Time.Zero);
     }
 }

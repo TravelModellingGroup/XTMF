@@ -16,12 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
-{
-    public interface IIterationSensitive
-    {
-        void IterationEnding(int iterationNumber, int maxIterations);
+namespace TMG;
 
-        void IterationStarting(int iterationNumber, int maxIterations);
-    }
+public interface IIterationSensitive
+{
+    void IterationEnding(int iterationNumber, int maxIterations);
+
+    void IterationStarting(int iterationNumber, int maxIterations);
 }

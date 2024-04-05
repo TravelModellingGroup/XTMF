@@ -20,33 +20,31 @@ using Datastructure;
 using System;
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+
+public class GenerationAdjustment : IModule
 {
+    [RunParameter("Distribution ID Range", "0-262", typeof(RangeSet), "The distribution ID's to alter.")]
+    public RangeSet DistributionIDs;
 
-    public class GenerationAdjustment : IModule
+    [RunParameter("Planning Districts", "1-46", typeof(RangeSet), "The planning districts to alter.  The home zone is used for comparison.")]
+    public RangeSet PlanningDistricts;
+
+    [RunParameter("Work Planning District", "0-46", typeof(RangeSet), "The planning district of work for the person, or 0 if there is no work zone.")]
+    public RangeSet WorkPlanningDistrict;
+
+    [RunParameter("Factor", 1.0f, "The factor to apply to this modification for generation rates greater than zero.")]
+    public float Factor;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-        [RunParameter("Distribution ID Range", "0-262", typeof(RangeSet), "The distribution ID's to alter.")]
-        public RangeSet DistributionIDs;
-
-        [RunParameter("Planning Districts", "1-46", typeof(RangeSet), "The planning districts to alter.  The home zone is used for comparison.")]
-        public RangeSet PlanningDistricts;
-
-        [RunParameter("Work Planning District", "0-46", typeof(RangeSet), "The planning district of work for the person, or 0 if there is no work zone.")]
-        public RangeSet WorkPlanningDistrict;
-
-        [RunParameter("Factor", 1.0f, "The factor to apply to this modification for generation rates greater than zero.")]
-        public float Factor;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        return true;
     }
-
 }

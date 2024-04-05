@@ -19,69 +19,64 @@
 using System;
 using XTMF;
 
-namespace TMG.Emme.Tools.NetworkEditing
-{
-    [ModuleInformation(Description =
+namespace TMG.Emme.Tools.NetworkEditing;
+
+[ModuleInformation(Description =
 @"This module provides integration with the TMGToolbox's RemoveExtraLinks tool."
-        )]
-    public class RemoveExtraLinks : IEmmeTool
+    )]
+public class RemoveExtraLinks : IEmmeTool
+{
+    private const string ToolNamespace = "tmg.network_editing.remove_extra_links";
+
+    [RunParameter("Scenario Number", 0, "The EMME scenario number to target.")]
+    public int BaseScenario;
+
+    [RunParameter("New Scenario", 0, "The EMME scenario to save into.  If it is the same as scenario number then no copying will occur.")]
+    public int NewScenario;
+
+    [RunParameter("Transfer Modes", "tuy", "The modes that we need to analyse for correct transfer behaviour between transit services.")]
+    public string TransferModes;
+
+    [RunParameter("New Scenario Name", "Copy with removed links", "This will be applied if the new and base scenarios are not the same.")]
+    public string NewScenarioName;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool Execute(Controller controller)
     {
-        private const string ToolNamespace = "tmg.network_editing.remove_extra_links";
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
+        return modeller.Run(this, ToolNamespace, GetArguments());
+    }
 
-        [RunParameter("Scenario Number", 0, "The EMME scenario number to target.")]
-        public int BaseScenario;
+    private string GetArguments()
+    {
+        return string.Join(" ", BaseScenario, AddQuotes(TransferModes), NewScenario == BaseScenario, NewScenario, AddQuotes(NewScenarioName));
+    }
 
-        [RunParameter("New Scenario", 0, "The EMME scenario to save into.  If it is the same as scenario number then no copying will occur.")]
-        public int NewScenario;
+    private string AddQuotes(string name)
+    {
+        return $"\"{name.Replace('"', '\'')}\"";
+    }
 
-        [RunParameter("Transfer Modes", "tuy", "The modes that we need to analyse for correct transfer behaviour between transit services.")]
-        public string TransferModes;
-
-        [RunParameter("New Scenario Name", "Copy with removed links", "This will be applied if the new and base scenarios are not the same.")]
-        public string NewScenarioName;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool Execute(Controller controller)
+    public bool RuntimeValidation(ref string error)
+    {
+        if (BaseScenario <= 0)
         {
-            var modeller = controller as ModellerController;
-            if (modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
-            }
-            return modeller.Run(this, ToolNamespace, GetArguments());
+            error = "The scenario number '" + BaseScenario
+                + "' is an invalid scenario number!";
+            return false;
         }
 
-        private string GetArguments()
+        if (NewScenario <= 0)
         {
-            return string.Join(" ", BaseScenario, AddQuotes(TransferModes), NewScenario == BaseScenario, NewScenario, AddQuotes(NewScenarioName));
+            error = "The scenario number '" + NewScenario
+                + "' is an invalid scenario number!";
+            return false;
         }
-
-        private string AddQuotes(string name)
-        {
-            return $"\"{name.Replace('"', '\'')}\"";
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (BaseScenario <= 0)
-            {
-                error = "The scenario number '" + BaseScenario
-                    + "' is an invalid scenario number!";
-                return false;
-            }
-
-            if (NewScenario <= 0)
-            {
-                error = "The scenario number '" + NewScenario
-                    + "' is an invalid scenario number!";
-                return false;
-            }
-            return true;
-        }
+        return true;
     }
 }

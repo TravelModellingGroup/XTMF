@@ -20,441 +20,439 @@ using System;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Collections.ObjectModel;
 using XTMF.Interfaces;
 using XTMF.Editing;
 
-namespace XTMF
+namespace XTMF;
+
+public class ModelSystemModel : INotifyPropertyChanged
 {
-    public class ModelSystemModel : INotifyPropertyChanged
+    /// <summary>
+    /// The starting node of the model system
+    /// </summary>
+    public ModelSystemStructureModel Root { get; private set; }
+    /// <summary>
+    /// The model that contains the linked parameters
+    /// </summary>
+    public LinkedParametersModel LinkedParameters { get; private set; }
+
+    public RegionDisplaysModel RegionDisplaysModel { get; private set; }
+
+    public int ModelSystemModuleCount { get; set; } = 0;
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    internal ModelSystemStructure ClonedModelSystemRoot { get { return Root.RealModelSystemStructure; } }
+
+    private readonly Project _Project;
+
+    private readonly int _ModelSystemIndex;
+
+    public ModelSystem ModelSystem { get; internal set; }
+
+    private readonly string _Path;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="project"></param>
+    /// <param name="modelSystemIndex"></param>
+    public ModelSystemModel(ModelSystemEditingSession session, Project project, int modelSystemIndex)
     {
-        /// <summary>
-        /// The starting node of the model system
-        /// </summary>
-        public ModelSystemStructureModel Root { get; private set; }
-        /// <summary>
-        /// The model that contains the linked parameters
-        /// </summary>
-        public LinkedParametersModel LinkedParameters { get; private set; }
+        _Project = project;
+        _ModelSystemIndex = modelSystemIndex;
+        LoadModelSystemFromProject(session, project, modelSystemIndex);
+        return;
+    }
 
-        public RegionDisplaysModel RegionDisplaysModel { get; private set; }
+    /// <summary>
+    /// Create a model system model for a previous run.
+    /// </summary>
+    /// <param name="modelSystemEditingSession">The session to use</param>
+    /// <param name="project">The project the previous run is in.</param>
+    /// <param name="runFile">The path to the run file.</param>
+    public ModelSystemModel(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, Project project, string runFile)
+    {
+        _Path = runFile;
+        _Project = project;
+        _ModelSystemIndex = -1;
+        Name = Path.GetFileName(runFile);
+        _Description = "Previous run";
+        LoadModelSystemFromFile(runtime, modelSystemEditingSession, runFile);
+    }
 
-        public int ModelSystemModuleCount { get; set; } = 0;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="modelSystem"></param>
+    public ModelSystemModel(ModelSystemEditingSession session, ModelSystem modelSystem)
+    {
+        ModelSystem = modelSystem;
+        Name = modelSystem.Name;
+        _Description = modelSystem.Description;
+        LoadModelSystemFromModelSystem(session, modelSystem);
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        internal ModelSystemStructure ClonedModelSystemRoot { get { return Root.RealModelSystemStructure; } }
-
-        private readonly Project _Project;
-
-        private readonly int _ModelSystemIndex;
-
-        public ModelSystem ModelSystem { get; internal set; }
-
-        private readonly string _Path;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="session"></param>
-        /// <param name="project"></param>
-        /// <param name="modelSystemIndex"></param>
-        public ModelSystemModel(ModelSystemEditingSession session, Project project, int modelSystemIndex)
+    internal ParameterModel GetParameterModel(IModuleParameter moduleParameter)
+    {
+        var owner = GetModelFor(moduleParameter.BelongsTo as ModelSystemStructure);
+        if (owner != null)
         {
-            _Project = project;
-            _ModelSystemIndex = modelSystemIndex;
-            LoadModelSystemFromProject(session, project, modelSystemIndex);
-            return;
+            return GetParameterModel(owner, moduleParameter);
         }
+        return null;
+    }
 
-        /// <summary>
-        /// Create a model system model for a previous run.
-        /// </summary>
-        /// <param name="modelSystemEditingSession">The session to use</param>
-        /// <param name="project">The project the previous run is in.</param>
-        /// <param name="runFile">The path to the run file.</param>
-        public ModelSystemModel(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, Project project, string runFile)
+    private ParameterModel GetParameterModel(ModelSystemStructureModel owner, IModuleParameter moduleParameter)
+    {
+        var parameters = owner.Parameters.Parameters;
+        if (parameters != null)
         {
-            _Path = runFile;
-            _Project = project;
-            _ModelSystemIndex = -1;
-            Name = Path.GetFileName(runFile);
-            _Description = "Previous run";
-            LoadModelSystemFromFile(runtime, modelSystemEditingSession, runFile);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="session"></param>
-        /// <param name="modelSystem"></param>
-        public ModelSystemModel(ModelSystemEditingSession session, ModelSystem modelSystem)
-        {
-            ModelSystem = modelSystem;
-            Name = modelSystem.Name;
-            _Description = modelSystem.Description;
-            LoadModelSystemFromModelSystem(session, modelSystem);
-        }
-
-        internal ParameterModel GetParameterModel(IModuleParameter moduleParameter)
-        {
-            var owner = GetModelFor(moduleParameter.BelongsTo as ModelSystemStructure);
-            if (owner != null)
+            for (int i = 0; i < parameters.Count; i++)
             {
-                return GetParameterModel(owner, moduleParameter);
-            }
-            return null;
-        }
-
-        private ParameterModel GetParameterModel(ModelSystemStructureModel owner, IModuleParameter moduleParameter)
-        {
-            var parameters = owner.Parameters.Parameters;
-            if (parameters != null)
-            {
-                for (int i = 0; i < parameters.Count; i++)
+                if (parameters[i].RealParameter == moduleParameter)
                 {
-                    if (parameters[i].RealParameter == moduleParameter)
-                    {
-                        return parameters[i];
-                    }
-                }
-            }
-            return null;
-        }
-
-        public ModelSystemStructureModel GetModelFor(ModelSystemStructure realStructure) => GetModelFor(realStructure, Root);
-
-        private ModelSystemStructureModel GetModelFor(ModelSystemStructure realStructure, ModelSystemStructureModel current)
-        {
-            if (current.RealModelSystemStructure == realStructure)
-            {
-                return current;
-            }
-            var children = current.Children;
-            if (children != null)
-            {
-                for (int i = 0; i < children.Count; i++)
-                {
-                    ModelSystemStructureModel ret;
-                    if ((ret = GetModelFor(realStructure, children[i])) != null)
-                    {
-                        return ret;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private bool _Dirty = false;
-
-        /// <summary>
-        /// Does the model system have changes that are not saved.
-        /// </summary>
-        public bool IsDirty => _Dirty || Root.IsDirty;
-
-        private string _Description;
-
-        /// <summary>
-        /// Describes the Model System
-        /// </summary>
-        public string Description
-        {
-            get => _Description;
-            set
-            {
-                var dirtyChanged = false;
-                if (IsDirty != true)
-                {
-                    dirtyChanged = true;
-                }
-                _Dirty = true;
-                _Description = value;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
-                if (dirtyChanged)
-                {
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
+                    return parameters[i];
                 }
             }
         }
+        return null;
+    }
 
-        private string _Name;
+    public ModelSystemStructureModel GetModelFor(ModelSystemStructure realStructure) => GetModelFor(realStructure, Root);
 
-        /// <summary>
-        /// The name of the model system
-        /// </summary>
-        public string Name
+    private ModelSystemStructureModel GetModelFor(ModelSystemStructure realStructure, ModelSystemStructureModel current)
+    {
+        if (current.RealModelSystemStructure == realStructure)
         {
-            get => _Name;
-            set
+            return current;
+        }
+        var children = current.Children;
+        if (children != null)
+        {
+            for (int i = 0; i < children.Count; i++)
             {
-                if (_Name != value)
+                ModelSystemStructureModel ret;
+                if ((ret = GetModelFor(realStructure, children[i])) != null)
                 {
-                    _Name = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
+                    return ret;
                 }
             }
         }
+        return null;
+    }
 
-        /// <summary>
-        /// Save the changes into the real model system structure.
-        /// This should only be called by ModelSystemEditingSession.
-        /// </summary>
-        /// <param name="error">The error if there was one</param>
-        internal bool Save(ref string error)
+    private bool _Dirty = false;
+
+    /// <summary>
+    /// Does the model system have changes that are not saved.
+    /// </summary>
+    public bool IsDirty => _Dirty || Root.IsDirty;
+
+    private string _Description;
+
+    /// <summary>
+    /// Describes the Model System
+    /// </summary>
+    public string Description
+    {
+        get => _Description;
+        set
         {
-            if (!Root.Save(ref error))
+            var dirtyChanged = false;
+            if (IsDirty != true)
             {
-                return false;
+                dirtyChanged = true;
             }
-            if (ModelSystem != null)
+            _Dirty = true;
+            _Description = value;
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
+            if (dirtyChanged)
             {
-                ModelSystem.ModelSystemStructure = ClonedModelSystemRoot;
-                ModelSystem.Description = Description;
-                ModelSystem.LinkedParameters = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
-                return ModelSystem.Save(ref error);
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDirty));
             }
-            else if (_ModelSystemIndex >= 0)
+        }
+    }
+
+    private string _Name;
+
+    /// <summary>
+    /// The name of the model system
+    /// </summary>
+    public string Name
+    {
+        get => _Name;
+        set
+        {
+            if (_Name != value)
             {
-                _Project.SetModelSystem(_ModelSystemIndex,
-                    ClonedModelSystemRoot,
-                    LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList(),
-                    RegionDisplaysModel.RegionDisplays.ToList(),
-                    Description);
-                // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
-                Name = ClonedModelSystemRoot.Name;
-                _Project.SetLastModifiedToNow(ClonedModelSystemRoot);
-                return _Project.Save(ref error);
+                _Name = value;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Save the changes into the real model system structure.
+    /// This should only be called by ModelSystemEditingSession.
+    /// </summary>
+    /// <param name="error">The error if there was one</param>
+    internal bool Save(ref string error)
+    {
+        if (!Root.Save(ref error))
+        {
+            return false;
+        }
+        if (ModelSystem != null)
+        {
+            ModelSystem.ModelSystemStructure = ClonedModelSystemRoot;
+            ModelSystem.Description = Description;
+            ModelSystem.LinkedParameters = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
+            return ModelSystem.Save(ref error);
+        }
+        else if (_ModelSystemIndex >= 0)
+        {
+            _Project.SetModelSystem(_ModelSystemIndex,
+                ClonedModelSystemRoot,
+                LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList(),
+                [.. RegionDisplaysModel.RegionDisplays],
+                Description);
+            // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
+            Name = ClonedModelSystemRoot.Name;
+            _Project.SetLastModifiedToNow(ClonedModelSystemRoot);
+            return _Project.Save(ref error);
+        }
+        else
+        {
+            error = "You can not save over previous runs!";
+            return false;
+        }
+    }
+
+    public ObservableCollection<ParameterModel> GetQuickParameters()
+    {
+        ObservableCollection<ParameterModel> quickParameters = [];
+        AddQuickParameters(quickParameters, Root);
+        return quickParameters;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="quickParameters"></param>
+    /// <param name="current"></param>
+    private void AddQuickParameters(ObservableCollection<ParameterModel> quickParameters, ModelSystemStructureModel current)
+    {
+        var parameters = current.Parameters.Parameters;
+        if (parameters != null)
+        {
+            foreach (var p in parameters)
+            {
+                if (p.QuickParameter)
+                {
+                    quickParameters.Add(p);
+                }
+            }
+        }
+        var children = current.Children;
+        if (children != null)
+        {
+            foreach (var child in children)
+            {
+                AddQuickParameters(quickParameters, child);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Change the name of the model system
+    /// </summary>
+    /// <param name="error">The reason why changing the name failed.</param>
+    public bool ChangeModelSystemName(string newName, ref string error) => Root.SetName(newName, ref error);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="selected"></param>
+    /// <param name="error"></param>
+    /// <returns></returns>
+    public bool Remove(ModelSystemStructureModel selected, ref string error)
+    {
+        if (selected.IsCollection)
+        {
+            return selected.RemoveAllCollectionMembers(ref error);
+        }
+        return Remove(Root, null, selected, ref error);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="current"></param>
+    /// <param name="previous"></param>
+    /// <param name="selected"></param>
+    /// <param name="error"></param>
+    /// <returns></returns>
+    private bool Remove(ModelSystemStructureModel current, ModelSystemStructureModel previous, ModelSystemStructureModel selected, ref string error)
+    {
+        if (current == selected)
+        {
+            if (previous == null)
+            {
+                Root.Type = null;
+                return true;
             }
             else
             {
-                error = "You can not save over previous runs!";
-                return false;
-            }
-        }
-
-        public ObservableCollection<ParameterModel> GetQuickParameters()
-        {
-            ObservableCollection<ParameterModel> quickParameters = new ObservableCollection<ParameterModel>();
-            AddQuickParameters(quickParameters, Root);
-            return quickParameters;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="quickParameters"></param>
-        /// <param name="current"></param>
-        private void AddQuickParameters(ObservableCollection<ParameterModel> quickParameters, ModelSystemStructureModel current)
-        {
-            var parameters = current.Parameters.Parameters;
-            if (parameters != null)
-            {
-                foreach (var p in parameters)
+                if (previous.IsCollection)
                 {
-                    if (p.QuickParameter)
-                    {
-                        quickParameters.Add(p);
-                    }
+                    return previous.RemoveCollectionMember(previous.Children.IndexOf(selected), ref error);
                 }
-            }
-            var children = current.Children;
-            if (children != null)
-            {
-                foreach (var child in children)
+                else
                 {
-                    AddQuickParameters(quickParameters, child);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Change the name of the model system
-        /// </summary>
-        /// <param name="error">The reason why changing the name failed.</param>
-        public bool ChangeModelSystemName(string newName, ref string error) => Root.SetName(newName, ref error);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="selected"></param>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        public bool Remove(ModelSystemStructureModel selected, ref string error)
-        {
-            if (selected.IsCollection)
-            {
-                return selected.RemoveAllCollectionMembers(ref error);
-            }
-            return Remove(Root, null, selected, ref error);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="current"></param>
-        /// <param name="previous"></param>
-        /// <param name="selected"></param>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        private bool Remove(ModelSystemStructureModel current, ModelSystemStructureModel previous, ModelSystemStructureModel selected, ref string error)
-        {
-            if (current == selected)
-            {
-                if (previous == null)
-                {
-                    Root.Type = null;
+                    selected.Type = null;
                     return true;
                 }
-                else
+            }
+        }
+        var children = current.Children;
+        if (children != null)
+        {
+            foreach (var child in current.Children)
+            {
+                var success = Remove(child, current, selected, ref error);
+                if (success)
                 {
-                    if (previous.IsCollection)
-                    {
-                        return previous.RemoveCollectionMember(previous.Children.IndexOf(selected), ref error);
-                    }
-                    else
-                    {
-                        selected.Type = null;
-                        return true;
-                    }
-                }
-            }
-            var children = current.Children;
-            if (children != null)
-            {
-                foreach (var child in current.Children)
-                {
-                    var success = Remove(child, current, selected, ref error);
-                    if (success)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Create a clone of this model system model as a model system.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public ModelSystem CloneAsModelSystem(IConfiguration config)
-        {
-            if (ModelSystem != null)
-            {
-                return ModelSystem.Clone();
-            }
-            var ms = new ModelSystem(config, _Name)
-            {
-                LinkedParameters = LinkedParameters.GetRealLinkedParameters(),
-                ModelSystemStructure = Root.RealModelSystemStructure
-            };
-            return ms.Clone();
-        }
-
-        private void LoadModelSystemFromProject(ModelSystemEditingSession session, Project project, int modelSystemIndex)
-        {
-            project.EnsureModelSystemLoaded(modelSystemIndex);
-            Name = project.ModelSystemStructure[modelSystemIndex].Name;
-            _Description = project.ModelSystemDescriptions[modelSystemIndex];
-            Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters,
-                out List<IRegionDisplay> editingRegionDisplays, modelSystemIndex) as ModelSystemStructure));
-            Root.PropertyChanged += Root_PropertyChanged;
-            _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
-            LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
-            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays,Root);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="session"></param>
-        /// <param name="modelSystem"></param>
-        private void LoadModelSystemFromModelSystem(ModelSystemEditingSession session, ModelSystem modelSystem)
-        {
-            Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters,
-                            out List<IRegionDisplay> editingRegionDisplays) as ModelSystemStructure);
-            Root.PropertyChanged += Root_PropertyChanged;
-            LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
-            RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays,Root);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="runtime"></param>
-        /// <param name="modelSystemEditingSession"></param>
-        /// <param name="runFile"></param>
-        private void LoadModelSystemFromFile(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, string runFile)
-        {
-            string error = null;
-            if (!runtime.ModelSystemController.LoadDetachedModelSystemFromFile(runFile, out var modelSystem, ref error))
-            {
-                throw new Exception(error);
-            }
-            Root = new ModelSystemStructureModel(modelSystemEditingSession, modelSystem.ModelSystemStructure as ModelSystemStructure);
-            Root.PropertyChanged += Root_PropertyChanged;
-            LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, modelSystem.LinkedParameters);
-            RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession, this, modelSystem.RegionDisplays, Root);
-        }
-
-        private void Root_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if(sender == Root)
-            {
-                if(e.PropertyName == nameof(Root.Name))
-                {
-                    // The root module's name has changed
-                    if(_Project != null)
-                    {
-                        // if we are in a project, update our model system's name
-                        Name = Root.Name;
-                    }
+                    return true;
                 }
             }
         }
+        return false;
+    }
 
-        internal bool ReloadModelSystem(ModelSystemEditingSession session, ref string error)
+    /// <summary>
+    /// Create a clone of this model system model as a model system.
+    /// </summary>
+    /// <param name="config"></param>
+    /// <returns></returns>
+    public ModelSystem CloneAsModelSystem(IConfiguration config)
+    {
+        if (ModelSystem != null)
         {
-            if(_Project != null)
-            {
-                if(_ModelSystemIndex >= 0)
-                {
-                    LoadModelSystemFromProject(session, _Project, _ModelSystemIndex);
-                }
-                else
-                {
-                    try
-                    {
-                        LoadModelSystemFromFile(session.Runtime, session, _Path);
-                    }
-                    catch(Exception e)
-                    {
-                        error = e.Message;
-                        return false;
-                    }
-                }
-                UpdateAll();
-                return true;
-            }
-            else if(ModelSystem != null)
-            {
-                LoadModelSystemFromModelSystem(session, ModelSystem);
-                UpdateAll();
-                return true;
-            }
-            error = "Unknown model system model case for reloading.";
-            return false;
+            return ModelSystem.Clone();
         }
+        var ms = new ModelSystem(config, _Name)
+        {
+            LinkedParameters = LinkedParameters.GetRealLinkedParameters(),
+            ModelSystemStructure = Root.RealModelSystemStructure
+        };
+        return ms.Clone();
+    }
 
-        private void UpdateAll()
+    private void LoadModelSystemFromProject(ModelSystemEditingSession session, Project project, int modelSystemIndex)
+    {
+        project.EnsureModelSystemLoaded(modelSystemIndex);
+        Name = project.ModelSystemStructure[modelSystemIndex].Name;
+        _Description = project.ModelSystemDescriptions[modelSystemIndex];
+        Root = new ModelSystemStructureModel(session, (project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters,
+            out List<IRegionDisplay> editingRegionDisplays, modelSystemIndex) as ModelSystemStructure));
+        Root.PropertyChanged += Root_PropertyChanged;
+        _Description = _Project.ModelSystemDescriptions[modelSystemIndex];
+        LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+        RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays,Root);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="modelSystem"></param>
+    private void LoadModelSystemFromModelSystem(ModelSystemEditingSession session, ModelSystem modelSystem)
+    {
+        Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters,
+                        out List<IRegionDisplay> editingRegionDisplays) as ModelSystemStructure);
+        Root.PropertyChanged += Root_PropertyChanged;
+        LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+        RegionDisplaysModel = new RegionDisplaysModel(session, this, editingRegionDisplays,Root);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="runtime"></param>
+    /// <param name="modelSystemEditingSession"></param>
+    /// <param name="runFile"></param>
+    private void LoadModelSystemFromFile(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, string runFile)
+    {
+        string error = null;
+        if (!runtime.ModelSystemController.LoadDetachedModelSystemFromFile(runFile, out var modelSystem, ref error))
         {
-            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Root));
-            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
-            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(LinkedParameters));
-            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(RegionDisplaysModel));
+            throw new Exception(error);
         }
+        Root = new ModelSystemStructureModel(modelSystemEditingSession, modelSystem.ModelSystemStructure as ModelSystemStructure);
+        Root.PropertyChanged += Root_PropertyChanged;
+        LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, modelSystem.LinkedParameters);
+        RegionDisplaysModel = new RegionDisplaysModel(modelSystemEditingSession, this, modelSystem.RegionDisplays, Root);
+    }
+
+    private void Root_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if(sender == Root)
+        {
+            if(e.PropertyName == nameof(Root.Name))
+            {
+                // The root module's name has changed
+                if(_Project != null)
+                {
+                    // if we are in a project, update our model system's name
+                    Name = Root.Name;
+                }
+            }
+        }
+    }
+
+    internal bool ReloadModelSystem(ModelSystemEditingSession session, ref string error)
+    {
+        if(_Project != null)
+        {
+            if(_ModelSystemIndex >= 0)
+            {
+                LoadModelSystemFromProject(session, _Project, _ModelSystemIndex);
+            }
+            else
+            {
+                try
+                {
+                    LoadModelSystemFromFile(session.Runtime, session, _Path);
+                }
+                catch(Exception e)
+                {
+                    error = e.Message;
+                    return false;
+                }
+            }
+            UpdateAll();
+            return true;
+        }
+        else if(ModelSystem != null)
+        {
+            LoadModelSystemFromModelSystem(session, ModelSystem);
+            UpdateAll();
+            return true;
+        }
+        error = "Unknown model system model case for reloading.";
+        return false;
+    }
+
+    private void UpdateAll()
+    {
+        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Root));
+        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
+        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(LinkedParameters));
+        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(RegionDisplaysModel));
     }
 }

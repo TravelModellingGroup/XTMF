@@ -21,50 +21,47 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using XTMF.Annotations;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for FlatButton.xaml
+/// </summary>
+/// 
+public partial class FlatButton : UserControl, INotifyPropertyChanged
 {
-    /// <summary>
-    /// Interaction logic for FlatButton.xaml
-    /// </summary>
-    /// 
-    public partial class FlatButton : UserControl, INotifyPropertyChanged
+    public static readonly DependencyProperty ToolTextTextDependencyProperty =
+        DependencyProperty.Register("ToolText", typeof(string), typeof(FlatButton), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty IconPathDependencyProperty = DependencyProperty.Register("IconPath",
+        typeof(Path), typeof(FlatButton), new PropertyMetadata(null));
+
+    public event RoutedEventHandler Click;
+
+    public FlatButton()
     {
-        public static readonly DependencyProperty ToolTextTextDependencyProperty =
-            DependencyProperty.Register("ToolText", typeof(string), typeof(FlatButton), new PropertyMetadata(null));
+        InitializeComponent();
+        DataContext = this;
+    }
 
-        public static readonly DependencyProperty IconPathDependencyProperty = DependencyProperty.Register("IconPath",
-            typeof(Path), typeof(FlatButton), new PropertyMetadata(null));
+    public string ToolText
+    {
+        get => (string)GetValue(ToolTextTextDependencyProperty);
+        set => SetValue(ToolTextTextDependencyProperty, value);
+    }
 
-        public event RoutedEventHandler Click;
+    public Path IconPath
+    {
+        get => (Path)GetValue(IconPathDependencyProperty);
+        set => SetValue(IconPathDependencyProperty, value);
+    }
 
-        public FlatButton()
-        {
-            InitializeComponent();
-            DataContext = this;
-        }
+    private void ButtonBase_OnClick(object sender, RoutedEventArgs e) => Click?.Invoke(sender, e);
 
-        public string ToolText
-        {
-            get => (string)GetValue(ToolTextTextDependencyProperty);
-            set => SetValue(ToolTextTextDependencyProperty, value);
-        }
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        public Path IconPath
-        {
-            get => (Path)GetValue(IconPathDependencyProperty);
-            set => SetValue(IconPathDependencyProperty, value);
-        }
-
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e) => Click?.Invoke(sender, e);
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

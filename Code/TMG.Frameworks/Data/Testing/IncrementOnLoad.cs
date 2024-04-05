@@ -19,41 +19,39 @@
 using System;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Testing
+namespace TMG.Frameworks.Data.Testing;
+
+
+public class IncrementOnLoad : IDataSource<float>
 {
+    public bool Loaded { get; set; }
 
-    public class IncrementOnLoad : IDataSource<float>
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private float Data;
+
+    public float GiveData()
     {
-        public bool Loaded { get; set; }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private float Data;
-
-        public float GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            ++Data;
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Loaded = false;
-        }
+        return Data;
     }
 
+    public void LoadData()
+    {
+        ++Data;
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+    }
 }

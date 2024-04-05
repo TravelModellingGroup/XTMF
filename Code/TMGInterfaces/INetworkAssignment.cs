@@ -18,28 +18,27 @@
 */
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface INetworkAssignment : IModule
 {
-    public interface INetworkAssignment : IModule
-    {
-        /// <summary>
-        /// This is to be executed before the zone system is loaded
-        /// </summary>
-        void RunModelSystemSetup();
+    /// <summary>
+    /// This is to be executed before the zone system is loaded
+    /// </summary>
+    void RunModelSystemSetup();
 
-        /// <summary>
-        /// This is run after the zone system is loaded
-        /// </summary>
-        void RunInitialAssignments();
+    /// <summary>
+    /// This is run after the zone system is loaded
+    /// </summary>
+    void RunInitialAssignments();
 
-        /// <summary>
-        /// This is run every iteration
-        /// </summary>
-        void RunNetworkAssignment();
+    /// <summary>
+    /// This is run every iteration
+    /// </summary>
+    void RunNetworkAssignment();
 
-        /// <summary>
-        /// This is run after all iterations have been completed
-        /// </summary>
-        void RunPostAssignments();
-    }
+    /// <summary>
+    /// This is run after all iterations have been completed
+    /// </summary>
+    void RunPostAssignments();
 }

@@ -20,42 +20,36 @@
 using System;
 using XTMF;
 
-namespace TMG.Emme.XTMF_Internal
+namespace TMG.Emme.XTMF_Internal;
+
+[ModuleInformation(
+    Description = "This tool will allow you to be able to delete a scenario."
+    )]
+public class DeleteScenario : IEmmeTool
 {
-    [ModuleInformation(
-        Description = "This tool will allow you to be able to delete a scenario."
-        )]
-    public class DeleteScenario : IEmmeTool
+    [RunParameter("Base Scenario", 1, "The scenario to copy from.")]
+    public int Scenario;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool Execute(Controller controller)
     {
-        [RunParameter("Base Scenario", 1, "The scenario to copy from.")]
-        public int Scenario;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            }
-            return mc.Run(this, "tmg.XTMF_internal.delete_scenario", Scenario.ToString());
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (Scenario <= 0)
-            {
-                error = "The scenario number '" + Scenario
-                    + "' is an invalid scenario number!";
-                return false;
-            }
-            return true;
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        return mc.Run(this, "tmg.XTMF_internal.delete_scenario", Scenario.ToString());
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        if (Scenario <= 0)
+        {
+            error = "The scenario number '" + Scenario
+                + "' is an invalid scenario number!";
+            return false;
+        }
+        return true;
+    }
 }

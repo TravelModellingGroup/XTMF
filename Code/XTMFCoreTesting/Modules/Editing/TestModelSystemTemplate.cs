@@ -16,52 +16,46 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.IO;
+namespace XTMF.Testing.Modules.Editing;
 
-namespace XTMF.Testing.Modules.Editing
+public class TestModelSystemTemplate : IModelSystemTemplate
 {
-    public class TestModelSystemTemplate : IModelSystemTemplate
+    [RunParameter("Input Directory", "../../Input", "The input directory.")]
+    public string InputBaseDirectory { get; set; } = string.Empty;
+
+    [RunParameter("SecondaryString", "", "Another string parameter")]
+    public string SecondaryString = string.Empty;
+
+    [SubModelInformation(Required = false, Description = "A test description")]
+    public IModule[]? TestCollection;
+
+    public string Name { get; set; } = string.Empty;
+
+    public string OutputBaseDirectory { get; set; } = string.Empty;
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour
     {
-        [RunParameter("Input Directory", "../../Input", "The input directory.")]
-        public string InputBaseDirectory { get; set; } = string.Empty;
-
-        [RunParameter("SecondaryString", "", "Another string parameter")]
-        public string SecondaryString = string.Empty;
-
-        [SubModelInformation(Required = false, Description = "A test description")]
-        public IModule[]? TestCollection;
-
-        public string Name { get; set; } = string.Empty;
-
-        public string OutputBaseDirectory { get; set; } = string.Empty;
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        get
         {
-            get
-            {
-                return new Tuple<byte, byte, byte>( 50, 150, 50 );
-            }
+            return new Tuple<byte, byte, byte>( 50, 150, 50 );
         }
+    }
 
-        public bool ExitRequest()
-        {
-            return false;
-        }
+    public bool ExitRequest()
+    {
+        return false;
+    }
 
-        public bool RuntimeValidation(ref string? error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string? error)
+    {
+        return true;
+    }
 
-        public void Start()
-        {
-            using (var writer = new StreamWriter( "ShowTrace" ))
-            {
-                writer.WriteLine( "Hello World" );
-            }
-        }
+    public void Start()
+    {
+        using var writer = new StreamWriter("ShowTrace");
+        writer.WriteLine("Hello World");
     }
 }

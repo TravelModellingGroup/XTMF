@@ -19,60 +19,59 @@
 using System;
 using XTMF;
 
-namespace TMG.Emme.Utilities
-{
-    [ModuleInformation(Description = @"This module provides an easy way to run EMME tools multiple times.  It will execute by going through each child 
+namespace TMG.Emme.Utilities;
+
+[ModuleInformation(Description = @"This module provides an easy way to run EMME tools multiple times.  It will execute by going through each child 
 executing them and then once finished the list will start again for the number of times given by the parameter 'Iterations'.")]
-    public class IterateEMMETools : IEmmeTool
+public class IterateEMMETools : IEmmeTool
+{
+    public string Name { get; set; }
+
+    public float Progress { get; private set; }
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
+
+    [SubModelInformation(Required = false, Description = "The tools to iterate")]
+    public IEmmeTool[] ToExecute;
+
+    [RunParameter("Iterations", 1, "The number of iterations to run the tools for.")]
+    public int Iterations;
+
+    private int CurrentIteration;
+    private int CurrentTool;
+
+    public bool Execute(Controller controller)
     {
-        public string Name { get; set; }
-
-        public float Progress { get; private set; }
-
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
-
-        [SubModelInformation(Required = false, Description = "The tools to iterate")]
-        public IEmmeTool[] ToExecute;
-
-        [RunParameter("Iterations", 1, "The number of iterations to run the tools for.")]
-        public int Iterations;
-
-        private int CurrentIteration;
-        private int CurrentTool;
-
-        public bool Execute(Controller controller)
+        for (int i = 0; i < Iterations; i++)
         {
-            for (int i = 0; i < Iterations; i++)
+            CurrentIteration = i;
+            for (int j = 0; j < ToExecute.Length; j++)
             {
-                CurrentIteration = i;
-                for (int j = 0; j < ToExecute.Length; j++)
-                {
-                    CurrentTool = j;
-                    Progress = ((float)i / Iterations) + (((float)j / ToExecute.Length) / Iterations);
-                    ToExecute[j].Execute(controller);
-                }
+                CurrentTool = j;
+                Progress = ((float)i / Iterations) + (((float)j / ToExecute.Length) / Iterations);
+                ToExecute[j].Execute(controller);
             }
-            Progress = 1.0f;
-            return true;
         }
+        Progress = 1.0f;
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        if (Iterations < 0)
         {
-            if (Iterations < 0)
-            {
-                error = $"In {Name} the number of iterations is less than zero!";
-                return false;
-            }
-            return true;
+            error = $"In {Name} the number of iterations is less than zero!";
+            return false;
         }
+        return true;
+    }
 
-        public override string ToString()
+    public override string ToString()
+    {
+        if (ToExecute.Length == 0)
         {
-            if (ToExecute.Length == 0)
-            {
-                return "Nothing to execute";
-            }
-            return $"Iteration {CurrentIteration + 1} executing {ToExecute[CurrentTool].ToString()}";
+            return "Nothing to execute";
         }
+        return $"Iteration {CurrentIteration + 1} executing {ToExecute[CurrentTool].ToString()}";
     }
 }

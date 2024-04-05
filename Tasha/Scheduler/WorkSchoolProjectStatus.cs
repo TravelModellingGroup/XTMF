@@ -16,24 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
-{
-    public enum HouseholdWorkSchoolProjectStatus
-    {
-        NoWorkOrSchool = 0,
-        NoEveningWorkOrSchool = 1,
-        EveningWorkOrSchool = 2,
-        DayAndEveningWorkOrSchool = 3
-    }
+namespace Tasha.Common;
 
-    public enum PersonWorkSchoolProjectStatus
-    {
-        NoWorkOrSchool = 0,
-        FullTimeNoEveningWorkOrSchool = 1,
-        FullTimeEveningWorkOrSchool = 2,
-        FullTimeDayAndEveningWorkOrSchool = 3,
-        PartTimeDay = 4,
-        PartTimeEvening = 5,
-        Other = 6
-    }
+public enum HouseholdWorkSchoolProjectStatus
+{
+    NoWorkOrSchool = 0,
+    NoEveningWorkOrSchool = 1,
+    EveningWorkOrSchool = 2,
+    DayAndEveningWorkOrSchool = 3
+}
+
+public enum PersonWorkSchoolProjectStatus
+{
+    NoWorkOrSchool = 0,
+    FullTimeNoEveningWorkOrSchool = 1,
+    FullTimeEveningWorkOrSchool = 2,
+    FullTimeDayAndEveningWorkOrSchool = 3,
+    PartTimeDay = 4,
+    PartTimeEvening = 5,
+    Other = 6
 }

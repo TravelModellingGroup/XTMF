@@ -20,70 +20,64 @@ using System;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme.Tools.Analysis.Transit.StrategyAnalysis
+namespace TMG.Emme.Tools.Analysis.Transit.StrategyAnalysis;
+
+[ModuleInformation(Description = "")]
+public class ExtractLinkTransfers : IEmmeTool
 {
-    [ModuleInformation(Description = "")]
-    public class ExtractLinkTransfers : IEmmeTool
+    [RunParameter("Scenario Number", 1, "The scenario to read the information from.")]
+    public int ScenarioNumber;
+
+    [RunParameter("Demand Matrix", 0, "The matrix to use for analysis. A value of 0 will cause the tool to search for the demand matrix used in the most recent assignment.")]
+    public int DemandMatrix;
+
+    [RunParameter("Link Set", "label:link1:link2", "A description of what links to apply this to. Needs to be in the form label:link1:link2. Links should be in the form 10000,10001. Separate link pair sets with a semicolon.")]
+    public string LinkSet;
+
+    [RunParameter("Peak Period Factor", 1.0f, "The peak period factor to use. Note that the tool uses division here, so a value akin to the assignment period is expected.")]
+    public float PeakPeriodFactor;
+
+    [RunParameter("Hypernetwork", false, "Set this to true if you wish to include links in the hypernetwork with the same shape.")]
+    public bool Hypernetwork;
+
+    [SubModelInformation(Required = true, Description = "The location to save the results to.")]
+    public FileLocation SaveTo;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_link_transfers";
+
+    public bool Execute(Controller controller)
     {
-        [RunParameter("Scenario Number", 1, "The scenario to read the information from.")]
-        public int ScenarioNumber;
-
-        [RunParameter("Demand Matrix", 0, "The matrix to use for analysis. A value of 0 will cause the tool to search for the demand matrix used in the most recent assignment.")]
-        public int DemandMatrix;
-
-        [RunParameter("Link Set", "label:link1:link2", "A description of what links to apply this to. Needs to be in the form label:link1:link2. Links should be in the form 10000,10001. Separate link pair sets with a semicolon.")]
-        public string LinkSet;
-
-        [RunParameter("Peak Period Factor", 1.0f, "The peak period factor to use. Note that the tool uses division here, so a value akin to the assignment period is expected.")]
-        public float PeakPeriodFactor;
-
-        [RunParameter("Hypernetwork", false, "Set this to true if you wish to include links in the hypernetwork with the same shape.")]
-        public bool Hypernetwork;
-
-        [SubModelInformation(Required = true, Description = "The location to save the results to.")]
-        public FileLocation SaveTo;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_link_transfers";
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if(mc == null)
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            }
-            return mc.Run(this, ToolName, GetParameters());
-        }
-
-        private string GetParameters()
-        {
-            /*
-                def __call__(self, xtmf_ScenarioNumber, xtmf_DemandMatrixNumber, LinkSetString, 
-                 ExportFile, PeakHourFactor, HypernetworkFlag):
-                 */
-            return string.Join(" ", ScenarioNumber, DemandMatrix, AddQuotes(LinkSet), GetFullPath(SaveTo), PeakPeriodFactor, Hypernetwork);
-        }
-
-        private string GetFullPath(FileLocation saveTo)
-        {
-            return AddQuotes(System.IO.Path.GetFullPath(saveTo));
-        }
-
-        private string AddQuotes(string str)
-        {
-            return "\"" + str + "\"";
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        return mc.Run(this, ToolName, GetParameters());
     }
 
+    private string GetParameters()
+    {
+        /*
+            def __call__(self, xtmf_ScenarioNumber, xtmf_DemandMatrixNumber, LinkSetString, 
+             ExportFile, PeakHourFactor, HypernetworkFlag):
+             */
+        return string.Join(" ", ScenarioNumber, DemandMatrix, AddQuotes(LinkSet), GetFullPath(SaveTo), PeakPeriodFactor, Hypernetwork);
+    }
+
+    private string GetFullPath(FileLocation saveTo)
+    {
+        return AddQuotes(System.IO.Path.GetFullPath(saveTo));
+    }
+
+    private string AddQuotes(string str)
+    {
+        return "\"" + str + "\"";
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 }

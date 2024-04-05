@@ -20,33 +20,32 @@
 using TMG;
 using XTMF;
 
-namespace Tasha.Estimation.AccessStation
+namespace Tasha.Estimation.AccessStation;
+
+public class AccessTourData
 {
-    public class AccessTourData
+    internal IZone FirstOrigin;
+    internal IZone FirstDestination;
+    internal Time FirstTime;
+
+    internal IZone SecondOrigin;
+    internal IZone SecondDestination;
+    internal Time SecondTime;
+
+    internal IZone AccessStation;
+
+    public AccessTourData(IZone firstOrigin, IZone firstDestination, Time firstTime,
+        IZone secondOrigin, IZone secondDestination, Time secondTime,
+        IZone accessStation)
     {
-        internal IZone FirstOrigin;
-        internal IZone FirstDestination;
-        internal Time FirstTime;
+        FirstOrigin = firstOrigin;
+        FirstDestination = firstDestination;
+        FirstTime = firstTime;
 
-        internal IZone SecondOrigin;
-        internal IZone SecondDestination;
-        internal Time SecondTime;
+        SecondOrigin = secondOrigin;
+        SecondDestination = secondDestination;
+        SecondTime = secondTime;
 
-        internal IZone AccessStation;
-
-        public AccessTourData(IZone firstOrigin, IZone firstDestination, Time firstTime,
-            IZone secondOrigin, IZone secondDestination, Time secondTime,
-            IZone accessStation)
-        {
-            FirstOrigin = firstOrigin;
-            FirstDestination = firstDestination;
-            FirstTime = firstTime;
-
-            SecondOrigin = secondOrigin;
-            SecondDestination = secondDestination;
-            SecondTime = secondTime;
-
-            AccessStation = accessStation;
-        }
+        AccessStation = accessStation;
     }
 }

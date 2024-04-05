@@ -25,197 +25,194 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace XTMF.Gui
+namespace XTMF.Gui;
+
+/// <summary>
+///     Interaction logic for FilterBox.xaml
+/// </summary>
+public partial class FilterBox : UserControl
 {
-    /// <summary>
-    ///     Interaction logic for FilterBox.xaml
-    /// </summary>
-    public partial class FilterBox : UserControl
+    public static readonly DependencyProperty FilterWatermarkProperty = DependencyProperty.Register(
+        "FilterWatermark", typeof(string), typeof(FilterBox),
+        new FrameworkPropertyMetadata("Search...", FrameworkPropertyMetadataOptions.AffectsRender,
+            OnFilterWatermarkChanged));
+
+    private string _currentBoxText = string.Empty;
+
+    private ItemsControl _display;
+
+    private Func<object, string, bool> _filter;
+    private ICollectionView _itemsSource;
+
+    private Action Refresh;
+
+    public FilterBox()
     {
-        public static readonly DependencyProperty FilterWatermarkProperty = DependencyProperty.Register(
-            "FilterWatermark", typeof(string), typeof(FilterBox),
-            new FrameworkPropertyMetadata("Search...", FrameworkPropertyMetadataOptions.AffectsRender,
-                OnFilterWatermarkChanged));
+        UseItemSourceFilter = true;
+        InitializeComponent();
+    }
 
-        private string _currentBoxText = string.Empty;
+    public string FilterWatermark
+    {
+        get => GetValue(FilterWatermarkProperty) as string;
+        set => SetValue(FilterWatermarkProperty, value);
+    }
 
-        private ItemsControl _display;
-
-        private Func<object, string, bool> _filter;
-        private ICollectionView _itemsSource;
-
-        private Action Refresh;
-
-        public FilterBox()
+    public void RetriveFocus()
+    {
+        Dispatcher.InvokeAsync(() =>
         {
-            UseItemSourceFilter = true;
-            InitializeComponent();
-        }
+            Box.Focus();
+            Keyboard.Focus(Box);
+        }, DispatcherPriority.Background);
+    }
 
-        public string FilterWatermark
-        {
-            get => GetValue(FilterWatermarkProperty) as string;
-            set => SetValue(FilterWatermarkProperty, value);
-        }
+    public bool UseItemSourceFilter { get; set; }
 
-        public void RetriveFocus()
+    public Func<object, string, bool> Filter
+    {
+        get => _filter;
+        set
         {
-            Dispatcher.InvokeAsync(() =>
+            _filter = value;
+            if (_display != null && _itemsSource != null)
             {
-                Box.Focus();
-                Keyboard.Focus(Box);
-            }, DispatcherPriority.Background);
-        }
-
-        public bool UseItemSourceFilter { get; set; }
-
-        public Func<object, string, bool> Filter
-        {
-            get => _filter;
-            set
-            {
-                _filter = value;
-                if (_display != null && _itemsSource != null)
+                if (UseItemSourceFilter)
                 {
-                    if (UseItemSourceFilter)
+                    if (!_itemsSource.CanFilter)
                     {
-                        if (!_itemsSource.CanFilter)
-                        {
-                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " +
-                                                            _itemsSource.SourceCollection.GetType().FullName);
-                        }
-
-                        _itemsSource.Filter = o => _filter(o, _currentBoxText);
+                        throw new NotSupportedException("The FilterBox is unable to filter data  of type " +
+                                                        _itemsSource.SourceCollection.GetType().FullName);
                     }
+
+                    _itemsSource.Filter = o => _filter(o, _currentBoxText);
                 }
             }
         }
+    }
 
-        public ItemsControl Display
+    public ItemsControl Display
+    {
+        get => _display;
+        set
         {
-            get => _display;
-            set
+            _display = value;
+            Box.Text = "";
+            _itemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
+            _itemsSource.Refresh();
+            if (_filter != null)
             {
-                _display = value;
-                Box.Text = "";
-                _itemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
-                _itemsSource.Refresh();
-                if (_filter != null)
+                Filter = _filter;
+            }
+
+            Refresh = () =>
+            {
+                if (UseItemSourceFilter)
                 {
-                    Filter = _filter;
+                   
+                    _itemsSource.Refresh();
+
                 }
-
-                Refresh = () =>
+                else
                 {
-                    if (UseItemSourceFilter)
+                    var items = _itemsSource.GetEnumerator();
+                    using var differ = _itemsSource.DeferRefresh();
+                    while (items.MoveNext())
                     {
-                       
-                        _itemsSource.Refresh();
-
+                        Filter(items.Current, Box.Text);
                     }
-                    else
-                    {
-                        var items = _itemsSource.GetEnumerator();
-                        using (var differ = _itemsSource.DeferRefresh())
-                        {
-                            while (items.MoveNext())
-                            {
-                                Filter(items.Current, Box.Text);
-                            }
-                        }
-                    }
-                };
-            }
-        }
-
-        private static void OnFilterWatermarkChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        public event EventHandler EnterPressed;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnGotFocus(RoutedEventArgs e)
-        {
-            base.OnGotFocus(e);
-            try
-            {
-                Box.Focus();
-            }
-            catch
-            {
-            }
-
-        }
-
-        private bool HandleEnterPress()
-        {
-            var ev = EnterPressed;
-            if (ev != null)
-            {
-                ev(this, new EventArgs());
-                return true;
-            }
-            return false;
-        }
-
-        private bool ClearFilter()
-        {
-            if (!string.IsNullOrWhiteSpace(Box.Text))
-            {
-                Box.Text = string.Empty;
-                return true;
-            }
-
-            return false;
-        }
-
-        private void ClearFilter_Click(object sender, RoutedEventArgs e)
-        {
-            ClearFilter();
-        }
-
-        private void Box_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            _currentBoxText = Box.Text;
-            RefreshFilter();
-            ClearFilterButton.Visibility =
-                !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        internal void RefreshFilter()
-        {
-            if (Refresh != null)
-            {
-                Dispatcher.BeginInvoke(Refresh, DispatcherPriority.Input);
-            }
-        }
-
-        private void Box_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Handled == false)
-            {
-                switch (e.Key)
-                {
-                    case Key.Escape:
-                        e.Handled = ClearFilter();
-                        break;
-                    case Key.Enter:
-                        e.Handled = HandleEnterPress();
-                        break;
-                    case Key.Down:
-                        var tRequest = new TraversalRequest(FocusNavigationDirection.Next);
-                        var keyboardFocus = Keyboard.FocusedElement as UIElement;
-                        keyboardFocus?.MoveFocus(tRequest);
-                        e.Handled = true;
-                        break;
                 }
+            };
+        }
+    }
+
+    private static void OnFilterWatermarkChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+    {
+    }
+
+    public event EventHandler EnterPressed;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="e"></param>
+    protected override void OnGotFocus(RoutedEventArgs e)
+    {
+        base.OnGotFocus(e);
+        try
+        {
+            Box.Focus();
+        }
+        catch
+        {
+        }
+
+    }
+
+    private bool HandleEnterPress()
+    {
+        var ev = EnterPressed;
+        if (ev != null)
+        {
+            ev(this, new EventArgs());
+            return true;
+        }
+        return false;
+    }
+
+    private bool ClearFilter()
+    {
+        if (!string.IsNullOrWhiteSpace(Box.Text))
+        {
+            Box.Text = string.Empty;
+            return true;
+        }
+
+        return false;
+    }
+
+    private void ClearFilter_Click(object sender, RoutedEventArgs e)
+    {
+        ClearFilter();
+    }
+
+    private void Box_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        _currentBoxText = Box.Text;
+        RefreshFilter();
+        ClearFilterButton.Visibility =
+            !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    internal void RefreshFilter()
+    {
+        if (Refresh != null)
+        {
+            Dispatcher.BeginInvoke(Refresh, DispatcherPriority.Input);
+        }
+    }
+
+    private void Box_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Handled == false)
+        {
+            switch (e.Key)
+            {
+                case Key.Escape:
+                    e.Handled = ClearFilter();
+                    break;
+                case Key.Enter:
+                    e.Handled = HandleEnterPress();
+                    break;
+                case Key.Down:
+                    var tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                    var keyboardFocus = Keyboard.FocusedElement as UIElement;
+                    keyboardFocus?.MoveFocus(tRequest);
+                    e.Handled = true;
+                    break;
             }
         }
     }

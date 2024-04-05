@@ -18,15 +18,14 @@
 */
 using System;
 
-namespace Tasha.Common
-{
-    public class ModeParamAttribute : Attribute
-    {
-        public ModeParamAttribute(string name)
-        {
-            Name = name;
-        }
+namespace Tasha.Common;
 
-        public string Name { get; private set; }
+public class ModeParamAttribute : Attribute
+{
+    public ModeParamAttribute(string name)
+    {
+        Name = name;
     }
+
+    public string Name { get; private set; }
 }

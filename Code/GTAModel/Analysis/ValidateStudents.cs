@@ -22,66 +22,65 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Analysis
+namespace TMG.GTAModel.Analysis;
+
+public class ValidateStudents : ISelfContainedModule
 {
-    public class ValidateStudents : ISelfContainedModule
+    [RootModule]
+    public IDemographicsModelSystemTemplate Root;
+
+    [SubModelInformation( Required = true, Description = "Where to save the analysis. (CSV)" )]
+    public FileLocation SaveTo;
+
+    public void Start()
     {
-        [RootModule]
-        public IDemographicsModelSystemTemplate Root;
-
-        [SubModelInformation( Required = true, Description = "Where to save the analysis. (CSV)" )]
-        public FileLocation SaveTo;
-
-        public void Start()
+        Progress = 0f;
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var ageRates = Root.Demographics.AgeRates.GetFlatData();
+        var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
+        var studentRates = Root.Demographics.SchoolRates.GetFlatData();
+        var employmentRates = Root.Demographics.EmploymentStatusRates.GetFlatData();
+        var employmentCategories = Root.Demographics.EmploymentStatus.GetFlatData();
+        using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
         {
-            Progress = 0f;
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var ageRates = Root.Demographics.AgeRates.GetFlatData();
-            var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
-            var studentRates = Root.Demographics.SchoolRates.GetFlatData();
-            var employmentRates = Root.Demographics.EmploymentStatusRates.GetFlatData();
-            var employmentCategories = Root.Demographics.EmploymentStatus.GetFlatData();
-            using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
+            writer.WriteLine( "Zone,AgeCategory,EmpStat,Persons" );
+            for ( int i = 0; i < ageRates.Length; i++ )
             {
-                writer.WriteLine( "Zone,AgeCategory,EmpStat,Persons" );
-                for ( int i = 0; i < ageRates.Length; i++ )
+                var ageRate = ageRates[i];
+                var studentRate = studentRates[i].GetFlatData();
+                var pop = zones[i].Population;
+                var zoneNumber = zones[i].ZoneNumber;
+                var empRate = employmentRates[i].GetFlatData();
+                for ( int age = 0; age < ageRate.Length; age++ )
                 {
-                    var ageRate = ageRates[i];
-                    var studentRate = studentRates[i].GetFlatData();
-                    var pop = zones[i].Population;
-                    var zoneNumber = zones[i].ZoneNumber;
-                    var empRate = employmentRates[i].GetFlatData();
-                    for ( int age = 0; age < ageRate.Length; age++ )
+                    var agePop = pop * ageRate[age];
+                    var stuEmpRate = studentRate[age];
+                    for ( int emp = 0; emp < stuEmpRate.Length; emp++ )
                     {
-                        var agePop = pop * ageRate[age];
-                        var stuEmpRate = studentRate[age];
-                        for ( int emp = 0; emp < stuEmpRate.Length; emp++ )
-                        {
-                            writer.Write( zoneNumber );
-                            writer.Write( ',' );
-                            writer.Write( ageCategories[age] );
-                            writer.Write( ',' );
-                            writer.Write( employmentCategories[emp] );
-                            writer.Write( ',' );
-                            writer.WriteLine( stuEmpRate[emp] * agePop * empRate[age][emp] );
-                        }
+                        writer.Write( zoneNumber );
+                        writer.Write( ',' );
+                        writer.Write( ageCategories[age] );
+                        writer.Write( ',' );
+                        writer.Write( employmentCategories[emp] );
+                        writer.Write( ',' );
+                        writer.WriteLine( stuEmpRate[emp] * agePop * empRate[age][emp] );
                     }
-                    // Update our progress
-                    Progress = (float)i / zones.Length;
                 }
+                // Update our progress
+                Progress = (float)i / zones.Length;
             }
-            Progress = 1f;
         }
+        Progress = 1f;
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress { get; set; }
+    public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour => null;
+    public Tuple<byte, byte, byte> ProgressColour => null;
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

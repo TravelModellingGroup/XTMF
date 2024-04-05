@@ -20,93 +20,91 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Loading
+namespace TMG.Frameworks.Data.Loading;
+
+[ModuleInformation(Description = "This module is designed to quickly create a vector in the shape of the zone system filled with a selectable spatial aggregation.")]
+public class ZoneSystemVector : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation(Description = "This module is designed to quickly create a vector in the shape of the zone system filled with a selectable spatial aggregation.")]
-    public class ZoneSystemVector : IDataSource<SparseArray<float>>
+    public enum FillData
     {
-        public enum FillData
-        {
-            ZoneNumber,
-            PlanningDistrict,
-            Region,
-            FlatIndex
-        }
-
-        [RunParameter("Fill With", nameof(FillData.PlanningDistrict), typeof(FillData), "The type of data to fill into the zone system vector.")]
-        public FillData FillWith;
-
-        public bool Loaded
-        {
-            get; set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseArray<float> Data;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public void LoadData()
-        {
-            if (!Root.ZoneSystem.Loaded)
-            {
-                Root.ZoneSystem.LoadData();
-            }
-            var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            var flatData = data.GetFlatData();
-            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            switch (FillWith)
-            {
-                case FillData.PlanningDistrict:
-                    for (int i = 0; i < flatData.Length; i++)
-                    {
-                        flatData[i] = flatZones[i].PlanningDistrict;
-                    }
-                    break;
-                case FillData.Region:
-                    for (int i = 0; i < flatData.Length; i++)
-                    {
-                        flatData[i] = flatZones[i].RegionNumber;
-                    }
-                    break;
-                case FillData.ZoneNumber:
-                    for (int i = 0; i < flatData.Length; i++)
-                    {
-                        flatData[i] = flatZones[i].ZoneNumber;
-                    }
-                    break;
-                case FillData.FlatIndex:
-                    for (int i = 0; i < flatData.Length; i++)
-                    {
-                        flatData[i] = i;
-                    }
-                    break;
-            }
-            Data = data;
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Loaded = false;
-            Data = null;
-        }
+        ZoneNumber,
+        PlanningDistrict,
+        Region,
+        FlatIndex
     }
 
+    [RunParameter("Fill With", nameof(FillData.PlanningDistrict), typeof(FillData), "The type of data to fill into the zone system vector.")]
+    public FillData FillWith;
+
+    public bool Loaded
+    {
+        get; set;
+    }
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseArray<float> Data;
+
+    public SparseArray<float> GiveData()
+    {
+        return Data;
+    }
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public void LoadData()
+    {
+        if (!Root.ZoneSystem.Loaded)
+        {
+            Root.ZoneSystem.LoadData();
+        }
+        var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+        var flatData = data.GetFlatData();
+        var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        switch (FillWith)
+        {
+            case FillData.PlanningDistrict:
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    flatData[i] = flatZones[i].PlanningDistrict;
+                }
+                break;
+            case FillData.Region:
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    flatData[i] = flatZones[i].RegionNumber;
+                }
+                break;
+            case FillData.ZoneNumber:
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    flatData[i] = flatZones[i].ZoneNumber;
+                }
+                break;
+            case FillData.FlatIndex:
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    flatData[i] = i;
+                }
+                break;
+        }
+        Data = data;
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+        Data = null;
+    }
 }

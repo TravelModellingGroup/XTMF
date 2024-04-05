@@ -18,25 +18,24 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+///
+/// </summary>
+public interface IPostIteration : IModule
 {
     /// <summary>
-    ///
+    /// This will be called before the iteration starts
     /// </summary>
-    public interface IPostIteration : IModule
-    {
-        /// <summary>
-        /// This will be called before the iteration starts
-        /// </summary>
-        /// <param name="iterationNumber">The iteration that we are able to run</param>
-        /// <param name="totalIterations">The total number of iterations tasha will do</param>
-        void Execute(int iterationNumber, int totalIterations);
+    /// <param name="iterationNumber">The iteration that we are able to run</param>
+    /// <param name="totalIterations">The total number of iterations tasha will do</param>
+    void Execute(int iterationNumber, int totalIterations);
 
-        /// <summary>
-        /// Loads the module, letting it know how many iterations there will be
-        /// </summary>
-        /// <param name="config">The configuration file</param>
-        /// <param name="totalIterations">The total number of iterations</param>
-        void Load(IConfiguration config, int totalIterations);
-    }
+    /// <summary>
+    /// Loads the module, letting it know how many iterations there will be
+    /// </summary>
+    /// <param name="config">The configuration file</param>
+    /// <param name="totalIterations">The total number of iterations</param>
+    void Load(IConfiguration config, int totalIterations);
 }

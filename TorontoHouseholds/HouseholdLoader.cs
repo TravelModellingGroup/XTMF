@@ -26,222 +26,197 @@ using Tasha.Common;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Tasha
+namespace TMG.Tasha;
+
+[ModuleInformation(Description = "This class is designed to load households from TTS like trip records.")]
+public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
 {
-    [ModuleInformation(Description = "This class is designed to load households from TTS like trip records.")]
-    public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
+    [RunParameter("Auto Mode Name", "Auto", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]
+    public string AutoModeName;
+
+    [RunParameter("Calculate Joint Trips", true, "Set true if you want the loader to detect joint trips.")]
+    public bool CalculateJointTrips;
+
+    [RunParameter("IncomeCol", -1, "The 0 indexed column that the household's income level is located at.")]
+    public int IncomeCol;
+
+    [RunParameter("HouseholdID", 0, "The 0 indexed column that the household's id is located at.")]
+    public int HouseholdIDCol;
+
+    [RunParameter("ZoneCol", 1, "The 0 indexed column that the household's id is located at.")]
+    public int ZoneCol;
+
+    [RunParameter("ExpansionFactorCol", 2, "The 0 indexed column that the household's id is located at.")]
+    public int ExpansionFactorCol;
+
+    [RunParameter("PeopleCol", 3, "The 0 indexed column that the household's id is located at.")]
+    public int PeopleCol;
+
+    [RunParameter("DwellingTypeCol", 4, "The 0 indexed column that the household's id is located at.")]
+    public int DwellingTypeCol;
+
+    [RunParameter("CarsCol", 5, "The 0 indexed column that the household's id is located at.")]
+    public int CarsCol;
+
+    [RunParameter("Header", false, "True if the csv file contains a header.")]
+    public bool ContainsHeader;
+
+    [RunParameter("FileName", "Households/Households.csv", "The csv file containing all of the household information.")]
+    public string FileName;
+
+    [RunParameter("Skip Single Trip Chain Households", false, "Should we continue loading households even if we find an invalid trip chain?")]
+    public bool JustSkipSingleTripTripChainHouseholds;
+
+    [RunParameter("MaxTripsInChain", 0, "Set the maximum number of trips allowed in a trip chain, 0 means any.")]
+    public int MaxNumberOfTripsInChain;
+
+    [RunParameter("MinAge", 0, "(0 means any) The youngest any person can be in the dataset.")]
+    public int MinAge;
+
+    [RunParameter("ObservedMode", "ObservedMode", "The name of the attachment for observed modes.")]
+    public string ObservedMode;
+
+    [RunParameter("Passenger Mode Name", "Passenger", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]
+    public string PassengerModeName;
+
+    [SubModelInformation(Description = "The next model that loads in person information for the household.", Required = true)]
+    public IDatachainLoader<ITashaHousehold, ITashaPerson> PersonLoader;
+
+    [RunParameter("Rideshare Mode Name", "RideShare", "The name of the rideshare mode, leave blank to not process.  This is required if you are building joint tours.")]
+    public string RideshareModeName;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    [RunParameter("SecondVehicleType", "", "The name of the secondary vehicle type (e.g. motorcycle, bicycle, etc.)")]
+    public string SecondaryVehicleTypeName;
+
+    [RunParameter("Second Vehicle", -1, "The column number of secondary vehicle information. Set to '-1' to disable.")]
+    public int SecondVehicleColumnNumber;
+
+    [RunParameter("Load Once", false, "When loading all households, setting this to true will skip reloading households.")]
+    public bool LoadOnce;
+
+    [SubModelInformation(Required = false, Description = "A model to compute the number of autos available for the household.")]
+    public ICalculation<ITashaHousehold, int> AutoOwnershipModel;
+
+    [RunParameter("Telecommuter Attribute", "", "If you are using a telecommuter model set this to be the name of the attribute to lookup to see if the person will be telecommuting today.")]
+    public string TelecommuterAttribute;
+
+    [SubModelInformation(Required = false, Description = "A model to assign if a person is going to telecommute today.")]
+    public ICalculation<ITashaPerson, bool> TelecommutingModel;
+
+    [SubModelInformation(Required = false, Description = "An alternative way of specifying the household file location.")]
+    public FileLocation HouseholdFile;
+
+    private bool AllDataLoaded = true;
+    private IVehicleType AutoType;
+    private ITashaHousehold[] Households;
+    private CsvReader Reader;
+    private IVehicleType SecondaryType;
+
+    ~HouseholdLoader()
     {
-        [RunParameter("Auto Mode Name", "Auto", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]
-        public string AutoModeName;
+        Dispose();
+    }
 
-        [RunParameter("Calculate Joint Trips", true, "Set true if you want the loader to detect joint trips.")]
-        public bool CalculateJointTrips;
+    public int Count
+    {
+        get { return Households.Length; }
+    }
 
-        [RunParameter("IncomeCol", -1, "The 0 indexed column that the household's income level is located at.")]
-        public int IncomeCol;
+    public bool IsSynchronized
+    {
+        get { return true; }
+    }
 
-        [RunParameter("HouseholdID", 0, "The 0 indexed column that the household's id is located at.")]
-        public int HouseholdIDCol;
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("ZoneCol", 1, "The 0 indexed column that the household's id is located at.")]
-        public int ZoneCol;
+    public bool OutOfData
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("ExpansionFactorCol", 2, "The 0 indexed column that the household's id is located at.")]
-        public int ExpansionFactorCol;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter("PeopleCol", 3, "The 0 indexed column that the household's id is located at.")]
-        public int PeopleCol;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(50, 150, 50); }
+    }
 
-        [RunParameter("DwellingTypeCol", 4, "The 0 indexed column that the household's id is located at.")]
-        public int DwellingTypeCol;
+    public object SyncRoot
+    {
+        get { return this; }
+    }
 
-        [RunParameter("CarsCol", 5, "The 0 indexed column that the household's id is located at.")]
-        public int CarsCol;
-
-        [RunParameter("Header", false, "True if the csv file contains a header.")]
-        public bool ContainsHeader;
-
-        [RunParameter("FileName", "Households/Households.csv", "The csv file containing all of the household information.")]
-        public string FileName;
-
-        [RunParameter("Skip Single Trip Chain Households", false, "Should we continue loading households even if we find an invalid trip chain?")]
-        public bool JustSkipSingleTripTripChainHouseholds;
-
-        [RunParameter("MaxTripsInChain", 0, "Set the maximum number of trips allowed in a trip chain, 0 means any.")]
-        public int MaxNumberOfTripsInChain;
-
-        [RunParameter("MinAge", 0, "(0 means any) The youngest any person can be in the dataset.")]
-        public int MinAge;
-
-        [RunParameter("ObservedMode", "ObservedMode", "The name of the attachment for observed modes.")]
-        public string ObservedMode;
-
-        [RunParameter("Passenger Mode Name", "Passenger", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]
-        public string PassengerModeName;
-
-        [SubModelInformation(Description = "The next model that loads in person information for the household.", Required = true)]
-        public IDatachainLoader<ITashaHousehold, ITashaPerson> PersonLoader;
-
-        [RunParameter("Rideshare Mode Name", "RideShare", "The name of the rideshare mode, leave blank to not process.  This is required if you are building joint tours.")]
-        public string RideshareModeName;
-
-        [RootModule]
-        public ITashaRuntime Root;
-
-        [RunParameter("SecondVehicleType", "", "The name of the secondary vehicle type (e.g. motorcycle, bicycle, etc.)")]
-        public string SecondaryVehicleTypeName;
-
-        [RunParameter("Second Vehicle", -1, "The column number of secondary vehicle information. Set to '-1' to disable.")]
-        public int SecondVehicleColumnNumber;
-
-        [RunParameter("Load Once", false, "When loading all households, setting this to true will skip reloading households.")]
-        public bool LoadOnce;
-
-        [SubModelInformation(Required = false, Description = "A model to compute the number of autos available for the household.")]
-        public ICalculation<ITashaHousehold, int> AutoOwnershipModel;
-
-        [RunParameter("Telecommuter Attribute", "", "If you are using a telecommuter model set this to be the name of the attribute to lookup to see if the person will be telecommuting today.")]
-        public string TelecommuterAttribute;
-
-        [SubModelInformation(Required = false, Description = "A model to assign if a person is going to telecommute today.")]
-        public ICalculation<ITashaPerson, bool> TelecommutingModel;
-
-        [SubModelInformation(Required = false, Description = "An alternative way of specifying the household file location.")]
-        public FileLocation HouseholdFile;
-
-        private bool AllDataLoaded = true;
-        private IVehicleType AutoType;
-        private ITashaHousehold[] Households;
-        private CsvReader Reader;
-        private IVehicleType SecondaryType;
-
-        ~HouseholdLoader()
+    private ITashaMode AutoMode
+    {
+        set
         {
-            Dispose();
+            JointTripGenerator.Auto = value;
         }
+    }
 
-        public int Count
+    private ITashaMode PassengerMode
+    {
+        set
         {
-            get { return Households.Length; }
+            JointTripGenerator.Passenger = value;
         }
+    }
 
-        public bool IsSynchronized
+    private ISharedMode Rideshare
+    {
+        set
         {
-            get { return true; }
+            JointTripGenerator.RideShare = value;
         }
+    }
 
-        public string Name
+    public void CopyTo(ITashaHousehold[] array, int index)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void CopyTo(Array array, int index)
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool NeedsReset;
+
+    [RunParameter("Skip Bad Households", false, "Should we continue to process skipping households with bad data?")]
+    public bool SkipBadHouseholds;
+
+    public IEnumerator<ITashaHousehold> GetEnumerator()
+    {
+        var blockingBuffer = new BlockingCollection<ITashaHousehold>(Environment.ProcessorCount);
+        if (NeedsReset)
         {
-            get;
-            set;
+            Reset();
         }
-
-        public bool OutOfData
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(50, 150, 50); }
-        }
-
-        public object SyncRoot
-        {
-            get { return this; }
-        }
-
-        private ITashaMode AutoMode
-        {
-            set
+        Exception terminalException = null;
+        var parallelLoader = Task.Factory.StartNew(() =>
             {
-                JointTripGenerator.Auto = value;
-            }
-        }
-
-        private ITashaMode PassengerMode
-        {
-            set
-            {
-                JointTripGenerator.Passenger = value;
-            }
-        }
-
-        private ISharedMode Rideshare
-        {
-            set
-            {
-                JointTripGenerator.RideShare = value;
-            }
-        }
-
-        public void CopyTo(ITashaHousehold[] array, int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool NeedsReset;
-
-        [RunParameter("Skip Bad Households", false, "Should we continue to process skipping households with bad data?")]
-        public bool SkipBadHouseholds;
-
-        public IEnumerator<ITashaHousehold> GetEnumerator()
-        {
-            var blockingBuffer = new BlockingCollection<ITashaHousehold>(Environment.ProcessorCount);
-            if (NeedsReset)
-            {
-                Reset();
-            }
-            Exception terminalException = null;
-            var parallelLoader = Task.Factory.StartNew(() =>
+                ITashaHousehold next;
+                try
                 {
-                    ITashaHousehold next;
-                    try
+                    EnsureReader();
+                    AutoOwnershipModel?.Load();
+                    TelecommutingModel?.Load();
+                    if (SkipBadHouseholds)
                     {
-                        EnsureReader();
-                        AutoOwnershipModel?.Load();
-                        TelecommutingModel?.Load();
-                        if (SkipBadHouseholds)
+                        do
                         {
-                            do
-                            {
-                                try
-                                {
-                                    next = LoadNextHousehold();
-                                    if (next == null)
-                                    {
-                                        break;
-                                    }
-                                    blockingBuffer.Add(next);
-                                }
-                                catch (IOException e)
-                                {
-                                    // treat IO exceptions separately to avoid the
-                                    // case where a files doesn't exist (or a network goes down)
-                                    // and we hang.
-                                    terminalException = e;
-                                    break;
-                                }
-                                catch (XTMFRuntimeException)
-                                {
-
-                                }
-                            } while (true);
-                        }
-                        else
-                        {
-                            do
+                            try
                             {
                                 next = LoadNextHousehold();
                                 if (next == null)
@@ -249,457 +224,556 @@ namespace TMG.Tasha
                                     break;
                                 }
                                 blockingBuffer.Add(next);
-                            } while (true);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        terminalException = e;
-                    }
-                    finally
-                    {
-                        if (TripDump != null)
-                        {
-                            TripDump.Dispose();
-                            TripDump = null;
-                        }
-                        blockingBuffer.CompleteAdding();
-                        if (RefreshHouseholdData)
-                        {
-                            var hasException = _Unload();
-                            // set the exception to the one caused by unloading if there was no exception already.
-                            terminalException = terminalException ?? hasException;
-                        }
-                    }
-                });
-            foreach (var h in blockingBuffer.GetConsumingEnumerable())
-            {
-                yield return h;
-            }
-            parallelLoader.Wait();
-            if (terminalException != null)
-            {
-                if (terminalException is XTMFRuntimeException xtmfEx)
-                {
-                    throw new XTMFRuntimeException(xtmfEx.Module, xtmfEx.Message ?? "" + "\r\n" + xtmfEx.StackTrace);
-                }
-                else
-                {
-                    throw new XTMFRuntimeException(this, terminalException.Message ?? "" + "\r\n" + terminalException.StackTrace);
-                }
-                
-            }
-            NeedsReset = true;
-        }
+                            }
+                            catch (IOException e)
+                            {
+                                // treat IO exceptions separately to avoid the
+                                // case where a files doesn't exist (or a network goes down)
+                                // and we hang.
+                                terminalException = e;
+                                break;
+                            }
+                            catch (XTMFRuntimeException)
+                            {
 
-        public void LoadData()
-        {
-            if (!LoadOnce || Households == null)
-            {
-
-                List<ITashaHousehold> ourList = new List<ITashaHousehold>(100000);
-                LoadAll(ourList);
-                Households = ourList.ToArray();
-            }
-        }
-
-        public void Reset()
-        {
-            lock (this)
-            {
-                PersonLoader.Reset();
-                if (Reader != null)
-                {
-                    Reader.Reset();
-                    if (ContainsHeader)
-                    {
-                        Reader.LoadLine();
-                    }
-                    AllDataLoaded = Reader.EndOfFile;
-                }
-                NeedsReset = false;
-            }
-        }
-
-        private void Unload()
-        {
-            _Unload();
-        }
-
-        private Exception _Unload()
-        {
-            try
-            {
-                PersonLoader.Unload();
-                Reader?.Close();
-                Reader = null;
-                AutoOwnershipModel?.Unload();
-                TelecommutingModel?.Unload();
-                NeedsReset = false;
-                return null;
-            }
-            catch (IOException e)
-            {
-                return e;
-            }
-        }
-
-        /// <summary>
-        /// This is called before the start method as a way to pre-check that all of the parameters that are selected
-        /// are in fact valid for this module.
-        /// </summary>
-        /// <param name="error">A string that should be assigned a detailed error</param>
-        /// <returns>If the validation was successful or if there was a problem</returns>
-        public bool RuntimeValidation(ref string error)
-        {
-            JointTripGenerator.ObsMode = ObservedMode;
-            var ibd = Root.InputBaseDirectory;
-            if (ibd == null)
-            {
-                error = "The model system's input base directory was null!";
-                return false;
-            }
-            AutoType = Root.AutoType;
-            if (AutoType == null)
-            {
-                error = "There was no AutoType loaded by the TashaRuntime.";
-                return false;
-            }
-            if (SecondVehicleColumnNumber >= 0)
-            {
-                if (Root.VehicleTypes == null)
-                {
-                    error = "In '" + Name + "' we were unable to get the alternative vehicle types for the secondary vehicle!";
-                    return false;
-                }
-                foreach (var vt in Root.VehicleTypes)
-                {
-                    if (vt.VehicleName == SecondaryVehicleTypeName)
-                    {
-                        SecondaryType = vt;
-                        break;
-                    }
-                }
-
-                if (SecondaryType == null)
-                {
-                    error = "Could not find vehicle type '" + SecondaryVehicleTypeName + "'.";
-                    return false;
-                }
-            }
-            if (CalculateJointTrips && !string.IsNullOrWhiteSpace(RideshareModeName))
-            {
-                bool found = false;
-                if (Root.SharedModes == null)
-                {
-                    error = "In '" + Name + "' we were unable to access any Shared Modes inside of '" + Root.Name + "' Please either turn off rideshare's mode swap or fix the model system!";
-                    return false;
-                }
-                foreach (var sharedMode in Root.SharedModes)
-                {
-                    if (sharedMode.ModeName == RideshareModeName)
-                    {
-                        Rideshare = sharedMode;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    error = "In '" + Name + "' we were unable to find a shared mode called '" + RideshareModeName + "' to use for rideshare";
-                    return false;
-                }
-                found = false;
-                foreach (var nonSharedMode in Root.NonSharedModes)
-                {
-                    if (nonSharedMode.ModeName == AutoModeName)
-                    {
-                        AutoMode = nonSharedMode;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    error = "In '" + Name + "' we were unable to find a non shared mode called '" + AutoModeName + "' to use replace with rideshare";
-                    return false;
-                }
-                found = false;
-                foreach (var nonSharedMode in Root.AllModes)
-                {
-                    if (nonSharedMode.ModeName == PassengerModeName)
-                    {
-                        PassengerMode = nonSharedMode;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    error = "In '" + Name + "' we were unable to find a non shared mode called '" + PassengerModeName + "' to use replace with rideshare";
-                    return false;
-                }
-            }
-            if (TelecommutingModel is not null && string.IsNullOrWhiteSpace(TelecommuterAttribute))
-            {
-                error = "You must specify a Telecommuter Attribute if you are going to use a Telecommuting Model!";
-                return false;
-            }
-            return true;
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public ITashaHousehold[] ToArray()
-        {
-            return Households;
-        }
-
-        public bool TryAdd(ITashaHousehold item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryTake(out ITashaHousehold item)
-        {
-            EnsureReader();
-            item = LoadNextHousehold();
-            return item != null;
-        }
-
-        private static bool AgeDifferenceLessThan(int span, IList<ITashaPerson> people)
-        {
-            int age = -1;
-            foreach (ITashaPerson p in people)
-            {
-                if (p.Adult)
-                {
-                    if (age == -1)
-                    {
-                        age = p.Age;
+                            }
+                        } while (true);
                     }
                     else
                     {
-                        return (Math.Abs(age - p.Age) < span);
+                        do
+                        {
+                            next = LoadNextHousehold();
+                            if (next == null)
+                            {
+                                break;
+                            }
+                            blockingBuffer.Add(next);
+                        } while (true);
                     }
                 }
+                catch (Exception e)
+                {
+                    terminalException = e;
+                }
+                finally
+                {
+                    if (TripDump != null)
+                    {
+                        TripDump.Dispose();
+                        TripDump = null;
+                    }
+                    blockingBuffer.CompleteAdding();
+                    if (RefreshHouseholdData)
+                    {
+                        var hasException = UnloadInner();
+                        // set the exception to the one caused by unloading if there was no exception already.
+                        terminalException = terminalException ?? hasException;
+                    }
+                }
+            });
+        foreach (var h in blockingBuffer.GetConsumingEnumerable())
+        {
+            yield return h;
+        }
+        parallelLoader.Wait();
+        if (terminalException != null)
+        {
+            if (terminalException is XTMFRuntimeException xtmfEx)
+            {
+                throw new XTMFRuntimeException(xtmfEx.Module, xtmfEx.Message ?? "" + "\r\n" + xtmfEx.StackTrace);
             }
+            else
+            {
+                throw new XTMFRuntimeException(this, terminalException.Message ?? "" + "\r\n" + terminalException.StackTrace);
+            }
+            
+        }
+        NeedsReset = true;
+    }
+
+    public void LoadData()
+    {
+        if (!LoadOnce || Households == null)
+        {
+
+            List<ITashaHousehold> ourList = new(100000);
+            LoadAll(ourList);
+            Households = [.. ourList];
+        }
+    }
+
+    public void Reset()
+    {
+        lock (this)
+        {
+            PersonLoader.Reset();
+            if (Reader != null)
+            {
+                Reader.Reset();
+                if (ContainsHeader)
+                {
+                    Reader.LoadLine();
+                }
+                AllDataLoaded = Reader.EndOfFile;
+            }
+            NeedsReset = false;
+        }
+    }
+
+    private void Unload()
+    {
+        UnloadInner();
+    }
+
+    private IOException UnloadInner()
+    {
+        try
+        {
+            PersonLoader.Unload();
+            Reader?.Close();
+            Reader = null;
+            AutoOwnershipModel?.Unload();
+            TelecommutingModel?.Unload();
+            NeedsReset = false;
+            return null;
+        }
+        catch (IOException e)
+        {
+            return e;
+        }
+    }
+
+    /// <summary>
+    /// This is called before the start method as a way to pre-check that all of the parameters that are selected
+    /// are in fact valid for this module.
+    /// </summary>
+    /// <param name="error">A string that should be assigned a detailed error</param>
+    /// <returns>If the validation was successful or if there was a problem</returns>
+    public bool RuntimeValidation(ref string error)
+    {
+        JointTripGenerator.ObsMode = ObservedMode;
+        var ibd = Root.InputBaseDirectory;
+        if (ibd == null)
+        {
+            error = "The model system's input base directory was null!";
             return false;
         }
-
-        private void AssertType(Household h)
+        AutoType = Root.AutoType;
+        if (AutoType == null)
         {
-            if (h.Persons == null)
+            error = "There was no AutoType loaded by the TashaRuntime.";
+            return false;
+        }
+        if (SecondVehicleColumnNumber >= 0)
+        {
+            if (Root.VehicleTypes == null)
             {
-                throw new XTMFRuntimeException(this, "Persons was null #" + h.HouseholdId + ".");
+                error = "In '" + Name + "' we were unable to get the alternative vehicle types for the secondary vehicle!";
+                return false;
             }
-            if (h.NumberOfChildren == 0)
+            foreach (var vt in Root.VehicleTypes)
             {
-                GetTypeWithNoChildren(h);
+                if (vt.VehicleName == SecondaryVehicleTypeName)
+                {
+                    SecondaryType = vt;
+                    break;
+                }
             }
-            else
+
+            if (SecondaryType == null)
             {
-                GetTypeWithChildren(h);
+                error = "Could not find vehicle type '" + SecondaryVehicleTypeName + "'.";
+                return false;
             }
         }
-
-        private static void GetTypeWithChildren(Household h)
+        if (CalculateJointTrips && !string.IsNullOrWhiteSpace(RideshareModeName))
         {
-            if (h.NumberOfAdults == 1)
+            bool found = false;
+            if (Root.SharedModes == null)
             {
-                h.HhType = HouseholdType.LoneParentFamily;
+                error = "In '" + Name + "' we were unable to access any Shared Modes inside of '" + Root.Name + "' Please either turn off rideshare's mode swap or fix the model system!";
+                return false;
             }
-            else if (h.NumberOfAdults == 2)
+            foreach (var sharedMode in Root.SharedModes)
             {
-                if (h.Persons[0].Female == h.Persons[1].Female)
+                if (sharedMode.ModeName == RideshareModeName)
                 {
-                    h.HhType = HouseholdType.OtherFamily;
+                    Rideshare = sharedMode;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                error = "In '" + Name + "' we were unable to find a shared mode called '" + RideshareModeName + "' to use for rideshare";
+                return false;
+            }
+            found = false;
+            foreach (var nonSharedMode in Root.NonSharedModes)
+            {
+                if (nonSharedMode.ModeName == AutoModeName)
+                {
+                    AutoMode = nonSharedMode;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                error = "In '" + Name + "' we were unable to find a non shared mode called '" + AutoModeName + "' to use replace with rideshare";
+                return false;
+            }
+            found = false;
+            foreach (var nonSharedMode in Root.AllModes)
+            {
+                if (nonSharedMode.ModeName == PassengerModeName)
+                {
+                    PassengerMode = nonSharedMode;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                error = "In '" + Name + "' we were unable to find a non shared mode called '" + PassengerModeName + "' to use replace with rideshare";
+                return false;
+            }
+        }
+        if (TelecommutingModel is not null && string.IsNullOrWhiteSpace(TelecommuterAttribute))
+        {
+            error = "You must specify a Telecommuter Attribute if you are going to use a Telecommuting Model!";
+            return false;
+        }
+        return true;
+    }
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public ITashaHousehold[] ToArray()
+    {
+        return Households;
+    }
+
+    public bool TryAdd(ITashaHousehold item)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool TryTake(out ITashaHousehold item)
+    {
+        EnsureReader();
+        item = LoadNextHousehold();
+        return item != null;
+    }
+
+    private static bool AgeDifferenceLessThan(int span, IList<ITashaPerson> people)
+    {
+        int age = -1;
+        foreach (ITashaPerson p in people)
+        {
+            if (p.Adult)
+            {
+                if (age == -1)
+                {
+                    age = p.Age;
                 }
                 else
                 {
-                    if (AgeDifferenceLessThan(20, h.Persons))
-                    {
-                        h.HhType = HouseholdType.CoupleWithChildren;
-                    }
-                    else
-                    {
-                        h.HhType = HouseholdType.OtherFamily;
-                    }
+                    return (Math.Abs(age - p.Age) < span);
                 }
             }
-            else
+        }
+        return false;
+    }
+
+    private void AssertType(Household h)
+    {
+        if (h.Persons == null)
+        {
+            throw new XTMFRuntimeException(this, "Persons was null #" + h.HouseholdId + ".");
+        }
+        if (h.NumberOfChildren == 0)
+        {
+            GetTypeWithNoChildren(h);
+        }
+        else
+        {
+            GetTypeWithChildren(h);
+        }
+    }
+
+    private static void GetTypeWithChildren(Household h)
+    {
+        if (h.NumberOfAdults == 1)
+        {
+            h.HhType = HouseholdType.LoneParentFamily;
+        }
+        else if (h.NumberOfAdults == 2)
+        {
+            if (h.Persons[0].Female == h.Persons[1].Female)
             {
                 h.HhType = HouseholdType.OtherFamily;
             }
-        }
-
-        private static void GetTypeWithNoChildren(Household h)
-        {
-            if (h.NumberOfAdults == 1)
+            else
             {
-                h.HhType = HouseholdType.OnePerson;
-            }
-            else if (h.NumberOfAdults == 2)
-            {
-                if (h.Persons[0].Female == h.Persons[1].Female)
+                if (AgeDifferenceLessThan(20, h.Persons))
                 {
-                    h.HhType = HouseholdType.TwoOrMorePerson;
+                    h.HhType = HouseholdType.CoupleWithChildren;
                 }
                 else
                 {
-                    if (AgeDifferenceLessThan(20, h.Persons))
-                    {
-                        h.HhType = HouseholdType.CoupleWithoutChildren;
-                    }
-                    else
-                    {
-                        h.HhType = HouseholdType.TwoOrMorePerson;
-                    }
+                    h.HhType = HouseholdType.OtherFamily;
                 }
             }
-            else
+        }
+        else
+        {
+            h.HhType = HouseholdType.OtherFamily;
+        }
+    }
+
+    private static void GetTypeWithNoChildren(Household h)
+    {
+        if (h.NumberOfAdults == 1)
+        {
+            h.HhType = HouseholdType.OnePerson;
+        }
+        else if (h.NumberOfAdults == 2)
+        {
+            if (h.Persons[0].Female == h.Persons[1].Female)
             {
                 h.HhType = HouseholdType.TwoOrMorePerson;
             }
-        }
-
-        private void EnsureReader()
-        {
-            if (Reader == null)
+            else
             {
-                lock (this)
+                if (AgeDifferenceLessThan(20, h.Persons))
                 {
-                    if (Reader == null)
-                    {
-                        try
-                        {
-                            Reader = new CsvReader(HouseholdFile ?? Path.Combine(Root.InputBaseDirectory, FileName));
-                            if (ContainsHeader)
-                            {
-                                Reader.LoadLine();
-                            }
-                            AllDataLoaded = Reader.EndOfFile;
-                        }
-                        catch (IOException e)
-                        {
-                            throw new XTMFRuntimeException(this, e);
-                        }
-                    }
+                    h.HhType = HouseholdType.CoupleWithoutChildren;
+                }
+                else
+                {
+                    h.HhType = HouseholdType.TwoOrMorePerson;
                 }
             }
         }
+        else
+        {
+            h.HhType = HouseholdType.TwoOrMorePerson;
+        }
+    }
 
-        private void LoadAll(List<ITashaHousehold> list)
+    private void EnsureReader()
+    {
+        if (Reader == null)
         {
             lock (this)
             {
                 if (Reader == null)
                 {
-                    Reader = new CsvReader(
-                        HouseholdFile != null ?
-                        HouseholdFile.GetFilePath()
-                        : Path.Combine(Root.InputBaseDirectory, FileName));
-                }
-                Reset();
-                if (ContainsHeader)
-                {
-                    Reader.LoadLine();
-                }
-                NeedsReset = true;
-                AllDataLoaded = Reader.EndOfFile;
-                AutoOwnershipModel?.Load();
-                TelecommutingModel?.Load();
-                while (LoadNextHousehold(list) && !AllDataLoaded)
-                {
-                }
-            }
-        }
-
-        private bool LoadNextHousehold(IList<ITashaHousehold> list)
-        {
-            if (SkipBadHouseholds)
-            {
-                while (true)
-                {
                     try
                     {
-                        var h = LoadNextHousehold();
-                        if (h != null)
+                        Reader = new CsvReader(HouseholdFile ?? Path.Combine(Root.InputBaseDirectory, FileName));
+                        if (ContainsHeader)
                         {
-                            list.Add(h);
+                            Reader.LoadLine();
                         }
-                        return (h != null);
+                        AllDataLoaded = Reader.EndOfFile;
                     }
-                    catch
+                    catch (IOException e)
                     {
-                        // ignored
+                        throw new XTMFRuntimeException(this, e);
                     }
                 }
-            }
-            else
-            {
-                var h = LoadNextHousehold();
-                if (h != null)
-                {
-                    list.Add(h);
-                }
-                return (h != null);
             }
         }
+    }
 
-        [SubModelInformation(Required = false, Description = "Saves the trips that were successfully loaded back to the given file, leave empty to not save.")]
-        public FileLocation LoadedTripDump;
-
-        private ITashaHousehold LoadNextHousehold()
+    private void LoadAll(List<ITashaHousehold> list)
+    {
+        lock (this)
         {
-            Household h;
-            bool loadnext;
-            do
+            Reader ??= new CsvReader(
+                    HouseholdFile != null ?
+                    HouseholdFile.GetFilePath()
+                    : Path.Combine(Root.InputBaseDirectory, FileName));
+            Reset();
+            if (ContainsHeader)
             {
-                h = Household.MakeHousehold();
-                if (Reader.LoadLine() == 0)
-                {
-                    AllDataLoaded = true;
-                    OutOfData = true;
-                    return null;
-                }
-                Reader.Get(out int tempInt, HouseholdIDCol);
-                h.HouseholdId = tempInt;
-                Reader.Get(out tempInt, ZoneCol);
-                h.HomeZone = Root.ZoneSystem.Get(tempInt);
-                if (h.HomeZone == null)
-                {
-                    Console.WriteLine("We were unable to find a household zone '" + tempInt.ToString() + "'");
-                    throw new XTMFRuntimeException(this, "We were unable to find a household zone '" + tempInt.ToString() + "' for household #" + h.HouseholdId);
-                }
-                Reader.Get(out float tempFloat, ExpansionFactorCol);
-                h.ExpansionFactor = tempFloat;
-                Reader.Get(out int dwellingType, DwellingTypeCol);
-                h.DwellingType = (DwellingType)dwellingType;
+                Reader.LoadLine();
+            }
+            NeedsReset = true;
+            AllDataLoaded = Reader.EndOfFile;
+            AutoOwnershipModel?.Load();
+            TelecommutingModel?.Load();
+            while (LoadNextHousehold(list) && !AllDataLoaded)
+            {
+            }
+        }
+    }
 
-                void AssignNumberOfVehicles(Household household, int numberOfAutos, int numberOfSecondaryVehcicles)
+    private bool LoadNextHousehold(IList<ITashaHousehold> list)
+    {
+        if (SkipBadHouseholds)
+        {
+            while (true)
+            {
+                try
                 {
-                    IVehicle[] toAssign = household.Vehicles != null && (household.Vehicles.Length == numberOfAutos + numberOfSecondaryVehcicles) ?
-                        household.Vehicles :
-                        new IVehicle[numberOfAutos + numberOfSecondaryVehcicles];
-                    for (int i = 0; i < numberOfAutos; i++)
+                    var h = LoadNextHousehold();
+                    if (h != null)
                     {
-                        toAssign[i] = Vehicle.MakeVehicle(AutoType);
+                        list.Add(h);
                     }
-                    for (int i = 0; i < numberOfSecondaryVehcicles; i++)
-                    {
-                        toAssign[i + numberOfAutos] = Vehicle.MakeVehicle(SecondaryType);
-                    }
-                    h.Vehicles = toAssign;
+                    return (h != null);
                 }
-
-                if (AutoOwnershipModel == null)
+                catch
                 {
-                    Reader.Get(out tempInt, CarsCol);
-                    int numCars = tempInt;
+                    // ignored
+                }
+            }
+        }
+        else
+        {
+            var h = LoadNextHousehold();
+            if (h != null)
+            {
+                list.Add(h);
+            }
+            return (h != null);
+        }
+    }
+
+    [SubModelInformation(Required = false, Description = "Saves the trips that were successfully loaded back to the given file, leave empty to not save.")]
+    public FileLocation LoadedTripDump;
+
+    private ITashaHousehold LoadNextHousehold()
+    {
+        Household h;
+        bool loadnext;
+        do
+        {
+            h = Household.MakeHousehold();
+            if (Reader.LoadLine() == 0)
+            {
+                AllDataLoaded = true;
+                OutOfData = true;
+                return null;
+            }
+            Reader.Get(out int tempInt, HouseholdIDCol);
+            h.HouseholdId = tempInt;
+            Reader.Get(out tempInt, ZoneCol);
+            h.HomeZone = Root.ZoneSystem.Get(tempInt);
+            if (h.HomeZone == null)
+            {
+                Console.WriteLine("We were unable to find a household zone '" + tempInt.ToString() + "'");
+                throw new XTMFRuntimeException(this, "We were unable to find a household zone '" + tempInt.ToString() + "' for household #" + h.HouseholdId);
+            }
+            Reader.Get(out float tempFloat, ExpansionFactorCol);
+            h.ExpansionFactor = tempFloat;
+            Reader.Get(out int dwellingType, DwellingTypeCol);
+            h.DwellingType = (DwellingType)dwellingType;
+
+            void AssignNumberOfVehicles(Household household, int numberOfAutos, int numberOfSecondaryVehcicles)
+            {
+                IVehicle[] toAssign = household.Vehicles != null && (household.Vehicles.Length == numberOfAutos + numberOfSecondaryVehcicles) ?
+                    household.Vehicles :
+                    new IVehicle[numberOfAutos + numberOfSecondaryVehcicles];
+                for (int i = 0; i < numberOfAutos; i++)
+                {
+                    toAssign[i] = Vehicle.MakeVehicle(AutoType);
+                }
+                for (int i = 0; i < numberOfSecondaryVehcicles; i++)
+                {
+                    toAssign[i + numberOfAutos] = Vehicle.MakeVehicle(SecondaryType);
+                }
+                h.Vehicles = toAssign;
+            }
+
+            if (AutoOwnershipModel == null)
+            {
+                Reader.Get(out tempInt, CarsCol);
+                int numCars = tempInt;
+                if (SecondVehicleColumnNumber >= 0)
+                {
+                    Reader.Get(out tempInt, SecondVehicleColumnNumber);
+                }
+                else
+                {
+                    tempInt = 0;
+                }
+                AssignNumberOfVehicles(h, numCars, tempInt);
+            }
+            if (IncomeCol >= 0)
+            {
+                Reader.Get(out int incomeClass, IncomeCol);
+                h.IncomeClass = incomeClass;
+            }
+            PersonLoader.Load(h);
+            AssertType(h);
+            if (CalculateJointTrips)
+            {
+                JointTripGenerator.Convert(h);
+            }
+            loadnext = false;
+            var persons = h.Persons;
+            for (int i = 0; i < persons.Length; i++)
+            {
+                var person = persons[i];
+                if ((MinAge != 0) & (person.Age < MinAge))
+                {
+                    loadnext = true;
+                    break;
+                }
+                if (person.ExpansionFactor <= 0)
+                {
+                    person.ExpansionFactor = h.ExpansionFactor;
+                }
+                var tripChains = person.TripChains;
+                for (int j = 0; j < tripChains.Count; j++)
+                {
+                    var tc = person.TripChains[j];
+                    if ((tc.Trips.Count == 1) | ((MaxNumberOfTripsInChain > 0) & (MaxNumberOfTripsInChain < tc.Trips.Count)))
+                    {
+                        if (!JustSkipSingleTripTripChainHouseholds)
+                        {
+                            if (tc.Trips.Count <= 1)
+                            {
+                                throw new XTMFRuntimeException(this, "We found an invalid trip for Household '" + h.HouseholdId
+                                    + "' Person '" + person.Id + "' From '" + tc.Trips[0].OriginalZone.ZoneNumber + "' To '"
+                                    + tc.Trips[0].DestinationZone.ZoneNumber + "'.  Please check your data!");
+                            }
+                        }
+                        loadnext = true;
+                        break;
+                    }
+                }
+                if (loadnext)
+                {
+                    break;
+                }
+            }
+            if (loadnext)
+            {
+                h.Recycle();
+            }
+            if (TelecommutingModel is not null)
+            {
+                for (int i = 0; i < persons.Length; i++)
+                {
+                    var result = TelecommutingModel.ProduceResult(persons[i]);
+                    persons[i].Attach(TelecommuterAttribute, result);
+                }
+            }
+            if (AutoOwnershipModel != null)
+            {
+                var aoResult = AutoOwnershipModel.ProduceResult(h);
+                if (aoResult < 0)
+                {
+                    Reader.Get(out aoResult, CarsCol);
                     if (SecondVehicleColumnNumber >= 0)
                     {
                         Reader.Get(out tempInt, SecondVehicleColumnNumber);
@@ -708,168 +782,90 @@ namespace TMG.Tasha
                     {
                         tempInt = 0;
                     }
-                    AssignNumberOfVehicles(h, numCars, tempInt);
+                    aoResult += tempInt;
                 }
-                if (IncomeCol >= 0)
-                {
-                    Reader.Get(out int incomeClass, IncomeCol);
-                    h.IncomeClass = incomeClass;
-                }
-                PersonLoader.Load(h);
-                AssertType(h);
-                if (CalculateJointTrips)
-                {
-                    JointTripGenerator.Convert(h);
-                }
-                loadnext = false;
-                var persons = h.Persons;
-                for (int i = 0; i < persons.Length; i++)
-                {
-                    var person = persons[i];
-                    if ((MinAge != 0) & (person.Age < MinAge))
-                    {
-                        loadnext = true;
-                        break;
-                    }
-                    if (person.ExpansionFactor <= 0)
-                    {
-                        person.ExpansionFactor = h.ExpansionFactor;
-                    }
-                    var tripChains = person.TripChains;
-                    for (int j = 0; j < tripChains.Count; j++)
-                    {
-                        var tc = person.TripChains[j];
-                        if ((tc.Trips.Count == 1) | ((MaxNumberOfTripsInChain > 0) & (MaxNumberOfTripsInChain < tc.Trips.Count)))
-                        {
-                            if (!JustSkipSingleTripTripChainHouseholds)
-                            {
-                                if (tc.Trips.Count <= 1)
-                                {
-                                    throw new XTMFRuntimeException(this, "We found an invalid trip for Household '" + h.HouseholdId
-                                        + "' Person '" + person.Id + "' From '" + tc.Trips[0].OriginalZone.ZoneNumber + "' To '"
-                                        + tc.Trips[0].DestinationZone.ZoneNumber + "'.  Please check your data!");
-                                }
-                            }
-                            loadnext = true;
-                            break;
-                        }
-                    }
-                    if (loadnext)
-                    {
-                        break;
-                    }
-                }
-                if (loadnext)
-                {
-                    h.Recycle();
-                }
-                if (TelecommutingModel is not null)
-                {
-                    for (int i = 0; i < persons.Length; i++)
-                    {
-                        var result = TelecommutingModel.ProduceResult(persons[i]);
-                        persons[i].Attach(TelecommuterAttribute, result);
-                    }
-                }
-                if (AutoOwnershipModel != null)
-                {
-                    var aoResult = AutoOwnershipModel.ProduceResult(h);
-                    if (aoResult < 0)
-                    {
-                        Reader.Get(out aoResult, CarsCol);
-                        if (SecondVehicleColumnNumber >= 0)
-                        {
-                            Reader.Get(out tempInt, SecondVehicleColumnNumber);
-                        }
-                        else
-                        {
-                            tempInt = 0;
-                        }
-                        aoResult += tempInt;
-                    }
-                    AssignNumberOfVehicles(h, aoResult, 0);
-                }
-            } while (loadnext);
-            if (LoadedTripDump != null)
-            {
-                SaveHouseholdTrips(h);
+                AssignNumberOfVehicles(h, aoResult, 0);
             }
-            return h;
-        }
-        private StreamWriter TripDump;
-
-        [RunParameter("Refresh Household Data", false, "Resets the household data so that you can load a different population between runs in the multi-run framework.  Otherwise leave this as false.")]
-        public bool RefreshHouseholdData;
-
-        private void SaveHouseholdTrips(Household h)
+        } while (loadnext);
+        if (LoadedTripDump != null)
         {
-            if (TripDump == null)
+            SaveHouseholdTrips(h);
+        }
+        return h;
+    }
+    private StreamWriter TripDump;
+
+    [RunParameter("Refresh Household Data", false, "Resets the household data so that you can load a different population between runs in the multi-run framework.  Otherwise leave this as false.")]
+    public bool RefreshHouseholdData;
+
+    private void SaveHouseholdTrips(Household h)
+    {
+        if (TripDump == null)
+        {
+            TripDump = new StreamWriter(LoadedTripDump);
+            TripDump.WriteLine("HouseholdID,PersonID,TripChain,TripNumber,StartTime,ObservedMode,OriginRegion,DesitinationRegion,OriginPD,DestinationPD,OriginZone,DestinationZone,Activity,Expansion Factor");
+        }
+        var writer = TripDump;
+        for (int i = 0; i < h.Persons.Length; i++)
+        {
+            var person = (Person)h.Persons[i];
+            for (int j = 0; j < person.TripChains.Count; j++)
             {
-                TripDump = new StreamWriter(LoadedTripDump);
-                TripDump.WriteLine("HouseholdID,PersonID,TripChain,TripNumber,StartTime,ObservedMode,OriginRegion,DesitinationRegion,OriginPD,DestinationPD,OriginZone,DestinationZone,Activity,Expansion Factor");
-            }
-            var writer = TripDump;
-            for (int i = 0; i < h.Persons.Length; i++)
-            {
-                var person = (Person)h.Persons[i];
-                for (int j = 0; j < person.TripChains.Count; j++)
+                var tc = (TripChain)person.TripChains[j];
+                for (int k = 0; k < tc.Trips.Count; k++)
                 {
-                    var tc = (TripChain)person.TripChains[j];
-                    for (int k = 0; k < tc.Trips.Count; k++)
-                    {
-                        var trip = (Trip)tc.Trips[k];
-                        var obsMode = (ITashaMode)trip["ObservedMode"];
-                        writer.Write(h.HouseholdId);
-                        writer.Write(',');
-                        // person number
-                        writer.Write(i);
-                        writer.Write(',');
-                        //trip chain number
-                        writer.Write(j);
-                        writer.Write(',');
-                        // trip number
-                        writer.Write(k);
-                        writer.Write(',');
-                        writer.Write(trip.TripStartTime);
-                        writer.Write(',');
-                        writer.Write(obsMode == null ? "NO_OBS" : obsMode.ModeName);
-                        writer.Write(',');
-                        //region
-                        writer.Write(trip.OriginalZone.RegionNumber);
-                        writer.Write(',');
-                        writer.Write(trip.DestinationZone.RegionNumber);
-                        writer.Write(',');
-                        //pd
-                        writer.Write(trip.OriginalZone.PlanningDistrict);
-                        writer.Write(',');
-                        writer.Write(trip.DestinationZone.PlanningDistrict);
-                        writer.Write(',');
-                        //zone
-                        writer.Write(trip.OriginalZone.ZoneNumber);
-                        writer.Write(',');
-                        writer.Write(trip.DestinationZone.ZoneNumber);
-                        writer.Write(',');
-                        writer.Write(Enum.GetName(typeof(Activity), trip.Purpose));
-                        writer.Write(',');
-                        writer.WriteLine(person.ExpansionFactor);
-                    }
+                    var trip = (Trip)tc.Trips[k];
+                    var obsMode = (ITashaMode)trip["ObservedMode"];
+                    writer.Write(h.HouseholdId);
+                    writer.Write(',');
+                    // person number
+                    writer.Write(i);
+                    writer.Write(',');
+                    //trip chain number
+                    writer.Write(j);
+                    writer.Write(',');
+                    // trip number
+                    writer.Write(k);
+                    writer.Write(',');
+                    writer.Write(trip.TripStartTime);
+                    writer.Write(',');
+                    writer.Write(obsMode == null ? "NO_OBS" : obsMode.ModeName);
+                    writer.Write(',');
+                    //region
+                    writer.Write(trip.OriginalZone.RegionNumber);
+                    writer.Write(',');
+                    writer.Write(trip.DestinationZone.RegionNumber);
+                    writer.Write(',');
+                    //pd
+                    writer.Write(trip.OriginalZone.PlanningDistrict);
+                    writer.Write(',');
+                    writer.Write(trip.DestinationZone.PlanningDistrict);
+                    writer.Write(',');
+                    //zone
+                    writer.Write(trip.OriginalZone.ZoneNumber);
+                    writer.Write(',');
+                    writer.Write(trip.DestinationZone.ZoneNumber);
+                    writer.Write(',');
+                    writer.Write(Enum.GetName(typeof(Activity), trip.Purpose));
+                    writer.Write(',');
+                    writer.WriteLine(person.ExpansionFactor);
                 }
             }
         }
+    }
 
-        public void Dispose()
+    public void Dispose()
+    {
+        if (Reader != null)
         {
-            if (Reader != null)
-            {
-                Reader.Dispose();
-                Reader = null;
-            }
-            if (TripDump != null)
-            {
-                TripDump.Dispose();
-                TripDump = null;
-            }
-            Household.ReleaseHouseholdPool();
+            Reader.Dispose();
+            Reader = null;
         }
+        if (TripDump != null)
+        {
+            TripDump.Dispose();
+            TripDump = null;
+        }
+        Household.ReleaseHouseholdPool();
     }
 }

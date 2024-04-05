@@ -20,81 +20,77 @@ using System;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme
+namespace TMG.Emme;
+
+public class ImportBinaryMatrixIntoEmme : IEmmeTool
 {
-    public class ImportBinaryMatrixIntoEmme : IEmmeTool
+    [SubModelInformation(Description = "Demand Matrix File", Required = true)]
+    public FileLocation MatrixFile;
+
+    [RunParameter("Scenario", 0, "The number of the Emme scenario")]
+    public int ScenarioNumber;
+
+    [RunParameter("Matrix Number", 0, "The matrix number that this will be assigned to.")]
+    public int MatrixNumber;
+
+    [Parameter("Matrix Type", 4, "The type of the matrix to export. 1 for SCALAR, 2 for ORIGIN, 3 for DESTINATION, and 4 for FULL (the default).")]
+    public int MatrixType;
+
+    [RunParameter("Description", "From XTMF", "A description of the matrix.")]
+    public string Description;
+
+    private const string ToolName = "tmg.input_output.import_binary_matrix";
+    private const string OldToolName = "TMG2.IO.ImportBinaryMatrix";
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+
+    /*
+    [1:27:43 PM] Peter Kucirek:    def __call__(self, xtmf_MatrixType, xtmf_MatrixNumber, ImportFile, xtmf_ScenarioNumber,
+             MatrixDescription):
+    */
+    public bool Execute(Controller controller)
     {
-        [SubModelInformation(Description = "Demand Matrix File", Required = true)]
-        public FileLocation MatrixFile;
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        var args = string.Join(" ", MatrixType.ToString(),
+            MatrixNumber.ToString(),
+            "\"" + MatrixFile.GetFilePath() + "\"",
+                                    ScenarioNumber,
+                                    "\"" + Description.Replace("\"", "\'") + "\"");
 
-        [RunParameter("Scenario", 0, "The number of the Emme scenario")]
-        public int ScenarioNumber;
+        Console.WriteLine("Importing matrix into scenario " + ScenarioNumber.ToString() + " from file " + MatrixFile.GetFilePath());
 
-        [RunParameter("Matrix Number", 0, "The matrix number that this will be assigned to.")]
-        public int MatrixNumber;
-
-        [Parameter("Matrix Type", 4, "The type of the matrix to export. 1 for SCALAR, 2 for ORIGIN, 3 for DESTINATION, and 4 for FULL (the default).")]
-        public int MatrixType;
-
-        [RunParameter("Description", "From XTMF", "A description of the matrix.")]
-        public string Description;
-
-        private const string ToolName = "tmg.input_output.import_binary_matrix";
-        private const string OldToolName = "TMG2.IO.ImportBinaryMatrix";
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-
-
-        /*
-        [1:27:43 PM] Peter Kucirek:    def __call__(self, xtmf_MatrixType, xtmf_MatrixNumber, ImportFile, xtmf_ScenarioNumber,
-                 MatrixDescription):
-        */
-        public bool Execute(Controller controller)
+        var result = "";
+        if (mc.CheckToolExists(this, ToolName))
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-
-            var args = string.Join(" ", MatrixType.ToString(),
-                MatrixNumber.ToString(),
-                "\"" + MatrixFile.GetFilePath() + "\"",
-                                        ScenarioNumber,
-                                        "\"" + Description.Replace("\"", "\'") + "\"");
-
-            Console.WriteLine("Importing matrix into scenario " + ScenarioNumber.ToString() + " from file " + MatrixFile.GetFilePath());
-
-            var result = "";
-            if (mc.CheckToolExists(this, ToolName))
-            {
-                return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-            }
-            else
-            {
-                return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
-            }
+            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
         }
-
-        public string Name
+        else
         {
-            get;
-            set;
+            return mc.Run(this, OldToolName, args, (p => Progress = p), ref result);
         }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
     }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
 }

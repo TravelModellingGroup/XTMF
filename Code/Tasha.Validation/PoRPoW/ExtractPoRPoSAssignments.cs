@@ -26,69 +26,68 @@ using TMG.Input;
 using System.IO;
 using Datastructure;
 
-namespace Tasha.Validation.PoRPoW
+namespace Tasha.Validation.PoRPoW;
+
+// ReSharper disable once InconsistentNaming
+public class ExtractPoRPoSAssignments : IPostHousehold
 {
-    // ReSharper disable once InconsistentNaming
-    public class ExtractPoRPoSAssignments : IPostHousehold
+    public string Name { get; set; }
+
+    public float Progress
     {
-        public string Name { get; set; }
-
-        public float Progress
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return 0f;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        [RunParameter("Elementary Ages", "0-14", typeof(RangeSet), "The ages that go to an elementary school.")]
-        public RangeSet ElementaryAges;
+    [RunParameter("Elementary Ages", "0-14", typeof(RangeSet), "The ages that go to an elementary school.")]
+    public RangeSet ElementaryAges;
 
-        [RunParameter("Highschool Ages", "15-18", typeof(RangeSet), "The ages that go to a highschool.")]
-        public RangeSet HighschoolAges;
+    [RunParameter("Highschool Ages", "15-18", typeof(RangeSet), "The ages that go to a highschool.")]
+    public RangeSet HighschoolAges;
 
-        [RunParameter("Minimum Age", 11, "The youngest a person can be and still be recorded.")]
-        public int MinimumAge;
+    [RunParameter("Minimum Age", 11, "The youngest a person can be and still be recorded.")]
+    public int MinimumAge;
 
-        SpinLock WriteLock = new SpinLock(false);
-        Dictionary<int, Dictionary<StudentStatus, float[][]>> Data = new Dictionary<int, Dictionary<StudentStatus, float[][]>>();
-        public void Execute(ITashaHousehold household, int iteration)
+    SpinLock WriteLock = new(false);
+    Dictionary<int, Dictionary<StudentStatus, float[][]>> Data = [];
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var zoneSystem = Root.ZoneSystem.ZoneArray;
+        var homeIndex = zoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
+        foreach(var person in household.Persons)
         {
-            var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var homeIndex = zoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
-            foreach(var person in household.Persons)
+            if(person.Age >= MinimumAge)
             {
-                if(person.Age >= MinimumAge)
+                var expansionFactor = person.ExpansionFactor;
+                // if this person is not a student we can just continue
+                if (person.StudentStatus != StudentStatus.NotStudent)
                 {
-                    var expansionFactor = person.ExpansionFactor;
-                    // if this person is not a student we can just continue
-                    if (person.StudentStatus != StudentStatus.NotStudent)
+                    var gradeTeir = GetGradeTier(person.Age);
+                    if (Data.TryGetValue(gradeTeir, out Dictionary<StudentStatus, float[][]> teirDictionary))
                     {
-                        var gradeTeir = GetGradeTier(person.Age);
-                        if (Data.TryGetValue(gradeTeir, out Dictionary<StudentStatus, float[][]> teirDictionary))
+                        if (teirDictionary.TryGetValue(person.StudentStatus, out float[][] studentData))
                         {
-                            if (teirDictionary.TryGetValue(person.StudentStatus, out float[][] studentData))
+                            var zone = person.SchoolZone;
+                            if (zone != null)
                             {
-                                var zone = person.SchoolZone;
-                                if (zone != null)
+                                var schoolZones = zoneSystem.GetFlatIndex(zone.ZoneNumber);
+                                if (schoolZones >= 0)
                                 {
-                                    var schoolZones = zoneSystem.GetFlatIndex(zone.ZoneNumber);
-                                    if (schoolZones >= 0)
-                                    {
-                                        var row = studentData[homeIndex];
-                                        bool taken = false;
-                                        WriteLock.Enter(ref taken);
-                                        row[schoolZones] += expansionFactor;
-                                        if (taken) WriteLock.Exit(true);
-                                    }
+                                    var row = studentData[homeIndex];
+                                    bool taken = false;
+                                    WriteLock.Enter(ref taken);
+                                    row[schoolZones] += expansionFactor;
+                                    if (taken) WriteLock.Exit(true);
                                 }
                             }
                         }
@@ -96,111 +95,111 @@ namespace Tasha.Validation.PoRPoW
                 }
             }
         }
+    }
 
-        private int GetGradeTier(int age)
+    private int GetGradeTier(int age)
+    {
+        if(ElementaryAges.Contains(age))
         {
-            if(ElementaryAges.Contains(age))
-            {
-                return 0;
-            }
-            else if(HighschoolAges.Contains(age))
-            {
-                return 1;
-            }
-            return 2;
+            return 0;
         }
-
-        public void IterationFinished(int iteration)
+        else if(HighschoolAges.Contains(age))
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            foreach(var occDict in Data)
+            return 1;
+        }
+        return 2;
+    }
+
+    public void IterationFinished(int iteration)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        foreach(var occDict in Data)
+        {
+            var gradeTeir = occDict.Key;
+            foreach(var empStatData in occDict.Value)
             {
-                var gradeTeir = occDict.Key;
-                foreach(var empStatData in occDict.Value)
-                {
-                    var studentStatus = empStatData.Key;
-                    TMG.Functions.SaveData.SaveMatrix(zones, empStatData.Value, BuildFileName(gradeTeir, studentStatus));
-                }
+                var studentStatus = empStatData.Key;
+                TMG.Functions.SaveData.SaveMatrix(zones, empStatData.Value, BuildFileName(gradeTeir, studentStatus));
             }
         }
+    }
 
-        [SubModelInformation(Required = true, Description = "The directory in which we will save the data.")]
-        public FileLocation DirectoryLocation;
+    [SubModelInformation(Required = true, Description = "The directory in which we will save the data.")]
+    public FileLocation DirectoryLocation;
 
-        private string BuildFileName(int gradeTeir, StudentStatus stuStatus)
+    private string BuildFileName(int gradeTeir, StudentStatus stuStatus)
+    {
+        var dirPath = DirectoryLocation.GetFilePath();
+        var info = new DirectoryInfo(dirPath);
+        if(!info.Exists)
         {
-            var dirPath = DirectoryLocation.GetFilePath();
-            var info = new DirectoryInfo(dirPath);
-            if(!info.Exists)
-            {
-                info.Create();
-            }
-            StringBuilder buildFileName = new StringBuilder();
-            switch(gradeTeir)
-            {
-                case 0:
-                    buildFileName.Append("Elementary-");
-                    break;
-                case 1:
-                    buildFileName.Append("Highschool-");
-                    break;
-                case 2:
-                    buildFileName.Append("PostSecondary-");
-                    break;
-            }
-            switch(stuStatus)
-            {
-                case StudentStatus.FullTime:
-                    buildFileName.Append("FullTime.csv");
-                    break;
-                case StudentStatus.PartTime:
-                    buildFileName.Append("PartTime.csv");
-                    break;
-            }
-            return Path.Combine(dirPath, buildFileName.ToString());
+            info.Create();
         }
-
-        public void Load(int maxIterations)
+        StringBuilder buildFileName = new();
+        switch(gradeTeir)
         {
+            case 0:
+                buildFileName.Append("Elementary-");
+                break;
+            case 1:
+                buildFileName.Append("Highschool-");
+                break;
+            case 2:
+                buildFileName.Append("PostSecondary-");
+                break;
         }
-
-        public bool RuntimeValidation(ref string error)
+        switch(stuStatus)
         {
-            return true;
+            case StudentStatus.FullTime:
+                buildFileName.Append("FullTime.csv");
+                break;
+            case StudentStatus.PartTime:
+                buildFileName.Append("PartTime.csv");
+                break;
         }
+        return Path.Combine(dirPath, buildFileName.ToString());
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public void Load(int maxIterations)
+    {
+    }
 
-        private void AddStudentStatus(int gradeTeir)
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private void AddStudentStatus(int gradeTeir)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var stuDic = new Dictionary<StudentStatus, float[][]>();
+        Data[gradeTeir] = stuDic;
+        stuDic[StudentStatus.FullTime] = Create2DArray<float>(zones.Length);
+        stuDic[StudentStatus.PartTime] = Create2DArray<float>(zones.Length);
+    }
+
+    private static T[][] Create2DArray<T>(int length)
+    {
+        T[][] ret = new T[length][];
+        for(int i = 0; i < ret.Length; i++)
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var stuDic = new Dictionary<StudentStatus, float[][]>();
-            Data[gradeTeir] = stuDic;
-            stuDic[StudentStatus.FullTime] = Create2DArray<float>(zones.Length);
-            stuDic[StudentStatus.PartTime] = Create2DArray<float>(zones.Length);
+            ret[i] = new T[length];
         }
+        return ret;
+    }
 
-        private static T[][] Create2DArray<T>(int length)
+    public void IterationStarting(int iteration)
+    {
+        if(iteration > 0)
         {
-            T[][] ret = new T[length][];
-            for(int i = 0; i < ret.Length; i++)
-            {
-                ret[i] = new T[length];
-            }
-            return ret;
+            Data.Clear();
         }
-
-        public void IterationStarting(int iteration)
-        {
-            if(iteration > 0)
-            {
-                Data.Clear();
-            }
-            // Add the data for the three age teirs for school
-            AddStudentStatus(0);
-            AddStudentStatus(1);
-            AddStudentStatus(2);
-        }
+        // Add the data for the three age teirs for school
+        AddStudentStatus(0);
+        AddStudentStatus(1);
+        AddStudentStatus(2);
     }
 }

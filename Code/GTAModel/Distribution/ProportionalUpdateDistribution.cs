@@ -25,135 +25,132 @@ using TMG.Input;
 using XTMF;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+public class ProportionalUpdateDistribution : IDemographicDistribution
 {
-    public class ProportionalUpdateDistribution : IDemographicDistribution
+    [SubModelInformation(Description = "The base data that we will fit against.", Required = false)]
+    public List<IReadODData<float>> BaseData;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name
     {
-        [SubModelInformation(Description = "The base data that we will fit against.", Required = false)]
-        public List<IReadODData<float>> BaseData;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
+    {
+        using var eProd = productions.GetEnumerator();
+        using var eBaseData = BaseData.GetEnumerator();
+        using var eCat = category.GetEnumerator();
+        var zones = Root.ZoneSystem.ZoneArray;
+        var explored = 0;
+        while (eProd.MoveNext() && eBaseData.MoveNext() && eCat.MoveNext())
         {
-            get;
-            set;
+            var prod = eProd.Current;
+            var data = eBaseData.Current;
+            var cat = eCat.Current;
+
+            // Setup everything for this category
+            cat.InitializeDemographicCategory();
+            var ret = zones.CreateSquareTwinArray<float>();
+            LoadInBaseData(ret, data);
+            UpdateData(ret, prod);
+            yield return ret;
+            explored++;
         }
-
-        public float Progress
+        if (BaseData.Count != explored)
         {
-            get;
-            set;
+            throw new XTMFRuntimeException(this, "In " + Name +
+                                           " the number of BaseData entries is not the same as the number of demographic categories!");
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    private void LoadInBaseData(SparseTwinIndex<float> ret, IReadODData<float> data)
+    {
+        try
         {
-            get { return null; }
+            Parallel.ForEach(data.Read(), delegate (ODData<float> point)
+           {
+               ret[point.O, point.D] = point.Data;
+           });
         }
-
-        public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
+        catch (AggregateException e)
         {
-            using (var eProd = productions.GetEnumerator())
-            using (var eBaseData = BaseData.GetEnumerator())
-            using (var eCat = category.GetEnumerator())
+            if (e.InnerException is XTMFRuntimeException)
             {
-                var zones = Root.ZoneSystem.ZoneArray;
-                var explored = 0;
-                while (eProd.MoveNext() && eBaseData.MoveNext() && eCat.MoveNext())
-                {
-                    var prod = eProd.Current;
-                    var data = eBaseData.Current;
-                    var cat = eCat.Current;
-
-                    // Setup everything for this category
-                    cat.InitializeDemographicCategory();
-                    var ret = zones.CreateSquareTwinArray<float>();
-                    LoadInBaseData(ret, data);
-                    UpdateData(ret, prod);
-                    yield return ret;
-                    explored++;
-                }
-                if (BaseData.Count != explored)
-                {
-                    throw new XTMFRuntimeException(this, "In " + Name +
-                                                   " the number of BaseData entries is not the same as the number of demographic categories!");
-                }
+                throw new XTMFRuntimeException(this, e.Message);
             }
+            throw new XTMFRuntimeException(this, e.Message + "\r\n" + e.StackTrace);
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
+    private void UpdateData(SparseTwinIndex<float> ret, SparseArray<float> productions)
+    {
+        var flatProd = productions.GetFlatData();
+        var flatRet = ret.GetFlatData();
+        var numberOfZones = flatProd.Length;
+        try
         {
-            return true;
-        }
-
-        private void LoadInBaseData(SparseTwinIndex<float> ret, IReadODData<float> data)
-        {
-            try
-            {
-                Parallel.ForEach(data.Read(), delegate (ODData<float> point)
+            Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+           {
+               var p = flatProd[i];
+               if (p == 0)
                {
-                   ret[point.O, point.D] = point.Data;
-               });
-            }
-            catch (AggregateException e)
-            {
-                if (e.InnerException is XTMFRuntimeException)
-                {
-                    throw new XTMFRuntimeException(this, e.Message);
-                }
-                throw new XTMFRuntimeException(this, e.Message + "\r\n" + e.StackTrace);
-            }
-        }
-
-        private void UpdateData(SparseTwinIndex<float> ret, SparseArray<float> productions)
-        {
-            var flatProd = productions.GetFlatData();
-            var flatRet = ret.GetFlatData();
-            var numberOfZones = flatProd.Length;
-            try
-            {
-                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
-               {
-                   var p = flatProd[i];
-                   if (p == 0)
-                   {
-                        // if there is no production, clear out the data
-                        for (int j = 0; j < numberOfZones; j++)
-                       {
-                           flatRet[i][j] = 0;
-                       }
-                       return;
-                   }
-                   var sum = 0f;
-                    // Gather the sum of all of the destinations from this origin
+                    // if there is no production, clear out the data
                     for (int j = 0; j < numberOfZones; j++)
                    {
-                       sum += flatRet[i][j];
+                       flatRet[i][j] = 0;
                    }
-                    // The rows should already be seeded however, if they are not
-                    // just return since all of the values are zero anyway
-                    if (sum == 0)
-                   {
-                       return;
-                   }
-                    // Calculate the new balance factor
-                    var factor = p / sum;
-                    // now that we have the new factor we update the demand
-                    for (int j = 0; j < numberOfZones; j++)
-                   {
-                       flatRet[i][j] *= factor;
-                   }
-               });
-            }
-            catch (AggregateException e)
+                   return;
+               }
+               var sum = 0f;
+                // Gather the sum of all of the destinations from this origin
+                for (int j = 0; j < numberOfZones; j++)
+               {
+                   sum += flatRet[i][j];
+               }
+                // The rows should already be seeded however, if they are not
+                // just return since all of the values are zero anyway
+                if (sum == 0)
+               {
+                   return;
+               }
+                // Calculate the new balance factor
+                var factor = p / sum;
+                // now that we have the new factor we update the demand
+                for (int j = 0; j < numberOfZones; j++)
+               {
+                   flatRet[i][j] *= factor;
+               }
+           });
+        }
+        catch (AggregateException e)
+        {
+            if (e.InnerException is XTMFRuntimeException)
             {
-                if (e.InnerException is XTMFRuntimeException)
-                {
-                    throw new XTMFRuntimeException(this, e.InnerException?.Message);
-                }
-                throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
+                throw new XTMFRuntimeException(this, e.InnerException?.Message);
             }
+            throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
         }
     }
 }

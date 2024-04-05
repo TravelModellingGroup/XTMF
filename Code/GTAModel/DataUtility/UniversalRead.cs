@@ -24,158 +24,157 @@ using System.IO;
 using System.Reflection;
 using XTMF;
 
-namespace TMG.GTAModel.DataUtility
+namespace TMG.GTAModel.DataUtility;
+
+internal static class UniversalRead<TDestination>
 {
-    internal static class UniversalRead<TDestination>
+    internal static IRead<TDestination, TSource> CreateReader<TSource>(TSource instanceOfObject, string variableName)
     {
-        internal static IRead<TDestination, TSource> CreateReader<TSource>(TSource instanceOfObject, string variableName)
+        if (instanceOfObject == null)
         {
-            if (instanceOfObject == null)
-            {
-                throw new XTMFRuntimeException(null, "Unable to create a reader from a null instance!");
-            }
-            var variableNameParts = variableName.Split('.');
-            if (!VerrifyType(instanceOfObject.GetType(), variableNameParts, out Type[] sourceType, out bool[] property))
-            {
-                throw new XTMFRuntimeException(null, "Unable to find \"" + variableName + "\" inside of a \"" + ((Type)instanceOfObject.GetType()).FullName + "\"");
-            }
-
-            return CreateReader<TSource>(instanceOfObject.GetType(), variableNameParts, sourceType, property);
+            throw new XTMFRuntimeException(null, "Unable to create a reader from a null instance!");
+        }
+        var variableNameParts = variableName.Split('.');
+        if (!VerrifyType(instanceOfObject.GetType(), variableNameParts, out Type[] sourceType, out bool[] property))
+        {
+            throw new XTMFRuntimeException(null, "Unable to find \"" + variableName + "\" inside of a \"" + ((Type)instanceOfObject.GetType()).FullName + "\"");
         }
 
-        private static CodeNamespace AddNamespaces(CodeCompileUnit unit)
+        return CreateReader<TSource>(instanceOfObject.GetType(), variableNameParts, sourceType, property);
+    }
+
+    private static CodeNamespace AddNamespaces(CodeCompileUnit unit)
+    {
+        var namespaceXTMF = new CodeNamespace("XTMF.DataUtilities.Generated");
+        namespaceXTMF.Imports.Add(new CodeNamespaceImport("System"));
+        namespaceXTMF.Imports.Add(new CodeNamespaceImport("TMG.GTAModel.DataUtility"));
+        unit.Namespaces.Add(namespaceXTMF);
+        return namespaceXTMF;
+    }
+
+    private static void AddReferences(CodeCompileUnit unit)
+    {
+        var moduleDirectory = GetModuleDirectory();
+        var callingAssembly = Assembly.GetCallingAssembly();
+        unit.ReferencedAssemblies.Add(callingAssembly.Location.Substring(8));
+        foreach (var t in callingAssembly.GetReferencedAssemblies())
         {
-            var namespaceXTMF = new CodeNamespace("XTMF.DataUtilities.Generated");
-            namespaceXTMF.Imports.Add(new CodeNamespaceImport("System"));
-            namespaceXTMF.Imports.Add(new CodeNamespaceImport("TMG.GTAModel.DataUtility"));
-            unit.Namespaces.Add(namespaceXTMF);
-            return namespaceXTMF;
+            var localName = Path.Combine(moduleDirectory, t.Name + ".dll");
+            if (File.Exists(localName))
+            {
+                unit.ReferencedAssemblies.Add(localName);
+            }
+            else
+            {
+                unit.ReferencedAssemblies.Add(t.Name + ".dll");
+            }
+        }
+    }
+
+    private static CodeAssignStatement CreateAssingmentStatement(CodeParameterDeclarationExpression result, CodeParameterDeclarationExpression from,
+        Type instanceType, string[] variableNameParts, Type[] sourceType, bool[] property)
+    {
+        var root = new CodeCastExpression(instanceType, new CodeVariableReferenceExpression(from.Name));
+        if (sourceType.Length > 0)
+        {
+            var expression = Get(variableNameParts, sourceType, property, root, 0);
+            return new CodeAssignStatement(new CodeVariableReferenceExpression(result.Name), expression);
+        }
+        return new CodeAssignStatement(new CodeVariableReferenceExpression(result.Name), root);
+    }
+
+    private static IRead<TDestination, TSource> CreateReader<TSource>(Type instanceType, string[] variableNameParts, Type[] sourceType, bool[] property)
+    {
+        var destinationType = typeof(TDestination);
+        var unit = new CodeCompileUnit();
+        AddReferences(unit);
+        var namespaceXTMF = AddNamespaces(unit);
+        var uniqueId = DateTime.Now.Ticks;
+        var realTimeReader = new CodeTypeDeclaration(String.Format("RealtimeCompiledReader{0}", uniqueId));
+        realTimeReader.BaseTypes.Add(new CodeTypeReference(String.Format("IRead<{0},{1}>", destinationType.FullName, typeof(TSource))));
+        var copyMethod = new CodeMemberMethod
+        {
+            Name = "Read",
+            Attributes = MemberAttributes.Public,
+            ReturnType = new CodeTypeReference(typeof(bool))
+        };
+        var readFrom = new CodeParameterDeclarationExpression(typeof(TSource), "readFrom") { Direction = FieldDirection.In };
+        var storeIn = new CodeParameterDeclarationExpression(typeof(TDestination), "result") { Direction = FieldDirection.Out };
+        copyMethod.Parameters.AddRange(new[] { readFrom, storeIn });
+        copyMethod.Statements.Add(CreateAssingmentStatement(storeIn, readFrom, instanceType, variableNameParts, sourceType, property));
+        copyMethod.Statements.Add(new CodeMethodReturnStatement(new CodePrimitiveExpression(true)));
+        realTimeReader.Members.Add(copyMethod);
+        namespaceXTMF.Types.Add(realTimeReader);
+        var compiler = CodeDomProvider.CreateProvider("CSharp");
+        var options = new CompilerParameters
+        {
+            IncludeDebugInformation = false,
+            GenerateInMemory = true,
+            CompilerOptions = "/optimize"
+        };
+        /*using ( StreamWriter writer = new StreamWriter( "code.cs" ) )
+        {
+            compiler.GenerateCodeFromCompileUnit( unit, writer, new CodeGeneratorOptions() );
+            return null;
+        }*/
+        var results = compiler.CompileAssemblyFromDom(options, unit);
+        if (results.Errors.Count != 0)
+        {
+            throw new XTMFRuntimeException(null, results.Errors[0].ToString());
         }
 
-        private static void AddReferences(CodeCompileUnit unit)
+        var assembly = results.CompiledAssembly;
+        var theClass = assembly.GetType(String.Format("XTMF.DataUtilities.Generated.RealtimeCompiledReader{0}", uniqueId));
+        var constructor = theClass.GetConstructor([]);
+        var output = constructor?.Invoke([]);
+        return output as IRead<TDestination, TSource>;
+    }
+
+    private static CodeExpression Get(string[] variableNameParts, Type[] sourceType, bool[] property, CodeExpression root, int index)
+    {
+        CodeExpression expression = new CodeCastExpression(new CodeTypeReference(sourceType[index]),
+            (property[index] ? new CodePropertyReferenceExpression(root, variableNameParts[index])
+            : (CodeExpression)new CodeFieldReferenceExpression(root, variableNameParts[index])));
+        if (index < variableNameParts.Length - 1)
         {
-            var moduleDirectory = GetModuleDirectory();
-            var callingAssembly = Assembly.GetCallingAssembly();
-            unit.ReferencedAssemblies.Add(callingAssembly.Location.Substring(8));
-            foreach (var t in callingAssembly.GetReferencedAssemblies())
+            return Get(variableNameParts, sourceType, property, expression, index + 1);
+        }
+        return expression;
+    }
+
+    private static string GetModuleDirectory()
+    {
+        var programPath = Path.GetFullPath(Assembly.GetEntryAssembly().Location.Replace("file:///", String.Empty));
+        return Path.Combine(Path.GetDirectoryName(programPath), "Modules");
+    }
+
+    private static bool VerrifyType(Type instanceType, string[] parts, out Type[] sourceType, out bool[] property)
+    {
+        sourceType = new Type[parts.Length];
+        property = new bool[parts.Length];
+        for (var i = 0; i < parts.Length; i++)
+        {
+            var field = instanceType.GetField(parts[i]);
+            if (field == null)
             {
-                var localName = Path.Combine(moduleDirectory, t.Name + ".dll");
-                if (File.Exists(localName))
+                var p = instanceType.GetProperty(parts[i]);
+                if (p == null)
                 {
-                    unit.ReferencedAssemblies.Add(localName);
+                    sourceType = null;
+                    property = null;
+                    return false;
                 }
-                else
-                {
-                    unit.ReferencedAssemblies.Add(t.Name + ".dll");
-                }
+                instanceType = p.PropertyType;
+                sourceType[i] = instanceType;
+                property[i] = true;
+            }
+            else
+            {
+                instanceType = field.FieldType;
+                sourceType[i] = instanceType;
+                property[i] = false;
             }
         }
-
-        private static CodeAssignStatement CreateAssingmentStatement(CodeParameterDeclarationExpression result, CodeParameterDeclarationExpression from,
-            Type instanceType, string[] variableNameParts, Type[] sourceType, bool[] property)
-        {
-            var root = new CodeCastExpression(instanceType, new CodeVariableReferenceExpression(from.Name));
-            if (sourceType.Length > 0)
-            {
-                var expression = Get(variableNameParts, sourceType, property, root, 0);
-                return new CodeAssignStatement(new CodeVariableReferenceExpression(result.Name), expression);
-            }
-            return new CodeAssignStatement(new CodeVariableReferenceExpression(result.Name), root);
-        }
-
-        private static IRead<TDestination, TSource> CreateReader<TSource>(Type instanceType, string[] variableNameParts, Type[] sourceType, bool[] property)
-        {
-            var destinationType = typeof(TDestination);
-            var unit = new CodeCompileUnit();
-            AddReferences(unit);
-            var namespaceXTMF = AddNamespaces(unit);
-            var uniqueId = DateTime.Now.Ticks;
-            var realTimeReader = new CodeTypeDeclaration(String.Format("RealtimeCompiledReader{0}", uniqueId));
-            realTimeReader.BaseTypes.Add(new CodeTypeReference(String.Format("IRead<{0},{1}>", destinationType.FullName, typeof(TSource))));
-            var copyMethod = new CodeMemberMethod
-            {
-                Name = "Read",
-                Attributes = MemberAttributes.Public,
-                ReturnType = new CodeTypeReference(typeof(bool))
-            };
-            var readFrom = new CodeParameterDeclarationExpression(typeof(TSource), "readFrom") { Direction = FieldDirection.In };
-            var storeIn = new CodeParameterDeclarationExpression(typeof(TDestination), "result") { Direction = FieldDirection.Out };
-            copyMethod.Parameters.AddRange(new[] { readFrom, storeIn });
-            copyMethod.Statements.Add(CreateAssingmentStatement(storeIn, readFrom, instanceType, variableNameParts, sourceType, property));
-            copyMethod.Statements.Add(new CodeMethodReturnStatement(new CodePrimitiveExpression(true)));
-            realTimeReader.Members.Add(copyMethod);
-            namespaceXTMF.Types.Add(realTimeReader);
-            var compiler = CodeDomProvider.CreateProvider("CSharp");
-            var options = new CompilerParameters
-            {
-                IncludeDebugInformation = false,
-                GenerateInMemory = true,
-                CompilerOptions = "/optimize"
-            };
-            /*using ( StreamWriter writer = new StreamWriter( "code.cs" ) )
-            {
-                compiler.GenerateCodeFromCompileUnit( unit, writer, new CodeGeneratorOptions() );
-                return null;
-            }*/
-            var results = compiler.CompileAssemblyFromDom(options, unit);
-            if (results.Errors.Count != 0)
-            {
-                throw new XTMFRuntimeException(null, results.Errors[0].ToString());
-            }
-
-            var assembly = results.CompiledAssembly;
-            var theClass = assembly.GetType(String.Format("XTMF.DataUtilities.Generated.RealtimeCompiledReader{0}", uniqueId));
-            var constructor = theClass.GetConstructor(new Type[0]);
-            var output = constructor?.Invoke(new object[0]);
-            return output as IRead<TDestination, TSource>;
-        }
-
-        private static CodeExpression Get(string[] variableNameParts, Type[] sourceType, bool[] property, CodeExpression root, int index)
-        {
-            CodeExpression expression = new CodeCastExpression(new CodeTypeReference(sourceType[index]),
-                (property[index] ? new CodePropertyReferenceExpression(root, variableNameParts[index])
-                : (CodeExpression)new CodeFieldReferenceExpression(root, variableNameParts[index])));
-            if (index < variableNameParts.Length - 1)
-            {
-                return Get(variableNameParts, sourceType, property, expression, index + 1);
-            }
-            return expression;
-        }
-
-        private static string GetModuleDirectory()
-        {
-            var programPath = Path.GetFullPath(Assembly.GetEntryAssembly().Location.Replace("file:///", String.Empty));
-            return Path.Combine(Path.GetDirectoryName(programPath), "Modules");
-        }
-
-        private static bool VerrifyType(Type instanceType, string[] parts, out Type[] sourceType, out bool[] property)
-        {
-            sourceType = new Type[parts.Length];
-            property = new bool[parts.Length];
-            for (var i = 0; i < parts.Length; i++)
-            {
-                var field = instanceType.GetField(parts[i]);
-                if (field == null)
-                {
-                    var p = instanceType.GetProperty(parts[i]);
-                    if (p == null)
-                    {
-                        sourceType = null;
-                        property = null;
-                        return false;
-                    }
-                    instanceType = p.PropertyType;
-                    sourceType[i] = instanceType;
-                    property[i] = true;
-                }
-                else
-                {
-                    instanceType = field.FieldType;
-                    sourceType[i] = instanceType;
-                    property[i] = false;
-                }
-            }
-            return true;
-        }
+        return true;
     }
 }

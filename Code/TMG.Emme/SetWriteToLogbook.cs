@@ -18,44 +18,42 @@
 */
 using System;
 using XTMF;
-namespace TMG.Emme
+namespace TMG.Emme;
+
+public class SetWriteToLogbook : IEmmeTool
 {
-    public class SetWriteToLogbook : IEmmeTool
+    public string Name { get;set; }
+
+    public float Progress
     {
-        public string Name { get;set; }
-
-        public float Progress
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return 0f;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        [RunParameter("Enable Writing", false, "True to write to logbook, false otherwise.")]
-        public bool WriteToLogbook;
+    [RunParameter("Enable Writing", false, "True to write to logbook, false otherwise.")]
+    public bool WriteToLogbook;
 
-        public bool Execute(Controller controller)
+    public bool Execute(Controller controller)
+    {
+        if ((controller as ModellerController) != null)
         {
-            ModellerController modeller;
-            if((modeller = controller as ModellerController) != null)
-            {
-                return false;
-            }
             return false;
         }
+        return false;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

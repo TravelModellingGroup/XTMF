@@ -16,35 +16,28 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
-using TMG;
 
-namespace Tasha.Common.IterationConditionals
+namespace Tasha.Common.IterationConditionals;
+
+[ModuleInformation(Description = "This module is designed to allow a conditional flow when executing")]
+public sealed class BasicIterationConditional : IterationConditional, ISelfContainedModule
 {
-    [ModuleInformation(Description = "This module is designed to allow a conditional flow when executing")]
-    public sealed class BasicIterationConditional : IterationConditional, ISelfContainedModule
+    [SubModelInformation(Required = false, Description = "Executed if true")]
+    public ISelfContainedModule[] IfTrue;
+
+    [SubModelInformation(Required = false, Description = "Executed if false")]
+    public ISelfContainedModule[] IfFalse;
+
+    public void Start()
     {
-        [SubModelInformation(Required = false, Description = "Executed if true")]
-        public ISelfContainedModule[] IfTrue;
+        var toExecute = DoesIterationPass() ? IfTrue : IfFalse;
 
-        [SubModelInformation(Required = false, Description = "Executed if false")]
-        public ISelfContainedModule[] IfFalse;
-
-        public void Start()
+        if (toExecute != null)
         {
-            var toExecute = DoesIterationPass() ? IfTrue : IfFalse;
-
-            if (toExecute != null)
+            foreach (var child in toExecute)
             {
-                foreach (var child in toExecute)
-                {
-                    child.Start();
-                }
+                child.Start();
             }
         }
     }

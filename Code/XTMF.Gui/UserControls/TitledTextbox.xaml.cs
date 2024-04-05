@@ -23,65 +23,64 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for TitledTextbox.xaml
+/// </summary>
+public partial class TitledTextbox : UserControl, INotifyPropertyChanged
 {
-    /// <summary>
-    /// Interaction logic for TitledTextbox.xaml
-    /// </summary>
-    public partial class TitledTextbox : UserControl, INotifyPropertyChanged
+    private string _Header;
+
+    public TitledTextbox()
     {
-        private string _Header;
+        InitializeComponent();
+    }
 
-        public TitledTextbox()
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public event Action<object> TextChanged;
+
+    public string HeaderText
+    {
+        get => _Header;
+        set
         {
-            InitializeComponent();
+            _Header = value;
+            NotifyChanged( nameof(HeaderText));
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public string HintText
+    {
+        get => InputTextBox.HintText;
+        set => InputTextBox.HintText = value;
+    }
 
-        public event Action<object> TextChanged;
+    public string Text
+    {
+        get => InputTextBox.Text;
+        set => InputTextBox.Text = value;
+    }
 
-        public string HeaderText
+    protected override void OnGotFocus(RoutedEventArgs e)
+    {
+        if ( e.Handled == false )
         {
-            get => _Header;
-            set
-            {
-                _Header = value;
-                NotifyChanged( "HeaderText" );
-            }
+            e.Handled = true;
+            Keyboard.Focus( InputTextBox );
         }
+        base.OnGotFocus( e );
+    }
 
-        public string HintText
-        {
-            get => InputTextBox.HintText;
-            set => InputTextBox.HintText = value;
-        }
+    private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        NotifyChanged( nameof(Text));
+        TextChanged?.Invoke(this);
+    }
 
-        public string Text
-        {
-            get => InputTextBox.Text;
-            set => InputTextBox.Text = value;
-        }
-
-        protected override void OnGotFocus(RoutedEventArgs e)
-        {
-            if ( e.Handled == false )
-            {
-                e.Handled = true;
-                Keyboard.Focus( InputTextBox );
-            }
-            base.OnGotFocus( e );
-        }
-
-        private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            NotifyChanged( "Text" );
-            TextChanged?.Invoke(this);
-        }
-
-        private void NotifyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    private void NotifyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

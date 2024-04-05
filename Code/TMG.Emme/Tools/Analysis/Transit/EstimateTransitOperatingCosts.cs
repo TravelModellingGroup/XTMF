@@ -29,89 +29,82 @@ using System;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme.Tools.Analysis.Transit
+namespace TMG.Emme.Tools.Analysis.Transit;
+
+
+[ModuleInformation(
+    Description =
+    "This tool calls the estimate_transit_operating_costs tool of TMGToolbox. " +
+    "Computes estimated route-by-route transit operating costs."
+)]
+
+public class EstimateTransitOperatingCosts : IEmmeTool
 {
 
-    [ModuleInformation(
-        Description =
-        "This tool calls the estimate_transit_operating_costs tool of TMGToolbox. " +
-        "Computes estimated route-by-route transit operating costs."
-    )]
+    private const string ToolName = "tmg.analysis.transit.estimate_transit_operating_costs";
 
-    public class EstimateTransitOperatingCosts : IEmmeTool
+    // Specify module parameters and required files
+    [RunParameter("Scenario Number", 0, "The Emme scenario number to perform the cost computation for.")]
+    public int ScenarioNumber;
+
+    [SubModelInformation(Required = true, Description = "The path to the transit service table file for the corresponding network that provides trip departure and arrival schedules.")]
+    public FileLocation ServiceTableFile;
+
+    [SubModelInformation(Required = true, Description = "The path to the cost parameters file for the network.")]
+    public FileLocation CostParamsFile;
+
+    [SubModelInformation(Required = true, Description = "Report output file path.")]
+    public FileLocation ReportFile;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool Execute(Controller controller)
     {
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        modeller.Run(this, ToolName,
+            [
+                new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+                new ModellerControllerParameter("ServiceTableFile", ServiceTableFile.GetFilePath()),
+                new ModellerControllerParameter("CostParamsFile", CostParamsFile.GetFilePath()),
+                new ModellerControllerParameter("ReportFile", ReportFile.GetFilePath())
+            ]
+        );
 
-        private const string ToolName = "tmg.analysis.transit.estimate_transit_operating_costs";
-
-        // Specify module parameters and required files
-        [RunParameter("Scenario Number", 0, "The Emme scenario number to perform the cost computation for.")]
-        public int ScenarioNumber;
-
-        [SubModelInformation(Required = true, Description = "The path to the transit service table file for the corresponding network that provides trip departure and arrival schedules.")]
-        public FileLocation ServiceTableFile;
-
-        [SubModelInformation(Required = true, Description = "The path to the cost parameters file for the network.")]
-        public FileLocation CostParamsFile;
-
-        [SubModelInformation(Required = true, Description = "Report output file path.")]
-        public FileLocation ReportFile;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool Execute(Controller controller)
-        {
-            var modeller = controller as ModellerController;
-            if (modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            }
-
-            modeller.Run(this, ToolName, new[]
-                {
-                    new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
-                    new ModellerControllerParameter("ServiceTableFile", ServiceTableFile.GetFilePath()),
-                    new ModellerControllerParameter("CostParamsFile", CostParamsFile.GetFilePath()),
-                    new ModellerControllerParameter("ReportFile", ReportFile.GetFilePath())
-                }
-            );
-
-            return true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (ScenarioNumber <= 0)
-            {
-                error = "The scenario number '" + ScenarioNumber
-                    + "' is an invalid scenario number!";
-                return false;
-            }
-
-            if (ServiceTableFile.IsPathEmpty())
-            {
-                error = "Service table path cannot be null or empty.";
-                return false;
-            }
-
-            if (CostParamsFile.IsPathEmpty())
-            {
-                error = "Cost parameters path cannot be null or empty.";
-                return false;
-            }
-
-            if (ReportFile.IsPathEmpty())
-            {
-                error = "Output report path cannot be null or empty.";
-                return false;
-            }
-
-            return true;
-        }
+        return true;
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        if (ScenarioNumber <= 0)
+        {
+            error = "The scenario number '" + ScenarioNumber
+                + "' is an invalid scenario number!";
+            return false;
+        }
+
+        if (ServiceTableFile.IsPathEmpty())
+        {
+            error = "Service table path cannot be null or empty.";
+            return false;
+        }
+
+        if (CostParamsFile.IsPathEmpty())
+        {
+            error = "Cost parameters path cannot be null or empty.";
+            return false;
+        }
+
+        if (ReportFile.IsPathEmpty())
+        {
+            error = "Output report path cannot be null or empty.";
+            return false;
+        }
+
+        return true;
+    }
 }
 

@@ -19,25 +19,24 @@
 
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+public sealed class RegionStraightLineDistanceUtilityComponent : RegionUtilityComponent
 {
-    public sealed class RegionStraightLineDistanceUtilityComponent : RegionUtilityComponent
+    [RunParameter( "Distance Factor", 1f, "The factor to apply against each km of straightline distance between the two zones." )]
+    public float Factor;
+
+    public override float CalculateV(IZone origin, IZone destination, Time time)
     {
-        [RunParameter( "Distance Factor", 1f, "The factor to apply against each km of straightline distance between the two zones." )]
-        public float Factor;
-
-        public override float CalculateV(IZone origin, IZone destination, Time time)
+        if ( IsContained( origin, destination ) )
         {
-            if ( IsContained( origin, destination ) )
-            {
-                return Factor * ( Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f );
-            }
-            return 0;
+            return Factor * ( Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f );
         }
+        return 0;
+    }
 
-        protected override bool SubRuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    protected override bool SubRuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

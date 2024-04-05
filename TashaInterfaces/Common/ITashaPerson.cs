@@ -19,111 +19,110 @@
 using System.Collections.Generic;
 using TMG;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Represents how to interface with a person
+/// </summary>
+public interface ITashaPerson : IAttachable
 {
     /// <summary>
-    /// Represents how to interface with a person
+    /// Is this person an adult
     /// </summary>
-    public interface ITashaPerson : IAttachable
-    {
-        /// <summary>
-        /// Is this person an adult
-        /// </summary>
-        bool Adult { get; }
+    bool Adult { get; }
 
-        /// <summary>
-        /// How old is the person
-        /// </summary>
-        int Age { get; }
+    /// <summary>
+    /// How old is the person
+    /// </summary>
+    int Age { get; }
 
-        /// <summary>
-        /// These are trip chains that serve passengers
-        /// </summary>
-        List<ITripChain> AuxTripChains { get; set; }
+    /// <summary>
+    /// These are trip chains that serve passengers
+    /// </summary>
+    List<ITripChain> AuxTripChains { get; set; }
 
-        /// <summary>
-        /// Is this person a child (Age = [0,10])
-        /// </summary>
-        bool Child { get; }
+    /// <summary>
+    /// Is this person a child (Age = [0,10])
+    /// </summary>
+    bool Child { get; }
 
-        /// <summary>
-        /// How is this person currently employed
-        /// </summary>
-        TTSEmploymentStatus EmploymentStatus { get; }
+    /// <summary>
+    /// How is this person currently employed
+    /// </summary>
+    TTSEmploymentStatus EmploymentStatus { get; }
 
-        /// <summary>
-        /// Get the zone that this person is employed at,
-        /// null if they are not employed
-        /// </summary>
-        IZone EmploymentZone { get; }
+    /// <summary>
+    /// Get the zone that this person is employed at,
+    /// null if they are not employed
+    /// </summary>
+    IZone EmploymentZone { get; }
 
-        /// <summary>
-        /// The expansion factor for this individual
-        /// </summary>
-        float ExpansionFactor { get; set; }
+    /// <summary>
+    /// The expansion factor for this individual
+    /// </summary>
+    float ExpansionFactor { get; set; }
 
-        /// <summary>
-        /// Is this person Female?
-        /// </summary>
-        bool Female { get; }
+    /// <summary>
+    /// Is this person Female?
+    /// </summary>
+    bool Female { get; }
 
-        bool FreeParking { get; }
+    bool FreeParking { get; }
 
-        /// <summary>
-        /// The household that this person belongs to
-        /// </summary>
-        ITashaHousehold Household { get; }
+    /// <summary>
+    /// The household that this person belongs to
+    /// </summary>
+    ITashaHousehold Household { get; }
 
-        /// <summary>
-        /// What is the identifier for this person
-        /// </summary>
-        int Id { get; }
+    /// <summary>
+    /// What is the identifier for this person
+    /// </summary>
+    int Id { get; }
 
-        /// <summary>
-        /// Does this person have a driver's license
-        /// </summary>
-        bool Licence { get; }
+    /// <summary>
+    /// Does this person have a driver's license
+    /// </summary>
+    bool Licence { get; }
 
-        /// <summary>
-        /// Is this person Male?
-        /// </summary>
-        bool Male { get; }
+    /// <summary>
+    /// Is this person Male?
+    /// </summary>
+    bool Male { get; }
 
-        /// <summary>
-        /// What type of job does this person have
-        /// </summary>
-        Occupation Occupation { get; }
+    /// <summary>
+    /// What type of job does this person have
+    /// </summary>
+    Occupation Occupation { get; }
 
-        /// <summary>
-        /// Get which zone this person goes to school at.
-        /// null if they do not go to school
-        /// </summary>
-        IZone SchoolZone { get; set; }
+    /// <summary>
+    /// Get which zone this person goes to school at.
+    /// null if they do not go to school
+    /// </summary>
+    IZone SchoolZone { get; set; }
 
-        /// <summary>
-        /// How this person is a student
-        /// </summary>
-        StudentStatus StudentStatus { get; }
+    /// <summary>
+    /// How this person is a student
+    /// </summary>
+    StudentStatus StudentStatus { get; }
 
-        TransitPass TransitPass { get; }
+    TransitPass TransitPass { get; }
 
-        /// <summary>
-        /// These are the trip chains this person will go on
-        /// </summary>
-        List<ITripChain> TripChains { get; }
+    /// <summary>
+    /// These are the trip chains this person will go on
+    /// </summary>
+    List<ITripChain> TripChains { get; }
 
-        /// <summary>
-        /// Is this person a YoungAdult (Age = [16, 19])
-        /// </summary>
-        bool YoungAdult { get; }
+    /// <summary>
+    /// Is this person a YoungAdult (Age = [16, 19])
+    /// </summary>
+    bool YoungAdult { get; }
 
-        /// <summary>
-        /// Is this person a Youth (Age = [11, 15])
-        /// </summary>
-        bool Youth { get; }
+    /// <summary>
+    /// Is this person a Youth (Age = [11, 15])
+    /// </summary>
+    bool Youth { get; }
 
-        ITashaPerson Clone();
+    ITashaPerson Clone();
 
-        void Recycle();
-    }
+    void Recycle();
 }

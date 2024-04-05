@@ -19,37 +19,36 @@
 
 using XTMF;
 
-namespace TMG.Distributed
+namespace TMG.Distributed;
+
+/// <summary>
+/// The distribution manager is tasked with tracking the lifetimes of tasks
+/// and pushing them to the compute nodes.
+/// </summary>
+public interface IHostDistributionManager : IModelSystemTemplate
 {
     /// <summary>
-    /// The distribution manager is tasked with tracking the lifetimes of tasks
-    /// and pushing them to the compute nodes.
+    /// Add a task for execution and track its lifetime.
     /// </summary>
-    public interface IHostDistributionManager : IModelSystemTemplate
-    {
-        /// <summary>
-        /// Add a task for execution and track its lifetime.
-        /// </summary>
-        /// <param name="taskName">The name of task to execute.</param>
-        void AddTask(string taskName);
+    /// <param name="taskName">The name of task to execute.</param>
+    void AddTask(string taskName);
 
-        /// <summary>
-        /// Wait for all currently executing tasks to finish
-        /// </summary>
-        void WaitAll();
+    /// <summary>
+    /// Wait for all currently executing tasks to finish
+    /// </summary>
+    void WaitAll();
 
-        /// <summary>
-        /// Wait for all currently executing tasks to finish
-        /// or for the timeout to occur
-        /// </summary>
-        /// <param name="timeoutMilliseconds">The number of milliseconds to wait</param>
-        /// <returns>True if all tasks have finished</returns>
-        bool WaitAll(int timeoutMilliseconds);
+    /// <summary>
+    /// Wait for all currently executing tasks to finish
+    /// or for the timeout to occur
+    /// </summary>
+    /// <param name="timeoutMilliseconds">The number of milliseconds to wait</param>
+    /// <returns>True if all tasks have finished</returns>
+    bool WaitAll(int timeoutMilliseconds);
 
-        /// <summary>
-        /// The manager of the client side tasks
-        /// </summary>
-        /// <returns></returns>
-        IClientDistributionManager Client { get; }
-    }
+    /// <summary>
+    /// The manager of the client side tasks
+    /// </summary>
+    /// <returns></returns>
+    IClientDistributionManager Client { get; }
 }

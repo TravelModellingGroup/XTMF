@@ -16,14 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
+namespace TMG;
+
+public interface IDemographic4StepModelSystemTemplate : I4StepModel, IDemographicsModelSystemTemplate
 {
-    public interface IDemographic4StepModelSystemTemplate : I4StepModel, IDemographicsModelSystemTemplate
-    {
-        /// <summary>
-        /// The database containing all of the different mode parameter sets.
-        /// </summary>
-        /// <remarks>This module is optional so it might be null, please check</remarks>
-        IModeParameterDatabase ModeParameterDatabase { get; }
-    }
+    /// <summary>
+    /// The database containing all of the different mode parameter sets.
+    /// </summary>
+    /// <remarks>This module is optional so it might be null, please check</remarks>
+    IModeParameterDatabase ModeParameterDatabase { get; }
 }

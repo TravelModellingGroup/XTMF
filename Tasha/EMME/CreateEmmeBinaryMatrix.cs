@@ -27,316 +27,315 @@ using System.Threading;
 using System.Threading.Tasks;
 using TMG.Functions;
 
-namespace Tasha.EMME
+namespace Tasha.EMME;
+
+public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdIteration
 {
-    public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdIteration
+    [RootModule]
+    public ITravelDemandModel Root;
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get; set; }
+
+    private float[][] Matrix;
+
+    [SubModelInformation(Required = true, Description = "The location to save the matrix.")]
+    public FileLocation MatrixSaveLocation;
+
+    [RunParameter("Start Time", "6:00AM", typeof(Time), "The start of the time to record.")]
+    public Time StartTime;
+
+    [RunParameter("End Time", "9:00AM", typeof(Time), "The end of the time to record (non inclusive).")]
+    public Time EndTime;
+
+    private SpinLock WriteLock = new(false);
+
+    [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
+    public int MinimumAge;
+
+    private int HouseholdIterations = 1;
+
+    public void HouseholdComplete(ITashaHousehold household, bool success)
     {
-        [RootModule]
-        public ITravelDemandModel Root;
-        public string Name { get; set; }
 
-        public float Progress { get; set; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour { get; set; }
+    public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    {
+        // Gather the number of household iterations
+        HouseholdIterations = totalHouseholdIterations;
+        // now execute
+        Execute(household, hhldIteration);
+    }
 
-        private float[][] Matrix;
+    public void HouseholdStart(ITashaHousehold household, int householdIterations)
+    {
 
-        [SubModelInformation(Required = true, Description = "The location to save the matrix.")]
-        public FileLocation MatrixSaveLocation;
+    }
 
-        [RunParameter("Start Time", "6:00AM", typeof(Time), "The start of the time to record.")]
-        public Time StartTime;
-
-        [RunParameter("End Time", "9:00AM", typeof(Time), "The end of the time to record (non inclusive).")]
-        public Time EndTime;
-
-        private SpinLock WriteLock = new SpinLock(false);
-
-        [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
-        public int MinimumAge;
-
-        private int HouseholdIterations = 1;
-
-        public void HouseholdComplete(ITashaHousehold household, bool success)
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var persons = household.Persons;
+        for (int i = 0; i < persons.Length; i++)
         {
-
-        }
-
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
-        {
-            // Gather the number of household iterations
-            HouseholdIterations = totalHouseholdIterations;
-            // now execute
-            Execute(household, hhldIteration);
-        }
-
-        public void HouseholdStart(ITashaHousehold household, int householdIterations)
-        {
-
-        }
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            var persons = household.Persons;
-            for (int i = 0; i < persons.Length; i++)
+            if (persons[i].Age < MinimumAge)
             {
-                if (persons[i].Age < MinimumAge)
+                continue;
+            }
+            var expFactor = persons[i].ExpansionFactor;
+            var tripChains = persons[i].TripChains;
+            for (int j = 0; j < tripChains.Count; j++)
+            {
+                if ((tripChains[j].EndTime < StartTime) | (tripChains[j].StartTime) > EndTime)
                 {
                     continue;
                 }
-                var expFactor = persons[i].ExpansionFactor;
-                var tripChains = persons[i].TripChains;
-                for (int j = 0; j < tripChains.Count; j++)
+                var trips = tripChains[j].Trips;
+                bool access = true;
+                for (int k = 0; k < trips.Count; k++)
                 {
-                    if ((tripChains[j].EndTime < StartTime) | (tripChains[j].StartTime) > EndTime)
+                    var startTime = trips[k].TripStartTime;
+                    var modeChosen = trips[k].Mode;
+                    if (UsesMode(modeChosen))
                     {
-                        continue;
+                        AddToMatrix(expFactor, startTime, trips[k].OriginalZone, trips[k].DestinationZone);
                     }
-                    var trips = tripChains[j].Trips;
-                    bool access = true;
-                    for (int k = 0; k < trips.Count; k++)
+                    else
                     {
-                        var startTime = trips[k].TripStartTime;
-                        var modeChosen = trips[k].Mode;
-                        if (UsesMode(modeChosen))
+                        for (int l = 0; l < AccessModes.Length; l++)
                         {
-                            AddToMatrix(expFactor, startTime, trips[k].OriginalZone, trips[k].DestinationZone);
-                        }
-                        else
-                        {
-                            for (int l = 0; l < AccessModes.Length; l++)
+                            if (UsesAccessMode(modeChosen))
                             {
-                                if (UsesAccessMode(modeChosen))
+                                if (AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out IZone origin, out IZone destination))
                                 {
-                                    if (AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out IZone origin, out IZone destination))
-                                    {
-                                        AddToMatrix(expFactor, startTime, origin, destination);
-                                    }
-                                    access = false;
+                                    AddToMatrix(expFactor, startTime, origin, destination);
                                 }
+                                access = false;
                             }
                         }
                     }
                 }
             }
         }
+    }
 
-        private void AddToMatrix(float expFactor, Time startTime, IZone origin, IZone destination)
+    private void AddToMatrix(float expFactor, Time startTime, IZone origin, IZone destination)
+    {
+        if (startTime >= StartTime & startTime < EndTime)
         {
-            if (startTime >= StartTime & startTime < EndTime)
-            {
-                var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
-                var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
-                bool gotLock = false;
-                WriteLock.Enter(ref gotLock);
-                Matrix[originIndex][destinationIndex] += expFactor;
-                if (gotLock) WriteLock.Exit(true);
-            }
+            var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
+            var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
+            bool gotLock = false;
+            WriteLock.Enter(ref gotLock);
+            Matrix[originIndex][destinationIndex] += expFactor;
+            if (gotLock) WriteLock.Exit(true);
         }
+    }
 
-        public sealed class ModeLink : IModule
+    public sealed class ModeLink : IModule
+    {
+        [RootModule]
+        public ITashaRuntime Root;
+
+        [RunParameter("Mode Name", "Auto", "The name of the mode")]
+        public string ModeName;
+
+        internal ITashaMode Mode;
+
+        public string Name { get; set; }
+
+        public float Progress { get; set; }
+
+        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+        public bool RuntimeValidation(ref string error)
         {
-            [RootModule]
-            public ITashaRuntime Root;
-
-            [RunParameter("Mode Name", "Auto", "The name of the mode")]
-            public string ModeName;
-
-            internal ITashaMode Mode;
-
-            public string Name { get; set; }
-
-            public float Progress { get; set; }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-            public bool RuntimeValidation(ref string error)
+            foreach (var mode in Root.AllModes)
             {
-                foreach (var mode in Root.AllModes)
+                if (mode.ModeName == ModeName)
                 {
-                    if (mode.ModeName == ModeName)
-                    {
-                        Mode = mode;
-                        return true;
-                    }
-                }
-                error = "In '" + Name + "' we were unable to find a mode called '" + ModeName + "'";
-                return false;
-            }
-        }
-
-        public sealed class AccessModeLink : IModule
-        {
-            [RootModule]
-            public ITashaRuntime Root;
-
-            [RunParameter("Mode Name", "DAT", "The name of the mode")]
-            public string ModeName;
-
-            [RunParameter("Count Access", true, "True to _Count for access, false to _Count for egress.")]
-            public bool CountAccess;
-
-            [RunParameter("Access Tag Name", "AccessStation", "The tag used for storing the zone used for access.")]
-            public string AccessZoneTagName;
-
-            [RunParameter("Tour Level Access StationChoice", true, "Is the access station choice done at a tour level (true) or at the trip level (false).")]
-            public bool TourLevelAccessStationChoice;
-
-            internal ITashaMode Mode;
-
-            public string Name { get; set; }
-
-            public float Progress { get; set; }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-            public bool GetTranslatedOD(ITripChain chain, ITrip trip, bool access, out IZone origin, out IZone destination)
-            {
-                if (TourLevelAccessStationChoice)
-                {
-                    if (CountAccess ^ (!access))
-                    {
-                        origin = trip.OriginalZone;
-                        destination = chain[AccessZoneTagName] as IZone;
-                        return destination != null;
-                    }
-                    origin = chain[AccessZoneTagName] as IZone;
-                    destination = trip.DestinationZone;
-                    return origin != null;
-                }
-                else
-                {
-                    var accessZone = trip[AccessZoneTagName] as IZone;
-                    if(CountAccess)
-                    {
-                        origin = trip.OriginalZone;
-                        destination = accessZone;
-                    }
-                    else
-                    {
-                        origin = accessZone;
-                        destination = trip.DestinationZone;
-                    }
-                    return accessZone != null;
-                }
-            }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                foreach (var mode in Root.AllModes)
-                {
-                    if (mode.ModeName == ModeName)
-                    {
-                        Mode = mode;
-                        return true;
-                    }
-                }
-                error = "In '" + Name + "' we were unable to find a mode called '" + ModeName + "'";
-                return false;
-            }
-        }
-
-        [SubModelInformation(Required = false, Description = "The modes to listen for.")]
-        public ModeLink[] Modes;
-
-        [SubModelInformation(Required = false, Description = "The access modes to listen for.")]
-        public AccessModeLink[] AccessModes;
-
-        /// <summary>
-        /// check to see if the mode being used for this trip is one that we are interested in.
-        /// </summary>
-        /// <returns></returns>
-        private bool UsesMode(ITashaMode mode)
-        {
-            for (int i = 0; i < Modes.Length; i++)
-            {
-                if (Modes[i].Mode == mode)
-                {
+                    Mode = mode;
                     return true;
                 }
             }
+            error = "In '" + Name + "' we were unable to find a mode called '" + ModeName + "'";
             return false;
         }
+    }
 
-        private bool UsesAccessMode(ITashaMode mode)
+    public sealed class AccessModeLink : IModule
+    {
+        [RootModule]
+        public ITashaRuntime Root;
+
+        [RunParameter("Mode Name", "DAT", "The name of the mode")]
+        public string ModeName;
+
+        [RunParameter("Count Access", true, "True to _Count for access, false to _Count for egress.")]
+        public bool CountAccess;
+
+        [RunParameter("Access Tag Name", "AccessStation", "The tag used for storing the zone used for access.")]
+        public string AccessZoneTagName;
+
+        [RunParameter("Tour Level Access StationChoice", true, "Is the access station choice done at a tour level (true) or at the trip level (false).")]
+        public bool TourLevelAccessStationChoice;
+
+        internal ITashaMode Mode;
+
+        public string Name { get; set; }
+
+        public float Progress { get; set; }
+
+        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+        public bool GetTranslatedOD(ITripChain chain, ITrip trip, bool access, out IZone origin, out IZone destination)
         {
-            for (int i = 0; i < AccessModes.Length; i++)
+            if (TourLevelAccessStationChoice)
             {
-                if (AccessModes[i].Mode == mode)
+                if (CountAccess ^ (!access))
                 {
-                    return true;
+                    origin = trip.OriginalZone;
+                    destination = chain[AccessZoneTagName] as IZone;
+                    return destination != null;
                 }
-            }
-            return false;
-        }
-
-        private SparseArray<IZone> ZoneSystem;
-        private int NumberOfZones;
-
-        public void IterationStarting(int iteration, int totalIterations)
-        {
-            IterationStarting(iteration);
-        }
-
-        public void IterationFinished(int iteration, int totalIterations)
-        {
-            IterationFinished(iteration);
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            // get the newest zone system
-            ZoneSystem = Root.ZoneSystem.ZoneArray;
-            NumberOfZones = ZoneSystem.Count;
-            if (Matrix == null)
-            {
-                Matrix = new float[NumberOfZones][];
-                for (int i = 0; i < Matrix.Length; i++)
-                {
-                    Matrix[i] = new float[NumberOfZones];
-                }
+                origin = chain[AccessZoneTagName] as IZone;
+                destination = trip.DestinationZone;
+                return origin != null;
             }
             else
             {
-                // clear out old trips
-                for (int i = 0; i < Matrix.Length; i++)
+                var accessZone = trip[AccessZoneTagName] as IZone;
+                if(CountAccess)
                 {
-                    Array.Clear(Matrix[i], 0, Matrix[i].Length);
+                    origin = trip.OriginalZone;
+                    destination = accessZone;
                 }
-            }
-        }
-
-        public IModeAggregationTally[] SpecialGenerators;
-
-        public void IterationFinished(int iteration)
-        {
-            if (SpecialGenerators.Length > 0)
-            {
-                var specialGenerationResults = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>().GetFlatData();
-                // Apply the special generators
-                for (int i = 0; i < SpecialGenerators.Length; i++)
+                else
                 {
-                    SpecialGenerators[i].IncludeTally(specialGenerationResults);
+                    origin = accessZone;
+                    destination = trip.DestinationZone;
                 }
-                // Now scale the by household iterations and integrate it back into the result matrix
-                Parallel.For(0, specialGenerationResults.Length, i =>
-                {
-                    VectorHelper.Multiply(specialGenerationResults[i], 0, specialGenerationResults[i], 0, HouseholdIterations, specialGenerationResults[i].Length);
-                    VectorHelper.Add(Matrix[i], 0, Matrix[i], 0, specialGenerationResults[i], 0, specialGenerationResults.Length);
-                });
+                return accessZone != null;
             }
-            // write to disk
-            new EmmeMatrix(ZoneSystem, Matrix).Save(MatrixSaveLocation, true);
-        }
-
-        public void Load(int maxIterations)
-        {
-
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            return true;
+            foreach (var mode in Root.AllModes)
+            {
+                if (mode.ModeName == ModeName)
+                {
+                    Mode = mode;
+                    return true;
+                }
+            }
+            error = "In '" + Name + "' we were unable to find a mode called '" + ModeName + "'";
+            return false;
         }
+    }
+
+    [SubModelInformation(Required = false, Description = "The modes to listen for.")]
+    public ModeLink[] Modes;
+
+    [SubModelInformation(Required = false, Description = "The access modes to listen for.")]
+    public AccessModeLink[] AccessModes;
+
+    /// <summary>
+    /// check to see if the mode being used for this trip is one that we are interested in.
+    /// </summary>
+    /// <returns></returns>
+    private bool UsesMode(ITashaMode mode)
+    {
+        for (int i = 0; i < Modes.Length; i++)
+        {
+            if (Modes[i].Mode == mode)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool UsesAccessMode(ITashaMode mode)
+    {
+        for (int i = 0; i < AccessModes.Length; i++)
+        {
+            if (AccessModes[i].Mode == mode)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private SparseArray<IZone> ZoneSystem;
+    private int NumberOfZones;
+
+    public void IterationStarting(int iteration, int totalIterations)
+    {
+        IterationStarting(iteration);
+    }
+
+    public void IterationFinished(int iteration, int totalIterations)
+    {
+        IterationFinished(iteration);
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        // get the newest zone system
+        ZoneSystem = Root.ZoneSystem.ZoneArray;
+        NumberOfZones = ZoneSystem.Count;
+        if (Matrix == null)
+        {
+            Matrix = new float[NumberOfZones][];
+            for (int i = 0; i < Matrix.Length; i++)
+            {
+                Matrix[i] = new float[NumberOfZones];
+            }
+        }
+        else
+        {
+            // clear out old trips
+            for (int i = 0; i < Matrix.Length; i++)
+            {
+                Array.Clear(Matrix[i], 0, Matrix[i].Length);
+            }
+        }
+    }
+
+    public IModeAggregationTally[] SpecialGenerators;
+
+    public void IterationFinished(int iteration)
+    {
+        if (SpecialGenerators.Length > 0)
+        {
+            var specialGenerationResults = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>().GetFlatData();
+            // Apply the special generators
+            for (int i = 0; i < SpecialGenerators.Length; i++)
+            {
+                SpecialGenerators[i].IncludeTally(specialGenerationResults);
+            }
+            // Now scale the by household iterations and integrate it back into the result matrix
+            Parallel.For(0, specialGenerationResults.Length, i =>
+            {
+                VectorHelper.Multiply(specialGenerationResults[i], 0, specialGenerationResults[i], 0, HouseholdIterations, specialGenerationResults[i].Length);
+                VectorHelper.Add(Matrix[i], 0, Matrix[i], 0, specialGenerationResults[i], 0, specialGenerationResults.Length);
+            });
+        }
+        // write to disk
+        new EmmeMatrix(ZoneSystem, Matrix).Save(MatrixSaveLocation, true);
+    }
+
+    public void Load(int maxIterations)
+    {
+
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

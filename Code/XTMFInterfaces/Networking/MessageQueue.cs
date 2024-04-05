@@ -20,85 +20,84 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace XTMF.Networking
+namespace XTMF.Networking;
+
+/// <summary>
+/// Provides a clean way of waiting for
+/// data to arrive before processing it.
+/// If not ready, then the  thread will sleep.
+/// When it is ready, it will wake up.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class MessageQueue<T> : IDisposable
 {
+    private ConcurrentQueue<T> Messages = new();
+    private SemaphoreSlim? Sem = new(0);
+
     /// <summary>
-    /// Provides a clean way of waiting for
-    /// data to arrive before processing it.
-    /// If not ready, then the  thread will sleep.
-    /// When it is ready, it will wake up.
+    /// Add a new message to the queue
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class MessageQueue<T> : IDisposable
+    /// <param name="message">The message to be added</param>
+    public void Add(T message)
     {
-        private ConcurrentQueue<T> Messages = new();
-        private SemaphoreSlim? Sem = new SemaphoreSlim(0);
+        // we need to enqueue it before we add an extra count
+        Messages.Enqueue(message);
+        Sem?.Release();
+    }
 
-        /// <summary>
-        /// Add a new message to the queue
-        /// </summary>
-        /// <param name="message">The message to be added</param>
-        public void Add(T message)
+    public void Dispose()
+    {
+        Dispose(true);
+    }
+
+    /// <summary>
+    /// Retrieve a message from the MessageQueue
+    /// This will wait indefinitely for the next message
+    /// </summary>
+    /// <returns>The next message</returns>
+    public T? GetMessage()
+    {
+        Sem?.Wait();
+        // this should always succeed
+        if (!Messages.TryDequeue(out T? ret))
         {
-            // we need to enqueue it before we add an extra count
-            Messages.Enqueue(message);
-            Sem?.Release();
+            return default;
         }
+        return ret;
+    }
 
-        public void Dispose()
+    /// <summary>
+    /// Retrieve a message from the Messagequeue.  This will wait for a given amount of time.
+    /// </summary>
+    /// <param name="timeout">The length of time to wait at most in milliseconds before returning</param>
+    /// <returns>The next message, if the timeout occurs the default value</returns>
+    public T? GetMessageOrTimeout(int timeout)
+    {
+        if (Sem!.Wait(timeout))
         {
-            Dispose(true);
-        }
-
-        /// <summary>
-        /// Retrieve a message from the MessageQueue
-        /// This will wait indefinitely for the next message
-        /// </summary>
-        /// <returns>The next message</returns>
-        public T? GetMessage()
-        {
-            Sem?.Wait();
-            // this should always succeed
             if (!Messages.TryDequeue(out T? ret))
             {
                 return default;
             }
             return ret;
         }
+        return default;
+    }
 
-        /// <summary>
-        /// Retrieve a message from the Messagequeue.  This will wait for a given amount of time.
-        /// </summary>
-        /// <param name="timeout">The length of time to wait at most in milliseconds before returning</param>
-        /// <returns>The next message, if the timeout occurs the default value</returns>
-        public T? GetMessageOrTimeout(int timeout)
+    /// <summary>
+    /// Gets a peak at the current number of messages pending.
+    /// </summary>
+    public int Count
+    {
+        get
         {
-            if (Sem!.Wait(timeout))
-            {
-                if (!Messages.TryDequeue(out T? ret))
-                {
-                    return default;
-                }
-                return ret;
-            }
-            return default;
+            return Messages.Count;
         }
+    }
 
-        /// <summary>
-        /// Gets a peak at the current number of messages pending.
-        /// </summary>
-        public int Count
-        {
-            get
-            {
-                return Messages.Count;
-            }
-        }
-
-        protected virtual void Dispose(bool includeManaged)
-        {
-            Sem?.Dispose();
-            Sem = null;
-        }
+    protected virtual void Dispose(bool includeManaged)
+    {
+        Sem?.Dispose();
+        Sem = null;
     }
 }

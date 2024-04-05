@@ -19,10 +19,9 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IGeneration : IModule
 {
-    public interface IGeneration : IModule
-    {
-        void Generate(SparseArray<float> production, SparseArray<float> attractions);
-    }
+    void Generate(SparseArray<float> production, SparseArray<float> attractions);
 }

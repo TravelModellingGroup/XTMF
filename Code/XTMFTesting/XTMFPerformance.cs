@@ -1,10 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿namespace XTMF.Testing;
 
-namespace XTMF.Testing
+[TestClass]
+public class XTMFPerformance
 {
-    [TestClass]
-    public class XTMFPerformance
-    {
 
-    }
 }

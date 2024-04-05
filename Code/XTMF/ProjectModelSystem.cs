@@ -18,46 +18,42 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF.Interfaces;
 
-namespace XTMF
+namespace XTMF;
+
+public class ProjectModelSystem
 {
-    public class ProjectModelSystem
+    public string Name
     {
-        public string Name
+        get
         {
-            get
+            return Root?.Name ?? _tempName ?? "Unnamed";
+        }
+        set
+        {
+            if (Root is not null)
             {
-                return Root?.Name ?? _tempName ?? "Unnamed";
+                Root.Name = value;
             }
-            set
+            else
             {
-                if (Root is not null)
-                {
-                    Root.Name = value;
-                }
-                else
-                {
-                    _tempName = value;
-                }
+                _tempName = value;
             }
         }
-        private string _tempName;
-        public IModelSystemStructure Root { get; internal set; }
-        public List<ILinkedParameter> LinkedParameters { get; internal set; }
-        public List<IRegionDisplay> RegionDisplays { get; internal set; }
-        public string Description { get; internal set; }
-        public string GUID { get; internal set; }
-        public DateTime LastModified { get; set; }
-
-        public ProjectModelSystem()
-        {
-            
-        }
-
-        public bool IsLoaded { get; set; } = true;
     }
+    private string _tempName;
+    public IModelSystemStructure Root { get; internal set; }
+    public List<ILinkedParameter> LinkedParameters { get; internal set; }
+    public List<IRegionDisplay> RegionDisplays { get; internal set; }
+    public string Description { get; internal set; }
+    public string GUID { get; internal set; }
+    public DateTime LastModified { get; set; }
+
+    public ProjectModelSystem()
+    {
+        
+    }
+
+    public bool IsLoaded { get; set; } = true;
 }

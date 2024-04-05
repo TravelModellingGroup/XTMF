@@ -19,33 +19,32 @@
 
 using XTMF;
 
-namespace Tasha.Common.IterationConditionals
+namespace Tasha.Common.IterationConditionals;
+
+[ModuleInformation(Description = "This module is designed to allow the model system to have conditional execution based upon the provided information and the model system's current iteration.")]
+public class IterationConditionalPostIteration : IterationConditional, IPostIteration
 {
-    [ModuleInformation(Description = "This module is designed to allow the model system to have conditional execution based upon the provided information and the model system's current iteration.")]
-    public class IterationConditionalPostIteration : IterationConditional, IPostIteration
+    [SubModelInformation(Required = true, Description = "Executed if true")]
+    public IPostIteration[] IfTrue;
+
+    [SubModelInformation(Required = false, Description = "Executed if false")]
+    public IPostIteration[] IfFalse;
+
+    public void Execute(int iterationNumber, int totalIterations)
     {
-        [SubModelInformation(Required = true, Description = "Executed if true")]
-        public IPostIteration[] IfTrue;
+        var toExecute = DoesIterationPass() ? IfTrue : IfFalse;
 
-        [SubModelInformation(Required = false, Description = "Executed if false")]
-        public IPostIteration[] IfFalse;
-
-        public void Execute(int iterationNumber, int totalIterations)
+        if(toExecute != null)
         {
-            var toExecute = DoesIterationPass() ? IfTrue : IfFalse;
-
-            if(toExecute != null)
+            foreach (var child in toExecute)
             {
-                foreach (var child in toExecute)
-                {
-                    child.Execute(iterationNumber, totalIterations);
-                }
+                child.Execute(iterationNumber, totalIterations);
             }
         }
+    }
 
-        public void Load(IConfiguration config, int totalIterations)
-        {
-            
-        }
+    public void Load(IConfiguration config, int totalIterations)
+    {
+        
     }
 }

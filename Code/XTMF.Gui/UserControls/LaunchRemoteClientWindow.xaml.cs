@@ -26,126 +26,125 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for LaunchRemoteClientWindow.xaml
+/// </summary>
+public partial class LaunchRemoteClientWindow : UserControl
 {
-    /// <summary>
-    /// Interaction logic for LaunchRemoteClientWindow.xaml
-    /// </summary>
-    public partial class LaunchRemoteClientWindow : UserControl
+    #pragma warning disable CS0649
+    internal Action<object> RequestClose;
+
+    public LaunchRemoteClientWindow()
     {
-        #pragma warning disable CS0649
-        internal Action<object> RequestClose;
+        InitializeComponent();
+        Loaded += LaunchRemoteClientWindow_Loaded;
+    }
 
-        public LaunchRemoteClientWindow()
+    private void LaunchRemoteClientWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        Dispatcher.BeginInvoke(new Action(() =>
         {
-            InitializeComponent();
-            Loaded += LaunchRemoteClientWindow_Loaded;
-        }
+            Keyboard.Focus(Server);
+            Server.Focus();
+        }));
+    }
 
-        private void LaunchRemoteClientWindow_Loaded(object sender, RoutedEventArgs e)
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (!e.Handled)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            if (e.Key == Key.W && e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
             {
-                Keyboard.Focus(Server);
-                Server.Focus();
-            }));
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                if (e.Key == Key.W && e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                var ev = RequestClose;
+                if (ev != null)
                 {
-                    var ev = RequestClose;
-                    if (ev != null)
-                    {
-                        ev(this);
-                        e.Handled = true;
-                    }
+                    ev(this);
+                    e.Handled = true;
                 }
             }
-
-            base.OnKeyDown(e);
         }
 
-        protected override void OnInitialized(EventArgs e)
+        base.OnKeyDown(e);
+    }
+
+    protected override void OnInitialized(EventArgs e)
+    {
+        base.OnInitialized(e);
+        Focus();
+    }
+
+    protected override void OnGotFocus(RoutedEventArgs e)
+    {
+        if (e.Source == this)
         {
-            base.OnInitialized(e);
-            Focus();
+            Keyboard.Focus(Server);
+            Server.Focus();
+            e.Handled = true;
         }
 
-        protected override void OnGotFocus(RoutedEventArgs e)
+        base.OnGotFocus(e);
+    }
+
+    private void Launch_Clicked(object obj)
+    {
+        var address = Server.Text;
+        var port = Port.Text;
+        var xtmfDirectory = GetXTMFDirectory();
+        Process.Start(Path.Combine(GetXTMFDirectory(), "XTMF.RemoteClient.exe"), AddQuotes(address) + " " + port);
+    }
+
+    private string GetXTMFDirectory() => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+    private string AddQuotes(string address) => string.Concat("\"", address, "\"");
+
+    private void Port_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (!e.Handled)
         {
-            if (e.Source == this)
+            if (e.Key == Key.Enter)
             {
-                Keyboard.Focus(Server);
-                Server.Focus();
                 e.Handled = true;
+                if (!String.IsNullOrEmpty(Server.Text) && !String.IsNullOrEmpty(Port.Text))
+                {
+                    Launch_Clicked(null);
+                }
+                else if (String.IsNullOrEmpty(Server.Text))
+                {
+                    Keyboard.Focus(Server);
+                }
             }
-
-            base.OnGotFocus(e);
         }
+    }
 
-        private void Launch_Clicked(object obj)
+    private void Server_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (!e.Handled)
         {
-            var address = Server.Text;
-            var port = Port.Text;
-            var xtmfDirectory = GetXTMFDirectory();
+            if (e.Key == Key.Enter)
+            {
+                e.Handled = true;
+                if (!String.IsNullOrEmpty(Server.Text) && !String.IsNullOrEmpty(Port.Text))
+                {
+                    Launch_Clicked(null);
+                }
+                else if (String.IsNullOrEmpty(Port.Text))
+                {
+                    Keyboard.Focus(Port);
+                }
+            }
+        }
+    }
+
+    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    {
+        var address = Server.Text;
+        var port = Port.Text;
+        // Create the process on another thread to speed up the UI
+        Task.Run(() =>
+        {
             Process.Start(Path.Combine(GetXTMFDirectory(), "XTMF.RemoteClient.exe"), AddQuotes(address) + " " + port);
-        }
-
-        private string GetXTMFDirectory() => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-        private string AddQuotes(string address) => string.Concat("\"", address, "\"");
-
-        private void Port_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                if (e.Key == Key.Enter)
-                {
-                    e.Handled = true;
-                    if (!String.IsNullOrEmpty(Server.Text) && !String.IsNullOrEmpty(Port.Text))
-                    {
-                        Launch_Clicked(null);
-                    }
-                    else if (String.IsNullOrEmpty(Server.Text))
-                    {
-                        Keyboard.Focus(Server);
-                    }
-                }
-            }
-        }
-
-        private void Server_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                if (e.Key == Key.Enter)
-                {
-                    e.Handled = true;
-                    if (!String.IsNullOrEmpty(Server.Text) && !String.IsNullOrEmpty(Port.Text))
-                    {
-                        Launch_Clicked(null);
-                    }
-                    else if (String.IsNullOrEmpty(Port.Text))
-                    {
-                        Keyboard.Focus(Port);
-                    }
-                }
-            }
-        }
-
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-        {
-            var address = Server.Text;
-            var port = Port.Text;
-            // Create the process on another thread to speed up the UI
-            Task.Run(() =>
-            {
-                Process.Start(Path.Combine(GetXTMFDirectory(), "XTMF.RemoteClient.exe"), AddQuotes(address) + " " + port);
-            });
-        }
+        });
     }
 }

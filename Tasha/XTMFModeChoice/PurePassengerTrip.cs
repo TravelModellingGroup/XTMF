@@ -22,109 +22,110 @@ using Tasha.Common;
 using TMG;
 using XTMF;
 
-namespace Tasha.XTMFModeChoice
+namespace Tasha.XTMFModeChoice;
+
+public class PurePassengerTrip : Attachable, ITrip
 {
-    public class PurePassengerTrip : Attachable, ITrip
+    public Time ActivityStartTime
     {
-        public Time ActivityStartTime
-        {
-            get;
-            set;
-        }
+        get;
+        set;
+    }
 
-        public IZone DestinationZone
-        {
-            get;
-            set;
-        }
+    public IZone DestinationZone
+    {
+        get;
+        set;
+    }
 
-        public IZone IntermediateZone
-        {
-            get;
-            set;
-        }
+    public IZone IntermediateZone
+    {
+        get;
+        set;
+    }
 
-        public ITashaMode Mode
-        {
-            get;
-            set;
-        }
+    public ITashaMode Mode
+    {
+        get;
+        set;
+    }
 
-        public ITashaMode[] ModesChosen
+    public ITashaMode[] ModesChosen
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        public IZone OriginalZone
-        {
-            get;
-            set;
-        }
+    public IZone OriginalZone
+    {
+        get;
+        set;
+    }
 
-        public List<ITashaPerson> Passengers
-        {
-            get;
-            set;
-        }
+    public List<ITashaPerson> Passengers
+    {
+        get;
+        set;
+    }
 
-        public Activity Purpose
-        {
-            get;
-            set;
-        }
+    public Activity Purpose
+    {
+        get;
+        set;
+    }
 
-        public ITashaPerson SharedModeDriver
-        {
-            get;
-            set;
-        }
+    public ITashaPerson SharedModeDriver
+    {
+        get;
+        set;
+    }
 
-        public Time TravelTime
-        {
-            get;
-            set;
-        }
+    public Time TravelTime
+    {
+        get;
+        set;
+    }
 
-        public ITripChain TripChain
-        {
-            get;
-            set;
-        }
+    public ITripChain TripChain
+    {
+        get;
+        set;
+    }
 
-        public int TripNumber
-        {
-            get;
-            set;
-        }
+    public int TripNumber
+    {
+        get;
+        set;
+    }
 
-        public Time TripStartTime
-        {
-            get;
-            set;
-        }
+    public Time TripStartTime
+    {
+        get;
+        set;
+    }
 
-        public static PurePassengerTrip MakeDriverTrip(IZone homeZone, ITashaMode mode, Time startTime, Time endTime)
+    public static PurePassengerTrip MakeDriverTrip(IZone homeZone, ITashaMode mode, Time startTime, Time endTime)
+    {
+        PurePassengerTrip driverTrip = new()
         {
-            PurePassengerTrip driverTrip = new PurePassengerTrip();
-            driverTrip.Purpose = Activity.FacilitatePassenger;
-            driverTrip.OriginalZone = driverTrip.DestinationZone = homeZone;
-            driverTrip.Mode = mode;
-            driverTrip.ActivityStartTime = endTime;
-            driverTrip.TripStartTime = startTime;
-            return driverTrip;
-        }
+            Purpose = Activity.FacilitatePassenger
+        };
+        driverTrip.OriginalZone = driverTrip.DestinationZone = homeZone;
+        driverTrip.Mode = mode;
+        driverTrip.ActivityStartTime = endTime;
+        driverTrip.TripStartTime = startTime;
+        return driverTrip;
+    }
 
-        public ITrip Clone()
-        {
-            throw new NotImplementedException();
-        }
+    public ITrip Clone()
+    {
+        throw new NotImplementedException();
+    }
 
-        public void Recycle()
-        {
-            
-        }
+    public void Recycle()
+    {
+        
     }
 }

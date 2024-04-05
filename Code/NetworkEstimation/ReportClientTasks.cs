@@ -23,67 +23,64 @@ using TMG.Estimation;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+[ModuleInformation(Description= "Produces a report file which lists a unique ID for each Task assigned to a client, along with the parameters " +
+                                "estimated for that task. This is useful in conjunction with modules which produce outputs for each Parameter Set.")]
+public class ReportClientTasks : ISelfContainedModule
 {
-    [ModuleInformation(Description= "Produces a report file which lists a unique ID for each Task assigned to a client, along with the parameters " +
-                                    "estimated for that task. This is useful in conjunction with modules which produce outputs for each Parameter Set.")]
-    public class ReportClientTasks : ISelfContainedModule
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    [RunParameter("Report File", "", typeof(FileFromOutputDirectory), "A report file to save/append to. Saved in the Output directory.")]
+    public FileFromOutputDirectory ReportFile;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+    public void Start()
     {
+        var exists = File.Exists(ReportFile.GetFileName());
 
-        [RootModule]
-        public IEstimationClientModelSystem Root;
-
-        [RunParameter("Report File", "", typeof(FileFromOutputDirectory), "A report file to save/append to. Saved in the Output directory.")]
-        public FileFromOutputDirectory ReportFile;
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-
-        public void Start()
+        using var writer = new StreamWriter(ReportFile.GetFileName(), true);
+        if (!exists)
         {
-            var exists = File.Exists(ReportFile.GetFileName());
-
-            using (var writer = new StreamWriter(ReportFile.GetFileName(),true))
+            var s1 = "Generation,Index";
+            foreach (var ps in Root.Parameters)
             {
-                if (!exists)
-                {
-                    var s1 = "Generation,Index";
-                    foreach (var ps in Root.Parameters)
-                    {
-                        s1 += "," + string.Join(" ", ps.Names, 0, ps.Names.Length);
-                    }
-                    writer.WriteLine(s1);
-                }
-
-                var s2 = string.Join(",", Root.CurrentTask.Generation, Root.CurrentTask.Index);
-                foreach (var val in Root.CurrentTask.ParameterValues)
-                {
-                    s2 += "," + val;
-                }
-                writer.WriteLine(s2);
+                s1 += "," + string.Join(" ", ps.Names, 0, ps.Names.Length);
             }
+            writer.WriteLine(s1);
         }
 
-
-        public string Name
+        var s2 = string.Join(",", Root.CurrentTask.Generation, Root.CurrentTask.Index);
+        foreach (var val in Root.CurrentTask.ParameterValues)
         {
-            get;
-            set;
+            s2 += "," + val;
         }
+        writer.WriteLine(s2);
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

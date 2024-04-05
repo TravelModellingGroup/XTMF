@@ -23,101 +23,97 @@ using System.Linq;
 using Tasha.Common;
 using TMG.Input;
 using XTMF;
-namespace Tasha.Validation.Scheduler
+namespace Tasha.Validation.Scheduler;
+
+
+// ReSharper disable once InconsistentNaming
+public class TripChainSizeVSDailyTrips : IPostHousehold
 {
 
-    // ReSharper disable once InconsistentNaming
-    public class TripChainSizeVSDailyTrips : IPostHousehold
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [RunParameter("Max Trips", 10, "The maximum number of trips, trip chains or daily trip values over this will be categorized in the maximum bin.")]
+    public int MaxTrips;
+
+    [SubModelInformation(Required = true, Description = "The location to save the results to.")]
+    public FileLocation OutputLocation;
+
+    /// <summary>
+    /// Results[#OfTripsInChain][DailyTripCount]
+    /// </summary>
+    private float[][] Results;
+
+    public void Execute(ITashaHousehold household, int iteration)
     {
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [RunParameter("Max Trips", 10, "The maximum number of trips, trip chains or daily trip values over this will be categorized in the maximum bin.")]
-        public int MaxTrips;
-
-        [SubModelInformation(Required = true, Description = "The location to save the results to.")]
-        public FileLocation OutputLocation;
-
-        /// <summary>
-        /// Results[#OfTripsInChain][DailyTripCount]
-        /// </summary>
-        private float[][] Results;
-
-        public void Execute(ITashaHousehold household, int iteration)
+        lock (Results)
         {
-            lock (Results)
+            foreach (var person in household.Persons)
             {
-                foreach (var person in household.Persons)
+                var expFactor = person.ExpansionFactor;
+                var dailyTripsByPerson = Math.Min(person.TripChains.Sum(tc => tc.Trips.Count), MaxTrips);
+                foreach (var tripChain in person.TripChains)
                 {
-                    var expFactor = person.ExpansionFactor;
-                    var dailyTripsByPerson = Math.Min(person.TripChains.Sum(tc => tc.Trips.Count), MaxTrips);
-                    foreach (var tripChain in person.TripChains)
-                    {
-                        var tripChainLength = Math.Min(tripChain.Trips.Count, MaxTrips);
-                        Results[tripChainLength][dailyTripsByPerson] += expFactor;
-                    }
+                    var tripChainLength = Math.Min(tripChain.Trips.Count, MaxTrips);
+                    Results[tripChainLength][dailyTripsByPerson] += expFactor;
                 }
             }
-        }
-
-        public void IterationFinished(int iteration)
-        {
-            using (StreamWriter writer = new StreamWriter(OutputLocation))
-            {
-                //write header
-                writer.Write("TripChainSize\\DailyTripCount");
-                for (int i = 0; i < Results.Length; i++)
-                {
-                    writer.Write(',');
-                    writer.Write(i);
-                }
-                writer.WriteLine();
-                // for each row
-                for (int i = 0; i < Results.Length; i++)
-                {
-                    writer.Write(i);
-                    for (int j = 0; j < Results[i].Length; j++)
-                    {
-                        writer.Write(',');
-                        writer.Write(Results[i][j]);
-                    }
-                    writer.WriteLine();
-                }
-            }
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            if (Results == null)
-            {
-                Results = new float[MaxTrips + 1][];
-                for (int i = 0; i < Results.Length; i++)
-                {
-                    Results[i] = new float[Results.Length];
-                }
-            }
-            else
-            {
-                for (int i = 0; i < Results.Length; i++)
-                {
-                    Array.Clear(Results[i], 0, Results[i].Length);
-                }
-            }
-        }
-
-        public void Load(int maxIterations)
-        {
-
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
         }
     }
 
+    public void IterationFinished(int iteration)
+    {
+        using StreamWriter writer = new(OutputLocation);
+        //write header
+        writer.Write("TripChainSize\\DailyTripCount");
+        for (int i = 0; i < Results.Length; i++)
+        {
+            writer.Write(',');
+            writer.Write(i);
+        }
+        writer.WriteLine();
+        // for each row
+        for (int i = 0; i < Results.Length; i++)
+        {
+            writer.Write(i);
+            for (int j = 0; j < Results[i].Length; j++)
+            {
+                writer.Write(',');
+                writer.Write(Results[i][j]);
+            }
+            writer.WriteLine();
+        }
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        if (Results == null)
+        {
+            Results = new float[MaxTrips + 1][];
+            for (int i = 0; i < Results.Length; i++)
+            {
+                Results[i] = new float[Results.Length];
+            }
+        }
+        else
+        {
+            for (int i = 0; i < Results.Length; i++)
+            {
+                Array.Clear(Results[i], 0, Results[i].Length);
+            }
+        }
+    }
+
+    public void Load(int maxIterations)
+    {
+
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 }

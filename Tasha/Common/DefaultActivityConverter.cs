@@ -18,110 +18,109 @@
 */
 using System.Collections.Generic;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public class DefaultActivityConverter : IActivityConverter
 {
-    public class DefaultActivityConverter : IActivityConverter
+    #region IActivityConverter Members
+
+    public Activity GetActivity(char destination)
     {
-        #region IActivityConverter Members
-
-        public Activity GetActivity(char destination)
+        switch ( destination )
         {
-            switch ( destination )
-            {
-                case 'W':
-                    return Activity.PrimaryWork;
+            case 'W':
+                return Activity.PrimaryWork;
 
-                case 'H':
-                    return Activity.Home;
+            case 'H':
+                return Activity.Home;
 
-                case 'S':
-                    return Activity.School;
+            case 'S':
+                return Activity.School;
 
-                case 'F':
-                    return Activity.FacilitatePassenger;
+            case 'F':
+                return Activity.FacilitatePassenger;
 
-                case 'M':
-                    return Activity.Market;
+            case 'M':
+                return Activity.Market;
 
-                case 'O':
-                    return Activity.IndividualOther;
+            case 'O':
+                return Activity.IndividualOther;
 
-                case 'D':
-                    return Activity.Daycare;
+            case 'D':
+                return Activity.Daycare;
 
-                case '9':
-                    return Activity.Unknown;
+            case '9':
+                return Activity.Unknown;
 
-                case 'R':
-                    return Activity.PrimaryWork;
+            case 'R':
+                return Activity.PrimaryWork;
 
-                default:
-                    return Activity.IndividualOther;
-            }
+            default:
+                return Activity.IndividualOther;
         }
-
-        public char GetActivityChar(Activity activity)
-        {
-            switch ( activity )
-            {
-                case Activity.PrimaryWork:
-                    return 'W';
-
-                case Activity.Home:
-                    return 'H';
-
-                case Activity.School:
-                    return 'S';
-
-                case Activity.FacilitatePassenger:
-                    return 'F';
-
-                case Activity.Market:
-                    return 'M';
-
-                case Activity.IndividualOther:
-                    return 'O';
-
-                case Activity.Intermediate:
-                    return 'I';
-
-                case Activity.Daycare:
-                    return 'D';
-
-                case Activity.Unknown:
-                    return '9';
-
-                default:
-                    return 'O';
-            }
-        }
-
-        public void GetTripActivities(ITrip trip, ITripChain chain, out char origin, out char destination)
-        {
-            destination = GetActivityChar( trip.Purpose );
-
-            List<ITrip> trips = chain.Trips;
-
-            for ( int i = 0; i < trips.Count; i++ )
-            {
-                if ( trips[i] == trip )
-                {
-                    if ( i == 0 )
-                    {
-                        origin = GetActivityChar( Activity.Home );
-                    }
-                    else
-                    {
-                        origin = GetActivityChar( trips[i - 1].Purpose );
-                    }
-
-                    return;
-                }
-            }
-
-            origin = '0';
-        }
-
-        #endregion IActivityConverter Members
     }
+
+    public char GetActivityChar(Activity activity)
+    {
+        switch ( activity )
+        {
+            case Activity.PrimaryWork:
+                return 'W';
+
+            case Activity.Home:
+                return 'H';
+
+            case Activity.School:
+                return 'S';
+
+            case Activity.FacilitatePassenger:
+                return 'F';
+
+            case Activity.Market:
+                return 'M';
+
+            case Activity.IndividualOther:
+                return 'O';
+
+            case Activity.Intermediate:
+                return 'I';
+
+            case Activity.Daycare:
+                return 'D';
+
+            case Activity.Unknown:
+                return '9';
+
+            default:
+                return 'O';
+        }
+    }
+
+    public void GetTripActivities(ITrip trip, ITripChain chain, out char origin, out char destination)
+    {
+        destination = GetActivityChar( trip.Purpose );
+
+        List<ITrip> trips = chain.Trips;
+
+        for ( int i = 0; i < trips.Count; i++ )
+        {
+            if ( trips[i] == trip )
+            {
+                if ( i == 0 )
+                {
+                    origin = GetActivityChar( Activity.Home );
+                }
+                else
+                {
+                    origin = GetActivityChar( trips[i - 1].Purpose );
+                }
+
+                return;
+            }
+        }
+
+        origin = '0';
+    }
+
+    #endregion IActivityConverter Members
 }

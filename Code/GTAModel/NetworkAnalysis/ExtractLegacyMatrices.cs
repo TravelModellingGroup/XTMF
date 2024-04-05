@@ -23,117 +23,113 @@ using System.Text;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+[ModuleInformation( Description = "Extracts average in-vehicle, walking, waiting, boarding time, and cost matrices from" +
+        " a legacy fare-based assignment. Matrices will be multiplied by a feasibility matrices (where 0 = infeasible and 1 = feasible)." )]
+public class ExtractLegacyMatrices : IEmmeTool
 {
-    [ModuleInformation( Description = "Extracts average in-vehicle, walking, waiting, boarding time, and cost matrices from" +
-            " a legacy fare-based assignment. Matrices will be multiplied by a feasibility matrices (where 0 = infeasible and 1 = feasible)." )]
-    public class ExtractLegacyMatrices : IEmmeTool
+    [RunParameter( "Boarding Matrix Number", 0, "The number of the new or existing matrix to extract boarding times into. Set to 0 to forego extraction." )]
+    public int BoardingMatrixNumber;
+
+    [RunParameter( "Cost Matrix Number", 0, "The number of the new or existing matrix to extract transit costs into. Set to 0 to forego extraction." )]
+    public int CostMatixNumber;
+
+    [RunParameter( "Fare Perception", 0.0f, "The fare perception used in the transit assignment. Set to 0 to dsiable cost matrix extraction." )]
+    public float FarePerception;
+
+    [RunParameter( "In Vehicle Matrix Number", 0, "The number of the new or existing matrix to extract in vehicle times into. Set to 0 to forego extraction." )]
+    public int InVehicleMatrixNumber;
+
+    [RunParameter( "Mode List", "", "String of modes used in the transit assignment." )]
+    public string ModeString;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    [RunParameter( "Scenario Number", 0, "The number of the Emme scenario with transit assignment results." )]
+    public int ScenarioNumber;
+
+    [RunParameter( "Total Time Cutoff", 150.0f, "Maximum total transit time for feasible transit OD pairs." )]
+    public float TotalTimeCutoff;
+
+    [RunParameter( "Wait Matrix Number", 0, "The number of the new or existing matrix to extract waiting times into. Set to 0 to forego extraction." )]
+    public int WaitMtrixNumber;
+
+    [RunParameter( "Wait Time Cutoff", 40.0f, "Maximum wait time for feasible transit OD pairs." )]
+    public float WaitTimeCutoff;
+
+    [RunParameter( "Walk Matrix Number", 0, "The number of the new or existing matrix to extract walk times into. Set to 0 to forego extraction." )]
+    public int WalkMatrixNumber;
+
+    [RunParameter( "Walk Time Cutoff", 40.0f, "Maximum walk time for feasible transit OD pairs." )]
+    public float WalkTimeCutoff;
+
+    private Tuple<byte, byte, byte> _progressColour = new( 255, 173, 28 );
+    private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_constrained_LOS_matrices";
+    private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractConstrainedLOSMatrices";
+
+    public string Name
     {
-        [RunParameter( "Boarding Matrix Number", 0, "The number of the new or existing matrix to extract boarding times into. Set to 0 to forego extraction." )]
-        public int BoardingMatrixNumber;
+        get;
+        set;
+    }
 
-        [RunParameter( "Cost Matrix Number", 0, "The number of the new or existing matrix to extract transit costs into. Set to 0 to forego extraction." )]
-        public int CostMatixNumber;
+    public float Progress
+    {
+        get;
+        private set;
+    }
 
-        [RunParameter( "Fare Perception", 0.0f, "The fare perception used in the transit assignment. Set to 0 to dsiable cost matrix extraction." )]
-        public float FarePerception;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _progressColour; }
+    }
 
-        [RunParameter( "In Vehicle Matrix Number", 0, "The number of the new or existing matrix to extract in vehicle times into. Set to 0 to forego extraction." )]
-        public int InVehicleMatrixNumber;
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
+        var runName = Path.GetFileName( Directory.GetCurrentDirectory() );
 
-        [RunParameter( "Mode List", "", "String of modes used in the transit assignment." )]
-        public string ModeString;
+        var sb = new StringBuilder();
+        sb.AppendFormat( "{0} {1} {2} {3} {4}", ScenarioNumber, ModeString, WalkTimeCutoff, WaitTimeCutoff,
+            TotalTimeCutoff );
+        sb.AppendFormat( InVehicleMatrixNumber == 0 ? " null" : " mf{0}", InVehicleMatrixNumber );
+        sb.AppendFormat( CostMatixNumber == 0 ? " null" : " mf{0}", CostMatixNumber );
+        sb.AppendFormat( WalkMatrixNumber == 0 ? " null" : " mf{0}", WalkMatrixNumber );
+        sb.AppendFormat( WaitMtrixNumber == 0 ? " null" : " mf{0}", WaitMtrixNumber );
+        sb.AppendFormat( BoardingMatrixNumber == 0 ? " null" : " mf{0}", BoardingMatrixNumber );
+        sb.AppendFormat( " {0} \"{1}\"", FarePerception, runName );
 
-        [RootModule]
-        public IModelSystemTemplate Root;
-
-        [RunParameter( "Scenario Number", 0, "The number of the Emme scenario with transit assignment results." )]
-        public int ScenarioNumber;
-
-        [RunParameter( "Total Time Cutoff", 150.0f, "Maximum total transit time for feasible transit OD pairs." )]
-        public float TotalTimeCutoff;
-
-        [RunParameter( "Wait Matrix Number", 0, "The number of the new or existing matrix to extract waiting times into. Set to 0 to forego extraction." )]
-        public int WaitMtrixNumber;
-
-        [RunParameter( "Wait Time Cutoff", 40.0f, "Maximum wait time for feasible transit OD pairs." )]
-        public float WaitTimeCutoff;
-
-        [RunParameter( "Walk Matrix Number", 0, "The number of the new or existing matrix to extract walk times into. Set to 0 to forego extraction." )]
-        public int WalkMatrixNumber;
-
-        [RunParameter( "Walk Time Cutoff", 40.0f, "Maximum walk time for feasible transit OD pairs." )]
-        public float WalkTimeCutoff;
-
-        private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 255, 173, 28 );
-        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_constrained_LOS_matrices";
-        private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractConstrainedLOSMatrices";
-
-        public string Name
+        var toolName = ToolName;
+        if (!mc.CheckToolExists(this, toolName))
         {
-            get;
-            set;
+            toolName = AlternateToolName;
         }
 
-        public float Progress
-        {
-            get;
-            private set;
-        }
+        string result = null;
+        return mc.Run(this, toolName, sb.ToString(), (p => Progress = p), ref result);
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _progressColour; }
-        }
+        /*
+        Call args:
+         *
+         * xtmf_ScenarioNumber, xtmf_ModeString,
+             WalkTimeCutoff, WaitTimeCutoff, TotalTimeCutoff,
+             InVehicleTimeMatrixId, CostMatrixId,
+             WalkTimeMatrixId, WaitTimeMatrixId, BoardingTimeMatrixId,
+             FarePerception, RunTitle
+         *
+         * xtmf_ScenarioNumber, xtmf_ModeString,
+             WalkTimeCutoff, WaitTimeCutoff, TotalTimeCutoff,
+             InVehicleTimeMatrixId, CostMatrixId,
+             WalkTimeMatrixId, WaitTimeMatrixId, BoardingTimeMatrixId,
+             FarePerception, RunTitle
+         *
+        */
+    }
 
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
-            var runName = Path.GetFileName( Directory.GetCurrentDirectory() );
-
-            var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1} {2} {3} {4}", ScenarioNumber, ModeString, WalkTimeCutoff, WaitTimeCutoff,
-                TotalTimeCutoff );
-            sb.AppendFormat( InVehicleMatrixNumber == 0 ? " null" : " mf{0}", InVehicleMatrixNumber );
-            sb.AppendFormat( CostMatixNumber == 0 ? " null" : " mf{0}", CostMatixNumber );
-            sb.AppendFormat( WalkMatrixNumber == 0 ? " null" : " mf{0}", WalkMatrixNumber );
-            sb.AppendFormat( WaitMtrixNumber == 0 ? " null" : " mf{0}", WaitMtrixNumber );
-            sb.AppendFormat( BoardingMatrixNumber == 0 ? " null" : " mf{0}", BoardingMatrixNumber );
-            sb.AppendFormat( " {0} \"{1}\"", FarePerception, runName );
-
-            var toolName = ToolName;
-            if (!mc.CheckToolExists(this, toolName))
-            {
-                toolName = AlternateToolName;
-            }
-
-            string result = null;
-            return mc.Run(this, toolName, sb.ToString(), (p => Progress = p), ref result);
-
-            /*
-            Call args:
-             *
-             * xtmf_ScenarioNumber, xtmf_ModeString,
-                 WalkTimeCutoff, WaitTimeCutoff, TotalTimeCutoff,
-                 InVehicleTimeMatrixId, CostMatrixId,
-                 WalkTimeMatrixId, WaitTimeMatrixId, BoardingTimeMatrixId,
-                 FarePerception, RunTitle
-             *
-             * xtmf_ScenarioNumber, xtmf_ModeString,
-                 WalkTimeCutoff, WaitTimeCutoff, TotalTimeCutoff,
-                 InVehicleTimeMatrixId, CostMatrixId,
-                 WalkTimeMatrixId, WaitTimeMatrixId, BoardingTimeMatrixId,
-                 FarePerception, RunTitle
-             *
-            */
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

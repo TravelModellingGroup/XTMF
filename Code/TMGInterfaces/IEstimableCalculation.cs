@@ -16,16 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace TMG;
 
-namespace TMG
+public interface IEstimableCalculation<D, O> : ICalculation<D, O>
 {
-    public interface IEstimableCalculation<D, O> : ICalculation<D, O>
-    {
-        float Estimate(D input, O expectedResult);
-    }
+    float Estimate(D input, O expectedResult);
 }

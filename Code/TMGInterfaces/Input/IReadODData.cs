@@ -17,27 +17,26 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace TMG.Input
-{
-    // ReSharper disable once InconsistentNaming
-    public interface IReadODData<T> : IDataLineSource<ODData<T>>
-    {
-    }
+namespace TMG.Input;
 
-    // ReSharper disable once InconsistentNaming
-    public struct ODData<T>
-    {
-        /// <summary>
-        /// Origin
-        /// </summary>
-        public int O;
-        /// <summary>
-        /// Destination
-        /// </summary>
-        public int D;
-        /// <summary>
-        /// The data payload for this object
-        /// </summary>
-        public T Data;
-    }
+// ReSharper disable once InconsistentNaming
+public interface IReadODData<T> : IDataLineSource<ODData<T>>
+{
+}
+
+// ReSharper disable once InconsistentNaming
+public struct ODData<T>
+{
+    /// <summary>
+    /// Origin
+    /// </summary>
+    public int O;
+    /// <summary>
+    /// Destination
+    /// </summary>
+    public int D;
+    /// <summary>
+    /// The data payload for this object
+    /// </summary>
+    public T Data;
 }

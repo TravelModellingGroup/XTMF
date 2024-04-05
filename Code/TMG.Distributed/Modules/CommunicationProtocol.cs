@@ -17,15 +17,14 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace TMG.Distributed.Modules
+namespace TMG.Distributed.Modules;
+
+public enum CommunicationProtocol
 {
-    public enum CommunicationProtocol
-    {
-        UnknownMessage = 0,
-        ClientActivated = 1,
-        TaskComplete = 2,
-        RunTask = 3,
-        TaskFailed = 4,
-        SendTextMessageToHost = 5
-    }
+    UnknownMessage = 0,
+    ClientActivated = 1,
+    TaskComplete = 2,
+    RunTask = 3,
+    TaskFailed = 4,
+    SendTextMessageToHost = 5
 }

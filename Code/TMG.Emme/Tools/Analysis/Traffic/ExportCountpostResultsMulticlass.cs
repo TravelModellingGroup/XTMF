@@ -20,72 +20,66 @@ using System;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme.Tools.Analysis.Traffic
+namespace TMG.Emme.Tools.Analysis.Traffic;
+
+public class ExportCountpostResultsMulticlass : IEmmeTool
 {
-    public class ExportCountpostResultsMulticlass : IEmmeTool
+    private const string ToolName = "tmg.analysis.traffic.export_countpost_results_multiclass";
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
+    public int ScenarioNumber;
+
+    [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
+    public string CountpostAttributeFlag;
+
+    [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
+    public string AlternateCountpostAttributeFlag;
+
+    [RunParameter("Traffic Class Volume Attribute", "@auto_volume", typeof(string), "For extraction of a specific classes volume only")]
+    public string TrafficClassAttributeId;
+
+    [SubModelInformation(Required = false, Description = "A link to a csv file that contains countposts that will need to be summed, rather than max taken. A header is included")]
+    public FileLocation SumPostFile;
+
+    [SubModelInformation(Required = true, Description = "The location to save the results to")]
+    public FileLocation SaveTo;
+
+    public bool Execute(Controller controller)
     {
-        private const string ToolName = "tmg.analysis.traffic.export_countpost_results_multiclass";
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
-        public int ScenarioNumber;
-
-        [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
-        public string CountpostAttributeFlag;
-
-        [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
-        public string AlternateCountpostAttributeFlag;
-
-        [RunParameter("Traffic Class Volume Attribute", "@auto_volume", typeof(string), "For extraction of a specific classes volume only")]
-        public string TrafficClassAttributeId;
-
-        [SubModelInformation(Required = false, Description = "A link to a csv file that contains countposts that will need to be summed, rather than max taken. A header is included")]
-        public FileLocation SumPostFile;
-
-        [SubModelInformation(Required = true, Description = "The location to save the results to")]
-        public FileLocation SaveTo;
-
-        public bool Execute(Controller controller)
-        {
-            var modeller = controller as ModellerController;
-            if (modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
-            }
-            modeller.Run(this, ToolName, new[]
-            {
-              new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
-              new ModellerControllerParameter("CountpostAttributeId", CountpostAttributeFlag),
-              new ModellerControllerParameter("AlternateCountpostAttributeId", AlternateCountpostAttributeFlag),
-              new ModellerControllerParameter("TrafficClassAttributeId", TrafficClassAttributeId),
-              new ModellerControllerParameter("SumPostFile", SumPostFile?.GetFilePath() ?? "none"),
-              new ModellerControllerParameter("ExportFile", SaveTo.GetFilePath()),
-            });
-            return true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
-        {
-            if (String.IsNullOrWhiteSpace(flag))
-            {
-                error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
-                return true;
-            }
-            return false;
-        }
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
+        modeller.Run(this, ToolName,
+        [
+          new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+          new ModellerControllerParameter("CountpostAttributeId", CountpostAttributeFlag),
+          new ModellerControllerParameter("AlternateCountpostAttributeId", AlternateCountpostAttributeFlag),
+          new ModellerControllerParameter("TrafficClassAttributeId", TrafficClassAttributeId),
+          new ModellerControllerParameter("SumPostFile", SumPostFile?.GetFilePath() ?? "none"),
+          new ModellerControllerParameter("ExportFile", SaveTo.GetFilePath()),
+        ]);
+        return true;
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        if (ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
+    {
+        if (String.IsNullOrWhiteSpace(flag))
+        {
+            error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
+            return true;
+        }
+        return false;
+    }
 }

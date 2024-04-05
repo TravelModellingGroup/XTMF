@@ -21,59 +21,57 @@ using System;
 using Datastructure;
 using TMG;
 using XTMF;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module scraps the population for each zone from the zonal information and provides it in a SparseArray<float>.")]
+public class ZonalPopulation : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation(Description = "This module scraps the population for each zone from the zonal information and provides it in a SparseArray<float>.")]
-    public class ZonalPopulation : IDataSource<SparseArray<float>>
+    public bool Loaded
     {
-        public bool Loaded
-        {
-            get;set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseArray<float> Data;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            if(!Root.ZoneSystem.Loaded)
-            {
-                Root.ZoneSystem.LoadData();
-            }
-            var populationArray = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var data = populationArray.GetFlatData();
-            for(int i = 0; i < data.Length; i++)
-            {
-                data[i] = zones[i].Population;
-            }
-            Data = populationArray;
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-            Loaded = false;
-        }
+        get;set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseArray<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public SparseArray<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        if(!Root.ZoneSystem.Loaded)
+        {
+            Root.ZoneSystem.LoadData();
+        }
+        var populationArray = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var data = populationArray.GetFlatData();
+        for(int i = 0; i < data.Length; i++)
+        {
+            data[i] = zones[i].Population;
+        }
+        Data = populationArray;
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+        Loaded = false;
+    }
 }

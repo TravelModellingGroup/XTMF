@@ -16,14 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG.AgentBased.Tours
+namespace TMG.AgentBased.Tours;
+
+public enum ActivityPriorities
 {
-    public enum ActivityPriorities
-    {
-        Highest,
-        HouseholdLevel,
-        Normal,
-        BelowNormal,
-        Lowest
-    }
+    Highest,
+    HouseholdLevel,
+    Normal,
+    BelowNormal,
+    Lowest
 }

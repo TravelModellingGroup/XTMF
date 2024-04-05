@@ -23,63 +23,62 @@ using Datastructure;
 using TMG.Modes;
 using XTMF;
 
-namespace TMG.GTAModel.Modes
+namespace TMG.GTAModel.Modes;
+
+[ModuleInformation( Description = "This mode is designed to be a base framework for Utility Components.  No other calculation is performed besides "
+    + "from the UtilityComponents.  Feasibility is always true untill the Feasibility Calculation is filled in with an "
+    + "ICalculation<Pair<IZone, IZone>, bool> module." )]
+public class BlankMode : IUtilityComponentMode
 {
-    [ModuleInformation( Description = "This mode is designed to be a base framework for Utility Components.  No other calculation is performed besides "
-        + "from the UtilityComponents.  Feasibility is always true untill the Feasibility Calculation is filled in with an "
-        + "ICalculation<Pair<IZone, IZone>, bool> module." )]
-    public class BlankMode : IUtilityComponentMode
+    [SubModelInformation( Description = "Used to test for mode feasibility.", Required = false )]
+    public ICalculation<Pair<IZone, IZone>, bool> FeasibilityCalculation;
+
+    [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
+    public float CurrentlyFeasible { get; set; }
+
+    [RunParameter( "Mode Name", "", "The name of this mode.  It should be unique to every other mode." )]
+    public string ModeName { get; set; }
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [SubModelInformation( Description = "Used to test for mode feasibility.", Required = false )]
-        public ICalculation<Pair<IZone, IZone>, bool> FeasibilityCalculation;
+        get { return 0; }
+    }
 
-        [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
-        public float CurrentlyFeasible { get; set; }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Mode Name", "", "The name of this mode.  It should be unique to every other mode." )]
-        public string ModeName { get; set; }
+    [SubModelInformation( Description = "The components used to build the utility of the mode.", Required = false )]
+    public List<IUtilityComponent> UtilityComponents { get; set; }
 
-        public string Name { get; set; }
-
-        public float Progress
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        float total = 0f;
+        for ( int i = 0; i < UtilityComponents.Count; i++ )
         {
-            get { return 0; }
+            total += UtilityComponents[i].CalculateV( origin, destination, time );
         }
+        return total;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public bool Feasible(IZone origin, IZone destination, Time time)
+    {
+        if ( CurrentlyFeasible <= 0 )
         {
-            get { return null; }
+            return false;
         }
-
-        [SubModelInformation( Description = "The components used to build the utility of the mode.", Required = false )]
-        public List<IUtilityComponent> UtilityComponents { get; set; }
-
-        public float CalculateV(IZone origin, IZone destination, Time time)
+        if ( FeasibilityCalculation != null )
         {
-            float total = 0f;
-            for ( int i = 0; i < UtilityComponents.Count; i++ )
-            {
-                total += UtilityComponents[i].CalculateV( origin, destination, time );
-            }
-            return total;
+            return FeasibilityCalculation.ProduceResult( new Pair<IZone, IZone>( origin, destination ) );
         }
+        return true;
+    }
 
-        public bool Feasible(IZone origin, IZone destination, Time time)
-        {
-            if ( CurrentlyFeasible <= 0 )
-            {
-                return false;
-            }
-            if ( FeasibilityCalculation != null )
-            {
-                return FeasibilityCalculation.ProduceResult( new Pair<IZone, IZone>( origin, destination ) );
-            }
-            return true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

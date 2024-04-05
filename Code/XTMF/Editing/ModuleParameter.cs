@@ -18,123 +18,124 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+public class ModuleParameter : IModuleParameter
 {
-    public class ModuleParameter : IModuleParameter
+    public ModuleParameter(ParameterAttribute parameter, Type t)
     {
-        public ModuleParameter(ParameterAttribute parameter, Type t)
-        {
-            Name = NameOnModule = parameter.Name;
-            Value = parameter.DefaultValue;
-            Description = parameter.Description;
-            OnField = parameter.AttachedToField;
-            VariableName = parameter.VariableName;
-            SystemParameter = !(parameter is RunParameterAttribute);
-            QuickParameter = false;
-            IsHidden = false;
-            Type = t;
-            Index = parameter.Index;
-        }
+        Name = NameOnModule = parameter.Name;
+        Value = parameter.DefaultValue;
+        Description = parameter.Description;
+        OnField = parameter.AttachedToField;
+        VariableName = parameter.VariableName;
+        SystemParameter = !(parameter is RunParameterAttribute);
+        QuickParameter = false;
+        IsHidden = false;
+        Type = t;
+        Index = parameter.Index;
+    }
 
-        private ModuleParameter()
-        {
-        }
+    private ModuleParameter()
+    {
+    }
 
-        /// <summary>
-        /// Get the default value for this parameter
-        /// </summary>
-        /// <returns>The default value for the parameter</returns>
-        internal object GetDefault()
+    /// <summary>
+    /// Get the default value for this parameter
+    /// </summary>
+    /// <returns>The default value for the parameter</returns>
+    internal object GetDefault()
+    {
+        if (OnField)
         {
-            if (OnField)
+            var field = BelongsTo.Type.GetField(VariableName);
+            if (field == null) return null;
+            return GetDefault(field.GetCustomAttributes(typeof(ParameterAttribute), true));
+        }
+        else
+        {
+            var field = BelongsTo.Type.GetProperty(VariableName);
+            if (field == null) return null;
+            return GetDefault(field.GetCustomAttributes(typeof(ParameterAttribute), true));
+        }
+    }
+
+    private object GetDefault(object[] v)
+    {
+        if (v == null) return null;
+        for (int i = 0; i < v.Length; i++)
+        {
+            if (v[i] is ParameterAttribute parameter)
             {
-                var field = BelongsTo.Type.GetField(VariableName);
-                if (field == null) return null;
-                return GetDefault(field.GetCustomAttributes(typeof(ParameterAttribute), true));
+                return parameter.DefaultValue;
+            }
+        }
+        return null;
+    }
+
+    public IModelSystemStructure BelongsTo { get; internal set; }
+
+    public string Description { get; set; }
+
+    public string Name { get; private set; }
+
+    public string NameOnModule { get; private set; }
+
+    public bool OnField { get; set; }
+
+    public bool QuickParameter { get; set; }
+
+    public bool SystemParameter { get; set; }
+
+    public Type Type { get; private set; }
+
+    public object Value { get; set; }
+
+    public string VariableName { get; set; }
+
+    public bool IsHidden { get; internal set; }
+
+    public int Index { get; private set; }
+
+    public IModuleParameter Clone()
+    {
+        ModuleParameter copy = new()
+        {
+            Name = Name,
+            NameOnModule = NameOnModule
+        };
+        if (Value is ICloneable)
+        {
+            copy.Value = (Value as ICloneable).Clone();
+        }
+        else
+        {
+            string error = null;
+            // we can't have them referencing the same object or changing one will change the original
+            if (Value != null)
+            {
+                copy.Value = ArbitraryParameterParser.ArbitraryParameterParse(Type, Value.ToString(), ref error);
             }
             else
             {
-                var field = BelongsTo.Type.GetProperty(VariableName);
-                if (field == null) return null;
-                return GetDefault(field.GetCustomAttributes(typeof(ParameterAttribute), true));
+                copy.Value = null;
             }
         }
+        copy.Description = Description;
+        copy.VariableName = VariableName;
+        copy.OnField = OnField;
+        copy.SystemParameter = SystemParameter;
+        copy.QuickParameter = QuickParameter;
+        copy.BelongsTo = BelongsTo;
+        copy.Type = Type;
+        copy.IsHidden = IsHidden;
+        copy.Index = Index;
+        return copy;
+    }
 
-        private object GetDefault(object[] v)
-        {
-            if (v == null) return null;
-            for (int i = 0; i < v.Length; i++)
-            {
-                if (v[i] is ParameterAttribute parameter)
-                {
-                    return parameter.DefaultValue;
-                }
-            }
-            return null;
-        }
-
-        public IModelSystemStructure BelongsTo { get; internal set; }
-
-        public string Description { get; set; }
-
-        public string Name { get; private set; }
-
-        public string NameOnModule { get; private set; }
-
-        public bool OnField { get; set; }
-
-        public bool QuickParameter { get; set; }
-
-        public bool SystemParameter { get; set; }
-
-        public Type Type { get; private set; }
-
-        public object Value { get; set; }
-
-        public string VariableName { get; set; }
-
-        public bool IsHidden { get; internal set; }
-
-        public int Index { get; private set; }
-
-        public IModuleParameter Clone()
-        {
-            ModuleParameter copy = new ModuleParameter();
-            copy.Name = Name;
-            copy.NameOnModule = NameOnModule;
-            if (Value is ICloneable)
-            {
-                copy.Value = (Value as ICloneable).Clone();
-            }
-            else
-            {
-                string error = null;
-                // we can't have them referencing the same object or changing one will change the original
-                if (Value != null)
-                {
-                    copy.Value = ArbitraryParameterParser.ArbitraryParameterParse(Type, Value.ToString(), ref error);
-                }
-                else
-                {
-                    copy.Value = null;
-                }
-            }
-            copy.Description = Description;
-            copy.VariableName = VariableName;
-            copy.OnField = OnField;
-            copy.SystemParameter = SystemParameter;
-            copy.QuickParameter = QuickParameter;
-            copy.BelongsTo = BelongsTo;
-            copy.Type = Type;
-            copy.IsHidden = IsHidden;
-            copy.Index = Index;
-            return copy;
-        }
-
-        internal bool SetName(string newName, ref string error)
-        {
-            Name = newName;
-            return true;
-        }
+    internal bool SetName(string newName, ref string error)
+    {
+        Name = newName;
+        return true;
     }
 }

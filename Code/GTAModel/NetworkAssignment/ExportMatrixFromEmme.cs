@@ -23,55 +23,51 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAssignment
+namespace TMG.GTAModel.NetworkAssignment;
+
+[ModuleInformation( Name = "Export Matrix From Emme", Description = "Basic tool for extracting matrix results from Emme. This module is considered deprecated after Emme 4.04" )]
+public class ExportMatrixFromEmme : IEmmeTool
 {
-    [ModuleInformation( Name = "Export Matrix From Emme", Description = "Basic tool for extracting matrix results from Emme. This module is considered deprecated after Emme 4.04" )]
-    public class ExportMatrixFromEmme : IEmmeTool
+    [RunParameter( "File Name", "", typeof( FileFromInputDirectory ), "The full path of the file to export." )]
+    public FileFromInputDirectory FileName;
+
+    [RunParameter( "Matrix Number", 1, "The number of the FULL matrix to export." )]
+    public int MatrixNumber;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    [RunParameter( "Scenario Number", 1, "The number of the scenario to read matrix data from. This is required by Emme for databanks in which multiple scenarios are defined with" +
+            " differing zone systems." )]
+    public int ScenarioNumber;
+
+    public string Name
     {
-        [RunParameter( "File Name", "", typeof( FileFromInputDirectory ), "The full path of the file to export." )]
-        public FileFromInputDirectory FileName;
+        get;
+        set;
+    }
 
-        [RunParameter( "Matrix Number", 1, "The number of the FULL matrix to export." )]
-        public int MatrixNumber;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public IModelSystemTemplate Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 50, 51, 50 ); }
+    }
 
-        [RunParameter( "Scenario Number", 1, "The number of the scenario to read matrix data from. This is required by Emme for databanks in which multiple scenarios are defined with" +
-                " differing zone systems." )]
-        public int ScenarioNumber;
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
+        string filepath = Path.GetFullPath( FileName.GetFileName( Root.InputBaseDirectory ) );
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        return mc.Run(this, "tmg.XTMF_internal.export_matrix_batch_file", MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 50, 51, 50 ); }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
-            string filepath = Path.GetFullPath( FileName.GetFileName( Root.InputBaseDirectory ) );
-
-            return mc.Run(this, "tmg.XTMF_internal.export_matrix_batch_file", MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

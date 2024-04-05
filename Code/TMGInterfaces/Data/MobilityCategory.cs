@@ -16,14 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
+namespace TMG;
+
+public enum MobilityCategory
 {
-    public enum MobilityCategory
-    {
-        NoCar = 0,
-        NoLicenseWithCar = 1,
-        NoLicenseWithTwoPlusCars = 2,
-        LicenseAndOneCar = 3,
-        LicenseAndTwoPlusCars = 4
-    }
+    NoCar = 0,
+    NoLicenseWithCar = 1,
+    NoLicenseWithTwoPlusCars = 2,
+    LicenseAndOneCar = 3,
+    LicenseAndTwoPlusCars = 4
 }

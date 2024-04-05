@@ -24,106 +24,105 @@ using Datastructure;
 using TMG.Modes;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+[ModuleInformation( Description = "Provides the ability to add a constant given proximity to a set of zones." )]
+public class ZoneProximityUtilityCalculation : IUtilityComponent
 {
-    [ModuleInformation( Description = "Provides the ability to add a constant given proximity to a set of zones." )]
-    public class ZoneProximityUtilityCalculation : IUtilityComponent
+    [RunParameter( "Constant", 0f, "The value to add when close enough to a given zone?" )]
+    public float Constant;
+
+    [RunParameter( "Max Distance", 1000f, "The maximum distance to be to add the constant, in metres." )]
+    public float MaxDistance;
+
+    [RunParameter( "Origin Based", true, "Should we test against the origin zone.  If false the destination will be used." )]
+    public bool Origin;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter( "Zone Numbers", "6000-6999", typeof( RangeSet ), "The zone numbers that represent the locations we will test against." )]
+    public RangeSet TargetedZones;
+
+    private SparseArray<bool> ProximityCache;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter( "Constant", 0f, "The value to add when close enough to a given zone?" )]
-        public float Constant;
+        get { return 0; }
+    }
 
-        [RunParameter( "Max Distance", 1000f, "The maximum distance to be to add the constant, in metres." )]
-        public float MaxDistance;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Origin Based", true, "Should we test against the origin zone.  If false the destination will be used." )]
-        public bool Origin;
+    [RunParameter( "Component Name", "", "The name of this Utility Component.  This name should be unique for each mode." )]
+    public string UtilityComponentName { get; set; }
 
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [RunParameter( "Zone Numbers", "6000-6999", typeof( RangeSet ), "The zone numbers that represent the locations we will test against." )]
-        public RangeSet TargetedZones;
-
-        private SparseArray<bool> ProximityCache;
-
-        public string Name { get; set; }
-
-        public float Progress
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        if ( ProximityCache == null )
         {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        [RunParameter( "Component Name", "", "The name of this Utility Component.  This name should be unique for each mode." )]
-        public string UtilityComponentName { get; set; }
-
-        public float CalculateV(IZone origin, IZone destination, Time time)
-        {
-            if ( ProximityCache == null )
+            lock ( this )
             {
-                lock ( this )
+                Thread.MemoryBarrier();
+                if ( ProximityCache == null )
                 {
+                    LoadCache();
                     Thread.MemoryBarrier();
-                    if ( ProximityCache == null )
-                    {
-                        LoadCache();
-                        Thread.MemoryBarrier();
-                    }
                 }
             }
-            return ProximityCache[Origin ? origin.ZoneNumber : destination.ZoneNumber] ? Constant : 0f;
         }
+        return ProximityCache[Origin ? origin.ZoneNumber : destination.ZoneNumber] ? Constant : 0f;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        private void FindCloseZonesToTargets(IZone[] flatZones, bool[] flatData, List<int> targetedZones)
+    private void FindCloseZonesToTargets(IZone[] flatZones, bool[] flatData, List<int> targetedZones)
+    {
+        var distances = Root.ZoneSystem.Distances.GetFlatData();
+        var numberOfSubwayZones = targetedZones.Count;
+        for ( int i = 0; i < flatZones.Length; i++ )
         {
-            var distances = Root.ZoneSystem.Distances.GetFlatData();
-            var numberOfSubwayZones = targetedZones.Count;
-            for ( int i = 0; i < flatZones.Length; i++ )
+            bool any = false;
+            for ( int j = 0; j < numberOfSubwayZones; j++ )
             {
-                bool any = false;
-                for ( int j = 0; j < numberOfSubwayZones; j++ )
+                if ( distances[i][targetedZones[j]] < MaxDistance )
                 {
-                    if ( distances[i][targetedZones[j]] < MaxDistance )
-                    {
-                        any = true;
-                        break;
-                    }
+                    any = true;
+                    break;
                 }
-                flatData[i] = any;
             }
+            flatData[i] = any;
         }
+    }
 
-        private List<int> GetTargetedZones(IZone[] flatZones, bool[] flatData)
+    private List<int> GetTargetedZones(IZone[] flatZones, bool[] flatData)
+    {
+        List<int> targetedZones = new( flatData.Length );
+        for ( int i = 0; i < flatZones.Length; i++ )
         {
-            List<int> targetedZones = new List<int>( flatData.Length );
-            for ( int i = 0; i < flatZones.Length; i++ )
+            if ( TargetedZones.Contains( flatZones[i].ZoneNumber ) )
             {
-                if ( TargetedZones.Contains( flatZones[i].ZoneNumber ) )
-                {
-                    targetedZones.Add( i );
-                }
+                targetedZones.Add( i );
             }
-            return targetedZones;
         }
+        return targetedZones;
+    }
 
-        private void LoadCache()
-        {
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var flatZones = zoneArray.GetFlatData();
-            var temp = zoneArray.CreateSimilarArray<bool>();
-            var flatData = temp.GetFlatData();
-            var subwayZones = GetTargetedZones( flatZones, flatData );
-            FindCloseZonesToTargets( flatZones, flatData, subwayZones );
-            ProximityCache = temp;
-        }
+    private void LoadCache()
+    {
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        var flatZones = zoneArray.GetFlatData();
+        var temp = zoneArray.CreateSimilarArray<bool>();
+        var flatData = temp.GetFlatData();
+        var subwayZones = GetTargetedZones( flatZones, flatData );
+        FindCloseZonesToTargets( flatZones, flatData, subwayZones );
+        ProximityCache = temp;
     }
 }

@@ -23,93 +23,92 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ReadFixedFormatODData : IReadODData<float>
 {
-    public class ReadFixedFormatODData : IReadODData<float>
+    [RunParameter("Data Column Length", 13, "The number of text characters for the Data column.")]
+    public int DataLenth;
+
+    [RunParameter("Data Column Start", 9, "The starting position of the Data column.")]
+    public int DataStart;
+
+    [RunParameter("Destination Column Length", 5, "The number of text characters for the Destination column.")]
+    public int DestinationLenth;
+
+    [RunParameter("Destination Column Start", 4, "The starting position of the Destination column.")]
+    public int DestinationStart;
+
+    [RunParameter("E To The Data", false, "Return e^(data) instead of just data")]
+    public bool EToTheData;
+
+    [RunParameter("File Name", "Data.txt", typeof(FileFromOutputDirectory), "The fixed format text file relative to the output directory.")]
+    public FileFromOutputDirectory FixedFormatFile;
+
+    [RunParameter("Origin Column Length", 4, "The number of text characters for the Origin column.")]
+    public int OriginLenth;
+
+    [RunParameter("Origin Column Start", 0, "The starting position of the Origin column.")]
+    public int OriginStart;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name
     {
-        [RunParameter("Data Column Length", 13, "The number of text characters for the Data column.")]
-        public int DataLenth;
+        get;
+        set;
+    }
 
-        [RunParameter("Data Column Start", 9, "The starting position of the Data column.")]
-        public int DataStart;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter("Destination Column Length", 5, "The number of text characters for the Destination column.")]
-        public int DestinationLenth;
+    public Tuple<byte, byte, byte> ProgressColour => null;
 
-        [RunParameter("Destination Column Start", 4, "The starting position of the Destination column.")]
-        public int DestinationStart;
-
-        [RunParameter("E To The Data", false, "Return e^(data) instead of just data")]
-        public bool EToTheData;
-
-        [RunParameter("File Name", "Data.txt", typeof(FileFromOutputDirectory), "The fixed format text file relative to the output directory.")]
-        public FileFromOutputDirectory FixedFormatFile;
-
-        [RunParameter("Origin Column Length", 4, "The number of text characters for the Origin column.")]
-        public int OriginLenth;
-
-        [RunParameter("Origin Column Start", 0, "The starting position of the Origin column.")]
-        public int OriginStart;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public string Name
+    public IEnumerable<ODData<float>> Read()
+    {
+        // if there isn't anything just exit
+        if (!FixedFormatFile.ContainsFileName()) yield break;
+        // otherwise load in the data
+        ODData<float> currentData = new();
+        StreamReader reader;
+        try
         {
-            get;
-            set;
+            reader = new StreamReader(FixedFormatFile.GetFileName());
         }
-
-        public float Progress
+        catch (IOException e)
         {
-            get { return 0; }
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'");
         }
-
-        public Tuple<byte, byte, byte> ProgressColour => null;
-
-        public IEnumerable<ODData<float>> Read()
+        // find the amount of data in the line that we need in order to process anything
+        var dataInLine = Math.Max(OriginStart + OriginLenth, DestinationStart + DestinationLenth);
+        dataInLine = Math.Max(dataInLine, DataStart + DataLenth);
+        using (reader)
         {
-            // if there isn't anything just exit
-            if (!FixedFormatFile.ContainsFileName()) yield break;
-            // otherwise load in the data
-            ODData<float> currentData = new ODData<float>();
-            StreamReader reader;
-            try
+            string line;
+            while ((line = reader.ReadLine()) != null)
             {
-                reader = new StreamReader(FixedFormatFile.GetFileName());
-            }
-            catch (IOException e)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'");
-            }
-            // find the amount of data in the line that we need in order to process anything
-            var dataInLine = Math.Max(OriginStart + OriginLenth, DestinationStart + DestinationLenth);
-            dataInLine = Math.Max(dataInLine, DataStart + DataLenth);
-            using (reader)
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                // if there is not enough data just continue
+                if (line.Length < dataInLine) continue;
+                currentData.O = int.Parse(line.Substring(OriginStart, OriginLenth));
+                currentData.D = int.Parse(line.Substring(DestinationStart, DestinationLenth));
+                if (EToTheData)
                 {
-                    // if there is not enough data just continue
-                    if (line.Length < dataInLine) continue;
-                    currentData.O = int.Parse(line.Substring(OriginStart, OriginLenth));
-                    currentData.D = int.Parse(line.Substring(DestinationStart, DestinationLenth));
-                    if (EToTheData)
-                    {
-                        currentData.Data = (float)(Math.Exp(double.Parse(line.Substring(DataStart, DataLenth))));
-                    }
-                    else
-                    {
-                        currentData.Data = (float)double.Parse(line.Substring(DataStart, DataLenth));
-                    }
-                    yield return currentData;
+                    currentData.Data = (float)(Math.Exp(double.Parse(line.Substring(DataStart, DataLenth))));
                 }
+                else
+                {
+                    currentData.Data = (float)double.Parse(line.Substring(DataStart, DataLenth));
+                }
+                yield return currentData;
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

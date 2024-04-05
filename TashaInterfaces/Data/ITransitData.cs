@@ -18,20 +18,19 @@
 */
 using TMG;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface ITransitData : ITravelData
 {
-    public interface ITransitData : ITravelData
-    {
-        int MaxZone { get; }
+    int MaxZone { get; }
 
-        int MinAgeAlone { get; }
+    int MinAgeAlone { get; }
 
-        float GetCost(IZone origin, IZone destination);
+    float GetCost(IZone origin, IZone destination);
 
-        float GetInVehicleTravelTime(IZone origin, IZone destination);
+    float GetInVehicleTravelTime(IZone origin, IZone destination);
 
-        float GetWaitTime(IZone origin, IZone destination);
+    float GetWaitTime(IZone origin, IZone destination);
 
-        float GetWalkTime(IZone origin, IZone destination);
-    }
+    float GetWalkTime(IZone origin, IZone destination);
 }

@@ -19,39 +19,37 @@
 using System;
 using XTMF;
 
-namespace TMG.Distributed.Modules
+namespace TMG.Distributed.Modules;
+
+[ModuleInformation(
+    Description = "This module is designed to execute a task with the given name from the IHostDistributionManager.  In order to wait for it to complete use a module to WaitForAll."
+    )]
+public class ExecuteTask : ISelfContainedModule
 {
-    [ModuleInformation(
-        Description = "This module is designed to execute a task with the given name from the IHostDistributionManager.  In order to wait for it to complete use a module to WaitForAll."
-        )]
-    public class ExecuteTask : ISelfContainedModule
+    [RunParameter("Task Name", "TheName", "The name of the task to execute.")]
+    public string TaskName;
+
+    [RootModule]
+    public IHostDistributionManager Root;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public void Start()
     {
-        [RunParameter("Task Name", "TheName", "The name of the task to execute.")]
-        public string TaskName;
-
-        [RootModule]
-        public IHostDistributionManager Root;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public void Start()
-        {
-            Root.AddTask(TaskName);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if(!Root.Client.HasTaskWithName(TaskName))
-            {
-                error = "In '" + Name + "' a task with the name '" + TaskName + "' was requested however no client side task with that name was found!";
-                return false;
-            }
-            return true;
-        }
+        Root.AddTask(TaskName);
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        if(!Root.Client.HasTaskWithName(TaskName))
+        {
+            error = "In '" + Name + "' a task with the name '" + TaskName + "' was requested however no client side task with that name was found!";
+            return false;
+        }
+        return true;
+    }
 }

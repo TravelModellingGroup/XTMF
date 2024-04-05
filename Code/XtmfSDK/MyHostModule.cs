@@ -24,140 +24,139 @@ using XTMF.Networking;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedVariable
 
-namespace XtmfSDK
+namespace XtmfSDK;
+
+[ModuleInformation(Description =
+    @"This is where you would describe what your host should be used for or other information about it.  It can handle <b>HTML</b> tags.")]
+public class MyHostModule : IModelSystemTemplate
 {
-    [ModuleInformation(Description =
-        @"This is where you would describe what your host should be used for or other information about it.  It can handle <b>HTML</b> tags.")]
-    public class MyHostModule : IModelSystemTemplate
+    public IHost Host;
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
+
+    private volatile bool exit = false;
+
+    private MessageQueue<int> Jobs;
+
+    public string InputBaseDirectory
     {
-        public IHost Host;
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        get;
+        set;
+    }
 
-        private volatile bool exit = false;
+    public string Name { get; set; }
 
-        private MessageQueue<int> Jobs;
+    public string OutputBaseDirectory
+    {
+        get;
+        set;
+    }
 
-        public string InputBaseDirectory
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool ExitRequest()
+    {
+        return false;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( Host == null )
         {
-            get;
-            set;
-        }
-
-        public string Name { get; set; }
-
-        public string OutputBaseDirectory
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool ExitRequest()
-        {
+            error = "MyHostModule requires an XTMF that supports XTMF.Networking.IHost";
             return false;
         }
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public void Start()
+    {
+        InitializeCustomMessages();
+        // Your Code goes here
+    }
+
+    private void CustomMessageHandler(object data, IRemoteXTMF client)
+    {
+        if ( data is int )
         {
-            if ( Host == null )
+            Jobs.Add( (int)data );
+        }
+    }
+
+    private object CustomMessageReceiver(Stream inputStream, IRemoteXTMF client)
+    {
+        return null;
+    }
+
+    private void CustomMessageSender(object data, IRemoteXTMF client, Stream outputStream)
+    {
+    }
+
+    private void Host_AllModelSystemRunsComplete()
+    {
+    }
+
+    private void Host_ClientDisconnected(IRemoteXTMF client)
+    {
+    }
+
+    private void Host_ClientRunComplete(IRemoteXTMF client, int existStatus, string message)
+    {
+    }
+
+    private void Host_NewClientConnected(IRemoteXTMF client)
+    {
+        // Handle a new client
+    }
+
+    private void Host_ProgressUpdated(IRemoteXTMF client, float progress)
+    {
+    }
+
+    private void InitializeCustomMessages()
+    {
+        lock (Host)
+        {
+            Host.NewClientConnected += Host_NewClientConnected;
+            Host.ProgressUpdated += Host_ProgressUpdated;
+            Host.ClientDisconnected += Host_ClientDisconnected;
+            Host.ClientRunComplete += Host_ClientRunComplete;
+            Host.AllModelSystemRunsComplete += Host_AllModelSystemRunsComplete;
+            Host.RegisterCustomSender(1, CustomMessageSender);
+            Host.RegisterCustomReceiver(2, CustomMessageReceiver);
+            Host.RegisterCustomMessageHandler(2, CustomMessageHandler);
+        }
+    }
+
+    private void LookAtConnectedClients()
+    {
+        lock ( Host )
+        {
+            foreach ( var client in Host.ConnectedClients )
             {
-                error = "MyHostModule requires an XTMF that supports XTMF.Networking.IHost";
-                return false;
+                // Access the client here
             }
-            return true;
         }
+    }
 
-        public void Start()
+    private void RunJobs()
+    {
+        using ( Jobs = new MessageQueue<int>() )
         {
-            InitializeCustomMessages();
-            // Your Code goes here
-        }
-
-        private void CustomMessageHandler(object data, IRemoteXTMF client)
-        {
-            if ( data is int )
+            while ( !exit )
             {
-                Jobs.Add( (int)data );
-            }
-        }
-
-        private object CustomMessageReceiver(Stream inputStream, IRemoteXTMF client)
-        {
-            return null;
-        }
-
-        private void CustomMessageSender(object data, IRemoteXTMF client, Stream outputStream)
-        {
-        }
-
-        private void Host_AllModelSystemRunsComplete()
-        {
-        }
-
-        private void Host_ClientDisconnected(IRemoteXTMF client)
-        {
-        }
-
-        private void Host_ClientRunComplete(IRemoteXTMF client, int existStatus, string message)
-        {
-        }
-
-        private void Host_NewClientConnected(IRemoteXTMF client)
-        {
-            // Handle a new client
-        }
-
-        private void Host_ProgressUpdated(IRemoteXTMF client, float progress)
-        {
-        }
-
-        private void InitializeCustomMessages()
-        {
-            lock (Host)
-            {
-                Host.NewClientConnected += Host_NewClientConnected;
-                Host.ProgressUpdated += Host_ProgressUpdated;
-                Host.ClientDisconnected += Host_ClientDisconnected;
-                Host.ClientRunComplete += Host_ClientRunComplete;
-                Host.AllModelSystemRunsComplete += Host_AllModelSystemRunsComplete;
-                Host.RegisterCustomSender(1, CustomMessageSender);
-                Host.RegisterCustomReceiver(2, CustomMessageReceiver);
-                Host.RegisterCustomMessageHandler(2, CustomMessageHandler);
-            }
-        }
-
-        private void LookAtConnectedClients()
-        {
-            lock ( Host )
-            {
-                foreach ( var client in Host.ConnectedClients )
+                var message = Jobs.GetMessageOrTimeout( 200 );
+                if (message != default)
                 {
-                    // Access the client here
-                }
-            }
-        }
-
-        private void RunJobs()
-        {
-            using ( Jobs = new MessageQueue<int>() )
-            {
-                while ( !exit )
-                {
-                    var message = Jobs.GetMessageOrTimeout( 200 );
-                    if ( message != default( int ) )
-                    {
-                        // Process your message here
-                    }
+                    // Process your message here
                 }
             }
         }

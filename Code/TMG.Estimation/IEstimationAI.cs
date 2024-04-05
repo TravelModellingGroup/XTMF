@@ -19,20 +19,19 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace TMG.Estimation
-{
-    // ReSharper disable once InconsistentNaming
-    public interface IEstimationAI : IModule
-    {
-        /// <summary>
-        /// Called when an iteration has been completed and a new set of jobs are required for processing
-        /// </summary>
-        /// <returns></returns>
-        List<Job> CreateJobsForIteration();
+namespace TMG.Estimation;
 
-        /// <summary>
-        /// Called when an iteration has been completed
-        /// </summary>
-        void IterationComplete();
-    }
+// ReSharper disable once InconsistentNaming
+public interface IEstimationAI : IModule
+{
+    /// <summary>
+    /// Called when an iteration has been completed and a new set of jobs are required for processing
+    /// </summary>
+    /// <returns></returns>
+    List<Job> CreateJobsForIteration();
+
+    /// <summary>
+    /// Called when an iteration has been completed
+    /// </summary>
+    void IterationComplete();
 }

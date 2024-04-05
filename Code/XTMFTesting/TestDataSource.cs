@@ -16,59 +16,56 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+namespace XTMF.Testing;
 
-namespace XTMF.Testing
+public class TestDataSource<T> : IDataSource<T>
 {
-    public class TestDataSource<T> : IDataSource<T>
+    public bool Loaded { get { return true; } }
+
+
+    public string Name { get; set; } = String.Empty;
+
+    private T Data;
+
+    public TestDataSource(T data)
     {
-        public bool Loaded { get { return true; } }
+        Data = data;
+    }
 
 
-        public string Name { get; set; } = String.Empty;
-
-        private T Data;
-
-        public TestDataSource(T data)
+    public float Progress
+    {
+        get
         {
-            Data = data;
+            return 0f;
         }
+    }
 
-
-        public float Progress
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return new Tuple<byte, byte, byte>(50, 150, 50);
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get
-            {
-                return new Tuple<byte, byte, byte>(50, 150, 50);
-            }
-        }
+    public T GiveData()
+    {
+        return Data;
+    }
 
-        public T GiveData()
-        {
-            return Data;
-        }
+    public void LoadData()
+    {
 
-        public void LoadData()
-        {
+    }
 
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Data = default(T);
-        }
+    public void UnloadData()
+    {
+        Data = default;
     }
 }

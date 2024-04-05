@@ -45,9 +45,9 @@ public class PersonScheduleAnalysis : IPostScheduler
     [RunParameter("WorkPersonsFile", "WorkPersons.png", "The file name for the chart.")]
     public string WorkPersonsFile;
 
-    private static Activity[] MarketActivities = new Activity[] { Activity.Market, Activity.JointMarket };
-    private static Activity[] OtherActivities = new Activity[] { Activity.IndividualOther, Activity.JointOther };
-    private static Activity[] WorkActivities = new Activity[] { Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.ReturnFromWork };
+    private static Activity[] MarketActivities = [Activity.Market, Activity.JointMarket];
+    private static Activity[] OtherActivities = [Activity.IndividualOther, Activity.JointOther];
+    private static Activity[] WorkActivities = [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.ReturnFromWork];
     private int[] MarketPersons;
     private int[] OtherPersons;
     private int[] WorkingPersons;
@@ -148,33 +148,29 @@ public class PersonScheduleAnalysis : IPostScheduler
             return;
         }
 
-        using Chart chart = new Chart()
+        using Chart chart = new()
         {
             Width = Width,
             Height = Height,
         };
 
-        using (ChartArea area = new ChartArea("Start Times"))
+        using ChartArea area = new("Start Times");
+        using Series series = new();
+        series.ChartType = SeriesChartType.Column;
+        for (int i = 0; i < values.Length; i++)
         {
-            using (Series series = new Series())
-            {
-                series.ChartType = SeriesChartType.Column;
-                for (int i = 0; i < values.Length; i++)
-                {
-                    series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * MinutesPerBucket)).ToString() });
-                }
-                series.BorderColor = System.Drawing.Color.Black;
-                area.AxisX.Title = xAxisName;// "Start Time";
-                area.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount;
-                area.AxisX.Interval = 2;
-                area.AxisX.IsStartedFromZero = false;
-                area.AxisY.Title = yAxisName;// "#Episodes";
-                chart.Series.Add(series);
-                chart.ChartAreas.Add(area);
-                area.Visible = true;
-                chart.SaveImage(fileName, ChartImageFormat.Png);
-            }
+            series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * MinutesPerBucket)).ToString() });
         }
+        series.BorderColor = System.Drawing.Color.Black;
+        area.AxisX.Title = xAxisName;// "Start Time";
+        area.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount;
+        area.AxisX.Interval = 2;
+        area.AxisX.IsStartedFromZero = false;
+        area.AxisY.Title = yAxisName;// "#Episodes";
+        chart.Series.Add(series);
+        chart.ChartAreas.Add(area);
+        area.Visible = true;
+        chart.SaveImage(fileName, ChartImageFormat.Png);
     }
 
     private int GetBucketIndex(Time time)

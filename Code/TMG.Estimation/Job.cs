@@ -20,19 +20,18 @@
 using System.Globalization;
 using XTMF.Networking;
 
-namespace TMG.Estimation
-{
-    public class Job
-    {
-        public ParameterSetting[] Parameters;
-        internal bool Processed;
-        internal IRemoteXTMF ProcessedBy;
-        internal bool Processing;
-        internal float Value;
+namespace TMG.Estimation;
 
-        public override string ToString()
-        {
-            return Value.ToString(CultureInfo.InvariantCulture);
-        }
+public class Job
+{
+    public ParameterSetting[] Parameters;
+    internal bool Processed;
+    internal IRemoteXTMF ProcessedBy;
+    internal bool Processing;
+    internal float Value;
+
+    public override string ToString()
+    {
+        return Value.ToString(CultureInfo.InvariantCulture);
     }
 }

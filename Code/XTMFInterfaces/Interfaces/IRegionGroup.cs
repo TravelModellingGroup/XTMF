@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace XTMF.Interfaces
+namespace XTMF.Interfaces;
+
+public interface IRegionGroup
 {
-    public interface IRegionGroup
-    {
-        string Name { get; set; }
+    string Name { get; set; }
 
-        List<IModelSystemStructure> Modules { get; set; }
+    List<IModelSystemStructure> Modules { get; set; }
 
-        
-    }
+    
 }

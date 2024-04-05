@@ -23,198 +23,191 @@ using System.Threading;
 using System.IO;
 using XTMF;
 using XTMF.Networking;
-namespace TMG.Distributed.Modules
+namespace TMG.Distributed.Modules;
+
+public class ClientDistributionManager : IClientDistributionManager
 {
-    public class ClientDistributionManager : IClientDistributionManager
+    [RunParameter("Distribution Data Channel", 0, "The networking channel to use for communicating with clients.")]
+    public int DistributionDataChannel;
+
+    public IClient Client;
+
+    [RunParameter("Input Directory", "../../Input", "The input directory for this model system.")]
+    public string InputBaseDirectory { get; set; }
+
+    public string Name { get; set; }
+
+    public string OutputBaseDirectory { get; set; }
+
+    [SubModelInformation(Description = "Initialize the client", Required = false)]
+    public IModelSystemTemplate Initialization;
+
+    public float Progress
     {
-        [RunParameter("Distribution Data Channel", 0, "The networking channel to use for communicating with clients.")]
-        public int DistributionDataChannel;
+        get
+        {
+            return 0f;
+        }
+    }
 
-        public IClient Client;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
+        {
+            return null;
+        }
+    }
 
-        [RunParameter("Input Directory", "../../Input", "The input directory for this model system.")]
-        public string InputBaseDirectory { get; set; }
+
+    public sealed class Task : IModule
+    {
+        [SubModelInformation(Required = true, Description = "The definition of the task")]
+        public IModelSystemTemplate TaskModelSystem;
+
+        [RunParameter("Task Name", "Unique Name", "The unique name for this task.")]
+        public string TaskName;
 
         public string Name { get; set; }
 
-        public string OutputBaseDirectory { get; set; }
+        public float Progress { get; set; }
 
-        [SubModelInformation(Description = "Initialize the client", Required = false)]
-        public IModelSystemTemplate Initialization;
-
-        public float Progress
-        {
-            get
-            {
-                return 0f;
-            }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get
-            {
-                return null;
-            }
-        }
-
-
-        public sealed class Task : IModule
-        {
-            [SubModelInformation(Required = true, Description = "The definition of the task")]
-            public IModelSystemTemplate TaskModelSystem;
-
-            [RunParameter("Task Name", "Unique Name", "The unique name for this task.")]
-            public string TaskName;
-
-            public string Name { get; set; }
-
-            public float Progress { get; set; }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                return true;
-            }
-        }
-
-        public List<Task> Tasks = new List<Task>();
-
-        public List<IResource> Resources { get; set; }
-
-        public bool ExitRequest()
-        {
-            Exit = true;
-            return true;
-        }
-
-        public volatile bool Exit;
+        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
         public bool RuntimeValidation(ref string error)
         {
-            // make sure we do not have any duplicate task names
-            var duplicates = Tasks.Where(task => Tasks.Any(t => t != task && t.TaskName == task.TaskName)).ToList();
-            if(duplicates.Count > 0)
-            {
-                error = "In '" + Name + "' there are multiple tasks with the name '" + duplicates[0].TaskName + "'!";
-                return false;
-            }
             return true;
         }
+    }
 
-        public void Start()
+    public List<Task> Tasks = [];
+
+    public List<IResource> Resources { get; set; }
+
+    public bool ExitRequest()
+    {
+        Exit = true;
+        return true;
+    }
+
+    public volatile bool Exit;
+
+    public bool RuntimeValidation(ref string error)
+    {
+        // make sure we do not have any duplicate task names
+        var duplicates = Tasks.Where(task => Tasks.Any(t => t != task && t.TaskName == task.TaskName)).ToList();
+        if(duplicates.Count > 0)
         {
-            InitializeNetworking();
-            if(Initialization != null)
-            {
-                Initialization.Start();
-            }
-            SignalReady();
-            while(!Exit)
-            {
-                Thread.Sleep(10);
-            }
+            error = "In '" + Name + "' there are multiple tasks with the name '" + duplicates[0].TaskName + "'!";
+            return false;
         }
+        return true;
+    }
 
-        private class Request
+    public void Start()
+    {
+        InitializeNetworking();
+        Initialization?.Start();
+        SignalReady();
+        while(!Exit)
         {
-            internal ulong TaskNumber;
-            internal string TaskName;
-            internal bool Success;
-            internal string ErrorMessage;
+            Thread.Sleep(10);
         }
+    }
 
-        private void InitializeNetworking()
+    private class Request
+    {
+        internal ulong TaskNumber;
+        internal string TaskName;
+        internal bool Success;
+        internal string ErrorMessage;
+    }
+
+    private void InitializeNetworking()
+    {
+        Client.RegisterCustomReceiver(DistributionDataChannel, (stream) =>
         {
-            Client.RegisterCustomReceiver(DistributionDataChannel, (stream) =>
+            BinaryReader reader = new(stream);
+            switch((CommunicationProtocol)reader.ReadInt32())
             {
-                BinaryReader reader = new BinaryReader(stream);
-                switch((CommunicationProtocol)reader.ReadInt32())
-                {
-                    case CommunicationProtocol.RunTask:
+                case CommunicationProtocol.RunTask:
+                    {
+                        var request = new Request()
                         {
-                            var request = new Request()
+                            TaskNumber = reader.ReadUInt64(),
+                            TaskName = reader.ReadString(),
+                            Success = false
+                        };
+                        System.Threading.Tasks.Task.Factory.StartNew(() =>
+                        {
+                            var taskToRun = Tasks.FirstOrDefault(t => t.TaskName == request.TaskName);
+                            try
                             {
-                                TaskNumber = reader.ReadUInt64(),
-                                TaskName = reader.ReadString(),
-                                Success = false
-                            };
-                            System.Threading.Tasks.Task.Factory.StartNew(() =>
+                                taskToRun?.TaskModelSystem.Start();
+                                request.Success = true;
+                            }
+                            catch (Exception e)
                             {
-                                var taskToRun = Tasks.FirstOrDefault(t => t.TaskName == request.TaskName);
-                                try
-                                {
-                                    if(taskToRun != null)
-                                    {
-                                        taskToRun.TaskModelSystem.Start();
-                                    }
-                                    request.Success = true;
-                                }
-                                catch (Exception e)
-                                {
-                                    request.ErrorMessage = e.Message + "\r\n" + e.StackTrace;
-                                }
-                                finally
-                                {
-                                    // let the host know we finished
-                                    Client.SendCustomMessage(request, DistributionDataChannel);
-                                }
-                            }, System.Threading.Tasks.TaskCreationOptions.LongRunning);
-                        }
-                        break;
-                }
-                return null;
-            });
-            Client.RegisterCustomSender(DistributionDataChannel, (data, stream) =>
-            {
-                BinaryWriter writer = new BinaryWriter(stream);
-                var request = data as Request;
-                var message = data as string;
-                if(data == null)
-                {
-                    writer.Write((Int32)CommunicationProtocol.ClientActivated);
-                }
-                else if(request != null)
-                {
-                    if(request.Success)
-                    {
-                        writer.Write((Int32)CommunicationProtocol.TaskComplete);
-                        writer.Write(request.TaskNumber);
+                                request.ErrorMessage = e.Message + "\r\n" + e.StackTrace;
+                            }
+                            finally
+                            {
+                                // let the host know we finished
+                                Client.SendCustomMessage(request, DistributionDataChannel);
+                            }
+                        }, System.Threading.Tasks.TaskCreationOptions.LongRunning);
                     }
-                    else
-                    {
-                        writer.Write((Int32)CommunicationProtocol.TaskFailed);
-                        writer.Write(request.ErrorMessage);
-                    }
-                }
-                else if(message != null)
-                {
-                    writer.Write((Int32)CommunicationProtocol.SendTextMessageToHost);
-                    writer.Write(message);
-                }
-                writer.Flush();
-            });
-            
-        }
-
-        private void SignalReady()
-        {
-            // let the host know we are ready to operate
-            Client.SendCustomMessage(null, DistributionDataChannel);
-        }
-
-        public bool HasTaskWithName(string taskName)
-        {
-            return Tasks.Any(t => t.TaskName == taskName);
-        }
-
-        public void SendTextMessageToHost(string message)
-        {
-            if(message != null)
-            {
-                Client.SendCustomMessage(message, DistributionDataChannel);
+                    break;
             }
+            return null;
+        });
+        Client.RegisterCustomSender(DistributionDataChannel, (data, stream) =>
+        {
+            BinaryWriter writer = new(stream);
+            var request = data as Request;
+            var message = data as string;
+            if(data == null)
+            {
+                writer.Write((Int32)CommunicationProtocol.ClientActivated);
+            }
+            else if(request != null)
+            {
+                if(request.Success)
+                {
+                    writer.Write((Int32)CommunicationProtocol.TaskComplete);
+                    writer.Write(request.TaskNumber);
+                }
+                else
+                {
+                    writer.Write((Int32)CommunicationProtocol.TaskFailed);
+                    writer.Write(request.ErrorMessage);
+                }
+            }
+            else if(message != null)
+            {
+                writer.Write((Int32)CommunicationProtocol.SendTextMessageToHost);
+                writer.Write(message);
+            }
+            writer.Flush();
+        });
+        
+    }
+
+    private void SignalReady()
+    {
+        // let the host know we are ready to operate
+        Client.SendCustomMessage(null, DistributionDataChannel);
+    }
+
+    public bool HasTaskWithName(string taskName)
+    {
+        return Tasks.Any(t => t.TaskName == taskName);
+    }
+
+    public void SendTextMessageToHost(string message)
+    {
+        if(message != null)
+        {
+            Client.SendCustomMessage(message, DistributionDataChannel);
         }
     }
 }

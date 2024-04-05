@@ -19,10 +19,9 @@
 
 using TMG;
 using Datastructure;
-namespace Tasha.Common
-{
-    public interface IAccessStationChoiceModel : ICalculation<ITripChain, Pair<IZone[], float[]>>
-    {
+namespace Tasha.Common;
 
-    }
+public interface IAccessStationChoiceModel : ICalculation<ITripChain, Pair<IZone[], float[]>>
+{
+
 }

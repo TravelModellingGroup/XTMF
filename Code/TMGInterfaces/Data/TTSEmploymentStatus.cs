@@ -17,47 +17,46 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 // ReSharper disable InconsistentNaming
-namespace TMG
+namespace TMG;
+
+/// <summary>
+/// Defines the possible states for some person's employment status
+/// F Full time
+/// H Home - full time
+/// J Home - part time
+/// O Not employed
+/// P Part time
+/// 9 Unknown
+/// </summary>
+public enum TTSEmploymentStatus
 {
     /// <summary>
-    /// Defines the possible states for some person's employment status
-    /// F Full time
-    /// H Home - full time
-    /// J Home - part time
-    /// O Not employed
-    /// P Part time
-    /// 9 Unknown
+    /// Works full time
     /// </summary>
-    public enum TTSEmploymentStatus
-    {
-        /// <summary>
-        /// Works full time
-        /// </summary>
-        FullTime = 'F',
+    FullTime = 'F',
 
-        /// <summary>
-        /// Works at home, full time
-        /// </summary>
-        WorkAtHome_FullTime = 'H',
+    /// <summary>
+    /// Works at home, full time
+    /// </summary>
+    WorkAtHome_FullTime = 'H',
 
-        /// <summary>
-        /// Works at home, part time
-        /// </summary>
-        WorkAtHome_PartTime = 'J',
+    /// <summary>
+    /// Works at home, part time
+    /// </summary>
+    WorkAtHome_PartTime = 'J',
 
-        /// <summary>
-        /// Is not employed
-        /// </summary>
-        NotEmployed = 'O',
+    /// <summary>
+    /// Is not employed
+    /// </summary>
+    NotEmployed = 'O',
 
-        /// <summary>
-        /// Employed Part time
-        /// </summary>
-        PartTime = 'P',
+    /// <summary>
+    /// Employed Part time
+    /// </summary>
+    PartTime = 'P',
 
-        /// <summary>
-        /// We don't know how they are employed
-        /// </summary>
-        Unknown = '9',
-    }
+    /// <summary>
+    /// We don't know how they are employed
+    /// </summary>
+    Unknown = '9',
 }

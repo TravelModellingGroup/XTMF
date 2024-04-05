@@ -23,8 +23,6 @@ using TMG.Functions;
 using TMG.Input;
 using System.Linq;
 using XTMF;
-using System.Runtime.CompilerServices;
-using System.IO;
 
 namespace TMG.Frameworks.Data.Processing;
 
@@ -167,7 +165,7 @@ public sealed class ConvertMatrixBetweenZoneSystems : IDataSource<SparseTwinInde
             if (iFactor > 0)
             {
                 int j = 0;
-                Vector<float> iFactorV = new Vector<float>(iFactor);
+                Vector<float> iFactorV = new(iFactor);
                 for (; j < row.Length - Vector<float>.Count; j += Vector<float>.Count)
                 {
                     var rowV = new Vector<float>(row, j);

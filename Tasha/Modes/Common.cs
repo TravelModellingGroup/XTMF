@@ -22,75 +22,74 @@ using Tasha.Common;
 using TMG;
 using XTMF;
 
-namespace Tasha.Modes
+namespace Tasha.Modes;
+
+internal static class Common
 {
-    internal static class Common
+    private static Time Nine = new( "9:00 AM" );
+
+    private static Time Six = new( "6:00 AM" );
+    private static Time SixThirty = new( "6:30 PM" );
+    private static Time ThreeThirty = new( "3:30 PM" );
+
+    public static float ConvertToHours(float minutes)
     {
-        private static Time Nine = new Time( "9:00 AM" );
+        int hours = (int)( minutes / 60 );
+        float minutes2 = ( minutes - hours * 60 ) / 100;
+        return hours + minutes2;
+    }
 
-        private static Time Six = new Time( "6:00 AM" );
-        private static Time SixThirty = new Time( "6:30 PM" );
-        private static Time ThreeThirty = new Time( "3:30 PM" );
+    public static List<int> ConvertToIntList(string values)
+    {
+        List<int> toReturn = [];
 
-        public static float ConvertToHours(float minutes)
+        string[] items = values.Split( ',' );
+
+        foreach ( var item in items )
         {
-            int hours = (int)( minutes / 60 );
-            float minutes2 = ( minutes - hours * 60 ) / 100;
-            return hours + minutes2;
-        }
-
-        public static List<int> ConvertToIntList(string values)
-        {
-            List<int> toReturn = new List<int>();
-
-            string[] items = values.Split( ',' );
-
-            foreach ( var item in items )
+            int dashIndex;
+            if ( ( dashIndex = item.IndexOf( '-' ) ) != -1 )
             {
-                int dashIndex;
-                if ( ( dashIndex = item.IndexOf( '-' ) ) != -1 )
-                {
-                    int startZone = Convert.ToInt32( item.Substring( 0, dashIndex ) );
-                    int endZone = Convert.ToInt32( item.Substring( dashIndex + 1, item.Length - ( dashIndex + 1 ) ) );
+                int startZone = Convert.ToInt32( item.Substring( 0, dashIndex ) );
+                int endZone = Convert.ToInt32( item.Substring( dashIndex + 1, item.Length - ( dashIndex + 1 ) ) );
 
-                    for ( int i = startZone; i < endZone; i++ )
-                        toReturn.Add( i );
-                }
-                else
-                    toReturn.Add( Convert.ToInt32( item ) );
+                for ( int i = startZone; i < endZone; i++ )
+                    toReturn.Add( i );
             }
-
-            return toReturn;
+            else
+                toReturn.Add( Convert.ToInt32( item ) );
         }
 
-        /// <summary>
-        /// Calculate the distance to another zone
-        /// </summary>
-        /// <param name="origin">Where we are</param>
-        /// <param name="destination">Where you want to go</param>
-        /// <returns>The distance between the two</returns>
-        public static double Distance(this IZone origin, IZone destination)
+        return toReturn;
+    }
+
+    /// <summary>
+    /// Calculate the distance to another zone
+    /// </summary>
+    /// <param name="origin">Where we are</param>
+    /// <param name="destination">Where you want to go</param>
+    /// <returns>The distance between the two</returns>
+    public static double Distance(this IZone origin, IZone destination)
+    {
+        // Since most paths are square [non triangular, we use this formula instead of taking the square root]
+        return Math.Abs( origin.X - destination.X ) + Math.Abs( origin.Y - destination.Y );
+    }
+
+    /// <summary>
+    /// Gets the time period for travel time
+    /// </summary>
+    /// <param name="time">The time the trip starts at</param>
+    /// <returns>The time period</returns>
+    public static TravelTimePeriod GetTimePeriod(Time time)
+    {
+        if ( time >= Six & time < Nine )
         {
-            // Since most paths are square [non triangular, we use this formula instead of taking the square root]
-            return Math.Abs( origin.X - destination.X ) + Math.Abs( origin.Y - destination.Y );
+            return TravelTimePeriod.Morning;
         }
-
-        /// <summary>
-        /// Gets the time period for travel time
-        /// </summary>
-        /// <param name="time">The time the trip starts at</param>
-        /// <returns>The time period</returns>
-        public static TravelTimePeriod GetTimePeriod(Time time)
+        if ( time >= ThreeThirty & time < SixThirty )
         {
-            if ( time >= Six & time < Nine )
-            {
-                return TravelTimePeriod.Morning;
-            }
-            if ( time >= ThreeThirty & time < SixThirty )
-            {
-                return TravelTimePeriod.Afternoon;
-            }
-            return TravelTimePeriod.Offpeak;
+            return TravelTimePeriod.Afternoon;
         }
+        return TravelTimePeriod.Offpeak;
     }
 }

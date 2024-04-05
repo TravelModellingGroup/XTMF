@@ -19,18 +19,17 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace TMG
-{
-    public interface ITravelDemandModel : IModelSystemTemplate
-    {
-        /// <summary>
-        /// The network level data that will be used in this model
-        /// </summary>
-        IList<INetworkData> NetworkData { get; }
+namespace TMG;
 
-        /// <summary>
-        /// The zone system that will be used in the model
-        /// </summary>
-        IZoneSystem ZoneSystem { get; }
-    }
+public interface ITravelDemandModel : IModelSystemTemplate
+{
+    /// <summary>
+    /// The network level data that will be used in this model
+    /// </summary>
+    IList<INetworkData> NetworkData { get; }
+
+    /// <summary>
+    /// The zone system that will be used in the model
+    /// </summary>
+    IZoneSystem ZoneSystem { get; }
 }

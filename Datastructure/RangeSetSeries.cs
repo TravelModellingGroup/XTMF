@@ -20,242 +20,241 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Datastructure
+namespace Datastructure;
+
+public sealed class RangeSetSeries : IList<RangeSet>
 {
-    public sealed class RangeSetSeries : IList<RangeSet>
+    private readonly RangeSet[] RangeSets;
+
+    public RangeSetSeries(List<RangeSet> tempRange)
     {
-        private readonly RangeSet[] RangeSets;
+        RangeSets = [.. tempRange];
+    }
 
-        public RangeSetSeries(List<RangeSet> tempRange)
+    public int Count => RangeSets.Length;
+
+    public bool IsReadOnly => false;
+
+    public RangeSet this[int index]
+    {
+        get
         {
-            RangeSets = tempRange.ToArray();
+            return RangeSets[index];
         }
 
-        public int Count => RangeSets.Length;
-
-        public bool IsReadOnly => false;
-
-        public RangeSet this[int index]
+        set
         {
-            get
-            {
-                return RangeSets[index];
-            }
-
-            set
-            {
-                RangeSets[index] = value;
-            }
+            RangeSets[index] = value;
         }
+    }
 
-        public static bool TryParse(string rangeString, out RangeSetSeries? output)
-        {
-            string? error = null;
-            return TryParse(ref error, rangeString, out output);
-        }
+    public static bool TryParse(string rangeString, out RangeSetSeries? output)
+    {
+        string? error = null;
+        return TryParse(ref error, rangeString, out output);
+    }
 
-        public static bool TryParse(ref string? error, string rangeString, out RangeSetSeries? output)
+    public static bool TryParse(ref string? error, string rangeString, out RangeSetSeries? output)
+    {
+        var rangeSets = new List<RangeSet>();
+        output = null;
+        var strLength = rangeString.Length;
+        int startPos;
+        for (startPos = 0; startPos < strLength; startPos++)
         {
-            var rangeSets = new List<RangeSet>();
-            output = null;
-            var strLength = rangeString.Length;
-            int startPos;
-            for (startPos = 0; startPos < strLength; startPos++)
+            if (rangeString[startPos] == '{')
             {
-                if (rangeString[startPos] == '{')
+                var success = false;
+                for (var endPos = startPos + 1; endPos < strLength; endPos++)
                 {
-                    var success = false;
-                    for (var endPos = startPos + 1; endPos < strLength; endPos++)
+                    if (rangeString[endPos] == '}')
                     {
-                        if (rangeString[endPos] == '}')
+                        if (!RangeSet.TryParse(ref error, rangeString.Substring(startPos + 1, endPos - startPos - 1), out RangeSet? temp))
                         {
-                            if (!RangeSet.TryParse(ref error, rangeString.Substring(startPos + 1, endPos - startPos - 1), out RangeSet? temp))
-                            {
-                                return false;
-                            }
-                            rangeSets.Add(temp);
-                            startPos = endPos; // the increment will make sure we don't re explore this
-                            success = true;
-                            break;
+                            return false;
                         }
-                    }
-                    if (!success)
-                    {
-                        error = "There was an unmatched '{' at position " + startPos;
-                        return false;
+                        rangeSets.Add(temp);
+                        startPos = endPos; // the increment will make sure we don't re explore this
+                        success = true;
+                        break;
                     }
                 }
-            }
-            // in case it is a set of 1 element
-            if (rangeSets.Count == 0)
-            {
-                if (!RangeSet.TryParse(ref error, rangeString, out RangeSet? temp))
+                if (!success)
                 {
-                    return false;
-                }
-                rangeSets.Add(temp);
-            }
-            output = new RangeSetSeries(rangeSets);
-            return true;
-        }
-
-        /// <summary>
-        /// Not Supported
-        /// </summary>
-        /// <param name="item"></param>
-        public void Add(RangeSet item)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Not Supported
-        /// </summary>
-        public void Clear()
-        {
-            throw new NotSupportedException();
-        }
-
-        public bool Contains(RangeSet item)
-        {
-            return IndexOf(item) != -1;
-        }
-
-        public void CopyTo(RangeSet[] array, int arrayIndex)
-        {
-            var localRangeSets = RangeSets;
-            if (localRangeSets.Length + arrayIndex >= array.Length)
-            {
-                throw new ArgumentException("The given array is not long enough to support copying starting at index " + arrayIndex);
-            }
-            if (arrayIndex < 0)
-            {
-                throw new ArgumentOutOfRangeException("arrayIndex", "This argument must be greater than or equal to zero!");
-            }
-            for (var i = 0; i < localRangeSets.Length; i++)
-            {
-                array[i + arrayIndex] = localRangeSets[i];
-            }
-        }
-
-        public override bool Equals(object? obj)
-        {
-            var other = obj as RangeSetSeries;
-            if (Count != other?.Count) return false;
-            for (var i = 0; i < RangeSets.Length; i++)
-            {
-                if (!RangeSets[i].Equals(other.RangeSets[i]))
-                {
+                    error = "There was an unmatched '{' at position " + startPos;
                     return false;
                 }
             }
-            return true;
         }
-
-        public IEnumerator<RangeSet> GetEnumerator()
+        // in case it is a set of 1 element
+        if (rangeSets.Count == 0)
         {
-            return ((ICollection<RangeSet>)RangeSets).GetEnumerator();
-        }
-
-        public override int GetHashCode()
-        {
-            var hash = 0;
-            for (var i = 0; i < RangeSets.Length; i++)
+            if (!RangeSet.TryParse(ref error, rangeString, out RangeSet? temp))
             {
-                hash += RangeSets[i].GetHashCode();
+                return false;
             }
-            return hash;
+            rangeSets.Add(temp);
         }
+        output = new RangeSetSeries(rangeSets);
+        return true;
+    }
 
-        public int IndexOf(RangeSet item)
+    /// <summary>
+    /// Not Supported
+    /// </summary>
+    /// <param name="item"></param>
+    public void Add(RangeSet item)
+    {
+        throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// Not Supported
+    /// </summary>
+    public void Clear()
+    {
+        throw new NotSupportedException();
+    }
+
+    public bool Contains(RangeSet item)
+    {
+        return IndexOf(item) != -1;
+    }
+
+    public void CopyTo(RangeSet[] array, int arrayIndex)
+    {
+        var localRangeSets = RangeSets;
+        if (localRangeSets.Length + arrayIndex >= array.Length)
         {
-            if (item == null)
+            throw new ArgumentException("The given array is not long enough to support copying starting at index " + arrayIndex);
+        }
+        if (arrayIndex < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(arrayIndex), "This argument must be greater than or equal to zero!");
+        }
+        for (var i = 0; i < localRangeSets.Length; i++)
+        {
+            array[i + arrayIndex] = localRangeSets[i];
+        }
+    }
+
+    public override bool Equals(object? obj)
+    {
+        var other = obj as RangeSetSeries;
+        if (Count != other?.Count) return false;
+        for (var i = 0; i < RangeSets.Length; i++)
+        {
+            if (!RangeSets[i].Equals(other.RangeSets[i]))
             {
-                throw new ArgumentNullException("item", "The item to search for must not be null!");
+                return false;
             }
-            for (var i = 0; i < RangeSets.Length; i++)
+        }
+        return true;
+    }
+
+    public IEnumerator<RangeSet> GetEnumerator()
+    {
+        return ((ICollection<RangeSet>)RangeSets).GetEnumerator();
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = 0;
+        for (var i = 0; i < RangeSets.Length; i++)
+        {
+            hash += RangeSets[i].GetHashCode();
+        }
+        return hash;
+    }
+
+    public int IndexOf(RangeSet item)
+    {
+        if (item == null)
+        {
+            throw new ArgumentNullException(nameof(item), "The item to search for must not be null!");
+        }
+        for (var i = 0; i < RangeSets.Length; i++)
+        {
+            if (item.Equals(RangeSets[i]))
             {
-                if (item.Equals(RangeSets[i]))
-                {
-                    return i;
-                }
+                return i;
             }
-            return -1;
         }
+        return -1;
+    }
 
-        public int IndexOf(int numberToFind)
+    public int IndexOf(int numberToFind)
+    {
+        for (var i = 0; i < RangeSets.Length; i++)
         {
-            for (var i = 0; i < RangeSets.Length; i++)
+            if (RangeSets[i].Contains(numberToFind))
             {
-                if (RangeSets[i].Contains(numberToFind))
-                {
-                    return i;
-                }
+                return i;
             }
-            return -1;
         }
+        return -1;
+    }
 
-        /// <summary>
-        /// Returns the first set that contains a range that contains the value.
-        /// </summary>
-        /// <param name="value">The value to seek</param>
-        /// <returns>The index of the set that first contains the value, -1 otherwise.</returns>
-        public int IndexOf(float value)
+    /// <summary>
+    /// Returns the first set that contains a range that contains the value.
+    /// </summary>
+    /// <param name="value">The value to seek</param>
+    /// <returns>The index of the set that first contains the value, -1 otherwise.</returns>
+    public int IndexOf(float value)
+    {
+        for (var i = 0; i < RangeSets.Length; i++)
         {
-            for (var i = 0; i < RangeSets.Length; i++)
+            if (RangeSets[i].Contains(value))
             {
-                if (RangeSets[i].Contains(value))
-                {
-                    return i;
-                }
+                return i;
             }
-            return -1;
         }
+        return -1;
+    }
 
-        /// <summary>
-        /// Not Supported
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="item"></param>
-        public void Insert(int index, RangeSet item)
-        {
-            throw new NotSupportedException();
-        }
+    /// <summary>
+    /// Not Supported
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="item"></param>
+    public void Insert(int index, RangeSet item)
+    {
+        throw new NotSupportedException();
+    }
 
-        public bool Remove(RangeSet item)
-        {
-            throw new NotSupportedException();
-        }
+    public bool Remove(RangeSet item)
+    {
+        throw new NotSupportedException();
+    }
 
-        /// <summary>
-        /// Not Supported
-        /// </summary>
-        public void RemoveAt(int index)
-        {
-            throw new NotSupportedException();
-        }
+    /// <summary>
+    /// Not Supported
+    /// </summary>
+    public void RemoveAt(int index)
+    {
+        throw new NotSupportedException();
+    }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return RangeSets.GetEnumerator();
-        }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        return RangeSets.GetEnumerator();
+    }
 
-        public override string ToString()
+    public override string ToString()
+    {
+        var builder = new StringBuilder();
+        var first = true;
+        for (var i = 0; i < RangeSets.Length; i++)
         {
-            var builder = new StringBuilder();
-            var first = true;
-            for (var i = 0; i < RangeSets.Length; i++)
+            if (!first)
             {
-                if (!first)
-                {
-                    builder.Append(',');
-                }
-                first = false;
-                builder.Append('{');
-                builder.Append(RangeSets[i]);
-                builder.Append('}');
+                builder.Append(',');
             }
-            return builder.ToString();
+            first = false;
+            builder.Append('{');
+            builder.Append(RangeSets[i]);
+            builder.Append('}');
         }
+        return builder.ToString();
     }
 }

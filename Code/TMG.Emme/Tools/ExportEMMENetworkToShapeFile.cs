@@ -21,68 +21,61 @@ using System;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme.Tools
+namespace TMG.Emme.Tools;
+
+public enum TransitShape
 {
-    public enum TransitShape
+    LINES = 0,
+    SEGMENTS = 1,
+    LINES_AND_SEGMENTS = 2
+}
+
+
+[ModuleInformation(
+    Description =
+        "This module calls export_network_shapfile tool of TMG Toolbox. " +
+    "The tool exports network data from an EMME scenario to a specified shape file."
+)]
+public class ExportEMMENetworkToShapeFile : IEmmeTool
+{
+    private const string ToolName = "tmg.input_output.export_network_shapefile";
+
+    [RunParameter("Transit Shape", "SEGMENTS", typeof(Tools.TransitShape), "Type of geometry / transit shape to export.")]
+    public TransitShape TransitShape;
+
+    [RunParameter("Scenario", 0,
+        "The number of the Emme scenario to use, if the project has multiple scenarios with different zone systems. Not used otherwise."
+    )] public int ScenarioNumber;
+
+    [SubModelInformation(Description = "Output File Path", Required = true)] public FileLocation Filepath;
+
+    public bool Execute(Controller controller)
     {
-        LINES = 0,
-        SEGMENTS = 1,
-        LINES_AND_SEGMENTS = 2
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        Console.WriteLine("Running Export EMME network shape file, export path = " + Filepath.GetFilePath());
+
+
+        return mc.Run(this, ToolName,
+            [
+                new ModellerControllerParameter("xtmf_exportPath", Filepath.GetFilePath()),
+                new ModellerControllerParameter("xtmf_transitShapes", TransitShape.ToString()),
+                new ModellerControllerParameter("xtmf_scenario", ScenarioNumber.ToString())
+            ]);
     }
 
 
-    [ModuleInformation(
-        Description =
-            "This module calls export_network_shapfile tool of TMG Toolbox. " +
-        "The tool exports network data from an EMME scenario to a specified shape file."
-    )]
-    public class ExportEMMENetworkToShapeFile : IEmmeTool
+    public bool RuntimeValidation(ref string error)
     {
-        private const string ToolName = "tmg.input_output.export_network_shapefile";
-
-        [RunParameter("Transit Shape", "SEGMENTS", typeof(Tools.TransitShape), "Type of geometry / transit shape to export.")]
-        public TransitShape TransitShape;
-
-        [RunParameter("Scenario", 0,
-            "The number of the Emme scenario to use, if the project has multiple scenarios with different zone systems. Not used otherwise."
-        )] public int ScenarioNumber;
-
-        [SubModelInformation(Description = "Output File Path", Required = true)] public FileLocation Filepath;
-
-        public bool Execute(Controller controller)
+        if (Filepath.IsPathEmpty())
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            }
-
-            Console.WriteLine("Running Export EMME network shape file, export path = " + Filepath.GetFilePath());
-
-
-            return mc.Run(this, ToolName,
-                new[]
-                {
-                    new ModellerControllerParameter("xtmf_exportPath", Filepath.GetFilePath()),
-                    new ModellerControllerParameter("xtmf_transitShapes", TransitShape.ToString()),
-                    new ModellerControllerParameter("xtmf_scenario", ScenarioNumber.ToString())
-                });
+            error = "Export path cannot be null or empty.";
+            return false;
         }
-
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (Filepath.IsPathEmpty())
-            {
-                error = "Export path cannot be null or empty.";
-                return false;
-            }
-            return true;
-        }
-
-        public string Name { get; set; }
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get; }
+        return true;
     }
+
+    public string Name { get; set; }
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get; }
 }

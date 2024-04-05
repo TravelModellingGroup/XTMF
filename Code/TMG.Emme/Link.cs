@@ -18,67 +18,66 @@
 */
 using System.Linq;
 
-namespace TMG.Emme
+namespace TMG.Emme;
+
+public struct Link
 {
-    public struct Link
+    public float Capacity;
+    public readonly int I;
+    public readonly int J;
+    public float Lanes;
+    public float Length;
+    public int LinkType;
+    public char[] Modes;
+    public bool Modified;
+    public float Speed;
+    public float Vdf;
+
+    public Link(int i, int j) : this()
     {
-        public float Capacity;
-        public readonly int I;
-        public readonly int J;
-        public float Lanes;
-        public float Length;
-        public int LinkType;
-        public char[] Modes;
-        public bool Modified;
-        public float Speed;
-        public float Vdf;
+        I = i;
+        J = j;
+    }
 
-        public Link(int i, int j) : this()
+    public override bool Equals(object obj)
+    {
+        if ( obj is Link )
         {
-            I = i;
-            J = j;
+            return this == (Link)obj;
         }
+        return false;
+    }
 
-        public override bool Equals(object obj)
+    public static bool operator ==(Link first, Link o)
+    {
+        // ReSharper disable CompareOfFloatsByEqualityOperator
+        if ( first.Length != o.Length ) return false;
+        if ( first.LinkType != o.LinkType ) return false;
+        if ( first.Lanes != o.Lanes ) return false;
+        if ( first.Vdf != o.Vdf ) return false;
+        if ( first.Modes.Length != o.Modes.Length ) return false;
+        if ( first.Speed != o.Speed ) return false;
+        if ( first.Capacity != o.Capacity ) return false;
+
+        for ( int i = 0; i < first.Modes.Length; i++ )
         {
-            if ( obj is Link )
-            {
-                return this == (Link)obj;
-            }
-            return false;
+            if ( !o.Modes.Contains( first.Modes[i] ) ) return false;
         }
-
-        public static bool operator ==(Link first, Link o)
+        for ( int i = 0; i < o.Modes.Length; i++ )
         {
-            // ReSharper disable CompareOfFloatsByEqualityOperator
-            if ( first.Length != o.Length ) return false;
-            if ( first.LinkType != o.LinkType ) return false;
-            if ( first.Lanes != o.Lanes ) return false;
-            if ( first.Vdf != o.Vdf ) return false;
-            if ( first.Modes.Length != o.Modes.Length ) return false;
-            if ( first.Speed != o.Speed ) return false;
-            if ( first.Capacity != o.Capacity ) return false;
-
-            for ( int i = 0; i < first.Modes.Length; i++ )
-            {
-                if ( !o.Modes.Contains( first.Modes[i] ) ) return false;
-            }
-            for ( int i = 0; i < o.Modes.Length; i++ )
-            {
-                if ( !first.Modes.Contains( o.Modes[i] ) ) return false;
-            }
-            return true;
+            if ( !first.Modes.Contains( o.Modes[i] ) ) return false;
         }
+        return true;
+    }
 
-        public static bool operator !=(Link first, Link o)
-        {
-            return !(first == o);
-        }
+    public static bool operator !=(Link first, Link o)
+    {
+        return !(first == o);
+    }
 
-        public override int GetHashCode()
-        {
-            // return the XOR of the 2 links
-            return I ^ J;
-        }
+    public override int GetHashCode()
+    {
+        // return the XOR of the 2 links
+        return I ^ J;
     }
 }

@@ -20,48 +20,46 @@ using System;
 using System.Linq;
 using XTMF;
 
-namespace TMG.Estimation.Utilities.AIEstimation
+namespace TMG.Estimation.Utilities.AIEstimation;
+
+
+// ReSharper disable once InconsistentNaming
+public class AIEvaluation : IModelSystemTemplate
 {
-
-    // ReSharper disable once InconsistentNaming
-    public class AIEvaluation : IModelSystemTemplate
+    [RunParameter("InputDirectory", "../../Input", "The directory that the input has been stored at.")]
+    public string InputBaseDirectory
     {
-        [RunParameter("InputDirectory", "../../Input", "The directory that the input has been stored at.")]
-        public string InputBaseDirectory
-        {
-            get;set;
-        }
-
-        public string Name { get; set; }
-
-        public string OutputBaseDirectory
-        {
-            get;set;
-        }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool ExitRequest()
-        {
-            return false;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public TestEquation[] Equations;
-
-        [RootModule]
-        public IEstimationClientModelSystem Root;
-
-        public void Start()
-        {
-            Root.RetrieveValue = () => Equations.Sum(e => e.Evaluate());
-        }
+        get;set;
     }
 
+    public string Name { get; set; }
+
+    public string OutputBaseDirectory
+    {
+        get;set;
+    }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool ExitRequest()
+    {
+        return false;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public TestEquation[] Equations;
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    public void Start()
+    {
+        Root.RetrieveValue = () => Equations.Sum(e => e.Evaluate());
+    }
 }

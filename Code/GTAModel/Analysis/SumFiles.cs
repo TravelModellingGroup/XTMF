@@ -23,46 +23,43 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Analysis
+namespace TMG.GTAModel.Analysis;
+
+[ModuleInformation( Description = "This module is designed to take many different files and produce a new file containing the summed value of each file, where each file is summed on an individual line." )]
+public class SumODData : ISelfContainedModule
 {
-    [ModuleInformation( Description = "This module is designed to take many different files and produce a new file containing the summed value of each file, where each file is summed on an individual line." )]
-    public class SumODData : ISelfContainedModule
+    [SubModelInformation( Description = "Files to process that contain OD Data.", Required = false )]
+    public List<IReadODData<float>> ODDataInput;
+
+    [RunParameter( "Ouput File Name", "Data.csv", typeof( FileFromOutputDirectory ), "The name of file to store the data into." )]
+    public FileFromOutputDirectory OutputFile;
+
+    public string Name { get; set; }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => null;
+
+    public bool RuntimeValidation(ref string error)
     {
-        [SubModelInformation( Description = "Files to process that contain OD Data.", Required = false )]
-        public List<IReadODData<float>> ODDataInput;
+        return true;
+    }
 
-        [RunParameter( "Ouput File Name", "Data.csv", typeof( FileFromOutputDirectory ), "The name of file to store the data into." )]
-        public FileFromOutputDirectory OutputFile;
-
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => null;
-
-        public bool RuntimeValidation(ref string error)
+    public void Start()
+    {
+        if ( !OutputFile.ContainsFileName() ) return;
+        using var writer = new StreamWriter(OutputFile.GetFileName());
+        writer.WriteLine("SourceName,Total");
+        foreach (var dataSource in ODDataInput)
         {
-            return true;
-        }
-
-        public void Start()
-        {
-            if ( !OutputFile.ContainsFileName() ) return;
-            using ( var writer = new StreamWriter( OutputFile.GetFileName() ) )
+            double total = 0f;
+            foreach (var dataPoint in dataSource.Read())
             {
-                writer.WriteLine( "SourceName,Total" );
-                foreach ( var dataSource in ODDataInput )
-                {
-                    double total = 0f;
-                    foreach ( var dataPoint in dataSource.Read() )
-                    {
-                        total += dataPoint.Data;
-                    }
-                    writer.Write( dataSource.Name );
-                    writer.Write( ',' );
-                    writer.WriteLine( total );
-                }
+                total += dataPoint.Data;
             }
+            writer.Write(dataSource.Name);
+            writer.Write(',');
+            writer.WriteLine(total);
         }
     }
 }

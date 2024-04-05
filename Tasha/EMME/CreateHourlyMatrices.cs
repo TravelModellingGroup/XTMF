@@ -49,7 +49,7 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
     [SubModelInformation(Required = true, Description = "The location to save the matrix.")]
     public FileLocation MatrixSaveLocation;
 
-    private SpinLock WriteLock = new SpinLock(false);
+    private SpinLock WriteLock = new(false);
 
     [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
     public int MinimumAge;

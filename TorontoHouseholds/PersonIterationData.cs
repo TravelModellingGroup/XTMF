@@ -19,93 +19,92 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public class PersonIterationData : IPersonIterationData
 {
-    public class PersonIterationData : IPersonIterationData
+    private static ConcurrentBag<PersonIterationData> Items = [];
+
+    /// <summary>
+    /// Creates a person's iteration data for the specified household iteration
+    /// </summary>
+    /// <param name="person">the person</param>
+    private PersonIterationData(ITashaPerson person)
+        : this()
     {
-        private static ConcurrentBag<PersonIterationData> Items = new ConcurrentBag<PersonIterationData>();
+        TripChains = [];
+        PopulateData( person );
+    }
 
-        /// <summary>
-        /// Creates a person's iteration data for the specified household iteration
-        /// </summary>
-        /// <param name="person">the person</param>
-        private PersonIterationData(ITashaPerson person)
-            : this()
+    public bool IterationSuccessful
+    {
+        get;
+        private set;
+    }
+
+    public Dictionary<ITrip, ITashaMode> TripModes
+    {
+        get;
+        set;
+    }
+
+    public static IPersonIterationData MakePersonIterationData(ITashaPerson person)
+    {
+        if (Items.TryTake(out PersonIterationData p))
         {
-            TripChains = new List<ITripChain>();
-            PopulateData( person );
+            p.PopulateData(person);
+            return p;
         }
+        return new PersonIterationData( person );
+    }
 
-        public bool IterationSuccessful
+    public ITashaMode ModeChosen(ITrip trip)
+    {
+        if (TripModes.TryGetValue(trip, out ITashaMode mode))
         {
-            get;
-            private set;
+            return mode;
         }
+        return null;
+    }
 
-        public Dictionary<ITrip, ITashaMode> TripModes
-        {
-            get;
-            set;
-        }
+    public void PopulateData(ITashaPerson person)
+    {
+        IterationSuccessful = true;
+        TripChains.AddRange( person.TripChains );
+        TripChains.AddRange( person.AuxTripChains );
+        //setting this persons trip chains for this iteration
 
-        public static IPersonIterationData MakePersonIterationData(ITashaPerson person)
+        foreach ( var tc in TripChains )
         {
-            if (Items.TryTake(out PersonIterationData p))
+            foreach ( var t in tc.Trips )
             {
-                p.PopulateData(person);
-                return p;
-            }
-            return new PersonIterationData( person );
-        }
-
-        public ITashaMode ModeChosen(ITrip trip)
-        {
-            if (TripModes.TryGetValue(trip, out ITashaMode mode))
-            {
-                return mode;
-            }
-            return null;
-        }
-
-        public void PopulateData(ITashaPerson person)
-        {
-            IterationSuccessful = true;
-            TripChains.AddRange( person.TripChains );
-            TripChains.AddRange( person.AuxTripChains );
-            //setting this persons trip chains for this iteration
-
-            foreach ( var tc in TripChains )
-            {
-                foreach ( var t in tc.Trips )
-                {
-                    TripModes.Add( t, t.Mode );
-                }
+                TripModes.Add( t, t.Mode );
             }
         }
+    }
 
-        #region IPersonIterationData Members
+    #region IPersonIterationData Members
 
-        public PersonIterationData()
-        {
-            TripModes = new Dictionary<ITrip, ITashaMode>();
-            TripChains = new List<ITripChain>();
-            IterationSuccessful = false;
-        }
+    public PersonIterationData()
+    {
+        TripModes = [];
+        TripChains = [];
+        IterationSuccessful = false;
+    }
 
-        public List<ITripChain> TripChains
-        {
-            get;
-            set;
-        }
+    public List<ITripChain> TripChains
+    {
+        get;
+        set;
+    }
 
-        #endregion IPersonIterationData Members
+    #endregion IPersonIterationData Members
 
-        public void Recycle()
-        {
-            TripChains.Clear();
-            TripModes.Clear();
-            IterationSuccessful = false;
-            Items.Add( this );
-        }
+    public void Recycle()
+    {
+        TripChains.Clear();
+        TripModes.Clear();
+        IterationSuccessful = false;
+        Items.Add( this );
     }
 }

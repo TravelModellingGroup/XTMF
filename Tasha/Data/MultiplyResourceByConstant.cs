@@ -21,59 +21,57 @@ using Datastructure;
 using XTMF;
 using TMG.Functions;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module will multiply a vector by the given constant.")]
+public class MultiplyResourceByConstant : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation(Description = "This module will multiply a vector by the given constant.")]
-    public class MultiplyResourceByConstant : IDataSource<SparseArray<float>>
+    [SubModelInformation(Required = false, Description = "The resource to multiply")]
+    public IResource ResourceToMultiply;
+
+    [SubModelInformation(Required = false, Description = "Alternative to the resource to multiply.")]
+    public IDataSource<SparseArray<float>> RawToMultiply;
+
+    [RunParameter("Factor", 1.0f, "The factor to multiply the rates by in order to produce our results.")]
+    public float Factor;
+
+    public bool Loaded
     {
-        [SubModelInformation(Required = false, Description = "The resource to multiply")]
-        public IResource ResourceToMultiply;
-
-        [SubModelInformation(Required = false, Description = "Alternative to the resource to multiply.")]
-        public IDataSource<SparseArray<float>> RawToMultiply;
-
-        [RunParameter("Factor", 1.0f, "The factor to multiply the rates by in order to produce our results.")]
-        public float Factor;
-
-        public bool Loaded
-        {
-            get; set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseArray<float> Data;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            var resource = ModuleHelper.GetDataFromDatasourceOrResource(RawToMultiply, ResourceToMultiply, RawToMultiply != null);
-            var otherData = resource.GetFlatData();
-            var ourResource = resource.CreateSimilarArray<float>();
-            var data = ourResource.GetFlatData();
-            VectorHelper.Multiply(data, 0, otherData, 0, Factor, data.Length);
-            Data = ourResource;
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(RawToMultiply, ResourceToMultiply, ref error);
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-            Loaded = false;
-        }
+        get; set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseArray<float> Data;
+
+    public SparseArray<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        var resource = ModuleHelper.GetDataFromDatasourceOrResource(RawToMultiply, ResourceToMultiply, RawToMultiply != null);
+        var otherData = resource.GetFlatData();
+        var ourResource = resource.CreateSimilarArray<float>();
+        var data = ourResource.GetFlatData();
+        VectorHelper.Multiply(data, 0, otherData, 0, Factor, data.Length);
+        Data = ourResource;
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(RawToMultiply, ResourceToMultiply, ref error);
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+        Loaded = false;
+    }
 }

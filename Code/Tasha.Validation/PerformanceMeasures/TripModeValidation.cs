@@ -23,142 +23,139 @@ using Tasha.Common;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation.PerformanceMeasures
+namespace Tasha.Validation.PerformanceMeasures;
+
+public class TripModeValidation : IPostHouseholdIteration
 {
-    public class TripModeValidation : IPostHouseholdIteration
+    bool Calculate;
+
+    Dictionary<string, float> AMModeDictionary = [];
+    Dictionary<string, float> MDModeDictionary = [];
+    Dictionary<string, float> PMModeDictionary = [];
+    Dictionary<string, float> EVModeDictionary = [];
+
+    [SubModelInformation(Required = true, Description = "Mode Validation Results File in .csv")]
+    public FileLocation ResultsFile;
+
+    [RunParameter("Minimum Age", 11, "The minimum age a person must be in order to be recorded.")]
+    public int MinAge;
+
+    public void HouseholdComplete(ITashaHousehold household, bool success)
     {
-        bool Calculate;
+    }
 
-        Dictionary<string, float> AMModeDictionary = new Dictionary<string, float>();
-        Dictionary<string, float> MDModeDictionary = new Dictionary<string, float>();
-        Dictionary<string, float> PMModeDictionary = new Dictionary<string, float>();
-        Dictionary<string, float> EVModeDictionary = new Dictionary<string, float>();
-
-        [SubModelInformation(Required = true, Description = "Mode Validation Results File in .csv")]
-        public FileLocation ResultsFile;
-
-        [RunParameter("Minimum Age", 11, "The minimum age a person must be in order to be recorded.")]
-        public int MinAge;
-
-        public void HouseholdComplete(ITashaHousehold household, bool success)
+    public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    {
+        if (Calculate)
         {
-        }
-
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
-        {
-            if (Calculate)
+            for (int i = 0; i < household.Persons.Length; i++)
             {
-                for (int i = 0; i < household.Persons.Length; i++)
-                {
-                    float toAdd = household.Persons[i].ExpansionFactor / totalHouseholdIterations;
+                float toAdd = household.Persons[i].ExpansionFactor / totalHouseholdIterations;
 
-                    for (int j = 0; j < household.Persons[i].TripChains.Count; j++)
+                for (int j = 0; j < household.Persons[i].TripChains.Count; j++)
+                {
+                    var person = household.Persons[i];
+                    if(person.Age < MinAge)
                     {
-                        var person = household.Persons[i];
-                        if(person.Age < MinAge)
+                        continue;
+                    }
+                    for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
+                    {
+                        var trip = person.TripChains[j].Trips[k];
+                        var mode = trip.Mode.ModeName;
+                        var tripStartTime = trip.TripStartTime.Hours;
+                        if (tripStartTime >= 6 && tripStartTime < 9)
                         {
-                            continue;
+                            AddToDictionary(AMModeDictionary, mode, toAdd);
                         }
-                        for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
+                        else if (tripStartTime >= 9 && tripStartTime < 15)
                         {
-                            var trip = person.TripChains[j].Trips[k];
-                            var mode = trip.Mode.ModeName;
-                            var tripStartTime = trip.TripStartTime.Hours;
-                            if (tripStartTime >= 6 && tripStartTime < 9)
-                            {
-                                AddToDictionary(AMModeDictionary, mode, toAdd);
-                            }
-                            else if (tripStartTime >= 9 && tripStartTime < 15)
-                            {
-                                AddToDictionary(MDModeDictionary, mode, toAdd);
-                            }
-                            else if (tripStartTime >= 15 && tripStartTime < 19)
-                            {
-                                AddToDictionary(PMModeDictionary, mode, toAdd);
-                            }
-                            else
-                            {
-                                AddToDictionary(EVModeDictionary, mode, toAdd);
-                            }
+                            AddToDictionary(MDModeDictionary, mode, toAdd);
+                        }
+                        else if (tripStartTime >= 15 && tripStartTime < 19)
+                        {
+                            AddToDictionary(PMModeDictionary, mode, toAdd);
+                        }
+                        else
+                        {
+                            AddToDictionary(EVModeDictionary, mode, toAdd);
                         }
                     }
                 }
             }
         }
+    }
 
-        private void AddToDictionary(Dictionary<string, float> modeDictionary, string mode, float toAdd)
+    private void AddToDictionary(Dictionary<string, float> modeDictionary, string mode, float toAdd)
+    {
+        lock (this)
         {
-            lock (this)
+            if (!modeDictionary.TryGetValue(mode, out float initialValue))
             {
-                if (!modeDictionary.TryGetValue(mode, out float initialValue))
-                {
-                    initialValue = 0;
-                }
-                modeDictionary[mode] = toAdd + initialValue;
+                initialValue = 0;
+            }
+            modeDictionary[mode] = toAdd + initialValue;
+        }
+    }
+
+    public void HouseholdStart(ITashaHousehold household, int householdIterations)
+    {
+    }
+
+    public void IterationStarting(int iteration, int totalIterations)
+    {
+        Calculate = iteration == totalIterations - 1;
+    }
+
+    public void IterationFinished(int iteration, int totalIterations)
+    {
+        if (iteration == totalIterations - 1)
+        {
+            using StreamWriter writer = new(ResultsFile);
+            writer.WriteLine("Mode, Trips");
+            foreach (var pair in AMModeDictionary)
+            {
+                writer.WriteLine("AM" + "{0}, {1}", pair.Key, pair.Value);
+            }
+            foreach (var pair in MDModeDictionary)
+            {
+                writer.WriteLine("MD" + "{0}, {1}", pair.Key, pair.Value);
+            }
+            foreach (var pair in PMModeDictionary)
+            {
+                writer.WriteLine("PM" + "{0}, {1}", pair.Key, pair.Value);
+            }
+            foreach (var pair in EVModeDictionary)
+            {
+                writer.WriteLine("EV" + "{0}, {1}", pair.Key, pair.Value);
             }
         }
 
-        public void HouseholdStart(ITashaHousehold household, int householdIterations)
-        {
-        }
+        AMModeDictionary.Clear();
+        MDModeDictionary.Clear();
+        PMModeDictionary.Clear();
+        EVModeDictionary.Clear();
+    }
 
-        public void IterationStarting(int iteration, int totalIterations)
-        {
-            Calculate = iteration == totalIterations - 1;
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        public void IterationFinished(int iteration, int totalIterations)
-        {
-            if (iteration == totalIterations - 1)
-            {
-                using (StreamWriter writer = new StreamWriter(ResultsFile))
-                {
-                    writer.WriteLine("Mode, Trips");
-                    foreach (var pair in AMModeDictionary)
-                    {
-                        writer.WriteLine("AM" + "{0}, {1}", pair.Key, pair.Value);
-                    }
-                    foreach (var pair in MDModeDictionary)
-                    {
-                        writer.WriteLine("MD" + "{0}, {1}", pair.Key, pair.Value);
-                    }
-                    foreach (var pair in PMModeDictionary)
-                    {
-                        writer.WriteLine("PM" + "{0}, {1}", pair.Key, pair.Value);
-                    }
-                    foreach (var pair in EVModeDictionary)
-                    {
-                        writer.WriteLine("EV" + "{0}, {1}", pair.Key, pair.Value);
-                    }
-                }
-            }
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-            AMModeDictionary.Clear();
-            MDModeDictionary.Clear();
-            PMModeDictionary.Clear();
-            EVModeDictionary.Clear();
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(120, 25, 100); }
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(120, 25, 100); }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

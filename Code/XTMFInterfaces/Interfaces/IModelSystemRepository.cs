@@ -18,27 +18,26 @@
 */
 using System.Collections.Generic;
 
-namespace XTMF
+namespace XTMF;
+
+public interface IModelSystemRepository : IEnumerable<IModelSystem>
 {
-    public interface IModelSystemRepository : IEnumerable<IModelSystem>
-    {
-        /// <summary>
-        /// The model systems currently loaded in this
-        /// installation of XTMF
-        /// </summary>
-        IList<IModelSystem> ModelSystems { get; }
+    /// <summary>
+    /// The model systems currently loaded in this
+    /// installation of XTMF
+    /// </summary>
+    IList<IModelSystem> ModelSystems { get; }
 
-        /// <summary>
-        /// add a new type of model system to the model system repository
-        /// </summary>
-        /// <param name="modelSystem">The type that implements IModelSystem</param>
-        void Add(IModelSystem modelSystem);
+    /// <summary>
+    /// add a new type of model system to the model system repository
+    /// </summary>
+    /// <param name="modelSystem">The type that implements IModelSystem</param>
+    void Add(IModelSystem modelSystem);
 
-        /// <summary>
-        /// Remove the model system from the model system repository
-        /// </summary>
-        /// <param name="modelSystem">The model system to remove</param>
-        /// <returns>True if a model system was removed, false if it was not (or doe snot exist)</returns>
-        bool Remove(IModelSystem modelSystem);
-    }
+    /// <summary>
+    /// Remove the model system from the model system repository
+    /// </summary>
+    /// <param name="modelSystem">The model system to remove</param>
+    /// <returns>True if a model system was removed, false if it was not (or doe snot exist)</returns>
+    bool Remove(IModelSystem modelSystem);
 }

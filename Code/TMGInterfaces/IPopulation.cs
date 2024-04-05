@@ -19,19 +19,18 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IPopulation : IModule
 {
-    public interface IPopulation : IModule
-    {
-        /// <summary>
-        /// [Zone]
-        /// </summary>
-        SparseArray<IPerson[]> Population { get; set; }
+    /// <summary>
+    /// [Zone]
+    /// </summary>
+    SparseArray<IPerson[]> Population { get; set; }
 
-        void Load();
+    void Load();
 
-        void Save();
+    void Save();
 
-        void Save(string fileName);
-    }
+    void Save(string fileName);
 }

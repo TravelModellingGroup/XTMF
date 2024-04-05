@@ -18,29 +18,28 @@
 */
 using System;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// This attribute should be used to identify which directory corresponds
+/// to this class
+/// </summary>
+[AttributeUsage( AttributeTargets.Class )]
+public class ConfigDirectoryAttribute : Attribute
 {
-    /// <summary>
-    /// This attribute should be used to identify which directory corresponds
-    /// to this class
-    /// </summary>
-    [AttributeUsage( AttributeTargets.Class )]
-    public class ConfigDirectoryAttribute : Attribute
+    public ConfigDirectoryAttribute(string directoryName)
     {
-        public ConfigDirectoryAttribute(string directoryName)
-        {
-            DirectoryName = directoryName;
-            Description = "";
-        }
-
-        public ConfigDirectoryAttribute(string directoryName, string description)
-            : this( directoryName )
-        {
-            Description = description;
-        }
-
-        public string Description { get; private set; }
-
-        public string DirectoryName { get; private set; }
+        DirectoryName = directoryName;
+        Description = "";
     }
+
+    public ConfigDirectoryAttribute(string directoryName, string description)
+        : this( directoryName )
+    {
+        Description = description;
+    }
+
+    public string Description { get; private set; }
+
+    public string DirectoryName { get; private set; }
 }

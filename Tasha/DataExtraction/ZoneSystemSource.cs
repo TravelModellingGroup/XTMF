@@ -19,51 +19,50 @@
 using System;
 using XTMF;
 using TMG;
-namespace Tasha.DataExtraction
+namespace Tasha.DataExtraction;
+
+[ModuleInformation(Description=
+    "This module is designed to allow for the storage of a zone system as a resource."
+    )]
+public class ZoneSystemSource : IDataSource<IZoneSystem>
 {
-    [ModuleInformation(Description=
-        "This module is designed to allow for the storage of a zone system as a resource."
-        )]
-    public class ZoneSystemSource : IDataSource<IZoneSystem>
+    [SubModelInformation(Required=true, Description="The zone system to store.")]
+    public IZoneSystem ZoneSystem;
+
+    public IZoneSystem GiveData()
     {
-        [SubModelInformation(Required=true, Description="The zone system to store.")]
-        public IZoneSystem ZoneSystem;
+        return ZoneSystem;
+    }
 
-        public IZoneSystem GiveData()
-        {
-            return ZoneSystem;
-        }
+    public bool Loaded
+    {
+        get { return ZoneSystem != null; }
+    }
 
-        public bool Loaded
-        {
-            get { return ZoneSystem != null; }
-        }
+    public void LoadData()
+    {
+        ZoneSystem.LoadData();
+    }
 
-        public void LoadData()
-        {
-            ZoneSystem.LoadData();
-        }
+    public void UnloadData()
+    {
+        ZoneSystem.UnloadData();
+    }
 
-        public void UnloadData()
-        {
-            ZoneSystem.UnloadData();
-        }
+    public string Name { get; set; } 
 
-        public string Name { get; set; } 
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

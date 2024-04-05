@@ -24,164 +24,163 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+[ModuleInformation(Description =
+    @"This module is designed to create a temporary copy of the emme database an execute on that.")]
+public class SpawnEmmeCopyControllerDataSource : IDataSource<ModellerController>, IDisposable
 {
-    [ModuleInformation(Description =
-        @"This module is designed to create a temporary copy of the emme database an execute on that.")]
-    public class SpawnEmmeCopyControllerDataSource : IDataSource<ModellerController>, IDisposable
+    [SubModelInformation(Required = true, Description = "The location of the Emme project file.")]
+    public FileLocation ProjectFile;
+
+    [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+    public string EmmeDatabank;
+
+    [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+    public string EmmePath;
+
+    [SubModelInformation(Required = true, Description = "The location to base the temporary copy.")]
+    public FileLocation TempBaseDirectory;
+
+    [RunParameter("Delete On Exit", true, "Set this to false to keep the EMME project after the model system terminates.")]
+    public bool DeleteOnExit;
+
+    private ModellerController Controller;
+
+    public ModellerController GiveData()
     {
-        [SubModelInformation(Required = true, Description = "The location of the Emme project file.")]
-        public FileLocation ProjectFile;
+        return Controller;
+    }
 
-        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
-        public string EmmeDatabank;
+    private string TempDirectory;
 
-        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
-        public string EmmePath;
+    public bool Loaded
+    {
+        get { return Controller != null; }
+    }
 
-        [SubModelInformation(Required = true, Description = "The location to base the temporary copy.")]
-        public FileLocation TempBaseDirectory;
-
-        [RunParameter("Delete On Exit", true, "Set this to false to keep the EMME project after the model system terminates.")]
-        public bool DeleteOnExit;
-
-        private ModellerController Controller;
-
-        public ModellerController GiveData()
+    public void LoadData()
+    {
+        if (Controller == null)
         {
-            return Controller;
-        }
-
-        private string TempDirectory;
-
-        public bool Loaded
-        {
-            get { return Controller != null; }
-        }
-
-        public void LoadData()
-        {
-            if (Controller == null)
+            lock (this)
             {
-                lock (this)
+                if (Controller == null)
                 {
-                    if (Controller == null)
+                    GC.ReRegisterForFinalize(this);
+                    var projectFile = ProjectFile.GetFilePath();
+                    var originalDir = Path.GetDirectoryName(projectFile);
+                    projectFile = Path.GetFileName(projectFile);
+                    if (projectFile == null)
                     {
-                        GC.ReRegisterForFinalize(this);
-                        var projectFile = ProjectFile.GetFilePath();
-                        var originalDir = Path.GetDirectoryName(projectFile);
-                        projectFile = Path.GetFileName(projectFile);
-                        if (projectFile == null)
-                        {
-                            throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the file name from {ProjectFile}!");
-                        }
-                        var dir = TempDirectory = TempBaseDirectory.GetFilePath();
-                        DirectoryCopy(originalDir, dir);
-                        var actuallyRunning = Path.GetFullPath(Path.Combine(dir, projectFile));
-                        Console.WriteLine("Opening EMME at " + actuallyRunning);
-                        Controller = new ModellerController(this, actuallyRunning, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath);
+                        throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the file name from {ProjectFile}!");
                     }
+                    var dir = TempDirectory = TempBaseDirectory.GetFilePath();
+                    DirectoryCopy(originalDir, dir);
+                    var actuallyRunning = Path.GetFullPath(Path.Combine(dir, projectFile));
+                    Console.WriteLine("Opening EMME at " + actuallyRunning);
+                    Controller = new ModellerController(this, actuallyRunning, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath);
                 }
             }
         }
+    }
 
-        private void DirectoryCopy(string sourceDirectory, string destinationDirectory)
+    private void DirectoryCopy(string sourceDirectory, string destinationDirectory)
+    {
+        // Get the subdirectories for the specified directory.
+        DirectoryInfo dir = new(sourceDirectory);
+        DirectoryInfo[] dirs = dir.GetDirectories();
+        if (!dir.Exists)
         {
-            // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new DirectoryInfo(sourceDirectory);
-            DirectoryInfo[] dirs = dir.GetDirectories();
-            if (!dir.Exists)
-            {
-                throw new DirectoryNotFoundException(
-                    "Source directory does not exist or could not be found: "
-                    + sourceDirectory);
-            }
+            throw new DirectoryNotFoundException(
+                "Source directory does not exist or could not be found: "
+                + sourceDirectory);
+        }
 
-            // If the destination directory doesn't exist, create it.
-            if (!Directory.Exists(destinationDirectory))
-            {
-                Directory.CreateDirectory(destinationDirectory);
-            }
+        // If the destination directory doesn't exist, create it.
+        if (!Directory.Exists(destinationDirectory))
+        {
+            Directory.CreateDirectory(destinationDirectory);
+        }
 
-            // Get the files in the directory and copy them to the new location.
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
+        // Get the files in the directory and copy them to the new location.
+        FileInfo[] files = dir.GetFiles();
+        foreach (FileInfo file in files)
+        {
+            try
+            {
+                string temppath = Path.Combine(destinationDirectory, file.Name);
+                file.CopyTo(temppath, false);
+            }
+            catch(IOException e)
+            {
+                throw new XTMFRuntimeException(this, e, $"Unable to copy file {file.FullName}\r\n{e.Message}");
+            }
+        }
+
+        // If copying subdirectories, copy them and their contents to new location.
+        foreach (DirectoryInfo subdir in dirs)
+        {
+            string temppath = Path.Combine(destinationDirectory, subdir.Name);
+            DirectoryCopy(subdir.FullName, temppath);
+        }
+    }
+
+    public void UnloadData()
+    {
+        //we don't dispose on unload
+        //this.Dispose();
+    }
+
+    public string Name { get; set; }
+
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    ~SpawnEmmeCopyControllerDataSource()
+    {
+        Dispose(true);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool all)
+    {
+        Controller?.Dispose();
+        Controller = null;
+        // try to close for up to 2 seconds
+        if (DeleteOnExit && TempDirectory != null)
+        {
+            for (int i = 0; i < 10; i++)
             {
                 try
                 {
-                    string temppath = Path.Combine(destinationDirectory, file.Name);
-                    file.CopyTo(temppath, false);
+                    Directory.Delete(TempDirectory, true);
+                    return;
                 }
-                catch(IOException e)
+                catch (UnauthorizedAccessException)
                 {
-                    throw new XTMFRuntimeException(this, e, $"Unable to copy file {file.FullName}\r\n{e.Message}");
+                    Thread.Sleep(200);
                 }
-            }
-
-            // If copying subdirectories, copy them and their contents to new location.
-            foreach (DirectoryInfo subdir in dirs)
-            {
-                string temppath = Path.Combine(destinationDirectory, subdir.Name);
-                DirectoryCopy(subdir.FullName, temppath);
-            }
-        }
-
-        public void UnloadData()
-        {
-            //we don't dispose on unload
-            //this.Dispose();
-        }
-
-        public string Name { get; set; }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        ~SpawnEmmeCopyControllerDataSource()
-        {
-            Dispose(true);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool all)
-        {
-            Controller?.Dispose();
-            Controller = null;
-            // try to close for up to 2 seconds
-            if (DeleteOnExit && TempDirectory != null)
-            {
-                for (int i = 0; i < 10; i++)
+                catch (IOException)
                 {
-                    try
-                    {
-                        Directory.Delete(TempDirectory, true);
-                        return;
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        Thread.Sleep(200);
-                    }
-                    catch (IOException)
-                    {
-                        Thread.Sleep(200);
-                    }
+                    Thread.Sleep(200);
                 }
             }
         }

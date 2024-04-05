@@ -19,55 +19,54 @@
 using System;
 using System.IO;
 
-namespace TMG.Input
+namespace TMG.Input;
+
+public class FileFromOutputDirectory
 {
-    public class FileFromOutputDirectory
+    private string FileName;
+
+    public static bool TryParse(ref string error, string input, out FileFromOutputDirectory output)
     {
-        private string FileName;
-
-        public static bool TryParse(ref string error, string input, out FileFromOutputDirectory output)
+        var length = input.Length;
+        var invalidCharacters = Path.GetInvalidPathChars();
+        for (int i = 0; i < length; i++)
         {
-            var length = input.Length;
-            var invalidCharacters = Path.GetInvalidPathChars();
-            for (int i = 0; i < length; i++)
+            var c = input[i];
+            for (int j = 0; j < invalidCharacters.Length; j++)
             {
-                var c = input[i];
-                for (int j = 0; j < invalidCharacters.Length; j++)
+                if (c == invalidCharacters[j])
                 {
-                    if (c == invalidCharacters[j])
-                    {
-                        error = "At position " + i + ", we found an invalid character '" + invalidCharacters[j] + "'!";
-                        output = null;
-                        return false;
-                    }
+                    error = "At position " + i + ", we found an invalid character '" + invalidCharacters[j] + "'!";
+                    output = null;
+                    return false;
                 }
             }
-            output = new FileFromOutputDirectory() { FileName = input };
-
-            return true;
         }
+        output = new FileFromOutputDirectory() { FileName = input };
 
-        public bool ContainsFileName()
-        {
-            return !String.IsNullOrWhiteSpace(FileName);
-        }
+        return true;
+    }
 
-        public string GetFileName()
+    public bool ContainsFileName()
+    {
+        return !String.IsNullOrWhiteSpace(FileName);
+    }
+
+    public string GetFileName()
+    {
+        if (!String.IsNullOrWhiteSpace(FileName))
         {
-            if (!String.IsNullOrWhiteSpace(FileName))
+            var dir = Path.GetDirectoryName(FileName);
+            if (!String.IsNullOrWhiteSpace(dir))
             {
-                var dir = Path.GetDirectoryName(FileName);
-                if (!String.IsNullOrWhiteSpace(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
+                Directory.CreateDirectory(dir);
             }
-            return FileName;
         }
+        return FileName;
+    }
 
-        public override string ToString()
-        {
-            return FileName;
-        }
+    public override string ToString()
+    {
+        return FileName;
     }
 }

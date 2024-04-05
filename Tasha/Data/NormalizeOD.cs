@@ -21,73 +21,72 @@ using TMG;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description =
+    @"This module is designed to normalize the matrix so it sums to 1.")]
+public class NormalizeOD : IDataSource<SparseTwinIndex<float>>
 {
-    [ModuleInformation(Description =
-        @"This module is designed to normalize the matrix so it sums to 1.")]
-    public class NormalizeOD : IDataSource<SparseTwinIndex<float>>
+    private SparseTwinIndex<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation(Required = false, Description = "The matrix to normalize")]
+    public IResource ToNormalize;
+
+    [SubModelInformation(Required = false, Description = "Optionally the raw source to normalize")]
+    public IDataSource<SparseTwinIndex<float>> RawToNormalize;
+
+    public SparseTwinIndex<float> GiveData()
     {
-        private SparseTwinIndex<float> Data;
+        return Data;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        [SubModelInformation(Required = false, Description = "The matrix to normalize")]
-        public IResource ToNormalize;
-
-        [SubModelInformation(Required = false, Description = "Optionally the raw source to normalize")]
-        public IDataSource<SparseTwinIndex<float>> RawToNormalize;
-
-        public SparseTwinIndex<float> GiveData()
+    public void LoadData()
+    {
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        zoneArray.GetFlatData();
+        var firstRate = ModuleHelper.GetDataFromDatasourceOrResource(RawToNormalize, ToNormalize).GetFlatData();
+        SparseTwinIndex<float> data;
+        data = zoneArray.CreateSquareTwinArray<float>();
+        var flatData = data.GetFlatData();
+        float sum = 0.0f;
+        for (int i = 0; i < firstRate.Length; i++)
         {
-            return Data;
+            sum += VectorHelper.Sum(firstRate[i], 0, firstRate.Length);
         }
-
-        public bool Loaded
+        for (int i = 0; i < flatData.Length; i++)
         {
-            get { return Data != null; }
+            VectorHelper.Multiply(flatData[i], 0, firstRate[i], 0, 1.0f / sum, flatData[i].Length);
         }
+        Data = data;
+    }
 
-        public void LoadData()
-        {
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            zoneArray.GetFlatData();
-            var firstRate = ModuleHelper.GetDataFromDatasourceOrResource(RawToNormalize, ToNormalize).GetFlatData();
-            SparseTwinIndex<float> data;
-            data = zoneArray.CreateSquareTwinArray<float>();
-            var flatData = data.GetFlatData();
-            float sum = 0.0f;
-            for (int i = 0; i < firstRate.Length; i++)
-            {
-                sum += VectorHelper.Sum(firstRate[i], 0, firstRate.Length);
-            }
-            for (int i = 0; i < flatData.Length; i++)
-            {
-                VectorHelper.Multiply(flatData[i], 0, firstRate[i], 0, 1.0f / sum, flatData[i].Length);
-            }
-            Data = data;
-        }
+    public void UnloadData()
+    {
+        Data = null;
+    }
 
-        public void UnloadData()
-        {
-            Data = null;
-        }
+    public string Name { get; set; }
 
-        public string Name { get; set; }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(RawToNormalize, ToNormalize, ref error);
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(RawToNormalize, ToNormalize, ref error);
     }
 }

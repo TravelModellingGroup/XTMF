@@ -20,95 +20,92 @@ using System;
 using XTMF;
 using Datastructure;
 using TMG;
-using System.Linq;
 
-namespace Tasha.PopulationSynthesis
+namespace Tasha.PopulationSynthesis;
+
+
+public class EliminateJobsInHomeAndExternal : IDataSource<SparseArray<float>>
 {
-
-    public class EliminateJobsInHomeAndExternal : IDataSource<SparseArray<float>>
+    public bool Loaded
     {
-        public bool Loaded
-        {
-            get; set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public IResource EmploymentByZoneForOccEmpStat;
-
-        public IResource WorkAtHomeRateByZoneForOccEmpStat;
-
-        public IResource ExternalWorkerRateByZoneForByOccEmpStat;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        private SparseArray<float> Data;
-
-        public void LoadData()
-        {
-            var employmentForZone = EmploymentByZoneForOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
-            var workAtHomeRates = WorkAtHomeRateByZoneForOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
-            var externalWorkerRates = ExternalWorkerRateByZoneForByOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
-            var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            var flat = data.GetFlatData();
-            for(int i = 0; i < flat.Length; i++)
-            {
-                var postWaHEmployment = employmentForZone[i] * (1.0f - workAtHomeRates[i]);
-                flat[i] = postWaHEmployment * (1.0f - externalWorkerRates[i]);
-            }
-            Data = data;
-        }
-
-        public float GetPDTotal(int pd, float[] data)
-        {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var acc = 0.0f;
-            for (int i = 0; i < data.Length; i++)
-            {
-                if(zones[i].PlanningDistrict == pd)
-                {
-                    acc += data[i];
-                }
-            }
-            return acc;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if(!EmploymentByZoneForOccEmpStat.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' EmploymentByZoneForOccEmpStat needs to be of type SparseArray<float>!";
-                return false;
-            }
-
-            if(!ExternalWorkerRateByZoneForByOccEmpStat.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' ExternalWorkerRateByZoneForByOccEmpStat needs to be of type SparseArray<float>!";
-                return false;
-            }
-
-            if(!WorkAtHomeRateByZoneForOccEmpStat.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' WorkAtHomeRateByZoneForOccEmpStat needs to be of type SparseArray<float>!";
-                return false;
-            }
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-        }
+        get; set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public IResource EmploymentByZoneForOccEmpStat;
+
+    public IResource WorkAtHomeRateByZoneForOccEmpStat;
+
+    public IResource ExternalWorkerRateByZoneForByOccEmpStat;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public SparseArray<float> GiveData()
+    {
+        return Data;
+    }
+
+    private SparseArray<float> Data;
+
+    public void LoadData()
+    {
+        var employmentForZone = EmploymentByZoneForOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
+        var workAtHomeRates = WorkAtHomeRateByZoneForOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
+        var externalWorkerRates = ExternalWorkerRateByZoneForByOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
+        var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+        var flat = data.GetFlatData();
+        for(int i = 0; i < flat.Length; i++)
+        {
+            var postWaHEmployment = employmentForZone[i] * (1.0f - workAtHomeRates[i]);
+            flat[i] = postWaHEmployment * (1.0f - externalWorkerRates[i]);
+        }
+        Data = data;
+    }
+
+    public float GetPDTotal(int pd, float[] data)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var acc = 0.0f;
+        for (int i = 0; i < data.Length; i++)
+        {
+            if(zones[i].PlanningDistrict == pd)
+            {
+                acc += data[i];
+            }
+        }
+        return acc;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(!EmploymentByZoneForOccEmpStat.CheckResourceType<SparseArray<float>>())
+        {
+            error = "In '" + Name + "' EmploymentByZoneForOccEmpStat needs to be of type SparseArray<float>!";
+            return false;
+        }
+
+        if(!ExternalWorkerRateByZoneForByOccEmpStat.CheckResourceType<SparseArray<float>>())
+        {
+            error = "In '" + Name + "' ExternalWorkerRateByZoneForByOccEmpStat needs to be of type SparseArray<float>!";
+            return false;
+        }
+
+        if(!WorkAtHomeRateByZoneForOccEmpStat.CheckResourceType<SparseArray<float>>())
+        {
+            error = "In '" + Name + "' WorkAtHomeRateByZoneForOccEmpStat needs to be of type SparseArray<float>!";
+            return false;
+        }
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+    }
 }

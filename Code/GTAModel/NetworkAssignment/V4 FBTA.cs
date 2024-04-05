@@ -22,223 +22,219 @@ using System.Linq;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAssignment
+namespace TMG.GTAModel.NetworkAssignment;
+
+[ModuleInformation(Description = "Executes a congested transit assignment procedure " +
+                    "for GTAModel V4.0. " +
+                    "<br><br>Hard-coded assumptions: " +
+                    "<ul><li> Boarding penalties are assumed stored in <b>UT3</b></li>" +
+                    "<li> The congestion term is stored in <b>US3</b></li>" +
+                    "<li> In-vehicle time perception is 1.0</li>" +
+                    "<li> Unless specified, all available transit modes will be used.</li>" +
+                    "</ul>" +
+                    "<font color='red'>This tool is only compatible with Emme 4 and later versions</font>",
+                    Name = "V4 Fare Based Transit Assignment (FBTA)")]
+public class V4FBTA : IEmmeTool
 {
-    [ModuleInformation(Description = "Executes a congested transit assignment procedure " +
-                        "for GTAModel V4.0. " +
-                        "<br><br>Hard-coded assumptions: " +
-                        "<ul><li> Boarding penalties are assumed stored in <b>UT3</b></li>" +
-                        "<li> The congestion term is stored in <b>US3</b></li>" +
-                        "<li> In-vehicle time perception is 1.0</li>" +
-                        "<li> Unless specified, all available transit modes will be used.</li>" +
-                        "</ul>" +
-                        "<font color='red'>This tool is only compatible with Emme 4 and later versions</font>",
-                        Name = "V4 Fare Based Transit Assignment (FBTA)")]
-    public class V4FBTA : IEmmeTool
+
+    [RunParameter("Scenario Number", 0, "Emme Scenario Number")]
+    public int ScenarioNumber;
+
+    [RunParameter("Demand Matrix Number", 0, "The number of the full matrix containing transit demand ODs")]
+    public int DemandMatrixNumber;
+
+    [Parameter("Headway Fraction Attribute", "@hfrac", "The ID of the NODE extra attribute in which to store headway fraction. Should have a default value of 0.5.")]
+    public string HeadwayFractionAttribute;
+
+    [Parameter("Walk Perception Attribute", "@walkp", "The ID of the LINK extra attribute in which to store walk time perception. Should have a default value of 1.0.")]
+    public string WalkPerceptionAttribute;
+
+    [Parameter("Link Fare Attribute", "@lfare", "The ID of the LINK extra attribute containing actual fare costs.")]
+    public string LinkFareAttribute;
+
+    [Parameter("Segment Fare Attribute", "@sfare", "The ID of the SEGMENT extra attribute containing actual fare costs.")]
+    public string SegmentFareAttribute;
+
+    [Parameter("Effective Headway Attribute", "@ehdw", "The name of the attribute to use for the effective headway")]
+    public string EffectiveHeadwayAttributeId;
+
+    //-------------------------------------------
+
+    [RunParameter("In-vehicle Times Matrix", 0, "The number of the FULL matrix in which to save in-vehicle travel time. Enter 0 to skip saving this matrix")]
+    public int InVehicleMatrixNumber;
+
+    [RunParameter("WalkTimes Matrix", 0, "The number of the FULL matrix in which to save total walk time. Enter 0 to skip saving this matrix")]
+    public int WalkMatrixNumber;
+
+    [RunParameter("Wait Times Matrix", 0, "The number of the FULL matrix in which to save total waiting time. Enter 0 to skip saving this matrix")]
+    public int WaitMatrixNumber;
+
+    [RunParameter("Fare Matrix", 0, "The number of the FULL matrix in which to save transit fares. Enter 0 to skip saving this matrix")]
+    public int FareMatrixNumber;
+
+    [RunParameter("Boarding Matrix", 0, "The number of the FULL matrix in which to save the incurred boarding penalties. Enter 0 to skip saving this matrix")]
+    public int BoardingMatrixNumber;
+
+    [RunParameter("Congestion Matrix", 0, "The number of the FULL matrix in which to save transit congestion. Enter 0 to skip saving this matrix")]
+    public int CongestionMatrixNumber;
+
+    [RunParameter("Impedance Matrix", 0, "The number of the FULL matrix in which to save the perceived travel times. Enter 0 to skip saving this matrix")]
+    public int ImpedanceMatrix;
+
+    [RunParameter("Distance Matrix", 0, "The number of the FULL matrix in which to save distances. Enter 0 to skip saving this matrix")]
+    public int DistanceMatrixNumber;
+
+    //-------------------------------------------
+
+    [RunParameter("Effective Headway Slope", 0.5f, "")]
+    public float EffectiveHeadwaySlope;
+
+    [RunParameter("Wait Time Perception", 1.0f, "Perception factor applied to wait time component.")]
+    public float WaitTimePerception;
+
+    [Parameter("Walk Speed", 4.0f, "Walking speed in km/hr. Applied to all walk (aux. transit) modes in the Emme scenario.")]
+    public float WalkSpeed;
+
+    [RunParameter("Toronto Walk Perception", 1.0f, "Perception factor applied to Toronto links. Hard-coded to NCS11 node numbers.")]
+    public float WalkPerceptionToronto;
+
+    [RunParameter("Non-Toronto Walk Perception", 1.0f, "Perception factor applied to non-Toronto links. Hard-coded to NCS11 node numbers.")]
+    public float WalkPerceptionNonToronto;
+
+    [RunParameter("Toronto Access Perception", 1.0f, "Walk perception factor applied to Toronto centroid connectors")]
+    public float WalkPerceptionTorontoConnectors;
+
+    [RunParameter("Non-Toronto Access Perception", 1.0f, "Walk perception applied to non-Toronto centroid connectors")]
+    public float WalkPerceptionNonTorontoConnectors;
+
+    [RunParameter("PD1 Walk Perception", 1.0f, "Walk perception applied non-connector walk links with type 101")]
+    public float WalkPerceptionPD1;
+
+    [RunParameter("Boarding Penalty Perception", 0.0f, "Perception factor applied to boarding penalty component.")]
+    public float BoardingPerception;
+
+    [RunParameter("Fare Perception", 1.0f, "Perception factor applied to path transit fares, in $/hr.")]
+    public float FarePerception;
+
+    [RunParameter("Representative Hour Factor", 2.04f, "A multiplier applied to the demand matrix to scale it to match" +
+                " the transit line capacity period. This is similar to the peak hour factor used in auto assignment.")]
+    public float RepresentativeHourFactor;
+
+    //-------------------------------------------
+
+    [RunParameter("Use Boarding Levels", false, "Use boarding levels to ensure that every path must take a transit vehicle before arriving at their destination.")]
+    public bool UseBoardingLevels;
+
+    [RunParameter("Iterations", 20, "Convergence criterion: The maximum number of iterations performed by the transit assignment.")]
+    public int MaxIterations;
+
+    [RunParameter("Normalized Gap", 0.01f, "Convergence criterion")]
+    public float NormalizedGap;
+
+    [RunParameter("Relative Gap", 0.001f, "Convergence criterion")]
+    public float RelativeGap;
+
+    [Parameter("Connector Logit Scale", 0.2f, "Scale parameter for logit model at origin connectors.")]
+    public float ConnectorLogitScale;
+
+    [Parameter("Add Congestion to IVTT", false, "Set to TRUE to extract the congestion matrix and add its weighted value to the in vehicle time (IVTT) matrix.")]
+    public bool ExtractCongestedInVehicleTimeFlag;
+
+    private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
+
+    private const string ToolName = "tmg.assignment.transit.V4_FBTA";
+
+
+    public sealed class TTFDefinitions : IModule
     {
+        [RunParameter("TTF", 0, "The TTF number to assign to. 1 would mean TTF1.")]
+        public int TTFNumber;
 
-        [RunParameter("Scenario Number", 0, "Emme Scenario Number")]
-        public int ScenarioNumber;
+        [RunParameter("Congestion Perception", 0.0f, "The congestion exponent to apply to this TTF.")]
+        public float CongestionPerception;
 
-        [RunParameter("Demand Matrix Number", 0, "The number of the full matrix containing transit demand ODs")]
-        public int DemandMatrixNumber;
+        [RunParameter("Congestion Exponent", 0.0f, "The congestion exponent to apply to this TTF.")]
+        public float CongestionExponent;
 
-        [Parameter("Headway Fraction Attribute", "@hfrac", "The ID of the NODE extra attribute in which to store headway fraction. Should have a default value of 0.5.")]
-        public string HeadwayFractionAttribute;
+        public string Name { get; set; }
 
-        [Parameter("Walk Perception Attribute", "@walkp", "The ID of the LINK extra attribute in which to store walk time perception. Should have a default value of 1.0.")]
-        public string WalkPerceptionAttribute;
+        public float Progress { get; set; }
 
-        [Parameter("Link Fare Attribute", "@lfare", "The ID of the LINK extra attribute containing actual fare costs.")]
-        public string LinkFareAttribute;
-
-        [Parameter("Segment Fare Attribute", "@sfare", "The ID of the SEGMENT extra attribute containing actual fare costs.")]
-        public string SegmentFareAttribute;
-
-        [Parameter("Effective Headway Attribute", "@ehdw", "The name of the attribute to use for the effective headway")]
-        public string EffectiveHeadwayAttributeId;
-
-        //-------------------------------------------
-
-        [RunParameter("In-vehicle Times Matrix", 0, "The number of the FULL matrix in which to save in-vehicle travel time. Enter 0 to skip saving this matrix")]
-        public int InVehicleMatrixNumber;
-
-        [RunParameter("WalkTimes Matrix", 0, "The number of the FULL matrix in which to save total walk time. Enter 0 to skip saving this matrix")]
-        public int WalkMatrixNumber;
-
-        [RunParameter("Wait Times Matrix", 0, "The number of the FULL matrix in which to save total waiting time. Enter 0 to skip saving this matrix")]
-        public int WaitMatrixNumber;
-
-        [RunParameter("Fare Matrix", 0, "The number of the FULL matrix in which to save transit fares. Enter 0 to skip saving this matrix")]
-        public int FareMatrixNumber;
-
-        [RunParameter("Boarding Matrix", 0, "The number of the FULL matrix in which to save the incurred boarding penalties. Enter 0 to skip saving this matrix")]
-        public int BoardingMatrixNumber;
-
-        [RunParameter("Congestion Matrix", 0, "The number of the FULL matrix in which to save transit congestion. Enter 0 to skip saving this matrix")]
-        public int CongestionMatrixNumber;
-
-        [RunParameter("Impedance Matrix", 0, "The number of the FULL matrix in which to save the perceived travel times. Enter 0 to skip saving this matrix")]
-        public int ImpedanceMatrix;
-
-        [RunParameter("Distance Matrix", 0, "The number of the FULL matrix in which to save distances. Enter 0 to skip saving this matrix")]
-        public int DistanceMatrixNumber;
-
-        //-------------------------------------------
-
-        [RunParameter("Effective Headway Slope", 0.5f, "")]
-        public float EffectiveHeadwaySlope;
-
-        [RunParameter("Wait Time Perception", 1.0f, "Perception factor applied to wait time component.")]
-        public float WaitTimePerception;
-
-        [Parameter("Walk Speed", 4.0f, "Walking speed in km/hr. Applied to all walk (aux. transit) modes in the Emme scenario.")]
-        public float WalkSpeed;
-
-        [RunParameter("Toronto Walk Perception", 1.0f, "Perception factor applied to Toronto links. Hard-coded to NCS11 node numbers.")]
-        public float WalkPerceptionToronto;
-
-        [RunParameter("Non-Toronto Walk Perception", 1.0f, "Perception factor applied to non-Toronto links. Hard-coded to NCS11 node numbers.")]
-        public float WalkPerceptionNonToronto;
-
-        [RunParameter("Toronto Access Perception", 1.0f, "Walk perception factor applied to Toronto centroid connectors")]
-        public float WalkPerceptionTorontoConnectors;
-
-        [RunParameter("Non-Toronto Access Perception", 1.0f, "Walk perception applied to non-Toronto centroid connectors")]
-        public float WalkPerceptionNonTorontoConnectors;
-
-        [RunParameter("PD1 Walk Perception", 1.0f, "Walk perception applied non-connector walk links with type 101")]
-        public float WalkPerceptionPD1;
-
-        [RunParameter("Boarding Penalty Perception", 0.0f, "Perception factor applied to boarding penalty component.")]
-        public float BoardingPerception;
-
-        [RunParameter("Fare Perception", 1.0f, "Perception factor applied to path transit fares, in $/hr.")]
-        public float FarePerception;
-
-        [RunParameter("Representative Hour Factor", 2.04f, "A multiplier applied to the demand matrix to scale it to match" +
-                    " the transit line capacity period. This is similar to the peak hour factor used in auto assignment.")]
-        public float RepresentativeHourFactor;
-
-        //-------------------------------------------
-
-        [RunParameter("Use Boarding Levels", false, "Use boarding levels to ensure that every path must take a transit vehicle before arriving at their destination.")]
-        public bool UseBoardingLevels;
-
-        [RunParameter("Iterations", 20, "Convergence criterion: The maximum number of iterations performed by the transit assignment.")]
-        public int MaxIterations;
-
-        [RunParameter("Normalized Gap", 0.01f, "Convergence criterion")]
-        public float NormalizedGap;
-
-        [RunParameter("Relative Gap", 0.001f, "Convergence criterion")]
-        public float RelativeGap;
-
-        [Parameter("Connector Logit Scale", 0.2f, "Scale parameter for logit model at origin connectors.")]
-        public float ConnectorLogitScale;
-
-        [Parameter("Add Congestion to IVTT", false, "Set to TRUE to extract the congestion matrix and add its weighted value to the in vehicle time (IVTT) matrix.")]
-        public bool ExtractCongestedInVehicleTimeFlag;
-
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-
-        private const string ToolName = "tmg.assignment.transit.V4_FBTA";
-
-
-        public sealed class TTFDefinitions : IModule
-        {
-            [RunParameter("TTF", 0, "The TTF number to assign to. 1 would mean TTF1.")]
-            public int TTFNumber;
-
-            [RunParameter("Congestion Perception", 0.0f, "The congestion exponent to apply to this TTF.")]
-            public float CongestionPerception;
-
-            [RunParameter("Congestion Exponent", 0.0f, "The congestion exponent to apply to this TTF.")]
-            public float CongestionExponent;
-
-            public string Name { get; set; }
-
-            public float Progress { get; set; }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                return true;
-            }
-        }
-
-        [SubModelInformation(Description = "The TTF's to apply in the assignment.")]
-        public TTFDefinitions[] TTF;
-
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-
-            var args = string.Join(" ", ScenarioNumber,
-                                        DemandMatrixNumber,
-                                        Controller.ToEmmeFloat(WaitTimePerception),
-                                        Controller.ToEmmeFloat(WalkSpeed),
-                                        Controller.ToEmmeFloat(WalkPerceptionToronto),
-                                        Controller.ToEmmeFloat(WalkPerceptionNonToronto),
-                                        Controller.ToEmmeFloat(WalkPerceptionTorontoConnectors),
-                                        Controller.ToEmmeFloat(WalkPerceptionNonTorontoConnectors),
-                                        Controller.ToEmmeFloat(WalkPerceptionPD1),
-                                        WalkPerceptionAttribute,
-                                        HeadwayFractionAttribute,
-                                        LinkFareAttribute,
-                                        SegmentFareAttribute,
-                                        EffectiveHeadwayAttributeId,
-                                        Controller.ToEmmeFloat(EffectiveHeadwaySlope),
-                                        Controller.ToEmmeFloat(BoardingPerception),
-                                        Controller.ToEmmeFloat(FarePerception),
-                                        Controller.ToEmmeFloat(RepresentativeHourFactor),
-                                        MaxIterations,
-                                        Controller.ToEmmeFloat(NormalizedGap),
-                                        Controller.ToEmmeFloat(RelativeGap),
-                                        InVehicleMatrixNumber,
-                                        WaitMatrixNumber,
-                                        WalkMatrixNumber,
-                                        FareMatrixNumber,
-                                        CongestionMatrixNumber,
-                                        BoardingMatrixNumber,
-                                        DistanceMatrixNumber,
-                                        Controller.ToEmmeFloat(ConnectorLogitScale),
-                                        ExtractCongestedInVehicleTimeFlag,
-                                        string.Join(",", from ttf in TTF
-                                                         select ttf.TTFNumber + ":"
-                                                         + Controller.ToEmmeFloat(ttf.CongestionPerception) + ":"
-                                                         + Controller.ToEmmeFloat(ttf.CongestionExponent)),
-                                        ImpedanceMatrix,
-                                        UseBoardingLevels);
-
-            var result = "";
-            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _progressColour; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
         public bool RuntimeValidation(ref string error)
         {
             return true;
         }
+    }
+
+    [SubModelInformation(Description = "The TTF's to apply in the assignment.")]
+    public TTFDefinitions[] TTF;
+
+
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        var args = string.Join(" ", ScenarioNumber,
+                                    DemandMatrixNumber,
+                                    Controller.ToEmmeFloat(WaitTimePerception),
+                                    Controller.ToEmmeFloat(WalkSpeed),
+                                    Controller.ToEmmeFloat(WalkPerceptionToronto),
+                                    Controller.ToEmmeFloat(WalkPerceptionNonToronto),
+                                    Controller.ToEmmeFloat(WalkPerceptionTorontoConnectors),
+                                    Controller.ToEmmeFloat(WalkPerceptionNonTorontoConnectors),
+                                    Controller.ToEmmeFloat(WalkPerceptionPD1),
+                                    WalkPerceptionAttribute,
+                                    HeadwayFractionAttribute,
+                                    LinkFareAttribute,
+                                    SegmentFareAttribute,
+                                    EffectiveHeadwayAttributeId,
+                                    Controller.ToEmmeFloat(EffectiveHeadwaySlope),
+                                    Controller.ToEmmeFloat(BoardingPerception),
+                                    Controller.ToEmmeFloat(FarePerception),
+                                    Controller.ToEmmeFloat(RepresentativeHourFactor),
+                                    MaxIterations,
+                                    Controller.ToEmmeFloat(NormalizedGap),
+                                    Controller.ToEmmeFloat(RelativeGap),
+                                    InVehicleMatrixNumber,
+                                    WaitMatrixNumber,
+                                    WalkMatrixNumber,
+                                    FareMatrixNumber,
+                                    CongestionMatrixNumber,
+                                    BoardingMatrixNumber,
+                                    DistanceMatrixNumber,
+                                    Controller.ToEmmeFloat(ConnectorLogitScale),
+                                    ExtractCongestedInVehicleTimeFlag,
+                                    string.Join(",", from ttf in TTF
+                                                     select ttf.TTFNumber + ":"
+                                                     + Controller.ToEmmeFloat(ttf.CongestionPerception) + ":"
+                                                     + Controller.ToEmmeFloat(ttf.CongestionExponent)),
+                                    ImpedanceMatrix,
+                                    UseBoardingLevels);
+
+        var result = "";
+        return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
+    }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _progressColour; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -19,46 +19,45 @@
 using System;
 using XTMF;
 
-namespace TMG.Emme
-{
-    [ModuleInformation(Description=
-        @"The Emme Tool module takes in two parameters, a name of the tool, and the arguments to it. 
+namespace TMG.Emme;
+
+[ModuleInformation(Description=
+    @"The Emme Tool module takes in two parameters, a name of the tool, and the arguments to it. 
 This module will work with both the traditional EMME macro system and the new modeller system. 
 This module is unable to verify the existence of the modeller tool during the runtime validation step 
 so please be careful to enter in the correct tool/macro names." )]
-    public class EmmeTool : IEmmeTool
+public class EmmeTool : IEmmeTool
+{
+    [RunParameter( "Tool Arguments", "", "The arguments of the Emme tool you want to run" )]
+    public string ToolArguments;
+
+    [RunParameter( "Tool Name", "", "The namespace of the Emme tool you want to run" )]
+    public string ToolName;
+
+    public string Name
     {
-        [RunParameter( "Tool Arguments", "", "The arguments of the Emme tool you want to run" )]
-        public string ToolArguments;
+        get;
+        set;
+    }
 
-        [RunParameter( "Tool Name", "", "The namespace of the Emme tool you want to run" )]
-        public string ToolName;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+    public bool Execute(Controller controller)
+    {
+        return controller.Run(this, ToolName, ToolArguments );
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            return controller.Run(this, ToolName, ToolArguments );
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }
