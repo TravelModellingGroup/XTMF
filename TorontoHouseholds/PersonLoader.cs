@@ -216,7 +216,7 @@ namespace TMG.Tasha
                     return false;
                 }
             }
-            List<ITashaPerson> persons = new List<ITashaPerson>();
+            List<ITashaPerson> persons = [];
             while (true)
             {
                 Reader.Get(out int tempInt, PersonHouseholdID);

@@ -144,7 +144,7 @@ namespace TMG.GTAModel.DataUtility
                 BurnWhiteSpace( ref i, input );
                 values.Add( p );
             }
-            data = new FloatList();
+            data = [];
             data.Values = values.ToArray();
             return true;
         }

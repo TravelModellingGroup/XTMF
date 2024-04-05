@@ -249,7 +249,7 @@ namespace TMG.Emme.Utilities
 
         private List<int> GetNodesToExplore()
         {
-            List<int> nodes = new List<int>();
+            List<int> nodes = [];
             using (CsvReader reader = new CsvReader(NodeFileLocation))
             {
                 // burn the header

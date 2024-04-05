@@ -39,7 +39,7 @@ namespace Tasha.Validation
         [RootModule]
         public ITashaRuntime Root;
 
-        private Dictionary<Activity, Dictionary<int, float>> ActivityStartTimeDictionaries = new Dictionary<Activity, Dictionary<int, float>>();
+        private Dictionary<Activity, Dictionary<int, float>> ActivityStartTimeDictionaries = [];
 
         public string Name
         {
@@ -89,7 +89,7 @@ namespace Tasha.Validation
         {
             if (!ActivityStartTimeDictionaries.TryGetValue(purpose, out Dictionary<int, float> ret))
             {
-                ret = new Dictionary<int, float>();
+                ret = [];
                 ActivityStartTimeDictionaries[purpose] = ret;
             }
             return ret;

@@ -727,7 +727,7 @@ namespace Tasha.Validation.ModeChoice
                             // if the household doesn't have data, allocate it
                             if (datData == null)
                             {
-                                datData = new Dictionary<PersonChain, DATIterationInformation>();
+                                datData = [];
                                 _activeDATData[household] = datData;
                             }
                             var tcRef = new PersonChain(person, tc);
@@ -749,7 +749,7 @@ namespace Tasha.Validation.ModeChoice
                                 {
                                     if (passengerRecords == null)
                                     {
-                                        _activePassengerData[household] = passengerRecords = new Dictionary<ITrip, PassengerIterationInformation>();
+                                        _activePassengerData[household] = passengerRecords = [];
                                     }
                                     passengerRecords.TryGetValue(trip, out var tripData);
                                     if (tripData == null)
@@ -763,7 +763,7 @@ namespace Tasha.Validation.ModeChoice
                             {
                                 if (patData == null)
                                 {
-                                    _activePATData[household] = patData = new Dictionary<ITrip, PATIterationInformation>();
+                                    _activePATData[household] = patData = [];
                                 }
                                 if (!patData.TryGetValue(trip, out var currentTripData))
                                 {
@@ -810,11 +810,11 @@ namespace Tasha.Validation.ModeChoice
                 {
                     DATTripCount++;
                     TotalDatTravelTime += travelTime;
-                    (Data = Data ?? new List<ReplicationData>()).Add(new ReplicationData(first, stnZoneNumber));
+                    (Data = Data ?? []).Add(new ReplicationData(first, stnZoneNumber));
                 }
             }
 
-            private Dictionary<ITrip, TripData> _tripData = new Dictionary<ITrip, TripData>();
+            private Dictionary<ITrip, TripData> _tripData = [];
 
             internal void AddTourData(ITashaMode dat, ITripChain chain, int replication, IZone accessStationZone,
                 INetworkData autoNetwork, ITripComponentData transitNetwork, SparseArray<IZone> _zones)
@@ -905,7 +905,7 @@ namespace Tasha.Validation.ModeChoice
                 internal bool Access;
             }
 
-            private readonly List<PassengerTransitTrip> _stationChoices = new List<PassengerTransitTrip>();
+            private readonly List<PassengerTransitTrip> _stationChoices = [];
 
             private float _totalAccessTime;
             private float _totalEgressTime;
@@ -1094,14 +1094,14 @@ namespace Tasha.Validation.ModeChoice
             if (_writeThisIteration = (iteration >= totalIterations - 1))
             {
                 _zoneSystem = Root.ZoneSystem.ZoneArray;
-                _personRecordQueue = new BlockingCollection<PersonRecord>();
-                _tripRecordQueue = new BlockingCollection<TripRecord>();
-                _modeRecordQueue = new BlockingCollection<ModeRecord>();
-                _stationRecordQueue = new BlockingCollection<StationRecord>();
-                _facilitatePassengerRecordQueue = new BlockingCollection<FacilitatePassengerRecord>();
+                _personRecordQueue = [];
+                _tripRecordQueue = [];
+                _modeRecordQueue = [];
+                _stationRecordQueue = [];
+                _facilitatePassengerRecordQueue = [];
                 if (HouseholdRecords != null)
                 {
-                    _householdRecordQueue = new BlockingCollection<HouseholdRecord>();
+                    _householdRecordQueue = [];
                     _writeHouseholdOutput = Task.Factory.StartNew(() => ProcessHouseholdRecords(), TaskCreationOptions.LongRunning);
                 }
                 _writePersonOutput = Task.Factory.StartNew(() => ProcessPersonRecords(), TaskCreationOptions.LongRunning);

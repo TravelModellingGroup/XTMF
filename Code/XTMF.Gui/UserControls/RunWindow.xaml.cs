@@ -58,7 +58,7 @@ namespace XTMF.Gui.UserControls
         private readonly BindingListWithRemoving<IProgressReport> _progressReports;
 
         private readonly BindingListWithRemoving<SubProgress> _subProgressBars =
-            new BindingListWithRemoving<SubProgress>();
+            [];
 
         /// <summary>
         ///     Requires Windows 7

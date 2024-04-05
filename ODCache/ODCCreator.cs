@@ -46,7 +46,7 @@ namespace Datastructure
 
         public CacheGenerationInfo()
         {
-            CacheInfo = new List<DimensionInfo>();
+            CacheInfo = [];
         }
 
         public CacheGenerationInfo(int times, int types, int highestZone, int gap)

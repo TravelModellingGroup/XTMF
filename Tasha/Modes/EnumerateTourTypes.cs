@@ -117,7 +117,7 @@ namespace Tasha.Modes
 
         public void Load(int maxIterations)
         {
-            Data = new Dictionary<string, double>();
+            Data = [];
         }
 
         public bool RuntimeValidation(ref string error)

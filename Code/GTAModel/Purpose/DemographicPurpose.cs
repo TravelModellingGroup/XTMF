@@ -129,7 +129,7 @@ This module requires the root module of the model system to be an 'I4StepModel'.
 
         private void TransposeMatrix(List<TreeData<float[][]>> modeSplit)
         {
-            List<TreeData<float[][]>> flatModes = new List<TreeData<float[][]>>();
+            List<TreeData<float[][]>> flatModes = [];
             for ( int i = 0; i < modeSplit.Count; i++ )
             {
                 GatherModes( flatModes, modeSplit[i] );

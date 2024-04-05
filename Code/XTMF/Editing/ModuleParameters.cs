@@ -35,7 +35,7 @@ namespace XTMF
 
         public IModuleParameters Clone()
         {
-            ModuleParameters copy = new ModuleParameters();
+            ModuleParameters copy = [];
             foreach (var p in Parameters)
             {
                 copy.Parameters.Add(p.Clone());

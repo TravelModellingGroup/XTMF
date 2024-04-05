@@ -75,7 +75,7 @@ namespace TMG.GTAModel.Input
         public void LoadData()
         {
             // First create the data space
-            List<int> zoneNumbers = new List<int>();
+            List<int> zoneNumbers = [];
             var sparseLength = SparseSpace.Count;
             List<float>[] dataColumns = new List<float>[sparseLength];
             LoadInData( zoneNumbers, sparseLength, dataColumns );

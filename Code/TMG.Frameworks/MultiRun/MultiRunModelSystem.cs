@@ -237,7 +237,7 @@ For specification about the language, and extensibility please consult the TMG F
             }
         }
 
-        Dictionary<string, Action<XmlNode>> BatchCommands = new Dictionary<string, Action<XmlNode>>();
+        Dictionary<string, Action<XmlNode>> BatchCommands = [];
         private IModelSystemStructure ChildStructure;
 
         private void InitializeCommands()
@@ -600,9 +600,9 @@ For specification about the language, and extensibility please consult the TMG F
 
         Stack<XmlNode> ExecutionStack = new Stack<XmlNode>();
 
-        Dictionary<string, MultirunTemplate> Templates = new Dictionary<string, MultirunTemplate>();
+        Dictionary<string, MultirunTemplate> Templates = [];
 
-        Dictionary<string, float> Variables = new Dictionary<string, float>();
+        Dictionary<string, float> Variables = [];
 
         private void Template(XmlNode command)
         {

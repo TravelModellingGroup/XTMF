@@ -39,7 +39,7 @@ namespace Tasha.Validation
         )]
     public class DurationsVsStartTimesVersion2 : IPostHousehold
     {
-        public Dictionary<KeyValuePair<Activity, int>, List<int>> DurationsDict = new Dictionary<KeyValuePair<Activity, int>, List<int>>();
+        public Dictionary<KeyValuePair<Activity, int>, List<int>> DurationsDict = [];
 
         [RunParameter("Output Directory", "OutputDirectory", "The directory that will contain the results")]
         public string OutputDirectory;
@@ -92,8 +92,7 @@ namespace Tasha.Validation
                             }
                             else
                             {
-                                ourList = new List<int>();
-                                ourList.Add(duration);
+                                ourList = [duration];
                                 DurationsDict[bob] = ourList;
                             }
 
@@ -106,7 +105,7 @@ namespace Tasha.Validation
 
         public void IterationFinished(int iteration)
         {
-            Dictionary<Activity, StreamWriter> writerDict = new Dictionary<Activity, StreamWriter>();
+            Dictionary<Activity, StreamWriter> writerDict = [];
             try
             {
                 if (!Directory.Exists(OutputDirectory))

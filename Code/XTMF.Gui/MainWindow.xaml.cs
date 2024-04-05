@@ -95,7 +95,7 @@ namespace XTMF.Gui
             DockManager.InterTabController.InterTabClient = new InterTabClient();
             DockManager.ClosingItemCallback = ClosingItemCallback;
             DockManager.SelectionChanged += DockManagerOnSelectionChanged;
-            WorkspaceProjects = new Dictionary<Project, UserControl>();
+            WorkspaceProjects = [];
             XtmfNotificationIcon.InitializeNotificationIcon();
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline),
                 new FrameworkPropertyMetadata { DefaultValue = 60 });

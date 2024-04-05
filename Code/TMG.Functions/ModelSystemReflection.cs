@@ -246,7 +246,7 @@ namespace TMG.Functions
             {
                 return new string[0];
             }
-            List<string> parts = new List<string>();
+            List<string> parts = [];
             var stringLength = parameterName.Length;
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < stringLength; i++)
@@ -362,7 +362,7 @@ namespace TMG.Functions
 
             ArgumentNullException.ThrowIfNull(toFind);
 
-            List<IModelSystemStructure> chain = new List<IModelSystemStructure>();
+            List<IModelSystemStructure> chain = [];
             foreach (var ms in project.ModelSystemStructure)
             {
                 if (ms is not null && BuildModelStructureChain(ms, toFind, chain))
@@ -381,7 +381,7 @@ namespace TMG.Functions
         /// <returns></returns>
         private static List<IModelSystemStructure> BuildModelStructureChain(IConfiguration config, IModelSystemStructure toFind)
         {
-            List<IModelSystemStructure> chain = new List<IModelSystemStructure>();
+            List<IModelSystemStructure> chain = [];
             foreach (var ms in config.ProjectRepository.ActiveProject.ModelSystemStructure)
             {
                 if (ms is not null && BuildModelStructureChain(ms, toFind, chain))

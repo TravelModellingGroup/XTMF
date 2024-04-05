@@ -27,7 +27,7 @@ namespace Tasha.Scheduler
 {
     internal sealed class SchedulerHomeTrip : Attachable, ITrip
     {
-        private static ConcurrentBag<SchedulerHomeTrip> Trips = new ConcurrentBag<SchedulerHomeTrip>();
+        private static ConcurrentBag<SchedulerHomeTrip> Trips = [];
 
         #region ITrip Members
 

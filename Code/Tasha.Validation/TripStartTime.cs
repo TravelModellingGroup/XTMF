@@ -36,7 +36,7 @@ namespace Tasha.Validation
         [RootModule]
         public ITashaRuntime Root;
 
-        private Dictionary<Activity, float[]> StartTime = new Dictionary<Activity, float[]>();
+        private Dictionary<Activity, float[]> StartTime = [];
         private string Status = "Initializing!";
 
         public string Name

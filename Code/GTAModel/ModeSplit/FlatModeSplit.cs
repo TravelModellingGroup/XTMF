@@ -326,7 +326,7 @@ namespace TMG.GTAModel.ModeSplit
             List<Segment>[] temp = new List<Segment>[NumberOfOccupations];
             for (int i = 0; i < temp.Length; i++)
             {
-                temp[i] = new List<Segment>();
+                temp[i] = [];
             }
             var numberOfModes = Root.Modes.Count;
             using (CsvReader reader = new CsvReader(InputFile.GetFileName(Root.InputBaseDirectory)))

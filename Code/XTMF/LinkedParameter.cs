@@ -30,7 +30,7 @@ namespace XTMF
         public LinkedParameter(string name)
         {
             Name = name;
-            Parameters = new List<IModuleParameter>();
+            Parameters = [];
             Value = String.Empty;
         }
 

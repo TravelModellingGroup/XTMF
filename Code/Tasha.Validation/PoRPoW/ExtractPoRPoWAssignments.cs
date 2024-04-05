@@ -52,7 +52,7 @@ namespace Tasha.Validation.PoRPoW
         }
 
         SpinLock WriteLock = new SpinLock(false);
-        Dictionary<Occupation, Dictionary<TTSEmploymentStatus, float[][]>> Data = new Dictionary<Occupation, Dictionary<TTSEmploymentStatus, float[][]>>();
+        Dictionary<Occupation, Dictionary<TTSEmploymentStatus, float[][]>> Data = [];
         public void Execute(ITashaHousehold household, int iteration)
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;

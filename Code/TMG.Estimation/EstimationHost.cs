@@ -68,7 +68,7 @@ namespace TMG.Estimation
         [RunParameter("Fail On Invalid Fitness", true, "Should the estimation terminate if an invalid fitness value is reported?")]
         public bool FailOnInvalidFitness;
 
-        private readonly List<IRemoteXTMF> AvailableClients = new List<IRemoteXTMF>();
+        private readonly List<IRemoteXTMF> AvailableClients = [];
         private IModelSystemStructure ClientStructure;
         private bool FirstLineToWrite = true;
 
@@ -164,7 +164,7 @@ namespace TMG.Estimation
             Status = () => "Initializing Networking";
             SetupNetworking();
             // ReSharper disable InconsistentlySynchronizedField
-            PendingResults = new BlockingCollection<ResultMessage>();
+            PendingResults = [];
             using (var finishedGeneration = new MessageQueue<bool?>())
             {
                 //execute the host model system

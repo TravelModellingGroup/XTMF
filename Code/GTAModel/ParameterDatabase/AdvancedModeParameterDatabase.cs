@@ -49,13 +49,13 @@ namespace TMG.GTAModel.ParameterDatabase
 
         private float CurrentBlendWeight;
 
-        private List<string[]> DemographicAlternativeParameters = new List<string[]>();
+        private List<string[]> DemographicAlternativeParameters = [];
 
-        private List<bool[]> DemographicSwitches = new List<bool[]>();
+        private List<bool[]> DemographicSwitches = [];
 
         private bool Loaded;
 
-        private List<string[]> ParameterSets = new List<string[]>();
+        private List<string[]> ParameterSets = [];
 
         public string Name
         {

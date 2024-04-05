@@ -229,7 +229,7 @@ namespace XTMF.Gui.UserControls
         /// <param name="e"></param>
         private void UnassignedModulesStatusBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            List<ModelSystemStructureDisplayModel> modules = new();
+            List<ModelSystemStructureDisplayModel> modules = [];
 
             Dispatcher.BeginInvoke(new Action(() =>
               {

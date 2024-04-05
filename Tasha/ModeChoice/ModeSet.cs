@@ -102,7 +102,7 @@ namespace Tasha.ModeChoice
             var chainLength = chain.Trips.Count;
             if (!ModeSetPool.TryGetValue(chainLength, out ConcurrentBag<ModeSet> ourBag))
             {
-                ModeSetPool[chainLength] = new ConcurrentBag<ModeSet>();
+                ModeSetPool[chainLength] = [];
                 return new ModeSet(chain);
             }
             if (ourBag.TryTake(out ModeSet newModeSet))
@@ -118,7 +118,7 @@ namespace Tasha.ModeChoice
             var chainLength = set.Length;
             if (!ModeSetPool.TryGetValue(chainLength, out ConcurrentBag<ModeSet> ourBag))
             {
-                ModeSetPool[chainLength] = new ConcurrentBag<ModeSet>();
+                ModeSetPool[chainLength] = [];
                 return new ModeSet(set, newU);
             }
             if (ourBag.TryTake(out ModeSet newModeSet))

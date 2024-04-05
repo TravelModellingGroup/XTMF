@@ -63,7 +63,7 @@ namespace TMG.NetworkEstimation
 
         public float ComputeError(ParameterSetting[] parameters, TransitLine[] transitLine, TransitLine[] predicted)
         {
-            List<Pair<char, char>> foundModes = new List<Pair<char, char>>();
+            List<Pair<char, char>> foundModes = [];
             var ttsLines = transitLine.Length;
             var predictedLines = predicted.Length;
             for ( int i = 0; i < ttsLines; i++ )

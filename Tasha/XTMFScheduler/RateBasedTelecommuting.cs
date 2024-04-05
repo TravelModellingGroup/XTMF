@@ -56,7 +56,7 @@ public sealed class RateBasedTelecommuting : ICalculation<ITashaPerson, bool>
 
     record struct Entry(Range Ages, Range Income, Range EmploymentStatus, char Occupation, WorkPlaceType Workplace, float Rate);
 
-    private List<Entry> _entries = new();
+    private List<Entry> _entries = [];
     private IZone _roamingZone;
     private Random _random;
 

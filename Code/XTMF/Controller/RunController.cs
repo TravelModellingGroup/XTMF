@@ -34,11 +34,11 @@ namespace XTMF.Controller
     {
         private object _Lock = new object();
 
-        private ObservableCollection<XTMFRun> _Backlog = new ObservableCollection<XTMFRun>();
+        private ObservableCollection<XTMFRun> _Backlog = [];
 
-        private ObservableCollection<XTMFRun> _CurrentlyExecuting = new ObservableCollection<XTMFRun>();
+        private ObservableCollection<XTMFRun> _CurrentlyExecuting = [];
 
-        private ObservableCollection<(DateTime startTime, XTMFRun run)> _DelayedRuns = new ObservableCollection<(DateTime, XTMFRun)>();
+        private ObservableCollection<(DateTime startTime, XTMFRun run)> _DelayedRuns = [];
 
         /// <summary>
         /// Get a reference to all of the runs that are waiting to execute

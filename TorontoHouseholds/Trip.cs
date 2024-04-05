@@ -85,7 +85,7 @@ namespace Tasha.Common
             DestinationZone = destination;
             Purpose = purpose;
             IntermediateZone = null;
-            Passengers = new List<ITashaPerson>();
+            Passengers = [];
             ModesChosen = new ITashaMode[householdIterations];
         }
 

@@ -58,7 +58,7 @@ namespace XTMF
 
         public ObservableCollection<ParameterModel> GetParameters()
         {
-            return Parameters != null ? Parameters.ToObservableCollection() : new ObservableCollection<ParameterModel>();
+            return Parameters != null ? Parameters.ToObservableCollection() : [];
         }
 
         /// <summary>

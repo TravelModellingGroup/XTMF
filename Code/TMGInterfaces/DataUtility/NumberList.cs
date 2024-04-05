@@ -52,7 +52,7 @@ namespace TMG.DataUtility
         public static bool TryParse(ref string error, string input, out NumberList data)
         {
             data = null;
-            List<int> values = new List<int>();
+            List<int> values = [];
             int i = 0;
             BurnWhiteSpace( ref i, input );
             var length = input.Length;
@@ -77,7 +77,7 @@ namespace TMG.DataUtility
                 BurnWhiteSpace( ref i, input );
                 values.Add( number );
             }
-            data = new NumberList();
+            data = [];
             data.Values = values.ToArray();
             return true;
         }

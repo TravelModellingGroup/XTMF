@@ -117,7 +117,7 @@ namespace Tasha.Common
             //if ( !AuxiliaryTrip.Trips.TryTake( out aux ) )
             //{
             aux = new AuxiliaryTrip();
-            aux.Passengers = new List<ITashaPerson>();
+            aux.Passengers = [];
             //}
             aux.OriginalZone = origin;
             aux.DestinationZone = destination;

@@ -257,7 +257,7 @@ namespace XTMF
                             RealModelSystemStructure.Children[data.Index] as ModelSystemStructure;
                         if (Children == null)
                         {
-                            Children = new ObservableCollection<ModelSystemStructureModel>();
+                            Children = [];
                         }
 
                         Children.Add(data.ModelInQuestion =
@@ -840,7 +840,7 @@ namespace XTMF
 
             public TempLinkedParameter()
             {
-                Paths = new List<string>();
+                Paths = [];
             }
         }
 
@@ -1209,7 +1209,7 @@ namespace XTMF
             ObservableCollection<ModelSystemStructureModel> ret;
             if (Children == null)
             {
-                ret = new ObservableCollection<ModelSystemStructureModel>();
+                ret = [];
                 for (var i = 0; i < realModelSystemStructure.Children.Count; i++)
                 {
                     ret.Add(new ModelSystemStructureModel(session,

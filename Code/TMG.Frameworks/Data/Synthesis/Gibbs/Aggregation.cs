@@ -166,7 +166,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 var acceptedCombinations = new List<int>[_PrimaryAttribute.PossibleValues.Length];
                 for (int i = 0; i < acceptedCombinations.Length; i++)
                 {
-                    acceptedCombinations[i] = new List<int>();
+                    acceptedCombinations[i] = [];
                 }
                 var expectedColumns = columns.Length + 1;
                 using (var reader = new CsvReader(AggregationFile))

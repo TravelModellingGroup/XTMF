@@ -29,10 +29,10 @@ namespace Tasha.Validation.PerformanceMeasures
     {
         bool Calculate;
 
-        Dictionary<string, float> AMModeDictionary = new Dictionary<string, float>();
-        Dictionary<string, float> MDModeDictionary = new Dictionary<string, float>();
-        Dictionary<string, float> PMModeDictionary = new Dictionary<string, float>();
-        Dictionary<string, float> EVModeDictionary = new Dictionary<string, float>();
+        Dictionary<string, float> AMModeDictionary = [];
+        Dictionary<string, float> MDModeDictionary = [];
+        Dictionary<string, float> PMModeDictionary = [];
+        Dictionary<string, float> EVModeDictionary = [];
 
         [SubModelInformation(Required = true, Description = "Mode Validation Results File in .csv")]
         public FileLocation ResultsFile;

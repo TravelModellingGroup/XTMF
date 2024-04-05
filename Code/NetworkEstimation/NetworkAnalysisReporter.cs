@@ -124,7 +124,7 @@ namespace TMG.NetworkEstimation
                     var chartStream = from i in Enumerable.Range(0, headers.Length).AsParallel().AsOrdered()
                                       from j in Enumerable.Range(0, i).AsParallel().AsOrdered()
                                       select BuildChart(headers, i, j, data, bestIndex);
-                    List<byte[]> charts = new List<byte[]>();
+                    List<byte[]> charts = [];
                     foreach (var chart in chartStream)
                     {
                         charts.Add(chart);
@@ -231,8 +231,8 @@ namespace TMG.NetworkEstimation
 
         private void AddData(ChartArea area, Series ourSeries, int first, int second)
         {
-            List<DataPoint> points = new List<DataPoint>();
-            List<double> pointHeight = new List<double>();
+            List<DataPoint> points = [];
+            List<double> pointHeight = [];
             using (StreamReader reader = new StreamReader(EstimationFile))
             {
                 int minNumberOfColumns = first + 1;
@@ -332,7 +332,7 @@ namespace TMG.NetworkEstimation
 
         private List<Pair<double[], double>> LoadData(ref string[] headers, out int bestIndex)
         {
-            List<Pair<double[], double>> data = new List<Pair<double[], double>>();
+            List<Pair<double[], double>> data = [];
             bestIndex = -1;
             using (StreamReader reader = new StreamReader(EstimationFile))
             {

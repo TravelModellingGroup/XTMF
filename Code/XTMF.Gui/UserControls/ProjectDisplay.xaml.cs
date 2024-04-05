@@ -871,7 +871,7 @@ namespace XTMF.Gui.UserControls
 
             public List<ContainedModelSystemModel> ContainedModelSystems;
 
-            public List<PreviousRun> PreviousRuns = new List<PreviousRun>();
+            public List<PreviousRun> PreviousRuns = [];
 
             private Project Project;
 
@@ -931,7 +931,7 @@ namespace XTMF.Gui.UserControls
             {
                 if (ContainedModelSystems == null)
                 {
-                    ContainedModelSystems = new List<ContainedModelSystemModel>();
+                    ContainedModelSystems = [];
                 }
                 else
                 {

@@ -63,7 +63,7 @@ namespace Tasha.Validation.ModeChoice
             [RunParameter("End Time", "4:00AM", typeof(Time), "The end time for the time period, exclusive.")]
             public Time EndTime;
 
-            internal Dictionary<Activity, float[]> Counts = new Dictionary<Activity, float[]>();
+            internal Dictionary<Activity, float[]> Counts = [];
             SpinLock WriteLock = new SpinLock(false);
 
             public bool Execute(Time tripStart, int modeIndex, float expansionFactor, Activity activity)
@@ -165,7 +165,7 @@ namespace Tasha.Validation.ModeChoice
             }
         }
 
-        List<float[]> IterationTotals = new List<float[]>();
+        List<float[]> IterationTotals = [];
 
         public void IterationFinished(int iteration)
         {

@@ -179,8 +179,8 @@ namespace Tasha.Validation.TripExtraction
         {
             _Modes = Modes.Select(m => m.Mode).ToArray();
             Zones = Root.ZoneSystem.ZoneArray;
-            List<float[][]> results = new List<float[][]>();
-            List<int> stationIndexes = new List<int>();
+            List<float[][]> results = [];
+            List<int> stationIndexes = [];
             foreach (var range in StationRange)
             {
                 for (int i = range.Start; i < range.Stop; i++)

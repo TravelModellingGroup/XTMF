@@ -39,7 +39,7 @@ namespace Tasha.Validation
         [RootModule]
         public ITashaRuntime Root;
 
-        private Dictionary<int, float> NumberOfTrips = new Dictionary<int, float>();
+        private Dictionary<int, float> NumberOfTrips = [];
 
         public string Name
         {

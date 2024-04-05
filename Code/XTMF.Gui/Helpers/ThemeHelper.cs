@@ -106,7 +106,7 @@ namespace XTMF.Gui.Helpers
                 {
                     return _colourOptions;
                 }
-                _colourOptions = new List<ColourOption>();
+                _colourOptions = [];
                 foreach (var colour in ThemeManager.Current.ColorSchemes)
                 {
                     _colourOptions.Add(new ColourOption()

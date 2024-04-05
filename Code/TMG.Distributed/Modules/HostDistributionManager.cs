@@ -267,19 +267,19 @@ namespace TMG.Distributed.Modules
         /// <summary>
         /// All of the tasks that have yet to be scheduled
         /// </summary>
-        List<ExecutingTask> PendingTasks = new List<ExecutingTask>();
+        List<ExecutingTask> PendingTasks = [];
 
         /// <summary>
         /// All of the tasks that are currently executing
         /// </summary>
-        List<ExecutingTask> ExecutingTasks = new List<ExecutingTask>();
+        List<ExecutingTask> ExecutingTasks = [];
 
         /// <summary>
         /// The clients that are not currently executing
         /// </summary>
         Stack<IRemoteXTMF> AvailableClients = new Stack<IRemoteXTMF>();
 
-        Dictionary<string, IRemoteXTMF> PreviousTaskAssignments = new Dictionary<string, IRemoteXTMF>();
+        Dictionary<string, IRemoteXTMF> PreviousTaskAssignments = [];
 
         private void Host_NewClientConnected(IRemoteXTMF obj)
         {

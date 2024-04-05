@@ -59,7 +59,7 @@ If a mapping file is not provided it will do a left join onto the DataToAggregat
         {
             LabeledData<float> shapeData = LoadData(FitToShape);
             LabeledData<float> toAggregate = LoadData(DataToAggregate);
-            LabeledData<float> ret = new LabeledData<float>();
+            LabeledData<float> ret = [];
             // add all of the keys with a zero value
             foreach(var e in shapeData)
             {

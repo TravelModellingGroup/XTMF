@@ -353,8 +353,8 @@ namespace TMG.GTAModel.Modes
             {
                 return null;
             }
-            List<IZone> possibleZones = new List<IZone>();
-            List<float> splits = new List<float>();
+            List<IZone> possibleZones = [];
+            List<float> splits = [];
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             var v = 0.0;
             foreach (var child in Children)
@@ -507,7 +507,7 @@ namespace TMG.GTAModel.Modes
 
         private bool GenerateChildren()
         {
-            Children = new List<AccessStation>();
+            Children = [];
             var rangeList = new List<Range>();
             var start = 0;
             int stop;

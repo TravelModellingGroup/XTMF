@@ -87,7 +87,7 @@ namespace TMG.Frameworks.Office
             try
             {
                 workbooks = excel.Workbooks;
-                List<ConversionDetails> filesToConvert = new();
+                List<ConversionDetails> filesToConvert = [];
                 foreach(var toConvert in FilesToConvert)
                 {
 

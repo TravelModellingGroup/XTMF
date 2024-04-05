@@ -43,9 +43,9 @@ namespace Tasha.Validation.PerformanceMeasures
         [RootModule]
         public ITashaRuntime Root;
 
-        private Dictionary<Activity, float[]> PurposeDictionary = new Dictionary<Activity, float[]>();
+        private Dictionary<Activity, float[]> PurposeDictionary = [];
 
-        private Dictionary<Activity, float> SummaryTripCount = new Dictionary<Activity, float>();
+        private Dictionary<Activity, float> SummaryTripCount = [];
 
         public string Name
         {

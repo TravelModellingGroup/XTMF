@@ -70,7 +70,7 @@ where you still want the same demographics."
         {
             for (int i = 0; i < toInit.Length; i++)
             {
-                toInit[i] = new List<T>();
+                toInit[i] = [];
             }
         }
 
@@ -95,7 +95,7 @@ where you still want the same demographics."
             List<KeyValuePair<int, int>>[] results = new List<KeyValuePair<int, int>>[flatRegion.Length];
             for (int i = 0; i < results.Length; i++)
             {
-                results[i] = new List<KeyValuePair<int, int>>();
+                results[i] = [];
             }
             // make a copy of the households by region so we can subtract out the households that have already been used
             // we can't just edit the households by region because we need them for indexing
@@ -103,8 +103,8 @@ where you still want the same demographics."
             List<int>[] lookupsForRegion = new List<int>[remainingHouseholds.Length];
             for (int i = 0; i < remainingHouseholds.Length; i++)
             {
-                remainingHouseholds[i] = new List<ITashaHousehold>();
-                lookupsForRegion[i] = new List<int>();
+                remainingHouseholds[i] = [];
+                lookupsForRegion[i] = [];
             }
             //Step 1 fill up the zones with residences that will stay
             Pass1(zoneArray, zones, basePopulation, zonalDifferences, results, remainingHouseholds, lookupsForRegion);
@@ -213,7 +213,7 @@ where you still want the same demographics."
                     int populationToAdd = zonalDifferences[flatZone] >= 0 ? basePopulation[flatZone] : basePopulation[flatZone] + zonalDifferences[flatZone];
                     var zonalHouseholds = HouseholdsByZone.GetFlatData()[flatZone];
                     int i = 0;
-                    List<int> tossedHouseholds = new List<int>();
+                    List<int> tossedHouseholds = [];
                     for (int pop = 0; pop < populationToAdd;)
                     {
                         if (attempts > 2)

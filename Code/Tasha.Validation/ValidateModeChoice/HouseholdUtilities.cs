@@ -30,7 +30,7 @@ namespace Tasha.Validation.ValidateModeChoice
         [RunParameter("Output File", "HouseholdUtilities.csv", "The file where we can store the household utilities.")]
         public string OutputFile;
 
-        private Dictionary<int, float[]> Utilities = new Dictionary<int, float[]>();
+        private Dictionary<int, float[]> Utilities = [];
 
         public string Name
         {

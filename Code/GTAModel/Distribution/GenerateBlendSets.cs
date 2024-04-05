@@ -35,8 +35,10 @@ namespace TMG.GTAModel.Distribution
             {
                 for (var i = set.Start; i <= set.Stop; i++)
                 {
-                    var item = new List<Range>(1);
-                    item.Add(new Range(i, i));
+                    var item = new List<Range>(1)
+                    {
+                        new Range(i, i)
+                    };
                     Parent.Subsets.Add(new BlendSet { Set = new RangeSet(item) });
                 }
             }

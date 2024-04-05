@@ -191,7 +191,7 @@ namespace Tasha.Scheduler
         {
             TashaHousehold household = new TashaHousehold();
             TashaPerson person = new TashaPerson();
-            List<int> primaryWork = new List<int>();
+            List<int> primaryWork = [];
             person.Licence = false;
             person.Male = GenderLocal;
 

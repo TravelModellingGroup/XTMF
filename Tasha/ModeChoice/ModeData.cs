@@ -45,7 +45,7 @@ namespace Tasha.ModeChoice
         public double[] V;
 
         internal static ITashaRuntime TashaRuntime;
-        private static ConcurrentBag<ModeData> ModeDataPool = new ConcurrentBag<ModeData>();
+        private static ConcurrentBag<ModeData> ModeDataPool = [];
 
         [ThreadStatic]
         private static Random Random;

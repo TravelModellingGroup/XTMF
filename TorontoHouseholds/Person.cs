@@ -28,7 +28,7 @@ namespace Tasha.Common
     /// </summary>
     public sealed class Person : Attachable, ITashaPerson
     {
-        private static ConcurrentBag<Person> People = new ConcurrentBag<Person>();
+        private static ConcurrentBag<Person> People = [];
 
         /// <summary>
         /// Creates a new person
@@ -235,7 +235,7 @@ namespace Tasha.Common
 
         internal static void ReleasePersonPool()
         {
-            People = new ConcurrentBag<Person>();
+            People = [];
         }
     }
 }

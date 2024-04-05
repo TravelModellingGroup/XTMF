@@ -445,8 +445,8 @@ namespace TMG.GTAModel.V2.Modes
 
         private bool GenerateChildren()
         {
-            Children = new List<SubwayAccessStation>();
-            List<Range> rangeList = new List<Range>();
+            Children = [];
+            List<Range> rangeList = [];
             var start = 0;
             int stop;
             int current = 0;

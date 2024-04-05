@@ -70,12 +70,12 @@ namespace XTMF.Gui.UserControls
 
         private static int FilterNumber;
 
-        internal readonly List<ModelSystemStructureDisplayModel> CurrentlySelected = new();
+        internal readonly List<ModelSystemStructureDisplayModel> CurrentlySelected = [];
 
 
         private readonly LinkedParameterDisplay LinkedParameterDisplayOverlay;
 
-        private readonly BindingList<LinkedParameterDisplayModel> RecentLinkedParameters = new();
+        private readonly BindingList<LinkedParameterDisplayModel> RecentLinkedParameters = [];
 
         private bool _canSaveModelSystem;
 
@@ -99,7 +99,7 @@ namespace XTMF.Gui.UserControls
             DataContext = this;
             InitializeComponent();
             Loaded += ModelSystemDisplay_Loaded;
-            DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
+            DisabledModules = [];
             FilterBox.Filter = (o, text) =>
             {
                 var module = o as ModelSystemStructureDisplayModel;
@@ -154,7 +154,7 @@ namespace XTMF.Gui.UserControls
                     _selectedParameterDisplayModel = null;
                 });
             };
-            ModelSystemDisplayModelMap = new Dictionary<ModelSystemStructure, ModelSystemStructureDisplayModel>();
+            ModelSystemDisplayModelMap = [];
             ToggleQuickParameterDisplay(0);
         }
 

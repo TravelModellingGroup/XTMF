@@ -92,7 +92,7 @@ namespace Tasha.Common
             {
                 if (!JointTrip) return null;
 
-                List<ITripChain> linkedTripChains = new List<ITripChain>();
+                List<ITripChain> linkedTripChains = [];
                 foreach (var p in Person.Household.Persons)
                 {
                     foreach (var tripChain in p.TripChains)
@@ -287,7 +287,7 @@ namespace Tasha.Common
         {
             get
             {
-                List<IVehicleType> v = new List<IVehicleType>();
+                List<IVehicleType> v = [];
 
                 foreach (var trip in Trips)
                 {
@@ -315,8 +315,7 @@ namespace Tasha.Common
         public ITripChain Clone()
         {
             ITripChain chain = (ITripChain)MemberwiseClone();
-            chain.Trips = new List<ITrip>();
-            chain.Trips.AddRange(Trips);
+            chain.Trips = [.. Trips];
             return chain;
         }
 
@@ -328,8 +327,8 @@ namespace Tasha.Common
         {
             //shallow clone of tripchain
             ITripChain chain = (ITripChain)MemberwiseClone();
-            chain.Trips = new List<ITrip>();
-            List<ITrip> trips = new List<ITrip>();
+            chain.Trips = [];
+            List<ITrip> trips = [];
 
             //cloning trips as well and setting their trip chain to cloned chained
             foreach (var trip in Trips)

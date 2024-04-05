@@ -102,7 +102,7 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
-            public List<ModelElement> Data = new List<ModelElement>();
+            public List<ModelElement> Data = [];
 
             public event PropertyChangedEventHandler PropertyChanged;
 

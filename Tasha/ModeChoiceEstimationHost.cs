@@ -90,7 +90,7 @@ namespace Tasha
 
         private IConfiguration Configuration;
 
-        private List<IRemoteXTMF> ConnectedClients = new List<IRemoteXTMF>();
+        private List<IRemoteXTMF> ConnectedClients = [];
 
         private int CurrentIteration;
 
@@ -760,7 +760,7 @@ namespace Tasha
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(GetFileLocation(ParameterInstructions));
-            List<ParameterSetting> parameters = new List<ParameterSetting>();
+            List<ParameterSetting> parameters = [];
             var childNodes = doc["Root"]?.ChildNodes;
             if (childNodes == null)
             {

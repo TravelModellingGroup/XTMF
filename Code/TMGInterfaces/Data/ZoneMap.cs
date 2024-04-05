@@ -69,7 +69,7 @@ namespace TMG.Data
             {
                 if (!initialMap.TryGetValue(map[i], out List<int> mapList))
                 {
-                    mapList = new List<int>();
+                    mapList = [];
                     initialMap.Add(map[i], mapList);
                 }
                 mapList.Add(i);

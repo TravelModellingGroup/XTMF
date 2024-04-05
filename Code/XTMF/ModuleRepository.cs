@@ -24,7 +24,7 @@ namespace XTMF
 {
     public class ModuleRepository : IModuleRepository
     {
-        private List<Type> _ContainedModules = new List<Type>();
+        private List<Type> _ContainedModules = [];
 
         public IList<Type> Modules => _ContainedModules;
 

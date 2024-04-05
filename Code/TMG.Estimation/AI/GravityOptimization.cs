@@ -624,7 +624,7 @@ namespace TMG.Estimation.AI
             return true;
         }
 
-        private List<Job> PreviousGeneration = new List<Job>();
+        private List<Job> PreviousGeneration = [];
         private List<Job> GenerateJobs()
         {
             List<Job> ret = PreviousGeneration;

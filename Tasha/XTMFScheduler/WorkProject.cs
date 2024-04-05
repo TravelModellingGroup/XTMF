@@ -148,7 +148,7 @@ namespace Tasha.XTMFScheduler
             var personSchedule = schedule[personIndex];
             var episodeList = personSchedule.GenerateScheduledEpisodeList();
             var episodeDuration = episode.Duration;
-            List<TimeWindow> timeWindows = new List<TimeWindow>();
+            List<TimeWindow> timeWindows = [];
             //If there are no episodes in the schedule, then we can place it anywhere
             if ( episodeList.Length == 0 || episodeList[0] == null )
             {

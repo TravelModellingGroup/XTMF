@@ -38,8 +38,8 @@ namespace XTMF.Gui.Models
             _Session = session;
             _CanUndo = _Session.CanUndo;
             _CanRedo = _Session.CanRedo;
-            UndoList = new ObservableCollection<CommandDisplayModel>();
-            RedoList = new ObservableCollection<CommandDisplayModel>();
+            UndoList = [];
+            RedoList = [];
             _Session.CommandExecuted += Session_CommandExecuted;
         }
 

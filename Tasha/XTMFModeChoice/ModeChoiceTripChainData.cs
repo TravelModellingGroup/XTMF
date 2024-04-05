@@ -35,7 +35,7 @@ namespace Tasha.XTMFModeChoice
             TripChain = tripChain;
             BestPossibleAssignmentForVehicleType = new PossibleTripChainSolution[numberOfVehicleTypes];
             var tripData = new ModeChoiceTripData[trips.Count];
-            PossibleAssignments = new List<PossibleTripChainSolution>(0);
+            PossibleAssignments = [];
             for (int i = 0; i < tripData.Length; i++)
             {
                 tripData[i] = new ModeChoiceTripData(numberOfModes);

@@ -422,7 +422,7 @@ namespace Tasha
 
         private string[] SplitNameToParts(string parameterName)
         {
-            List<string> parts = new List<string>();
+            List<string> parts = [];
             var stringLength = parameterName.Length;
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < stringLength; i++)
@@ -479,8 +479,8 @@ namespace Tasha
 
         private void GenerateAllModeList()
         {
-            AllModes = new List<ITashaMode>();
-            NonSharedModes = new List<ITashaMode>();
+            AllModes = [];
+            NonSharedModes = [];
             AllModes.Add(AutoMode);
             NonSharedModes.Add(AutoMode);
             foreach (var mode in OtherModes)

@@ -99,7 +99,7 @@ namespace Tasha.Internal
         public ITashaHousehold Clone()
         {
             TashaHousehold newH = (TashaHousehold)MemberwiseClone();
-            newH.Variables = new SortedList<string, object>();
+            newH.Variables = [];
             newH.Attach("Maintainer", this["Maintainer"] );
             newH.Persons = new ITashaPerson[Persons.Length];
             for ( int i = 0; i < Persons.Length; i++)

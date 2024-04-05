@@ -101,7 +101,7 @@ The matrix will be saved in the OD square csv format."
         public void IterationStarting(int iteration)
         {
             ExpandedStudents = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            ToSave = new BlockingCollection<Assignment>();
+            ToSave = [];
             SaveTask = Task.Factory.StartNew( () =>
                 {
                     var students = ExpandedStudents;

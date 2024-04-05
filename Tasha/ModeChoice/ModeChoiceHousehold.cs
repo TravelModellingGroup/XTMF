@@ -205,9 +205,9 @@ namespace Tasha.ModeChoice
         /// <returns>The best possible assignment</returns>
         public static IVehicleType[] FindBestPossibleAssignment(List<ITripChain> tripChains, List<IVehicle> vehicles)
         {
-            List<Pair<IVehicleType[], double>> AllAssignments = new List<Pair<IVehicleType[], double>>();
+            List<Pair<IVehicleType[], double>> AllAssignments = [];
             //finds all the possible assignments of vehicles to trips
-            FindPossibleAssignments( AllAssignments, tripChains, vehicles, 0, new List<UnAssignedModeSet>(), new IVehicleType[tripChains.Count], 0 );
+            FindPossibleAssignments( AllAssignments, tripChains, vehicles, 0, [], new IVehicleType[tripChains.Count], 0 );
             double maxU = double.MinValue;
             IVehicleType[] bestAssignment = null;
             foreach ( Pair<IVehicleType[], double> assignment in AllAssignments )
@@ -246,7 +246,7 @@ namespace Tasha.ModeChoice
                     {
                         UnAssignedModeSet newUms = new UnAssignedModeSet( chains[position], set, set.ChosenMode[0].RequiresVehicle );
                         List<UnAssignedModeSet> allChainsWithSameVehicle = currentChains.FindAll( n => n.VehicleType == newUms.VehicleType );
-                        List<ITripChain> sameVehicleChains = new List<ITripChain>();
+                        List<ITripChain> sameVehicleChains = [];
                         foreach ( var ums in allChainsWithSameVehicle )
                         {
                             sameVehicleChains.Add( ums.GetChainWithAssignedModes() );
@@ -420,12 +420,12 @@ namespace Tasha.ModeChoice
         {
             bestSet = null;
             U = Double.MinValue;
-            List<List<ModeSet>> ModeSets = new List<List<ModeSet>>();
+            List<List<ModeSet>> ModeSets = [];
             foreach ( var chain in tour )
             {
                 ModeSets.Add( new List<ModeSet>( ModeSet.GetModeSets( chain ) ) );
             }
-            Dictionary<ModeSet, double> setAndU = new Dictionary<ModeSet, double>();
+            Dictionary<ModeSet, double> setAndU = [];
             foreach ( var set in ModeSets[0] )
             {
                 double curU = set.U;
@@ -690,7 +690,7 @@ namespace Tasha.ModeChoice
             List<ITripChain>[] optimalSets = new List<ITripChain>[ModeChoice.VehicleTypes.Count];
             for (int i = 0; i < optimalSets.Length; i++)
             {
-                optimalSets[i] = new List<ITripChain>();
+                optimalSets[i] = [];
             }
             foreach ( ITripChain tripchain in TripChains )
             {

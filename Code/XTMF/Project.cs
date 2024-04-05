@@ -57,7 +57,7 @@ namespace XTMF
         /// </summary>
         private volatile bool _IsLoaded;
 
-        public readonly List<ProjectModelSystem> ProjectModelSystems = new List<ProjectModelSystem>();
+        public readonly List<ProjectModelSystem> ProjectModelSystems = [];
 
         private readonly bool RemoteProject;
 
@@ -395,7 +395,7 @@ namespace XTMF
                     Description = "The root of the model system",
                     ParentFieldType = typeof(IModelSystemTemplate)
                 },
-                LinkedParameters = new List<ILinkedParameter>(),
+                LinkedParameters = [],
                 Description = string.Empty,
                 GUID = Guid.NewGuid().ToString(),
                 LastModified = DateTime.Now
@@ -484,7 +484,7 @@ namespace XTMF
             linkedParameters = LinkedParameters[modelSystemIndex].Count > 0
                 ? LinkedParameter.MapLinkedParameters(LinkedParameters[modelSystemIndex], ourClone,
                     ModelSystemStructure[modelSystemIndex])
-                : new List<ILinkedParameter>();
+                : [];
 
 
             //regionDisplays = RegionDisplays[modelSystemIndex];
@@ -514,7 +514,7 @@ namespace XTMF
                     clonedModelSystem.LinkedParameters = LinkedParameters[index].Count > 0
                         ? LinkedParameter.MapLinkedParameters(LinkedParameters[index], clone,
                             ModelSystemStructure[index])
-                        : new List<ILinkedParameter>();
+                        : [];
                 }
 
                 index++;
@@ -684,13 +684,13 @@ namespace XTMF
         public IModelSystemTemplate CreateModelSystem(ref ErrorWithPath error, IConfiguration configuration,
             IModelSystemStructure modelSystemStructure)
         {
-            if (!((ModelSystemStructure)modelSystemStructure).Validate(ref error, new List<int>()))
+            if (!((ModelSystemStructure)modelSystemStructure).Validate(ref error, []))
             {
                 return null;
             }
 
             IModelSystemTemplate modelSystem = null;
-            if (CreateModule(configuration, modelSystemStructure, modelSystemStructure, new List<int>(), ref error))
+            if (CreateModule(configuration, modelSystemStructure, modelSystemStructure, [], ref error))
             {
                 modelSystem = modelSystemStructure.Module as IModelSystemTemplate;
             }

@@ -85,7 +85,7 @@ namespace TMG.GTAModel.DataUtility
                 BurnWhiteSpace( ref i, input );
                 values.Add( number );
             }
-            data = new NumberList();
+            data = [];
             data.Values = values.ToArray();
             return true;
         }

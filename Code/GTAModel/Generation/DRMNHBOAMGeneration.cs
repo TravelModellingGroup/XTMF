@@ -254,7 +254,7 @@ namespace TMG.GTAModel.Generation
         {
             var modes = Root.Modes;
             var length = modes.Count;
-            AutoDrivePath = new List<int>();
+            AutoDrivePath = [];
             for ( int i = 0; i < length; i++ )
             {
                 if ( LinkModeName( p, modes[i] ) )

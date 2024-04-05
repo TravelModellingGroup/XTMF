@@ -63,11 +63,7 @@ namespace TMG.GTAModel.V2.Distribution
         public void LoadData()
         {
             // Load our data
-            List<float[]> p = new List<float[]>();
-            foreach ( var line in LoadWCatParamaterFile.Read() )
-            {
-                p.Add( line );
-            }
+            List<float[]> p = [.. LoadWCatParamaterFile.Read()];
             Parameters = p.ToArray();
         }
 

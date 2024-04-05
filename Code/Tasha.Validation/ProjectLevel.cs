@@ -31,8 +31,8 @@ namespace Tasha.Validation
         )]
     public class ProjectLevel : IPostScheduler, IDisposable
     {
-        public Dictionary<string, int> NumberDict = new Dictionary<string, int>();
-        public Dictionary<string, float> ResultDict = new Dictionary<string, float>();
+        public Dictionary<string, int> NumberDict = [];
+        public Dictionary<string, float> ResultDict = [];
 
         [RunParameter( "File Name", "ProjectResults.csv", "The file that we will store the results into." )]
         public string ResultsFileName;

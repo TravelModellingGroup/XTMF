@@ -83,8 +83,8 @@ namespace TMG.Emme
         /// <param name="fileName211"></param>
         public void LoadNetwork(string fileName211)
         {
-            Dictionary<int, Node> nodes = new Dictionary<int, Node>();
-            Dictionary<Pair<int, int>, Link> links = new Dictionary<Pair<int, int>, Link>();
+            Dictionary<int, Node> nodes = [];
+            Dictionary<Pair<int, int>, Link> links = [];
             using (StreamReader reader = new StreamReader(fileName211))
             {
                 string line;

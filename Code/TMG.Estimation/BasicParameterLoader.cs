@@ -51,7 +51,7 @@ namespace TMG.Estimation
             }
             XmlDocument doc = new XmlDocument();
             doc.Load( ParameterFileLocation.GetFilePath() );
-            List<ParameterSetting> parameters = new List<ParameterSetting>();
+            List<ParameterSetting> parameters = [];
             var root = doc["Root"];
             if (root == null)
             {

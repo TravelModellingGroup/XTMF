@@ -195,7 +195,7 @@ namespace XTMF.Run
 
         private static string[] ParseLinkedParameterName(string variableLink)
         {
-            List<string> ret = new List<string>();
+            List<string> ret = [];
             bool escape = false;
             var length = variableLink.Length;
             StringBuilder builder = new StringBuilder(length);
@@ -266,10 +266,10 @@ namespace XTMF.Run
         {
             if (_Root == null)
             {
-                InvokeRuntimeValidationError(new List<ErrorWithPath>(1)
-                {
+                InvokeRuntimeValidationError(
+                [
                     new ErrorWithPath(null, "Model System Root not found", "The model system was not processed properly and then run!")
-                });
+                ]);
                 return;
             }
             if (ValidateModelSystem())
@@ -358,7 +358,7 @@ namespace XTMF.Run
         private List<int> GetModulePath(IModule module)
         {
             if (module == null) return null;
-            List<int> ret = new List<int>();
+            List<int> ret = [];
             bool Explore(IModelSystemStructure current, List<int> path, IModule lookingFor)
             {
                 if (current.Module == lookingFor)
@@ -389,12 +389,12 @@ namespace XTMF.Run
             try
             {
                 ErrorWithPath error = new ErrorWithPath();
-                if (!_Root.Validate(ref error, new List<int>()))
+                if (!_Root.Validate(ref error, []))
                 {
                     InvokeValidationError(CreateFromSingleError(error));
                     return false;
                 }
-                if (!Project.CreateModule(Configuration, _Root, _Root, new List<int>(), ref error))
+                if (!Project.CreateModule(Configuration, _Root, _Root, [], ref error))
                 {
                     InvokeValidationError(CreateFromSingleError(error));
                     return false;
@@ -416,11 +416,11 @@ namespace XTMF.Run
 
         private bool ValidateRuntimeModelSystem()
         {
-            List<ErrorWithPath> errors = new List<ErrorWithPath>();
+            List<ErrorWithPath> errors = [];
             try
             {
                 _Root.Save(Path.GetFullPath("RunParameters.xml"));
-                if (!RunTimeValidation(new List<int>(), errors, _Root))
+                if (!RunTimeValidation([], errors, _Root))
                 {
                     InvokeRuntimeValidationError(errors);
                     return false;

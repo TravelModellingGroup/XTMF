@@ -141,7 +141,7 @@ namespace XTMF.Gui.UserControls
                     if (ContainsFreeVariables(SelectedType))
                     {
                         // then we need to fill in the free parameters
-                        List<Type> selectedForFreeVariables = new List<Type>();
+                        List<Type> selectedForFreeVariables = [];
                         foreach (var variable in GetFreeVariables(SelectedType))
                         {
                             var dialog = new FreeVariableEntry(variable, Session) { Owner = this };

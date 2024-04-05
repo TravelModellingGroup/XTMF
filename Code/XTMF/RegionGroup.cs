@@ -72,7 +72,7 @@ namespace XTMF
         /// <param name="parent"></param>
         public RegionGroup(RegionDisplay parent)
         {
-            _modules = new List<IModelSystemStructure>();
+            _modules = [];
             ParentDisplay = parent;
         }
 
@@ -84,7 +84,7 @@ namespace XTMF
        /// <param name="parent"></param>
         public RegionGroup(IRegionGroup clone, IModelSystemStructure cloneStructure, IRegionDisplay parent)
         {
-            _modules = new List<IModelSystemStructure>();
+            _modules = [];
             Name = clone.Name;
             ParentDisplay = (RegionDisplay)parent;
 
@@ -106,7 +106,7 @@ namespace XTMF
         /// <returns></returns>
         private IModelSystemStructure GetSiblingModule(IModelSystemStructure original, IModelSystemStructure cloneRoot)
         {
-            var path = ModelSystemStructure.GetModuleReferencePath(original, new List<string>());
+            var path = ModelSystemStructure.GetModuleReferencePath(original, []);
 
             return ModelSystemStructure.GetModuleFromReference(path, cloneRoot);
         }

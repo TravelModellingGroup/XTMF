@@ -52,7 +52,7 @@ namespace XTMF.Gui.Controllers
             }
         }
 
-        internal List<Theme> Themes { get; } = new List<Theme>();
+        internal List<Theme> Themes { get; } = [];
 
         private string _Configuration;
 

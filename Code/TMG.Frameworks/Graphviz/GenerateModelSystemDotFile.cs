@@ -65,7 +65,7 @@ namespace TMG.Frameworks.Graphviz
                 foreach (var projectRepository in Configuration.ProjectRepository)
                 foreach (var modelSystemStructure in projectRepository.ModelSystemStructure)
                     if (modelSystemStructure.Name.ToLower() == ModelSystemName.ToLower())
-                        _modelSystemStructure = new List<IModelSystemStructure> {modelSystemStructure};
+                        _modelSystemStructure = [modelSystemStructure];
 
             if (_modelSystemStructure == null)
             {

@@ -42,8 +42,8 @@ namespace Tasha.XTMFModeChoice
             HouseholdData = householdData;
             PassengerMode = passengerMode;
             Modes = modes;
-            PotentialTrips = new List<PotentialPassengerTrip>();
-            Conflicts = new List<Conflict>();
+            PotentialTrips = [];
+            Conflicts = [];
             IndexOfPassenger = IndexOf(passengerMode, modes);
         }
 

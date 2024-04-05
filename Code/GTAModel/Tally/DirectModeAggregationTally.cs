@@ -217,7 +217,7 @@ Leaving any of the options blank will select all of the given type (purposes or 
 
         private bool ProcessModeNames(ref string error)
         {
-            List<int> care = new List<int>();
+            List<int> care = [];
             if ( String.IsNullOrWhiteSpace( ModeNames ) )
             {
                 // if nothing is given return the top level
@@ -259,7 +259,7 @@ Leaving any of the options blank will select all of the given type (purposes or 
             else
             {
                 string[] parts = PurposeNames.Split( ',' );
-                List<int> care = new List<int>();
+                List<int> care = [];
                 var purposes = Root.Purpose;
                 var numberOfPurposes = purposes.Count;
                 foreach ( var part in parts )

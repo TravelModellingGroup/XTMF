@@ -38,14 +38,14 @@ namespace TMG.Emme
 
         public ExtraAttributeData()
         {
-            _AllowedDomains = new HashSet<string>
-            {
+            _AllowedDomains =
+            [
                 "NODE",
                 "LINK",
                 "TURN",
                 "TRANSIT_LINE",
                 "TRANSIT_SEGMENT"
-            };
+            ];
         }
 
         public string Name

@@ -234,7 +234,7 @@ namespace Tasha.External
                 error = "In '" + Name + "' the resource for Base Year Population was not of type SparseArray<float>!";
                 return false;
             }
-            ExternalTransit = new HashSet<ITashaMode>();
+            ExternalTransit = [];
             foreach (var mode in Root.AllModes)
             {
                 var modeName = mode.ModeName;

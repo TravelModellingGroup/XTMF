@@ -102,7 +102,7 @@ namespace TMG.Frameworks.Data.Saving
         private RangeSetSeries LoadBinsFromFile()
         {
             using CsvReader reader = new(BinsFile, true);
-            List<RangeSet> list = new();
+            List<RangeSet> list = [];
             // burn header
             reader.LoadLine();
             while (reader.LoadLine(out var columns))

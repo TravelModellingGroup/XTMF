@@ -52,7 +52,7 @@ namespace Tasha.Validation
             }
         }
 
-        private Dictionary<Activity, DistanceCount> DistancesDictionary = new Dictionary<Activity, DistanceCount>();
+        private Dictionary<Activity, DistanceCount> DistancesDictionary = [];
 
         public string Name
         {

@@ -378,8 +378,8 @@ namespace Tasha
 
         private void GenerateAllModeList()
         {
-            AllModes = new List<ITashaMode>();
-            NonSharedModes = new List<ITashaMode>();
+            AllModes = [];
+            NonSharedModes = [];
             AllModes.Add(AutoMode);
             NonSharedModes.Add(AutoMode);
             foreach (var mode in OtherModes)
@@ -562,8 +562,8 @@ namespace Tasha
 
         private void LoadModes()
         {
-            AllModes = new List<ITashaMode>();
-            NonSharedModes = new List<ITashaMode>();
+            AllModes = [];
+            NonSharedModes = [];
             AllModes.Add(AutoMode);
             NonSharedModes.Add(AutoMode);
             foreach (var mode in OtherModes)

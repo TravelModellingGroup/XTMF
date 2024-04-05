@@ -234,11 +234,11 @@ namespace TMG.Functions
             }
             using (StreamWriter writer = new StreamWriter(fileName, false, Encoding.UTF8))
             {
-                BlockingCollection<SaveTask> toWrite = new BlockingCollection<SaveTask>();
+                BlockingCollection<SaveTask> toWrite = [];
                 var saveTask = Task.Run(() =>
                 {
                     int nextRow = 0;
-                    SortedList<int, SaveTask> backlog = new SortedList<int, SaveTask>();
+                    SortedList<int, SaveTask> backlog = [];
                     foreach (var newTask in toWrite.GetConsumingEnumerable())
                     {
                         var task = newTask;

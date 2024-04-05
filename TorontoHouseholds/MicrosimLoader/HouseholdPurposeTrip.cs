@@ -12,7 +12,7 @@ namespace TMG.Tasha.MicrosimLoader
 
     internal sealed class HouseholdPurposeTrip : Attachable, ITrip
     {
-        private static ConcurrentBag<HouseholdPurposeTrip> Trips = new ConcurrentBag<HouseholdPurposeTrip>();
+        private static ConcurrentBag<HouseholdPurposeTrip> Trips = [];
 
         #region ITrip Members
 

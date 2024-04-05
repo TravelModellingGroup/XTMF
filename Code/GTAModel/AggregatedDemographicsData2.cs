@@ -319,7 +319,7 @@ namespace TMG.GTAModel
 
         private void LoadAgeDist()
         {
-            List<AgeDist> ageDistributions = new List<AgeDist>();
+            List<AgeDist> ageDistributions = [];
             var ageCategories = AgeCategories.Count;
             using (CommentedCsvReader reader = new CommentedCsvReader(AgeDistributionFile.GetFileName(Root.InputBaseDirectory)))
             {
@@ -410,7 +410,7 @@ namespace TMG.GTAModel
 
         private void LoadEmploymentDist()
         {
-            List<EmploymentDist> employment = new List<EmploymentDist>();
+            List<EmploymentDist> employment = [];
 
             using (CommentedCsvReader reader = new CommentedCsvReader(EmploymentDistributionFile.GetFileName(Root.InputBaseDirectory)))
             {
@@ -609,7 +609,7 @@ namespace TMG.GTAModel
 
         private void LoadOccupationDist()
         {
-            List<OccupationDist> occupation = new List<OccupationDist>();
+            List<OccupationDist> occupation = [];
             if (SaveDataIntoZones)
             {
                 foreach (var zone in Root.ZoneSystem.ZoneArray.ValidIndexies())
@@ -756,7 +756,7 @@ namespace TMG.GTAModel
 
         private void LoadPDZoneMap()
         {
-            PDZoneMap = new Dictionary<int, List<int>>();
+            PDZoneMap = [];
             var zoneArray = Root.ZoneSystem.ZoneArray;
             foreach (var valid in zoneArray.ValidIndexies())
             {
@@ -767,10 +767,10 @@ namespace TMG.GTAModel
                 }
                 else
                 {
-                    List<int> l = new List<int>
-                    {
+                    List<int> l =
+                    [
                         z.ZoneNumber
-                    };
+                    ];
                     PDZoneMap[z.PlanningDistrict] = l;
                 }
             }
@@ -778,7 +778,7 @@ namespace TMG.GTAModel
 
         private void LoadStudentDist()
         {
-            List<StudentDist> studentData = new List<StudentDist>();
+            List<StudentDist> studentData = [];
             using (CommentedCsvReader reader = new CommentedCsvReader(StudentDistributionFile.GetFileName(Root.InputBaseDirectory)))
             {
                 float[] data = new float[4];

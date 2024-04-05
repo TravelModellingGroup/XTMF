@@ -276,7 +276,7 @@ namespace TMG.GTAModel.DataResources
         /// <returns>An array of flat zone indexes that represent the access stations.</returns>
         private int[] GetAccessZones(SparseArray<IZone> zoneArray)
         {
-            List<int> accessIndexes = new List<int>();
+            List<int> accessIndexes = [];
             foreach (var rangeSet in StationZoneRange)
             {
                 for (int i = rangeSet.Start; i <= rangeSet.Stop; i++)

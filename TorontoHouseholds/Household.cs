@@ -30,7 +30,7 @@ namespace Tasha.Common
     public sealed class Household : Attachable, ITashaHousehold
     {
         public static int HouseholdsMade;
-        private static ConcurrentBag<Household> Households = new ConcurrentBag<Household>();
+        private static ConcurrentBag<Household> Households = [];
 
         private int _NumberOfAdults = -1;
 
@@ -176,7 +176,7 @@ namespace Tasha.Common
 
         internal static void ReleaseHouseholdPool()
         {
-            Households = new ConcurrentBag<Household>();
+            Households = [];
         }
 
         #region IHousehold Members
@@ -185,7 +185,7 @@ namespace Tasha.Common
         {
             get
             {
-                Dictionary<int, List<ITripChain>> jointTours = new Dictionary<int, List<ITripChain>>();
+                Dictionary<int, List<ITripChain>> jointTours = [];
 
                 foreach (var person in Persons)
                 {
@@ -205,8 +205,10 @@ namespace Tasha.Common
                             }
                             else
                             {
-                                jointTour = new List<ITripChain>(4);
-                                jointTour.Add(jtc);
+                                jointTour = new List<ITripChain>(4)
+                                {
+                                    jtc
+                                };
                                 jointTours.Add(jtc.JointTripID, jointTour);
                             }
                         }
@@ -234,7 +236,7 @@ namespace Tasha.Common
         public ITashaHousehold Clone()
         {
             Household newH = (Household)MemberwiseClone();
-            newH.Variables = new SortedList<string, object>();
+            newH.Variables = [];
             newH.Attach("Maintainer", this["Maintainer"]);
             newH.Persons = new ITashaPerson[Persons.Length];
             for (int i = 0; i < Persons.Length; i++)

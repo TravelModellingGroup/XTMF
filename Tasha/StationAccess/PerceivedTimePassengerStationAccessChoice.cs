@@ -80,7 +80,7 @@ namespace Tasha.StationAccess
 
         internal int[] GetStationZones(RangeSet stationRanges, float[] capacity, IZone[] zones)
         {
-            List<int> validStationIndexes = new List<int>();
+            List<int> validStationIndexes = [];
             for (int i = 0; i < zones.Length; i++)
             {
                 if ((AllowZeroCapacityStations || capacity[i] > 0) && stationRanges.Contains(zones[i].ZoneNumber))

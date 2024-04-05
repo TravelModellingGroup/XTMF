@@ -230,12 +230,12 @@ namespace XTMF.Gui
                 if (numberOfModelSystems > 500)
                 {
                     // go through them all in parallel then add them in order
-                    List<int> final = new List<int>();
+                    List<int> final = [];
                     var finalLock = new object();
                     Parallel.For(0, numberOfModelSystems, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                         delegate
                         {
-                            return new List<int>();
+                            return [];
                         },
                         delegate (int i, ParallelLoopState unused, List<int> results)
                         {

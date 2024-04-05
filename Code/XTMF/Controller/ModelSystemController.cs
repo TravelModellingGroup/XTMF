@@ -42,11 +42,11 @@ namespace XTMF
         /// <summary>
         /// The current editing sessions
         /// </summary>
-        private readonly List<ModelSystemEditingSession> EditingSessions = new List<ModelSystemEditingSession>();
+        private readonly List<ModelSystemEditingSession> EditingSessions = [];
         /// <summary>
         /// The number of references to each model system editing session
         /// </summary>
-        private readonly List<int> References = new List<int>();
+        private readonly List<int> References = [];
 
         /// <summary>
         /// The lock to get before using the editing sessions

@@ -113,10 +113,10 @@ namespace TMG.GTAModel.Input
         private void LoadTriIndexedData()
         {
             // first 2 columns are the first 2, the remaineder are the last dimension enumerated
-            List<int> first = new List<int>();
-            List<int> second = new List<int>();
-            List<int> third = new List<int>();
-            List<float> data = new List<float>();
+            List<int> first = [];
+            List<int> second = [];
+            List<int> third = [];
+            List<float> data = [];
             StoreData( first, second, third, data );
             Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
         }

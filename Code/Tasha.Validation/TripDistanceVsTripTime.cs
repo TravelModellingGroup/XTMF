@@ -46,7 +46,7 @@ namespace Tasha.Validation
         [RunParameter("Trip Start Time", false, "Should we be using the trip start time or the activity start times?")]
         public bool TripStartTime;
 
-        private Dictionary<int, List<float>> Results = new Dictionary<int, List<float>>();
+        private Dictionary<int, List<float>> Results = [];
 
         public string Name
         {
@@ -92,8 +92,7 @@ namespace Tasha.Validation
                             }
                             else
                             {
-                                List<float> distance = new List<float>();
-                                distance.Add(overallDistance);
+                                List<float> distance = [overallDistance];
                                 Results.Add((TripStartTime ? trip.TripStartTime : trip.ActivityStartTime).Hours, distance);
                             }
                         }

@@ -36,12 +36,12 @@ namespace XTMF
         /// <summary>
         /// The sessions that are currently running
         /// </summary>
-        private List<ProjectEditingSession> EditingSessions = new List<ProjectEditingSession>();
+        private List<ProjectEditingSession> EditingSessions = [];
 
         /// <summary>
         /// The number of sessions per session that is currently running
         /// </summary>
-        private List<int> ReferenceCount = new List<int>();
+        private List<int> ReferenceCount = [];
 
         /// <summary>
         /// This lock needs to be acquired before we are allowed to touch the editing sessions.

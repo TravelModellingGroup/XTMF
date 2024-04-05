@@ -453,7 +453,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                                 {
                                     return false;
                                 }
-                                List<Expression> parameters = new List<Expression>();
+                                List<Expression> parameters = [];
                                 int lastStart = i + 1;
                                 Expression p;
                                 for (int j = i + 1; j < endIndex; j++)

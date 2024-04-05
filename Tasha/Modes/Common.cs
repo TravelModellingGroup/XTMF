@@ -41,7 +41,7 @@ namespace Tasha.Modes
 
         public static List<int> ConvertToIntList(string values)
         {
-            List<int> toReturn = new List<int>();
+            List<int> toReturn = [];
 
             string[] items = values.Split( ',' );
 

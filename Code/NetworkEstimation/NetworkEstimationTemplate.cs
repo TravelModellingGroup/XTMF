@@ -200,7 +200,7 @@ namespace TMG.NetworkEstimation
         private void InitializeAssignment()
         {
             // Get all of the initial ground truth data
-            List<TransitLine> truthList = new List<TransitLine>();
+            List<TransitLine> truthList = [];
             // On the first pass go through all of the data and store the records of the TTS boardings
             using (StreamReader reader = new StreamReader(TruthFile))
             {
@@ -251,7 +251,7 @@ namespace TMG.NetworkEstimation
                             List<string> ourList;
                             if ((ourList = nameLinks[i]) == null)
                             {
-                                nameLinks[i] = ourList = new List<string>();
+                                nameLinks[i] = ourList = [];
                             }
                             ourList.Add(emmeName);
                             break;
@@ -279,7 +279,7 @@ namespace TMG.NetworkEstimation
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(ParameterInstructions);
-            List<ParameterSetting> parameters = new List<ParameterSetting>();
+            List<ParameterSetting> parameters = [];
             var children = doc["Root"]?.ChildNodes;
             if (children != null)
             {
@@ -349,7 +349,7 @@ namespace TMG.NetworkEstimation
             double mabs = 0;
             double terror = 0;
             float[] aggToTruth = new float[Truth.Length];
-            List<KeyValuePair<string, float>> orphans = new List<KeyValuePair<string, float>>();
+            List<KeyValuePair<string, float>> orphans = [];
             for (int i = 0; i < numberOfLines; i++)
             {
                 bool orphan = true;

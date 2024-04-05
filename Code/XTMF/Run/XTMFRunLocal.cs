@@ -63,7 +63,7 @@ namespace XTMF.Run
             if (_Project is Project p)
             {
                 p.SetModelSystem(_ModelSystemIndex, root.ClonedModelSystemRoot, _model.LinkedParameters.GetRealLinkedParameters(),
-                    new List<IRegionDisplay>(), root.Description ?? String.Empty);
+                    [], root.Description ?? String.Empty);
             }
             if (overwrite)
             {
@@ -223,7 +223,7 @@ namespace XTMF.Run
         private List<int> GetModulePath(IModule module)
         {
             if (module == null) return null;
-            List<int> ret = new List<int>();
+            List<int> ret = [];
             bool Explore(ModelSystemStructureModel current, List<int> path, IModule lookingFor)
             {
                 if (current.RealModelSystemStructure.Module == lookingFor)
@@ -251,7 +251,7 @@ namespace XTMF.Run
 
         private void RunModelSystem(out List<ErrorWithPath> errors, IModelSystemStructure mstStructure)
         {
-            errors = new List<ErrorWithPath>(0);
+            errors = [];
             AlertValidationStarting();
             // check to see if the directory exists, if it doesn't create it
             DirectoryInfo info = new DirectoryInfo(RunDirectory);
@@ -262,7 +262,7 @@ namespace XTMF.Run
             Directory.SetCurrentDirectory(RunDirectory);
             SaveRunParameters();
 
-            if (!RunTimeValidation(new List<int>(), errors, mstStructure))
+            if (!RunTimeValidation([], errors, mstStructure))
             {
                 InvokeRuntimeValidationError(errors);
             }

@@ -99,7 +99,7 @@ namespace Tasha.Validation.ValidateModeChoice
                                 }
                                 else
                                 {
-                                    Data.TryAdd( passengerDistance, new List<float>() );
+                                    Data.TryAdd( passengerDistance, [] );
                                     Data[passengerDistance].Add( newDistance );
                                 }
 

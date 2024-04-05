@@ -617,7 +617,7 @@ namespace TMG.GTAModel.V2.Modes
             {
                 if (!lineLookup.TryGetValue(Children[i].LineNumber, out List<int> currentLine))
                 {
-                    currentLine = new List<int>();
+                    currentLine = [];
                     lineLookup[Children[i].LineNumber] = currentLine;
                 }
                 currentLine.Add( i );
@@ -628,7 +628,7 @@ namespace TMG.GTAModel.V2.Modes
         private bool GenerateChildren()
         {
             FreeTransfers.LoadData();
-            Children = new List<GoAccessStation>();
+            Children = [];
             SparseTwinIndex<float> frequencies = ReadFrequencies();
             foreach ( var record in StationZoneData.Read() )
             {

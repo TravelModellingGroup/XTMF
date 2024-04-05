@@ -298,7 +298,7 @@ namespace Datastructure
                     });
                     subSetsJ.Clear();
                     meta.Add(new Pair<int, List<SparseSet>>(indexes[i - 1].SparseSpaceFirst, subSetsI));
-                    subSetsI = new List<SparseSet>();
+                    subSetsI = [];
                     currentSet.Start = currentSet.Stop = indexes[i].SparseSpaceThird;
                 }
             }

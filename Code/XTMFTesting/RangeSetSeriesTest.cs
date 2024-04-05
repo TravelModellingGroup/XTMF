@@ -134,8 +134,8 @@ namespace XTMF.Testing
 
         private static List<RangeSet> GenerateTempRange()
         {
-            List<RangeSet> tempRange = new List<RangeSet>()
-            {
+            List<RangeSet> tempRange =
+            [
                 new RangeSet(new List<Range>()
                 {
                     new Range(1, 2),
@@ -146,7 +146,7 @@ namespace XTMF.Testing
                     new Range(11, 12),
                     new Range(14, 15)
                 })
-            };
+            ];
             return tempRange;
         }
     }

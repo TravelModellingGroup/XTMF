@@ -174,7 +174,7 @@ namespace Tasha.Estimation.AccessStation
 
         private void LoadRecords()
         {
-            _records = new List<Record>();
+            _records = [];
             try
             {
                 using (var reader = new CsvReader(TruthData, true))

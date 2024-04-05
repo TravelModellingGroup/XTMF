@@ -123,7 +123,7 @@ namespace Tasha.Validation
                                             var dictionary = ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber];
                                             if(dictionary == null)
                                             {
-                                                ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber] = dictionary = new Dictionary<Activity, float>();
+                                                ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber] = dictionary = [];
                                             }
                                             AddTripToDictionary(dictionary, amountToAddPerTrip, trip);
                                             
@@ -221,7 +221,7 @@ namespace Tasha.Validation
                 }
                 else
                 {
-                    PurposeDictionary = new Dictionary<Activity, float>();
+                    PurposeDictionary = [];
                 }
             }
         }

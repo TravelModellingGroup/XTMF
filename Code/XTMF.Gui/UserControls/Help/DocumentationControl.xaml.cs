@@ -171,7 +171,7 @@ namespace XTMF.Gui.UserControls
 
         private static SubModule[] GetSubmodules(Type type)
         {
-            List<SubModule> submodules = new List<SubModule>();
+            List<SubModule> submodules = [];
             var fields = type.GetFields();
             foreach (var f in fields)
             {

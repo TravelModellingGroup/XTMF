@@ -239,7 +239,7 @@ namespace Tasha.PopulationSynthesis
                                    where zone.PlanningDistrict == pd
                                    select zoneArray.GetFlatIndex(zone.ZoneNumber)).ToArray();
                 // make sure we don't generate persons for the external zones
-                results[i] = _householdsByPD.GetSparseIndex(i) == 0 ? new List<KeyValuePair<int, int>>() : flatPD[i].ProcessPD(RandomSeed, zones, HouseholdExpansionFactor, zoneIndexes);
+                results[i] = _householdsByPD.GetSparseIndex(i) == 0 ? [] : flatPD[i].ProcessPD(RandomSeed, zones, HouseholdExpansionFactor, zoneIndexes);
             });
             Save(results, flatPD);
         }

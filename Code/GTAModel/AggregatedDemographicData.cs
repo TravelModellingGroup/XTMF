@@ -329,7 +329,7 @@ type ITravelDemandModel.")]
 
         private void LoadAgeDist()
         {
-            List<AgeDist> ageDistributions = new List<AgeDist>();
+            List<AgeDist> ageDistributions = [];
             var ageCategories = AgeCategories.Count;
             using(CsvReader reader = new CsvReader(GetFullPath(AgeDistributionFile)))
             {
@@ -429,7 +429,7 @@ type ITravelDemandModel.")]
         private void LoadEmploymentDist()
         {
             List<int> zones;
-            List<EmploymentDist> employment = new List<EmploymentDist>();
+            List<EmploymentDist> employment = [];
             using(CsvReader reader = new CsvReader(GetFullPath(EmploymentDistributionFile)))
             {
                 int length;
@@ -654,7 +654,7 @@ type ITravelDemandModel.")]
 
         private void LoadOccupationDist()
         {
-            List<OccupationDist> occupation = new List<OccupationDist>();
+            List<OccupationDist> occupation = [];
             List<int> zones;
             if(SaveDataIntoZones)
             {
@@ -795,7 +795,7 @@ type ITravelDemandModel.")]
 
         private void LoadPdZoneMap()
         {
-            PdZoneMap = new Dictionary<int, List<int>>();
+            PdZoneMap = [];
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             for(int i = 0; i < zones.Length; i++)
             {
@@ -806,8 +806,7 @@ type ITravelDemandModel.")]
                 }
                 else
                 {
-                    List<int> l = new List<int>();
-                    l.Add(z.ZoneNumber);
+                    List<int> l = [z.ZoneNumber];
                     PdZoneMap[z.PlanningDistrict] = l;
                 }
             }
@@ -815,7 +814,7 @@ type ITravelDemandModel.")]
 
         private void LoadStudentDist()
         {
-            List<StudentDist> studentData = new List<StudentDist>();
+            List<StudentDist> studentData = [];
             List<int> zones;
             using (CsvReader reader = new CsvReader(GetFullPath(StudentDistributionFile)))
             {

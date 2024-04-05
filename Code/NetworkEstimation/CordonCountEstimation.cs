@@ -51,9 +51,9 @@ namespace TMG.NetworkEstimation
         [RunParameter( "Absolute Error Factor", 0f, "The factor applied to the sum of each station's Abs(error)." )]
         public float AbsoluteErrorFactor;
 
-        private Dictionary<string, string> StationNameMap = new Dictionary<string, string>();
+        private Dictionary<string, string> StationNameMap = [];
 
-        private Dictionary<string, float> TruthValues = new Dictionary<string, float>();
+        private Dictionary<string, float> TruthValues = [];
 
         [RootModule]
         public IEstimationClientModelSystem Root;

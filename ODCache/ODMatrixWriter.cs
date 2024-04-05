@@ -42,8 +42,10 @@ namespace Datastructure
 
         protected override Dictionary<string, string> GetMetaData()
         {
-            var ret = new Dictionary<string, string>(6);
-            ret["Year"] = Year.ToString();
+            var ret = new Dictionary<string, string>(6)
+            {
+                ["Year"] = Year.ToString()
+            };
             AddIfNotNull("StartTime", StartTimesHeader, ret);
             AddIfNotNull("EndTime", EndTimesHeader, ret);
             AddIfNotNull("Types", TypeHeader, ret);

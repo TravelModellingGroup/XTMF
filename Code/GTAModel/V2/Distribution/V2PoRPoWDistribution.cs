@@ -490,7 +490,7 @@ namespace TMG.GTAModel.V2.Distribution
                 List<Segment>[] temp = new List<Segment>[1];
                 for(int i = 0; i < temp.Length; i++)
                 {
-                    temp[i] = new List<Segment>();
+                    temp[i] = [];
                 }
                 var numberOfModes = 4;
                 using (CsvReader reader = new CsvReader(InputFile.GetFileName(Root.InputBaseDirectory)))

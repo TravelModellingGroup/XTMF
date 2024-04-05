@@ -73,11 +73,11 @@ namespace Datastructure
         public SparseMultiIndexTable(int numberOfIndices, float defaultValue)
         {
             MappedIndices = new HashSet<int>[numberOfIndices];
-            for ( var i = 0; i < numberOfIndices; i++ ) MappedIndices[i] = new HashSet<int>();
+            for ( var i = 0; i < numberOfIndices; i++ ) MappedIndices[i] = [];
 
             DefaultValue = defaultValue;
             IndexNames = new string[numberOfIndices];
-            Data = new Dictionary<string, float>();
+            Data = [];
         }
 
         public SparseMultiIndexTable(string fileName, float defaultValue = 0.0f)
@@ -85,7 +85,7 @@ namespace Datastructure
             string[]? indexedNames = null;
             HashSet<int>[]? mappedIndices = null;
             long lineNumber = 2;
-            Data = new Dictionary<string, float>();
+            Data = [];
             try
             {
                 using (var reader = new CommentedStreamReader(fileName))
@@ -102,7 +102,7 @@ namespace Datastructure
 
                         //Load header data, initialize this class.
                         mappedIndices = new HashSet<int>[cells.Length - 1];
-                        for (var i = 0; i < Dimensions; i++) mappedIndices[i] = new HashSet<int>();
+                        for (var i = 0; i < Dimensions; i++) mappedIndices[i] = [];
 
                         indexedNames = new string[Dimensions];
                         for (var i = 0; i < Dimensions; i++) indexedNames[i] = cells[i];

@@ -149,7 +149,7 @@ namespace TMG.GTAModel.Analysis
             {
                 Directory.CreateDirectory( dir );
             }
-            List<int> regionNumbers = new List<int>();
+            List<int> regionNumbers = [];
             GatherRegionData( regionNumbers, zones );
             float[] regionProductionDistances = new float[regionNumbers.Count];
             float[] regionAttractionDistances = new float[regionNumbers.Count];

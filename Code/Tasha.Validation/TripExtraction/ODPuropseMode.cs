@@ -50,7 +50,7 @@ namespace Tasha.Validation.TripExtraction
         [RunParameter("Minimum Age", 11, "The youngest a person can be and still be recorded.")]
         public int MinimumAge;
 
-        List<string> ValidModeNames = new List<string>();
+        List<string> ValidModeNames = [];
         private Activity[] Activities;
 
         [RootModule]

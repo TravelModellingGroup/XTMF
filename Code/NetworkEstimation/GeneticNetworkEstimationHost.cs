@@ -494,7 +494,7 @@ namespace TMG.NetworkEstimation
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(ParameterInstructions);
-            List<ParameterSetting> parameters = new List<ParameterSetting>();
+            List<ParameterSetting> parameters = [];
             var childNodes = doc["Root"]?.ChildNodes;
             if (childNodes != null)
             {

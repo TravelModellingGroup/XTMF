@@ -59,7 +59,7 @@ namespace TMG.NetworkEstimation
         /// </summary>
         private IConfiguration Configuration;
 
-        private List<IRemoteXTMF> ConnectedClients = new List<IRemoteXTMF>();
+        private List<IRemoteXTMF> ConnectedClients = [];
 
         private Random RandomNumberGenerator;
 

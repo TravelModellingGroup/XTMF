@@ -426,7 +426,7 @@ namespace Datastructure
             }
             else
             {
-                MetaData = new Dictionary<string, string>(0);
+                MetaData = [];
             }
             int num = Reader.ReadInt32();
             Indexes = new Index[num];

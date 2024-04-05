@@ -35,7 +35,7 @@ namespace Tasha.Common
         /// <returns>all the trip chains</returns>
         public static List<ITripChain> AllAuxTripsChains(this ITashaHousehold household)
         {
-            List<ITripChain> trips = new List<ITripChain>();
+            List<ITripChain> trips = [];
 
             //flatten households trips
             foreach ( var p in household.Persons )
@@ -53,7 +53,7 @@ namespace Tasha.Common
         /// <returns>all the trip chains</returns>
         public static List<ITripChain> AllTripChains(this ITashaHousehold household)
         {
-            List<ITripChain> trips = new List<ITripChain>();
+            List<ITripChain> trips = [];
             //flatten households trips
             foreach ( var p in household.Persons )
             {
@@ -72,7 +72,7 @@ namespace Tasha.Common
         /// <returns></returns>
         public static List<ITripChain> AllTripChainsThatUseVehicle(this ITashaHousehold household, IVehicleType vehicle)
         {
-            List<ITripChain> trips = new List<ITripChain>();
+            List<ITripChain> trips = [];
 
             //flatten households trips
             foreach ( var p in household.Persons )
@@ -97,7 +97,7 @@ namespace Tasha.Common
         /// <returns></returns>
         public static List<ITripChain> AllTripChainsWithAuxThatUseVehicle(this ITashaHousehold household, IVehicleType vehicle)
         {
-            List<ITripChain> trips = new List<ITripChain>();
+            List<ITripChain> trips = [];
 
             //flatten households trips
             foreach ( var p in household.Persons )
@@ -128,7 +128,7 @@ namespace Tasha.Common
         /// <returns>all the trip chains</returns>
         public static List<ITripChain> AllTripsChainsWithoutAuxChains(this ITashaHousehold household)
         {
-            List<ITripChain> trips = new List<ITripChain>();
+            List<ITripChain> trips = [];
 
             //flatten households trips
             foreach ( var p in household.Persons )
@@ -141,14 +141,14 @@ namespace Tasha.Common
         public static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilites(List<ITripChain> tc, int numVehicles)
         {
             int vehiclesAvailable = numVehicles;
-            Dictionary<TashaTimeSpan, int> availabilities = new Dictionary<TashaTimeSpan, int>();
+            Dictionary<TashaTimeSpan, int> availabilities = [];
             if ( tc.Count == 0 )
             {
                 availabilities.Add( new TashaTimeSpan( TashaRuntime.StartOfDay,
                 TashaRuntime.EndOfDay ), vehiclesAvailable );
                 return availabilities;
             }
-            List<Pair<Time, int>> tripStartAndEndTimes = new List<Pair<Time, int>>();
+            List<Pair<Time, int>> tripStartAndEndTimes = [];
             foreach ( var tripChain in tc )
             {
                 Pair<Time, int> startTime = new Pair<Time, int>( tripChain.StartTime, -1 );
@@ -235,8 +235,8 @@ namespace Tasha.Common
         /// <returns></returns>
         public static List<ITripChain> GetAllTripChains(this ITashaPerson person)
         {
-            List<ITripChain> allTripChains = new List<ITripChain>();
-            List<ITripChain> addedChains = new List<ITripChain>();
+            List<ITripChain> allTripChains = [];
+            List<ITripChain> addedChains = [];
 
             //adding all auxiliary trip chains
             foreach ( var auxTripChain in person.AuxTripChains )
@@ -337,7 +337,7 @@ namespace Tasha.Common
             {
                 if ( p.AuxTripChains == null )
                 {
-                    p.AuxTripChains = new List<ITripChain>();
+                    p.AuxTripChains = [];
                 }
                 else
                 {

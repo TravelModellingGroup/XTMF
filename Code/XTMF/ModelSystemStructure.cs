@@ -241,7 +241,7 @@ namespace XTMF
         public static void GenerateChildren(IConfiguration config, IModelSystemStructure element)
         {
             if (element?.Type == null) return;
-            List<int> indexes = new();
+            List<int> indexes = [];
             int index;
             foreach (var field in element.Type.GetFields())
             {
@@ -549,7 +549,7 @@ namespace XTMF
         /// <returns></returns>
         public List<Type> GetPossibleModules(IModelSystemStructure topModule)
         {
-            ConcurrentBag<Type> possibleTypes = new ConcurrentBag<Type>();
+            ConcurrentBag<Type> possibleTypes = [];
             var parent = GetParent(topModule, this);
             if (IsCollection)
             {
@@ -716,7 +716,7 @@ namespace XTMF
         public bool Validate(ref string error, IModelSystemStructure parent = null)
         {
             ErrorWithPath e = new ErrorWithPath();
-            var ret = Validate(ref e, new List<int>(), parent);
+            var ret = Validate(ref e, [], parent);
             if (!ret)
             {
                 error = e.Message;
@@ -821,7 +821,7 @@ namespace XTMF
 
         private static Dictionary<Type, int> CreateInverseLookupTable(List<Type> typesUsed)
         {
-            Dictionary<Type, int> ret = new Dictionary<Type, int>();
+            Dictionary<Type, int> ret = [];
             for (int i = 0; i < typesUsed.Count; i++)
             {
                 ret[typesUsed[i]] = i;
@@ -859,7 +859,7 @@ namespace XTMF
 
         private static List<Type> GatherAllTypes(ModelSystemStructure start)
         {
-            List<Type> ret = new List<Type>();
+            List<Type> ret = [];
             GatherAllTypes(start, ret);
             ret.Sort((f, s) => f.FullName.CompareTo(s.FullName));
             return ret;
@@ -1756,6 +1756,6 @@ namespace XTMF
             writer.WriteEndElement();
         }
 
-        public List<IModuleMetaProperty> ModuleMetaProperties { get; } = new List<IModuleMetaProperty>();
+        public List<IModuleMetaProperty> ModuleMetaProperties { get; } = [];
     }
 }

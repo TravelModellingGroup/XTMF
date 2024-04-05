@@ -28,7 +28,7 @@ namespace Tasha.Common
     [Serializable()]
     public sealed class Vehicle : Attachable, IVehicle
     {
-        private static ConcurrentBag<Vehicle> Vehicles = new ConcurrentBag<Vehicle>();
+        private static ConcurrentBag<Vehicle> Vehicles = [];
 
         private Vehicle(IVehicleType type)
         {

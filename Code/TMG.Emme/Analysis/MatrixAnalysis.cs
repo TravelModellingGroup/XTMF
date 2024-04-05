@@ -99,7 +99,7 @@ namespace TMG.Emme.Analysis
         private void LoadMapping(out string[] aggregationHeaders, out List<int>[] zoneToAggregationMap)
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;
-            List<string> headers = new List<string>();
+            List<string> headers = [];
             var map = new List<int>[zoneSystem.Count];
             using (CsvReader reader = new CsvReader(AggregationFile))
             {

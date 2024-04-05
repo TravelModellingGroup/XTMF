@@ -66,7 +66,7 @@ namespace XTMF
                     .Select(r => r.Name)
                     .ToList();
             }
-            return new List<string>();
+            return [];
         }
         
         public Task<List<string>> GetPreviousRunNamesAsync()
@@ -326,7 +326,7 @@ namespace XTMF
                             _ModelSystemIndex,
                             ModelSystemModel.Root.RealModelSystemStructure,
                             ModelSystemModel.LinkedParameters.GetRealLinkedParameters(),
-                            new List<IRegionDisplay>(),
+                            [],
                              ModelSystemModel.Description
                             );
                         if (((Configuration)Configuration).RemoteHost)
@@ -452,7 +452,7 @@ namespace XTMF
             lock (_SessionLock)
             {
                 _InCombinedContext = true;
-                var list = _CombinedCommands = new List<XTMFCommand>();
+                var list = _CombinedCommands = [];
                 combinedCommandContext();
                 // only add to the undo list if a command was added successfully
                 if (list.Count > 0)

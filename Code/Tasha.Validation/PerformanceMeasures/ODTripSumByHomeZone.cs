@@ -45,7 +45,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [RunParameter("End Time", "9:00", typeof(Time), "The end time for this scenario")]
         public Time EndTime;
 
-        List<string> ValidModeNames = new List<string>();
+        List<string> ValidModeNames = [];
 
         [RootModule]
         public ITashaRuntime Root;

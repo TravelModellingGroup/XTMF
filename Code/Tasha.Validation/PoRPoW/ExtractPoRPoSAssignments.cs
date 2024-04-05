@@ -59,7 +59,7 @@ namespace Tasha.Validation.PoRPoW
         public int MinimumAge;
 
         SpinLock WriteLock = new SpinLock(false);
-        Dictionary<int, Dictionary<StudentStatus, float[][]>> Data = new Dictionary<int, Dictionary<StudentStatus, float[][]>>();
+        Dictionary<int, Dictionary<StudentStatus, float[][]>> Data = [];
         public void Execute(ITashaHousehold household, int iteration)
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;

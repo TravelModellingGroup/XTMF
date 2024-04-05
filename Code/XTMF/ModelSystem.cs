@@ -56,8 +56,8 @@ namespace XTMF
             _config = config;
             Name = name;
             SetIsLoaded(false);
-            LinkedParameters = new List<ILinkedParameter>();
-            RegionDisplays = new List<IRegionDisplay>();
+            LinkedParameters = [];
+            RegionDisplays = [];
             if (name != null)
             {
                 ReadDescription();
@@ -74,7 +74,7 @@ namespace XTMF
             var ourClone = ModelSystemStructure.Clone();
             linkedParameters = LinkedParameters.Count > 0 ?
                 LinkedParameter.MapLinkedParameters(LinkedParameters, ourClone, ModelSystemStructure)
-                : new List<ILinkedParameter>();
+                : [];
 
             regionDisplays = RegionDisplay.MapRegionDisplays(this._regionDisplays, ourClone);
             return ourClone as ModelSystemStructure;
@@ -434,7 +434,7 @@ namespace XTMF
         {
             if (_LinkedParameters == null)
             {
-                _LinkedParameters = new List<ILinkedParameter>();
+                _LinkedParameters = [];
             }
             else
             {
@@ -629,7 +629,7 @@ namespace XTMF
 
         private string[] ParseLinkedParameterName(string variableLink)
         {
-            List<string> ret = new List<string>();
+            List<string> ret = [];
             bool escape = false;
             var length = variableLink.Length;
             StringBuilder builder = new StringBuilder(length);

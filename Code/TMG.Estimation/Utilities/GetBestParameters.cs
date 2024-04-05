@@ -111,7 +111,7 @@ namespace TMG.Estimation.Utilities
 
         private ParameterSetting[] ProcessHeader(CsvReader reader)
         {
-            List<ParameterSetting> ret = new List<ParameterSetting>();
+            List<ParameterSetting> ret = [];
             int columns = reader.LoadLine();
             for ( int i = 2; i < columns; i++ )
             {

@@ -26,7 +26,7 @@ namespace XTMF
     /// </summary>
     public class ModelSystemTemplateRepository : IModelSystemTemplateRepository
     {
-        public List<Type> ModelSystemTemplates { get; } = new List<Type>();
+        public List<Type> ModelSystemTemplates { get; } = [];
 
         public void Add(Type type)
         {

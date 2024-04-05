@@ -24,7 +24,7 @@ namespace TMG.Functions
     {
         public static List<TreeData<T>> CreateMirroredTree<T>(List<IModeChoiceNode> modes)
         {
-            List<TreeData<T>> ret = new List<TreeData<T>>();
+            List<TreeData<T>> ret = [];
             for ( int i = 0; i < modes.Count; i++ )
             {
                 TreeData<T> node = new TreeData<T>();

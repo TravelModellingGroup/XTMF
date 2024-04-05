@@ -37,7 +37,7 @@ namespace TMG.DataUtility
 
         public static bool TryParse(string input, out StringList stringList)
         {
-            List<string> temp = new List<string>();
+            List<string> temp = [];
             StringBuilder current = new StringBuilder();
             bool escape = false;
             var length = input.Length;

@@ -270,7 +270,7 @@ namespace Datastructure
 
         private Index[] GetSubIndexes(int[] validIndexes)
         {
-            List<Index> ret = new List<Index>();
+            List<Index> ret = [];
             Index current = new Index();
             int position = current.Start = validIndexes[0];
             for (int i = 1; i < validIndexes.Length; i++)

@@ -129,11 +129,11 @@ namespace XTMF.Gui.Models
         {
             if (baseModel.IsMetaModule || _BaseChildren == null)
             {
-                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
+                Children = [];
             }
             else
             {
-                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
+                Children = [];
                 var i = 0;
                 foreach (var item in baseModel.Children)
                 {
@@ -315,7 +315,7 @@ namespace XTMF.Gui.Models
         private static List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected,
             ModelSystemStructureDisplayModel current)
         {
-            if (selected == current) return new List<ModelSystemStructureDisplayModel> {current};
+            if (selected == current) return [current];
 
             var children = current.Children;
             if (children != null)

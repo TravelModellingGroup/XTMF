@@ -49,7 +49,7 @@ namespace XTMF.Gui.UserControls.Help
         {
             DataContext = this;
             Config = xtmfConfiguration;
-            SearchedItems = new BindingList<ContentReference>();
+            SearchedItems = [];
             InitializeComponent();
             //SearchBox += SearchBox_TextChanged;
             SearchBox.PreviewKeyDown += SearchBox_PreviewKeyDown;

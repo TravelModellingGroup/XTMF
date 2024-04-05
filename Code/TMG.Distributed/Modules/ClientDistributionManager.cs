@@ -79,7 +79,7 @@ namespace TMG.Distributed.Modules
             }
         }
 
-        public List<Task> Tasks = new List<Task>();
+        public List<Task> Tasks = [];
 
         public List<IResource> Resources { get; set; }
 

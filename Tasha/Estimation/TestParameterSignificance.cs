@@ -251,7 +251,7 @@ namespace Tasha.Estimation
 
         private string[] SplitNameToParts(string parameterName)
         {
-            List<string> parts = new List<string>();
+            List<string> parts = [];
             var stringLength = parameterName.Length;
             StringBuilder builder = new StringBuilder();
             for ( int i = 0; i < stringLength; i++ )
@@ -433,7 +433,7 @@ namespace Tasha.Estimation
         {
             XmlDocument doc = new XmlDocument();
             doc.Load( ParameterFile.GetFilePath() );
-            List<ParameterSetting> parameters = new List<ParameterSetting>();
+            List<ParameterSetting> parameters = [];
             var children = doc["Root"]?.ChildNodes;
             if (children != null)
             {

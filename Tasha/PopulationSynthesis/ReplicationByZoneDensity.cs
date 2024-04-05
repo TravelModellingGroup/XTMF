@@ -101,8 +101,8 @@ namespace Tasha.PopulationSynthesis
                 PoolToGlobalIndex = new List<int>[DensityBins.Count];
                 for (int i = 0; i < DensityPool.Length; i++)
                 {
-                    DensityPool[i] = new List<ExpandedHousehold>();
-                    PoolToGlobalIndex[i] = new List<int>();
+                    DensityPool[i] = [];
+                    PoolToGlobalIndex[i] = [];
                 }
 
             }
@@ -668,7 +668,7 @@ namespace Tasha.PopulationSynthesis
 
         public void IterationStarting(int iteration)
         {
-            Households = new List<ITashaHousehold>();
+            Households = [];
             ZoneSystem = Root.ZoneSystem.ZoneArray;
             var zones = ZoneSystem.GetFlatData();
             BaseYearPopulation.LoadData();

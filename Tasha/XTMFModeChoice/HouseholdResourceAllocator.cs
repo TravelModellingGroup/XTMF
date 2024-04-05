@@ -108,7 +108,7 @@ namespace Tasha.XTMFModeChoice
             int numberOfVehicles = vehicles.Length;
             var numberOfPeople = Resolution.Length;
             if(numberOfVehicles == 0) return;
-            VehicleAvailability = new List<VehicleAllocationWindow>();
+            VehicleAvailability = [];
             if(Scan == null)
             {
                 Scan = new CurrentPosition[numberOfPeople];
@@ -337,7 +337,7 @@ namespace Tasha.XTMFModeChoice
         {
             if(Conflicts == null)
             {
-                Conflicts = new List<Conflict>();
+                Conflicts = [];
             }
             else
             {
@@ -476,8 +476,8 @@ namespace Tasha.XTMFModeChoice
             // initialize our temp data
             for(int i = 0; i < numberOfPeople; i++)
             {
-                newPersonConflicts[i] = new List<ITripChain>();
-                newAssignResource[i] = new List<bool>();
+                newPersonConflicts[i] = [];
+                newAssignResource[i] = [];
             }
             if(ResolutionWorkingSet == null)
             {

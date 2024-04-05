@@ -52,7 +52,7 @@ namespace TMG.DataUtility
         public static bool TryParse(ref string error, string input, out FloatList data)
         {
             data = null;
-            List<float> values = new List<float>();
+            List<float> values = [];
             int i = 0;
             BurnWhiteSpace( ref i, input );
             var length = input.Length;
@@ -136,7 +136,7 @@ namespace TMG.DataUtility
                 BurnWhiteSpace( ref i, input );
                 values.Add( p );
             }
-            data = new FloatList();
+            data = [];
             data.Values = values.ToArray();
             return true;
         }

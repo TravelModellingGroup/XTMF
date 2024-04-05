@@ -300,7 +300,7 @@ namespace Tasha.Emissions
         public void IterationStarting(int iteration, int totalIterations)
         {
             // get the newest zone system
-            Data = new Dictionary<Index, float>();
+            Data = [];
         }
 
         public void IterationFinished(int iteration, int totalIterations)

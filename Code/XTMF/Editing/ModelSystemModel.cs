@@ -236,7 +236,7 @@ namespace XTMF
 
         public ObservableCollection<ParameterModel> GetQuickParameters()
         {
-            ObservableCollection<ParameterModel> quickParameters = new ObservableCollection<ParameterModel>();
+            ObservableCollection<ParameterModel> quickParameters = [];
             AddQuickParameters(quickParameters, Root);
             return quickParameters;
         }

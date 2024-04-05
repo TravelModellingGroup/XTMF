@@ -132,7 +132,7 @@ namespace XTMF
             lock (_ParameterModelsLock)
             {
                 var models = _ParameterModels;
-                return models != null ? models.ToList() : new List<ParameterModel>();
+                return models != null ? models.ToList() : [];
             }
         }
 

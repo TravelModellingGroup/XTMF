@@ -128,7 +128,7 @@ namespace XTMF
 
         public static XTMFRun CreateRemoteHost(Project project, ModelSystemStructureModel root, Configuration config, string runName, bool overwrite = false)
         {
-            return new XTMFRunRemoteHost(config, root, new List<ILinkedParameter>(), runName, Path.Combine(config.ProjectDirectory, project.Name, runName),
+            return new XTMFRunRemoteHost(config, root, [], runName, Path.Combine(config.ProjectDirectory, project.Name, runName),
                 overwrite);
         }
 
@@ -325,10 +325,10 @@ namespace XTMF
 
         protected static List<ErrorWithPath> CreateFromSingleError(ErrorWithPath error)
         {
-            return new List<ErrorWithPath>(1)
-            {
+            return
+            [
                 error
-            };
+            ];
         }
 
         protected static void GetInnermostError(ref Exception caughtError)

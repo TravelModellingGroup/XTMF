@@ -127,7 +127,7 @@ namespace Datastructure
 
         private void WriteSparseIndexes(BinaryWriter writer)
         {
-            List<SparseSet> indexes = new List<SparseSet>();
+            List<SparseSet> indexes = [];
             GenerateIndexes(indexes);
             var numberOfIndexes = indexes.Count;
             // start == 4 stop == 4, disk location = 4

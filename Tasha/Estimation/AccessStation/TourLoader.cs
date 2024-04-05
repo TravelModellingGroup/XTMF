@@ -118,7 +118,7 @@ namespace Tasha.Estimation.AccessStation
                 return;
             }
             var zones = Root.ZoneSystem.ZoneArray;
-            List<AccessTourData> tours = new List<AccessTourData>();
+            List<AccessTourData> tours = [];
             // we only need to load the data once so lets do that now
             using (CsvReader reader = new CsvReader(FileLocation))
             {

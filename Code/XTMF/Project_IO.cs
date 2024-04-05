@@ -349,7 +349,7 @@ namespace XTMF
         /// <returns></returns>
         private List<IRegionDisplay> LoadRegionDisplays(XmlNode regionsNode, IModelSystemStructure mss)
         {
-            List<IRegionDisplay> regionDisplays = new List<IRegionDisplay>();
+            List<IRegionDisplay> regionDisplays = [];
             if (!regionsNode.HasChildNodes)
             {
                 return regionDisplays;
@@ -405,7 +405,7 @@ namespace XTMF
         /// <returns></returns>
         private List<ILinkedParameter> LoadLinkedParameters(XmlNode xmlNode, IModelSystemStructure mss)
         {
-            List<ILinkedParameter> lpl = new List<ILinkedParameter>();
+            List<ILinkedParameter> lpl = [];
             // if there is nothing to load just return back a blank list
             if (!xmlNode.HasChildNodes)
             {
@@ -497,7 +497,7 @@ namespace XTMF
                     foreach (var module in regionGroup.Modules)
                     {
                         writer.WriteStartElement("Module");
-                        var referencePath = this.GetModuleReferencePath(module, new List<string>());
+                        var referencePath = this.GetModuleReferencePath(module, []);
                         writer.WriteAttributeString("Reference", referencePath);
                         writer.WriteEndElement();
                     }

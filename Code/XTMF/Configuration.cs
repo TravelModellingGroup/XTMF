@@ -33,7 +33,7 @@ namespace XTMF
 {
     public sealed class Configuration : IConfiguration, IDisposable, INotifyPropertyChanged
     {
-        public Dictionary<string, string> AdditionalSettings = new Dictionary<string, string>();
+        public Dictionary<string, string> AdditionalSettings = [];
 
         // The configuration file name will be saved when initializing the object
         internal string ConfigurationFileName { get; private set; }
@@ -72,7 +72,7 @@ namespace XTMF
         {
             HostPort = 1447;
             BaseAssembly = baseAssembly;
-            ProgressReports = new BindingListWithRemoving<IProgressReport>();
+            ProgressReports = [];
             LoadUserConfiguration(configurationFileName);
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
             ModelRepository = new ModuleRepository();
@@ -597,7 +597,7 @@ namespace XTMF
         public string LoadError;
         public bool LoadErrorTerminal = false;
 
-        private ConcurrentBag<Type> FreeVariableType = new ConcurrentBag<Type>();
+        private ConcurrentBag<Type> FreeVariableType = [];
         internal readonly ConcurrentDictionary<string, Type> ModuleRedirection = new ConcurrentDictionary<string, Type>();
 
         private void LoadAssembly(Assembly assembly)
@@ -1016,12 +1016,12 @@ namespace XTMF
         {
             var path = Path.Combine(_ModuleDirectory, "Exclude.txt");
             return File.Exists(path) ?
-                 File.ReadLines(path).Select(s => s.ToLower()).ToList() : new List<string>();
+                 File.ReadLines(path).Select(s => s.ToLower()).ToList() : [];
         }
 
         private void LoadUserConfiguration(string configFile)
         {
-            RecentProjects = new List<string>();
+            RecentProjects = [];
             ConfigurationFileName = configFile;
             var directory = ConfigurationDirectory;
             var defaultProjectDirectory =

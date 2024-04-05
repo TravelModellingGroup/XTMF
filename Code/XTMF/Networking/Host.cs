@@ -143,7 +143,7 @@ namespace XTMF.Networking
             {
                 if (!_CustomHandlers.TryGetValue(customMessageNumber, out List<Action<object, IRemoteXTMF>> port))
                 {
-                    port = new List<Action<object, IRemoteXTMF>>();
+                    port = [];
                     _CustomHandlers[customMessageNumber] = port;
                 }
                 port.Add(handler);

@@ -71,7 +71,7 @@ namespace XTMF
         /// </summary>
         public RegionDisplay()
         {
-            _regionGroups = new ObservableCollection<IRegionGroup>();
+            _regionGroups = [];
         }
 
         /// <summary>

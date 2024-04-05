@@ -242,12 +242,12 @@ namespace Tasha.ModeChoice
         {
             bestSet = null;
             utility = Double.MinValue;
-            List<List<ModeSet>> modeSets = new List<List<ModeSet>>();
+            List<List<ModeSet>> modeSets = [];
             foreach ( var chain in tour )
             {
                 modeSets.Add( new List<ModeSet>( ModeSet.GetModeSets( chain ) ) );
             }
-            Dictionary<ModeSet, double> setAndU = new Dictionary<ModeSet, double>();
+            Dictionary<ModeSet, double> setAndU = [];
             foreach ( var set in modeSets[0] )
             {
                 double curU = set.U;

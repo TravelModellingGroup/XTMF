@@ -79,7 +79,7 @@ namespace Tasha.Scheduler
             // only allow people who are not included added to the episode
             if ( People == null )
             {
-                People = new List<ITashaPerson>();
+                People = [];
             }
 
             if ( !IsPersonIncluded( person ) )

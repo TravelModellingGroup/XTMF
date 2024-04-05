@@ -430,7 +430,7 @@ namespace Tasha.Scheduler
                         else
                         {
                             Time endTime = startTime + duration;
-                            List<ITashaPerson> availableAdults = new List<ITashaPerson>();
+                            List<ITashaPerson> availableAdults = [];
                             foreach (ITashaPerson person in household.Persons)
                             {
                                 Time workSchoolStartTime = SchedulerPerson.GetWorkSchoolStartTime(person);

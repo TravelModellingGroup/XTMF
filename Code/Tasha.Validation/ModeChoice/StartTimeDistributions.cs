@@ -33,7 +33,7 @@ namespace Tasha.Validation.ModeChoice
             }
         }
 
-        Dictionary<Activity, float[][]> TimeBin = new Dictionary<Activity, float[][]>();
+        Dictionary<Activity, float[][]> TimeBin = [];
 
         [SubModelInformation(Required = true, Description = "The place to save the report.")]
         public FileLocation OutputFile;

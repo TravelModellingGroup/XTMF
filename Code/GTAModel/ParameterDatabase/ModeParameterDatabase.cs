@@ -170,7 +170,7 @@ its mode when switching context between different demographic categories."
                         {
                             Field = field,
                             Property = property,
-                            Values = new List<object>()
+                            Values = []
                         };
                     }
                 }

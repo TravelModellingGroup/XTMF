@@ -31,7 +31,7 @@ namespace XTMF.Gui
         private int firstIndex;
         private Size childSize;
         private Size _pixelMeasuredViewport = new Size(0, 0);
-        Dictionary<UIElement, Rect> _realizedChildLayout = new Dictionary<UIElement, Rect>();
+        Dictionary<UIElement, Rect> _realizedChildLayout = [];
         WrapPanelAbstraction _abstractPanel;
 
 

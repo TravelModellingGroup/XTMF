@@ -189,7 +189,7 @@ namespace TMG.GTAModel
         private static SparseArray<IZone> InitializeZones(SparseArray<Node> nodes)
         {
             var flatNodes = nodes.GetFlatData();
-            List<int> centroids = new List<int>();
+            List<int> centroids = [];
             for ( int i = 0; i < flatNodes.Length; i++ )
             {
                 if ( flatNodes[i].IsCentroid )

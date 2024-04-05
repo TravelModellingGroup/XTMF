@@ -193,7 +193,7 @@ namespace Tasha.Modes
 
         public void Load(int maxIterations)
         {
-            WorkMatrices = new Dictionary<string, float[,]>();
+            WorkMatrices = [];
         }
 
         public bool RuntimeValidation(ref string error)

@@ -98,7 +98,7 @@ namespace Tasha.XTMFScheduler
             List<IActivityEpisode>[] episodes = new List<IActivityEpisode>[persons.Length];
             for ( int p = 0; p < persons.Length; p++ )
             {
-                episodes[p] = new List<IActivityEpisode>();
+                episodes[p] = [];
             }
             return episodes;
         }

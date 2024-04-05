@@ -190,7 +190,7 @@ namespace XTMF.Gui.UserControls
                 Swatches = new SwatchesProvider().Swatches;
                 Colors = ThemeManager.Current.ColorSchemes;
                 AccentSwatches = new SwatchesProvider().Swatches.Where((swatch) => swatch.IsAccented);
-                ColourOptions = new List<ColourOption>(); 
+                ColourOptions = []; 
                 foreach(var colour in ThemeManager.Current.ColorSchemes)
                 {
                     ColourOptions.Add(new ColourOption()

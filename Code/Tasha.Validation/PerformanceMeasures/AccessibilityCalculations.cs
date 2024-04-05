@@ -62,9 +62,9 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = true, Description = "Results file in .CSV format ")]
         public FileLocation ResultsFile;
 
-        Dictionary<int, float> AutoAccessibilityResults = new Dictionary<int, float>();
-        Dictionary<int, float> TransitIVTTAccessibilityResults = new Dictionary<int, float>();
-        Dictionary<int, float> TransitAccessibilityResults = new Dictionary<int, float>();
+        Dictionary<int, float> AutoAccessibilityResults = [];
+        Dictionary<int, float> TransitIVTTAccessibilityResults = [];
+        Dictionary<int, float> TransitAccessibilityResults = [];
 
         public void Start()
         {

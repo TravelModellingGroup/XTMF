@@ -49,7 +49,7 @@ public class ConfigurationProxy : IConfiguration
     {
         _realConfiguration = realConfig;
         ProjectRepository = new ProjectRepositoryProxy(_realConfiguration.ProjectRepository, activeProject);
-        ProgressReports = new BindingListWithRemoving<IProgressReport>();
+        ProgressReports = [];
     }
 
     public string ConfigurationDirectory => _realConfiguration.ConfigurationDirectory;

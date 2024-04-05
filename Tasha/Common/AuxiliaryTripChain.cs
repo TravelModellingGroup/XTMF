@@ -123,7 +123,7 @@ namespace Tasha.Common
         {
             get
             {
-                List<ITashaPerson> pass = new List<ITashaPerson>();
+                List<ITashaPerson> pass = [];
                 foreach ( var trip in Trips )
                 {
                     pass.AddRange( trip.Passengers );
@@ -150,7 +150,7 @@ namespace Tasha.Common
         {
             get
             {
-                List<IVehicleType> v = new List<IVehicleType>();
+                List<IVehicleType> v = [];
 
                 foreach ( var trip in Trips )
                 {

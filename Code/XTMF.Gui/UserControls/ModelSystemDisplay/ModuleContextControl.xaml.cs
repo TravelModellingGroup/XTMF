@@ -90,8 +90,10 @@ namespace XTMF.Gui.UserControls
         private List<ModelSystemStructureDisplayModel> GenerateUpdateModulePathToRoot(
             ModelSystemStructureDisplayModel moduleDisplayModel)
         {
-            var pathList = new List<ModelSystemStructureDisplayModel>();
-            pathList.Add(moduleDisplayModel);
+            var pathList = new List<ModelSystemStructureDisplayModel>
+            {
+                moduleDisplayModel
+            };
             while (moduleDisplayModel.Parent != null)
             {
                 pathList.Insert(0, moduleDisplayModel.Parent);

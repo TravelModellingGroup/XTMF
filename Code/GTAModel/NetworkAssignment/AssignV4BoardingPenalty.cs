@@ -103,7 +103,7 @@ namespace TMG.GTAModel.NetworkAssignment
                  HSRBoardingPenalty
             */
 
-            List<int> scenarioList = new List<int>();
+            List<int> scenarioList = [];
             foreach (var range in ScenarioNumbers)
             {
                 for (int i = range.Start; i <= range.Stop; i++)

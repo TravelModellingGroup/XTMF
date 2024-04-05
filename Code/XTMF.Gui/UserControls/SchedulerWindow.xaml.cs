@@ -64,7 +64,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public ObservableCollection<RunWindow> RunCollection { get; } = new ObservableCollection<RunWindow>();
+        public ObservableCollection<RunWindow> RunCollection { get; } = [];
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -488,7 +488,7 @@ namespace XTMF.Gui.UserControls
                 runWindow.RuntimeValidationError = OnValidationError;
                 runWindow.OnRunStarted = OnRunStarted;
                 runWindow.OnRuntimeError = OnRuntimeError;
-                ModelSystemErrors = new ObservableCollection<ModelSystemErrorDisplayModel>();
+                ModelSystemErrors = [];
                 Progress = 0;
             }
 

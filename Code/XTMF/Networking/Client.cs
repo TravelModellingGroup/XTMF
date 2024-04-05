@@ -269,7 +269,7 @@ namespace XTMF.Networking
             {
                 if (!_CustomHandlers.TryGetValue(customMessageNumber, out List<Action<object>> port))
                 {
-                    port = new List<Action<object>>();
+                    port = [];
                     _CustomHandlers[customMessageNumber] = port;
                 }
                 port.Add(handler);
@@ -334,11 +334,11 @@ namespace XTMF.Networking
             }
             if (project.ModelSystemStructure.Count == 0)
             {
-                project.AddModelSystem(mss, new List<ILinkedParameter>(), String.Empty);
+                project.AddModelSystem(mss, [], String.Empty);
             }
             else
             {
-                project.SetModelSystem(0, mss, new List<ILinkedParameter>(), new List<IRegionDisplay>(), String.Empty);
+                project.SetModelSystem(0, mss, [], [], String.Empty);
             }
             ((ProjectRepository)_Configuration.ProjectRepository).SetActiveProject(project);
             var modelSystem = project.CreateModelSystem(ref error, 0);

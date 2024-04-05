@@ -81,7 +81,7 @@ namespace TMG.Tasha
         [RootModule]
         public ITashaRuntime TashaRuntime;
 
-        private Dictionary<char, string> CharacterToModeNameConversion = new Dictionary<char, string>();
+        private Dictionary<char, string> CharacterToModeNameConversion = [];
         private CsvReader Reader;
         private bool SkipReading;
 

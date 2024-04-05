@@ -128,7 +128,7 @@ namespace Tasha.ModeChoice
             //For each person find their optimal set of Aux trip chains
             foreach (var personset in potentialModeChoices)
             {
-                Dictionary<List<ITripChain>, double> tripChainsUtility = new Dictionary<List<ITripChain>, double>();
+                Dictionary<List<ITripChain>, double> tripChainsUtility = [];
                 var personTripChains = personset.Value;
                 var length = personTripChains.Count;
                 for (int i = 0; i < length; i++)
@@ -221,7 +221,7 @@ namespace Tasha.ModeChoice
                 {
                     continue;
                 }
-                List<List<ITripChain>> potentialChains = new List<List<ITripChain>>();
+                List<List<ITripChain>> potentialChains = [];
                 //sorting trips by start time (prereq for getting conflicting chains)
                 SortTrips(people[i].AuxTripChains);
                 FindPotentialTripChainsRec(people[i].AuxTripChains, 0, potentialChains);
@@ -335,7 +335,7 @@ namespace Tasha.ModeChoice
         /// <returns></returns>
         private List<ITripChain> GetConflictingChains(ITripChain tripchain, List<ITripChain> tripchains)
         {
-            List<ITripChain> conflictingChains = new List<ITripChain>();
+            List<ITripChain> conflictingChains = [];
             Time startTime = GetAuxTripChainStartTime(tripchain);
             Time endTime = GetAuxTripChainEndTime(tripchain);
             var length = tripchains.Count;
@@ -382,7 +382,7 @@ namespace Tasha.ModeChoice
         /// <returns></returns>
         private void RemoveDuplicates(Dictionary<ITashaPerson, List<ITripChain>> optimalSets)
         {
-            List<ITripChain> duplicates = new List<ITripChain>();
+            List<ITripChain> duplicates = [];
             //finding duplicates
             foreach (var s in optimalSets)
             {
@@ -390,8 +390,7 @@ namespace Tasha.ModeChoice
                 var tripChainsLength = tripChains.Count;
                 for (int i = 0; i < tripChainsLength; i++)
                 {
-                    Dictionary<ITripChain, double> conflictingUtilities = new
-                                                          Dictionary<ITripChain, double>();
+                    Dictionary<ITripChain, double> conflictingUtilities = [];
                     //the faciliated trip
                     ITrip facilitatedTrip = tripChains[i]["FacilitateTrip"] as ITrip;
                     double uOfAuxTrip = CalculateUofAuxTrip(tripChains[i]);

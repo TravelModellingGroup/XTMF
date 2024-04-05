@@ -23,7 +23,7 @@ namespace Tasha.Common
 {
     public class PersonIterationData : IPersonIterationData
     {
-        private static ConcurrentBag<PersonIterationData> Items = new ConcurrentBag<PersonIterationData>();
+        private static ConcurrentBag<PersonIterationData> Items = [];
 
         /// <summary>
         /// Creates a person's iteration data for the specified household iteration
@@ -32,7 +32,7 @@ namespace Tasha.Common
         private PersonIterationData(ITashaPerson person)
             : this()
         {
-            TripChains = new List<ITripChain>();
+            TripChains = [];
             PopulateData( person );
         }
 
@@ -87,8 +87,8 @@ namespace Tasha.Common
 
         public PersonIterationData()
         {
-            TripModes = new Dictionary<ITrip, ITashaMode>();
-            TripChains = new List<ITripChain>();
+            TripModes = [];
+            TripChains = [];
             IterationSuccessful = false;
         }
 

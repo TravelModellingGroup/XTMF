@@ -39,7 +39,7 @@ namespace Tasha.Validation
         )]
     public class DurationsVsStartTimes : IPostHousehold
     {
-        public Dictionary<KeyValuePair<Activity, int>, List<int>> DurationsDict = new Dictionary<KeyValuePair<Activity, int>, List<int>>();
+        public Dictionary<KeyValuePair<Activity, int>, List<int>> DurationsDict = [];
 
         [RunParameter( "Real data?", false, "Are you running this on the real data?" )]
         public bool RealData;
@@ -89,8 +89,7 @@ namespace Tasha.Validation
                             }
                             else
                             {
-                                ourList = new List<int>();
-                                ourList.Add(duration);
+                                ourList = [duration];
                                 DurationsDict[bob] = ourList;
                             }
 
@@ -103,7 +102,7 @@ namespace Tasha.Validation
 
         public void IterationFinished(int iteration)
         {
-            Dictionary<Activity, StreamWriter> writerDict = new Dictionary<Activity, StreamWriter>();
+            Dictionary<Activity, StreamWriter> writerDict = [];
             try
             {
                 lock (this)
